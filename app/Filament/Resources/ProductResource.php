@@ -24,17 +24,30 @@ class ProductResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Name')
+                    ->translateLabel()
                     ->maxLength(255),
                 Forms\Components\FileUpload::make('image')
+                    ->label('Image')
+                    ->translateLabel()
                     ->image(),
                 Forms\Components\TextInput::make('barcode')
-                    ->maxLength(255),
+                    ->label('Barcode')
+                    ->translateLabel()
+                    ->maxLength(255)
+                    ->unique(table: 'products', column: 'barcode', ignoreRecord: true),
                 Forms\Components\Textarea::make('description')
+                    ->label('Description')
+                    ->translateLabel()
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('price')
+                    ->label('Price')
+                    ->translateLabel()
                     ->numeric()
                     ->prefix('$'),
                 Forms\Components\TextInput::make('quantity')
+                    ->label('Quantity')
+                    ->translateLabel()
                     ->numeric(),
             ]);
     }
@@ -44,28 +57,26 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Name')
+                    ->translateLabel()
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\ImageColumn::make('image')
+                    ->label('Image')
+                    ->translateLabel(),
                 Tables\Columns\TextColumn::make('barcode')
+                    ->label('Barcode')
+                    ->translateLabel()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('price')
+                    ->label('Price')
+                    ->translateLabel()
                     ->money()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('quantity')
+                    ->label('Quantity')
+                    ->translateLabel()
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
