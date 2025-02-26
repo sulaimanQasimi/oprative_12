@@ -23,6 +23,7 @@ return new class extends Migration
             $table->date("invoice_date")->nullable();
             $table->string("currecy_rate")->nullable();
             $table->string("total_amount")->nullable();
+            $table->string("status")->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
