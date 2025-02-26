@@ -23,17 +23,37 @@ class SupplierResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('phone')
-                    ->tel()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('address')
-                    ->maxLength(255),
-                Forms\Components\FileUpload::make('image')
-                    ->image(),
-                Forms\Components\TextInput::make('id_number')
-                    ->maxLength(255),
+                Forms\Components\Section::make('Supplier Details')
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Name')
+                                    ->translateLabel()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-user'),
+                                Forms\Components\TextInput::make('phone')
+                                    ->label('Phone')
+                                    ->translateLabel()
+                                    ->tel()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-phone'),
+                                Forms\Components\TextInput::make('address')
+                                    ->label('Address')
+                                    ->translateLabel()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-location-marker'),
+                                Forms\Components\FileUpload::make('image')
+                                    ->label('Image')
+                                    ->translateLabel()
+                                    ->image(),
+                                Forms\Components\TextInput::make('id_number')
+                                    ->label('ID Number')
+                                    ->translateLabel()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-identification'),
+                            ]),
+                    ]),
             ]);
     }
 
@@ -42,23 +62,39 @@ class SupplierResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label('Name')
+                    ->translateLabel()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
+                    ->label('Phone')
+                    ->translateLabel()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('address')
+                    ->label('Address')
+                    ->translateLabel()
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('image'),
+                Tables\Columns\ImageColumn::make('image')
+                    ->label('Image')
+                    ->translateLabel(),
                 Tables\Columns\TextColumn::make('id_number')
+                    ->label('ID Number')
+                    ->translateLabel()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created At')
+                    ->translateLabel()
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Updated At')
+                    ->translateLabel()
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('deleted_at')
+                    ->label('Deleted At')
+                    ->translateLabel()
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
