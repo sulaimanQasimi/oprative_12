@@ -17,38 +17,48 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-cube';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->label('Name')
-                    ->translateLabel()
-                    ->maxLength(255),
-                Forms\Components\FileUpload::make('image')
-                    ->label('Image')
-                    ->translateLabel()
-                    ->image(),
-                Forms\Components\TextInput::make('barcode')
-                    ->label('Barcode')
-                    ->translateLabel()
-                    ->maxLength(255)
-                    ->unique(table: 'products', column: 'barcode', ignoreRecord: true),
-                Forms\Components\Textarea::make('description')
-                    ->label('Description')
-                    ->translateLabel()
-                    ->columnSpanFull(),
-                Forms\Components\TextInput::make('price')
-                    ->label('Price')
-                    ->translateLabel()
-                    ->numeric()
-                    ->prefix('$'),
-                Forms\Components\TextInput::make('quantity')
-                    ->label('Quantity')
-                    ->translateLabel()
-                    ->numeric(),
+                Forms\Components\Section::make('Product Details')
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Name')
+                                    ->translateLabel()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-tag'),
+                                Forms\Components\FileUpload::make('image')
+                                    ->label('Image')
+                                    ->translateLabel()
+                                    ->image(),
+                                Forms\Components\TextInput::make('barcode')
+                                    ->label('Barcode')
+                                    ->translateLabel()
+                                    ->maxLength(255)
+                                    ->unique(table: 'products', column: 'barcode', ignoreRecord: true)
+                                    ->prefixIcon('heroicon-o-bars-4'),
+                                Forms\Components\Textarea::make('description')
+                                    ->label('Description')
+                                    ->translateLabel()
+                                    ->columnSpanFull(),
+                                Forms\Components\TextInput::make('price')
+                                    ->label('Price')
+                                    ->translateLabel()
+                                    ->numeric()
+                                    ->prefix('$')
+                                    ->prefixIcon('heroicon-o-currency-dollar'),
+                                Forms\Components\TextInput::make('quantity')
+                                    ->label('Quantity')
+                                    ->translateLabel()
+                                    ->numeric()
+                                    ->prefixIcon('heroicon-o-calculator'),
+                            ]),
+                    ]),
             ]);
     }
 
