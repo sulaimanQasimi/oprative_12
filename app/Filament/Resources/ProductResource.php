@@ -58,11 +58,13 @@ class ProductResource extends Resource
                                             ->translateLabel()
                                             ->maxLength(255)
                                             ->unique(table: 'products', column: 'barcode', ignoreRecord: true)
-                                            ->prefixIcon('heroicon-o-bars-4'),
+                                            ->prefixIcon('heroicon-o-bars-4')
+                                            ->columnSpanFull(),
                                         Forms\Components\FileUpload::make('image')
                                             ->label('Image')
                                             ->translateLabel()
-                                            ->image(),
+                                            ->image()
+                                            ->columnSpanFull(),
                                     ])
                             ])->collapsible(),
                     ])
