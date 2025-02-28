@@ -32,17 +32,48 @@ class SupplierResource extends Resource
                                     ->translateLabel()
                                     ->maxLength(255)
                                     ->prefixIcon('heroicon-o-user'),
+                                Forms\Components\TextInput::make('contact_name')
+                                    ->label('Contact Name')
+                                    ->translateLabel()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-user'),
                                 Forms\Components\TextInput::make('phone')
                                     ->label('Phone')
                                     ->translateLabel()
                                     ->tel()
                                     ->maxLength(255)
                                     ->prefixIcon('heroicon-o-phone'),
+                                Forms\Components\TextInput::make('email')
+                                    ->label('Email')
+                                    ->translateLabel()
+                                    ->email()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-mail'),
                                 Forms\Components\TextInput::make('address')
                                     ->label('Address')
                                     ->translateLabel()
                                     ->maxLength(255)
                                     ->prefixIcon('heroicon-o-map'),
+                                Forms\Components\TextInput::make('city')
+                                    ->label('City')
+                                    ->translateLabel()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-building'),
+                                Forms\Components\TextInput::make('state')
+                                    ->label('State')
+                                    ->translateLabel()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-building'),
+                                Forms\Components\TextInput::make('country')
+                                    ->label('Country')
+                                    ->translateLabel()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-globe'),
+                                Forms\Components\TextInput::make('postal_code')
+                                    ->label('Postal Code')
+                                    ->translateLabel()
+                                    ->maxLength(255)
+                                    ->prefixIcon('heroicon-o-mail'),
                                 Forms\Components\FileUpload::make('image')
                                     ->label('Image')
                                     ->translateLabel()
@@ -65,12 +96,36 @@ class SupplierResource extends Resource
                     ->label('Name')
                     ->translateLabel()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('contact_name')
+                    ->label('Contact Name')
+                    ->translateLabel()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
                     ->label('Phone')
                     ->translateLabel()
                     ->searchable(),
+                Tables\Columns\TextColumn::make('email')
+                    ->label('Email')
+                    ->translateLabel()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('address')
                     ->label('Address')
+                    ->translateLabel()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('city')
+                    ->label('City')
+                    ->translateLabel()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('state')
+                    ->label('State')
+                    ->translateLabel()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('country')
+                    ->label('Country')
+                    ->translateLabel()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('postal_code')
+                    ->label('Postal Code')
                     ->translateLabel()
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('image')
