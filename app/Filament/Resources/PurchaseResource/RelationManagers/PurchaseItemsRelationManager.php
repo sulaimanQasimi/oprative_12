@@ -25,14 +25,38 @@ class PurchaseItemsRelationManager extends RelationManager
                     ->preload()
                     ->required(),
                 Forms\Components\TextInput::make('quantity')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('unit_price')
-                    ->required()
-                    ->numeric(),
+                    ->label('Quantity')
+                    ->translateLabel()
+                    ->maxLength(255)
+                    ->numeric()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
+                        $price = floatval($get('price'));
+                        $quantity = floatval($state);
+                        $set('total_price', $quantity * $price);
+                    })
+                    ->prefixIcon('heroicon-o-hashtag'),
+
+                Forms\Components\TextInput::make('price')
+                    ->label('Price')
+                    ->translateLabel()
+                    ->maxLength(255)
+                    ->numeric()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
+                        $quantity = floatval($get('quantity'));
+                        $price = floatval($state);
+                        $set('total_price', $quantity * $price);
+                    })
+                    ->prefixIcon('heroicon-o-currency-dollar'),
+
                 Forms\Components\TextInput::make('total_price')
-                    ->required()
-                    ->numeric(),
+                    ->label('Total Price')
+                    ->translateLabel()
+                    ->numeric()
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->prefixIcon('heroicon-o-calculator'),
             ]);
     }
 
