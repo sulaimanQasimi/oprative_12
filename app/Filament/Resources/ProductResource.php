@@ -23,42 +23,49 @@ class ProductResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Product Details')
+                Forms\Components\Group::make()
                     ->schema([
-                        Forms\Components\Grid::make(2)
+                        Forms\Components\Section::make('Product Details')
                             ->schema([
-                                Forms\Components\TextInput::make('name')
-                                    ->label('Name')
-                                    ->translateLabel()
-                                    ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-tag'),
-                                Forms\Components\FileUpload::make('image')
-                                    ->label('Image')
-                                    ->translateLabel()
-                                    ->image(),
-                                Forms\Components\TextInput::make('barcode')
-                                    ->label('Barcode')
-                                    ->translateLabel()
-                                    ->maxLength(255)
-                                    ->unique(table: 'products', column: 'barcode', ignoreRecord: true)
-                                    ->prefixIcon('heroicon-o-bars-4'),
-                                Forms\Components\Textarea::make('description')
-                                    ->label('Description')
-                                    ->translateLabel()
-                                    ->columnSpanFull(),
-                                Forms\Components\TextInput::make('price')
-                                    ->label('Price')
-                                    ->translateLabel()
-                                    ->numeric()
-                                    ->prefix('$')
-                                    ->prefixIcon('heroicon-o-currency-dollar'),
-                                Forms\Components\TextInput::make('quantity')
-                                    ->label('Quantity')
-                                    ->translateLabel()
-                                    ->numeric()
-                                    ->prefixIcon('heroicon-o-calculator'),
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('name')
+                                            ->label('Name')
+                                            ->translateLabel()
+                                            ->maxLength(255)
+                                            ->prefixIcon('heroicon-o-tag'),
+                                        Forms\Components\TextInput::make('price')
+                                            ->label('Price')
+                                            ->translateLabel()
+                                            ->numeric()
+                                            ->prefix('$')
+                                            ->prefixIcon('heroicon-o-currency-dollar'),
+                                        Forms\Components\Textarea::make('description')
+                                            ->label('Description')
+                                            ->translateLabel()
+                                            ->columnSpanFull(),
+                                    ]),
                             ]),
-                    ]),
+                    ])->collapsible(),
+                Forms\Components\Group::make()
+                    ->schema([
+                        Forms\Components\Section::make('Product Details')
+                            ->schema([
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('barcode')
+                                            ->label('Barcode')
+                                            ->translateLabel()
+                                            ->maxLength(255)
+                                            ->unique(table: 'products', column: 'barcode', ignoreRecord: true)
+                                            ->prefixIcon('heroicon-o-bars-4'),
+                                        Forms\Components\FileUpload::make('image')
+                                            ->label('Image')
+                                            ->translateLabel()
+                                            ->image(),
+                                    ])
+                            ])->collapsible(),
+                    ])
             ]);
     }
 
