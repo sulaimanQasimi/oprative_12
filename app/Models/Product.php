@@ -17,4 +17,9 @@ class Product extends Model
         'quantity',
         'price',
     ];
+
+    public function purchaseItems()
+    {
+        return $this->hasMany(PurchaseItem::class);
+    }
 }
