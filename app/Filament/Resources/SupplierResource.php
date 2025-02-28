@@ -48,7 +48,13 @@ class SupplierResource extends Resource
                                     ->translateLabel()
                                     ->email()
                                     ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-mail'),
+                                    ->prefixIcon('heroicon-o-envelope'),
+                            ]),
+                    ]),
+                Forms\Components\Section::make('Address Details')
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
                                 Forms\Components\TextInput::make('address')
                                     ->label('Address')
                                     ->translateLabel()
@@ -58,32 +64,35 @@ class SupplierResource extends Resource
                                     ->label('City')
                                     ->translateLabel()
                                     ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-building'),
+                                    ->prefixIcon('heroicon-o-building-office'),
                                 Forms\Components\TextInput::make('state')
                                     ->label('State')
                                     ->translateLabel()
                                     ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-building'),
+                                    ->prefixIcon('heroicon-o-building-office'),
                                 Forms\Components\TextInput::make('country')
                                     ->label('Country')
                                     ->translateLabel()
                                     ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-globe'),
+                                    ->prefixIcon('heroicon-o-globe-alt'),
                                 Forms\Components\TextInput::make('postal_code')
                                     ->label('Postal Code')
                                     ->translateLabel()
                                     ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-mail'),
-                                Forms\Components\FileUpload::make('image')
-                                    ->label('Image')
-                                    ->translateLabel()
-                                    ->image(),
-                                Forms\Components\TextInput::make('id_number')
-                                    ->label('ID Number')
-                                    ->translateLabel()
-                                    ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-identification'),
+                                    ->prefixIcon('heroicon-o-envelope'),
                             ]),
+                    ]),
+                Forms\Components\Section::make('Additional Details')
+                    ->schema([
+                        Forms\Components\FileUpload::make('image')
+                            ->label('Image')
+                            ->translateLabel()
+                            ->image(),
+                        Forms\Components\TextInput::make('id_number')
+                            ->label('ID Number')
+                            ->translateLabel()
+                            ->maxLength(255)
+                            ->prefixIcon('heroicon-o-identification'),
                     ]),
             ]);
     }
