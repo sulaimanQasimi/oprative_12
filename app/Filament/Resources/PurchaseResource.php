@@ -173,7 +173,7 @@ class PurchaseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\PurchaseItemsRelationManager::class,
         ];
     }
 
