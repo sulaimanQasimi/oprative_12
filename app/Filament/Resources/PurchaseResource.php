@@ -26,10 +26,14 @@ class PurchaseResource extends Resource
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                Forms\Components\TextInput::make('user_id')
-                                    ->label('User ID')
+                                Forms\Components\Select::make('user_id')
+                                    ->label('User')
                                     ->translateLabel()
-                                    ->numeric()
+                                    ->relationship('user', 'name')
+                                    ->default(auth()->user()->id)
+                                    ->disabled()
+                                    ->searchable()
+                                    ->preload()
                                     ->prefixIcon('heroicon-o-user'),
                                 Forms\Components\TextInput::make('supplier_id')
                                     ->label('Supplier ID')
