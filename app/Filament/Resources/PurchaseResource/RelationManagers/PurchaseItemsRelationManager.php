@@ -127,7 +127,60 @@ class PurchaseItemsRelationManager extends RelationManager
                     ->searchable()
                     ->preload(),
                 Tables\Filters\Filter::make('high_value')
+                    ->label('High Value Items')
                     ->query(fn (Builder $query): Builder => $query->where('total_price', '>', 1000)),
+           
+                Tables\Filters\Filter::make('created_until')
+                    ->form([
+                        Forms\Components\DatePicker::make('created_until')
+                            ->label('Created Until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['created_until'],
+                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                        );
+                    }),
+                Tables\Filters\Filter::make('price_range')
+                    ->form([
+                        Forms\Components\TextInput::make('price_from')
+                            ->numeric()
+                            ->label('Price From'),
+                        Forms\Components\TextInput::make('price_until')
+                            ->numeric()
+                            ->label('Price Until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['price_from'],
+                                fn (Builder $query, $price): Builder => $query->where('price', '>=', $price)
+                            )
+                            ->when(
+                                $data['price_until'],
+                                fn (Builder $query, $price): Builder => $query->where('price', '<=', $price)
+                            );
+                    }),
+                Tables\Filters\Filter::make('quantity_range')
+                    ->form([
+                        Forms\Components\TextInput::make('min_quantity')
+                            ->numeric()
+                            ->label('Min Quantity'),
+                        Forms\Components\TextInput::make('max_quantity')
+                            ->numeric()
+                            ->label('Max Quantity'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['min_quantity'],
+                                fn (Builder $query, $quantity): Builder => $query->where('quantity', '>=', $quantity)
+                            )
+                            ->when(
+                                $data['max_quantity'],
+                                fn (Builder $query, $quantity): Builder => $query->where('quantity', '<=', $quantity)
+                            );
+                    }),
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
