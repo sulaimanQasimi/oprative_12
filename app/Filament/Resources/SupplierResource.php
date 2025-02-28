@@ -183,26 +183,28 @@ class SupplierResource extends Resource
     {
         return $infolist
             ->schema([
-                \Filament\Infolists\Components\ImageEntry::make('image')
-                    ->label('Image')
-                    ->icon('heroicon-o-photograph')
-                    ->iconPosition('before'),
-                \Filament\Infolists\Components\TextEntry::make('name')
-                    ->label('Name')
-                    ->icon('heroicon-o-user')
-                    ->iconPosition('before'),
-                \Filament\Infolists\Components\TextEntry::make('contact_name')
-                    ->label('Contact Name')
-                    ->icon('heroicon-o-user')
-                    ->iconPosition('before'),
-                \Filament\Infolists\Components\TextEntry::make('phone')
-                    ->label('Phone')
-                    ->icon('heroicon-o-phone')
-                    ->iconPosition('before'),
-                \Filament\Infolists\Components\TextEntry::make('email')
-                    ->label('Email')
-                    ->icon('heroicon-o-envelope')
-                    ->iconPosition('before'),
+                \Filament\Infolists\Components\Section::make('Supplier Details')
+                    ->schema([
+                        \Filament\Infolists\Components\ImageEntry::make('image')
+                            ->label('Image')
+                            ->icon('heroicon-o-photograph')
+                            ->iconPosition('before'),
+                        \Filament\Infolists\Components\TextEntry::make('name')
+                            ->label('Name')
+                            ->icon('heroicon-o-user')
+                            ->iconPosition('before'),
+                        \Filament\Infolists\Components\TextEntry::make('contact_name')
+                            ->label('Contact Name')
+                            ->icon('heroicon-o-user')
+                            ->iconPosition('before'),
+                        \Filament\Infolists\Components\TextEntry::make('phone')
+                            ->label('Phone')
+                            ->icon('heroicon-o-phone')
+                            ->iconPosition('before'),
+                        \Filament\Infolists\Components\TextEntry::make('email')
+                            ->label('Email')
+                            ->icon('heroicon-o-envelope')
+                            ->iconPosition('before'),
                 \Filament\Infolists\Components\TextEntry::make('address')
                     ->label('Address')
                     ->icon('heroicon-o-map')
@@ -227,7 +229,8 @@ class SupplierResource extends Resource
                     ->label('ID Number')
                     ->icon('heroicon-o-identification')
                     ->iconPosition('before'),
-            ]);
+            ])
+        ]);
     }
 
     public static function getRelations(): array
