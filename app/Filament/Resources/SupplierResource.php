@@ -179,6 +179,57 @@ class SupplierResource extends Resource
             ]);
     }
 
+    public static function infolist(\Filament\Infolists\Infolist $infolist): \Filament\Infolists\Infolist
+    {
+        return $infolist
+            ->schema([
+                \Filament\Infolists\Components\ImageEntry::make('image')
+                    ->label('Image')
+                    ->icon('heroicon-o-photograph')
+                    ->iconPosition('before'),
+                \Filament\Infolists\Components\TextEntry::make('name')
+                    ->label('Name')
+                    ->icon('heroicon-o-user')
+                    ->iconPosition('before'),
+                \Filament\Infolists\Components\TextEntry::make('contact_name')
+                    ->label('Contact Name')
+                    ->icon('heroicon-o-user')
+                    ->iconPosition('before'),
+                \Filament\Infolists\Components\TextEntry::make('phone')
+                    ->label('Phone')
+                    ->icon('heroicon-o-phone')
+                    ->iconPosition('before'),
+                \Filament\Infolists\Components\TextEntry::make('email')
+                    ->label('Email')
+                    ->icon('heroicon-o-envelope')
+                    ->iconPosition('before'),
+                \Filament\Infolists\Components\TextEntry::make('address')
+                    ->label('Address')
+                    ->icon('heroicon-o-map')
+                    ->iconPosition('before'),
+                \Filament\Infolists\Components\TextEntry::make('city')
+                    ->label('City')
+                    ->icon('heroicon-o-building-office')
+                    ->iconPosition('before'),
+                \Filament\Infolists\Components\TextEntry::make('state')
+                    ->label('State')
+                    ->icon('heroicon-o-building-office')
+                    ->iconPosition('before'),
+                \Filament\Infolists\Components\TextEntry::make('country')
+                    ->label('Country')
+                    ->icon('heroicon-o-globe-alt')
+                    ->iconPosition('before'),
+                \Filament\Infolists\Components\TextEntry::make('postal_code')
+                    ->label('Postal Code')
+                    ->icon('heroicon-o-envelope')
+                    ->iconPosition('before'),
+                \Filament\Infolists\Components\TextEntry::make('id_number')
+                    ->label('ID Number')
+                    ->icon('heroicon-o-identification')
+                    ->iconPosition('before'),
+            ]);
+    }
+
     public static function getRelations(): array
     {
         return [
