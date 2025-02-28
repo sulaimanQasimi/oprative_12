@@ -34,47 +34,80 @@ class PurchaseResource extends Resource
                                     ->disabled()
                                     ->searchable()
                                     ->preload()
-                                    ->prefixIcon('heroicon-o-user'),
+                                    ->prefixIcon('heroicon-o-user')
+                                    ->required()
+                                    ->exists('users', 'id'),
                                 Forms\Components\Select::make('supplier_id')
                                     ->label('Supplier')
                                     ->translateLabel()
                                     ->relationship('supplier', 'name')
                                     ->searchable()
                                     ->preload()
-                                    ->prefixIcon('heroicon-o-truck'),
+                                    ->prefixIcon('heroicon-o-truck')
+                                    ->required()
+                                    ->exists('suppliers', 'id'),
                                 Forms\Components\Select::make('currency_id')
                                     ->label('Currency')
                                     ->translateLabel()
                                     ->relationship('currency', 'name')
                                     ->searchable()
                                     ->preload()
-                                    ->prefixIcon('heroicon-o-currency-dollar'),
+                                    ->prefixIcon('heroicon-o-currency-dollar')
+                                    ->required()
+                                    ->exists('currencies', 'id'),
                                 Forms\Components\TextInput::make('invoice_number')
                                     ->label('Invoice Number')
                                     ->translateLabel()
                                     ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-document-text'),
+                                    ->prefixIcon('heroicon-o-document-text')
+                                    ->required()
+                                    ->unique('purchases', 'invoice_number', ignoreRecord: true),
+
                                 Forms\Components\DatePicker::make('invoice_date')
                                     ->label('Invoice Date')
                                     ->translateLabel()
                                     ->default(now())
                                     ->disabled()
-                                    ->prefixIcon('heroicon-o-calendar'),
+                                    ->prefixIcon('heroicon-o-calendar')
+                                    ->required()
+                                    ->date(),
                                 Forms\Components\TextInput::make('currecy_rate')
                                     ->label('Currency Rate')
                                     ->translateLabel()
                                     ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-currency-dollar'),
-                                Forms\Components\TextInput::make('total_amount')
-                                    ->label('Total Amount')
-                                    ->translateLabel()
-                                    ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-calculator'),
-                                Forms\Components\TextInput::make('status')
+                                    ->prefixIcon('heroicon-o-currency-dollar')
+                                    ->required()
+                                    ->numeric(),
+                                // Forms\Components\TextInput::make('total_amount')
+                                //     ->label('Total Amount')
+                                //     ->translateLabel()
+                                //     ->maxLength(255)
+                                //     ->prefixIcon('heroicon-o-calculator'),
+                                Forms\Components\Select::make('status')
                                     ->label('Status')
                                     ->translateLabel()
-                                    ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-check-circle'),
+                                    ->options([
+                                        'purchase' => 'Purchase',
+                                        'onway' => 'On Way',
+                                        'on_border' => 'On Border',
+                                        'on_plan' => 'On Plan',
+                                        'on_ship' => 'On Ship',
+                                        'arrived' => 'Arrived',
+                                        'return' => 'Return',
+                                    ])
+                                    ->searchable()
+                                    ->preload()
+                                    ->prefixIcon('heroicon-o-check-circle')
+                                    ->required()
+                                    ->in([
+                                        'purchase',
+                                        'onway',
+                                        'on_border',
+                                        'on_plan',
+                                        'on_ship',
+                                        'arrived',
+                                        'return',
+                                    ]),
                             ]),
                     ]),
             ]);
@@ -84,18 +117,18 @@ class PurchaseResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user_id')
-                    ->label('User ID')
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('User Name')
                     ->translateLabel()
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('supplier_id')
-                    ->label('Supplier ID')
+                Tables\Columns\TextColumn::make('supplier.name')
+                    ->label('Company Name')
                     ->translateLabel()
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('currency_id')
-                    ->label('Currency ID')
+                Tables\Columns\TextColumn::make('currency.name')
+                    ->label('Currency')
                     ->translateLabel()
                     ->numeric()
                     ->sortable(),
@@ -112,32 +145,14 @@ class PurchaseResource extends Resource
                     ->label('Currency Rate')
                     ->translateLabel()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('total_amount')
-                    ->label('Total Amount')
-                    ->translateLabel()
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('total_amount')
+                //     ->label('Total Amount')
+                //     ->translateLabel()
+                //     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->translateLabel()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
-                    ->translateLabel()
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Updated At')
-                    ->translateLabel()
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->label('Deleted At')
-                    ->translateLabel()
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
