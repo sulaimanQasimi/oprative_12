@@ -57,6 +57,8 @@ class PurchaseResource extends Resource
                                 Forms\Components\DatePicker::make('invoice_date')
                                     ->label('Invoice Date')
                                     ->translateLabel()
+                                    ->default(now())
+                                    ->disabled()
                                     ->prefixIcon('heroicon-o-calendar'),
                                 Forms\Components\TextInput::make('currecy_rate')
                                     ->label('Currency Rate')

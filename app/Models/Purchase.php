@@ -9,6 +9,21 @@ class Purchase extends Model
 {
     use SoftDeletes;
 
+    protected $casts = [
+        'invoice_date' => 'date',
+    ];
+
+    protected $fillable = [
+        'user_id',
+        'supplier_id',
+        'currency_id',
+        'invoice_number',
+        'invoice_date',
+        'currency_rate',
+        'total_amount',
+        'status',
+    ];
+
     public function currency()
     {
         return $this->belongsTo(Currency::class);
