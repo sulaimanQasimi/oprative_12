@@ -45,11 +45,11 @@ class ProductResource extends Resource
                                             ->translateLabel()
                                             ->columnSpanFull(),
                                     ]),
-                            ]),
-                    ])->collapsible(),
+                            ])->collapsible(),
+                    ]),
                 Forms\Components\Group::make()
                     ->schema([
-                        Forms\Components\Section::make('Product Details')
+                        Forms\Components\Section::make('Additional Details')
                             ->schema([
                                 Forms\Components\Grid::make(2)
                                     ->schema([
