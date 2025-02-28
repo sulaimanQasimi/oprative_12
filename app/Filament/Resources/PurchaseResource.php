@@ -30,7 +30,7 @@ class PurchaseResource extends Resource
                                     ->label('User')
                                     ->translateLabel()
                                     ->relationship('user', 'name')
-                                    ->default(auth()->user()->id)
+                                    // ->default(auth()->user()->id)
                                     ->disabled()
                                     ->searchable()
                                     ->preload()
