@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PurchaseResource\RelationManagers;
 
+use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -12,7 +13,7 @@ class PurchaseItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'purchaseItems';
 
-    protected static ?string $recordTitleAttribute = 'product_name';
+    protected static ?string $recordTitleAttribute = 'id';
 
     public function form(Form $form): Form
     {
