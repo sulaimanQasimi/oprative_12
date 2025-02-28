@@ -8,81 +8,148 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\Layout\Split;
 
 class PurchaseItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'purchaseItems';
-
     protected static ?string $recordTitleAttribute = 'id';
+    protected static ?string $title = 'Purchase Items';
+    protected static ?string $modelLabel = 'Purchase Item';
 
     public function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Select::make('product_id')
-                    ->relationship('product', 'name')
-                    ->searchable()
-                    ->preload()
-                    ->required(),
-                Forms\Components\TextInput::make('quantity')
-                    ->label('Quantity')
-                    ->translateLabel()
-                    ->maxLength(255)
-                    ->numeric()
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
-                        $price = floatval($get('price'));
-                        $quantity = floatval($state);
-                        $set('total_price', $quantity * $price);
-                    })
-                    ->prefixIcon('heroicon-o-hashtag'),
+                Forms\Components\Section::make('Item Details')
+                    ->description('Add purchase item details')
+                    ->collapsible()
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\Select::make('product_id')
+                                    ->relationship('product', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->createOptionForm([
+                                        Forms\Components\TextInput::make('name')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('barcode')
+                                            ->required()
+                                            ->unique('products', 'barcode'),
+                                    ])
+                                    ->prefixIcon('heroicon-o-cube'),
 
-                Forms\Components\TextInput::make('price')
-                    ->label('Price')
-                    ->translateLabel()
-                    ->maxLength(255)
-                    ->numeric()
-                    ->live(onBlur: true)
-                    ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
-                        $quantity = floatval($get('quantity'));
-                        $price = floatval($state);
-                        $set('total_price', $quantity * $price);
-                    })
-                    ->prefixIcon('heroicon-o-currency-dollar'),
+                                Forms\Components\TextInput::make('quantity')
+                                    ->label('Quantity')
+                                    ->translateLabel()
+                                    ->numeric()
+                                    ->minValue(1)
+                                    ->default(1)
+                                    ->live(onBlur: true)
+                                    ->required()
+                                    ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
+                                        $price = floatval($get('price') ?? 0);
+                                        $quantity = floatval($state);
+                                        $set('total_price', round($quantity * $price, 2));
+                                    })
+                                    ->prefixIcon('heroicon-o-hashtag'),
 
-                Forms\Components\TextInput::make('total_price')
-                    ->label('Total Price')
-                    ->translateLabel()
-                    ->numeric()
-                    ->disabled()
-                    ->dehydrated(false)
-                    ->prefixIcon('heroicon-o-calculator'),
+                                Forms\Components\TextInput::make('price')
+                                    ->label('Unit Price')
+                                    ->translateLabel()
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->required()
+                                    ->live(onBlur: true)
+                                    ->mask('999999.99')
+                                    ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
+                                        $quantity = floatval($get('quantity') ?? 0);
+                                        $price = floatval($state);
+                                        $set('total_price', round($quantity * $price, 2));
+                                    })
+                                    ->prefixIcon('heroicon-o-currency-dollar'),
+
+                                Forms\Components\TextInput::make('total_price')
+                                    ->label('Total Price')
+                                    ->translateLabel()
+                                    ->disabled()
+                                    ->numeric()
+                                    ->prefixIcon('heroicon-o-calculator'),
+                            ]),
+                    ]),
             ]);
     }
 
     public function table(Table $table): Table
     {
         return $table
+            ->recordTitleAttribute('id')
+            ->defaultSort('created_at', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('product.name'),
-                Tables\Columns\TextColumn::make('quantity'),
-                Tables\Columns\TextColumn::make('unit_price'),
-                Tables\Columns\TextColumn::make('total_price'),
+                Tables\Columns\TextColumn::make('product.name')
+                    ->label('Product')
+                    ->searchable()
+                    ->sortable()
+                    ->weight(FontWeight::Bold),
+                Tables\Columns\TextColumn::make('quantity')
+                    ->label('Qty')
+                    ->sortable()
+                    ->alignCenter(),
+                Tables\Columns\TextColumn::make('price')
+                    ->label('Unit Price')
+                    ->money('usd')
+                    ->sortable()
+                    ->alignRight(),
+                Tables\Columns\TextColumn::make('total_price')
+                    ->label('Total')
+                    ->money('usd')
+                    ->sortable()
+                    ->alignRight()
+                    ->weight(FontWeight::Bold)
+                    ->summarize([
+                        Tables\Columns\Summarizers\Sum::make()
+                            ->money('usd'),
+                    ]),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Created')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('product_id')
+                    ->relationship('product', 'name')
+                    ->label('Product')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\Filter::make('high_value')
+                    ->query(fn (Builder $query): Builder => $query->where('total_price', '>', 1000)),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->label('Add Item')
+                    ->modalHeading('Add New Purchase Item'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\EditAction::make()
+                        ->modalHeading('Edit Purchase Item'),
+                    Tables\Actions\DeleteAction::make()
+                        ->modalHeading('Delete Purchase Item'),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->emptyStateHeading('No items yet')
+            ->emptyStateDescription('Start by adding your first purchase item.')
+            ->emptyStateIcon('heroicon-o-shopping-cart')
+            ->poll('10s');
     }
 }

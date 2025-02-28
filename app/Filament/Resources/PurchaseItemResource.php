@@ -56,8 +56,7 @@ class PurchaseItemResource extends Resource
                                     ->label('Price')
                                     ->translateLabel()
                                     ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-currency-dollar')
-                                    ,
+                                    ->prefixIcon('heroicon-o-currency-dollar'),
 
                                 Forms\Components\TextInput::make('total_price')
                                     ->label('Total Price')
