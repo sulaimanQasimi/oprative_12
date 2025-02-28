@@ -28,7 +28,7 @@ class SupplierResource extends Resource
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Forms\Components\TextInput::make('name')
-                                    ->label('Name')
+                                    ->label('Company Name')
                                     ->translateLabel()
                                     ->maxLength(255)
                                     ->prefixIcon('heroicon-o-user'),
@@ -102,7 +102,7 @@ class SupplierResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
+                    ->label('Company Name')
                     ->translateLabel()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('contact_name')
@@ -191,7 +191,7 @@ class SupplierResource extends Resource
                                     ->label('Image')
                                     ->translateLabel(),
                                 \Filament\Infolists\Components\TextEntry::make('name')
-                                    ->label('Name')
+                                    ->label('Company Name')
                                     ->translateLabel()
                                     ->icon('heroicon-o-user')
                                     ->iconPosition('before'),
