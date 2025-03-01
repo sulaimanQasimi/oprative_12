@@ -15,7 +15,8 @@ class ViewPurchase extends ViewRecord
     {
         return [
             Actions\EditAction::make()
-                ->icon('heroicon-o-pencil-square'),
+                ->icon('heroicon-o-pencil-square')
+                ->visible(fn ($record) => $record->status !== 'warehouse_moved'),
             Actions\Action::make('viewInvoice')
                 ->label('View Invoice')
                 ->icon('heroicon-o-document-text')

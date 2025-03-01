@@ -10,6 +10,15 @@ class EditPurchase extends EditRecord
 {
     protected static string $resource = PurchaseResource::class;
 
+    public function mount($record): void
+    {
+        parent::mount($record);
+
+        if ($this->record->status === 'warehouse_moved') {
+            $this->redirect($this->getResource()::getUrl('view', ['record' => $record]));
+        }
+    }
+
     protected function getHeaderActions(): array
     {
         return [
