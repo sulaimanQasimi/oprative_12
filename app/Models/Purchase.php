@@ -52,7 +52,10 @@ class Purchase extends Model
     {
         return $this->payments()->sum('amount');
     }
-
+    public function purchasePayments()
+    {
+        return $this->hasMany(PurchasePayment::class);
+    }
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class);

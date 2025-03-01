@@ -244,6 +244,7 @@ class PurchaseResource extends Resource
     {
         return [
             RelationManagers\PurchaseItemsRelationManager::class,
+            RelationManagers\PurchasePaymentsRelationManager::class,
         ];
     }
 
