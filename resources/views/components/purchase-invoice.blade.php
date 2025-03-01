@@ -76,10 +76,10 @@
                     <p class="text-sm">Date: {{ $purchase->invoice_date->format('d/m/Y') }}</p>
                 </div>
                 <div class="text-right">
-                    <h2 class="text-xl font-semibold text-white mb-2">Company Name</h2>
-                    <p class="text-sm text-white opacity-90">123 Business Street</p>
-                    <p class="text-sm text-white opacity-90">City, Country</p>
-                    <p class="text-sm text-white opacity-90">Phone: +1234567890</p>
+                    <h2 class="text-xl font-semibold text-white mb-2">{{ config('invoice.company.name') }}</h2>
+                    <p class="text-sm text-white opacity-90">{{ config('invoice.company.address.street') }}</p>
+                    <p class="text-sm text-white opacity-90">{{ config('invoice.company.address.city') }}, {{ config('invoice.company.address.country') }}</p>
+                    <p class="text-sm text-white opacity-90">Phone: {{ config('invoice.company.contact.phone') }}</p>
                 </div>
             </div>
 
@@ -97,7 +97,17 @@
                 <div class="details-card">
                     <h3 class="text-lg font-semibold text-indigo-600 mb-3">Purchase Details</h3>
                     <div class="text-sm text-gray-600 space-y-2">
-                        <p>Status: <span class="status-badge">{{ ucfirst($purchase->status) }}</span></p>
+                        <p>Status: <span class="status-badge">{{ match($purchase->status) {
+                            'purchase' => 'Purchase',
+                            'onway' => 'On Way',
+                            'on_border' => 'On Border',
+                            'on_plan' => 'On Plan',
+                            'on_ship' => 'On Ship',
+                            'arrived' => 'Arrived',
+                            'warehouse_moved' => 'Moved to Warehouse',
+                            'return' => 'Return',
+                            default => ucfirst($purchase->status)
+                        } }}</span></p>
                         <p>Currency: {{ $purchase->currency->code }}</p>
                         <p>Exchange Rate: {{ $purchase->currency_rate }}</p>
                         <p>Warehouse: {{ $purchase->warehouse->name ?? 'N/A' }}</p>
