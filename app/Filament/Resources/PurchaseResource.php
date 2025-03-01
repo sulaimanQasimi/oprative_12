@@ -165,7 +165,18 @@ class PurchaseResource extends Resource
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->translateLabel()
-                    ->searchable(),
+                    ->searchable()
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'purchase' => 'Purchase',
+                        'onway' => 'On Way',
+                        'on_border' => 'On Border',
+                        'on_plan' => 'On Plan',
+                        'on_ship' => 'On Ship',
+                        'arrived' => 'Arrived',
+                        'warehouse_moved' => 'Moved to Warehouse',
+                        'return' => 'Return',
+                        default => $state,
+                    }),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
