@@ -16,7 +16,7 @@ class SaleReturn extends Model
         'customer_id',
         'warehouse_id',
         'return_date',
-        'reference_no',
+        'reference',
         'tax_percentage',
         'tax_amount',
         'total_amount',

@@ -50,7 +50,7 @@ class SaleResource extends Resource
                                     ->required(),
                                 DateTimePicker::make('sale_date')
                                     ->required(),
-                                TextInput::make('reference_no')
+                                TextInput::make('reference')
                                     ->maxLength(255),
                                 Select::make('status')
                                     ->options([
@@ -123,7 +123,7 @@ class SaleResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('reference_no')
+                TextColumn::make('reference')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('customer.name')

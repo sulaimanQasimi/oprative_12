@@ -16,7 +16,7 @@ class Sale extends Model
         'warehouse_id',
         'currency_id',
         'sale_date',
-        'reference_no',
+        'reference',
         'tax_percentage',
         'tax_amount',
         'discount_percentage',

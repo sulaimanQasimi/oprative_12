@@ -33,7 +33,7 @@ class SaleReturnResource extends Resource
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Select::make('sale_id')
-                                    ->relationship('sale', 'reference_no')
+                                    ->relationship('sale', 'reference')
                                     ->searchable()
                                     ->preload()
                                     ->required(),
@@ -49,7 +49,7 @@ class SaleReturnResource extends Resource
                                     ->required(),
                                 DateTimePicker::make('return_date')
                                     ->required(),
-                                TextInput::make('reference_no')
+                                TextInput::make('reference')
                                     ->maxLength(255),
                                 Select::make('status')
                                     ->options([
@@ -90,10 +90,10 @@ class SaleReturnResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('reference_no')
+                TextColumn::make('reference')
                     ->searchable()
                     ->sortable(),
-                TextColumn::make('sale.reference_no')
+                TextColumn::make('sale.reference')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('customer.name')
