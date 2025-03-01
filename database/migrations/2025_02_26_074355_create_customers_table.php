@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('postal_code')->nullable();
             $table->text('notes')->nullable();
             $table->boolean('is_active')->default(true);
+            $table->boolean('status')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });
