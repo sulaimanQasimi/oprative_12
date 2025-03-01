@@ -71,7 +71,7 @@ class PurchaseResource extends Resource
                                     ->prefixIcon('heroicon-o-calendar')
                                     ->required()
                                     ->date(),
-                                Forms\Components\TextInput::make('currecy_rate')
+                                Forms\Components\TextInput::make('currency_rate')
                                     ->label('Currency Rate')
                                     ->translateLabel()
                                     ->maxLength(255)
@@ -152,10 +152,11 @@ class PurchaseResource extends Resource
                     ->translateLabel()
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('currecy_rate')
+                Tables\Columns\TextColumn::make('currency_rate')
                     ->label('Currency Rate')
                     ->translateLabel()
-                    ->searchable(),
+                    ->numeric()
+                    ->sortable(),
                 // Tables\Columns\TextColumn::make('total_amount')
                 //     ->label('Total Amount')
                 //     ->translateLabel()
@@ -191,17 +192,24 @@ class PurchaseResource extends Resource
 
                             // Move all purchase items to warehouse inventory
                             foreach ($record->purchaseItems as $purchaseItem) {
-                                // Find or create warehouse product entry
-                                $warehouseProduct = \App\Models\WarehouseProduct::firstOrCreate(
-                                    [
+                                // Find existing warehouse product or create new one
+                                $warehouseProduct = \App\Models\WarehouseProduct::where([
+                                    'warehouse_id' => $record->warehouse_id,
+                                    'product_id' => $purchaseItem->product_id,
+                                ])->first();
+
+                                if ($warehouseProduct) {
+                                    // If product exists, add new quantity to existing stock
+                                    $warehouseProduct->quantity += $purchaseItem->quantity;
+                                    $warehouseProduct->save();
+                                } else {
+                                    // If product doesn't exist, create new entry with quantity
+                                    \App\Models\WarehouseProduct::create([
                                         'warehouse_id' => $record->warehouse_id,
                                         'product_id' => $purchaseItem->product_id,
-                                    ],
-                                    ['quantity' => 0]
-                                );
-
-                                // Update warehouse product quantity
-                                $warehouseProduct->increment('quantity', $purchaseItem->quantity);
+                                        'quantity' => $purchaseItem->quantity
+                                    ]);
+                                }
                             }
                         });
                     }),

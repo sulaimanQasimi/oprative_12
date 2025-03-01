@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignIdFor(Currency::class)->nullable();
             $table->string("invoice_number")->nullable();
             $table->date("invoice_date")->nullable();
-            $table->string("currecy_rate")->nullable();
+            $table->string("currency_rate")->nullable();
             $table->string("total_amount")->nullable();
             $table->string("status")->nullable();
             $table->timestamps();
