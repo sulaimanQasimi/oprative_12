@@ -33,7 +33,7 @@ class Warehouse extends Model
     public function products(): BelongsToMany
     {
         return $this->belongsToMany(Product::class, 'warehouse_products')
-            ->withPivot(['quantity', 'min_quantity', 'max_quantity'])
+            ->withPivot(['quantity', 'minimum_quantity', 'maximum_quantity', 'is_active'])
             ->withTimestamps();
     }
 
@@ -68,5 +68,9 @@ class Warehouse extends Model
     {
         $current = $this->getStock($product_id);
         $this->updateStock($product_id, $current + $adjustment);
+    }
+    public function items(): HasMany
+    {
+        return $this->hasMany(WarehouseProduct::class);
     }
 }
