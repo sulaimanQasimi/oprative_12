@@ -7,6 +7,7 @@ use App\Filament\Resources\PurchaseResource\RelationManagers;
 use App\Models\Purchase;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -19,6 +20,7 @@ class PurchaseResource extends Resource
     protected static ?string $model = Purchase::class;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
 
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
     public static function form(Form $form): Form
     {
         return $form
@@ -243,8 +245,8 @@ class PurchaseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\PurchaseItemsRelationManager::class,
-            RelationManagers\PurchasePaymentsRelationManager::class,
+            // RelationManagers\PurchaseItemsRelationManager::class,
+            // RelationManagers\PurchasePaymentsRelationManager::class,
         ];
     }
 
@@ -255,7 +257,20 @@ class PurchaseResource extends Resource
             'create' => Pages\CreatePurchase::route('/create'),
             'view' => Pages\ViewPurchase::route('/{record}'),
             'edit' => Pages\EditPurchase::route('/{record}/edit'),
+            'purchase-payment' => Pages\PurchasePayments::route('/{record}/purchase-payment'),
         ];
+    }
+    public static function getRecordSubNavigation(\Filament\Resources\Pages\Page $page): array
+    {
+        return $page->generateNavigationItems([
+            Pages\ViewPurchase::class,
+            Pages\EditPurchase::class,
+            Pages\PurchasePayments::class, //
+            // Pages\ExpenseResourceRelationPage::class,
+            // Pages\ViewM16Outcome::class,
+            // Pages\EditM16Outcome::class,
+            // Pages\LogActivity::class,
+        ]);
     }
 
     public static function getEloquentQuery(): Builder

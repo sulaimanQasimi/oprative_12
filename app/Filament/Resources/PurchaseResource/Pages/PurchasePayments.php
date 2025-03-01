@@ -1,22 +1,44 @@
 <?php
 
-namespace App\Filament\Resources\PurchaseResource\RelationManagers;
+namespace App\Filament\Resources\PurchaseResource\Pages;
 
-use App\Models\Currency;
+use App\Filament\Resources\PurchaseResource;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Resources\Pages\ManageRelatedRecords;
+use Filament\Support\Enums\FontWeight;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Support\Enums\FontWeight;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class PurchasePaymentsRelationManager extends RelationManager
+class PurchasePayments extends ManageRelatedRecords
 {
+    protected static string $resource = PurchaseResource::class;
+
     protected static string $relationship = 'purchasePayments';
-    protected static ?string $recordTitleAttribute = 'id';
-    protected static ?string $title = 'Purchase Payments';
+
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+
     protected static ?string $modelLabel = 'Payment';
+
+    protected static ?string $pluralModelLabel = 'Payments';
+
+    public function getTitle(): string
+    {
+        $totalAmount = $this->getOwnerRecord()->total_amount;
+        $paidAmount = $this->getOwnerRecord()->purchasePayments->sum('amount');
+        $remainingAmount = $totalAmount - $paidAmount;
+        $currencyCode = $this->getOwnerRecord()->currency->code;
+
+        return "Purchase Payments - Remaining: {$currencyCode} " . number_format($remainingAmount, 2);
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Purchase Payments';
+    }
 
     public function form(Form $form): Form
     {
@@ -41,7 +63,7 @@ class PurchasePaymentsRelationManager extends RelationManager
                                     ->required()
                                     ->searchable()
                                     ->preload()
-                                    ->default(fn ($livewire) => $livewire->ownerRecord->currency_id)
+                                    ->default(fn ($livewire) => $livewire->getOwnerRecord()->currency_id)
                                     ->prefixIcon('heroicon-o-globe-alt'),
 
                                 Forms\Components\Select::make('payment_method')
