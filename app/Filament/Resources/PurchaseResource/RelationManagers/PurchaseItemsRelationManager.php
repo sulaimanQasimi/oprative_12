@@ -76,7 +76,7 @@ class PurchaseItemsRelationManager extends RelationManager
                                 Forms\Components\TextInput::make('total_price')
                                     ->label('Total Price')
                                     ->translateLabel()
-                                    ->disabled()
+                                    // ->disabled()
                                     ->numeric()
                                     ->prefixIcon('heroicon-o-calculator'),
                             ]),
@@ -129,7 +129,7 @@ class PurchaseItemsRelationManager extends RelationManager
                 Tables\Filters\Filter::make('high_value')
                     ->label('High Value Items')
                     ->query(fn (Builder $query): Builder => $query->where('total_price', '>', 1000)),
-           
+
                 Tables\Filters\Filter::make('created_until')
                     ->form([
                         Forms\Components\DatePicker::make('created_until')
