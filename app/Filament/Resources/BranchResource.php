@@ -7,6 +7,7 @@ use App\Models\Branch;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -26,23 +27,46 @@ class BranchResource extends Resource
     {
         return $form
             ->schema([
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('code')
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->maxLength(255),
-                TextInput::make('address')
-                    ->maxLength(255),
-                TextInput::make('phone')
-                    ->tel()
-                    ->maxLength(255),
-                TextInput::make('email')
-                    ->email()
-                    ->maxLength(255),
-                Toggle::make('is_active')
-                    ->default(true),
+                Forms\Components\Section::make('Branch Details')
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                TextInput::make('name')
+                                    ->label('Name')
+                                    ->translateLabel()
+                                    ->required()
+                                    ->prefixIcon('heroicon-o-building-office')
+                                    ->maxLength(255),
+                                TextInput::make('code')
+                                    ->label('Code')
+                                    ->translateLabel()
+                                    ->required()
+                                    ->prefixIcon('heroicon-o-identification')
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(255),
+                                TextInput::make('address')
+                                    ->label('Address')
+                                    ->translateLabel()
+                                    ->prefixIcon('heroicon-o-map-pin')
+                                    ->maxLength(255),
+                                TextInput::make('phone')
+                                    ->label('Phone')
+                                    ->translateLabel()
+                                    ->prefixIcon('heroicon-o-phone')
+                                    ->tel()
+                                    ->maxLength(255),
+                                TextInput::make('email')
+                                    ->label('Email')
+                                    ->translateLabel()
+                                    ->prefixIcon('heroicon-o-envelope')
+                                    ->email()
+                                    ->maxLength(255),
+                                Toggle::make('is_active')
+                                    ->label('Active Status')
+                                    ->translateLabel()
+                                    ->default(true),
+                            ])
+                    ])
             ]);
     }
 

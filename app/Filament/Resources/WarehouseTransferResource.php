@@ -9,6 +9,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
+use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -27,34 +28,69 @@ class WarehouseTransferResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('from_warehouse_id')
-                    ->relationship('fromWarehouse', 'name')
-                    ->required(),
-                Select::make('to_warehouse_id')
-                    ->relationship('toWarehouse', 'name')
-                    ->required()
-                    ->different('from_warehouse_id'),
-                Select::make('product_id')
-                    ->relationship('product', 'name')
-                    ->required(),
-                TextInput::make('quantity')
-                    ->required()
-                    ->numeric()
-                    ->minValue(1),
-                DateTimePicker::make('transfer_date')
-                    ->required(),
-                Select::make('status')
-                    ->options([
-                        'pending' => 'Pending',
-                        'in_transit' => 'In Transit',
-                        'completed' => 'Completed',
-                        'cancelled' => 'Cancelled'
+                Forms\Components\Section::make('Transfer Details')
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Select::make('from_warehouse_id')
+                                    ->label('From Warehouse')
+                                    ->translateLabel()
+                                    ->relationship('fromWarehouse', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->prefixIcon('heroicon-o-building-storefront')
+                                    ->required(),
+                                Select::make('to_warehouse_id')
+                                    ->label('To Warehouse')
+                                    ->translateLabel()
+                                    ->relationship('toWarehouse', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->prefixIcon('heroicon-o-building-storefront')
+                                    ->required()
+                                    ->different('from_warehouse_id'),
+                                Select::make('product_id')
+                                    ->label('Product')
+                                    ->translateLabel()
+                                    ->relationship('product', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->prefixIcon('heroicon-o-cube')
+                                    ->required(),
+                                TextInput::make('quantity')
+                                    ->label('Quantity')
+                                    ->translateLabel()
+                                    ->prefixIcon('heroicon-o-calculator')
+                                    ->required()
+                                    ->numeric()
+                                    ->minValue(1),
+                                DateTimePicker::make('transfer_date')
+                                    ->label('Transfer Date')
+                                    ->translateLabel()
+                                    ->prefixIcon('heroicon-o-calendar')
+                                    ->required(),
+                                Select::make('status')
+                                    ->label('Status')
+                                    ->translateLabel()
+                                    ->options([
+                                        'pending' => 'Pending',
+                                        'in_transit' => 'In Transit',
+                                        'completed' => 'Completed',
+                                        'cancelled' => 'Cancelled'
+                                    ])
+                                    ->required()
+                                    ->default('pending')
+                                    ->prefixIcon('heroicon-o-tag')
+                            ])
+                    ]),
+                Forms\Components\Section::make('Additional Information')
+                    ->schema([
+                        Textarea::make('notes')
+                            ->label('Notes')
+                            ->translateLabel()
+                            ->maxLength(65535)
+                            ->columnSpanFull()
                     ])
-                    ->required()
-                    ->default('pending'),
-                Textarea::make('notes')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
             ]);
     }
 

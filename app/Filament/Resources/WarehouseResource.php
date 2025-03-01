@@ -9,6 +9,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
+use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -28,24 +29,50 @@ class WarehouseResource extends Resource
     {
         return $form
             ->schema([
-                Select::make('branch_id')
-                    ->relationship('branch', 'name')
-                    ->required(),
-                TextInput::make('name')
-                    ->required()
-                    ->maxLength(255),
-                TextInput::make('code')
-                    ->required()
-                    ->unique(ignoreRecord: true)
-                    ->maxLength(255),
-                Textarea::make('description')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Textarea::make('address')
-                    ->maxLength(65535)
-                    ->columnSpanFull(),
-                Toggle::make('is_active')
-                    ->default(true),
+                Forms\Components\Section::make('Warehouse Details')
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Select::make('branch_id')
+                                    ->label('Branch')
+                                    ->translateLabel()
+                                    ->relationship('branch', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->prefixIcon('heroicon-o-building-office')
+                                    ->required(),
+                                TextInput::make('name')
+                                    ->label('Name')
+                                    ->translateLabel()
+                                    ->required()
+                                    ->prefixIcon('heroicon-o-building-storefront')
+                                    ->maxLength(255),
+                                TextInput::make('code')
+                                    ->label('Code')
+                                    ->translateLabel()
+                                    ->required()
+                                    ->prefixIcon('heroicon-o-identification')
+                                    ->unique(ignoreRecord: true)
+                                    ->maxLength(255),
+                                Toggle::make('is_active')
+                                    ->label('Active Status')
+                                    ->translateLabel()
+                                    ->default(true)
+                            ])
+                    ]),
+                Forms\Components\Section::make('Additional Information')
+                    ->schema([
+                        Textarea::make('description')
+                            ->label('Description')
+                            ->translateLabel()
+                            ->maxLength(65535)
+                            ->columnSpanFull(),
+                        Textarea::make('address')
+                            ->label('Address')
+                            ->translateLabel()
+                            ->maxLength(65535)
+                            ->columnSpanFull()
+                    ])
             ]);
     }
 
