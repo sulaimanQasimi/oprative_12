@@ -258,6 +258,7 @@ class PurchaseResource extends Resource
             'view' => Pages\ViewPurchase::route('/{record}'),
             'edit' => Pages\EditPurchase::route('/{record}/edit'),
             'purchase-payment' => Pages\PurchasePayments::route('/{record}/purchase-payment'),
+            'items' => Pages\PurchaseItems::route('/{record}/items'),
         ];
     }
     public static function getRecordSubNavigation(\Filament\Resources\Pages\Page $page): array
@@ -266,6 +267,7 @@ class PurchaseResource extends Resource
             Pages\ViewPurchase::class,
             Pages\EditPurchase::class,
             Pages\PurchasePayments::class, //
+            Pages\PurchaseItems::class, //
             // Pages\ExpenseResourceRelationPage::class,
             // Pages\ViewM16Outcome::class,
             // Pages\EditM16Outcome::class,
