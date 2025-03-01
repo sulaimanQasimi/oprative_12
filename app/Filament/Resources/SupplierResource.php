@@ -104,11 +104,13 @@ class SupplierResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label('Company Name')
                     ->translateLabel()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('contact_name')
                     ->label('Contact Name')
                     ->translateLabel()
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('phone')
                     ->label('Phone')
                     ->translateLabel()
@@ -117,47 +119,14 @@ class SupplierResource extends Resource
                     ->label('Email')
                     ->translateLabel()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('address')
-                    ->label('Address')
+                Tables\Columns\TextColumn::make('invoice_total')
+                    ->label('Total Purchases')
                     ->translateLabel()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('city')
-                    ->label('City')
-                    ->translateLabel()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('state')
-                    ->label('State')
-                    ->translateLabel()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('country')
-                    ->label('Country')
-                    ->translateLabel()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('postal_code')
-                    ->label('Postal Code')
-                    ->translateLabel()
-                    ->searchable(),
-                Tables\Columns\ImageColumn::make('image')
-                    ->label('Image')
-                    ->translateLabel(),
-                Tables\Columns\TextColumn::make('id_number')
-                    ->label('ID Number')
-                    ->translateLabel()
-                    ->searchable(),
+                    ->money('usd')
+                    ->sortable()
+                    ->alignRight(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created At')
-                    ->translateLabel()
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Updated At')
-                    ->translateLabel()
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('deleted_at')
-                    ->label('Deleted At')
                     ->translateLabel()
                     ->dateTime()
                     ->sortable()
@@ -167,17 +136,16 @@ class SupplierResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
+    
 
     public static function infolist(\Filament\Infolists\Infolist $infolist): \Filament\Infolists\Infolist
     {
