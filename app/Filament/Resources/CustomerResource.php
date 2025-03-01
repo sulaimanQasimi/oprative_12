@@ -42,12 +42,6 @@ class CustomerResource extends Resource
                                 TextInput::make('phone')
                                     ->tel()
                                     ->maxLength(255),
-                                TextInput::make('tax_number')
-                                    ->maxLength(255),
-                                TextInput::make('credit_limit')
-                                    ->numeric()
-                                    ->prefix('$')
-                                    ->default(0),
                                 Toggle::make('status')
                                     ->default(true)
                             ])
@@ -77,9 +71,6 @@ class CustomerResource extends Resource
                 TextColumn::make('phone')
                     ->searchable(),
                 TextColumn::make('balance')
-                    ->money()
-                    ->sortable(),
-                TextColumn::make('credit_limit')
                     ->money()
                     ->sortable(),
                 ToggleColumn::make('status')
@@ -117,3 +108,4 @@ class CustomerResource extends Resource
         ];
     }
 }
+

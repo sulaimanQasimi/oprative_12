@@ -19,5 +19,6 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@mod.af',
             'password' => Hash::make('123'),
         ]);
+        $this->call(CurrencySeeder::class);
     }
 }
