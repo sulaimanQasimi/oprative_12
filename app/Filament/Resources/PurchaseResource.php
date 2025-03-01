@@ -172,6 +172,11 @@ class PurchaseResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('viewInvoice')
+                    ->label('View Invoice')
+                    ->icon('heroicon-o-document-text')
+                    ->url(fn (Purchase $record): string => route('filament.admin.resources.purchases.invoice', $record))
+                    ->openUrlInNewTab(),
                 Tables\Actions\Action::make('moveToWarehouse')
                     ->label('Move to Warehouse')
                     ->icon('heroicon-o-building-office')
