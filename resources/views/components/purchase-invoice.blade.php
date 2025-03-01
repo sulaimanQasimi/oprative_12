@@ -108,8 +108,13 @@
                             'return' => 'Return',
                             default => ucfirst($purchase->status)
                         } }}</span></p>
-                        <p>Currency: {{ $purchase->currency->code }}</p>
-                        <p>Exchange Rate: {{ $purchase->currency_rate }}</p>
+                        <div class="flex flex-col gap-2">
+                            <p>Currency: {{ $purchase->currency->code }}</p>
+                            <div class="flex items-center gap-2">
+                                <span class="text-indigo-600 font-medium">Exchange Rate:</span>
+                                <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-medium">{{ number_format($purchase->currency_rate, 4) }}</span>
+                            </div>
+                        </div>
                         <p>Warehouse: {{ $purchase->warehouse->name ?? 'N/A' }}</p>
                     </div>
                 </div>

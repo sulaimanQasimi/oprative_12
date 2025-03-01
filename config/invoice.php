@@ -12,16 +12,16 @@ return [
     */
 
     'company' => [
-        'name' => env('COMPANY_NAME', 'Company Name'),
+        'name' => env('COMPANY_NAME', 'UNDP'),
         'address' => [
-            'street' => env('COMPANY_STREET', '123 Business Street'),
-            'city' => env('COMPANY_CITY', 'City'),
-            'country' => env('COMPANY_COUNTRY', 'Country'),
+            'street' => env('COMPANY_STREET', 'Wazir Mohammad Akber Khan'),
+            'city' => env('COMPANY_CITY', 'Kabul'),
+            'country' => env('COMPANY_COUNTRY', 'Afghanistan'),
         ],
         'contact' => [
-            'phone' => env('COMPANY_PHONE', '+1234567890'),
-            'email' => env('COMPANY_EMAIL', 'info@company.com'),
-            'website' => env('COMPANY_WEBSITE', 'www.company.com'),
+            'phone' => env('COMPANY_PHONE', '+93 202660488'),
+            'email' => env('COMPANY_EMAIL', 'info@undp.org'),
+            'website' => env('COMPANY_WEBSITE', 'www.undp.org'),
         ],
     ],
 
