@@ -20,7 +20,6 @@ class Purchase extends Model
         'invoice_number',
         'invoice_date',
         'currency_rate',
-        'total_amount',
         'status',
         'warehouse_id',
         'is_moved_to_warehouse',
@@ -49,5 +48,8 @@ class Purchase extends Model
     public function warehouse()
     {
         return $this->belongsTo(Warehouse::class);
+    }
+    public function getTotalAmountAttribute(){
+        return $this->purchaseItems()->sum('total_price');
     }
 }

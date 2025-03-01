@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -157,10 +158,10 @@ class PurchaseResource extends Resource
                     ->translateLabel()
                     ->numeric()
                     ->sortable(),
-                // Tables\Columns\TextColumn::make('total_amount')
-                //     ->label('Total Amount')
-                //     ->translateLabel()
-                //     ->searchable(),
+                TextColumn::make('total_amount')
+                    ->money('USD')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->translateLabel()
