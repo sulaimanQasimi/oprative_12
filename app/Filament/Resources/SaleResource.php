@@ -48,6 +48,10 @@ class SaleResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->required(),
+                                TextInput::make('currency_rate')
+                                    ->numeric()
+                                    ->default(1)
+                                    ->required(),
                                 DateTimePicker::make('sale_date')
                                     ->required(),
                                 TextInput::make('reference')
@@ -78,36 +82,6 @@ class SaleResource extends Resource
                                         'cheque' => 'Cheque'
                                     ])
                                     ->required()
-                            ])
-                    ]),
-                Forms\Components\Section::make('Amounts')
-                    ->schema([
-                        Forms\Components\Grid::make(2)
-                            ->schema([
-                                TextInput::make('tax_percentage')
-                                    ->numeric()
-                                    ->default(0),
-                                TextInput::make('tax_amount')
-                                    ->numeric()
-                                    ->default(0),
-                                TextInput::make('discount_percentage')
-                                    ->numeric()
-                                    ->default(0),
-                                TextInput::make('discount_amount')
-                                    ->numeric()
-                                    ->default(0),
-                                TextInput::make('shipping_cost')
-                                    ->numeric()
-                                    ->default(0),
-                                TextInput::make('total_amount')
-                                    ->numeric()
-                                    ->required(),
-                                TextInput::make('paid_amount')
-                                    ->numeric()
-                                    ->default(0),
-                                TextInput::make('due_amount')
-                                    ->numeric()
-                                    ->default(0)
                             ])
                     ]),
                 Forms\Components\Section::make('Additional Information')
