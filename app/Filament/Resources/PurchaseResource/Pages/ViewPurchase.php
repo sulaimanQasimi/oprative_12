@@ -14,7 +14,8 @@ class ViewPurchase extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make(),
+            Actions\EditAction::make()
+                ->icon('heroicon-o-pencil-square'),
             Actions\Action::make('viewInvoice')
                 ->label('View Invoice')
                 ->icon('heroicon-o-document-text')
