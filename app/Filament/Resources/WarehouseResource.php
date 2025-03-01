@@ -91,7 +91,7 @@ class WarehouseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            WarehouseResource\RelationManagers\WarehouseItemsRelationManager::class,
         ];
     }
 

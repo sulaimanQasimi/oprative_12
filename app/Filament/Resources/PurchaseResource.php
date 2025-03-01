@@ -26,17 +26,17 @@ class PurchaseResource extends Resource
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                Forms\Components\Select::make('user_id')
-                                    ->label('User')
-                                    ->translateLabel()
-                                    ->relationship('user', 'name')
-                                    // ->default(auth()->user()->id)
-                                    ->disabled()
-                                    ->searchable()
-                                    ->preload()
-                                    ->prefixIcon('heroicon-o-user')
-                                    ->required()
-                                    ->exists('users', 'id'),
+                                // Forms\Components\Select::make('user_id')
+                                //     ->label('User')
+                                //     ->translateLabel()
+                                //     ->relationship('user', 'name')
+                                //     ->default(auth()->user()->id)
+                                //     ->disabled()
+                                //     ->searchable()
+                                //     ->preload()
+                                //     ->prefixIcon('heroicon-o-user')
+                                //     ->required()
+                                //     ->exists('users', 'id'),
                                 Forms\Components\Select::make('supplier_id')
                                     ->label('Supplier')
                                     ->translateLabel()
@@ -66,8 +66,8 @@ class PurchaseResource extends Resource
                                 Forms\Components\DatePicker::make('invoice_date')
                                     ->label('Invoice Date')
                                     ->translateLabel()
-                                    ->default(now())
-                                    ->disabled()
+                                    // ->default(now())
+                                    // ->disabled()
                                     ->prefixIcon('heroicon-o-calendar')
                                     ->required()
                                     ->date(),
@@ -93,6 +93,7 @@ class PurchaseResource extends Resource
                                         'on_plan' => 'On Plan',
                                         'on_ship' => 'On Ship',
                                         'arrived' => 'Arrived',
+                                        'warehouse_moved' => 'Moved to Warehouse',
                                         'return' => 'Return',
                                     ])
                                     ->searchable()
@@ -106,8 +107,18 @@ class PurchaseResource extends Resource
                                         'on_plan',
                                         'on_ship',
                                         'arrived',
+                                        'warehouse_moved',
                                         'return',
                                     ]),
+                                Forms\Components\Select::make('warehouse_id')
+                                    ->label('Warehouse')
+                                    ->translateLabel()
+                                    ->relationship('warehouse', 'name')
+                                    ->searchable()
+                                    ->preload()
+                                    ->prefixIcon('heroicon-o-building-office')
+                                    ->visible(fn ($record) => $record?->status === 'arrived' && !$record?->is_moved_to_warehouse)
+                                    ->exists('warehouses', 'id'),
                             ]),
                     ]),
             ]);
@@ -160,6 +171,20 @@ class PurchaseResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('moveToWarehouse')
+                    ->label('Move to Warehouse')
+                    ->icon('heroicon-o-building-office')
+                    ->requiresConfirmation()
+                    ->visible(fn ($record) => $record->status === 'arrived' && !$record->is_moved_to_warehouse)
+                    ->action(function ($record) {
+                        if (!$record->warehouse_id) {
+                            return;
+                        }
+                        $record->update([
+                            'status' => 'warehouse_moved',
+                            'is_moved_to_warehouse' => true,
+                        ]);
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

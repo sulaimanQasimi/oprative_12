@@ -22,6 +22,8 @@ class Purchase extends Model
         'currency_rate',
         'total_amount',
         'status',
+        'warehouse_id',
+        'is_moved_to_warehouse',
     ];
 
     public function currency()
@@ -42,5 +44,10 @@ class Purchase extends Model
     public function purchaseItems()
     {
         return $this->hasMany(PurchaseItem::class);
+    }
+
+    public function warehouse()
+    {
+        return $this->belongsTo(Warehouse::class);
     }
 }
