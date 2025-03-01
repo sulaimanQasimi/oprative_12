@@ -37,25 +37,40 @@ class SaleResource extends Resource
                                     ->relationship('customer', 'name')
                                     ->searchable()
                                     ->preload()
-                                    ->required(),
+                                    ->required()
+                                    ->exists('customers', 'id')
+                                    ->label('Customer'),
                                 Select::make('warehouse_id')
                                     ->relationship('warehouse', 'name')
                                     ->searchable()
                                     ->preload()
-                                    ->required(),
+                                    ->required()
+                                    ->exists('warehouses', 'id')
+                                    ->label('Warehouse'),
                                 Select::make('currency_id')
                                     ->relationship('currency', 'name')
                                     ->searchable()
                                     ->preload()
-                                    ->required(),
+                                    ->required()
+                                    ->exists('currencies', 'id')
+                                    ->label('Currency'),
                                 TextInput::make('currency_rate')
                                     ->numeric()
                                     ->default(1)
-                                    ->required(),
+                                    ->required()
+                                    ->minValue(0.01)
+                                    ->step(0.01)
+                                    ->label('Currency Rate'),
                                 DateTimePicker::make('sale_date')
-                                    ->required(),
+                                    ->required()
+                                    ->before('tomorrow')
+                                    ->label('Sale Date'),
                                 TextInput::make('reference')
-                                    ->maxLength(255),
+                                    ->maxLength(255)
+                                    ->unique(ignoreRecord: true)
+                                    ->regex('/^[A-Za-z0-9-]+$/')
+                                    ->helperText('Only letters, numbers, and hyphens are allowed')
+                                    ->label('Reference Number'),
                                 Select::make('status')
                                     ->options([
                                         'pending' => 'Pending',
@@ -64,7 +79,8 @@ class SaleResource extends Resource
                                         'cancelled' => 'Cancelled'
                                     ])
                                     ->required()
-                                    ->default('pending'),
+                                    ->default('pending')
+                                    ->label('Status'),
                                 Select::make('payment_status')
                                     ->options([
                                         'pending' => 'Pending',
@@ -73,7 +89,8 @@ class SaleResource extends Resource
                                         'overdue' => 'Overdue'
                                     ])
                                     ->required()
-                                    ->default('pending'),
+                                    ->default('pending')
+                                    ->label('Payment Status'),
                                 Select::make('payment_method')
                                     ->options([
                                         'cash' => 'Cash',
@@ -82,6 +99,7 @@ class SaleResource extends Resource
                                         'cheque' => 'Cheque'
                                     ])
                                     ->required()
+                                    ->label('Payment Method')
                             ])
                     ]),
                 Forms\Components\Section::make('Additional Information')
@@ -89,6 +107,8 @@ class SaleResource extends Resource
                         Textarea::make('notes')
                             ->maxLength(65535)
                             ->columnSpanFull()
+                            ->label('Notes')
+                            ->nullable()
                     ])
             ]);
     }
