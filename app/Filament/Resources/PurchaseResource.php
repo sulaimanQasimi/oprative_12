@@ -180,10 +180,30 @@ class PurchaseResource extends Resource
                         if (!$record->warehouse_id) {
                             return;
                         }
-                        $record->update([
-                            'status' => 'warehouse_moved',
-                            'is_moved_to_warehouse' => true,
-                        ]);
+
+                        // Begin transaction to ensure data consistency
+                        \Illuminate\Support\Facades\DB::transaction(function () use ($record) {
+                            // Update purchase status
+                            $record->update([
+                                'status' => 'warehouse_moved',
+                                'is_moved_to_warehouse' => true,
+                            ]);
+
+                            // Move all purchase items to warehouse inventory
+                            foreach ($record->purchaseItems as $purchaseItem) {
+                                // Find or create warehouse product entry
+                                $warehouseProduct = \App\Models\WarehouseProduct::firstOrCreate(
+                                    [
+                                        'warehouse_id' => $record->warehouse_id,
+                                        'product_id' => $purchaseItem->product_id,
+                                    ],
+                                    ['quantity' => 0]
+                                );
+
+                                // Update warehouse product quantity
+                                $warehouseProduct->increment('quantity', $purchaseItem->quantity);
+                            }
+                        });
                     }),
             ])
             ->bulkActions([

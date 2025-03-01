@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class WarehouseProduct extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
 
     protected $table = 'warehouse_products';
 
