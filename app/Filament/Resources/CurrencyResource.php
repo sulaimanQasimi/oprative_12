@@ -24,14 +24,22 @@ class CurrencyResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->minLength(2)
                     ->maxLength(255)
                     ->unique(table: 'currencies', column: 'name', ignoreRecord: true)
+                    ->regex('/^[A-Za-z\s]+$/')
                     ->label('Name')
+                    ->placeholder('Enter currency name')
                     ->translateLabel(),
                 Forms\Components\TextInput::make('code')
-                    ->maxLength(255)
+                    ->required()
+                    ->length(3)
                     ->unique(table: 'currencies', column: 'code', ignoreRecord: true)
+                    ->regex('/^[A-Z]+$/')
                     ->label('Code')
+                    ->placeholder('Enter currency code')
+                    ->helperText('Use standard 3-letter currency code (e.g. USD, EUR, GBP)')
                     ->translateLabel(),
             ]);
     }

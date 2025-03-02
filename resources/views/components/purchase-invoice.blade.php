@@ -11,7 +11,7 @@
             .print-container {
                 width: 210mm;
                 min-height: 297mm;
-                padding: 20mm;
+                padding: 10mm;
                 margin: 0 auto;
                 background: white;
             }
