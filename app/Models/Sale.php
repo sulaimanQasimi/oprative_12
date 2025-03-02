@@ -15,19 +15,9 @@ class Sale extends Model
         'customer_id',
         'warehouse_id',
         'currency_id',
-        'sale_date',
+        'date',
         'reference',
-        'tax_percentage',
-        'tax_amount',
-        'discount_percentage',
-        'discount_amount',
-        'shipping_cost',
-        'total_amount',
-        'paid_amount',
-        'due_amount',
         'status',
-        'payment_status',
-        'payment_method',
         'notes'
     ];
 
@@ -46,6 +36,11 @@ class Sale extends Model
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function salePayments(): HasMany
+    {
+        return $this->hasMany(SalePayment::class);
     }
 
     public function warehouse(): BelongsTo

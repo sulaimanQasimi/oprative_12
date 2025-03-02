@@ -62,7 +62,7 @@ class SaleResource extends Resource
                                     ->minValue(0.01)
                                     ->step(0.01)
                                     ->label('Currency Rate'),
-                                DateTimePicker::make('sale_date')
+                                DateTimePicker::make('date')
                                     ->required()
                                     ->before('tomorrow')
                                     ->label('Sale Date'),
@@ -82,25 +82,6 @@ class SaleResource extends Resource
                                     ->required()
                                     ->default('pending')
                                     ->label('Status'),
-                                Select::make('payment_status')
-                                    ->options([
-                                        'pending' => 'Pending',
-                                        'partial' => 'Partial',
-                                        'paid' => 'Paid',
-                                        'overdue' => 'Overdue'
-                                    ])
-                                    ->required()
-                                    ->default('pending')
-                                    ->label('Payment Status'),
-                                Select::make('payment_method')
-                                    ->options([
-                                        'cash' => 'Cash',
-                                        'bank_transfer' => 'Bank Transfer',
-                                        'credit_card' => 'Credit Card',
-                                        'cheque' => 'Cheque'
-                                    ])
-                                    ->required()
-                                    ->label('Payment Method')
                             ])
                     ]),
                 Forms\Components\Section::make('Additional Information')
