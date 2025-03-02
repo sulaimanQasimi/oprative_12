@@ -10,7 +10,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
 use Filament\Forms;
-
+use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -20,6 +20,7 @@ use Filament\Tables\Table;
 class SaleResource extends Resource
 {
     protected static ?string $model = Sale::class;
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $navigationGroup = 'Sales';
@@ -189,6 +190,22 @@ class SaleResource extends Resource
             'index' => Pages\ListSales::route('/'),
             'create' => Pages\CreateSale::route('/create'),
             'edit' => Pages\EditSale::route('/{record}/edit'),
+            'payments' => Pages\SalePayments::route('/{record}/payments'),
+            'items' => Pages\SaleItems::route('/{record}/items'),
         ];
+    }
+
+    public static function getRecordSubNavigation(\Filament\Resources\Pages\Page $page): array
+    {
+        return $page->generateNavigationItems([
+            // Pages\ViewSales::class,
+            Pages\EditSale::class,
+            Pages\SalePayments::class, //
+            Pages\SaleItems::class, //
+            // Pages\ExpenseResourceRelationPage::class,
+            // Pages\ViewM16Outcome::class,
+            // Pages\EditM16Outcome::class,
+            // Pages\LogActivity::class,
+        ]);
     }
 }
