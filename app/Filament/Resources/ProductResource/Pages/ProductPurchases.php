@@ -28,7 +28,7 @@ class ProductPurchases extends ManageRelatedRecords
 
     public function getTitle(): string
     {
-        $totalAmount = $this->getOwnerRecord()->purchaseItems->sum('total');
+        $totalAmount = $this->getOwnerRecord()->purchaseItems->sum('total_price');
         return "Product Purchases - Total: $" . number_format($totalAmount, 2);
     }
 
@@ -70,7 +70,7 @@ class ProductPurchases extends ManageRelatedRecords
                     ->money('usd')
                     ->sortable()
                     ->alignRight(),
-                Tables\Columns\TextColumn::make('total')
+                Tables\Columns\TextColumn::make('total_price')
                     ->label('Total')
                     ->money('usd')
                     ->sortable()
@@ -133,6 +133,11 @@ class ProductPurchases extends ManageRelatedRecords
                         ->modalHeading('View Purchase Item'),
                     Tables\Actions\DeleteAction::make()
                         ->modalHeading('Delete Purchase Item'),
+                    Tables\Actions\Action::make('invoice')
+                        ->label('Invoice')
+                        ->icon('heroicon-o-document-text')
+                        ->url(fn (PurchaseItem $record): string => route('filament.admin.resources.purchases.invoice', ['purchase' => $record->purchase_id]))
+                        ->openUrlInNewTab(),
                 ]),
             ])
             ->bulkActions([
