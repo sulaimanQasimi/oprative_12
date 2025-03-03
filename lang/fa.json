@@ -98,6 +98,12 @@
     "Warehouse": "گدام",
     "Branch": "شعبه",
     "Branches": "شعبه‌ها",
+    "Total Imports": "مجموع واردات",
+    "Completed warehouse imports": "واردات تکمیل شده به انبار",
+    "Total Imported Quantity": "مجموع تعداد وارد شده",
+    "Units moved to warehouse": "واحدهای منتقل شده به انبار",
+    "Total Import Value": "مجموع ارزش واردات",
+    "Value of imported products": "ارزش محصولات وارد شده"
     "Sale": "فروش",
     "Purchase": "خرید",
     "Return": "مرجوعی",
