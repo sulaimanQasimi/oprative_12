@@ -37,7 +37,7 @@ class PurchasePayments extends ManageRelatedRecords
 
     public static function getNavigationLabel(): string
     {
-        return 'Purchase Payments';
+        return __('Purchase Payments');
     }
 
     public function form(Form $form): Form
