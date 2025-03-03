@@ -39,18 +39,10 @@ class WarehouseResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Warehouse Details')
+                FormsComponentsSection::make('Warehouse Details')
                     ->schema([
-                        Forms\Components\Grid::make(2)
+                        FormsComponentsGrid::make(2)
                             ->schema([
-                                Select::make('branch_id')
-                                    ->label('Branch')
-                                    ->translateLabel()
-                                    ->relationship('branch', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->prefixIcon('heroicon-o-building-office')
-                                    ->required(),
                                 TextInput::make('name')
                                     ->label('Name')
                                     ->translateLabel()
@@ -90,9 +82,6 @@ class WarehouseResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('branch.name')
-                    ->searchable()
-                    ->sortable(),
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
