@@ -26,6 +26,16 @@ class SaleResource extends Resource
     protected static ?string $navigationGroup = 'Sales';
     protected static ?int $navigationSort = 2;
 
+    public static function getPluralModelLabel(): string
+    {
+        return __('Sales');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Sale');
+    }
+
     public static function form(Form $form): Form
     {
         return $form

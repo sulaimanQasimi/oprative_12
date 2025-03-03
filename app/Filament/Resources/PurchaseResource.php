@@ -19,27 +19,28 @@ class PurchaseResource extends Resource
 {
     protected static ?string $model = Purchase::class;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationGroup = 'Sales';
+    protected static ?int $navigationSort = 2;
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Purchases');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Purchase');
+    }
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Purchase Details')
+                Forms\Components\Section::make(__('Purchase Details'))
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                // Forms\Components\Select::make('user_id')
-                                //     ->label('User')
-                                //     ->translateLabel()
-                                //     ->relationship('user', 'name')
-                                //     ->default(auth()->user()->id)
-                                //     ->disabled()
-                                //     ->searchable()
-                                //     ->preload()
-                                //     ->prefixIcon('heroicon-o-user')
-                                //     ->required()
-                                //     ->exists('users', 'id'),
                                 Forms\Components\Select::make('supplier_id')
                                     ->label('Supplier')
                                     ->translateLabel()
@@ -120,7 +121,7 @@ class PurchaseResource extends Resource
                                     ->searchable()
                                     ->preload()
                                     ->prefixIcon('heroicon-o-building-office')
-                                    ->visible(fn ($record) => $record?->status === 'arrived' && !$record?->is_moved_to_warehouse)
+                                    ->visible(fn($record) => $record?->status === 'arrived' && !$record?->is_moved_to_warehouse)
                                     ->exists('warehouses', 'id'),
                             ]),
                     ]),
@@ -168,7 +169,7 @@ class PurchaseResource extends Resource
                     ->label('Status')
                     ->translateLabel()
                     ->searchable()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
                         'purchase' => 'Purchase',
                         'onway' => 'On Way',
                         'on_border' => 'On Border',

@@ -19,6 +19,16 @@ class CurrencyResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    public static function getPluralModelLabel(): string
+    {
+        return __('Currencies');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Currency');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -58,12 +68,10 @@ class CurrencyResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->label('Name')
-                    ->translateLabel(),
+                    ->label(__('Name')),
                 Tables\Columns\TextColumn::make('code')
                     ->searchable()
-                    ->label('Name')
-                    ->translateLabel(),
+                    ->label(__('Code')),
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),

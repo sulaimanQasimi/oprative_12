@@ -21,6 +21,16 @@ class WarehouseResource extends Resource
 {
     protected static ?string $model = Warehouse::class;
 
+    public static function getPluralModelLabel(): string
+    {
+        return __('Warehouses');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Warehouse');
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
     protected static ?string $navigationGroup = 'Organization';
     protected static ?int $navigationSort = 2;
@@ -29,18 +39,10 @@ class WarehouseResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Warehouse Details')
+                Forms\Components\Section::make(__('Warehouse Details'))
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
-                                Select::make('branch_id')
-                                    ->label('Branch')
-                                    ->translateLabel()
-                                    ->relationship('branch', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->prefixIcon('heroicon-o-building-office')
-                                    ->required(),
                                 TextInput::make('name')
                                     ->label('Name')
                                     ->translateLabel()
@@ -60,7 +62,7 @@ class WarehouseResource extends Resource
                                     ->default(true)
                             ])
                     ]),
-                Forms\Components\Section::make('Additional Information')
+                Forms\Components\Section::make(__('Additional Information'))
                     ->schema([
                         Textarea::make('description')
                             ->label('Description')
@@ -80,9 +82,6 @@ class WarehouseResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('branch.name')
-                    ->searchable()
-                    ->sortable(),
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable(),
