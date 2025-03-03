@@ -22,7 +22,7 @@ class PurchaseResource extends Resource
     protected static ?string $navigationGroup = 'Sales';
     protected static ?int $navigationSort = 2;
 
-    public static function getPluralModelLabel(): string
+    public static function getNavigationLabel(): string
     {
         return __('Purchases');
     }
@@ -30,6 +30,20 @@ class PurchaseResource extends Resource
     public static function getModelLabel(): string
     {
         return __('Purchase');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Purchases');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\ViewAction::make()->label(__('View Purchase')),
+            Actions\EditAction::make()->label(__('Edit Purchase')),
+            Actions\DeleteAction::make(),
+        ];
     }
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
