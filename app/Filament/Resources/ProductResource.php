@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Pages\SubNavigationPosition;
 
 class ProductResource extends Resource
 {
@@ -132,6 +133,8 @@ class ProductResource extends Resource
 
 
 
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+
     public static function getPages(): array
     {
         return [
@@ -139,6 +142,8 @@ class ProductResource extends Resource
             'create' => Pages\CreateProduct::route('/create'),
             'view' => Pages\ViewProduct::route('/{record}'),
             'edit' => Pages\EditProduct::route('/{record}/edit'),
+            'purchases' => Pages\ProductPurchases::route('/{record}/purchases'),
+            'sales' => Pages\ProductSales::route('/{record}/sales'),
         ];
     }
 
