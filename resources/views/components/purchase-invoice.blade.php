@@ -73,13 +73,13 @@
                 <div>
                     <h1 class="font-bold">@lang('PURCHASE INVOICE')</h1>
                     <p class="text-sm">@lang('Invoice #'): {{ $purchase->invoice_number }}</p>
-                    <p class="text-sm">Date: {{ $purchase->invoice_date->format('d/m/Y') }}</p>
+                    <p class="text-sm">@lang("Date"): {{ $purchase->invoice_date->format('d/m/Y') }}</p>
                 </div>
                 <div class="text-right">
                     <h2 class="text-xl font-semibold text-white mb-2">{{ config('invoice.company.name') }}</h2>
                     <p class="text-sm text-white opacity-90">{{ config('invoice.company.address.street') }}</p>
                     <p class="text-sm text-white opacity-90">{{ config('invoice.company.address.city') }}, {{ config('invoice.company.address.country') }}</p>
-                    <p class="text-sm text-white opacity-90">Phone: {{ config('invoice.company.contact.phone') }}</p>
+                    <p class="text-sm text-white opacity-90">@lang("Phone"): {{ config('invoice.company.contact.phone') }}</p>
                 </div>
             </div>
             <!-- Supplier & Purchase Details -->
@@ -108,7 +108,7 @@
                             default => ucfirst($purchase->status)
                         } }}</span></p>
                         <div class="flex flex-col gap-2">
-                            <p>@lang('Currency'): {{ $purchase->currency->code }}</p>
+                            <p>@lang('Currency'): {{ $purchase->currency->name }}</p>
                             <div class="flex items-center gap-2">
                                 <span class="text-indigo-600 font-medium">@lang('Exchange Rate'):</span>
                                 <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full font-medium">{{ number_format($purchase->currency_rate, 4) }}</span>
