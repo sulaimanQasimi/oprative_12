@@ -16,8 +16,8 @@ class PurchaseItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'purchaseItems';
     protected static ?string $recordTitleAttribute = 'id';
-    protected static ?string $title = 'Purchase Items';
-    protected static ?string $modelLabel = 'Purchase Item';
+    protected static ?string $title = 'purchase.items';
+    protected static ?string $modelLabel = 'purchase.item';
 
     public function form(Form $form): Form
     {
