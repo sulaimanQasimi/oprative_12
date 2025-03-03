@@ -147,6 +147,16 @@ class ProductResource extends Resource
         ];
     }
 
+    public static function getRecordSubNavigation(\Filament\Resources\Pages\Page $page): array
+    {
+        return $page->generateNavigationItems([
+            Pages\ViewProduct::class,
+            Pages\EditProduct::class,
+            Pages\ProductPurchases::class,
+            Pages\ProductSales::class,
+        ]);
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
