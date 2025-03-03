@@ -37,7 +37,7 @@ class PurchaseResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Purchase Details')
+                Forms\Components\Section::make(__('Purchase Details'))
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([

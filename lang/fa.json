@@ -98,6 +98,9 @@
     "Warehouse Details": "جزئیات گدام",
     "Source Warehouse": "گدام مبدا",
     "Destination Warehouse": "گدام مقصد",
+    "Invoice Number": "شماره فاکتور",
+    "Invoice Date": "تاریخ فاکتور",
+    "Currency Rate": "نرخ ارز",
     "Transfer Date": "تاریخ انتقال",
     "Transfer Status": "وضعیت انتقال",
     "Pending": "در انتظار",
@@ -115,5 +118,7 @@
     "State": "استان",
     "Country": "کشور",
     "Postal Code": "کد پستی",
-    "ID Number": "شماره شناسایی"
+    "ID Number": "شماره شناسایی",
+    "Customer Information": "اطلاعات مشتری",
+    "Address & Notes": "آدرس و یادداشت‌ها"
 }
