@@ -39,9 +39,9 @@ class WarehouseResource extends Resource
     {
         return $form
             ->schema([
-                FormsComponentsSection::make('Warehouse Details')
+                Forms\Components\Section::make(__('Warehouse Details'))
                     ->schema([
-                        FormsComponentsGrid::make(2)
+                        Forms\Components\Grid::make(2)
                             ->schema([
                                 TextInput::make('name')
                                     ->label('Name')
@@ -62,7 +62,7 @@ class WarehouseResource extends Resource
                                     ->default(true)
                             ])
                     ]),
-                Forms\Components\Section::make('Additional Information')
+                Forms\Components\Section::make(__('Additional Information'))
                     ->schema([
                         Textarea::make('description')
                             ->label('Description')
