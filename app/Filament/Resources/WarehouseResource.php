@@ -21,6 +21,16 @@ class WarehouseResource extends Resource
 {
     protected static ?string $model = Warehouse::class;
 
+    public static function getPluralModelLabel(): string
+    {
+        return __('Warehouses');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Warehouse');
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
     protected static ?string $navigationGroup = 'Organization';
     protected static ?int $navigationSort = 2;

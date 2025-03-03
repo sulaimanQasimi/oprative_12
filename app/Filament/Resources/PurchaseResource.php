@@ -19,6 +19,18 @@ class PurchaseResource extends Resource
 {
     protected static ?string $model = Purchase::class;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationGroup = 'Sales';
+    protected static ?int $navigationSort = 2;
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('Purchases');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Purchase');
+    }
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
     public static function form(Form $form): Form

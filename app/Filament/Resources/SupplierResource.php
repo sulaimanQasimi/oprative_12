@@ -17,13 +17,23 @@ class SupplierResource extends Resource
 {
     protected static ?string $model = Supplier::class;
 
+    public static function getPluralModelLabel(): string
+    {
+        return __('Suppliers');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Supplier');
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Supplier Details')
+                Forms\Components\Section::make(__('Supplier Details'))
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
@@ -51,7 +61,7 @@ class SupplierResource extends Resource
                                     ->prefixIcon('heroicon-o-envelope'),
                             ]),
                     ]),
-                Forms\Components\Section::make('Address Details')
+                Forms\Components\Section::make(__('Address Details'))
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
@@ -82,7 +92,7 @@ class SupplierResource extends Resource
                                     ->prefixIcon('heroicon-o-envelope'),
                             ]),
                     ]),
-                Forms\Components\Section::make('Additional Details')
+                Forms\Components\Section::make(__('Additional Details'))
                     ->schema([
                         Forms\Components\FileUpload::make('image')
                             ->label('Image')
@@ -145,7 +155,7 @@ class SupplierResource extends Resource
                 ]),
             ]);
     }
-    
+
 
     public static function infolist(\Filament\Infolists\Infolist $infolist): \Filament\Infolists\Infolist
     {

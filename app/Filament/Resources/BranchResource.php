@@ -19,6 +19,16 @@ class BranchResource extends Resource
 {
     protected static ?string $model = Branch::class;
 
+    public static function getPluralModelLabel(): string
+    {
+        return __('Branches');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Branch');
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
     protected static ?string $navigationGroup = 'Organization';
     protected static ?int $navigationSort = 1;

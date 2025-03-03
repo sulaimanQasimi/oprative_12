@@ -17,6 +17,16 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
+    public static function getPluralModelLabel(): string
+    {
+        return __('Products');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('Product');
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-cube';
 
     public static function form(Form $form): Form
@@ -25,23 +35,23 @@ class ProductResource extends Resource
             ->schema([
                 Forms\Components\Group::make()
                     ->schema([
-                        Forms\Components\Section::make('Product Details')
+                        Forms\Components\Section::make(__('Product Details'))
                             ->schema([
                                 Forms\Components\Grid::make(2)
                                     ->schema([
                                         Forms\Components\TextInput::make('name')
-                                            ->label('Name')
+                                            ->label(__('Name'))
                                             ->translateLabel()
                                             ->maxLength(255)
                                             ->prefixIcon('heroicon-o-tag'),
                                         Forms\Components\TextInput::make('price')
-                                            ->label('Price')
+                                            ->label(__('Price'))
                                             ->translateLabel()
                                             ->numeric()
-                                            ->prefix('$')
+                                            ->prefix(__('$'))
                                             ->prefixIcon('heroicon-o-currency-dollar'),
                                         Forms\Components\Textarea::make('description')
-                                            ->label('Description')
+                                            ->label(__('Description'))
                                             ->translateLabel()
                                             ->columnSpanFull(),
                                     ]),
@@ -49,19 +59,19 @@ class ProductResource extends Resource
                     ]),
                 Forms\Components\Group::make()
                     ->schema([
-                        Forms\Components\Section::make('Additional Details')
+                        Forms\Components\Section::make(__('Additional Details'))
                             ->schema([
                                 Forms\Components\Grid::make(2)
                                     ->schema([
                                         Forms\Components\TextInput::make('barcode')
-                                            ->label('Barcode')
+                                            ->label(__('Barcode'))
                                             ->translateLabel()
                                             ->maxLength(255)
                                             ->unique(table: 'products', column: 'barcode', ignoreRecord: true)
                                             ->prefixIcon('heroicon-o-bars-4')
                                             ->columnSpanFull(),
                                         Forms\Components\FileUpload::make('image')
-                                            ->label('Image')
+                                            ->label(__('Image'))
                                             ->translateLabel()
                                             ->image()
                                             ->columnSpanFull(),
