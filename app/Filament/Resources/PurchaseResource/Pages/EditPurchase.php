@@ -31,6 +31,6 @@ class EditPurchase extends EditRecord
 
     public static function getNavigationLabel(): string
     {
-        return __('Edit Purchase');
+        return trans('Edit Purchase');
     }
 }
