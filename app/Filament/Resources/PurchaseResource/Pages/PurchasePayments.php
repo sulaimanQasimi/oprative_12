@@ -32,7 +32,7 @@ class PurchasePayments extends ManageRelatedRecords
         $remainingAmount = $totalAmount - $paidAmount;
         $currencyCode = $this->getOwnerRecord()->currency->code;
 
-        return "Purchase Payments - Remaining: {$currencyCode} " . number_format($remainingAmount, 2);
+        return __('Purchase Payments - Remaining', ['currency' => $currencyCode, 'amount' => number_format($remainingAmount, 2)]);
     }
 
     public static function getNavigationLabel(): string
