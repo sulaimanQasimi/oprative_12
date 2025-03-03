@@ -32,6 +32,15 @@ class ProductStatsOverview extends BaseWidget
             ->selectRaw('SUM(quantity) as total_quantity, SUM(quantity * price) as total_value')
             ->first();
 
+        $remainingQuantity = ($totalPurchases->total_quantity ?? 0) - ($totalSales->total_quantity ?? 0);
+        $stockStatus = 'danger';
+        
+        if ($remainingQuantity > 50) {
+            $stockStatus = 'success';
+        } elseif ($remainingQuantity > 20) {
+            $stockStatus = 'warning';
+        }
+
         return [
             Stat::make(__('Total Purchased Quantity'), number_format($totalPurchases->total_quantity ?? 0))
                 ->description(__('Total units purchased'))
@@ -48,6 +57,10 @@ class ProductStatsOverview extends BaseWidget
             Stat::make(__('Total Sales Value'), number_format($totalSales->total_value ?? 0, 2))
                 ->description(__('Total sales value in base currency'))
                 ->color('warning'),
+
+            Stat::make(__('Remaining Stock'), number_format($remainingQuantity))
+                ->description(__('Current stock level'))
+                ->color($stockStatus),
         ];
     }
 }
