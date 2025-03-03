@@ -34,12 +34,16 @@ class ProductStatsOverview extends BaseWidget
 
         $remainingQuantity = ($totalPurchases->total_quantity ?? 0) - ($totalSales->total_quantity ?? 0);
         $stockStatus = 'danger';
-        
+
         if ($remainingQuantity > 50) {
             $stockStatus = 'success';
         } elseif ($remainingQuantity > 20) {
             $stockStatus = 'warning';
         }
+
+        $latestPurchase = PurchaseItem::where('product_id', $product->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
 
         return [
             Stat::make(__('Total Purchased Quantity'), number_format($totalPurchases->total_quantity ?? 0))
@@ -49,6 +53,10 @@ class ProductStatsOverview extends BaseWidget
             Stat::make(__('Total Purchase Value'), number_format($totalPurchases->total_value ?? 0, 2))
                 ->description(__('Total purchase value in base currency'))
                 ->color('success'),
+
+            Stat::make(__('Latest Purchase Price'), number_format($latestPurchase?->price ?? 0, 2))
+                ->description(__('Most recent purchase price'))
+                ->color('info'),
 
             Stat::make(__('Total Sales Quantity'), number_format($totalSales->total_quantity ?? 0))
                 ->description(__('Total units sold'))
