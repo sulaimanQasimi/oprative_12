@@ -28,4 +28,9 @@ class EditPurchase extends EditRecord
             Actions\RestoreAction::make(),
         ];
     }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Edit Purchase');
+    }
 }
