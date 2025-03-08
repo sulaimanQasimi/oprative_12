@@ -54,25 +54,12 @@ class AccountsPlugin implements Plugin
                 AccountResource::class
             ];
 
-            // if($this->useRequests){
-            //     $resources[] = AccountRequestResource::class;
-            // }
-
-            // if($this->useContactUs){
-            //     $resources[] = ContactResource::class;
-            // }
-
-            // if($this->useTeams){
-            //     $resources[] = TeamResource::class;
-            // }
-
 
                 $panel->pages([
                     AccountResource\Pages\AccountTypes::class,
                                 ]);
 
             $panel->resources($resources);
-        // }
     }
 
     public function useExport(bool $useExport = true): static
