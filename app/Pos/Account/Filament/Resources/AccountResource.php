@@ -37,17 +37,17 @@ class AccountResource extends Resource
      */
     public static function getModel(): string
     {
-        return config('account.model');
+        return Account::class;
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return trans('account::messages.group');
+        return trans('Accountants Management');
     }
 
     public static function getNavigationLabel(): string
     {
-        return trans('account::messages.accounts.label');
+        return trans('Accounts');
     }
 
     public static function getPluralLabel(): ?string
