@@ -2,6 +2,7 @@
 
 use App\Models\AccountType;
 use App\Models\Branch;
+use App\Models\Customer;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('accounts', function (Blueprint $table) {
             $table->uuid();
-            $table->foreignIdFor(Branch::class)->nullable();
+            $table->foreignIdFor(Customer::class)->nullable();
             $table->string('account_number');
             $table->foreignIdFor(AccountType::class)->nullable();
             $table->timestamps();
