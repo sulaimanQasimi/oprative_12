@@ -12,27 +12,24 @@ class ExportAccountsAction
     public static function make(): Action
     {
         return Action::make('export')
-            ->label(trans('account::messages.accounts.export.title'))
+            ->label(trans('Export Accounts'))
             ->requiresConfirmation()
             ->color('info')
             ->icon('heroicon-o-arrow-down-on-square')
             ->fillForm([
                 'columns' => [
-                    'id' => trans('account::messages.accounts.coulmns.id'),
-                    'name' => trans('account::messages.accounts.coulmns.name'),
-                    'email' => trans('account::messages.accounts.coulmns.email'),
-                    'phone' => trans('account::messages.accounts.coulmns.phone'),
-                    'address' => trans('account::messages.accounts.coulmns.address'),
-                    'type' => trans('account::messages.accounts.coulmns.type'),
-                    'is_login' => trans('account::messages.accounts.coulmns.is_login'),
-                    'is_active' => trans('account::messages.accounts.coulmns.is_active'),
-                    'created_at' => trans('account::messages.accounts.coulmns.created_at'),
-                    'updated_at' => trans('account::messages.accounts.coulmns.updated_at'),
-                ]
+                    'id' => trans('Id'),
+                    'name' => trans('Name'),
+                    'email' => trans('Email'),
+                    'phone' => trans('Phone'),
+                    'address' => trans('Address'),
+                    'type' => trans('Type'),
+                    'is_active' => trans('Is Active'),
+                 ]
             ])
             ->form([
                 Forms\Components\KeyValue::make('columns')
-                    ->label(trans('account::messages.accounts.export.columns'))
+                    ->label(trans('Export Columns'))
                     ->required()
                     ->editableKeys(false)
                     ->addable(false)

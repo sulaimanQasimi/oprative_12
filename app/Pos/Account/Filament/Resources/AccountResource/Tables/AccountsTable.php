@@ -127,8 +127,8 @@ class AccountsTable extends TableBuilder
         ]);
 
         $actions = collect([]);
-        $actions->add(ExportAccountsAction::make());
-        $actions->add(ImportAccountsAction::make());
+        // $actions->add(ExportAccountsAction::make());
+        // $actions->add(ImportAccountsAction::make());
 
         return $table
             ->headerActions($actions->toArray())

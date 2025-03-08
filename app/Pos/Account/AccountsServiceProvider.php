@@ -27,10 +27,6 @@ class AccountsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //Register generate command
-        $this->commands([
-            \App\Pos\Account\Console\FilamentAccountsInstall::class,
-        ]);
 
         //Register Config file
         $this->mergeConfigFrom(__DIR__ . '/../config/account.php', 'account');
@@ -92,13 +88,9 @@ class AccountsServiceProvider extends ServiceProvider
             return new \App\Pos\Account\Services\BuildAuth();
         });
 
-
-        Livewire::component('sanctum-tokens', SanctumTokens::class);
-        Livewire::component('otp', Otp::class);
-        Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountMetaManager::class);
+     Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountMetaManager::class);
         Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountLocationsManager::class);
         Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountRequestsManager::class);
-        Livewire::component('tomato-contact-us-form', ContactUs::class);
     }
 
     public function boot(): void
