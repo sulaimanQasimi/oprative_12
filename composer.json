@@ -36,7 +36,6 @@
         "teguh02/filament-db-sync": "^1.2",
         "tomatophp/filament-api": "^1.0",
         "tomatophp/filament-language-switcher": "^1.0",
-        "tomatophp/filament-pos": "^1.0",
         "tomatophp/filament-users": "*",
         "torgodly/html2media": "^1.1",
         "vormkracht10/filament-2fa": "^2.0"
