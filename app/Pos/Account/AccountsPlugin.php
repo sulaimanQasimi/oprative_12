@@ -5,12 +5,9 @@ namespace App\Pos\Account;
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Illuminate\Support\Facades\Config;
-use Nwidart\Modules\Module;
-use App\Pos\Account\Filament\Resources\AccountRequestResource;
 use App\Pos\Account\Filament\Resources\AccountResource;
-use App\Pos\Account\Filament\Resources\ContactResource;
-use App\Pos\Account\Filament\Resources\TeamResource;
-use TomatoPHP\FilamentPlugins\Facades\FilamentPlugins;
+use App\Pos\Account\Filament\Resources\TypeResource;
+use Filament\SpatieLaravelTranslatablePlugin;
 
 class AccountsPlugin implements Plugin
 {
@@ -50,16 +47,20 @@ class AccountsPlugin implements Plugin
         // }
 
         // if($this->isActive){
-            $resources = [
-                AccountResource::class
-            ];
+        $resources = [
+            AccountResource::class,
+            TypeResource::class
+        ];
 
 
-                $panel->pages([
-                    AccountResource\Pages\AccountTypes::class,
-                                ]);
-
-            $panel->resources($resources);
+        $panel->pages([
+            AccountResource\Pages\AccountTypes::class,
+        ]);
+        $panel->plugin(
+            SpatieLaravelTranslatablePlugin::make()
+                ->defaultLocales(['en', 'ar']),
+        );
+        $panel->resources($resources);
     }
 
     public function useExport(bool $useExport = true): static
@@ -174,7 +175,7 @@ class AccountsPlugin implements Plugin
 
     public function boot(Panel $panel): void
     {
-        if($this->isActive){
+        if ($this->isActive) {
             Config::set('account.features.locations', $this->useLocations);
             Config::set('account.features.meta', $this->useAccountMeta);
             Config::set('account.features.requests', $this->useRequests);
@@ -187,7 +188,6 @@ class AccountsPlugin implements Plugin
             Config::set('account.features.impersonate.active', $this->useImpersonate);
             Config::set('account.features.impersonate.redirect', $this->impersonateRedirect);
         }
-
     }
 
     public static function make(): static

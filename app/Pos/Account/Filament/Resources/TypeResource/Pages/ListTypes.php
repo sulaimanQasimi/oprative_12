@@ -1,21 +1,19 @@
 <?php
 
-namespace TomatoPHP\FilamentTypes\Resources\TypeResource\Pages;
+namespace App\Pos\Account\Filament\Resources\TypeResource\Pages;
 
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Concerns\Translatable;
 use Filament\Resources\Pages\ManageRecords;
 use Illuminate\Validation\ValidationException;
-use TomatoPHP\FilamentTypes\Models\Type;
-use TomatoPHP\FilamentTypes\Resources\TypeResource;
+use App\Pos\Account\Models\Type;
+use App\Pos\Account\Filament\Resources\TypeResource;
 
 class ListTypes extends ManageRecords
 {
     use ManageRecords\Concerns\Translatable;
 
-    #[Reactive]
-    public ?string $activeLocale = null;
 
     public function getTitle():string
     {

@@ -1,14 +1,11 @@
 <?php
 
-namespace App\Pos\Account\Resources;
+namespace App\Pos\Account\Filament\Resources;
 
 use TomatoPHP\FilamentIcons\Components\IconPicker;
-use TomatoPHP\FilamentIcons\Components\IconColumn;
 use Filament\Resources\Concerns\Translatable;
-use Illuminate\Database\Eloquent\Builder;
 use App\Pos\Account\Components\TypeColumn;
-use App\Pos\Account\Facades\FilamentTypes;
-use App\Pos\Account\Resources\TypeResource\Pages;
+use App\Pos\Account\Filament\Resources\TypeResource\Pages;
 use App\Pos\Account\Models\Type;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -26,119 +23,54 @@ class TypeResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return trans('filament-types::messages.title');
+        return trans('Account Types');
     }
 
     public static function getLabel(): ?string
     {
-        return  trans('filament-types::messages.single');
+        return  trans('Account Type');
     }
 
     public static function getPluralLabel(): ?string
     {
-        return trans('filament-types::messages.title');
+        return trans('Account Types');
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return trans('filament-types::messages.group');
+        return trans('Account Types');
     }
-
-    private static function getTypes(?string $getFor=null): array
-    {
-        $mergeTypes = [];
-        $mergeFor = [];
-        foreach (config('filament-types.types') as $key => $type){
-            $mergeFor[$key] = $key;
-            $mergeTypes[$key] = [];
-        }
-
-        foreach (FilamentTypes::getFor() as $for){
-            $mergeFor[$for] = $for;
-
-            $providerTypes = FilamentTypes::getTypes($for);
-            foreach ($providerTypes as $key=>$type){
-                $mergeTypes[$key] = [];
-            }
-        }
-        foreach (config('filament-types.types') as $key => $type){
-            foreach ($type as $item){
-                if(!in_array($item, $mergeTypes[$key])) {
-                    $mergeTypes[$key][$item] = $item;
-                }
-            }
-
-        }
-        foreach (FilamentTypes::getFor() as $for){
-            $providerTypes = FilamentTypes::getTypes($for);
-            foreach ($providerTypes as $key => $type){
-                foreach ($type as $item){
-                    if(!in_array($item, $mergeTypes[$key])){
-                        $mergeTypes[$key][$item] = $item;
-                    }
-                }
-            }
-        }
-
-        return !empty($getFor) ? collect($mergeTypes)->filter(fn($types, $key) => $key === $getFor)->toArray() : $mergeFor;
-    }
-
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\SpatieMediaLibraryFileUpload::make('image')
-                    ->label(trans('filament-types::messages.form.image'))
+                    ->label(trans('Image'))
                     ->columnSpan(2)
-                    ->collection('image')
+                    ->collection('Image')
                     ->image()
                     ->maxFiles(1),
-                Forms\Components\Select::make('for')
-                    ->label(trans('filament-types::messages.form.for'))
-                    ->options(static::getTypes())
-                    ->searchable()
-                    ->afterStateUpdated(function (Forms\Set $set){
-                        $set('type', null);
-                        $set('parent_id', null);
-                    })
-                    ->live()
-                    ->required(),
-                Forms\Components\Select::make('type')
-                    ->label(trans('filament-types::messages.form.type'))
-                    ->options(function(Forms\Get $get){
-                        return $get('for') ? static::getTypes($get('for')) : [];
-                    })
-                    ->searchable()
-                    ->required(),
-                Forms\Components\Select::make('parent_id')
-                    ->label(trans('filament-types::messages.form.parent_id'))
-                    ->columnSpan(2)
-                    ->options(Type::whereNull('parent_id')
-                        ->get()
-                        ->pluck('name', 'id')
-                        ->toArray())
-                    ->searchable()
-                    ->live(),
                 Forms\Components\TextInput::make('name')
-                    ->label(trans('filament-types::messages.form.name'))
+                    ->label(trans('Name'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('key')
-                    ->label(trans('filament-types::messages.form.key'))
+                    ->label(trans('Key'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')
-                    ->label(trans('filament-types::messages.form.description'))
+                    ->label(trans('Description'))
                     ->columnSpanFull(),
                 Forms\Components\ColorPicker::make('color')
                     ->required()
-                    ->label(trans('filament-types::messages.form.color')),
+                    ->label(trans('Color')),
                 IconPicker::make('icon')
                     ->required()
-                    ->label(trans('filament-types::messages.form.icon')),
+                    ->label(trans('icon')),
+
                 Forms\Components\Toggle::make('is_activated')
-                    ->label(trans('filament-types::messages.form.is_activated')),
+                    ->label(trans('Is Activated')),
             ]);
     }
 
@@ -177,46 +109,7 @@ class TypeResource extends Resource
             ->defaultGroup('for')
             ->defaultSort('order')
             ->reorderable('order')
-            ->filters([
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
-                        Forms\Components\Select::make('for')
-                            ->label(trans('filament-types::messages.form.for'))
-                            ->options(static::getTypes())
-                            ->searchable()
-                            ->preload()
-                            ->afterStateUpdated(function (Forms\Set $set){
-                                $set('type', null);
-                                $set('parent_id', null);
-                            })
-                            ->live(),
-                        Forms\Components\Select::make('type')
-                            ->label(trans('filament-types::messages.form.type'))
-                            ->options(fn(Forms\Get $get) => $get('for') ? static::getTypes($get('for')) : [])
-                            ->searchable(),
-                        Forms\Components\Select::make('parent_id')
-                            ->label(trans('filament-types::messages.form.parent_id'))
-                            ->options(fn(Forms\Get $get) => Type::whereNull('parent_id')
-                                ->where('for', $get('for'))
-                                ->where('type', $get('type'))
-                                ->get()
-                                ->pluck('name', 'id')
-                                ->toArray()
-                            )
-                            ->searchable()
-                            ->live()
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        if(isset($data['for']) && !empty($data['for']))
-                            $query->where('for', $data['for']);
-                        if(isset($data['type']) && !empty($data['type']))
-                            $query->where('type', $data['type']);
-                        if(isset($data['parent_id']) && !empty($data['parent_id']))
-                            $query->where('parent_id', $data['parent_id']);
-
-                        return $query;
-                    })
-            ])
+            ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make()
                     ->tooltip(__('filament-actions::edit.single.label'))
