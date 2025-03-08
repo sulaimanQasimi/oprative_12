@@ -13,15 +13,6 @@ return new class extends Migration
     {
         Schema::create('account_outcomes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('amount', 10, 2);
-            $table->string('description');
-            $table->string('expense_type');
-            $table->string('payment_method');
-            $table->string('reference_number')->nullable();
-            $table->date('expense_date');
-            $table->string('status')->default('pending');
-            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
