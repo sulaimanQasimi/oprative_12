@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentApi\Facades;
+namespace  App\Pos\Api\Facades;
 
 use Illuminate\Support\Facades\Facade;
 

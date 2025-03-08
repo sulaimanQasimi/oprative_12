@@ -19,7 +19,7 @@ class AccountRequest extends Page implements HasTable, HasForms
     use InteractsWithForms;
     use InteractsWithTable;
 
-    protected static string $view = 'filament-accounts::pages.edit-requests';
+    protected static string $view = 'account::pages.edit-requests';
 
     public static function shouldRegisterNavigation(): bool
     {
@@ -28,12 +28,12 @@ class AccountRequest extends Page implements HasTable, HasForms
 
     public function getTitle(): string
     {
-        return  trans('filament-accounts::messages.account-requests.title');
+        return  trans('account::messages.account-requests.title');
     }
 
     public static function getNavigationLabel(): string
     {
-        return  trans('filament-accounts::messages.account-requests.title');
+        return  trans('account::messages.account-requests.title');
     }
 
     public function table(Table $table): Table
@@ -42,28 +42,28 @@ class AccountRequest extends Page implements HasTable, HasForms
 
         if(filament('filament-saas-accounts')->useTypes){
             $columns[] =TypeColumn::make('type')
-                ->label(trans('filament-accounts::messages.requests.columns.type'))
+                ->label(trans('account::messages.requests.columns.type'))
                 ->searchable();
             $columns[] = TypeColumn::make('status')
-                ->label(trans('filament-accounts::messages.requests.columns.status'))
+                ->label(trans('account::messages.requests.columns.status'))
                 ->searchable();
         }
         else {
             $columns[] =Tables\Columns\TextColumn::make('type')
-                ->label(trans('filament-accounts::messages.requests.columns.type'))
+                ->label(trans('account::messages.requests.columns.type'))
                 ->searchable();
             $columns[] = Tables\Columns\TextColumn::make('status')
-                ->label(trans('filament-accounts::messages.requests.columns.status'))
+                ->label(trans('account::messages.requests.columns.status'))
                 ->searchable();
         }
 
 
         $columns = array_merge($columns, [
             Tables\Columns\IconColumn::make('is_approved')
-                ->label(trans('filament-accounts::messages.requests.columns.is_approved'))
+                ->label(trans('account::messages.requests.columns.is_approved'))
                 ->boolean(),
             Tables\Columns\TextColumn::make('is_approved_at')
-                ->label(trans('filament-accounts::messages.requests.columns.is_approved_at'))
+                ->label(trans('account::messages.requests.columns.is_approved_at'))
                 ->dateTime()
                 ->sortable(),
             Tables\Columns\TextColumn::make('created_at')
@@ -133,7 +133,7 @@ class AccountRequest extends Page implements HasTable, HasForms
         $form = [
             Forms\Components\Select::make('type')
                 ->disabled(fn($record) => $record)
-                ->label(trans('filament-accounts::messages.requests.columns.type'))
+                ->label(trans('account::messages.requests.columns.type'))
                 ->options(Type::query()->where('for', 'account-requests')->where('type', 'types')->pluck('name', 'key')->toArray())
                 ->searchable()
                 ->required()

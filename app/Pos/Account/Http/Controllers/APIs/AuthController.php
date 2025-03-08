@@ -38,12 +38,12 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->guard = config('filament-accounts.guard');
-        $this->otp = config('filament-accounts.required_otp');
-        $this->model = config('filament-accounts.model');
-        $this->loginBy = config('filament-accounts.login_by');
-        $this->loginType = config('filament-accounts.login_by');
-        $this->resource = config('filament-accounts.resource', null);
+        $this->guard = config('account.guard');
+        $this->otp = config('account.required_otp');
+        $this->model = config('account.model');
+        $this->loginBy = config('account.login_by');
+        $this->loginType = config('account.login_by');
+        $this->resource = config('account.resource', null);
     }
 
 
@@ -59,12 +59,12 @@ class AuthController extends Controller
     public function login(Request $request): JsonResponse
     {
         $request->validate([
-            config('filament-accounts.login_by') => "required|string|max:255",
+            config('account.login_by') => "required|string|max:255",
             'password' => "required|string|max:255|min:6",
         ]);
 
         $check = auth($this->guard)->attempt([
-            config('filament-accounts.login_by') => $request->get($this->loginBy),
+            config('account.login_by') => $request->get($this->loginBy),
             "password" => $request->get('password')
         ]);
 
@@ -274,14 +274,14 @@ class AuthController extends Controller
     public function resend(Request $request): JsonResponse
     {
         $request->validate([
-            config('filament-accounts.login_by') => "required|exists:".app(config('filament-accounts.model'))->getTable().",username",
+            config('account.login_by') => "required|exists:".app(config('account.model'))->getTable().",username",
         ]);
 
-        $checkIfEx = config('filament-accounts.model')::where("username", $request->get(config('filament-accounts.login_by')))->first();
+        $checkIfEx = config('account.model')::where("username", $request->get(config('account.login_by')))->first();
         $checkIfEx->otp_code = substr(number_format(time() * rand(), 0, '', ''), 0, 6);
         $checkIfEx->save();
 
-        SendOTP::dispatch(config('filament-accounts.model'), $checkIfEx->id);
+        SendOTP::dispatch(config('account.model'), $checkIfEx->id);
 
 
         /**
@@ -307,11 +307,11 @@ class AuthController extends Controller
      */
     public function otpCheck(Request $request){
         $request->validate([
-            config('filament-accounts.login_by') => 'required|string|max:255',
+            config('account.login_by') => 'required|string|max:255',
             'otp_code' => 'required|string|max:6',
         ]);
 
-        $user = app(config('filament-accounts.model'))->where("username", $request->get(config('filament-accounts.login_by')))->first();
+        $user = app(config('account.model'))->where("username", $request->get(config('account.login_by')))->first();
 
         if ($user) {
             if ((!empty($user->otp_code)) && ($user->otp_code === $request->get('otp_code'))) {
@@ -364,11 +364,11 @@ class AuthController extends Controller
      */
     public function otp(Request $request){
         $request->validate([
-            config('filament-accounts.login_by') => 'required|string|max:255',
+            config('account.login_by') => 'required|string|max:255',
             'otp_code' => 'required|string|max:6',
         ]);
 
-        $user = app(config('filament-accounts.model'))->where("username", $request->get(config('filament-accounts.login_by')))->first();
+        $user = app(config('account.model'))->where("username", $request->get(config('account.login_by')))->first();
 
         if ($user) {
             if ((!empty($user->otp_code)) && ($user->otp_code === $request->get('otp_code'))) {
@@ -377,7 +377,7 @@ class AuthController extends Controller
                 $user->is_active = true;
                 $user->save();
 
-                AccountOTPCheck::dispatch(config('filament-accounts.model'), $user->id);
+                AccountOTPCheck::dispatch(config('account.model'), $user->id);
 
                 /**
                  *  OTP is valid and the account has been activated.
@@ -428,15 +428,15 @@ class AuthController extends Controller
     public function reset(Request $request): JsonResponse
     {
         $request->validate([
-            config('filament-accounts.login_by') => "required|exists:".app(config('filament-accounts.model'))->getTable().",username",
+            config('account.login_by') => "required|exists:".app(config('account.model'))->getTable().",username",
         ]);
 
-        $checkIfActive = config('filament-accounts.model')::where("username", $request->get(config('filament-accounts.login_by')))->first();
+        $checkIfActive = config('account.model')::where("username", $request->get(config('account.login_by')))->first();
         if ($checkIfActive) {
             $checkIfActive->otp_code = substr(number_format(time() * rand(), 0, '', ''), 0, 6);
             $checkIfActive->save();
 
-            SendOTP::dispatch(config('filament-accounts.model'), $checkIfActive->id);
+            SendOTP::dispatch(config('account.model'), $checkIfActive->id);
 
             /*
              *  OTP Send Success Using Service Provider.
@@ -494,11 +494,11 @@ class AuthController extends Controller
         else {
             $request->validate([
                 'password' => "required|confirmed|min:6|max:191",
-                'otp_code' => 'required|string|max:6|exists:'.app(config('filament-accounts.model'))->getTable().',otp_code',
-                config('filament-accounts.login_by') => 'required|string|max:255|exists:'.app(config('filament-accounts.model'))->getTable().',username',
+                'otp_code' => 'required|string|max:6|exists:'.app(config('account.model'))->getTable().',otp_code',
+                config('account.login_by') => 'required|string|max:255|exists:'.app(config('account.model'))->getTable().',username',
             ]);
 
-            $user = app(config('filament-accounts.model'))->where("username", $request->get(config('filament-accounts.login_by')))->first();
+            $user = app(config('account.model'))->where("username", $request->get(config('account.login_by')))->first();
 
             if ($user) {
                 if ((!empty($user->otp_code)) && ($user->otp_code === $request->get('otp_code'))) {

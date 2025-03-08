@@ -13,11 +13,11 @@ class ImportAccountsAction
      public static function make(): Action
      {
          return Action::make('import')
-             ->label(trans('filament-accounts::messages.accounts.import.title'))
+             ->label(trans('account::messages.accounts.import.title'))
              ->form([
                 Forms\Components\FileUpload::make('excel')
-                    ->hint(trans('filament-accounts::messages.accounts.import.hint'))
-                    ->label(trans('filament-accounts::messages.accounts.import.excel'))
+                    ->hint(trans('account::messages.accounts.import.hint'))
+                    ->label(trans('account::messages.accounts.import.excel'))
                     ->acceptedFileTypes(['text/csv', 'application/vnd.ms-excel'])
                     ->required()
              ])
@@ -27,14 +27,14 @@ class ImportAccountsAction
 
 
                      Notification::make()
-                         ->title(trans('filament-accounts::messages.accounts.import.success'))
-                         ->body(trans('filament-accounts::messages.accounts.import.body'))
+                         ->title(trans('account::messages.accounts.import.success'))
+                         ->body(trans('account::messages.accounts.import.body'))
                          ->success()
                          ->send();
                  }catch (\Exception $e) {
                      Notification::make()
-                         ->title(trans('filament-accounts::messages.accounts.import.error'))
-                         ->body(trans('filament-accounts::messages.accounts.import.error-body'))
+                         ->title(trans('account::messages.accounts.import.error'))
+                         ->body(trans('account::messages.accounts.import.error-body'))
                          ->danger()
                          ->send();
                  }

@@ -22,7 +22,7 @@ trait HasEditPassword
     {
         return [
             Action::make('updatePasswordAction')
-                ->label(trans('filament-accounts::messages.save'))
+                ->label(trans('account::messages.save'))
                 ->submit('editPasswordForm'),
         ];
     }

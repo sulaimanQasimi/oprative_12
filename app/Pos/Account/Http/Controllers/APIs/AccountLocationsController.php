@@ -12,7 +12,7 @@ class AccountLocationsController extends Controller
    {
        $query = Location::query();
        $query->where('model_id',$request->user()->id);
-       $query->where('model_type',config('filament-accounts.model'));
+       $query->where('model_type',config('account.model'));
 
        if($request->has('search')){
            $query->where('street','like','%'.$request->get('search').'%');
@@ -45,7 +45,7 @@ class AccountLocationsController extends Controller
 
        $request->merge([
           'model_id' => $request->user()->id,
-          'model_type' => config('filament-accounts.model')
+          'model_type' => config('account.model')
        ]);
 
        $location = Location::query()->create($request->all());
@@ -55,7 +55,7 @@ class AccountLocationsController extends Controller
 
    public function show(Location $location, Request $request)
    {
-       if($location->model_id === $request->user()->id && $location->model_type === config('filament-accounts.model')) {
+       if($location->model_id === $request->user()->id && $location->model_type === config('account.model')) {
            return Response::data($location, 'Location Loaded Successfully');
        }
 
@@ -64,7 +64,7 @@ class AccountLocationsController extends Controller
 
    public function update(Location $location, Request $request)
    {
-       if($location->model_id === $request->user()->id && $location->model_type === config('filament-accounts.model')) {
+       if($location->model_id === $request->user()->id && $location->model_type === config('account.model')) {
            $request->validate([
                'street' => 'sometimes|max:255|string',
                'area_id' => 'nullable|max:255|string|exists:areas,id',
@@ -91,7 +91,7 @@ class AccountLocationsController extends Controller
 
    public function destroy(Location $location, Request $request)
    {
-       if($location->model_id === $request->user()->id && $location->model_type === config('filament-accounts.model')) {
+       if($location->model_id === $request->user()->id && $location->model_type === config('account.model')) {
             $location->delete();
             return Response::success('Location Deleted Successfully');
        }

@@ -52,7 +52,7 @@ class EditTeam extends EditTenantProfile
     use HasLeavingTeam;
     use HasNotifications;
 
-    protected static string $view = 'filament-accounts::teams.edit-team';
+    protected static string $view = 'account::teams.edit-team';
 
     /**
      * @return bool
@@ -64,7 +64,7 @@ class EditTeam extends EditTenantProfile
 
     public static function getLabel(): string
     {
-        return trans('filament-accounts::messages.teams.title');
+        return trans('account::messages.teams.title');
     }
 
     public ?array $deleteTeamData = [];

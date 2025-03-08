@@ -30,6 +30,6 @@ class FilamentAccountsAuth extends Facade
 {
     public static function getFacadeAccessor(): string
     {
-        return 'filament-accounts-auth';
+        return 'account-auth';
     }
 }

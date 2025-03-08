@@ -37,7 +37,7 @@ class FilamentAccountsPlugin implements Plugin
 
     public function getId(): string
     {
-        return 'filament-accounts';
+        return 'account';
     }
 
     public function register(Panel $panel): void
@@ -192,17 +192,17 @@ class FilamentAccountsPlugin implements Plugin
     public function boot(Panel $panel): void
     {
         if($this->isActive){
-            Config::set('filament-accounts.features.locations', $this->useLocations);
-            Config::set('filament-accounts.features.meta', $this->useAccountMeta);
-            Config::set('filament-accounts.features.requests', $this->useRequests);
-            Config::set('filament-accounts.features.contacts', $this->useContactUs);
-            Config::set('filament-accounts.features.notifications', $this->useNotifications);
-            Config::set('filament-accounts.features.loginBy', $this->useLoginBy);
-            Config::set('filament-accounts.features.types', $this->useTypes);
-            Config::set('filament-accounts.features.avatar', $this->useAvatar);
-            Config::set('filament-accounts.features.apis', $this->useAPIs);
-            Config::set('filament-accounts.features.impersonate.active', $this->useImpersonate);
-            Config::set('filament-accounts.features.impersonate.redirect', $this->impersonateRedirect);
+            Config::set('account.features.locations', $this->useLocations);
+            Config::set('account.features.meta', $this->useAccountMeta);
+            Config::set('account.features.requests', $this->useRequests);
+            Config::set('account.features.contacts', $this->useContactUs);
+            Config::set('account.features.notifications', $this->useNotifications);
+            Config::set('account.features.loginBy', $this->useLoginBy);
+            Config::set('account.features.types', $this->useTypes);
+            Config::set('account.features.avatar', $this->useAvatar);
+            Config::set('account.features.apis', $this->useAPIs);
+            Config::set('account.features.impersonate.active', $this->useImpersonate);
+            Config::set('account.features.impersonate.redirect', $this->impersonateRedirect);
         }
 
     }

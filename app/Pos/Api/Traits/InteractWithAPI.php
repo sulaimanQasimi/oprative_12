@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentApi\Traits;
+namespace  App\Pos\Api\Traits;
 
 use Filament\Forms\Form;
 use Filament\Resources\Pages\CreateRecord;
@@ -11,7 +11,7 @@ use Filament\Resources\Pages\ViewRecord;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use TomatoPHP\FilamentApi\Facades\FilamentAPI;
+use  App\Pos\Api\Facades\FilamentAPI;
 use TomatoPHP\FilamentCms\Services\Contracts\Page;
 
 trait InteractWithAPI

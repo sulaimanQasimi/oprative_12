@@ -14,7 +14,7 @@ class ImportAccounts implements ToCollection
     public function collection(Collection $collection)
     {
         foreach ($collection as $row) {
-            if(str($row[0])->contains(trans('filament-accounts::messages.accounts.coulmns.id'))){
+            if(str($row[0])->contains(trans('account::messages.accounts.coulmns.id'))){
                 continue;
             }
             else {

@@ -9,7 +9,7 @@ class RequestsStatus extends BaseTypePage
 {
     public function getTitle(): string
     {
-        return trans('filament-accounts::messages.account-requests.status');
+        return trans('account::messages.account-requests.status');
     }
 
 

@@ -22,7 +22,7 @@ trait HasEditProfile
     {
         return [
             Action::make('updateProfileAction')
-                ->label(trans('filament-accounts::messages.save'))
+                ->label(trans('account::messages.save'))
                 ->submit('editProfileForm'),
         ];
     }

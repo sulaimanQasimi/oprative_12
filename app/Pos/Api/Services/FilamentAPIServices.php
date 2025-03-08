@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentApi\Services;
+namespace  App\Pos\Api\Services;
 
 use Closure;
 use Filament\Forms\Form;
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\Rules\Unique;
-use TomatoPHP\FilamentApi\Helpers\APIResponse;
+use  App\Pos\Api\Helpers\APIResponse;
 
 class FilamentAPIServices
 {

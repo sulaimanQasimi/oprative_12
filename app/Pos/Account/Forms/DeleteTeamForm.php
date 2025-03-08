@@ -15,33 +15,33 @@ class DeleteTeamForm
     public static function get($team): array
     {
         return [
-            Section::make(trans('filament-accounts::messages.profile.delete-team.title'))
-                ->description(trans('filament-accounts::messages.profile.delete-team.description'))
+            Section::make(trans('account::messages.profile.delete-team.title'))
+                ->description(trans('account::messages.profile.delete-team.description'))
                 ->schema([
                     Forms\Components\ViewField::make('deleteTeam')
                         ->label(__('Delete Team'))
                         ->hiddenLabel()
-                        ->view('filament-accounts::forms.components.delete-team-description'),
+                        ->view('account::forms.components.delete-team-description'),
                     Actions::make([
                         Actions\Action::make('deleteAccount')
-                            ->label(trans('filament-accounts::messages.profile.delete-team.delete'))
+                            ->label(trans('account::messages.profile.delete-team.delete'))
                             ->icon('heroicon-m-trash')
                             ->color('danger')
                             ->requiresConfirmation()
-                            ->modalHeading(trans('filament-accounts::messages.profile.delete-team.delete_account'))
-                            ->modalDescription(trans('filament-accounts::messages.profile.delete-team.are_you_sure'))
-                            ->modalSubmitActionLabel(trans('filament-accounts::messages.profile.delete-team.yes_delete_it'))
+                            ->modalHeading(trans('account::messages.profile.delete-team.delete_account'))
+                            ->modalDescription(trans('account::messages.profile.delete-team.are_you_sure'))
+                            ->modalSubmitActionLabel(trans('account::messages.profile.delete-team.yes_delete_it'))
                             ->form([
                                 Forms\Components\TextInput::make('password')
                                     ->password()
                                     ->revealable()
-                                    ->label(trans('filament-accounts::messages.profile.delete-team.password'))
+                                    ->label(trans('account::messages.profile.delete-team.password'))
                                     ->required(),
                             ])
                             ->action(function (array $data) use ($team) {
 
                                 if (! Hash::check($data['password'], Auth::user()->password)) {
-                                    self::sendErrorDeleteAccount(trans('filament-accounts::messages.profile.delete-team.incorrect_password'));
+                                    self::sendErrorDeleteAccount(trans('account::messages.profile.delete-team.incorrect_password'));
 
                                     return;
                                 }

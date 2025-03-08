@@ -24,23 +24,23 @@ class TeamResource extends Resource
 
     public static function getLabel(): ?string
     {
-        return trans('filament-accounts::messages.team.single');
+        return trans('account::messages.team.single');
     }
 
     public static function getNavigationLabel(): string
     {
-        return trans('filament-accounts::messages.team.title');
+        return trans('account::messages.team.title');
     }
 
     public static function getPluralLabel(): ?string
     {
-        return trans('filament-accounts::messages.team.title');
+        return trans('account::messages.team.title');
     }
 
 
     public static function getNavigationGroup(): ?string
     {
-        return trans('filament-accounts::messages.group');
+        return trans('account::messages.group');
     }
 
     public static function form(Form $form): Form
@@ -48,23 +48,23 @@ class TeamResource extends Resource
         return $form
             ->schema([
                 Forms\Components\SpatieMediaLibraryFileUpload::make('avatar')
-                    ->label(trans('filament-accounts::messages.team.columns.avatar'))
+                    ->label(trans('account::messages.team.columns.avatar'))
                     ->hiddenLabel()
                     ->alignCenter()
                     ->avatar()
                     ->collection('avatar')
                     ->image(),
                 Forms\Components\TextInput::make('name')
-                    ->label(trans('filament-accounts::messages.team.columns.name'))
+                    ->label(trans('account::messages.team.columns.name'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('account_id')
-                    ->label(trans('filament-accounts::messages.team.columns.owner'))
+                    ->label(trans('account::messages.team.columns.owner'))
                     ->relationship('owner', 'name')
                     ->preload()
                     ->searchable(),
                 Forms\Components\Toggle::make('personal_team')
-                    ->label(trans('filament-accounts::messages.team.columns.personal_team')),
+                    ->label(trans('account::messages.team.columns.personal_team')),
             ])->columns(1);
     }
 
@@ -72,14 +72,14 @@ class TeamResource extends Resource
     {
         $columns = [];
 
-        if(filament('filament-accounts')->useAvatar()){
+        if(filament('account')->useAvatar()){
             $columns[]= AccountColumn::make('owner.id')
-                ->label(trans('filament-accounts::messages.team.columns.owner'))
+                ->label(trans('account::messages.team.columns.owner'))
                 ->sortable();
         }
         else {
             $columns[]= Tables\Columns\TextColumn::make('owner.name')
-                ->label(trans('filament-accounts::messages.team.columns.owner'))
+                ->label(trans('account::messages.team.columns.owner'))
                 ->sortable();
         }
         return $table
@@ -87,14 +87,14 @@ class TeamResource extends Resource
                 Tables\Columns\SpatieMediaLibraryImageColumn::make('image')
                     ->circular()
                     ->collection('avatar')
-                    ->label(trans('filament-accounts::messages.team.columns.avatar'))
+                    ->label(trans('account::messages.team.columns.avatar'))
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('name')
-                    ->label(trans('filament-accounts::messages.team.columns.name'))
+                    ->label(trans('account::messages.team.columns.name'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('personal_team')
-                    ->label(trans('filament-accounts::messages.team.columns.personal_team'))
+                    ->label(trans('account::messages.team.columns.personal_team'))
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -107,7 +107,7 @@ class TeamResource extends Resource
             ], $columns))
             ->filters([
                Tables\Filters\SelectFilter::make('owner')
-                    ->label(trans('filament-accounts::messages.team.columns.owner'))
+                    ->label(trans('account::messages.team.columns.owner'))
                     ->searchable()
                     ->relationship('owner', 'name')
             ])

@@ -12,7 +12,7 @@ trait HasCancelTeamInvitation
         return \Filament\Actions\Action::make('getCancelTeamInvitationAction')
             ->requiresConfirmation()
             ->color('danger')
-            ->label(trans('filament-accounts::messages.teams.actions.cancel_invitation'))
+            ->label(trans('account::messages.teams.actions.cancel_invitation'))
             ->action(function (array $arguments){
                 $this->cancelTeamInvitation($arguments['invitation']);
             });

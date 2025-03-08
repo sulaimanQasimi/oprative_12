@@ -1,13 +1,13 @@
 <?php
 
-namespace TomatoPHP\FilamentApi;
+namespace  App\Pos\Api;
 
 use Filament\Facades\Filament;
 use Filament\Tables\Columns\Column;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Support\ServiceProvider;
-use TomatoPHP\FilamentApi\Facades\FilamentAPI;
-use TomatoPHP\FilamentApi\Services\FilamentAPIServices;
+use  App\Pos\Api\Facades\FilamentAPI;
+use  App\Pos\Api\Services\FilamentAPIServices;
 
 
 class FilamentApiServiceProvider extends ServiceProvider
@@ -35,7 +35,7 @@ class FilamentApiServiceProvider extends ServiceProvider
             $pages = app($resource)->getPages();
             foreach ($pages as $page){
                 $page = app($page->getPage());
-                if(get_class_methods($page) && in_array('TomatoPHP\FilamentApi\Traits\InteractWithAPI', class_uses($page))){
+                if(get_class_methods($page) && in_array(' App\Pos\Api\Traits\InteractWithAPI', class_uses($page))){
                     $routes[] = $page::registerAPIRoutes();
                 }
             }

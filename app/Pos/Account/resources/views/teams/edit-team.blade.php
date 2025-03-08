@@ -50,8 +50,8 @@
     @if(filament()->getPlugin('filament-saas-accounts')->showTeamMembers)
         @if ($team->users->isNotEmpty())
             <x-filament::section
-                :heading="trans('filament-accounts::messages.teams.members.list.title')"
-                :description="trans('filament-accounts::messages.teams.members.list.description')"
+                :heading="trans('account::messages.teams.members.list.title')"
+                :description="trans('account::messages.teams.members.list.description')"
             >
                 <!-- Team Member Invitations -->
                 <div class="mt-10 sm:mt-0">

@@ -19,7 +19,7 @@ class AccountMetaManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return trans('filament-accounts::messages.meta.label');
+        return trans('account::messages.meta.label');
     }
 
     /**
@@ -27,7 +27,7 @@ class AccountMetaManager extends RelationManager
      */
     public static function getLabel(): ?string
     {
-        return trans('filament-accounts::messages.meta.label');
+        return trans('account::messages.meta.label');
     }
 
     /**
@@ -35,7 +35,7 @@ class AccountMetaManager extends RelationManager
      */
     public static function getPluralLabel(): ?string
     {
-        return trans('filament-accounts::messages.meta.label');
+        return trans('account::messages.meta.label');
     }
 
     /**
@@ -43,7 +43,7 @@ class AccountMetaManager extends RelationManager
      */
     public static function getModelLabel(): ?string
     {
-        return trans('filament-accounts::messages.meta.label');
+        return trans('account::messages.meta.label');
     }
 
     public function form(Form $form): Form
@@ -51,11 +51,11 @@ class AccountMetaManager extends RelationManager
         return $form
             ->schema([
                 Forms\Components\TextInput::make('key')
-                    ->label(trans('filament-accounts::messages.meta.columns.key'))
+                    ->label(trans('account::messages.meta.columns.key'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('value')
-                    ->label(trans('filament-accounts::messages.meta.columns.value'))
+                    ->label(trans('account::messages.meta.columns.value'))
             ]);
     }
 
@@ -64,11 +64,11 @@ class AccountMetaManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('key')
-                    ->label(trans('filament-accounts::messages.meta.columns.key'))
+                    ->label(trans('account::messages.meta.columns.key'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('value')
-                    ->label(trans('filament-accounts::messages.meta.columns.value'))
-                    ->view('filament-accounts::table-columns.value')
+                    ->label(trans('account::messages.meta.columns.value'))
+                    ->view('account::table-columns.value')
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()

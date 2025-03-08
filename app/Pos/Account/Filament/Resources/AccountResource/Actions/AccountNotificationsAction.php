@@ -14,20 +14,20 @@ class AccountNotificationsAction
     public static function make(): Action
     {
         return Action::make('notify')
-            ->label(trans('filament-accounts::messages.accounts.actions.notifications'))
+            ->label(trans('account::messages.accounts.actions.notifications'))
             ->icon('heroicon-s-bell')
             ->iconButton()
-            ->tooltip(trans('filament-accounts::messages.accounts.actions.notifications'))
+            ->tooltip(trans('account::messages.accounts.actions.notifications'))
             ->color('info')
             ->form(function ($record) {
                 return [
                     Forms\Components\Toggle::make('use_notification_template')
-                        ->label(trans('filament-accounts::messages.accounts.notifications.use_notification_template'))
+                        ->label(trans('account::messages.accounts.notifications.use_notification_template'))
                         ->default(true)
                         ->live()
                         ->required(),
                     Forms\Components\Select::make('template_id')
-                        ->label(trans('filament-accounts::messages.accounts.notifications.template_id'))
+                        ->label(trans('account::messages.accounts.notifications.template_id'))
                         ->hidden(fn (Forms\Get $get) => !$get('use_notification_template'))
                         ->searchable()
                         ->validationAttribute('template_id','required|exists:notifications_templates,id')
@@ -87,40 +87,40 @@ class AccountNotificationsAction
 
                         ->required(),
                     Forms\Components\SpatieMediaLibraryFileUpload::make('image')
-                        ->label(trans('filament-accounts::messages.accounts.notifications.image'))
+                        ->label(trans('account::messages.accounts.notifications.image'))
                         ->hidden(fn (Forms\Get $get) => $get('use_notification_template'))
                         ->collection('images')
                         ->image(),
                     Forms\Components\TextInput::make('title')
-                        ->label(trans('filament-accounts::messages.accounts.notifications.title'))
+                        ->label(trans('account::messages.accounts.notifications.title'))
                         ->hidden(fn (Forms\Get $get) => $get('use_notification_template'))
                         ->label(trans('filament-alerts::messages.templates.form.title'))
                         ->required()
                         ->maxLength(255),
                     Forms\Components\Textarea::make('body')
-                        ->label(trans('filament-accounts::messages.accounts.notifications.body'))
+                        ->label(trans('account::messages.accounts.notifications.body'))
                         ->hidden(fn (Forms\Get $get) => $get('use_notification_template'))
                         ->label(trans('filament-alerts::messages.templates.form.body'))
                         ->columnSpanFull(),
                     Forms\Components\TextInput::make('url')
-                        ->label(trans('filament-accounts::messages.accounts.notifications.url'))
+                        ->label(trans('account::messages.accounts.notifications.url'))
                         ->hidden(fn (Forms\Get $get) => $get('use_notification_template'))
                         ->label(trans('filament-alerts::messages.templates.form.url'))
                         ->url()
                         ->maxLength(255),
                     IconPicker::make('icon')
-                        ->label(trans('filament-accounts::messages.accounts.notifications.icon'))
+                        ->label(trans('account::messages.accounts.notifications.icon'))
                         ->hidden(fn (Forms\Get $get) => $get('use_notification_template'))
                         ->label(trans('filament-alerts::messages.templates.form.icon'))
                         ->default('heroicon-o-check-circle'),
                     Forms\Components\Select::make('type')
-                        ->label(trans('filament-accounts::messages.accounts.notifications.type'))
+                        ->label(trans('account::messages.accounts.notifications.type'))
                         ->hidden(fn (Forms\Get $get) => $get('use_notification_template'))
                         ->label(trans('filament-alerts::messages.templates.form.type'))
                         ->options(collect(config('filament-alerts.types'))->pluck('name', 'id')->toArray())
                         ->default('success'),
                     Forms\Components\Select::make('providers')
-                        ->label(trans('filament-accounts::messages.accounts.notifications.providers'))
+                        ->label(trans('account::messages.accounts.notifications.providers'))
                         ->hidden(fn (Forms\Get $get) => $get('use_notification_template'))
                         ->label(trans('filament-alerts::messages.templates.form.providers'))
                         ->multiple()
@@ -136,7 +136,7 @@ class AccountNotificationsAction
                             ->template($template->key)
                             ->database(in_array('database', $template->providers))
                             ->privacy('private')
-                            ->model(config('filament-accounts.model'))
+                            ->model(config('account.model'))
                             ->id($record->id)
                             ->fire();
                     }
@@ -149,7 +149,7 @@ class AccountNotificationsAction
                             ->url($data['url'])
                             ->database(in_array('database', $data['providers']))
                             ->privacy('private')
-                            ->model(config('filament-accounts.model'))
+                            ->model(config('account.model'))
                             ->id($record->id)
                             ->fire();
                     }

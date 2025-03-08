@@ -1,11 +1,11 @@
 <?php
 
-namespace TomatoPHP\FilamentApi;
+namespace App\Pos\Api;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use TomatoPHP\FilamentApi\Facades\FilamentAPI;
-use TomatoPHP\FilamentApi\Filament\Resources\ApiResource;
+use  App\Pos\Api\Facades\FilamentAPI;
+use  App\Pos\Api\Filament\Resources\ApiResource;
 
 
 class FilamentAPIPlugin implements Plugin

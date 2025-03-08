@@ -21,22 +21,22 @@ class AccountsTableActions extends ActionsBuilder
         $actions = collect([]);
 
         //Impersonate
-        if(class_exists(\STS\FilamentImpersonate\Tables\Actions\Impersonate::class) && filament('filament-accounts')->canLogin && filament('filament-accounts')->useImpersonate){
+        if(class_exists(\STS\FilamentImpersonate\Tables\Actions\Impersonate::class) && filament('account')->canLogin && filament('account')->useImpersonate){
            $actions->push(AccountImpersonateAction::make());
         }
 
         //Change Password
-        if(filament('filament-accounts')->canLogin) {
+        if(filament('account')->canLogin) {
             $actions->push(ChangePasswordAction::make());
         }
 
         //Teams
-        if(filament('filament-accounts')->useTeams) {
+        if(filament('account')->useTeams) {
             $actions->push(AccountTeamsAction::make());
         }
 
         //Notifications
-        if(filament('filament-accounts')->useNotifications){
+        if(filament('account')->useNotifications){
             $actions->push(AccountNotificationsAction::make());
         }
 
@@ -45,16 +45,16 @@ class AccountsTableActions extends ActionsBuilder
         $actions = $actions->merge([
             Tables\Actions\EditAction::make()
                 ->iconButton()
-                ->tooltip(trans('filament-accounts::messages.accounts.actions.edit')),
+                ->tooltip(trans('account::messages.accounts.actions.edit')),
             Tables\Actions\DeleteAction::make()
                 ->iconButton()
-                ->tooltip(trans('filament-accounts::messages.accounts.actions.delete')),
+                ->tooltip(trans('account::messages.accounts.actions.delete')),
             Tables\Actions\ForceDeleteAction::make()
                 ->iconButton()
-                ->tooltip(trans('filament-accounts::messages.accounts.actions.force_delete')),
+                ->tooltip(trans('account::messages.accounts.actions.force_delete')),
             Tables\Actions\RestoreAction::make()
                 ->iconButton()
-                ->tooltip(trans('filament-accounts::messages.accounts.actions.restore'))
+                ->tooltip(trans('account::messages.accounts.actions.restore'))
         ]);
 
         //Merge Provider Actions

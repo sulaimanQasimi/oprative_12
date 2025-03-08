@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        if(config('filament-accounts.features.requests')){
+        if(config('account.features.requests')){
             Schema::create('account_requests', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -38,7 +38,7 @@ return new class extends Migration
      */
     public function down()
     {
-        if(config('filament-accounts.features.requests')) {
+        if(config('account.features.requests')) {
             Schema::dropIfExists('account_requests');
         }
     }

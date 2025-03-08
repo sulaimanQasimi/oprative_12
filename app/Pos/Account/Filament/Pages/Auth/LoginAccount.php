@@ -38,7 +38,7 @@ class LoginAccount extends Login
     protected function throwFailureActivatedException(): never
     {
         throw ValidationException::withMessages([
-            'data.email' => trans('filament-accounts::messages.login.active'),
+            'data.email' => trans('account::messages.login.active'),
         ]);
     }
 

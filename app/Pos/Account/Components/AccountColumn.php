@@ -6,7 +6,7 @@ use Filament\Tables\Columns\TextColumn;
 
 class AccountColumn extends TextColumn
 {
-    protected string $view = 'filament-accounts::components.account-column';
+    protected string $view = 'account::components.account-column';
 
     protected bool $avatar = true;
 

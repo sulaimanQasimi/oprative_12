@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentApi\Helpers;
+namespace  App\Pos\Api\Helpers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;

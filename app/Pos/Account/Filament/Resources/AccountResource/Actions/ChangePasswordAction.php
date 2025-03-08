@@ -11,20 +11,20 @@ class ChangePasswordAction
     public static function make(): Action
     {
         return Action::make('password')
-            ->label(trans('filament-accounts::messages.accounts.actions.password'))
+            ->label(trans('account::messages.accounts.actions.password'))
             ->icon('heroicon-s-lock-closed')
             ->iconButton()
-            ->tooltip(trans('filament-accounts::messages.accounts.actions.password'))
+            ->tooltip(trans('account::messages.accounts.actions.password'))
             ->color('danger')
             ->form([
                 Forms\Components\TextInput::make('password')
-                    ->label(trans('filament-accounts::messages.accounts.coulmns.password'))
+                    ->label(trans('account::messages.accounts.coulmns.password'))
                     ->password()
                     ->required()
                     ->confirmed()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password_confirmation')
-                    ->label(trans('filament-accounts::messages.accounts.coulmns.password_confirmation'))
+                    ->label(trans('account::messages.accounts.coulmns.password_confirmation'))
                     ->password()
                     ->required()
                     ->maxLength(255),

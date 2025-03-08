@@ -19,7 +19,7 @@ class AccountLocationsManager extends RelationManager
 
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
-        return trans('filament-accounts::messages.locations.label');
+        return trans('account::messages.locations.label');
     }
 
     /**
@@ -27,7 +27,7 @@ class AccountLocationsManager extends RelationManager
      */
     public static function getLabel(): ?string
     {
-        return trans('filament-accounts::messages.locations.label');
+        return trans('account::messages.locations.label');
     }
 
     /**
@@ -35,7 +35,7 @@ class AccountLocationsManager extends RelationManager
      */
     public static function getModelLabel(): ?string
     {
-        return trans('filament-accounts::messages.locations.label');
+        return trans('account::messages.locations.label');
     }
 
 
@@ -44,7 +44,7 @@ class AccountLocationsManager extends RelationManager
      */
     public static function getPluralLabel(): ?string
     {
-        return trans('filament-accounts::messages.locations.label');
+        return trans('account::messages.locations.label');
     }
 
     public function form(Form $form): Form
@@ -148,7 +148,7 @@ class AccountLocationsManager extends RelationManager
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->label(trans('filament-accounts::messages.locations.create'))
+                    ->label(trans('account::messages.locations.create'))
             ])
             ->filters([
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace TomatoPHP\FilamentApi\Filament\Resources\ApiResource\Pages;
+namespace  App\Pos\Api\Filament\Resources\ApiResource\Pages;
 
 
 use Filament\Resources\Pages\ManageRecords;
-use TomatoPHP\FilamentApi\Filament\Resources\ApiResource;
+use  App\Pos\Api\Filament\Resources\ApiResource;
 
 class ManageAPIResource extends ManageRecords
 {

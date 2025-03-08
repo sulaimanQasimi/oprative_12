@@ -9,7 +9,7 @@ class ContactStatusTypes extends BaseTypePage
 {
     public function getTitle(): string
     {
-        return trans('filament-accounts::messages.contact-us.status');
+        return trans('account::messages.contact-us.status');
     }
 
 

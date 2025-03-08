@@ -9,7 +9,7 @@ class RequestsTypes extends BaseTypePage
 {
     public function getTitle(): string
     {
-        return trans('filament-accounts::messages.account-requests.types');
+        return trans('account::messages.account-requests.types');
     }
 
 

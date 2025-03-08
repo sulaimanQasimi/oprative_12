@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        if(config('filament-accounts.features.meta')){
+        if(config('account.features.meta')){
             Schema::create('accounts_metas', function (Blueprint $table) {
                 $table->id();
 
@@ -36,7 +36,7 @@ return new class extends Migration
      */
     public function down()
     {
-        if(config('filament-accounts.features.meta')) {
+        if(config('account.features.meta')) {
             Schema::dropIfExists('accounts_metas');
         }
     }

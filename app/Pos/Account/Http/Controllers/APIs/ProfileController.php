@@ -29,12 +29,12 @@ class ProfileController extends Controller
      */
     public function __construct()
     {
-        $this->guard = config('filament-accounts.guard');
-        $this->otp = config('filament-accounts.required_otp');
-        $this->model = config('filament-accounts.model');
-        $this->loginBy = config('filament-accounts.login_by');
-        $this->loginType = config('filament-accounts.login_by');
-        $this->resource = config('filament-accounts.resource', null);
+        $this->guard = config('account.guard');
+        $this->otp = config('account.required_otp');
+        $this->model = config('account.model');
+        $this->loginBy = config('account.login_by');
+        $this->loginType = config('account.login_by');
+        $this->resource = config('account.resource', null);
     }
 
     /**

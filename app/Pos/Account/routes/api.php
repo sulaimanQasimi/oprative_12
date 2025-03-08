@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Route;
     |
 */
 
-if(config('filament-accounts.features.apis')){
+if(config('account.features.apis')){
     Route::name('api.')->prefix('api')->middleware(['throttle:500'])->group(function (){
         Route::post('login',[\App\Pos\Account\Http\Controllers\APIs\AuthController::class,'login'])->name('login');
         Route::post('register',[\App\Pos\Account\Http\Controllers\APIs\AuthController::class,'register'])->name('register');
@@ -35,13 +35,13 @@ if(config('filament-accounts.features.apis')){
     });
 
 
-    if(config('filament-accounts.features.contacts')){
+    if(config('account.features.contacts')){
         Route::name('api.')->prefix('api/profile')->group(function (){
             Route::post('contact',[\App\Pos\Account\Http\Controllers\APIs\ContactsController::class,'send'])->name('contact.send');
         });
     }
 
-    if(config('filament-accounts.features.locations')){
+    if(config('account.features.locations')){
         Route::middleware(['auth:sanctum'])->name('api.')->prefix('api/profile/locations')->group(function (){
             Route::get('/',[\App\Pos\Account\Http\Controllers\APIs\AccountLocationsController::class,'index'])->name('locations.index');
             Route::post('/',[\App\Pos\Account\Http\Controllers\APIs\AccountLocationsController::class,'store'])->name('locations.store');
@@ -51,7 +51,7 @@ if(config('filament-accounts.features.apis')){
         });
     }
 
-    if(config('filament-accounts.features.requests')){
+    if(config('account.features.requests')){
         Route::middleware(['auth:sanctum'])->name('api.')->prefix('api/profile/requests')->group(function (){
             Route::get('/',[\App\Pos\Account\Http\Controllers\APIs\AccountRequestsController::class,'index'])->name('requests.index');
             Route::post('/',[\App\Pos\Account\Http\Controllers\APIs\AccountRequestsController::class,'store'])->name('requests.store');

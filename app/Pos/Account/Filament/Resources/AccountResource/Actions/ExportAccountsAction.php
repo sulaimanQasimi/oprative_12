@@ -12,27 +12,27 @@ class ExportAccountsAction
     public static function make(): Action
     {
         return Action::make('export')
-            ->label(trans('filament-accounts::messages.accounts.export.title'))
+            ->label(trans('account::messages.accounts.export.title'))
             ->requiresConfirmation()
             ->color('info')
             ->icon('heroicon-o-arrow-down-on-square')
             ->fillForm([
                 'columns' => [
-                    'id' => trans('filament-accounts::messages.accounts.coulmns.id'),
-                    'name' => trans('filament-accounts::messages.accounts.coulmns.name'),
-                    'email' => trans('filament-accounts::messages.accounts.coulmns.email'),
-                    'phone' => trans('filament-accounts::messages.accounts.coulmns.phone'),
-                    'address' => trans('filament-accounts::messages.accounts.coulmns.address'),
-                    'type' => trans('filament-accounts::messages.accounts.coulmns.type'),
-                    'is_login' => trans('filament-accounts::messages.accounts.coulmns.is_login'),
-                    'is_active' => trans('filament-accounts::messages.accounts.coulmns.is_active'),
-                    'created_at' => trans('filament-accounts::messages.accounts.coulmns.created_at'),
-                    'updated_at' => trans('filament-accounts::messages.accounts.coulmns.updated_at'),
+                    'id' => trans('account::messages.accounts.coulmns.id'),
+                    'name' => trans('account::messages.accounts.coulmns.name'),
+                    'email' => trans('account::messages.accounts.coulmns.email'),
+                    'phone' => trans('account::messages.accounts.coulmns.phone'),
+                    'address' => trans('account::messages.accounts.coulmns.address'),
+                    'type' => trans('account::messages.accounts.coulmns.type'),
+                    'is_login' => trans('account::messages.accounts.coulmns.is_login'),
+                    'is_active' => trans('account::messages.accounts.coulmns.is_active'),
+                    'created_at' => trans('account::messages.accounts.coulmns.created_at'),
+                    'updated_at' => trans('account::messages.accounts.coulmns.updated_at'),
                 ]
             ])
             ->form([
                 Forms\Components\KeyValue::make('columns')
-                    ->label(trans('filament-accounts::messages.accounts.export.columns'))
+                    ->label(trans('account::messages.accounts.export.columns'))
                     ->required()
                     ->editableKeys(false)
                     ->addable(false)

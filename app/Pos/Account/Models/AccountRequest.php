@@ -41,7 +41,7 @@ class AccountRequest extends Model
      */
     public function account()
     {
-        return $this->belongsTo(config('filament-accounts.model'));
+        return $this->belongsTo(config('account.model'));
     }
 
     /**

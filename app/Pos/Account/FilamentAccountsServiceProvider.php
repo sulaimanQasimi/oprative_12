@@ -33,12 +33,12 @@ class FilamentAccountsServiceProvider extends ServiceProvider
         ]);
 
         //Register Config file
-        $this->mergeConfigFrom(__DIR__.'/../config/filament-accounts.php', 'filament-accounts');
+        $this->mergeConfigFrom(__DIR__.'/../config/account.php', 'account');
 
         //Publish Config
         $this->publishes([
-           __DIR__.'/../config/filament-accounts.php' => config_path('filament-accounts.php'),
-        ], 'filament-accounts-config');
+           __DIR__.'/../config/account.php' => config_path('account.php'),
+        ], 'account-config');
 
         //Register Migrations
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
@@ -46,22 +46,22 @@ class FilamentAccountsServiceProvider extends ServiceProvider
         //Publish Migrations
         $this->publishes([
            __DIR__.'/../database/migrations' => database_path('migrations'),
-        ], 'filament-accounts-migrations');
+        ], 'account-migrations');
         //Register views
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'filament-accounts');
+        $this->loadViewsFrom(__DIR__.'/../resources/views', 'account');
 
         //Publish Views
         $this->publishes([
-           __DIR__.'/../resources/views' => resource_path('views/vendor/filament-accounts'),
-        ], 'filament-accounts-views');
+           __DIR__.'/../resources/views' => resource_path('views/vendor/account'),
+        ], 'account-views');
 
         //Register Langs
-        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'filament-accounts');
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'account');
 
         //Publish Lang
         $this->publishes([
-           __DIR__.'/../resources/lang' => base_path('lang/vendor/filament-accounts'),
-        ], 'filament-accounts-lang');
+           __DIR__.'/../resources/lang' => base_path('lang/vendor/account'),
+        ], 'account-lang');
 
         //Register Routes
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
@@ -69,22 +69,22 @@ class FilamentAccountsServiceProvider extends ServiceProvider
 
         $this->publishes([
             __DIR__ . '/../publish/Account.php' => app_path('Models/Account.php'),
-        ], 'filament-accounts-model');
+        ], 'account-model');
 
         $this->publishes([
             __DIR__ . '/../publish/migrations/create_teams_table.php' => database_path('migrations/'.  date('Y_m_d_His', ((int)time())+1) . '_create_teams_table.php'),
             __DIR__ . '/../publish/migrations/create_team_invitations_table.php' => database_path('migrations/'.  date('Y_m_d_His', ((int)time())+2) . '_create_team_invitations_table.php'),
             __DIR__ . '/../publish/migrations/create_team_user_table.php' => database_path('migrations/'.  date('Y_m_d_His', ((int)time())+3) . '_create_team_user_table.php'),
-        ], 'filament-accounts-teams-migrations');
+        ], 'account-teams-migrations');
 
         $this->publishes([
             __DIR__ . '/../publish/Team.php' => app_path('Models/Team.php'),
             __DIR__ . '/../publish/TeamInvitation.php' => app_path('Models/TeamInvitation.php'),
             __DIR__ . '/../publish/Membership.php' => app_path('Models/Membership.php'),
-        ], 'filament-accounts-teams');
+        ], 'account-teams');
 
 
-        if (config('filament-accounts.features.send_otp')) {
+        if (config('account.features.send_otp')) {
             Event::listen([
                 SendOTP::class
             ], function ($data) {
@@ -95,7 +95,7 @@ class FilamentAccountsServiceProvider extends ServiceProvider
                     ->message('Your OTP is ' . $user->otp_code)
                     ->type('info')
                     ->database(false)
-                    ->model(config('filament-accounts.model'))
+                    ->model(config('account.model'))
                     ->id($user->id)
                     ->privacy('private')
                     ->icon('bx bx-user')
@@ -104,24 +104,13 @@ class FilamentAccountsServiceProvider extends ServiceProvider
             });
         }
 
-        $this->app->bind('filament-accounts', function () {
+        $this->app->bind('account', function () {
             return new \App\Pos\Account\Services\FilamentAccountsServices();
         });
 
-        $this->app->bind('filament-accounts-auth', function () {
+        $this->app->bind('account-auth', function () {
             return new \App\Pos\Account\Services\BuildAuth();
         });
-
-        if(class_exists(Jetstream::class)){
-            Jetstream::useUserModel(config('filament-accounts.model'));
-            Jetstream::useTeamModel(Team::class);
-            Jetstream::useMembershipModel(Membership::class);
-            Jetstream::useTeamInvitationModel(TeamInvitation::class);
-            Jetstream::$registersRoutes = false;
-            Fortify::$registersRoutes = false;
-
-            Jetstream::defaultApiTokenPermissions(['read']);
-        }
 
 
         Livewire::component('sanctum-tokens', SanctumTokens::class);
@@ -139,7 +128,7 @@ class FilamentAccountsServiceProvider extends ServiceProvider
             $this->configurePermissions();
         }
 
-        if(config('filament-accounts.features.types')){
+        if(config('account.features.types')){
             FilamentTypes::register([
                 'types',
                 'groups'
@@ -157,17 +146,17 @@ class FilamentAccountsServiceProvider extends ServiceProvider
      */
     protected function configurePermissions(): void
     {
-        Jetstream::role('admin', trans('filament-accounts::messages.roles.admin.name'), [
+        Jetstream::role('admin', trans('account::messages.roles.admin.name'), [
             'create',
             'read',
             'update',
             'delete',
-        ])->description(trans('filament-accounts::messages.roles.admin.description'));
+        ])->description(trans('account::messages.roles.admin.description'));
 
-        Jetstream::role('user', trans('filament-accounts::messages.roles.user.name'), [
+        Jetstream::role('user', trans('account::messages.roles.user.name'), [
             'read',
             'update',
-        ])->description(trans('filament-accounts::messages.roles.user.description'));
+        ])->description(trans('account::messages.roles.user.description'));
 
         Jetstream::permissions([
             'create',

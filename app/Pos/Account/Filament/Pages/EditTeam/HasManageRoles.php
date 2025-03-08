@@ -18,12 +18,12 @@ trait HasManageRoles
             ->link()
             ->color('info')
             ->label($role)
-            ->modelLabel(trans('filament-accounts::messages.teams.members.manage_role'))
+            ->modelLabel(trans('account::messages.teams.members.manage_role'))
             ->form(function (array $arguments){
                 return [
                     Select::make('role')
                         ->default($arguments['role'])
-                        ->label(trans('filament-accounts::messages.teams.members.role'))
+                        ->label(trans('account::messages.teams.members.role'))
                         ->searchable()
                         ->preload()
                         ->options(function (){
@@ -42,7 +42,7 @@ trait HasManageRoles
                             ? ['required', 'string', new \Laravel\Jetstream\Rules\Role]
                             : null,)
                         ->validationMessages([
-                            'role.required' => trans('filament-accounts::messages.teams.members.role_required'),
+                            'role.required' => trans('account::messages.teams.members.role_required'),
                         ])
                 ];
             })

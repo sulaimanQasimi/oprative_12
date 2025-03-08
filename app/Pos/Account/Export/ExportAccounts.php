@@ -24,7 +24,7 @@ class ExportAccounts implements FromCollection, WithHeadings
     public function collection()
     {
         $select = array_keys(collect($this->data['columns'])->filter(fn($item, $key) => !str($key)->contains('.'))->toArray());
-        return config('filament-accounts.model')::query()
+        return config('account.model')::query()
             ->select($select)
             ->with('teams')
             ->get()

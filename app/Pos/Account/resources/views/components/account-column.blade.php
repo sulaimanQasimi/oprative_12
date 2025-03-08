@@ -1,5 +1,5 @@
 @php
-    $account = config('filament-accounts.model')::find($getState());
+    $account = config('account.model')::find($getState());
     $tenent = \Filament\Facades\Filament::getTenant()?->id;
     $panel = \Filament\Facades\Filament::getCurrentPanel()->getId() ?? null;
 @endphp

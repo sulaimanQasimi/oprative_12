@@ -15,7 +15,7 @@ class FilamentAccountsInstall extends Command
      *
      * @var string
      */
-    protected $name = 'filament-accounts:install';
+    protected $name = 'account:install';
 
     /**
      * The console command description.
@@ -41,7 +41,7 @@ class FilamentAccountsInstall extends Command
         $this->callSilent('optimize:clear');
         $this->artisanCommand(["migrate"]);
         $this->artisanCommand(["optimize:clear"]);
-        if(config('filament-accounts.features.types') && class_exists(\TomatoPHP\FilamentTypes\Models\Type::class)){
+        if(config('account.features.types') && class_exists(\TomatoPHP\FilamentTypes\Models\Type::class)){
             $typesArray = [
                 [
                     "name" => [

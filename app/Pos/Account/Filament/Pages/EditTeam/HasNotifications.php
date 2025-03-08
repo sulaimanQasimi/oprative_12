@@ -11,7 +11,7 @@ trait HasNotifications
     {
         Notification::make()
             ->success()
-            ->title(trans('filament-accounts::messages.saved_successfully'))
+            ->title(trans('account::messages.saved_successfully'))
             ->send();
 
         $this->editTeamForm->fill(Filament::getTenant()->toArray());

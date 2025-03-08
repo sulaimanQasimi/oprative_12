@@ -15,8 +15,8 @@ trait HasEditTeam
     public function editTeamForm(Form $form): Form
     {
         return $form->schema([
-            Section::make(trans('filament-accounts::messages.teams.edit.title'))
-                ->description(trans('filament-accounts::messages.teams.edit.description'))
+            Section::make(trans('account::messages.teams.edit.title'))
+                ->description(trans('account::messages.teams.edit.description'))
                 ->schema(UpdateTeamForm::get(Filament::getTenant()))
         ])
             ->model(Filament::getTenant())
@@ -27,7 +27,7 @@ trait HasEditTeam
         return [
             Action::make('editTeam')
                 ->requiresConfirmation()
-                ->label(trans('filament-accounts::messages.teams.edit.save'))
+                ->label(trans('account::messages.teams.edit.save'))
                 ->submit('editTeamForm')
                 ->color('primary')
         ];

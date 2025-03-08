@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        if(config('filament-accounts.features.contacts')){
+        if(config('account.features.contacts')){
             Schema::create('contacts', function (Blueprint $table) {
                 $table->id();
                 $table->string('type')->default('contact')->nullable();
@@ -37,7 +37,7 @@ return new class extends Migration
      */
     public function down()
     {
-        if(config('filament-accounts.features.contacts')) {
+        if(config('account.features.contacts')) {
             Schema::dropIfExists('contacts');
         }
     }

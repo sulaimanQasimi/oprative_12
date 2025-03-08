@@ -48,15 +48,15 @@ class SanctumTokens extends Component implements HasActions, HasForms, HasTable
             ]))
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label(trans('filament-accounts::messages.profile.token.name')),
+                    ->label(trans('account::messages.profile.token.name')),
                 Tables\Columns\TextColumn::make('created_at')
                     ->date()
-                    ->label(trans('filament-accounts::messages.profile.token.created_at'))
+                    ->label(trans('account::messages.profile.token.created_at'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('expires_at')
                     ->color(fn ($record) => now()->gt($record->expires_at) ? 'danger' : null)
                     ->date()
-                    ->label(trans('filament-accounts::messages.profile.token.expires_at'))
+                    ->label(trans('account::messages.profile.token.expires_at'))
                     ->sortable(),
             ])
             ->actions([
@@ -64,14 +64,14 @@ class SanctumTokens extends Component implements HasActions, HasForms, HasTable
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->label(trans('filament-accounts::messages.profile.token.action_label'))
+                    ->label(trans('account::messages.profile.token.action_label'))
                     ->modalWidth('md')
                     ->form([
                         TextInput::make('token_name')
-                            ->label(trans('filament-accounts::messages.profile.token.name'))
+                            ->label(trans('account::messages.profile.token.name'))
                             ->required(),
                         CheckboxList::make('abilities')
-                            ->label(trans('filament-accounts::messages.profile.token.abilities'))
+                            ->label(trans('account::messages.profile.token.abilities'))
                             ->options(function(){
                                 return collect(['create', 'view', 'update', 'delete'])->mapWithKeys(function ($item, $key) {
                                     $key = is_string($key) ? $key : strtolower($item);
@@ -82,7 +82,7 @@ class SanctumTokens extends Component implements HasActions, HasForms, HasTable
                             ->columns(2)
                             ->required(),
                         DatePicker::make('expires_at')
-                            ->label(trans('filament-accounts::messages.profile.token.expires_at')),
+                            ->label(trans('account::messages.profile.token.expires_at')),
                     ])
                     ->action(function ($data) {
                         $this->plainTextToken = $this->user->createToken(
@@ -97,13 +97,13 @@ class SanctumTokens extends Component implements HasActions, HasForms, HasTable
 
                         Notification::make()
                             ->success()
-                            ->title(trans('filament-accounts::messages.profile.token.create_notification'))
+                            ->title(trans('account::messages.profile.token.create_notification'))
                             ->send();
                     })
-                    ->modalHeading(trans('filament-accounts::messages.profile.token.modal_heading')),
+                    ->modalHeading(trans('account::messages.profile.token.modal_heading')),
             ])
-            ->emptyStateHeading(trans('filament-accounts::messages.profile.token.empty_state_heading'))
-            ->emptyStateDescription(trans('filament-accounts::messages.profile.token.empty_state_description'));
+            ->emptyStateHeading(trans('account::messages.profile.token.empty_state_heading'))
+            ->emptyStateDescription(trans('account::messages.profile.token.empty_state_description'));
     }
 
     public function showTokenAction(): Action
@@ -114,10 +114,10 @@ class SanctumTokens extends Component implements HasActions, HasForms, HasTable
             ])
             ->form([
                 TextInput::make('token')
-                    ->label(trans('filament-accounts::messages.profile.token.token'))
-                    ->helperText(trans('filament-accounts::messages.profile.token.helper_text')),
+                    ->label(trans('account::messages.profile.token.token'))
+                    ->helperText(trans('account::messages.profile.token.helper_text')),
             ])
-            ->modalHeading(trans('filament-accounts::messages.profile.token.modal_heading_2'))
+            ->modalHeading(trans('account::messages.profile.token.modal_heading_2'))
             ->modalIcon('heroicon-o-key')
             ->modalAlignment(Alignment::Center)
             ->modalSubmitAction(false)
@@ -127,6 +127,6 @@ class SanctumTokens extends Component implements HasActions, HasForms, HasTable
 
     public function render(): View
     {
-        return view('filament-accounts::livewire.sanctum-tokens');
+        return view('account::livewire.sanctum-tokens');
     }
 }

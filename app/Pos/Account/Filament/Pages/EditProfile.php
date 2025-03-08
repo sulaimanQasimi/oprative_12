@@ -33,7 +33,7 @@ class EditProfile extends Page implements HasForms
     use HasBrowserSessions;
     use HasDeleteAccount;
 
-    protected static string $view = 'filament-accounts::teams.edit-profile';
+    protected static string $view = 'account::teams.edit-profile';
 
     protected ?string $maxWidth = '6xl';
 
@@ -44,12 +44,12 @@ class EditProfile extends Page implements HasForms
 
     public function getTitle(): string
     {
-        return  trans('filament-accounts::messages.profile.title');
+        return  trans('account::messages.profile.title');
     }
 
     public static function getNavigationLabel(): string
     {
-        return  trans('filament-accounts::messages.profile.title');
+        return  trans('account::messages.profile.title');
     }
 
     public static function canAccess(): bool

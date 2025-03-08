@@ -13,13 +13,13 @@ class AccountReleations
 
         $relations = [];
 
-        if(config('filament-accounts.features.meta')){
+        if(config('account.features.meta')){
             $relations[] = \App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountMetaManager::make();
         }
-        if(config('filament-accounts.features.locations')){
+        if(config('account.features.locations')){
             $relations[] = \App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountLocationsManager::make();
         }
-        if(config('filament-accounts.features.requests')){
+        if(config('account.features.requests')){
             $relations[] = \App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountRequestsManager::make();
         }
         return array_merge($relations,$loadRelations);

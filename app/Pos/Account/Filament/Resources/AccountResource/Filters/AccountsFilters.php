@@ -16,31 +16,31 @@ class AccountsFilters extends FiltersBuilder
             Tables\Filters\TrashedFilter::make(),
         ];
 
-        if(filament('filament-accounts')->useTypes){
+        if(filament('account')->useTypes){
             $filters[] = Tables\Filters\SelectFilter::make('type')
-                ->label(trans('filament-accounts::messages.accounts.filters.type'))
+                ->label(trans('account::messages.accounts.filters.type'))
                 ->searchable()
                 ->preload()
                 ->options(Type::query()->where('for', 'accounts')->where('type', 'type')->pluck('name', 'key')->toArray());
         }
 
-        if(filament('filament-accounts')->useTeams) {
+        if(filament('account')->useTeams) {
             $filters[] = Tables\Filters\SelectFilter::make('teams')
-                ->label(trans('filament-accounts::messages.accounts.filters.teams'))
+                ->label(trans('account::messages.accounts.filters.teams'))
                 ->searchable()
                 ->preload()
                 ->relationship('teams', 'name')
                 ->options(Team::query()->pluck('name', 'id')->toArray());
         }
 
-        if(filament('filament-accounts')->canLogin) {
+        if(filament('account')->canLogin) {
             $filters[] = Tables\Filters\TernaryFilter::make('is_login')
-                ->label(trans('filament-accounts::messages.accounts.filters.is_login'));
+                ->label(trans('account::messages.accounts.filters.is_login'));
         }
 
-        if(filament('filament-accounts')->canBlocked) {
+        if(filament('account')->canBlocked) {
             $filters[] = Tables\Filters\TernaryFilter::make('is_active')
-                ->label(trans('filament-accounts::messages.accounts.filters.is_active'));
+                ->label(trans('account::messages.accounts.filters.is_active'));
         }
         return $filters;
     }

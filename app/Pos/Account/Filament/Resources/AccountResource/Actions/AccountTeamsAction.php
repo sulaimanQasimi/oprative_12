@@ -12,17 +12,17 @@ class AccountTeamsAction
      public static function make(): Action
      {
          return Action::make('teams')
-             ->label(trans('filament-accounts::messages.accounts.actions.teams'))
+             ->label(trans('account::messages.accounts.actions.teams'))
              ->icon('heroicon-s-user-group')
              ->iconButton()
-             ->tooltip(trans('filament-accounts::messages.accounts.actions.teams'))
+             ->tooltip(trans('account::messages.accounts.actions.teams'))
              ->color('primary')
              ->form(function ($record) {
                  return [
                      Forms\Components\Select::make('teams')
                          ->default($record->teams()->pluck('team_id')->toArray())
                          ->multiple()
-                         ->label(trans('filament-accounts::messages.accounts.actions.teams'))
+                         ->label(trans('account::messages.accounts.actions.teams'))
                          ->preload()
                          ->required()
                          ->relationship('teams', 'name')

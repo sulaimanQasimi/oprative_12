@@ -28,46 +28,46 @@ class AccountRequestResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return trans('filament-accounts::messages.group');
+        return trans('account::messages.group');
     }
 
     public static function getNavigationLabel(): string
     {
-        return trans('filament-accounts::messages.requests.label');
+        return trans('account::messages.requests.label');
     }
 
     public static function getPluralLabel(): ?string
     {
-        return trans('filament-accounts::messages.requests.label');
+        return trans('account::messages.requests.label');
     }
 
     public static function form(Form $form): Form
     {
         $payload = [];
         $columns = [];
-        if(filament('filament-accounts')->useTypes){
+        if(filament('account')->useTypes){
             $columns[] = Forms\Components\Select::make('type')
-                ->label(trans('filament-accounts::messages.requests.columns.type'))
+                ->label(trans('account::messages.requests.columns.type'))
                 ->searchable()
                 ->options(Type::where('for', 'account-requests')->where('type', 'types')->get()->pluck('name', 'key')->toArray());
 
             $columns[] = Forms\Components\Select::make('status')
-                ->label(trans('filament-accounts::messages.requests.columns.status'))
+                ->label(trans('account::messages.requests.columns.status'))
                 ->searchable()
                 ->options(Type::where('for', 'account-requests')->where('type', 'status')->get()->pluck('name', 'key')->toArray())
                 ->default('pending');
         }
         else {
             $columns[] = Forms\Components\TextInput::make('type')
-                ->label(trans('filament-accounts::messages.requests.columns.type'))
+                ->label(trans('account::messages.requests.columns.type'))
                 ->default('contact');
 
             $columns[] = Forms\Components\TextInput::make('status')
-                ->label(trans('filament-accounts::messages.requests.columns.status'))
+                ->label(trans('account::messages.requests.columns.status'))
                 ->default('pending');
         }
         $columns[] = Forms\Components\Toggle::make('is_approved')
-            ->label(trans('filament-accounts::messages.requests.columns.is_approved'));
+            ->label(trans('account::messages.requests.columns.is_approved'));
 
         return $form->schema($columns);
     }
@@ -76,9 +76,9 @@ class AccountRequestResource extends Resource
     {
         $columns = [];
 
-        if(filament('filament-accounts')->useAvatar){
+        if(filament('account')->useAvatar){
             $columns[] = AccountColumn::make('account.id')
-                ->label(trans('filament-accounts::messages.requests.columns.account'))
+                ->label(trans('account::messages.requests.columns.account'))
                 ->sortable();
         }
         else {
@@ -86,33 +86,33 @@ class AccountRequestResource extends Resource
         }
 
         $columns[] = Tables\Columns\TextColumn::make('user.name')
-            ->label(trans('filament-accounts::messages.requests.columns.user'))
+            ->label(trans('account::messages.requests.columns.user'))
             ->sortable();
 
-        if(filament('filament-accounts')->useTypes){
+        if(filament('account')->useTypes){
             $columns[] =TypeColumn::make('type')
-                ->label(trans('filament-accounts::messages.requests.columns.type'))
+                ->label(trans('account::messages.requests.columns.type'))
                 ->searchable();
             $columns[] = TypeColumn::make('status')
-                    ->label(trans('filament-accounts::messages.requests.columns.status'))
+                    ->label(trans('account::messages.requests.columns.status'))
                     ->searchable();
         }
         else {
             $columns[] =Tables\Columns\TextColumn::make('type')
-                ->label(trans('filament-accounts::messages.requests.columns.type'))
+                ->label(trans('account::messages.requests.columns.type'))
                 ->searchable();
             $columns[] = Tables\Columns\TextColumn::make('status')
-                ->label(trans('filament-accounts::messages.requests.columns.status'))
+                ->label(trans('account::messages.requests.columns.status'))
                 ->searchable();
         }
 
 
         $columns = array_merge($columns, [
             Tables\Columns\IconColumn::make('is_approved')
-                ->label(trans('filament-accounts::messages.requests.columns.is_approved'))
+                ->label(trans('account::messages.requests.columns.is_approved'))
                 ->boolean(),
             Tables\Columns\TextColumn::make('is_approved_at')
-                ->label(trans('filament-accounts::messages.requests.columns.is_approved_at'))
+                ->label(trans('account::messages.requests.columns.is_approved_at'))
                 ->dateTime()
                 ->sortable(),
             Tables\Columns\TextColumn::make('created_at')

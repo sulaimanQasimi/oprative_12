@@ -61,13 +61,6 @@ return [
     "guard" => "accounts",
 
 
-    "teams" => [
-        "allowed" => false,
-        "model" => \App\Pos\Account\Models\Team::class,
-        "invitation" => \App\Pos\Account\Models\TeamInvitation::class,
-        "membership" => \App\Pos\Account\Models\Membership::class,
-        "resource" => \App\Pos\Account\Filament\Resources\TeamResource::class,
-    ],
 
     /**
      * Accounts Relations Managers

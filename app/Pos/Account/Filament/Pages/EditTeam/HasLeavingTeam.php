@@ -14,7 +14,7 @@ trait HasLeavingTeam
             ->requiresConfirmation()
             ->link()
             ->color('danger')
-            ->label(trans('filament-accounts::messages.teams.members.leave_team'))
+            ->label(trans('account::messages.teams.members.leave_team'))
             ->action(function (array $arguments){
                 $this->removeMember($arguments['user']);
             });
@@ -25,14 +25,14 @@ trait HasLeavingTeam
             ->requiresConfirmation()
             ->link()
             ->color('danger')
-            ->label(trans('filament-accounts::messages.teams.members.remove_member'))
+            ->label(trans('account::messages.teams.members.remove_member'))
             ->action(function (array $arguments){
                 $this->removeMember($arguments['user']);
             });
     }
     public function removeMember($user)
     {
-        $teamMember = config('filament-accounts.model')::find($user);
+        $teamMember = config('account.model')::find($user);
         try {
             Filament::getTenant()->removeUser($teamMember);
             TeamMemberRemoved::dispatch(Filament::getTenant(), $teamMember);

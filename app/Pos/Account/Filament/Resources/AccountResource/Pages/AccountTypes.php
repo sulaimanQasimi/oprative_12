@@ -9,7 +9,7 @@ class AccountTypes extends BaseTypePage
 {
     public function getTitle(): string
     {
-        return trans('filament-accounts::messages.settings.types.title');
+        return trans('account::messages.settings.types.title');
     }
 
 

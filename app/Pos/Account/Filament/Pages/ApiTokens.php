@@ -9,16 +9,16 @@ class ApiTokens extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
-    protected static string $view = 'filament-accounts::teams.api-tokens';
+    protected static string $view = 'account::teams.api-tokens';
 
     public static function getNavigationLabel(): string
     {
-        return trans('filament-accounts::messages.profile.token.title');
+        return trans('account::messages.profile.token.title');
     }
 
     public function getTitle(): string|Htmlable
     {
-        return trans('filament-accounts::messages.profile.token.title');
+        return trans('account::messages.profile.token.title');
     }
 
     /**

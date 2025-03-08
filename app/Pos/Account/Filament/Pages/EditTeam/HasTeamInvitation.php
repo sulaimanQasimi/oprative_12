@@ -18,7 +18,7 @@ trait HasTeamInvitation
     {
         return [
             Action::make('sendInvitation')
-                ->label(trans('filament-accounts::messages.teams.members.send_invitation'))
+                ->label(trans('account::messages.teams.members.send_invitation'))
                 ->submit('manageTeamMembersForm')
                 ->color('primary')
         ];
@@ -28,7 +28,7 @@ trait HasTeamInvitation
         return \Filament\Actions\Action::make('getResendInvitationAction')
             ->requiresConfirmation()
             ->color('warning')
-            ->label(trans('filament-accounts::messages.teams.actions.resend_invitation'))
+            ->label(trans('account::messages.teams.actions.resend_invitation'))
             ->action(function (array $arguments){
                 $this->resendTeamInvitation($arguments['invitation']);
             });
@@ -42,21 +42,21 @@ trait HasTeamInvitation
 
             Mail::to($invitation->email)->send(new TeamInvitation($invitation));
 
-            $account = config('filament-accounts.model')::where('email', $invitation->email)->first();
+            $account = config('account.model')::where('email', $invitation->email)->first();
 
             if($account){
                 Notification::make()
-                    ->title(trans('filament-accounts::messages.teams.members.notifications.title'))
-                    ->body(trans('filament-accounts::messages.teams.members.notifications.body', ['team' => $invitation->team->name]))
+                    ->title(trans('account::messages.teams.members.notifications.title'))
+                    ->body(trans('account::messages.teams.members.notifications.body', ['team' => $invitation->team->name]))
                     ->success()
                     ->actions([
                         \Filament\Notifications\Actions\Action::make('acceptInvitation')
-                            ->label(trans('filament-accounts::messages.teams.members.notifications.accept'))
+                            ->label(trans('account::messages.teams.members.notifications.accept'))
                             ->color('success')
                             ->markAsRead()
                             ->url(route('accounts.team-invitations.accept', ['invitation' => $invitation->id])),
                         \Filament\Notifications\Actions\Action::make('cancelInvitation')
-                            ->label(trans('filament-accounts::messages.teams.members.notifications.cancel'))
+                            ->label(trans('account::messages.teams.members.notifications.cancel'))
                             ->color('danger')
                             ->url(route('accounts.team-invitations.cancel', ['invitation' => $invitation->id])),
                     ])
@@ -95,21 +95,21 @@ trait HasTeamInvitation
 
         Mail::to($email)->send(new TeamInvitation($invitation));
 
-        $account = config('filament-accounts.model')::where('email', $email)->first();
+        $account = config('account.model')::where('email', $email)->first();
 
         if($account){
             Notification::make()
-                ->title(trans('filament-accounts::messages.teams.members.notifications.title'))
-                ->body(trans('filament-accounts::messages.teams.members.notifications.body', ['team' => $team->name]))
+                ->title(trans('account::messages.teams.members.notifications.title'))
+                ->body(trans('account::messages.teams.members.notifications.body', ['team' => $team->name]))
                 ->success()
                 ->actions([
                     \Filament\Notifications\Actions\Action::make('acceptInvitation')
-                        ->label(trans('filament-accounts::messages.teams.members.notifications.accept'))
+                        ->label(trans('account::messages.teams.members.notifications.accept'))
                         ->color('success')
                         ->markAsRead()
                         ->url(route('accounts.team-invitations.accept', ['invitation' => $invitation->id])),
                     \Filament\Notifications\Actions\Action::make('cancelInvitation')
-                        ->label(trans('filament-accounts::messages.teams.members.notifications.cancel'))
+                        ->label(trans('account::messages.teams.members.notifications.cancel'))
                         ->color('danger')
                         ->url(route('accounts.team-invitations.cancel', ['invitation' => $invitation->id])),
                 ])

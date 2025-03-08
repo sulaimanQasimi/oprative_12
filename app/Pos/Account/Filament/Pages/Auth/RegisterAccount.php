@@ -91,7 +91,7 @@ class RegisterAccount extends Register
         $user->otp_code = substr(number_format(time() * rand(), 0, '', ''), 0, 6);
         $user->save();
 
-        event(new SendOTP(config('filament-accounts.model'), $user->id));
+        event(new SendOTP(config('account.model'), $user->id));
         return app(RegisterResponse::class);
     }
 }

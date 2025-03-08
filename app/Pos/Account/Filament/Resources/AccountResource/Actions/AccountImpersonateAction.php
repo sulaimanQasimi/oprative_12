@@ -12,7 +12,7 @@ class AccountImpersonateAction
         return Impersonate::make('impersonate')
             ->guard('accounts')
             ->color('info')
-            ->tooltip(trans('filament-accounts::messages.accounts.actions.impersonate'))
-            ->redirectTo( config('filament-accounts.features.impersonate.redirect'));
+            ->tooltip(trans('account::messages.accounts.actions.impersonate'))
+            ->redirectTo( config('account.features.impersonate.redirect'));
     }
 }

@@ -36,7 +36,7 @@ class Otp extends SimplePage implements HasForms, HasActions
     use InteractsWithFormActions;
     use WithRateLimiting;
 
-    protected static string $view = 'filament-accounts::livewire.otp';
+    protected static string $view = 'account::livewire.otp';
 
     /**
      * @var array<string, mixed> | null
@@ -105,7 +105,7 @@ class Otp extends SimplePage implements HasForms, HasActions
         $findAccountWithEmail->otp_code = rand(100000, 999999);
         $findAccountWithEmail->save();
 
-        event(new SendOTP(config('filament-accounts.model'), $findAccountWithEmail->id));
+        event(new SendOTP(config('account.model'), $findAccountWithEmail->id));
 
         Notification::make()
             ->title('OTP Send')

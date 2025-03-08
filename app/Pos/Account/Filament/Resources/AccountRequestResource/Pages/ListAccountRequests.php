@@ -23,7 +23,7 @@ class ListAccountRequests extends ManageRecords
                     ->url(RequestsTypes::getUrl()),
             ])
             ->button()
-            ->label(trans('filament-accounts::messages.account-requests.button'))
+            ->label(trans('account::messages.account-requests.button'))
             ->icon('heroicon-s-cog')
         ];
     }

@@ -1,10 +1,10 @@
 @php
-    $account = config('filament-accounts.model')::find($team->owner->id);
+    $account = config('account.model')::find($team->owner->id);
 @endphp
 <!-- Team Owner Information -->
 <div class="col-span-6">
     <label>
-        {{ trans('filament-accounts::messages.teams.edit.owner') }}
+        {{ trans('account::messages.teams.edit.owner') }}
     </label>
 
     <div class="flex justify-start gap-2 py-4">

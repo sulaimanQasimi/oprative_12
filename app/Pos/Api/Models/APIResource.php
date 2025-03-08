@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentApi\Models;
+namespace  App\Pos\Api\Models;
 
 use Filament\Facades\Filament;
 use Illuminate\Database\Eloquent\Model;
@@ -28,7 +28,7 @@ class APIResource extends Model
             $pages = app($resource)->getPages();
             foreach ($pages as $page){
                 $page = app($page->getPage());
-                if(get_class_methods($page) && in_array('TomatoPHP\FilamentApi\Traits\InteractWithAPI', class_uses($page))){
+                if(get_class_methods($page) && in_array(' App\Pos\Api\Traits\InteractWithAPI', class_uses($page))){
                     foreach ($page::registerAPIRoutes() as $item){
                         $routes[] = [
                             "method" => Str::of($item['method'])->upper()->toString(),

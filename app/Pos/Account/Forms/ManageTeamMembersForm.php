@@ -21,11 +21,11 @@ class ManageTeamMembersForm
     {
         return [
             Forms\Components\ViewField::make('manageTeamMembers')
-                ->label(trans('filament-accounts::messages.teams.members.title'))
+                ->label(trans('account::messages.teams.members.title'))
                 ->hiddenLabel()
-                ->view('filament-accounts::forms.components.team-members', ['team' => $team]),
+                ->view('account::forms.components.team-members', ['team' => $team]),
             TextInput::make('email')->label('Email')
-                ->label(trans('filament-accounts::messages.teams.members.email'))
+                ->label(trans('account::messages.teams.members.email'))
                 ->rules([
                     'required',
                     'email',
@@ -36,13 +36,13 @@ class ManageTeamMembersForm
                         }),
                 ])
                 ->validationMessages([
-                    'email.not_in' => trans('filament-accounts::messages.teams.members.not_in'),
-                    'email.required' => trans('filament-accounts::messages.teams.members.required'),
-                    'email.unique' =>  trans('filament-accounts::messages.teams.members.unique'),
+                    'email.not_in' => trans('account::messages.teams.members.not_in'),
+                    'email.required' => trans('account::messages.teams.members.required'),
+                    'email.unique' =>  trans('account::messages.teams.members.unique'),
                 ])
                 ->disabled(fn() => auth('accounts')->user()->id !== $team->account_id),
             Forms\Components\Select::make('role')
-                ->label(trans('filament-accounts::messages.teams.members.role'))
+                ->label(trans('account::messages.teams.members.role'))
                 ->searchable()
                 ->preload()
                 ->options(function (){
@@ -59,7 +59,7 @@ class ManageTeamMembersForm
                     ? ['required', 'string', new \Laravel\Jetstream\Rules\Role]
                     : null,)
                 ->validationMessages([
-                    'role.required' => trans('filament-accounts::messages.teams.members.role_required'),
+                    'role.required' => trans('account::messages.teams.members.role_required'),
                 ])
                 ->disabled(fn() => auth('accounts')->user()->id !== $team->account_id)
         ];

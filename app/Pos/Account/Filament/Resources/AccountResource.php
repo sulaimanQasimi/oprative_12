@@ -37,47 +37,47 @@ class AccountResource extends Resource
      */
     public static function getModel(): string
     {
-        return config('filament-accounts.model');
+        return config('account.model');
     }
 
     public static function getNavigationGroup(): ?string
     {
-        return trans('filament-accounts::messages.group');
+        return trans('account::messages.group');
     }
 
     public static function getNavigationLabel(): string
     {
-        return trans('filament-accounts::messages.accounts.label');
+        return trans('account::messages.accounts.label');
     }
 
     public static function getPluralLabel(): ?string
     {
-        return trans('filament-accounts::messages.accounts.label');
+        return trans('account::messages.accounts.label');
     }
 
     public static function getLabel(): ?string
     {
-        return trans('filament-accounts::messages.accounts.single');
+        return trans('account::messages.accounts.single');
     }
 
     public static function form(Form $form): Form
     {
-        return config('filament-accounts.accounts.form') ? config('filament-accounts.accounts.form')::make($form) : AccountsForm::make($form);
+        return config('account.accounts.form') ? config('account.accounts.form')::make($form) : AccountsForm::make($form);
     }
 
     public static function table(Table $table): Table
     {
-        return config('filament-accounts.accounts.table') ? config('filament-accounts.accounts.table')::make($table) : AccountsTable::make($table);
+        return config('account.accounts.table') ? config('account.accounts.table')::make($table) : AccountsTable::make($table);
     }
 
     public static function getRelations(): array
     {
-        return config('filament-accounts.relations') ? config('filament-accounts.relations')::get() :  AccountReleations::get();
+        return config('account.relations') ? config('account.relations')::get() :  AccountReleations::get();
     }
 
     public static function getPages(): array
     {
-        return config('filament-accounts.accounts.pages') ? config('filament-accounts.accounts.pages')::routes() : [
+        return config('account.accounts.pages') ? config('account.accounts.pages')::routes() : [
             'index' => \App\Pos\Account\Filament\Resources\AccountResource\Pages\ListAccounts::route('/'),
             'edit' => \App\Pos\Account\Filament\Resources\AccountResource\Pages\EditAccount::route('/{record}/edit')
         ];

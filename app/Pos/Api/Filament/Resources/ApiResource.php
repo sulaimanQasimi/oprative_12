@@ -1,17 +1,17 @@
 <?php
 
-namespace TomatoPHP\FilamentApi\Filament\Resources;
+namespace  App\Pos\Api\Filament\Resources;
 
 use Filament\Forms\Form;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Tables;
-use TomatoPHP\FilamentApi\Filament\Resources\ApiResource\Pages\ManageAPIResource;
+use  App\Pos\Api\Filament\Resources\ApiResource\Pages\ManageAPIResource;
 
 class ApiResource extends Resource
 {
-    protected static ?string $model = \TomatoPHP\FilamentApi\Models\APIResource::class;
+    protected static ?string $model = \ App\Pos\Api\Models\APIResource::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-paper-airplane';
 
@@ -35,14 +35,14 @@ class ApiResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->description(fn(\TomatoPHP\FilamentApi\Models\APIResource $resource) => $resource->slug)
+                    ->description(fn(\ App\Pos\Api\Models\APIResource $resource) => $resource->slug)
                     ->searchable()
                     ->badge()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('method')
                     ->badge()
-                    ->description(fn(\TomatoPHP\FilamentApi\Models\APIResource $resource) => implode(', ', json_decode($resource->middleware)))
-                    ->color(fn(\TomatoPHP\FilamentApi\Models\APIResource $resource) => match ($resource->method) {
+                    ->description(fn(\ App\Pos\Api\Models\APIResource $resource) => implode(', ', json_decode($resource->middleware)))
+                    ->color(fn(\ App\Pos\Api\Models\APIResource $resource) => match ($resource->method) {
                         'GET' => 'success',
                         'POST' => 'info',
                         'PUT' => 'warning',
@@ -57,7 +57,7 @@ class ApiResource extends Resource
                 Tables\Filters\SelectFilter::make('table')
                     ->label('Filter By Table')
                     ->searchable()
-                    ->options(\TomatoPHP\FilamentApi\Models\APIResource::query()->groupBy('table')->pluck('table', 'table')->toArray())
+                    ->options(\ App\Pos\Api\Models\APIResource::query()->groupBy('table')->pluck('table', 'table')->toArray())
             ])
             ->defaultGroup('table');
     }

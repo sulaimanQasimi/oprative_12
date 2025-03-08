@@ -10,7 +10,7 @@ trait HasNotification
     {
         Notification::make()
             ->success()
-            ->title(trans('filament-accounts::messages.saved_successfully'))
+            ->title(trans('account::messages.saved_successfully'))
             ->send();
 
         $data = $this->getUser()->attributesToArray();

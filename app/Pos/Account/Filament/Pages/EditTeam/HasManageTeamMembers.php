@@ -12,8 +12,8 @@ trait HasManageTeamMembers
     public function manageTeamMembersForm(Form $form): Form
     {
         return $form->schema([
-            Section::make(trans('filament-accounts::messages.teams.members.title'))
-                ->description(trans('filament-accounts::messages.teams.members.description'))
+            Section::make(trans('account::messages.teams.members.title'))
+                ->description(trans('account::messages.teams.members.description'))
                 ->schema(ManageTeamMembersForm::get(Filament::getTenant()))
         ])
             ->model(Filament::getTenant())

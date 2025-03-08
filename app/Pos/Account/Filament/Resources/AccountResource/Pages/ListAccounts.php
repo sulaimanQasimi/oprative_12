@@ -30,11 +30,11 @@ class ListAccounts extends ManageRecords
                         $data['username'] = $data['email'];
                     }
 
-                    return config('filament-accounts.model')::query()->create($data);
+                    return config('account.model')::query()->create($data);
                 }),
         ];
 
-        if(filament('filament-accounts')->useTypes) {
+        if(filament('account')->useTypes) {
             $actions[] = Actions\Action::make('types')
                 ->icon('heroicon-s-cog')
                 ->tooltip('Accounts Types')
