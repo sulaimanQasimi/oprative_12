@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentTypes\Components;
+namespace App\Pos\Account\Components;
 
 use Filament\Tables\Columns\TextColumn;
 class TypeColumn extends TextColumn
