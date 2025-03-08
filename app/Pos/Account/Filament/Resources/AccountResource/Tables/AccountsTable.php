@@ -83,7 +83,15 @@ class AccountsTable extends TableBuilder
                 ->searchable()
         ]);
 
-
+        //Can Login
+        $colums->add(
+            Tables\Columns\IconColumn::make('is_login')
+                ->label("Can Login")
+                ->translateLabel()
+                ->toggleable(isToggledHiddenByDefault: true)
+                ->sortable()
+                ->boolean()
+        );
 
         $colums->add(
             Tables\Columns\IconColumn::make('is_active')

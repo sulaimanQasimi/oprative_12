@@ -17,16 +17,14 @@ class ListAccounts extends ManageRecords
         $actions = [
             Actions\CreateAction::make()
                 ->using(function (array $data) {
-                    if(isset($data['password'])){
+                    if (isset($data['password'])) {
                         $data['password'] = bcrypt($data['password']);
                     }
-                    if(isset($data['loginBy']) && $data['loginBy'] === 'email'){
+                    if (isset($data['loginBy']) && $data['loginBy'] === 'email') {
                         $data['username'] = $data['email'];
-                    }
-                    else if(isset($data['loginBy']) && $data['loginBy'] === 'phone') {
+                    } else if (isset($data['loginBy']) && $data['loginBy'] === 'phone') {
                         $data['username'] = $data['phone'];
-                    }
-                    else {
+                    } else {
                         $data['username'] = $data['email'];
                     }
 
@@ -34,14 +32,12 @@ class ListAccounts extends ManageRecords
                 }),
         ];
 
-        if(filament('account')->useTypes) {
-            $actions[] = Actions\Action::make('types')
-                ->icon('heroicon-s-cog')
-                ->tooltip('Accounts Types')
-                ->label('Accounts Types')
-                ->hiddenLabel()
-                ->url(AccountTypes::getUrl());
-        }
+        $actions[] = Actions\Action::make('types')
+            ->icon('heroicon-s-cog')
+            ->tooltip('Accounts Types')
+            ->label('Accounts Types')
+            ->hiddenLabel()
+            ->url(AccountTypes::getUrl());
 
         return $actions;
     }
