@@ -1,28 +1,45 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "laravel/laravel",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "The skeleton application for the Laravel framework.",
     "keywords": ["laravel", "framework"],
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "filament/filament": "^3.3",
-        "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10.1",
-        "livewire/flux": "^2.0",
-        "livewire/volt": "^1.6.7"
-    },
-    "require-dev": {
-        "fakerphp/faker": "^1.23",
-        "laravel/pail": "^1.2.2",
-        "laravel/pint": "^1.18",
-        "laravel/sail": "^1.41",
-        "mockery/mockery": "^1.6",
-        "nunomaduro/collision": "^8.6",
-        "pestphp/pest": "^3.7",
-        "pestphp/pest-plugin-drift": "^3.0",
-        "pestphp/pest-plugin-laravel": "^3.1"
+        "althinect/filament-spatie-roles-permissions": "^2.2",
+        "ariaieboy/filament-jalali": "^1.0",
+        "discoverydesign/filament-gaze": "^1.1",
+        "elibyy/tcpdf-laravel": "^11.1",
+        "filament/filament": "^3.2",
+        "filament/forms": "^3.2",
+        "firefly/filament-blog": "^2.0",
+        "geniusts/hijri-dates": "^1.2",
+        "guava/calendar": "^1.11",
+        "guava/tutorials": "^1.1",
+        "hekmatinasser/verta": "*",
+        "laravel/fortify": "^1.25",
+        "laravel/framework": "^11.31",
+        "laravel/reverb": "^1.0",
+        "laravel/sanctum": "^4.0",
+        "laravel/tinker": "^2.9",
+        "livewire/livewire": "^3.0",
+        "mojtabaahn/php-persian-number-to-words": "*",
+        "namu/wirechat": "^0.0.7",
+        "okeonline/filament-archivable": "^0.0.2",
+        "pxlrbt/filament-activity-log": "^1.1",
+        "pxlrbt/filament-excel": "*",
+        "shuvroroy/filament-spatie-laravel-backup": "^2.2",
+        "stechstudio/filament-impersonate": "^3.15",
+        "stephenjude/filament-debugger": "^3.1",
+        "tapp/filament-authentication-log": "3.1",
+        "teguh02/filament-db-sync": "^1.2",
+        "tomatophp/filament-api": "^1.0",
+        "tomatophp/filament-language-switcher": "^1.0",
+        "tomatophp/filament-pos": "^1.0",
+        "tomatophp/filament-users": "*",
+        "torgodly/html2media": "^1.1",
+        "vormkracht10/filament-2fa": "^2.0"
     },
     "autoload": {
         "psr-4": {
@@ -53,10 +70,7 @@
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
         ],
-        "dev": [
-            "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
-        ]
+        "dev": "npx concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" \"php artisan serve\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names='server,queue,vite'"
     },
     "extra": {
         "laravel": {

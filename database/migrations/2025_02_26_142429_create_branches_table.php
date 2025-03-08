@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('branches', function (Blueprint $table) {
+        Schema::create('branches_test', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('code')->unique();

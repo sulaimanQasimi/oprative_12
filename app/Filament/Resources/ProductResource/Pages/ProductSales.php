@@ -34,7 +34,7 @@ class ProductSales extends ManageRelatedRecords
 
     public static function getNavigationLabel(): string
     {
-        return __('Product Sales');
+        return trans('Product Sales');
     }
 
     public function table(Table $table): Table

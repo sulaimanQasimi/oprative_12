@@ -1,0 +1,75 @@
+{
+    "name": "tomatophp/filament-users",
+    "type": "library",
+    "description": "Manage your users with a highly customizable user resource for FilamentPHP with integration of filament-shield and filament-impersonate",
+    "keywords": [
+        "php",
+        "laravel",
+        "filamentphp",
+        "users",
+        "user CRUD",
+        "user resource",
+        "user management",
+        "filament-shield",
+        "filament-impersonate"
+    ],
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "TomatoPHP\\FilamentUsers\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TomatoPHP\\FilamentUsers\\Tests\\": "tests/src/",
+            "TomatoPHP\\FilamentUsers\\Tests\\Database\\Factories\\": "tests/database/factories",
+            "TomatoPHP\\FilamentUsers\\Tests\\Database\\Seeders\\": "tests/database/seeders"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TomatoPHP\\FilamentUsers\\FilamentUsersServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "testbench": "vendor/bin/testbench package:discover --ansi",
+        "db": "vendor/bin/testbench package:create-sqlite-db && vendor/bin/testbench migrate",
+        "analyse": "vendor/bin/phpstan analyse src tests",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "authors": [
+        {
+            "name": "Fady Mondy",
+            "email": "info@3x1.io"
+        }
+    ],
+    "require": {
+        "php": "^8.1|^8.2",
+        "filament/filament": "^3.2",
+        "tomatophp/console-helpers": "^1.1"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.18",
+        "livewire/livewire": "^2.10|^3.0",
+        "nunomaduro/larastan": "^2.9",
+        "orchestra/testbench": "^9.5",
+        "pestphp/pest": "^2.36",
+        "pestphp/pest-plugin-laravel": "^2.4",
+        "pestphp/pest-plugin-livewire": "^2.1",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan-deprecation-rules": "^1.2",
+        "phpstan/phpstan-phpunit": "^1.4"
+    },
+    "version": "2.0.15"
+}

@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('currencies', function (Blueprint $table) {
+        Schema::create('currencies_test', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
             $table->string('code')->unique()->nullable();

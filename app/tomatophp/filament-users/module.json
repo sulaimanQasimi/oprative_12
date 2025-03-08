@@ -1,0 +1,29 @@
+{
+    "name": "FilamentUsers",
+    "alias": "filament-users",
+    "description": {
+        "ar": "قم بإدارة مستخدمين النظام بسهولة",
+        "en": "User Resource For FilamentPHP Admin Dashboard",
+        "gr": "User Resource For FilamentPHP Admin Dashboard",
+        "sp": "User Resource For FilamentPHP Admin Dashboard"
+    },
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "TomatoPHP\\FilamentUsers\\FilamentUsersServiceProvider"
+    ],
+    "files": [],
+    "title": {
+        "ar": "المستخدمين",
+        "en": "User Manager",
+        "gr": "User Manager",
+        "sp": "User Manager"
+    },
+    "color": "#cc1448",
+    "icon": "heroicon-c-users",
+    "placeholder": "https://raw.githubusercontent.com/tomatophp/filament-users/master/art/3x1io-tomato-users.jpg",
+    "type": "plugin",
+    "version": "v1.0.12",
+    "github" : "https://github.com/tomatophp/filament-users",
+    "docs" : "https://github.com/tomatophp/filament-users"
+}
