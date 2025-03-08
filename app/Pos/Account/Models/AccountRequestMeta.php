@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Models;
+namespace App\Pos\Account\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
@@ -43,7 +43,7 @@ class AccountRequestMeta extends Model implements HasMedia
      */
     public function accountRequest()
     {
-        return $this->belongsTo('TomatoPHP\FilamentAccounts\Models\AccountRequest');
+        return $this->belongsTo('App\Pos\Account\Models\AccountRequest');
     }
 
     /**

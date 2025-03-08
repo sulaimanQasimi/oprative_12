@@ -1,10 +1,10 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Http\Controllers\APIs;
+namespace App\Pos\Account\Http\Controllers\APIs;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use TomatoPHP\FilamentAccounts\Helpers\Response;
-use TomatoPHP\FilamentAccounts\Models\AccountRequest;
+use App\Pos\Account\Helpers\Response;
+use App\Pos\Account\Models\AccountRequest;
 
 class AccountRequestsController extends Controller
 {

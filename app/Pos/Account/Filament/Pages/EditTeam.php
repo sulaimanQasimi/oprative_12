@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages;
+namespace App\Pos\Account\Filament\Pages;
 
 use App\Models\Team;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -28,18 +28,18 @@ use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Jetstream;
 use Laravel\Jetstream\Mail\TeamInvitation;
 use Laravel\Jetstream\Role;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam\HasCancelTeamInvitation;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam\HasDeleteTeam;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam\HasEditTeam;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam\HasLeavingTeam;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam\HasManageRoles;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam\HasManageTeamMembers;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam\HasNotifications;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam\HasTeamInvitation;
-use TomatoPHP\FilamentAccounts\Forms\DeleteTeamForm;
-use TomatoPHP\FilamentAccounts\Forms\ManageTeamMembersForm;
-use TomatoPHP\FilamentAccounts\Forms\MembersListForm;
-use TomatoPHP\FilamentAccounts\Forms\UpdateTeamForm;
+use App\Pos\Account\Filament\Pages\EditTeam\HasCancelTeamInvitation;
+use App\Pos\Account\Filament\Pages\EditTeam\HasDeleteTeam;
+use App\Pos\Account\Filament\Pages\EditTeam\HasEditTeam;
+use App\Pos\Account\Filament\Pages\EditTeam\HasLeavingTeam;
+use App\Pos\Account\Filament\Pages\EditTeam\HasManageRoles;
+use App\Pos\Account\Filament\Pages\EditTeam\HasManageTeamMembers;
+use App\Pos\Account\Filament\Pages\EditTeam\HasNotifications;
+use App\Pos\Account\Filament\Pages\EditTeam\HasTeamInvitation;
+use App\Pos\Account\Forms\DeleteTeamForm;
+use App\Pos\Account\Forms\ManageTeamMembersForm;
+use App\Pos\Account\Forms\MembersListForm;
+use App\Pos\Account\Forms\UpdateTeamForm;
 
 class EditTeam extends EditTenantProfile
 {

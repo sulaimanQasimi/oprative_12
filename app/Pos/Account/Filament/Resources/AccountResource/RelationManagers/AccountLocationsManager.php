@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\RelationManagers;
+namespace App\Pos\Account\Filament\Resources\AccountResource\RelationManagers;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;

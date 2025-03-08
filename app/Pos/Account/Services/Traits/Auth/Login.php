@@ -1,12 +1,12 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Services\Traits\Auth;
+namespace App\Pos\Account\Services\Traits\Auth;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use ProtoneMedia\Splade\Facades\Toast;
-use TomatoPHP\FilamentAccounts\Helpers\Response;
-use TomatoPHP\FilamentAccounts\Services\Contracts\WebResponse;
+use App\Pos\Account\Helpers\Response;
+use App\Pos\Account\Services\Contracts\WebResponse;
 
 trait Login
 {

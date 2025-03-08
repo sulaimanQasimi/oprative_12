@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\RelationManagers;
+namespace App\Pos\Account\Filament\Resources\AccountResource\RelationManagers;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Forms;
 use Filament\Tables;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use TomatoPHP\FilamentAccounts\Components\AccountColumn;
+use App\Pos\Account\Components\AccountColumn;
 use TomatoPHP\FilamentTypes\Components\TypeColumn;
 use TomatoPHP\FilamentTypes\Models\Type;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Livewire;
+namespace App\Pos\Account\Livewire;
 
 use App\Models\Account;
 use Carbon\Carbon;
@@ -27,7 +27,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
-use TomatoPHP\FilamentAccounts\Events\SendOTP;
+use App\Pos\Account\Events\SendOTP;
 
 class Otp extends SimplePage implements HasForms, HasActions
 {

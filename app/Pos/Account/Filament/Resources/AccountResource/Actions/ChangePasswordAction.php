@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Actions;
+namespace App\Pos\Account\Filament\Resources\AccountResource\Actions;
 
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;

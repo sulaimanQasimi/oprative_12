@@ -1,11 +1,11 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Actions;
+namespace App\Pos\Account\Filament\Resources\AccountResource\Actions;
 
 use Filament\Tables\Actions\Action;
 use Filament\Forms;
 use Maatwebsite\Excel\Facades\Excel;
-use TomatoPHP\FilamentAccounts\Export\ExportAccounts;
+use App\Pos\Account\Export\ExportAccounts;
 
 class ExportAccountsAction
 {

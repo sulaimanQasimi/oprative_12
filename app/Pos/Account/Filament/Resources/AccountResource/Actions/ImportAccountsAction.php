@@ -1,12 +1,12 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Actions;
+namespace App\Pos\Account\Filament\Resources\AccountResource\Actions;
 
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Filament\Forms;
 use Maatwebsite\Excel\Facades\Excel;
-use TomatoPHP\FilamentAccounts\Import\ImportAccounts;
+use App\Pos\Account\Import\ImportAccounts;
 
 class ImportAccountsAction
 {

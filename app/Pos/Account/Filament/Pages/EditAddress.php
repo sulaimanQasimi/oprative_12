@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages;
+namespace App\Pos\Account\Filament\Pages;
 
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;

@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Models;
+namespace App\Pos\Account\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -33,7 +33,7 @@ class AccountRequest extends Model
      */
     public function accountRequestMetas()
     {
-        return $this->hasMany('TomatoPHP\FilamentAccounts\Models\AccountRequestMeta');
+        return $this->hasMany('App\Pos\Account\Models\AccountRequestMeta');
     }
 
     /**

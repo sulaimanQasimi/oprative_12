@@ -1,11 +1,11 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Actions;
+namespace App\Pos\Account\Filament\Resources\AccountResource\Actions;
 
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Filament\Forms;
-use TomatoPHP\FilamentAccounts\Models\Team;
+use App\Pos\Account\Models\Team;
 
 class AccountTeamsAction
 {

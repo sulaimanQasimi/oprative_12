@@ -1,15 +1,15 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts;
+namespace App\Pos\Account;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
 use Illuminate\Support\Facades\Config;
 use Nwidart\Modules\Module;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountRequestResource;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource;
-use TomatoPHP\FilamentAccounts\Filament\Resources\ContactResource;
-use TomatoPHP\FilamentAccounts\Filament\Resources\TeamResource;
+use App\Pos\Account\Filament\Resources\AccountRequestResource;
+use App\Pos\Account\Filament\Resources\AccountResource;
+use App\Pos\Account\Filament\Resources\ContactResource;
+use App\Pos\Account\Filament\Resources\TeamResource;
 use TomatoPHP\FilamentPlugins\Facades\FilamentPlugins;
 
 class FilamentAccountsPlugin implements Plugin

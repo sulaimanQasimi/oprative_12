@@ -1,9 +1,9 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\TeamResource\Pages;
+namespace App\Pos\Account\Filament\Resources\TeamResource\Pages;
 
 use Filament\Resources\Pages\ManageRecords;
-use TomatoPHP\FilamentAccounts\Filament\Resources\TeamResource;
+use App\Pos\Account\Filament\Resources\TeamResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

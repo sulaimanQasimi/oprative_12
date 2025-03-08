@@ -1,14 +1,14 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Actions;
+namespace App\Pos\Account\Filament\Resources\AccountResource\Actions;
 
 use Filament\Notifications\Notification;
 use Filament\Tables;
 use Filament\Actions;
 use Filament\Forms;
 use STS\FilamentImpersonate\Tables\Actions\Impersonate;
-use TomatoPHP\FilamentAccounts\Facades\FilamentAccounts;
-use TomatoPHP\FilamentAccounts\Models\Team;
+use App\Pos\Account\Facades\FilamentAccounts;
+use App\Pos\Account\Models\Team;
 use TomatoPHP\FilamentAlerts\Models\NotificationsTemplate;
 use TomatoPHP\FilamentAlerts\Services\SendNotification;
 use TomatoPHP\FilamentHelpers\Contracts\ActionsBuilder;

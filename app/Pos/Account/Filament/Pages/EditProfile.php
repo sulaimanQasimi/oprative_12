@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages;
+namespace App\Pos\Account\Filament\Pages;
 
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
@@ -9,15 +9,15 @@ use Filament\Models\Contracts\HasTenants;
 use Filament\Pages\Dashboard;
 use Filament\Pages\Page;
 use Illuminate\Database\Eloquent\Model;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditProfile\HasBrowserSessions;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditProfile\HasDeleteAccount;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditProfile\HasEditPassword;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditProfile\HasEditProfile;
-use TomatoPHP\FilamentAccounts\Forms\BrowserSessionsForm;
-use TomatoPHP\FilamentAccounts\Forms\CustomFieldsForm;
-use TomatoPHP\FilamentAccounts\Forms\DeleteAccountForm;
-use TomatoPHP\FilamentAccounts\Forms\EditPasswordForm;
-use TomatoPHP\FilamentAccounts\Forms\EditProfileForm;
+use App\Pos\Account\Filament\Pages\EditProfile\HasBrowserSessions;
+use App\Pos\Account\Filament\Pages\EditProfile\HasDeleteAccount;
+use App\Pos\Account\Filament\Pages\EditProfile\HasEditPassword;
+use App\Pos\Account\Filament\Pages\EditProfile\HasEditProfile;
+use App\Pos\Account\Forms\BrowserSessionsForm;
+use App\Pos\Account\Forms\CustomFieldsForm;
+use App\Pos\Account\Forms\DeleteAccountForm;
+use App\Pos\Account\Forms\EditPasswordForm;
+use App\Pos\Account\Forms\EditProfileForm;
 use App\Filament\App\Pages\Exception;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;

@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Helpers;
+namespace App\Pos\Account\Helpers;
 
 use \Illuminate\Support\Facades\Route;
 

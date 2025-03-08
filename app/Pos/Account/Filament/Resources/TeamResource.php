@@ -1,11 +1,11 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources;
+namespace App\Pos\Account\Filament\Resources;
 
-use TomatoPHP\FilamentAccounts\Components\AccountColumn;
-use TomatoPHP\FilamentAccounts\Filament\Resources\TeamResource\Pages;
-use TomatoPHP\FilamentAccounts\Filament\Resources\TeamResource\RelationManagers;
-use TomatoPHP\FilamentAccounts\Models\Team;
+use App\Pos\Account\Components\AccountColumn;
+use App\Pos\Account\Filament\Resources\TeamResource\Pages;
+use App\Pos\Account\Filament\Resources\TeamResource\RelationManagers;
+use App\Pos\Account\Models\Team;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;

@@ -1,10 +1,10 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Import;
+namespace App\Pos\Account\Import;
 
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
-use TomatoPHP\FilamentAccounts\Models\Account;
+use App\Pos\Account\Models\Account;
 
 class ImportAccounts implements ToCollection
 {

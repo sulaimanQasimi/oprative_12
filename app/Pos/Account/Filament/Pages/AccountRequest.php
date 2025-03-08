@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages;
+namespace App\Pos\Account\Filament\Pages;
 
 use Filament\Actions\CreateAction;
 use Filament\Forms\Concerns\InteractsWithForms;
@@ -77,7 +77,7 @@ class AccountRequest extends Page implements HasTable, HasForms
         ]);
 
         return $table
-            ->query(\TomatoPHP\FilamentAccounts\Models\AccountRequest::query()->where('account_id', auth('accounts')->user()->id))
+            ->query(\App\Pos\Account\Models\AccountRequest::query()->where('account_id', auth('accounts')->user()->id))
             ->headerActions([
                 Tables\Actions\Action::make('create')
                     ->form($this->getRequestForm())

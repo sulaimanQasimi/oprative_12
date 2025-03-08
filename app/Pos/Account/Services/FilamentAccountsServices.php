@@ -1,9 +1,9 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Services;
+namespace App\Pos\Account\Services;
 
 use Illuminate\Support\Facades\Config;
-use TomatoPHP\FilamentAccounts\Models\Account;
+use App\Pos\Account\Models\Account;
 
 class FilamentAccountsServices
 {

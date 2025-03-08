@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Models;
+namespace App\Pos\Account\Models;
 
 use GeneaLabs\LaravelModelCaching\CachedModel;
 use GeneaLabs\LaravelModelCaching\Traits\Cachable;
@@ -36,6 +36,6 @@ class AccountsMeta extends CachedModel
      */
     public function account()
     {
-        return $this->belongsTo('TomatoPHP\FilamentAccounts\Models\Account');
+        return $this->belongsTo('App\Pos\Account\Models\Account');
     }
 }

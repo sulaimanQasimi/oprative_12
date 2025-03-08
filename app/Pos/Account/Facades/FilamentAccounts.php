@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Facades;
+namespace App\Pos\Account\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Facade;
  * @method void  registerAccountRelation(array $relations)
  * @method array loadRelations()
  * @method array loadActions()
- * @method static \TomatoPHP\FilamentAccounts\Services\FilamentAccountsServices make()
+ * @method static \App\Pos\Account\Services\FilamentAccountsServices make()
  */
 class FilamentAccounts extends Facade
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam;
+namespace App\Pos\Account\Filament\Pages\EditTeam;
 
 use Filament\Facades\Filament;
 use Filament\Forms\Form;
-use TomatoPHP\FilamentAccounts\Forms\DeleteTeamForm;
+use App\Pos\Account\Forms\DeleteTeamForm;
 
 trait HasDeleteTeam
 {

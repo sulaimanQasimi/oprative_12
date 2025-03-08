@@ -1,9 +1,9 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages\EditProfile;
+namespace App\Pos\Account\Filament\Pages\EditProfile;
 
 use Filament\Forms\Form;
-use TomatoPHP\FilamentAccounts\Forms\BrowserSessionsForm;
+use App\Pos\Account\Forms\BrowserSessionsForm;
 
 trait HasBrowserSessions
 {

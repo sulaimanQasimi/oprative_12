@@ -1,11 +1,11 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam;
+namespace App\Pos\Account\Filament\Pages\EditTeam;
 
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
-use TomatoPHP\FilamentAccounts\Forms\ManageTeamMembersForm;
+use App\Pos\Account\Forms\ManageTeamMembersForm;
 
 trait HasManageTeamMembers
 {

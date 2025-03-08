@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Export;
+namespace App\Pos\Account\Export;
 
 use App\Models\Account;
 use Illuminate\Support\Collection;

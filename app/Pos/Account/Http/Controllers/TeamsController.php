@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Http\Controllers;
+namespace App\Pos\Account\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Filament\Facades\Filament;

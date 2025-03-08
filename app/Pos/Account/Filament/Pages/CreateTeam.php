@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages;
+namespace App\Pos\Account\Filament\Pages;
 
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\TextInput;
@@ -39,7 +39,7 @@ class CreateTeam extends RegisterTenant
 
     protected function handleRegistration(array $data): Model
     {
-        $newTeam = app(\TomatoPHP\FilamentAccounts\Actions\Jetstream\CreateTeam::class)->create(auth(filament()->getPlugin('filament-saas-accounts')->authGuard)->user(), $data);
+        $newTeam = app(\App\Pos\Account\Actions\Jetstream\CreateTeam::class)->create(auth(filament()->getPlugin('filament-saas-accounts')->authGuard)->user(), $data);
         return $newTeam;
     }
 }

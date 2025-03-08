@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Models;
+namespace App\Pos\Account\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,6 +27,6 @@ class ContactsMeta extends Model
      */
     public function contact()
     {
-        return $this->belongsTo('TomatoPHP\FilamentAccounts\Models\Contact');
+        return $this->belongsTo('App\Pos\Account\Models\Contact');
     }
 }

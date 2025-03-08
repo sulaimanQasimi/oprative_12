@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts;
+namespace App\Pos\Account;
 
 use Filament\Contracts\Plugin;
 use Filament\Navigation\MenuItem;
@@ -9,19 +9,19 @@ use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\Facades\Blade;
 use Laravel\Jetstream\Jetstream;
-use TomatoPHP\FilamentAccounts\Filament\Pages\AccountRequest;
-use TomatoPHP\FilamentAccounts\Filament\Pages\ApiTokens;
-use TomatoPHP\FilamentAccounts\Filament\Pages\Auth\LoginAccount;
-use TomatoPHP\FilamentAccounts\Filament\Pages\Auth\RegisterAccount;
-use TomatoPHP\FilamentAccounts\Filament\Pages\Auth\RegisterAccountWithoutOTP;
-use TomatoPHP\FilamentAccounts\Filament\Pages\CreateTeam;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditAddress;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditProfile;
-use TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountRequestResource;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource;
-use TomatoPHP\FilamentAccounts\Filament\Resources\ContactResource;
-use TomatoPHP\FilamentAccounts\Models\Team;
+use App\Pos\Account\Filament\Pages\AccountRequest;
+use App\Pos\Account\Filament\Pages\ApiTokens;
+use App\Pos\Account\Filament\Pages\Auth\LoginAccount;
+use App\Pos\Account\Filament\Pages\Auth\RegisterAccount;
+use App\Pos\Account\Filament\Pages\Auth\RegisterAccountWithoutOTP;
+use App\Pos\Account\Filament\Pages\CreateTeam;
+use App\Pos\Account\Filament\Pages\EditAddress;
+use App\Pos\Account\Filament\Pages\EditProfile;
+use App\Pos\Account\Filament\Pages\EditTeam;
+use App\Pos\Account\Filament\Resources\AccountRequestResource;
+use App\Pos\Account\Filament\Resources\AccountResource;
+use App\Pos\Account\Filament\Resources\ContactResource;
+use App\Pos\Account\Models\Team;
 use TomatoPHP\FilamentPlugins\Facades\FilamentPlugins;
 
 class FilamentAccountsSaaSPlugin implements Plugin

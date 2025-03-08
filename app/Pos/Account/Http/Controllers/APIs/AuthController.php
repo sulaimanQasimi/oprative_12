@@ -1,19 +1,19 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Http\Controllers\APIs;
+namespace App\Pos\Account\Http\Controllers\APIs;
 
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Js;
-use TomatoPHP\FilamentAccounts\Events\AccountLogged;
-use TomatoPHP\FilamentAccounts\Events\AccountOTPCheck;
-use TomatoPHP\FilamentAccounts\Events\SendOTP;
-use TomatoPHP\FilamentAccounts\Events\AccountRegistered;
-use TomatoPHP\FilamentAccounts\Facades\FilamentAccountsAuth;
-use TomatoPHP\FilamentAccounts\Facades\FilamentAccounts;
-use TomatoPHP\FilamentAccounts\Models\Account;
+use App\Pos\Account\Events\AccountLogged;
+use App\Pos\Account\Events\AccountOTPCheck;
+use App\Pos\Account\Events\SendOTP;
+use App\Pos\Account\Events\AccountRegistered;
+use App\Pos\Account\Facades\FilamentAccountsAuth;
+use App\Pos\Account\Facades\FilamentAccounts;
+use App\Pos\Account\Models\Account;
 use App\Http\Controllers\Controller;
 
 /**

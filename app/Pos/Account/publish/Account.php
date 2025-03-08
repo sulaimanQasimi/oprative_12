@@ -12,10 +12,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use TomatoPHP\FilamentAccounts\Models\AccountRequest;
+use App\Pos\Account\Models\AccountRequest;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use TomatoPHP\FilamentAccounts\Traits\InteractsWithTenant;
+use App\Pos\Account\Traits\InteractsWithTenant;
 use TomatoPHP\FilamentLocations\Models\Location;
 
 /**
@@ -129,7 +129,7 @@ class Account extends Authenticatable implements HasMedia, HasAvatar
      */
     public function accountsMetas(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany('TomatoPHP\FilamentAccounts\Models\AccountsMeta');
+        return $this->hasMany('App\Pos\Account\Models\AccountsMeta');
     }
 
 

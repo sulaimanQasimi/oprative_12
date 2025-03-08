@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountRequestResource\Pages;
+namespace App\Pos\Account\Filament\Resources\AccountRequestResource\Pages;
 
 use TomatoPHP\FilamentTypes\Pages\BaseTypePage;
 use TomatoPHP\FilamentTypes\Services\Contracts\Type;

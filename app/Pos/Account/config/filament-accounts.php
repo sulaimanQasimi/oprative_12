@@ -51,7 +51,7 @@ return [
      *
      * model: User Model Class
      */
-    "model" => \TomatoPHP\FilamentAccounts\Models\Account::class,
+    "model" => \App\Pos\Account\Models\Account::class,
 
     /*
      * Accounts Configurations
@@ -63,10 +63,10 @@ return [
 
     "teams" => [
         "allowed" => false,
-        "model" => \TomatoPHP\FilamentAccounts\Models\Team::class,
-        "invitation" => \TomatoPHP\FilamentAccounts\Models\TeamInvitation::class,
-        "membership" => \TomatoPHP\FilamentAccounts\Models\Membership::class,
-        "resource" => \TomatoPHP\FilamentAccounts\Filament\Resources\TeamResource::class,
+        "model" => \App\Pos\Account\Models\Team::class,
+        "invitation" => \App\Pos\Account\Models\TeamInvitation::class,
+        "membership" => \App\Pos\Account\Models\Membership::class,
+        "resource" => \App\Pos\Account\Filament\Resources\TeamResource::class,
     ],
 
     /**
@@ -74,7 +74,7 @@ return [
      *
      * you can set selected relations to show in account resource
      */
-    "relations" => \TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Releations\AccountReleations::class,
+    "relations" => \App\Pos\Account\Filament\Resources\AccountResource\Releations\AccountReleations::class,
     
 
     /**
@@ -85,10 +85,10 @@ return [
      * link: https://github.com/tomatophp/filament-helpers
      */
     "accounts" => [
-        "form" => \TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Forms\AccountsForm::class,
-        "table" => \TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Tables\AccountsTable::class,
-        "actions" => \TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Actions\AccountsTableActions::class,
-        "filters" => \TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Filters\AccountsFilters::class,
-        "pages" => \TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Pages\AccountPagesList::class,
+        "form" => \App\Pos\Account\Filament\Resources\AccountResource\Forms\AccountsForm::class,
+        "table" => \App\Pos\Account\Filament\Resources\AccountResource\Tables\AccountsTable::class,
+        "actions" => \App\Pos\Account\Filament\Resources\AccountResource\Actions\AccountsTableActions::class,
+        "filters" => \App\Pos\Account\Filament\Resources\AccountResource\Filters\AccountsFilters::class,
+        "pages" => \App\Pos\Account\Filament\Resources\AccountResource\Pages\AccountPagesList::class,
     ]
 ];

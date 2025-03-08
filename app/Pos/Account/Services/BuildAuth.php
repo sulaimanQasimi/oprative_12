@@ -1,15 +1,15 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Services;
+namespace App\Pos\Account\Services;
 
-use TomatoPHP\FilamentAccounts\Services\Traits\Auth\Login;
-use TomatoPHP\FilamentAccounts\Services\Traits\Auth\Otp;
-use TomatoPHP\FilamentAccounts\Services\Traits\Auth\ResetPassword;
-use TomatoPHP\FilamentAccounts\Services\Traits\Auth\Register;
-use TomatoPHP\FilamentAccounts\Services\Traits\Profile\Delete;
-use TomatoPHP\FilamentAccounts\Services\Traits\Profile\Logout;
-use TomatoPHP\FilamentAccounts\Services\Traits\Profile\Update;
-use TomatoPHP\FilamentAccounts\Services\Traits\Profile\User;
+use App\Pos\Account\Services\Traits\Auth\Login;
+use App\Pos\Account\Services\Traits\Auth\Otp;
+use App\Pos\Account\Services\Traits\Auth\ResetPassword;
+use App\Pos\Account\Services\Traits\Auth\Register;
+use App\Pos\Account\Services\Traits\Profile\Delete;
+use App\Pos\Account\Services\Traits\Profile\Logout;
+use App\Pos\Account\Services\Traits\Profile\Update;
+use App\Pos\Account\Services\Traits\Profile\User;
 
 class BuildAuth
 {

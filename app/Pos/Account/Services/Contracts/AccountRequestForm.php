@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Services\Contracts;
+namespace App\Pos\Account\Services\Contracts;
 
 use Illuminate\Support\Collection;
 

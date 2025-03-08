@@ -1,15 +1,15 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources;
+namespace App\Pos\Account\Filament\Resources;
 
 use Filament\Notifications\Notification;
-use TomatoPHP\FilamentAccounts\Facades\FilamentAccounts;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Forms\AccountsForm;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Pages;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\RelationManagers;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Releations\AccountReleations;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Tables\AccountsTable;
-use TomatoPHP\FilamentAccounts\Models\Account;
+use App\Pos\Account\Facades\FilamentAccounts;
+use App\Pos\Account\Filament\Resources\AccountResource\Forms\AccountsForm;
+use App\Pos\Account\Filament\Resources\AccountResource\Pages;
+use App\Pos\Account\Filament\Resources\AccountResource\RelationManagers;
+use App\Pos\Account\Filament\Resources\AccountResource\Releations\AccountReleations;
+use App\Pos\Account\Filament\Resources\AccountResource\Tables\AccountsTable;
+use App\Pos\Account\Models\Account;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -78,8 +78,8 @@ class AccountResource extends Resource
     public static function getPages(): array
     {
         return config('filament-accounts.accounts.pages') ? config('filament-accounts.accounts.pages')::routes() : [
-            'index' => \TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Pages\ListAccounts::route('/'),
-            'edit' => \TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Pages\EditAccount::route('/{record}/edit')
+            'index' => \App\Pos\Account\Filament\Resources\AccountResource\Pages\ListAccounts::route('/'),
+            'edit' => \App\Pos\Account\Filament\Resources\AccountResource\Pages\EditAccount::route('/{record}/edit')
         ];
     }
 

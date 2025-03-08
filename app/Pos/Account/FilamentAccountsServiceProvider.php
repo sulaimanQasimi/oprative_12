@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts;
+namespace App\Pos\Account;
 
 use Filament\Events\Auth\Registered;
 use Filament\Events\TenantSet;
@@ -9,15 +9,15 @@ use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
 use Laravel\Jetstream\Jetstream;
 use Livewire\Livewire;
-use TomatoPHP\FilamentAccounts\Events\SendOTP;
-use TomatoPHP\FilamentAccounts\Listeners\CreatePersonalTeam;
-use TomatoPHP\FilamentAccounts\Listeners\SwitchTeam;
-use TomatoPHP\FilamentAccounts\Livewire\ContactUs;
-use TomatoPHP\FilamentAccounts\Livewire\Otp;
-use TomatoPHP\FilamentAccounts\Livewire\SanctumTokens;
-use TomatoPHP\FilamentAccounts\Models\Membership;
-use TomatoPHP\FilamentAccounts\Models\Team;
-use TomatoPHP\FilamentAccounts\Models\TeamInvitation;
+use App\Pos\Account\Events\SendOTP;
+use App\Pos\Account\Listeners\CreatePersonalTeam;
+use App\Pos\Account\Listeners\SwitchTeam;
+use App\Pos\Account\Livewire\ContactUs;
+use App\Pos\Account\Livewire\Otp;
+use App\Pos\Account\Livewire\SanctumTokens;
+use App\Pos\Account\Models\Membership;
+use App\Pos\Account\Models\Team;
+use App\Pos\Account\Models\TeamInvitation;
 use TomatoPHP\FilamentAlerts\Services\SendNotification;
 use TomatoPHP\FilamentPlugins\Facades\FilamentPlugins;
 use TomatoPHP\FilamentTypes\Facades\FilamentTypes;
@@ -29,7 +29,7 @@ class FilamentAccountsServiceProvider extends ServiceProvider
     {
         //Register generate command
         $this->commands([
-           \TomatoPHP\FilamentAccounts\Console\FilamentAccountsInstall::class,
+           \App\Pos\Account\Console\FilamentAccountsInstall::class,
         ]);
 
         //Register Config file
@@ -105,11 +105,11 @@ class FilamentAccountsServiceProvider extends ServiceProvider
         }
 
         $this->app->bind('filament-accounts', function () {
-            return new \TomatoPHP\FilamentAccounts\Services\FilamentAccountsServices();
+            return new \App\Pos\Account\Services\FilamentAccountsServices();
         });
 
         $this->app->bind('filament-accounts-auth', function () {
-            return new \TomatoPHP\FilamentAccounts\Services\BuildAuth();
+            return new \App\Pos\Account\Services\BuildAuth();
         });
 
         if(class_exists(Jetstream::class)){
@@ -126,9 +126,9 @@ class FilamentAccountsServiceProvider extends ServiceProvider
 
         Livewire::component('sanctum-tokens', SanctumTokens::class);
         Livewire::component('otp', Otp::class);
-        Livewire::component(\TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\RelationManagers\AccountMetaManager::class);
-        Livewire::component(\TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\RelationManagers\AccountLocationsManager::class);
-        Livewire::component(\TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\RelationManagers\AccountRequestsManager::class);
+        Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountMetaManager::class);
+        Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountLocationsManager::class);
+        Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountRequestsManager::class);
         Livewire::component('tomato-contact-us-form', ContactUs::class);
     }
 

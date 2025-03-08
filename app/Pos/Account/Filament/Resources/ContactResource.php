@@ -1,10 +1,10 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources;
+namespace App\Pos\Account\Filament\Resources;
 
-use TomatoPHP\FilamentAccounts\Filament\Resources\ContactResource\Pages;
-use TomatoPHP\FilamentAccounts\Filament\Resources\ContactResource\RelationManagers;
-use TomatoPHP\FilamentAccounts\Models\Contact;
+use App\Pos\Account\Filament\Resources\ContactResource\Pages;
+use App\Pos\Account\Filament\Resources\ContactResource\RelationManagers;
+use App\Pos\Account\Models\Contact;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;

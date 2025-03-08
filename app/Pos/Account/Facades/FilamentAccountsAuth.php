@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Facades;
+namespace App\Pos\Account\Facades;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;

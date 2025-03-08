@@ -1,8 +1,8 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Pages;
+namespace App\Pos\Account\Filament\Resources\AccountResource\Pages;
 
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource;
+use App\Pos\Account\Filament\Resources\AccountResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 

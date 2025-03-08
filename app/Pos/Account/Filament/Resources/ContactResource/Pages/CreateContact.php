@@ -1,8 +1,8 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\ContactResource\Pages;
+namespace App\Pos\Account\Filament\Resources\ContactResource\Pages;
 
-use TomatoPHP\FilamentAccounts\Filament\Resources\ContactResource;
+use App\Pos\Account\Filament\Resources\ContactResource;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 

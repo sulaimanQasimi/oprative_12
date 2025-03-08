@@ -1,10 +1,10 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Console;
+namespace App\Pos\Account\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
-use TomatoPHP\FilamentAccounts\Services\GenerateAuth;
+use App\Pos\Account\Services\GenerateAuth;
 
 class FilamentAuthGenerate extends Command
 {

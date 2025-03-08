@@ -1,14 +1,14 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Http\Controllers\APIs;
+namespace App\Pos\Account\Http\Controllers\APIs;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
-use TomatoPHP\FilamentAccounts\Facades\FilamentAccountsAuth;
-use TomatoPHP\FilamentAccounts\Facades\FilamentAccounts;
-use TomatoPHP\FilamentAccounts\Helpers\Response;
-use TomatoPHP\FilamentAccounts\Models\Account;
+use App\Pos\Account\Facades\FilamentAccountsAuth;
+use App\Pos\Account\Facades\FilamentAccounts;
+use App\Pos\Account\Helpers\Response;
+use App\Pos\Account\Models\Account;
 
 class ProfileController extends Controller
 {

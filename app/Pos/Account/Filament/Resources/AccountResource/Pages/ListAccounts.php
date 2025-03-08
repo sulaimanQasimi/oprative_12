@@ -1,12 +1,12 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Pages;
+namespace App\Pos\Account\Filament\Resources\AccountResource\Pages;
 
 use Filament\Resources\Pages\ManageRecords;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource;
+use App\Pos\Account\Filament\Resources\AccountResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
-use TomatoPHP\FilamentAccounts\Models\Account;
+use App\Pos\Account\Models\Account;
 
 class ListAccounts extends ManageRecords
 {

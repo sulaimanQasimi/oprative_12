@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Components;
+namespace App\Pos\Account\Components;
 
 use Filament\Tables\Columns\TextColumn;
 

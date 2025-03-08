@@ -1,9 +1,9 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Services\Traits\Profile;
+namespace App\Pos\Account\Services\Traits\Profile;
 
-use TomatoPHP\FilamentAccounts\Helpers\Response;
-use TomatoPHP\FilamentAccounts\Services\Contracts\WebResponse;
+use App\Pos\Account\Helpers\Response;
+use App\Pos\Account\Services\Contracts\WebResponse;
 
 trait Delete
 {

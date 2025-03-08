@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Livewire;
+namespace App\Pos\Account\Livewire;
 
 use Filament\Actions\Action;
 use Filament\Actions\Concerns\InteractsWithActions;
@@ -13,7 +13,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
-use TomatoPHP\FilamentAccounts\Models\Contact;
+use App\Pos\Account\Models\Contact;
 
 class ContactUs extends Component implements HasForms,HasActions
 {

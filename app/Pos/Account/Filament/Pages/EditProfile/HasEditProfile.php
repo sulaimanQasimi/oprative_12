@@ -1,12 +1,12 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages\EditProfile;
+namespace App\Pos\Account\Filament\Pages\EditProfile;
 
 use Filament\Actions\Action;
 use Filament\Forms\Form;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
-use TomatoPHP\FilamentAccounts\Forms\EditProfileForm;
+use App\Pos\Account\Forms\EditProfileForm;
 
 trait HasEditProfile
 {

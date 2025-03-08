@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Livewire;
+namespace App\Pos\Account\Livewire;
 
 use Carbon\Carbon;
 use Filament\Actions\Action;

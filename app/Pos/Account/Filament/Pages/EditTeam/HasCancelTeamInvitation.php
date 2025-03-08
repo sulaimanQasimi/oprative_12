@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam;
+namespace App\Pos\Account\Filament\Pages\EditTeam;
 
 use Filament\Support\Exceptions\Halt;
 use Laravel\Jetstream\Jetstream;

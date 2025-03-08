@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages\EditProfile;
+namespace App\Pos\Account\Filament\Pages\EditProfile;
 
 use Filament\Notifications\Notification;
 

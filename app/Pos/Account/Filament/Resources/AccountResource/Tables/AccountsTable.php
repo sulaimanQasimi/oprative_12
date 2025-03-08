@@ -1,17 +1,17 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Tables;
+namespace App\Pos\Account\Filament\Resources\AccountResource\Tables;
 
 use Filament\Tables\Table;
 use Filament\Tables;
 use Filament\Forms;
 use Maatwebsite\Excel\Facades\Excel;
-use TomatoPHP\FilamentAccounts\Components\AccountColumn;
-use TomatoPHP\FilamentAccounts\Export\ExportAccounts;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Actions\AccountsTableActions;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Actions\ExportAccountsAction;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Actions\ImportAccountsAction;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Filters\AccountsFilters;
+use App\Pos\Account\Components\AccountColumn;
+use App\Pos\Account\Export\ExportAccounts;
+use App\Pos\Account\Filament\Resources\AccountResource\Actions\AccountsTableActions;
+use App\Pos\Account\Filament\Resources\AccountResource\Actions\ExportAccountsAction;
+use App\Pos\Account\Filament\Resources\AccountResource\Actions\ImportAccountsAction;
+use App\Pos\Account\Filament\Resources\AccountResource\Filters\AccountsFilters;
 use TomatoPHP\FilamentHelpers\Contracts\TableBuilder;
 use TomatoPHP\FilamentTypes\Components\TypeColumn;
 

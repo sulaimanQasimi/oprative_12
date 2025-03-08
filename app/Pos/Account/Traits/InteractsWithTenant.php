@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Traits;
+namespace App\Pos\Account\Traits;
 
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Collection;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasTeams;
-use TomatoPHP\FilamentAccounts\Models\Team;
+use App\Pos\Account\Models\Team;
 
 trait InteractsWithTenant
 {

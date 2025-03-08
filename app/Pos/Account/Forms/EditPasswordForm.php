@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Forms;
+namespace App\Pos\Account\Forms;
 
 use Filament\Forms;
 use Illuminate\Support\Facades\Hash;

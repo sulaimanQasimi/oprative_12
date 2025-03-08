@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Models;
+namespace App\Pos\Account\Models;
 
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -127,7 +127,7 @@ class Account extends Authenticatable implements HasMedia, HasAvatar
      */
     public function accountsMetas(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany('TomatoPHP\FilamentAccounts\Models\AccountsMeta');
+        return $this->hasMany('App\Pos\Account\Models\AccountsMeta');
     }
 
 

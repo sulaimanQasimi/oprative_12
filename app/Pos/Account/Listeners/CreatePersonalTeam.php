@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Listeners;
+namespace App\Pos\Account\Listeners;
 
 use Filament\Events\Auth\Registered;
 

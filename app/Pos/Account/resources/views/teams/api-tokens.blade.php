@@ -1,3 +1,3 @@
 <x-filament-panels::page>
-    @livewire(\TomatoPHP\FilamentAccounts\Livewire\SanctumTokens::class)
+    @livewire(\App\Pos\Account\Livewire\SanctumTokens::class)
 </x-filament-panels::page>

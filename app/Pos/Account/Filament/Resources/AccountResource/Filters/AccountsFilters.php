@@ -1,10 +1,10 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Filters;
+namespace App\Pos\Account\Filament\Resources\AccountResource\Filters;
 
 use Filament\Tables;
 use Filament\Forms;
-use TomatoPHP\FilamentAccounts\Models\Team;
+use App\Pos\Account\Models\Team;
 use TomatoPHP\FilamentHelpers\Contracts\FiltersBuilder;
 use TomatoPHP\FilamentTypes\Models\Type;
 

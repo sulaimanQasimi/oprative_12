@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages\EditTeam;
+namespace App\Pos\Account\Filament\Pages\EditTeam;
 
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Actions\Action;
@@ -8,7 +8,7 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Form;
 use Filament\Support\Exceptions\Halt;
 use Illuminate\Database\Eloquent\Model;
-use TomatoPHP\FilamentAccounts\Forms\UpdateTeamForm;
+use App\Pos\Account\Forms\UpdateTeamForm;
 
 trait HasEditTeam
 {

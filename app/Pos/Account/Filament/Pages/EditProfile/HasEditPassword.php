@@ -1,12 +1,12 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages\EditProfile;
+namespace App\Pos\Account\Filament\Pages\EditProfile;
 
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Form;
 use Filament\Support\Exceptions\Halt;
-use TomatoPHP\FilamentAccounts\Forms\EditPasswordForm;
+use App\Pos\Account\Forms\EditPasswordForm;
 
 trait HasEditPassword
 {

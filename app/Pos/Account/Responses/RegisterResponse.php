@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Responses;
+namespace App\Pos\Account\Responses;
 
 use Filament\Http\Responses\Auth\Contracts\RegistrationResponse;
 

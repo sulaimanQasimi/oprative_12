@@ -1,9 +1,9 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Http\Controllers\APIs;
+namespace App\Pos\Account\Http\Controllers\APIs;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use TomatoPHP\FilamentAccounts\Helpers\Response;
+use App\Pos\Account\Helpers\Response;
 use TomatoPHP\FilamentLocations\Models\Location;
 
 class AccountLocationsController extends Controller

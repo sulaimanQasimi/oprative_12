@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Models;
+namespace App\Pos\Account\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Kirschbaum\PowerJoins\PowerJoins;
@@ -53,6 +53,6 @@ class Contact extends Model
      */
     public function contactsMetas()
     {
-        return $this->hasMany('TomatoPHP\FilamentAccounts\Models\ContactsMeta');
+        return $this->hasMany('App\Pos\Account\Models\ContactsMeta');
     }
 }

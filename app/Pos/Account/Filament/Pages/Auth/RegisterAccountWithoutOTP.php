@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Pages\Auth;
+namespace App\Pos\Account\Filament\Pages\Auth;
 
 use DanHarrin\LivewireRateLimiting\Exceptions\TooManyRequestsException;
 use Filament\Events\Auth\Registered;
@@ -15,8 +15,8 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Auth\Register;
 use Filament\Pages\Tenancy\EditTenantProfile;
 use Illuminate\Support\Facades\DB;
-use TomatoPHP\FilamentAccounts\Events\SendOTP;
-use TomatoPHP\FilamentAccounts\Responses\RegisterResponse;
+use App\Pos\Account\Events\SendOTP;
+use App\Pos\Account\Responses\RegisterResponse;
 
 class RegisterAccountWithoutOTP extends Register
 {

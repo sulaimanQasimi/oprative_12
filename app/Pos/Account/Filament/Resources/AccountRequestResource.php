@@ -1,13 +1,13 @@
 <?php
 
-namespace TomatoPHP\FilamentAccounts\Filament\Resources;
+namespace App\Pos\Account\Filament\Resources;
 
-use TomatoPHP\FilamentAccounts\Components\AccountColumn;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountRequestResource\Pages;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountRequestResource\RelationManagers;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\Pages\EditAccount;
-use TomatoPHP\FilamentAccounts\Filament\Resources\AccountResource\RelationManagers\AccountRequestMetaManager;
-use TomatoPHP\FilamentAccounts\Models\AccountRequest;
+use App\Pos\Account\Components\AccountColumn;
+use App\Pos\Account\Filament\Resources\AccountRequestResource\Pages;
+use App\Pos\Account\Filament\Resources\AccountRequestResource\RelationManagers;
+use App\Pos\Account\Filament\Resources\AccountResource\Pages\EditAccount;
+use App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountRequestMetaManager;
+use App\Pos\Account\Models\AccountRequest;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
