@@ -66,14 +66,10 @@ class AccountsPlugin implements Plugin
             //     $resources[] = TeamResource::class;
             // }
 
-            // if($this->useTypes){
-            //     $panel->pages([
-            //         AccountResource\Pages\AccountTypes::class,
-            //         ContactResource\Pages\ContactStatusTypes::class,
-            //         AccountRequestResource\Pages\RequestsStatus::class,
-            //         AccountRequestResource\Pages\RequestsTypes::class
-            //     ]);
-            // }
+
+                $panel->pages([
+                    AccountResource\Pages\AccountTypes::class,
+                                ]);
 
             $panel->resources($resources);
         // }
