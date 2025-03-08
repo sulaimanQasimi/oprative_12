@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentTypes\Components;
+namespace App\Pos\Account\Components;
 
 use Illuminate\View\Component;
 
@@ -12,7 +12,7 @@ class Type extends Component
     public bool $iconExists = false;
 
     public function __construct(
-        public \TomatoPHP\FilamentTypes\Models\Type $type,
+        public \App\Pos\Account\Models\Type $type,
         public ?string $label=null,
     )
     {

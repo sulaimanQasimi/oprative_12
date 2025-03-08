@@ -83,15 +83,6 @@ class AccountsTable extends TableBuilder
                 ->searchable()
         ]);
 
-        //Can Login
-        $colums->add(
-            Tables\Columns\IconColumn::make('is_login')
-                ->label("Can Login")
-                ->translateLabel()
-                ->toggleable(isToggledHiddenByDefault: true)
-                ->sortable()
-                ->boolean()
-        );
 
         $colums->add(
             Tables\Columns\IconColumn::make('is_active')
@@ -101,30 +92,6 @@ class AccountsTable extends TableBuilder
                 ->sortable()
                 ->boolean()
         );
-
-        $colums = $colums->merge([
-            Tables\Columns\TextColumn::make('deleted_at')
-                ->label("Deleted At")
-                ->translateLabel()
-                ->sortable()
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
-            Tables\Columns\TextColumn::make('created_at')
-                ->label("Created At")
-                ->translateLabel()
-                ->sortable()
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
-            Tables\Columns\TextColumn::make('updated_at')
-                ->label("Updated At")
-                ->translateLabel()
-                ->sortable()
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true),
-        ]);
 
         $actions = collect([]);
         // $actions->add(ExportAccountsAction::make());

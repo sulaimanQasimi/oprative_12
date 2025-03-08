@@ -1,15 +1,15 @@
 <?php
 
-namespace TomatoPHP\FilamentTypes\Resources;
+namespace App\Pos\Account\Resources;
 
 use TomatoPHP\FilamentIcons\Components\IconPicker;
 use TomatoPHP\FilamentIcons\Components\IconColumn;
 use Filament\Resources\Concerns\Translatable;
 use Illuminate\Database\Eloquent\Builder;
-use TomatoPHP\FilamentTypes\Components\TypeColumn;
-use TomatoPHP\FilamentTypes\Facades\FilamentTypes;
-use TomatoPHP\FilamentTypes\Resources\TypeResource\Pages;
-use TomatoPHP\FilamentTypes\Models\Type;
+use App\Pos\Account\Components\TypeColumn;
+use App\Pos\Account\Facades\FilamentTypes;
+use App\Pos\Account\Resources\TypeResource\Pages;
+use App\Pos\Account\Models\Type;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
