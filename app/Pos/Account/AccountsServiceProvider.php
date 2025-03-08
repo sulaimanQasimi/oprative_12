@@ -23,7 +23,7 @@ use TomatoPHP\FilamentPlugins\Facades\FilamentPlugins;
 use TomatoPHP\FilamentTypes\Facades\FilamentTypes;
 
 
-class FilamentAccountsServiceProvider extends ServiceProvider
+class AccountsServiceProvider extends ServiceProvider
 {
     public function register(): void
     {

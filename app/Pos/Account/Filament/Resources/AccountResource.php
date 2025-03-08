@@ -52,32 +52,32 @@ class AccountResource extends Resource
 
     public static function getPluralLabel(): ?string
     {
-        return trans('account::messages.accounts.label');
+        return trans('Accounts');
     }
 
     public static function getLabel(): ?string
     {
-        return trans('account::messages.accounts.single');
+        return trans('Account');
     }
 
     public static function form(Form $form): Form
     {
-        return config('account.accounts.form') ? config('account.accounts.form')::make($form) : AccountsForm::make($form);
+        return AccountsForm::make($form);
     }
 
     public static function table(Table $table): Table
     {
-        return config('account.accounts.table') ? config('account.accounts.table')::make($table) : AccountsTable::make($table);
+        return AccountsTable::make($table);
     }
 
     public static function getRelations(): array
     {
-        return config('account.relations') ? config('account.relations')::get() :  AccountReleations::get();
+        return AccountReleations::get();
     }
 
     public static function getPages(): array
     {
-        return config('account.accounts.pages') ? config('account.accounts.pages')::routes() : [
+        return  [
             'index' => \App\Pos\Account\Filament\Resources\AccountResource\Pages\ListAccounts::route('/'),
             'edit' => \App\Pos\Account\Filament\Resources\AccountResource\Pages\EditAccount::route('/{record}/edit')
         ];

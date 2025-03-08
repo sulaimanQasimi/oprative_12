@@ -19,46 +19,21 @@ class AccountsTableActions extends ActionsBuilder
     public function actions(): array
     {
         $actions = collect([]);
-
-        //Impersonate
-        if(class_exists(\STS\FilamentImpersonate\Tables\Actions\Impersonate::class) && filament('account')->canLogin && filament('account')->useImpersonate){
-           $actions->push(AccountImpersonateAction::make());
-        }
-
-        //Change Password
-        if(filament('account')->canLogin) {
-            $actions->push(ChangePasswordAction::make());
-        }
-
-        //Teams
-        if(filament('account')->useTeams) {
-            $actions->push(AccountTeamsAction::make());
-        }
-
-        //Notifications
-        if(filament('account')->useNotifications){
-            $actions->push(AccountNotificationsAction::make());
-        }
-
-
         //Merge Default Actions
         $actions = $actions->merge([
             Tables\Actions\EditAction::make()
                 ->iconButton()
-                ->tooltip(trans('account::messages.accounts.actions.edit')),
+                ->tooltip(trans('Edit')),
             Tables\Actions\DeleteAction::make()
                 ->iconButton()
-                ->tooltip(trans('account::messages.accounts.actions.delete')),
+                ->tooltip(trans('Delete')),
             Tables\Actions\ForceDeleteAction::make()
                 ->iconButton()
-                ->tooltip(trans('account::messages.accounts.actions.force_delete')),
+                ->tooltip(trans('Force Delete')),
             Tables\Actions\RestoreAction::make()
                 ->iconButton()
-                ->tooltip(trans('account::messages.accounts.actions.restore'))
+                ->tooltip(trans('Restore'))
         ]);
-
-        //Merge Provider Actions
-        $actions = $actions->merge(FilamentAccounts::loadActions());
 
         return $actions->toArray();
     }

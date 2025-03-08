@@ -24,7 +24,7 @@ use App\Pos\Account\Filament\Resources\ContactResource;
 use App\Pos\Account\Models\Team;
 use TomatoPHP\FilamentPlugins\Facades\FilamentPlugins;
 
-class FilamentAccountsSaaSPlugin implements Plugin
+class AccountsSaaSPlugin implements Plugin
 {
 
     public function getId(): string

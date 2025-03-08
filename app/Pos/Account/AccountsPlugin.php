@@ -12,7 +12,7 @@ use App\Pos\Account\Filament\Resources\ContactResource;
 use App\Pos\Account\Filament\Resources\TeamResource;
 use TomatoPHP\FilamentPlugins\Facades\FilamentPlugins;
 
-class FilamentAccountsPlugin implements Plugin
+class AccountsPlugin implements Plugin
 {
     public bool $useTeams = false;
     public bool $useContactUs = false;
@@ -42,41 +42,41 @@ class FilamentAccountsPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
-        if(class_exists(Module::class) && \Nwidart\Modules\Facades\Module::find('FilamentAccounts')?->isEnabled()){
-            $this->isActive = true;
-        }
-        else {
-            $this->isActive = true;
-        }
+        // if(class_exists(Module::class) && \Nwidart\Modules\Facades\Module::find('FilamentAccounts')?->isEnabled()){
+        //     $this->isActive = true;
+        // }
+        // else {
+        //     $this->isActive = true;
+        // }
 
-        if($this->isActive){
+        // if($this->isActive){
             $resources = [
                 AccountResource::class
             ];
 
-            if($this->useRequests){
-                $resources[] = AccountRequestResource::class;
-            }
+            // if($this->useRequests){
+            //     $resources[] = AccountRequestResource::class;
+            // }
 
-            if($this->useContactUs){
-                $resources[] = ContactResource::class;
-            }
+            // if($this->useContactUs){
+            //     $resources[] = ContactResource::class;
+            // }
 
-            if($this->useTeams){
-                $resources[] = TeamResource::class;
-            }
+            // if($this->useTeams){
+            //     $resources[] = TeamResource::class;
+            // }
 
-            if($this->useTypes){
-                $panel->pages([
-                    AccountResource\Pages\AccountTypes::class,
-                    ContactResource\Pages\ContactStatusTypes::class,
-                    AccountRequestResource\Pages\RequestsStatus::class,
-                    AccountRequestResource\Pages\RequestsTypes::class
-                ]);
-            }
+            // if($this->useTypes){
+            //     $panel->pages([
+            //         AccountResource\Pages\AccountTypes::class,
+            //         ContactResource\Pages\ContactStatusTypes::class,
+            //         AccountRequestResource\Pages\RequestsStatus::class,
+            //         AccountRequestResource\Pages\RequestsTypes::class
+            //     ]);
+            // }
 
             $panel->resources($resources);
-        }
+        // }
     }
 
     public function useExport(bool $useExport = true): static

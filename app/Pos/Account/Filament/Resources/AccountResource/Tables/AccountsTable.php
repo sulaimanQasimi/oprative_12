@@ -21,109 +21,97 @@ class AccountsTable extends TableBuilder
     {
         $colums = collect([]);
 
-        //Use Avatar
-        if(filament('account')->useAvatar) {
-            $colums->push(
-                AccountColumn::make('id')
-                    ->label(trans('account::messages.accounts.coulmns.id')),
-                Tables\Columns\TextColumn::make('name')
-                    ->label(trans('account::messages.accounts.coulmns.name'))
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable()
-                    ->searchable()
-            );
-        }
-        else {
-            $colums->push(
-                Tables\Columns\TextColumn::make('name')
-                    ->label(trans('account::messages.accounts.coulmns.name'))
-                    ->toggleable()
-                    ->sortable()
-                    ->searchable()
-            );
-        }
+        $colums->add(
+            // AccountColumn::make('id')
+            //     ->label(trans('account::messages.accounts.coulmns.id')),
+            Tables\Columns\TextColumn::make('name')
+                ->label("Name of Account")
+                ->translateLabel()
+                ->toggleable(isToggledHiddenByDefault: true)
+                ->sortable()
+                ->searchable()
+        );
 
-        //Use Type Column
-        if(filament('account')->useTypes){
-            $colums->push(
-                TypeColumn::make('type')
-                    ->label(trans('account::messages.accounts.coulmns.type'))
-                    ->toggleable()
-                    ->sortable()
-                    ->searchable()
-            );
-        }
-        else if(filament('account')->showTypeField){
-            $colums->push(
-                Tables\Columns\TextColumn::make('type')
-                    ->label(trans('account::messages.accounts.coulmns.type'))
-                    ->toggleable()
-                    ->sortable()
-                    ->searchable()
-            );
-        }
+        $colums->add(
+            Tables\Columns\TextColumn::make('name')
+                ->label("Name")
+                ->translateLabel()
+                ->toggleable()
+                ->sortable()
+                ->searchable()
+        );
 
-        //Use Teams
-        if(filament('account')->useTeams){
-            $colums->push(
-                Tables\Columns\TextColumn::make('teams.name')
-                    ->badge()
-                    ->icon('heroicon-o-user-group')
-                    ->label(trans('account::messages.accounts.coulmns.teams'))
-                    ->toggleable()
-                    ->searchable()
-            );
-        }
+        $colums->add(
+            TypeColumn::make('type')
+                ->label("Type")
+                ->translateLabel()
+                ->toggleable()
+                ->sortable()
+                ->searchable()
+        );
 
-        //Default Columns
+        $colums->add(
+            Tables\Columns\TextColumn::make('type')
+                ->label("Type")
+                ->translateLabel()
+                ->toggleable()
+                ->sortable()
+                ->searchable()
+        );
+
+        $colums->add(
+            Tables\Columns\TextColumn::make('teams.name')
+                ->badge()
+                ->icon('heroicon-o-user-group')
+                ->label("Teams")
+                ->translateLabel()
+                ->toggleable()
+                ->searchable()
+        );
         $colums = $colums->merge([
             Tables\Columns\TextColumn::make('email')
-                ->label(trans('account::messages.accounts.coulmns.email'))
+                ->label("Email")
+                ->translateLabel()
                 ->toggleable(isToggledHiddenByDefault: true)
                 ->sortable()
                 ->searchable(),
             Tables\Columns\TextColumn::make('phone')
-                ->label(trans('account::messages.accounts.coulmns.phone'))
+                ->label("Phone")
+                ->translateLabel()
                 ->toggleable(isToggledHiddenByDefault: true)
                 ->sortable()
                 ->searchable()
         ]);
 
-        //Can Login
-        if(filament('account')->canLogin){
-            $colums->push(
-                Tables\Columns\IconColumn::make('is_login')
-                    ->label(trans('account::messages.accounts.coulmns.is_login'))
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable()
-                    ->boolean()
-            );
-        }
 
-        //Can Blocked
-        if(filament('account')->canBlocked) {
-            $colums->push(
-                Tables\Columns\IconColumn::make('is_active')
-                    ->label(trans('account::messages.accounts.coulmns.is_active'))
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->sortable()
-                    ->boolean()
-            );
-        }
 
-        //Can Verified
+        $colums->add(
+            Tables\Columns\IconColumn::make('is_active')
+                ->label("Is Active")
+                ->translateLabel()
+                ->toggleable(isToggledHiddenByDefault: true)
+                ->sortable()
+                ->boolean()
+        );
+
         $colums = $colums->merge([
             Tables\Columns\TextColumn::make('deleted_at')
+                ->label("Deleted At")
+                ->translateLabel()
                 ->sortable()
                 ->dateTime()
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
             Tables\Columns\TextColumn::make('created_at')
+                ->label("Created At")
+                ->translateLabel()
                 ->sortable()
                 ->dateTime()
                 ->sortable()
                 ->toggleable(isToggledHiddenByDefault: true),
             Tables\Columns\TextColumn::make('updated_at')
+                ->label("Updated At")
+                ->translateLabel()
                 ->sortable()
                 ->dateTime()
                 ->sortable()
@@ -131,17 +119,14 @@ class AccountsTable extends TableBuilder
         ]);
 
         $actions = collect([]);
-        if(filament('account')->useExport){
-            $actions->push(ExportAccountsAction::make());
-        }
-        if(filament('account')->useImport){
-            $actions->push(ImportAccountsAction::make());
-        }
+        $actions->add(ExportAccountsAction::make());
+        $actions->add(ImportAccountsAction::make());
+
         return $table
             ->headerActions($actions->toArray())
             ->columns($colums->toArray())
-            ->filters(config('account.accounts.filters') ? config('account.accounts.filters')::make() : AccountsFilters::make())
-            ->actions(config('account.accounts.actions') ? config('account.accounts.actions')::make() : AccountsTableActions::make())
+            ->filters(AccountsFilters::make())
+            ->actions(AccountsTableActions::make())
             ->defaultSort('id', 'desc')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
