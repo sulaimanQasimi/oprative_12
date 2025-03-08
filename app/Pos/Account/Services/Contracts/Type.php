@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentTypes\Services\Contracts;
+namespace App\Pos\Account\Services\Contracts;
 
 class Type
 {

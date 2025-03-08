@@ -11,9 +11,7 @@ class FilamentTypesServiceProvider extends ServiceProvider
     public function register(): void
     {
         //Register generate command
-        $this->commands([
-           \TomatoPHP\FilamentTypes\Console\FilamentTypesInstall::class,
-        ]);
+
 
         //Register Config file
         $this->mergeConfigFrom(__DIR__.'/../config/filament-types.php', 'filament-types');

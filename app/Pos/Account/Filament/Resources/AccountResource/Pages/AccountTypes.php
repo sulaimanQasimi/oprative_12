@@ -2,8 +2,8 @@
 
 namespace App\Pos\Account\Filament\Resources\AccountResource\Pages;
 
-use TomatoPHP\FilamentTypes\Pages\BaseTypePage;
-use TomatoPHP\FilamentTypes\Services\Contracts\Type;
+use App\Pos\Account\Filament\Pages\BaseTypePage;
+use App\Pos\Account\Services\Contracts\Type;
 
 class AccountTypes extends BaseTypePage
 {

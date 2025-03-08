@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentTypes\Pages;
+namespace App\Pos\Account\Filament\Pages;
 
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Grid;
@@ -17,8 +17,8 @@ use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use TomatoPHP\FilamentIcons\Components\IconPicker;
 use TomatoPHP\FilamentTranslationComponent\Components\Translation;
-use TomatoPHP\FilamentTypes\Components\TypeColumn;
-use TomatoPHP\FilamentTypes\Models\Type;
+use App\Pos\Account\Components\TypeColumn;
+use App\Pos\Account\Models\Type;
 
 class BaseTypePage extends Page implements HasTable, HasForms
 {

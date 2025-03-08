@@ -1,6 +1,6 @@
 <?php
 
-namespace TomatoPHP\FilamentTypes\Services;
+namespace App\Pos\Account\Services;
 
 use Illuminate\Support\Collection;
 
@@ -10,15 +10,6 @@ class FilamentTypesRegister
 
     public function register(array|string $type, string $for):void
     {
-        $this->types[$for] = [];
-        if(is_array($type)){
-            foreach ($type as $item){
-                $this->types[$for][] = $item;
-            }
-        }
-        else{
-            $this->types[$for][] = $type;
-        }
     }
 
     public function getFor(): Collection

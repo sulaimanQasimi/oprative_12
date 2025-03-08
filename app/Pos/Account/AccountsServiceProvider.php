@@ -67,28 +67,9 @@ class AccountsServiceProvider extends ServiceProvider
             __DIR__ . '/../publish/Account.php' => app_path('Models/Account.php'),
         ], 'account-model');
 
-        $this->publishes([
-            __DIR__ . '/../publish/migrations/create_teams_table.php' => database_path('migrations/' .  date('Y_m_d_His', ((int)time()) + 1) . '_create_teams_table.php'),
-            __DIR__ . '/../publish/migrations/create_team_invitations_table.php' => database_path('migrations/' .  date('Y_m_d_His', ((int)time()) + 2) . '_create_team_invitations_table.php'),
-            __DIR__ . '/../publish/migrations/create_team_user_table.php' => database_path('migrations/' .  date('Y_m_d_His', ((int)time()) + 3) . '_create_team_user_table.php'),
-        ], 'account-teams-migrations');
-
-        $this->publishes([
-            __DIR__ . '/../publish/Team.php' => app_path('Models/Team.php'),
-            __DIR__ . '/../publish/TeamInvitation.php' => app_path('Models/TeamInvitation.php'),
-            __DIR__ . '/../publish/Membership.php' => app_path('Models/Membership.php'),
-        ], 'account-teams');
 
 
-        $this->app->bind('account', function () {
-            return new \App\Pos\Account\Services\FilamentAccountsServices();
-        });
-
-        $this->app->bind('account-auth', function () {
-            return new \App\Pos\Account\Services\BuildAuth();
-        });
-
-     Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountMetaManager::class);
+        Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountMetaManager::class);
         Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountLocationsManager::class);
         Livewire::component(\App\Pos\Account\Filament\Resources\AccountResource\RelationManagers\AccountRequestsManager::class);
     }
