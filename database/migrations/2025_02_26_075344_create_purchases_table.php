@@ -26,6 +26,9 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+        Schema::create('purchase_has_addional_costs', function (Blueprint $table) {
+            $table->foreignId("purchase_id")->references('id')->on('purchases')->onDelete('cascade')->unsigned();
+        });
     }
 
     /**
@@ -34,5 +37,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('purchases');
+        Schema::dropIfExists('purchase_has_addional_costs');
     }
 };
