@@ -40,43 +40,99 @@ class ProductResource extends Resource
                             ->schema([
                                 Forms\Components\Grid::make(2)
                                     ->schema([
-                                        Forms\Components\TextInput::make('name')
-                                            ->label(__('Name'))
-                                            ->translateLabel()
-                                            ->maxLength(255)
+                                        Forms\Components\Select::make('type')
+                                            ->label(__('Type'))
+                                            ->default('product')
+                                            ->options([
+                                                'product' => __('Product'),
+                                                'service' => __('Service'),
+                                            ])
                                             ->prefixIcon('heroicon-o-tag'),
-                                        Forms\Components\TextInput::make('price')
-                                            ->label(__('Price'))
-                                            ->translateLabel()
-                                            ->numeric()
-                                            ->prefix(__('$'))
-                                            ->prefixIcon('heroicon-o-currency-dollar'),
-                                        Forms\Components\Textarea::make('description')
-                                            ->label(__('Description'))
-                                            ->translateLabel()
-                                            ->columnSpanFull(),
+                                        Forms\Components\TextInput::make('barcode')
+                                            ->label(__('Barcode'))
+                                            ->unique(table: 'products', column: 'barcode', ignoreRecord: true)
+                                            ->prefixIcon('heroicon-o-bars-4'),
+                                        Forms\Components\TextInput::make('name.en')
+                                            ->label(__('Name (English)'))
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->prefixIcon('heroicon-o-document-text'),
+                                        Forms\Components\TextInput::make('name.ar')
+                                            ->label(__('Name (Arabic)'))
+                                            ->required()
+                                            ->maxLength(255)
+                                            ->prefixIcon('heroicon-o-document-text'),
                                     ]),
                             ])->collapsible(),
                     ]),
                 Forms\Components\Group::make()
                     ->schema([
-                        Forms\Components\Section::make(__('Additional Details'))
+                        Forms\Components\Section::make(__('Pricing Details'))
                             ->schema([
                                 Forms\Components\Grid::make(2)
                                     ->schema([
-                                        Forms\Components\TextInput::make('barcode')
-                                            ->label(__('Barcode'))
-                                            ->translateLabel()
-                                            ->maxLength(255)
-                                            ->unique(table: 'products', column: 'barcode', ignoreRecord: true)
-                                            ->prefixIcon('heroicon-o-bars-4')
-                                            ->columnSpanFull(),
-                                        Forms\Components\FileUpload::make('image')
-                                            ->label(__('Image'))
-                                            ->translateLabel()
-                                            ->image()
-                                            ->columnSpanFull(),
+                                        Forms\Components\TextInput::make('purchase_price')
+                                            ->label(__('Purchase Price'))
+                                            ->numeric()
+                                            ->default(0)
+                                            ->prefix(__('$'))
+                                            ->prefixIcon('heroicon-o-currency-dollar'),
+                                        Forms\Components\TextInput::make('wholesale_price')
+                                            ->label(__('Wholesale Price'))
+                                            ->numeric()
+                                            ->default(0)
+                                            ->prefix(__('$'))
+                                            ->prefixIcon('heroicon-o-currency-dollar'),
+                                        Forms\Components\TextInput::make('retail_price')
+                                            ->label(__('Retail Price'))
+                                            ->numeric()
+                                            ->default(0)
+                                            ->prefix(__('$'))
+                                            ->prefixIcon('heroicon-o-currency-dollar'),
+                                        Forms\Components\TextInput::make('purchase_profit')
+                                            ->label(__('Purchase Profit'))
+                                            ->numeric()
+                                            ->default(0)
+                                            ->prefix(__('$'))
+                                            ->prefixIcon('heroicon-o-currency-dollar'),
+                                        Forms\Components\TextInput::make('wholesale_profit')
+                                            ->label(__('Wholesale Profit'))
+                                            ->numeric()
+                                            ->default(0)
+                                            ->prefix(__('$'))
+                                            ->prefixIcon('heroicon-o-currency-dollar'),
+                                        Forms\Components\TextInput::make('retail_profit')
+                                            ->label(__('Retail Profit'))
+                                            ->numeric()
+                                            ->default(0)
+                                            ->prefix(__('$'))
+                                            ->prefixIcon('heroicon-o-currency-dollar'),
                                     ])
+                            ])->collapsible(),
+                        Forms\Components\Section::make(__('Status'))
+                            ->schema([
+                                Forms\Components\Grid::make(2)
+                                    ->schema([
+                                        Forms\Components\Toggle::make('is_activated')
+                                            ->label(__('Is Activated'))
+                                            ->default(true),
+                                        Forms\Components\Toggle::make('is_in_stock')
+                                            ->label(__('Is In Stock'))
+                                            ->default(true),
+                                        Forms\Components\Toggle::make('is_shipped')
+                                            ->label(__('Is Shipped'))
+                                            ->default(false),
+                                        Forms\Components\Toggle::make('is_trend')
+                                            ->label(__('Is Trending'))
+                                            ->default(false),
+                                    ])
+                            ])->collapsible(),
+                        Forms\Components\Section::make(__('Media'))
+                            ->schema([
+                                Forms\Components\FileUpload::make('image')
+                                    ->label(__('Image'))
+                                    ->image()
+                                    ->columnSpanFull()
                             ])->collapsible(),
                     ])
             ]);
@@ -86,30 +142,46 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('type')
+                    ->label(__('Type'))
+                    ->badge()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
+                    ->label(__('Name'))
                     ->translateLabel()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('barcode')
+                    ->label(__('Barcode'))
                     ->searchable(),
                 Tables\Columns\ImageColumn::make('image')
-                    ->label('Image')
-                    ->translateLabel(),
-                Tables\Columns\TextColumn::make('barcode')
-                    ->label('Barcode')
-                    ->translateLabel()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->label('Price')
-                    ->translateLabel()
+                    ->label(__('Image')),
+                Tables\Columns\TextColumn::make('purchase_price')
+                    ->label(__('Purchase Price'))
                     ->money()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('quantity')
-                    ->label('Quantity')
-                    ->translateLabel()
-                    ->numeric()
+                Tables\Columns\TextColumn::make('wholesale_price')
+                    ->label(__('Wholesale Price'))
+                    ->money()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('retail_price')
+                    ->label(__('Retail Price'))
+                    ->money()
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('is_activated')
+                    ->label(__('Active'))
+                    ->boolean()
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('is_in_stock')
+                    ->label(__('In Stock'))
+                    ->boolean()
+                    ->sortable(),
+                Tables\Columns\IconColumn::make('is_trend')
+                    ->label(__('Trending'))
+                    ->boolean()
                     ->sortable(),
             ])
             ->filters([
-                Tables\Filters\TrashedFilter::make(),
+
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -118,8 +190,6 @@ class ProductResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
     }
@@ -130,8 +200,6 @@ class ProductResource extends Resource
             //
         ];
     }
-
-
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
@@ -159,9 +227,6 @@ class ProductResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                SoftDeletingScope::class,
-            ]);
+        return parent::getEloquentQuery();
     }
 }

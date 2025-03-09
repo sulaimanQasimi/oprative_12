@@ -7,16 +7,34 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = [
+        'type',
         'name',
-        'description',
-        'price',
-        'image',
         'barcode',
-        'quantity',
-        'price',
+        'purchase_price',
+        'wholesale_price',
+        'retail_price',
+        'purchase_profit',
+        'wholesale_profit',
+        'retail_profit',
+        'is_activated',
+        'is_in_stock',
+        'is_shipped',
+        'is_trend',
+    ];
+
+    protected $casts = [
+        'name' => 'json',
+        'purchase_price' => 'double',
+        'wholesale_price' => 'double',
+        'retail_price' => 'double',
+        'purchase_profit' => 'double',
+        'wholesale_profit' => 'double',
+        'retail_profit' => 'double',
+        'is_activated' => 'boolean',
+        'is_in_stock' => 'boolean',
+        'is_shipped' => 'boolean',
+        'is_trend' => 'boolean',
     ];
 
     public function purchaseItems()
