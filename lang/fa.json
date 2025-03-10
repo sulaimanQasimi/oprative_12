@@ -1,4 +1,10 @@
 {
+    "Pending": "در انتظار",
+    "Paid": "پرداخت شده",
+    "Partial": "پرداخت جزئی",
+    "Payment Status": "وضعیت پرداخت",
+    "Purchase Total": "مجموع خرید",
+    "Total Paid": "مجموع پرداختی",
     "Total Purchased Quantity": "تعداد کل خرید",
     "Total units purchased": "تعداد کل واحدهای خریداری شده",
     "Total Purchase Value": "ارزش کل خرید",
@@ -21,7 +27,7 @@
     "Method": "روش",
     "On Way": "در راه",
     "On Border": "در مرز",
-    "On Plan": "در برنامه",
+    "On Plan": "در طیاره",
     "On Ship": "در کشتی",
     "Arrived": "رسیده",
     "Moved to Warehouse": "به انبار منتقل شد",
@@ -168,6 +174,8 @@
     "View Invoice": "مشاهده فاکتور",
     "Additional Cost":"مصارف اضافی",
     "Total Additional Costs":"مجموع هزینه های اضافی",
-    "Update Product Price": "به‌روزرسانی قیمت محصول"
-
+    "Update Product Price": "به‌روزرسانی قیمت محصول",
+    "Total Payment Amount":"مبلغ پرداخت شده",
+    "Remaining Amount":"مبلغ باقیمانده",
+    "Unit Price":"قیمت واحد"
 }

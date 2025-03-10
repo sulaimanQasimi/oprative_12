@@ -25,14 +25,16 @@ class PurchasePayments extends ManageRelatedRecords
 
     protected static ?string $pluralModelLabel = 'Payments';
 
+    public function getHeaderWidgets(): array
+    {
+        return [
+            PurchasePaymentStats::class,
+        ];
+    }
+
     public function getTitle(): string
     {
-        $totalAmount = $this->getOwnerRecord()->total_amount;
-        $paidAmount = $this->getOwnerRecord()->purchasePayments->sum('amount');
-        $remainingAmount = $totalAmount - $paidAmount;
-        $currencyCode = $this->getOwnerRecord()->currency->code;
-
-        return __('Purchase Payments - Remaining', ['currency' => $currencyCode, 'amount' => number_format($remainingAmount, 2)]);
+        return __("Purchase Payments");
     }
 
     public static function getNavigationLabel(): string

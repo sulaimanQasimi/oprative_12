@@ -19,6 +19,13 @@ class EditPurchase extends EditRecord
         }
     }
 
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            PurchaseResource\Widgets\PurchaseTotalWidget::class,
+            PurchaseResource\Widgets\TotalPaymentAmountWidget::class,
+        ];
+    }
     protected function getHeaderActions(): array
     {
         return [

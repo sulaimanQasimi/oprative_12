@@ -11,6 +11,14 @@ class ViewPurchase extends ViewRecord
 {
     protected static string $resource = PurchaseResource::class;
 
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            PurchaseResource\Widgets\PurchaseTotalWidget::class,
+            PurchaseResource\Widgets\TotalPaymentAmountWidget::class,
+        ];
+    }
+
     public static function getNavigationLabel(): string
     {
         return __('View Purchase');
