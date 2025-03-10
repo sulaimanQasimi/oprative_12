@@ -215,13 +215,14 @@ class PurchaseItems extends ManageRelatedRecords
                         ->modalHeading('Delete Purchase Item'),
                 ]),
                 Tables\Actions\Action::make('update_prices')
-                    ->label('Update Product Prices')
+                    ->label('Update Product Price')
+                    ->translateLabel()
                     ->icon('heroicon-o-currency-dollar')
                     ->form([
                         Forms\Components\TextInput::make('purchase_price')
                             ->label(__('Purchase Price'))
                             ->numeric()
-                            ->default(0)
+                            ->default(fn (PurchaseItem $record): float => $record->price)
                             ->live(debounce: 2000)
                             ->afterStateUpdated(function ($state, $get, $set) {
                                 $purchasePrice = floatval($state);
@@ -283,10 +284,7 @@ class PurchaseItems extends ManageRelatedRecords
                         //     ->title('Product prices updated successfully')
                         //     ->send();
                     })
-                    ->modalHeading('Update Product Prices')
-                    ->modalDescription('Update product prices based on this purchase item.'),
-
-
+                    ->modalHeading(trans('Update Product Price'))
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
