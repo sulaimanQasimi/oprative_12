@@ -2,8 +2,10 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\PurchaseResource\Forms\PurchaseResourceForm;
 use App\Filament\Resources\PurchaseResource\Pages;
 use App\Filament\Resources\PurchaseResource\RelationManagers;
+use App\Filament\Resources\PurchaseResource\Tables\PurchaseResourceTable;
 use App\Models\Purchase;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -18,6 +20,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class PurchaseResource extends Resource
 {
     protected static ?string $model = Purchase::class;
+
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
     protected static ?string $navigationGroup = 'Sales';
     protected static ?int $navigationSort = 2;
@@ -37,179 +41,16 @@ class PurchaseResource extends Resource
         return __('Purchases');
     }
 
-    protected function getHeaderActions(): array
-    {
-        return [
-            Actions\ViewAction::make()->label(__('View Purchase')),
-            Actions\EditAction::make()->label(__('Edit Purchase')),
-            Actions\DeleteAction::make(),
-        ];
-    }
-
-    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make(__('Purchase Details'))
-                    ->schema([
-                        Forms\Components\Grid::make(2)
-                            ->schema([
-                                Forms\Components\Select::make('supplier_id')
-                                    ->label('Supplier')
-                                    ->translateLabel()
-                                    ->relationship('supplier', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->prefixIcon('heroicon-o-truck')
-                                    ->required()
-                                    ->exists('suppliers', 'id'),
-                                Forms\Components\Select::make('currency_id')
-                                    ->label('Currency')
-                                    ->translateLabel()
-                                    ->relationship('currency', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->prefixIcon('heroicon-o-currency-dollar')
-                                    ->required()
-                                    ->exists('currencies', 'id'),
-                                Forms\Components\TextInput::make('invoice_number')
-                                    ->label('Invoice Number')
-                                    ->translateLabel()
-                                    ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-document-text')
-                                    ->required()
-                                    ->unique('purchases', 'invoice_number', ignoreRecord: true),
-
-                                Forms\Components\DatePicker::make('invoice_date')
-                                    ->label('Invoice Date')
-                                    ->translateLabel()
-                                    // ->default(now())
-                                    // ->disabled()
-                                    ->prefixIcon('heroicon-o-calendar')
-                                    ->required()
-                                    ->date(),
-                                Forms\Components\TextInput::make('currency_rate')
-                                    ->label('Currency Rate')
-                                    ->translateLabel()
-                                    ->maxLength(255)
-                                    ->prefixIcon('heroicon-o-currency-dollar')
-                                    ->required()
-                                    ->numeric(),
-                                // Forms\Components\TextInput::make('total_amount')
-                                //     ->label('Total Amount')
-                                //     ->translateLabel()
-                                //     ->maxLength(255)
-                                //     ->prefixIcon('heroicon-o-calculator'),
-                                Forms\Components\Select::make('status')
-                                    ->label('Status')
-                                    ->translateLabel()
-                                    ->options([
-                                        'purchase' => 'Purchase',
-                                        'onway' => 'On Way',
-                                        'on_border' => 'On Border',
-                                        'on_plan' => 'On Plan',
-                                        'on_ship' => 'On Ship',
-                                        'arrived' => 'Arrived',
-                                        'warehouse_moved' => 'Moved to Warehouse',
-                                        'return' => 'Return',
-                                    ])
-                                    ->searchable()
-                                    ->preload()
-                                    ->prefixIcon('heroicon-o-check-circle')
-                                    ->required()
-                                    ->in([
-                                        'purchase',
-                                        'onway',
-                                        'on_border',
-                                        'on_plan',
-                                        'on_ship',
-                                        'arrived',
-                                        'warehouse_moved',
-                                        'return',
-                                    ]),
-                                Forms\Components\Select::make('warehouse_id')
-                                    ->label('Warehouse')
-                                    ->translateLabel()
-                                    ->relationship('warehouse', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->prefixIcon('heroicon-o-building-office')
-                                    ->visible(fn($record) => $record?->status === 'arrived' && !$record?->is_moved_to_warehouse)
-                                    ->exists('warehouses', 'id'),
-                            ]),
-                    ]),
-            ]);
+        return PurchaseResourceForm::form($form);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('User Name')
-                    ->translateLabel()
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('supplier.name')
-                    ->label('Company Name')
-                    ->translateLabel()
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('currency.name')
-                    ->label('Currency')
-                    ->translateLabel()
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('invoice_number')
-                    ->label('Invoice Number')
-                    ->translateLabel()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('invoice_date')
-                    ->label('Invoice Date')
-                    ->translateLabel()
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('currency_rate')
-                    ->label('Currency Rate')
-                    ->translateLabel()
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('total_amount')
-                    ->money('USD')
-                    ->sortable()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status')
-                    ->label('Status')
-                    ->translateLabel()
-                    ->searchable()
-                    ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'purchase' => 'Purchase',
-                        'onway' => 'On Way',
-                        'on_border' => 'On Border',
-                        'on_plan' => 'On Plan',
-                        'on_ship' => 'On Ship',
-                        'arrived' => 'Arrived',
-                        'warehouse_moved' => 'Moved to Warehouse',
-                        'return' => 'Return',
-                        default => $state,
-                    }),
-            ])
-            ->filters([
-                Tables\Filters\TrashedFilter::make(),
-            ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                    Tables\Actions\ForceDeleteBulkAction::make(),
-                    Tables\Actions\RestoreBulkAction::make(),
-                ]),
-            ]);
+        return PurchaseResourceTable::table($table);
     }
+
 
     public static function getRelations(): array
     {
@@ -227,6 +68,7 @@ class PurchaseResource extends Resource
             'view' => Pages\ViewPurchase::route('/{record}'),
             'edit' => Pages\EditPurchase::route('/{record}/edit'),
             'purchase-payment' => Pages\PurchasePayments::route('/{record}/purchase-payment'),
+            'additional-costs' => Pages\AddtionalCosts::route('/{record}/additional-costs'),
             'items' => Pages\PurchaseItems::route('/{record}/items'),
         ];
     }
@@ -237,6 +79,7 @@ class PurchaseResource extends Resource
             Pages\EditPurchase::class,
             Pages\PurchasePayments::class, //
             Pages\PurchaseItems::class, //
+            Pages\AddtionalCosts::class, //
             // Pages\ExpenseResourceRelationPage::class,
             // Pages\ViewM16Outcome::class,
             // Pages\EditM16Outcome::class,

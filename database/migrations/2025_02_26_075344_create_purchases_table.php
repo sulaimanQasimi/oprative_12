@@ -27,7 +27,10 @@ return new class extends Migration
             $table->softDeletes();
         });
         Schema::create('purchase_has_addional_costs', function (Blueprint $table) {
+            $table->id();
             $table->foreignId("purchase_id")->references('id')->on('purchases')->onDelete('cascade')->unsigned();
+            $table->string('name')->nullable();
+            $table->float('amount')->nullable();
         });
     }
 

@@ -71,8 +71,13 @@ class Purchase extends Model
     {
         return $this->hasMany(PurchaseItem::class);
     }
+    public function additional_costs()
+    {
+        return $this->hasMany(PurchaseHasAddionalCosts::class);
+    }
 
-    public function getTotalAmountAttribute(){
-        return $this->purchaseItems()->sum('total_price');
+    public function getTotalAmountAttribute()
+    {
+        return $this->purchaseItems()->sum('total_price') + $this->additional_costs()->sum('amount');
     }
 }

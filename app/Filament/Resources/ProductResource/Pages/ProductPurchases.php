@@ -6,6 +6,7 @@ use App\Filament\Resources\ProductResource;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use Filament\Actions;
+use Filament\Facades\Filament;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\ManageRelatedRecords;
@@ -94,7 +95,7 @@ class ProductPurchases extends ManageRelatedRecords
                     ->preload(),
                 Tables\Filters\Filter::make('high_value')
                     ->label('High Value Items')
-                    ->query(fn (Builder $query): Builder => $query->where('total', '>', 1000)),
+                    ->query(fn(Builder $query): Builder => $query->where('total', '>', 1000)),
                 Tables\Filters\Filter::make('created_until')
                     ->form([
                         Forms\Components\DatePicker::make('created_until')
@@ -103,7 +104,7 @@ class ProductPurchases extends ManageRelatedRecords
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['created_until'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                         );
                     }),
                 Tables\Filters\Filter::make('price_range')
@@ -119,11 +120,11 @@ class ProductPurchases extends ManageRelatedRecords
                         return $query
                             ->when(
                                 $data['price_from'],
-                                fn (Builder $query, $price): Builder => $query->where('price', '>=', $price)
+                                fn(Builder $query, $price): Builder => $query->where('price', '>=', $price)
                             )
                             ->when(
                                 $data['price_until'],
-                                fn (Builder $query, $price): Builder => $query->where('price', '<=', $price)
+                                fn(Builder $query, $price): Builder => $query->where('price', '<=', $price)
                             );
                     }),
             ])
@@ -136,7 +137,7 @@ class ProductPurchases extends ManageRelatedRecords
                     Tables\Actions\Action::make('invoice')
                         ->label('Invoice')
                         ->icon('heroicon-o-document-text')
-                        ->url(fn (PurchaseItem $record): string => route('filament.admin.resources.purchases.invoice', ['purchase' => $record->purchase_id]))
+                        ->url(fn(PurchaseItem $record): string => route('filament.admin.resources.purchases.invoice', ['purchase' => $record->purchase_id]))
                         ->openUrlInNewTab(),
                 ]),
             ])
