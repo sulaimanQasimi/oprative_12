@@ -61,11 +61,6 @@ class Purchase extends Model
         return $this->belongsTo(Warehouse::class);
     }
 
-    public function getRemainingBalanceAttribute(): float
-    {
-        $total = $this->items()->sum('total');
-        return $total - $this->total_paid;
-    }
 
     public function purchaseItems()
     {
@@ -79,5 +74,13 @@ class Purchase extends Model
     public function getTotalAmountAttribute()
     {
         return $this->purchaseItems()->sum('total_price') + $this->additional_costs()->sum('amount');
+    }
+    public function getPaidAmountAttribute()
+    {
+        return $this->payments()->sum('amount');
+    }
+    public function getRemainingBalanceAttribute()
+    {
+        return ($this->purchaseItems()->sum('total_price') + $this->additional_costs()->sum('amount')) - $this->payments()->sum('amount');
     }
 }

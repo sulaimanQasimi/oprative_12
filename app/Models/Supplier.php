@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Supplier extends Model
@@ -27,9 +29,13 @@ class Supplier extends Model
 
     protected $appends = ['invoice_total'];
 
-    public function purchases()
+    public function purchases(): HasMany
     {
         return $this->hasMany(Purchase::class);
+    }
+    public function purchasePayment(): HasManyThrough
+    {
+        return $this->hasManyThrough(PurchasePayment::class,Purchase::class);
     }
 
     public function getInvoiceTotalAttribute()
