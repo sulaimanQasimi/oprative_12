@@ -23,11 +23,16 @@ return new class extends Migration
         // Create warehouse_products table for inventory tracking
         Schema::create('warehouse_products', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('warehouse_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->integer('quantity')->default(0);
-            $table->integer('min_quantity')->default(0);
-            $table->integer('max_quantity')->default(0);
+            //Prices
+            $table->double("purchase_price")->default(0)->nullable();
+            $table->double("wholesale_price")->default(0)->nullable();;
+            $table->double("retail_price")->default(0)->nullable();
+            $table->double("total")->default(0)->nullable();
+
             $table->timestamps();
             $table->unique(['warehouse_id', 'product_id']);
         });

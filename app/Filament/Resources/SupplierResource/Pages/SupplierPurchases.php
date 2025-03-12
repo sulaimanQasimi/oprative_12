@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\SupplierResource\Pages;
 
 use App\Filament\Resources\SupplierResource;
-use App\Filament\Resources\SupplierResource\Tables\SupplierPaymentTable;
+use App\Filament\Resources\SupplierResource\Tables\SupplierPurchaseTable;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -14,17 +14,17 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class SupplierPayments extends ManageRelatedRecords
+class SupplierPurchases extends ManageRelatedRecords
 {
     protected static string $resource = SupplierResource::class;
 
-    protected static string $relationship = 'purchasePayment';
+    protected static string $relationship = 'purchases';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
 
-    protected static ?string $modelLabel = 'Payment';
+    protected static ?string $modelLabel = 'Purchase';
 
-    protected static ?string $pluralModelLabel = 'Payments';
+    protected static ?string $pluralModelLabel = 'Purchases';
 
     public function getHeaderWidgets(): array
     {
@@ -33,15 +33,16 @@ class SupplierPayments extends ManageRelatedRecords
 
     public function getTitle(): string
     {
-        return __('Supplier Payments');
+        return __('Supplier Purchases');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('Supplier Payments');
+        return __('Supplier Purchases');
     }
+
     public function table(Table $table): Table
     {
-        return SupplierPaymentTable::table($table);
+        return SupplierPurchaseTable::table($table);
     }
 }

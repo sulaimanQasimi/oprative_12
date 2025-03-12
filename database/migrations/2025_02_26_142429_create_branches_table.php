@@ -11,7 +11,7 @@ return new class extends Migration
     {
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->unique();
+            $table->foreignIdFor(User::class)->unique()->nullable();
             $table->string('name');
             $table->string('code')->unique();
             $table->text('address')->nullable();

@@ -64,6 +64,7 @@ class SupplierResource extends Resource
             'view' => Pages\ViewSupplier::route('/{record}'),
             'edit' => Pages\EditSupplier::route('/{record}/edit'),
             'payments' => Pages\SupplierPayments::route('/{record}/payments'),
+            'purchases' => Pages\SupplierPurchases::route('/{record}/purchases'),
         ];
     }
     public static function getRecordSubNavigation(\Filament\Resources\Pages\Page $page): array
@@ -72,6 +73,7 @@ class SupplierResource extends Resource
             Pages\ViewSupplier::class,
             Pages\EditSupplier::class,
             Pages\SupplierPayments::class,
+            Pages\SupplierPurchases::class,
         ]);
     }
     public static function getEloquentQuery(): Builder

@@ -42,22 +42,25 @@ class PurchaseResourceTable
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('total_amount')
+                    ->label('Total Amount')
+                    ->translateLabel()
                     ->money('USD')
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
+                    ->badge()
                     ->translateLabel()
                     ->searchable()
                     ->formatStateUsing(fn(string $state): string => match ($state) {
-                        'purchase' => 'Purchase',
-                        'onway' => 'On Way',
-                        'on_border' => 'On Border',
-                        'on_plan' => 'On Plan',
-                        'on_ship' => 'On Ship',
-                        'arrived' => 'Arrived',
-                        'warehouse_moved' => 'Moved to Warehouse',
-                        'return' => 'Return',
+                        'purchase' => trans('Purchase'),
+                        'onway' => trans('On Way'),
+                        'on_border' => trans('On Border'),
+                        'on_plan' => trans('On Plan'),
+                        'on_ship' => trans('On Ship'),
+                        'arrived' => trans('Arrived'),
+                        'warehouse_moved' => trans('Moved to Warehouse'),
+                        'return' => trans('Return'),
                         default => $state,
                     }),
             ])

@@ -78,6 +78,8 @@
     74 => 'Vormkracht10\\TwoFactorAuth\\TwoFactorAuthServiceProvider',
     75 => 'App\\Providers\\AppServiceProvider',
     76 => 'App\\Providers\\Filament\\AdminPanelProvider',
+    77 => 'App\\Providers\\Filament\\InventoryPanelProvider',
+    78 => 'App\\Providers\\Filament\\MarketPanelProvider',
   ),
   'eager' => 
   array (
@@ -143,6 +145,8 @@
     59 => 'Vormkracht10\\TwoFactorAuth\\TwoFactorAuthServiceProvider',
     60 => 'App\\Providers\\AppServiceProvider',
     61 => 'App\\Providers\\Filament\\AdminPanelProvider',
+    62 => 'App\\Providers\\Filament\\InventoryPanelProvider',
+    63 => 'App\\Providers\\Filament\\MarketPanelProvider',
   ),
   'deferred' => 
   array (

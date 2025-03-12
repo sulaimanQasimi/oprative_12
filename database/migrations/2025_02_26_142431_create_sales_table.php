@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('status')->default('pending');
             $table->string('payment_status')->default('pending');
             $table->text('notes')->nullable();
+            $table->double("total")->default(0)->nullable();
             $table->date('date');
             $table->timestamps();
         });
