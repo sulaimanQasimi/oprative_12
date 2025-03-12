@@ -29,8 +29,7 @@ class ProductPurchases extends ManageRelatedRecords
 
     public function getTitle(): string
     {
-        $totalAmount = $this->getOwnerRecord()->purchaseItems->sum('total_price');
-        return "Product Purchases - Total: $" . number_format($totalAmount, 2);
+        return trans('Product Purchases');
     }
 
     public static function getNavigationLabel(): string

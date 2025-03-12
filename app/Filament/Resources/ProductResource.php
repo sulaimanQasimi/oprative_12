@@ -6,6 +6,7 @@ use App\Filament\Resources\ProductResource\Pages;
 use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use App\Filament\Resources\ProductResource\Form\ProductResourceForm;
+use App\Filament\Resources\ProductResource\Tables\ProductResourceTable;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,20 +18,25 @@ use Filament\Pages\SubNavigationPosition;
 
 class ProductResource extends Resource
 {
+    // Model Configuration
     protected static ?string $model = Product::class;
 
+    // Navigation Settings
     protected static ?string $navigationIcon = 'heroicon-o-cube';
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
+
+    // Labels
+    public static function getModelLabel(): string
+    {
+        return __('Product');
+    }
 
     public static function getPluralModelLabel(): string
     {
         return __('Products');
     }
 
-    public static function getModelLabel(): string
-    {
-        return __('Product');
-    }
-
+    // Form and Table Methods
     public static function form(Form $form): Form
     {
         return ProductResourceForm::form($form);
@@ -38,60 +44,10 @@ class ProductResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('type')
-                    ->label(__('Type'))
-                    ->badge()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('name')
-                    ->label(__('Name'))
-                    ->translateLabel()
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('barcode')
-                    ->label(__('Barcode'))
-                    ->searchable(),
-                Tables\Columns\ImageColumn::make('image')
-                    ->label(__('Image')),
-                Tables\Columns\TextColumn::make('purchase_price')
-                    ->label(__('Purchase Price'))
-                    ->money()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('wholesale_price')
-                    ->label(__('Wholesale Price'))
-                    ->money()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('retail_price')
-                    ->label(__('Retail Price'))
-                    ->money()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_activated')
-                    ->label(__('Active'))
-                    ->boolean()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_in_stock')
-                    ->label(__('In Stock'))
-                    ->boolean()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_trend')
-                    ->label(__('Trending'))
-                    ->boolean()
-                    ->sortable(),
-            ])
-            ->filters([
-
-            ])
-            ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+        return ProductResourceTable::table($table);
     }
 
+    // Relations
     public static function getRelations(): array
     {
         return [
@@ -99,8 +55,7 @@ class ProductResource extends Resource
         ];
     }
 
-    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
-
+    // Pages
     public static function getPages(): array
     {
         return [
@@ -113,6 +68,7 @@ class ProductResource extends Resource
         ];
     }
 
+    // Navigation Items
     public static function getRecordSubNavigation(\Filament\Resources\Pages\Page $page): array
     {
         return $page->generateNavigationItems([
@@ -123,6 +79,7 @@ class ProductResource extends Resource
         ]);
     }
 
+    // Query Modifications
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery();

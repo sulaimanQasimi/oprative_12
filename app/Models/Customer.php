@@ -2,13 +2,20 @@
 
 namespace App\Models;
 
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Customer extends Model
+class Customer extends Authenticatable implements FilamentUser
 {
     use HasFactory;
+    public function canAccessPanel(\Filament\Panel $panel): bool
+    {
+        return true;
+    }
+
 
     protected $fillable = [
         'name',
@@ -41,4 +48,5 @@ class Customer extends Model
     {
         return $this->hasMany(CustomerPayment::class);
     }
+
 }

@@ -19,6 +19,7 @@ class ProductResourceForm
                                     ->schema([
                                         Forms\Components\Select::make('type')
                                             ->label(__('Type'))
+                                            ->translateLabel()
                                             ->default('product')
                                             ->options([
                                                 'product' => __('Product'),
@@ -27,10 +28,12 @@ class ProductResourceForm
                                             ->prefixIcon('heroicon-o-tag'),
                                         Forms\Components\TextInput::make('barcode')
                                             ->label(__('Barcode'))
+                                            ->translateLabel()
                                             ->unique(table: 'products', column: 'barcode', ignoreRecord: true)
                                             ->prefixIcon('heroicon-o-bars-4'),
                                         Forms\Components\TextInput::make('name')
                                             ->label(__('Name'))
+                                            ->translateLabel()
                                             ->required()
                                             ->maxLength(255)
                                             ->prefixIcon('heroicon-o-document-text')
@@ -45,6 +48,7 @@ class ProductResourceForm
                                     ->schema([
                                         Forms\Components\TextInput::make('purchase_price')
                                             ->label(__('Purchase Price'))
+                                            ->translateLabel()
                                             ->numeric()
                                             ->default(0)
                                             ->live(debounce: 2000)
@@ -56,6 +60,7 @@ class ProductResourceForm
                                             ->prefixIcon('heroicon-o-currency-dollar'),
                                         Forms\Components\TextInput::make('wholesale_profit')
                                             ->label(__('Wholesale Profit'))
+                                            ->translateLabel()
                                             ->numeric()
                                             ->default(0)
                                             ->live(debounce: 2000)
@@ -68,6 +73,7 @@ class ProductResourceForm
 
                                         Forms\Components\TextInput::make('retail_profit')
                                             ->label(__('Retail Profit'))
+                                            ->translateLabel()
                                             ->numeric()
                                             ->default(0)
                                             ->live(debounce: 2000)
@@ -79,6 +85,7 @@ class ProductResourceForm
                                             ->prefixIcon('heroicon-o-currency-dollar'),
                                         Forms\Components\TextInput::make('wholesale_price')
                                             ->label(__('Wholesale Price'))
+                                            ->translateLabel()
                                             ->numeric()
                                             ->default(0)
                                             ->disabled()
@@ -93,6 +100,7 @@ class ProductResourceForm
 
                                         Forms\Components\TextInput::make('retail_price')
                                             ->label(__('Retail Price'))
+                                            ->translateLabel()
                                             ->numeric()
                                             ->default(0)
                                             ->disabled()
@@ -112,15 +120,19 @@ class ProductResourceForm
                                     ->schema([
                                         Forms\Components\Toggle::make('is_activated')
                                             ->label(__('Is Activated'))
+                                            ->translateLabel()
                                             ->default(true),
                                         Forms\Components\Toggle::make('is_in_stock')
                                             ->label(__('Is In Stock'))
+                                            ->translateLabel()
                                             ->default(true),
                                         Forms\Components\Toggle::make('is_shipped')
                                             ->label(__('Is Shipped'))
+                                            ->translateLabel()
                                             ->default(false),
                                         Forms\Components\Toggle::make('is_trend')
                                             ->label(__('Is Trending'))
+                                            ->translateLabel()
                                             ->default(false),
                                     ])
                             ])->collapsible(),
@@ -128,6 +140,7 @@ class ProductResourceForm
                             ->schema([
                                 Forms\Components\FileUpload::make('image')
                                     ->label(__('Image'))
+                                    ->translateLabel()
                                     ->image()
                                     ->columnSpanFull()
                             ])->collapsible(),

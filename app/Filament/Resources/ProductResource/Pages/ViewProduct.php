@@ -13,6 +13,11 @@ class ViewProduct extends ViewRecord
 {
     protected static string $resource = ProductResource::class;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('View Product');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

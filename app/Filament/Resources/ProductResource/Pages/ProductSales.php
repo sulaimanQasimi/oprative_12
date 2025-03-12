@@ -28,8 +28,7 @@ class ProductSales extends ManageRelatedRecords
 
     public function getTitle(): string
     {
-        $totalAmount = $this->getOwnerRecord()->saleItems->sum('total');
-        return "Product Sales - Total: $" . number_format($totalAmount, 2);
+        return trans('Product Sales');
     }
 
     public static function getNavigationLabel(): string
