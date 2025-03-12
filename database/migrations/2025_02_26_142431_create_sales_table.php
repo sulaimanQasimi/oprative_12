@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->double("total")->default(0)->nullable();
             $table->date('date');
+            $table->boolean('moved_from_warehouse')->default(false);
             $table->timestamps();
         });
     }

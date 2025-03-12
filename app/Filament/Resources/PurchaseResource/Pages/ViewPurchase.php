@@ -4,6 +4,8 @@ namespace App\Filament\Resources\PurchaseResource\Pages;
 
 use App\Filament\Resources\PurchaseResource;
 use App\Models\Purchase;
+use App\Models\WarehouseIncome;
+use App\Models\WarehouseIncomeItem;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 
@@ -46,33 +48,26 @@ class ViewPurchase extends ViewRecord
 
                     // Begin transaction to ensure data consistency
                     \Illuminate\Support\Facades\DB::transaction(function () use ($record) {
+
+
+                        // Move all purchase items to warehouse inventory
+                        foreach ($record->purchaseItems as $purchaseItem) {
+                            // Create warehouse income item
+                            WarehouseIncome::create([
+                                'reference_number'=>"PO-".$record->id,
+                                'warehouse_id' => $record->warehouse_id,
+                                'product_id' => $purchaseItem->product_id,
+                                'quantity' => $purchaseItem->quantity,
+                                'price'=> $purchaseItem->price,
+                                'total'=> $purchaseItem->total_price,
+                            ]);
+                        }
+
                         // Update purchase status
                         $record->update([
                             'status' => 'warehouse_moved',
                             'is_moved_to_warehouse' => true,
                         ]);
-
-                        // Move all purchase items to warehouse inventory
-                        foreach ($record->purchaseItems as $purchaseItem) {
-                            // Find existing warehouse product or create new one
-                            $warehouseProduct = \App\Models\WarehouseProduct::where([
-                                'warehouse_id' => $record->warehouse_id,
-                                'product_id' => $purchaseItem->product_id,
-                            ])->first();
-
-                            if ($warehouseProduct) {
-                                // If product exists, add new quantity to existing stock
-                                $warehouseProduct->quantity += $purchaseItem->quantity;
-                                $warehouseProduct->save();
-                            } else {
-                                // If product doesn't exist, create new entry with quantity
-                                \App\Models\WarehouseProduct::create([
-                                    'warehouse_id' => $record->warehouse_id,
-                                    'product_id' => $purchaseItem->product_id,
-                                    'quantity' => $purchaseItem->quantity
-                                ]);
-                            }
-                        }
                     });
                 }),
         ];
