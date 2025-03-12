@@ -30,7 +30,10 @@ class WarehouseResource extends Resource
     {
         return __('Warehouse');
     }
-
+    public static function getNavigationGroup(): ?string
+    {
+        return trans('Organization');
+    }
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
     protected static ?string $navigationGroup = 'Organization';
     protected static ?int $navigationSort = 2;

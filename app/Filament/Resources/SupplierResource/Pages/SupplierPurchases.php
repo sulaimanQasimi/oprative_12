@@ -33,12 +33,12 @@ class SupplierPurchases extends ManageRelatedRecords
 
     public function getTitle(): string
     {
-        return __('Supplier Purchases');
+        return __('Purchases');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('Supplier Purchases');
+        return __('Purchases');
     }
 
     public function table(Table $table): Table

@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateSupplier extends CreateRecord
 {
     protected static string $resource = SupplierResource::class;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Create Supplier');
+    }
 }

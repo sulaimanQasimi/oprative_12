@@ -10,6 +10,11 @@ class EditSupplier extends EditRecord
 {
     protected static string $resource = SupplierResource::class;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Edit Supplier');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

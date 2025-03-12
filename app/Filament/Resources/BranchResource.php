@@ -30,14 +30,17 @@ class BranchResource extends Resource
     }
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
-    protected static ?string $navigationGroup = 'Organization';
+    public static function getNavigationGroup(): ?string
+    {
+        return trans('Organization');
+    }
     protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Branch Details')
+                Forms\Components\Section::make(trans('Branch Details'))
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([

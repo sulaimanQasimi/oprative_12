@@ -11,6 +11,11 @@ class ViewSupplier extends ViewRecord
 {
     protected static string $resource = SupplierResource::class;
 
+
+    public static function getNavigationLabel(): string
+    {
+        return __('View Supplier');
+    }
     protected function getHeaderActions(): array
     {
         return [

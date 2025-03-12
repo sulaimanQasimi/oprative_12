@@ -30,7 +30,7 @@ class PurchaseItemResource extends Resource
                                 Forms\Components\Select::make('purchase_id')
                                     ->label('Purchase ID')
                                     ->translateLabel()
-                                    ->relationship('purchase', 'id')
+                                    ->relationship('purchase', 'name')
                                     ->searchable()
                                     ->preload()
                                     ->prefixIcon('heroicon-o-shopping-cart'),

@@ -19,8 +19,7 @@ class PurchaseItemPageForm
                             ->schema([
                                 Forms\Components\Select::make('product_id')
                                     ->relationship('product', 'name')
-                                    ->searchable()
-                                    ->preload()
+                                    ->searchable(['name', 'barcode'])
                                     ->required()
                                     ->createOptionForm([
                                         Forms\Components\TextInput::make('name')

@@ -40,7 +40,7 @@ class SaleResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Sale Details')
+                Forms\Components\Section::make(trans('Sale Details'))
                     ->schema([
                         Forms\Components\Grid::make(2)
                             ->schema([
@@ -94,7 +94,7 @@ class SaleResource extends Resource
                                     ->label('Status'),
                             ])
                     ]),
-                Forms\Components\Section::make('Additional Information')
+                Forms\Components\Section::make(trans('Additional Information'))
                     ->schema([
                         Textarea::make('notes')
                             ->maxLength(65535)

@@ -17,9 +17,9 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Purchase::class)->nullable();
             $table->foreignIdFor(Product::class)->nullable();
-            $table->string("quantity")->nullable();
-            $table->string("price")->nullable();
-            $table->decimal("total_price", 8, 2)->nullable();
+            $table->double("quantity")->nullable();
+            $table->double("price")->nullable();
+            $table->decimal("total_price", 10, 2)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
