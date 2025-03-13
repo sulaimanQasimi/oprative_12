@@ -10,6 +10,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
 use Filament\Forms;
+use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
 use Filament\Tables\Actions\DeleteAction;
 use Filament\Tables\Actions\EditAction;
@@ -20,6 +21,7 @@ use Filament\Tables\Table;
 class WarehouseResource extends Resource
 {
     protected static ?string $model = Warehouse::class;
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     public static function getPluralModelLabel(): string
     {
@@ -130,6 +132,19 @@ class WarehouseResource extends Resource
             'index' => Pages\ListWarehouses::route('/'),
             'create' => Pages\CreateWarehouse::route('/create'),
             'edit' => Pages\EditWarehouse::route('/{record}/edit'),
+            'products' => Pages\WarehouseProduct::route('/{record}/products'),
         ];
+    }
+
+    // Navigation Items
+    public static function getRecordSubNavigation(\Filament\Resources\Pages\Page $page): array
+    {
+        return $page->generateNavigationItems([
+            // Pages\ViewWarehouse::class,
+            Pages\EditWarehouse::class,
+            Pages\WarehouseProduct::class,
+            // Pages\WarehousePurchases::class,
+            // Pages\ProductSales::class,
+        ]);
     }
 }

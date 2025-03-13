@@ -9,6 +9,7 @@ class PurchaseItem extends Model
 {
     use SoftDeletes;
 
+    public $timestamps = false;
     protected $fillable = [
         'purchase_id',
         'product_id',

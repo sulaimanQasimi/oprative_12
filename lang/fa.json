@@ -151,5 +151,14 @@
     "View Product": "مشاهده محصول",
     "Edit Product": "ویرایش محصول",
     "Product Purchases": "خریدهای محصول",
-    "Product Sales": "فروش‌های محصول"
+    "Product Sales": "فروش‌های محصول",
+    "Income Qty": "تعداد ورودی",
+    "Income Price": "قیمت ورودی",
+    "Income Total": "مجموع ورودی",
+    "Outcome Qty": "تعداد خروجی",
+    "Outcome Price": "قیمت خروجی",
+    "Outcome Total": "مجموع خروجی",
+    "Net Qty": "تعداد خالص",
+    "Net Total": "مجموع خالص",
+    "Profit": "سود"
 }

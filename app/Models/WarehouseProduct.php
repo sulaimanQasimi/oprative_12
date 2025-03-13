@@ -9,9 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class WarehouseProduct extends Model
 {
     // use SoftDeletes;
+    protected $table = 'warehouse_product_movements';
 
-    protected $table = 'warehouse_products';
-
+    protected $primaryKey = 'id';
     protected $fillable = [
         'warehouse_id',
         'product_id',
@@ -38,8 +38,8 @@ class WarehouseProduct extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function scopeActive($query)
-    {
-        return $query->where('is_active', true);
-    }
+    // public function scopeActive($query)
+    // {
+    //     return $query->where('is_active', true);
+    // }
 }
