@@ -20,61 +20,69 @@ class SaleResourceForm
                         Forms\Components\Grid::make(2)
                             ->schema([
                                 Select::make('customer_id')
+                                    ->label('Customer')
                                     ->relationship('customer', 'name')
                                     ->searchable()
                                     ->preload()
                                     ->required()
                                     ->exists('customers', 'id')
-                                    ->label('Customer'),
+                                    ->translateLabel(),
                                 Select::make('warehouse_id')
+                                    ->label('Warehouse')
                                     ->relationship('warehouse', 'name')
                                     ->searchable()
                                     ->preload()
                                     ->required()
                                     ->exists('warehouses', 'id')
-                                    ->label('Warehouse'),
+                                    ->translateLabel(),
                                 Select::make('currency_id')
+                                    ->label('Currency')
                                     ->relationship('currency', 'name')
                                     ->searchable()
                                     ->preload()
                                     ->required()
                                     ->exists('currencies', 'id')
-                                    ->label('Currency'),
+                                    ->translateLabel(),
                                 TextInput::make('currency_rate')
+                                    ->label('Currency Rate')
                                     ->numeric()
                                     ->default(1)
                                     ->required()
                                     ->minValue(0.01)
                                     ->step(0.01)
-                                    ->label('Currency Rate'),
+                                    ->translateLabel(),
                                 DateTimePicker::make('date')
+                                    ->label('Date')
                                     ->required()
                                     ->before('tomorrow')
-                                    ->label('Sale Date'),
+                                    ->translateLabel(),
                                 TextInput::make('reference')
+                                    ->label('Reference')
                                     ->maxLength(255)
                                     ->unique(ignoreRecord: true)
                                     ->regex('/^[A-Za-z0-9-]+$/')
-                                    ->helperText('Only letters, numbers, and hyphens are allowed')
-                                    ->label('Reference Number'),
+                                    ->helperText(trans('Only letters, numbers, and hyphens are allowed'))
+                                    ->translateLabel(),
                                 Select::make('status')
+                                    ->label('Status')
                                     ->options([
-                                        'pending' => 'Pending',
-                                        'processing' => 'Processing',
-                                        'completed' => 'Completed',
-                                        'cancelled' => 'Cancelled'
+                                        'pending' => trans('Pending'),
+                                        'processing' => trans('Processing'),
+                                        'completed' => trans('Completed'),
+                                        'cancelled' => trans('Cancelled')
                                     ])
                                     ->required()
                                     ->default('pending')
-                                    ->label('Status'),
+                                    ->translateLabel(),
                             ])
                     ]),
                 Forms\Components\Section::make(trans('Additional Information'))
                     ->schema([
                         Textarea::make('notes')
+                            ->label('Notes')
                             ->maxLength(65535)
                             ->columnSpanFull()
-                            ->label('Notes')
+                            ->translateLabel()
                             ->nullable()
                     ])
             ]);
