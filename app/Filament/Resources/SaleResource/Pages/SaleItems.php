@@ -41,71 +41,72 @@ class SaleItems extends ManageRelatedRecords
     public function form(Form $form): Form
     {
         return $form
-        ->schema([
-                    Forms\Components\Grid::make(2)
-                        ->schema([
-                            Forms\Components\Select::make('product_id')
-                                ->relationship('product', 'name')
-                                ->searchable()
-                                ->preload()
-                                ->required()
-                                ->live()
-                                ->afterStateUpdated(function ($state, Forms\Set $set) {
-                                    if ($state) {
-                                        $product = Product::find($state);
-                                        if ($product) {
-                                            $set('unit_price', $product->wholesale_price);
-                                        }
+            ->schema([
+                Forms\Components\Grid::make(2)
+                    ->schema([
+                        Forms\Components\Select::make('product_id')
+                            ->relationship('product', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                if ($state) {
+                                    $product = Product::find($state);
+                                    if ($product) {
+                                        $set('unit_price', $product->wholesale_price);
                                     }
-                                })
-                                ->createOptionForm([
-                                    Forms\Components\TextInput::make('name')
-                                        ->required(),
-                                    Forms\Components\TextInput::make('barcode')
-                                        ->required()
-                                        ->unique('products', 'barcode'),
-                                ])
-                                ->prefixIcon('heroicon-o-cube'),
+                                }
+                            })
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->required(),
+                                Forms\Components\TextInput::make('barcode')
+                                    ->required()
+                                    ->unique('products', 'barcode'),
+                            ])
+                            ->prefixIcon('heroicon-o-cube'),
 
-                            Forms\Components\TextInput::make('quantity')
-                                ->label('Quantity')
-                                ->translateLabel()
-                                ->numeric()
-                                ->minValue(1)
-                                ->default(1)
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
-                                    if ($state && $get('unit_price')) {
-                                        $set('total', $state * $get('unit_price'));
-                                    }
-                                })
-                                ->required()
-                                ->prefixIcon('heroicon-o-hashtag'),
+                        Forms\Components\TextInput::make('quantity')
+                            ->label('Quantity')
+                            ->translateLabel()
+                            ->numeric()
+                            ->minValue(1)
+                            ->default(1)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
+                                if ($state && $get('unit_price')) {
+                                    $set('total', $state * $get('unit_price'));
+                                }
+                            })
+                            ->required()
+                            ->prefixIcon('heroicon-o-hashtag'),
 
-                            Forms\Components\TextInput::make('unit_price')
-                                ->label('Unit Price')
-                                ->translateLabel()
-                                ->numeric()
-                                ->minValue(0)
-                                ->required()
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
-                                    if ($state && $get('quantity')) {
-                                        $set('total', $state * $get('quantity'));
-                                    }
-                                })
-                                ->mask('999999.99')
-                                ->prefixIcon('heroicon-o-currency-dollar'),
+                        Forms\Components\TextInput::make('unit_price')
+                            ->label('Unit Price')
+                            ->translateLabel()
+                            ->numeric()
+                            ->minValue(0)
+                            ->required()
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
+                                if ($state && $get('quantity')) {
+                                    $set('total', $state * $get('quantity'));
+                                }
+                            })
+                            ->mask('999999.99')
+                            ->prefixIcon('heroicon-o-currency-dollar'),
 
-                            Forms\Components\TextInput::make('total')
-                                ->label('Subtotal')
-                                ->translateLabel()
-                                ->disabled()
-                                ->numeric()
-                                ->prefixIcon('heroicon-o-calculator'),
-
-        ])
-    ]);
+                        Forms\Components\Hidden::make('price')
+                            ->default(0),
+                        Forms\Components\TextInput::make('total')
+                            ->label('Subtotal')
+                            ->translateLabel()
+                            ->disabled()
+                            ->numeric()
+                            ->prefixIcon('heroicon-o-calculator'),
+                    ])
+            ]);
     }
 
     public function table(Table $table): Table
@@ -152,7 +153,7 @@ class SaleItems extends ManageRelatedRecords
                     ->preload(),
                 Tables\Filters\Filter::make('high_value')
                     ->label('High Value Items')
-                    ->query(fn (Builder $query): Builder => $query->where('subtotal', '>', 1000)),
+                    ->query(fn(Builder $query): Builder => $query->where('subtotal', '>', 1000)),
 
                 Tables\Filters\Filter::make('created_until')
                     ->form([
@@ -162,7 +163,7 @@ class SaleItems extends ManageRelatedRecords
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['created_until'],
-                            fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                         );
                     }),
                 Tables\Filters\Filter::make('price_range')
@@ -178,11 +179,11 @@ class SaleItems extends ManageRelatedRecords
                         return $query
                             ->when(
                                 $data['price_from'],
-                                fn (Builder $query, $price): Builder => $query->where('unit_price', '>=', $price)
+                                fn(Builder $query, $price): Builder => $query->where('unit_price', '>=', $price)
                             )
                             ->when(
                                 $data['price_until'],
-                                fn (Builder $query, $price): Builder => $query->where('unit_price', '<=', $price)
+                                fn(Builder $query, $price): Builder => $query->where('unit_price', '<=', $price)
                             );
                     }),
                 Tables\Filters\Filter::make('quantity_range')
@@ -198,11 +199,11 @@ class SaleItems extends ManageRelatedRecords
                         return $query
                             ->when(
                                 $data['min_quantity'],
-                                fn (Builder $query, $quantity): Builder => $query->where('quantity', '>=', $quantity)
+                                fn(Builder $query, $quantity): Builder => $query->where('quantity', '>=', $quantity)
                             )
                             ->when(
                                 $data['max_quantity'],
-                                fn (Builder $query, $quantity): Builder => $query->where('quantity', '<=', $quantity)
+                                fn(Builder $query, $quantity): Builder => $query->where('quantity', '<=', $quantity)
                             );
                     }),
             ])
