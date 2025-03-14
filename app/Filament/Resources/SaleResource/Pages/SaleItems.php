@@ -121,7 +121,7 @@ class SaleItems extends ManageRelatedRecords
                     ->sortable()
                     ->weight(FontWeight::Bold),
                 Tables\Columns\TextColumn::make('quantity')
-                    ->label('Qty')
+                    ->label('Quantity')
                     ->sortable()
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('unit_price')
@@ -129,8 +129,13 @@ class SaleItems extends ManageRelatedRecords
                     ->money('usd')
                     ->sortable()
                     ->alignRight(),
+                Tables\Columns\TextColumn::make('price')
+                    ->label('Price')
+                    ->money('usd')
+                    ->sortable()
+                    ->alignRight(),
                 Tables\Columns\TextColumn::make('total')
-                    ->label('Subtotal')
+                    ->label('Total')
                     ->money('usd')
                     ->sortable()
                     ->alignRight()
@@ -140,7 +145,7 @@ class SaleItems extends ManageRelatedRecords
                             ->money('usd'),
                     ]),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created')
+                    ->label('Created At')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
