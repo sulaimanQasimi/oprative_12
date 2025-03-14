@@ -16,21 +16,33 @@ class CustomerResourceTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->label('Name')
+                    ->translateLabel(),
                 TextColumn::make('email')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->label('Email')
+                    ->translateLabel(),
                 TextColumn::make('phone')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Phone')
+                    ->translateLabel(),
                 TextColumn::make('balance')
                     ->money()
-                    ->sortable(),
+                    ->sortable()
+                    ->label('Balance')
+                    ->translateLabel(),
                 ToggleColumn::make('status')
-                    ->sortable(),
+                    ->sortable()
+                    ->label('Status')
+                    ->translateLabel(),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label('Created At')
+                    ->translateLabel(),
             ])
             ->filters([
                 //
