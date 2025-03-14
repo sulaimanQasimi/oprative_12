@@ -7,6 +7,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Forms;
+use App\Models\User;
+use Filament\Forms\Components\Select;
 
 class CustomerResourceForm
 {
@@ -36,6 +38,11 @@ class CustomerResourceForm
                                 Toggle::make('status')
                                     ->default(true)
                                     ->label('Status')
+                                    ->translateLabel(),
+                                Select::make('user_id')
+                                    ->relationship('user', 'name')
+                                    ->required()
+                                    ->label('User')
                                     ->translateLabel(),
                             ])
                     ]),
