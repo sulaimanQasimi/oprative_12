@@ -23,13 +23,12 @@ class ViewSale extends ViewRecord
                     // Create Output Form Warehouse
                     foreach ($saleItems as $item) {
                         $warehouseOutput = new \App\Models\WarehouseOutcome([
+                            'reference_number' => 'SALE-' . $record->id,
                             'warehouse_id' => $item->warehouse_id,
                             'product_id' => $item->product_id,
                             'quantity' => $item->quantity,
-                            'unit_price' => $item->unit_price,
-                            'total_price' => $item->total_price,
-                            'sale_id' => $record->id,
-                            'date' => now(),
+                            'price' => $item->unit_price,
+                            'total' => $item->total_price,
                         ]);
                         $warehouseOutput->save();
                     }
