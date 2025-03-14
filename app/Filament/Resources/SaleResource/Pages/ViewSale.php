@@ -39,6 +39,8 @@ class ViewSale extends ViewRecord
                             'quantity' => $item->quantity,
                             'price' => $item->unit_price,
                             'total' => $item->total_price,
+                            'model_type' => get_class($record),
+                            'model_id' => $record->id,
                         ]);
                         $warehouseOutput->save();
                     }
@@ -54,6 +56,8 @@ class ViewSale extends ViewRecord
                             'total_price' => $item->total_price,
                             'sale_id' => $record->id,
                             'date' => now(),
+                            'model_type' => get_class($record),
+                            'model_id' => $record->id,
                         ]);
                         $customerStock->save();
                     }
