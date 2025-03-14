@@ -174,5 +174,6 @@
     "Only letters, numbers, spaces, hyphens and dots are allowed": "فقط حروف، اعداد، فاصله، خط تیره و نقطه مجاز است",
     "Enter warehouse code": "کد گدام را وارد کنید",
     "Only uppercase letters, numbers and hyphens are allowed": "فقط حروف بزرگ، اعداد و خط تیره مجاز است",
-    "Toggle to set warehouse status": "برای تنظیم وضعیت گدام کلیک کنید"
+    "Toggle to set warehouse status": "برای تنظیم وضعیت گدام کلیک کنید",
+    "Only letters, numbers, and hyphens are allowed": "فقط حروف، اعداد و خط تیره مجاز است"
 }
