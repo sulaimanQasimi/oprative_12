@@ -26,13 +26,19 @@ class Customer extends Authenticatable implements FilamentUser
         'balance',
         'credit_limit',
         'status',
-        'notes'
+        'notes',
+        'user_id'
     ];
 
     protected $casts = [
         'balance' => 'decimal:2',
         'credit_limit' => 'decimal:2',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function sales(): HasMany
     {
