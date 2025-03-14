@@ -98,6 +98,7 @@
     "Search": "جستجو",
     "Filter": "فیلتر",
     "Reset": "بازنشانی",
+    "Outcome": "رفت",
     "No records found": "هیچ رکوردی یافت نشد",
     "Loading": "در حال بارگذاری",
     "Are you sure you want to delete this?": "آیا از حذف این مورد اطمینان دارید؟",
@@ -152,6 +153,7 @@
     "Edit Product": "ویرایش محصول",
     "Product Purchases": "خریدهای محصول",
     "Product Sales": "فروش‌های محصول",
+    "Income": "امد",
     "Income Qty": "تعداد ورودی",
     "Income Price": "قیمت ورودی",
     "Income Total": "مجموع ورودی",
@@ -160,5 +162,10 @@
     "Outcome Total": "مجموع خروجی",
     "Net Qty": "تعداد خالص",
     "Net Total": "مجموع خالص",
-    "Profit": "سود"
+    "Profit": "سود",
+    "Enter warehouse name": "نام گدام را وارد کنید",
+    "Only letters, numbers, spaces, hyphens and dots are allowed": "فقط حروف، اعداد، فاصله، خط تیره و نقطه مجاز است",
+    "Enter warehouse code": "کد گدام را وارد کنید",
+    "Only uppercase letters, numbers and hyphens are allowed": "فقط حروف بزرگ، اعداد و خط تیره مجاز است",
+    "Toggle to set warehouse status": "برای تنظیم وضعیت گدام کلیک کنید"
 }

@@ -70,4 +70,8 @@ class Warehouse extends Model
     {
         return $this->hasMany(WarehouseIncome::class);
     }
+    public function warehouseOutcome(): HasMany
+    {
+        return $this->hasMany(WarehouseOutcome::class);
+    }
 }

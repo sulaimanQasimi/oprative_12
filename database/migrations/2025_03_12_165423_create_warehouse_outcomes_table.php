@@ -20,6 +20,7 @@ return new class extends Migration
             $table->double('quantity')->nullable();
             $table->double('price')->nullable();
             $table->double('total')->nullable();
+            $table->timestamps();
         });
     }
 

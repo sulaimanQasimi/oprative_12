@@ -23,7 +23,6 @@ class PurchaseResource extends Resource
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
     protected static ?string $navigationIcon = 'heroicon-o-shopping-cart';
-    protected static ?string $navigationGroup = 'Sales';
     protected static ?int $navigationSort = 2;
 
     public static function getNavigationLabel(): string
@@ -39,6 +38,10 @@ class PurchaseResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return __('Purchases');
+    }
+    public static function getNavigationGroup(): ?string
+    {
+        return trans('Organization');
     }
 
     public static function form(Form $form): Form

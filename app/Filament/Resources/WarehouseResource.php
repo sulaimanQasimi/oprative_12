@@ -4,18 +4,11 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\WarehouseResource\Pages;
 use App\Models\Warehouse;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
+use App\Filament\Resources\WarehouseResource\Forms\FormWarehouseResource;
+use App\Filament\Resources\WarehouseResource\Tables\TableWarehouseResource;
 use Filament\Forms\Form;
-use Filament\Forms;
 use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class WarehouseResource extends Resource
@@ -42,81 +35,12 @@ class WarehouseResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\Section::make(__('Warehouse Details'))
-                    ->schema([
-                        Forms\Components\Grid::make(2)
-                            ->schema([
-                                TextInput::make('name')
-                                    ->label('Name')
-                                    ->translateLabel()
-                                    ->required()
-                                    ->prefixIcon('heroicon-o-building-storefront')
-                                    ->maxLength(255),
-                                TextInput::make('code')
-                                    ->label('Code')
-                                    ->translateLabel()
-                                    ->required()
-                                    ->prefixIcon('heroicon-o-identification')
-                                    ->unique(ignoreRecord: true)
-                                    ->maxLength(255),
-                                Toggle::make('is_active')
-                                    ->label('Active Status')
-                                    ->translateLabel()
-                                    ->default(true)
-                            ])
-                    ]),
-                Forms\Components\Section::make(__('Additional Information'))
-                    ->schema([
-                        Textarea::make('description')
-                            ->label('Description')
-                            ->translateLabel()
-                            ->maxLength(65535)
-                            ->columnSpanFull(),
-                        Textarea::make('address')
-                            ->label('Address')
-                            ->translateLabel()
-                            ->maxLength(65535)
-                            ->columnSpanFull()
-                    ])
-            ]);
+        return FormWarehouseResource::form($form);
     }
 
     public static function table(Table $table): Table
     {
-        return $table
-            ->columns([
-                TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('code')
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('address')
-                    ->searchable()
-                    ->wrap(),
-                ToggleColumn::make('is_active')
-                    ->sortable(),
-                TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
-            ])
-            ->bulkActions([
-                //
-            ]);
+        return TableWarehouseResource::table($table);
     }
 
     public static function getRelations(): array
@@ -133,6 +57,8 @@ class WarehouseResource extends Resource
             'create' => Pages\CreateWarehouse::route('/create'),
             'edit' => Pages\EditWarehouse::route('/{record}/edit'),
             'products' => Pages\WarehouseProduct::route('/{record}/products'),
+            'income' => Pages\WarehouseIncome::route('/{record}/income'),
+            'outcome' => Pages\WarehouseOutcome::route('/{record}/outcome'),
         ];
     }
 
@@ -143,8 +69,8 @@ class WarehouseResource extends Resource
             // Pages\ViewWarehouse::class,
             Pages\EditWarehouse::class,
             Pages\WarehouseProduct::class,
-            // Pages\WarehousePurchases::class,
-            // Pages\ProductSales::class,
+            Pages\WarehouseIncome::class,
+            Pages\WarehouseOutcome::class,
         ]);
     }
 }
