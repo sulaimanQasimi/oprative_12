@@ -175,5 +175,9 @@
     "Enter warehouse code": "کد گدام را وارد کنید",
     "Only uppercase letters, numbers and hyphens are allowed": "فقط حروف بزرگ، اعداد و خط تیره مجاز است",
     "Toggle to set warehouse status": "برای تنظیم وضعیت گدام کلیک کنید",
-    "Only letters, numbers, and hyphens are allowed": "فقط حروف، اعداد و خط تیره مجاز است"
+    "Only letters, numbers, and hyphens are allowed": "فقط حروف، اعداد و خط تیره مجاز است",
+    "Sale Completed": "فروش تکمیل شد",
+    "Sale items have been successfully moved to customer stock.": "اقلام فروش با موفقیت به موجودی مشتری منتقل شد.",
+    "Already Completed": "قبلاً تکمیل شده",
+    "This sale has already been moved to stock.": "این فروش قبلاً به موجودی منتقل شده است."
 }

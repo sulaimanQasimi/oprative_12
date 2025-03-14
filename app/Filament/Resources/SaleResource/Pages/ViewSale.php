@@ -21,8 +21,8 @@ class ViewSale extends ViewRecord
                     if ($record->status === 'completed') {
                         Filament\Notifications\Notification::make()
                             ->warning()
-                            ->title('Already Completed')
-                            ->body('This sale has already been moved to stock.')
+                            ->title(trans('Already Completed'))
+                            ->body(trans('This sale has already been moved to stock.'))
                             ->send();
                         return;
                     }
@@ -64,6 +64,11 @@ class ViewSale extends ViewRecord
 
                     $record->status = 'completed';
                     $record->save();
+                    Filament\Notifications\Notification::make()
+                        ->success()
+                        ->title(trans('Sale Completed'))
+                        ->body(trans('Sale items have been successfully moved to customer stock.'))
+                        ->send();
                 })
                 ->color('success')
                 ->icon('heroicon-o-check-circle'),
