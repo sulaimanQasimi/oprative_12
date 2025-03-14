@@ -12,7 +12,9 @@ class WarehouseOutcome extends Model
         'product_id',
         'quantity',
         'price',
-        'total'
+        'total',
+        'model_type',
+        'model_id'
     ];
 
     public function warehouse()
@@ -23,5 +25,10 @@ class WarehouseOutcome extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function model()
+    {
+        return $this->morphTo();
     }
 }
