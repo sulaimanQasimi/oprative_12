@@ -14,12 +14,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('warehouse_outcomes', function (Blueprint $table) {
-            $table->string('reference_number')->unique();
+            $table->string('reference_number');
             $table->foreignIdFor(Warehouse::class);
             $table->foreignIdFor(Product::class);
             $table->double('quantity')->nullable();
             $table->double('price')->nullable();
             $table->double('total')->nullable();
+            $table->nullableMorphs('model');
             $table->timestamps();
         });
     }

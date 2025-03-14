@@ -4,6 +4,7 @@ namespace App\Filament\Resources\SaleResource\Pages;
 
 use App\Filament\Resources\SaleResource;
 use Filament\Actions;
+use Filament;
 use Filament\Resources\Pages\ViewRecord;
 
 class ViewSale extends ViewRecord
@@ -17,6 +18,15 @@ class ViewSale extends ViewRecord
             Actions\Action::make('complete')
                 ->label(trans('Completed'))
                 ->action(function ($record) {
+                    if ($record->status === 'completed') {
+                        Filament\Notifications\Notification::make()
+                            ->warning()
+                            ->title('Already Completed')
+                            ->body('This sale has already been moved to stock.')
+                            ->send();
+                        return;
+                    }
+
                     // Get All SalesItems
                     $saleItems = $record->saleItems;
 
@@ -24,7 +34,7 @@ class ViewSale extends ViewRecord
                     foreach ($saleItems as $item) {
                         $warehouseOutput = new \App\Models\WarehouseOutcome([
                             'reference_number' => 'SALE-' . $record->id,
-                            'warehouse_id' => $item->warehouse_id,
+                            'warehouse_id' => $record->warehouse_id,
                             'product_id' => $item->product_id,
                             'quantity' => $item->quantity,
                             'price' => $item->unit_price,
@@ -36,6 +46,7 @@ class ViewSale extends ViewRecord
                     // Create Input From CustomerStockIncome
                     foreach ($saleItems as $item) {
                         $customerStock = new \App\Models\CustomerStockIncome([
+                            'reference_number' => 'SALE-' . $record->id,
                             'customer_id' => $record->customer_id,
                             'product_id' => $item->product_id,
                             'quantity' => $item->quantity,
