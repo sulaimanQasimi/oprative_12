@@ -59,6 +59,7 @@ class SaleResource extends Resource
             'index' => Pages\ListSales::route('/'),
             'create' => Pages\CreateSale::route('/create'),
             'edit' => Pages\EditSale::route('/{record}/edit'),
+            'view' => Pages\ViewSale::route('/{record}'),
             'payments' => Pages\SalePayments::route('/{record}/payments'),
             'items' => Pages\SaleItems::route('/{record}/items'),
         ];
@@ -67,7 +68,7 @@ class SaleResource extends Resource
     public static function getRecordSubNavigation(\Filament\Resources\Pages\Page $page): array
     {
         return $page->generateNavigationItems([
-            // Pages\ViewSales::class,
+            Pages\ViewSale::class,
             Pages\EditSale::class,
             Pages\SalePayments::class, //
             Pages\SaleItems::class, //
