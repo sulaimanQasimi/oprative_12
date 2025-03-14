@@ -15,8 +15,39 @@ class ViewSale extends ViewRecord
         return [
             Actions\EditAction::make(),
             Actions\Action::make('complete')
-                ->label('Completed')
+                ->label(trans('Completed'))
                 ->action(function ($record) {
+                    // Get All SalesItems
+                    $saleItems = $record->saleItems;
+
+                    // Create Output Form Warehouse
+                    foreach ($saleItems as $item) {
+                        $warehouseOutput = new \App\Models\WarehouseOutcome([
+                            'warehouse_id' => $item->warehouse_id,
+                            'product_id' => $item->product_id,
+                            'quantity' => $item->quantity,
+                            'unit_price' => $item->unit_price,
+                            'total_price' => $item->total_price,
+                            'sale_id' => $record->id,
+                            'date' => now(),
+                        ]);
+                        $warehouseOutput->save();
+                    }
+
+                    // Create Input From CustomerStockIncome
+                    foreach ($saleItems as $item) {
+                        $customerStock = new \App\Models\CustomerStockIncome([
+                            'customer_id' => $record->customer_id,
+                            'product_id' => $item->product_id,
+                            'quantity' => $item->quantity,
+                            'unit_price' => $item->unit_price,
+                            'total_price' => $item->total_price,
+                            'sale_id' => $record->id,
+                            'date' => now(),
+                        ]);
+                        $customerStock->save();
+                    }
+
                     $record->status = 'completed';
                     $record->save();
                 })
