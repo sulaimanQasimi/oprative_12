@@ -88,7 +88,6 @@ class ProductResourceForm
                                             ->translateLabel()
                                             ->numeric()
                                             ->default(0)
-                                            ->disabled()
                                             ->live()
                                             ->afterStateUpdated(function ($state, $get, $set) {
                                                 $purchasePrice = floatval($get('purchase_price'));
@@ -103,7 +102,6 @@ class ProductResourceForm
                                             ->translateLabel()
                                             ->numeric()
                                             ->default(0)
-                                            ->disabled()
                                             ->live()
                                             ->afterStateUpdated(function ($state, $get, $set) {
                                                 $retailProfit = floatval($get('retail_profit'));

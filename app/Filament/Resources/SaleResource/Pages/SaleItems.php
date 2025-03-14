@@ -42,10 +42,6 @@ class SaleItems extends ManageRelatedRecords
     {
         return $form
         ->schema([
-            Forms\Components\Section::make('Item Details')
-                ->description('Add sale item details')
-                ->collapsible()
-                ->schema([
                     Forms\Components\Grid::make(2)
                         ->schema([
                             Forms\Components\Select::make('product_id')
@@ -58,7 +54,7 @@ class SaleItems extends ManageRelatedRecords
                                     if ($state) {
                                         $product = Product::find($state);
                                         if ($product) {
-                                            $set('unit_price', $product->whole_sale_price);
+                                            $set('unit_price', $product->wholesale_price);
                                         }
                                     }
                                 })
@@ -78,6 +74,11 @@ class SaleItems extends ManageRelatedRecords
                                 ->minValue(1)
                                 ->default(1)
                                 ->live(onBlur: true)
+                                ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
+                                    if ($state && $get('unit_price')) {
+                                        $set('total', $state * $get('unit_price'));
+                                    }
+                                })
                                 ->required()
                                 ->prefixIcon('heroicon-o-hashtag'),
 
@@ -88,6 +89,11 @@ class SaleItems extends ManageRelatedRecords
                                 ->minValue(0)
                                 ->required()
                                 ->live(onBlur: true)
+                                ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
+                                    if ($state && $get('quantity')) {
+                                        $set('total', $state * $get('quantity'));
+                                    }
+                                })
                                 ->mask('999999.99')
                                 ->prefixIcon('heroicon-o-currency-dollar'),
 
@@ -97,9 +103,9 @@ class SaleItems extends ManageRelatedRecords
                                 ->disabled()
                                 ->numeric()
                                 ->prefixIcon('heroicon-o-calculator'),
-                        ]),
-                ]),
-        ]);
+
+        ])
+    ]);
     }
 
     public function table(Table $table): Table
