@@ -28,11 +28,6 @@ class CustomerResourceTable
                     ->searchable()
                     ->label('Phone')
                     ->translateLabel(),
-                TextColumn::make('balance')
-                    ->money()
-                    ->sortable()
-                    ->label('Balance')
-                    ->translateLabel(),
                 ToggleColumn::make('status')
                     ->sortable()
                     ->label('Status')
