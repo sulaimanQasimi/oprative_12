@@ -35,6 +35,13 @@ class WarehouseIncome extends ManageRelatedRecords
     {
         return $table
             ->modifyQueryUsing(fn ($query) => $query->orderBy('created_at', 'desc'))
+            ->headerActions([
+                // Tables\Actions\Action::make('view_report')
+                //     ->label(__('View Report'))
+                //     ->url(fn () => route('filament.pages.warehouse-income-report'))
+                //     ->icon('heroicon-o-document-chart-bar')
+                //     ->color('success')
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('reference_number')
                     ->label('Reference Number')
