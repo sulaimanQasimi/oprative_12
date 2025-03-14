@@ -14,6 +14,14 @@ class ViewSale extends ViewRecord
     {
         return [
             Actions\EditAction::make(),
+            Actions\Action::make('complete')
+                ->label('Completed')
+                ->action(function ($record) {
+                    $record->status = 'completed';
+                    $record->save();
+                })
+                ->color('success')
+                ->icon('heroicon-o-check-circle'),
         ];
     }
 }
