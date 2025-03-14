@@ -38,12 +38,12 @@ class SaleResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return \App\Filament\Resources\Forms\SaleResourceForm::form($form);
+        return \App\Filament\Resources\SaleResource\Forms\SaleResourceForm::form($form);
     }
 
     public static function table(Table $table): Table
     {
-        return \App\Filament\Resources\Tables\SaleResourceTable::table($table);
+        return \App\Filament\Resources\SaleResource\Tables\SaleResourceTable::table($table);
     }
 
     public static function getRelations(): array

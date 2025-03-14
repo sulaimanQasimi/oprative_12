@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Resources\Tables;
+namespace App\Filament\Resources\SaleResource\Tables;
 
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -14,27 +14,47 @@ class SaleResourceTable
         return $table
             ->columns([
                 TextColumn::make('reference')
+                    ->label('Reference')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->translateLabel(),
                 TextColumn::make('customer.name')
+                    ->label('Customer')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->translateLabel(),
                 TextColumn::make('warehouse.name')
+                    ->label('Warehouse')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->translateLabel(),
                 TextColumn::make('currency.name')
+                    ->label('Currency')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->translateLabel(),
+                TextColumn::make('currency_rate')
+                    ->label('Currency Rate')
+                    ->numeric()
+                    ->sortable()
+                    ->translateLabel(),
                 TextColumn::make('total_amount')
+                    ->label('Total Amount')
                     ->money()
-                    ->sortable(),
+                    ->sortable()
+                    ->translateLabel(),
                 TextColumn::make('paid_amount')
+                    ->label('Paid Amount')
                     ->money()
-                    ->sortable(),
+                    ->sortable()
+                    ->translateLabel(),
                 TextColumn::make('due_amount')
+                    ->label('Due Amount')
                     ->money()
-                    ->sortable(),
+                    ->sortable()
+                    ->translateLabel(),
                 TextColumn::make('status')
+                    ->label('Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'completed' => 'success',
@@ -42,8 +62,10 @@ class SaleResourceTable
                         'cancelled' => 'danger',
                         default => 'info',
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->translateLabel(),
                 TextColumn::make('payment_status')
+                    ->label('Payment Status')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'paid' => 'success',
@@ -51,14 +73,19 @@ class SaleResourceTable
                         'overdue' => 'danger',
                         default => 'info',
                     })
-                    ->sortable(),
-                TextColumn::make('sale_date')
-                    ->dateTime()
-                    ->sortable(),
-                TextColumn::make('created_at')
+                    ->sortable()
+                    ->translateLabel(),
+                TextColumn::make('date')
+                    ->label('Date')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->translateLabel(),
+                TextColumn::make('created_at')
+                    ->label('Created At')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->translateLabel(),
             ])
             ->filters([
                 //
