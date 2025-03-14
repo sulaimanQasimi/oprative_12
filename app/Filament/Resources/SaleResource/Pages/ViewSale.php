@@ -14,7 +14,7 @@ class ViewSale extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make(),
+            ...($this->record->status !== 'completed' ? [Actions\EditAction::make()] : []),
             Actions\Action::make('complete')
                 ->label(trans('Completed'))
                 ->action(function ($record) {

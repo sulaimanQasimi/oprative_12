@@ -215,7 +215,8 @@ class SaleItems extends ManageRelatedRecords
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->label('Add Item')
-                    ->modalHeading('Add New Sale Item'),
+                    ->modalHeading('Add New Sale Item')
+                    ->hidden(fn () => $this->getOwnerRecord()->status === 'completed'),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
