@@ -53,6 +53,15 @@ class SaleItems extends ManageRelatedRecords
                                 ->searchable()
                                 ->preload()
                                 ->required()
+                                ->live()
+                                ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                    if ($state) {
+                                        $product = Product::find($state);
+                                        if ($product) {
+                                            $set('unit_price', $product->whole_sale_price);
+                                        }
+                                    }
+                                })
                                 ->createOptionForm([
                                     Forms\Components\TextInput::make('name')
                                         ->required(),
@@ -70,21 +79,6 @@ class SaleItems extends ManageRelatedRecords
                                 ->default(1)
                                 ->live(onBlur: true)
                                 ->required()
-                                ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
-                                    $price = floatval($get('unit_price') ?? 0);
-                                    $quantity = floatval($state);
-                                    $subtotal = $quantity * $price;
-
-                                    $taxPercentage = floatval($get('tax_percentage') ?? 0);
-                                    $discountPercentage = floatval($get('discount_percentage') ?? 0);
-
-                                    $taxAmount = ($subtotal * $taxPercentage) / 100;
-                                    $discountAmount = ($subtotal * $discountPercentage) / 100;
-
-                                    $set('tax_amount', round($taxAmount, 2));
-                                    $set('discount_amount', round($discountAmount, 2));
-                                    $set('subtotal', round($subtotal - $discountAmount + $taxAmount, 2));
-                                })
                                 ->prefixIcon('heroicon-o-hashtag'),
 
                             Forms\Components\TextInput::make('unit_price')
@@ -95,78 +89,9 @@ class SaleItems extends ManageRelatedRecords
                                 ->required()
                                 ->live(onBlur: true)
                                 ->mask('999999.99')
-                                ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
-                                    $quantity = floatval($get('quantity') ?? 0);
-                                    $price = floatval($state);
-                                    $subtotal = $quantity * $price;
-
-                                    $taxPercentage = floatval($get('tax_percentage') ?? 0);
-                                    $discountPercentage = floatval($get('discount_percentage') ?? 0);
-
-                                    $taxAmount = ($subtotal * $taxPercentage) / 100;
-                                    $discountAmount = ($subtotal * $discountPercentage) / 100;
-
-                                    $set('tax_amount', round($taxAmount, 2));
-                                    $set('discount_amount', round($discountAmount, 2));
-                                    $set('subtotal', round($subtotal - $discountAmount + $taxAmount, 2));
-                                })
                                 ->prefixIcon('heroicon-o-currency-dollar'),
 
-                            Forms\Components\TextInput::make('tax_percentage')
-                                ->label('Tax %')
-                                ->translateLabel()
-                                ->numeric()
-                                ->minValue(0)
-                                ->default(0)
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
-                                    $quantity = floatval($get('quantity') ?? 0);
-                                    $price = floatval($get('unit_price') ?? 0);
-                                    $subtotal = $quantity * $price;
-
-                                    $taxAmount = ($subtotal * floatval($state)) / 100;
-                                    $discountAmount = floatval($get('discount_amount') ?? 0);
-
-                                    $set('tax_amount', round($taxAmount, 2));
-                                    $set('subtotal', round($subtotal - $discountAmount + $taxAmount, 2));
-                                })
-                                ->prefixIcon('heroicon-o-receipt-percent'),
-
-                            Forms\Components\TextInput::make('discount_percentage')
-                                ->label('Discount %')
-                                ->translateLabel()
-                                ->numeric()
-                                ->minValue(0)
-                                ->default(0)
-                                ->live(onBlur: true)
-                                ->afterStateUpdated(function ($state, Forms\Get $get, Forms\Set $set) {
-                                    $quantity = floatval($get('quantity') ?? 0);
-                                    $price = floatval($get('unit_price') ?? 0);
-                                    $subtotal = $quantity * $price;
-
-                                    $discountAmount = ($subtotal * floatval($state)) / 100;
-                                    $taxAmount = floatval($get('tax_amount') ?? 0);
-
-                                    $set('discount_amount', round($discountAmount, 2));
-                                    $set('subtotal', round($subtotal - $discountAmount + $taxAmount, 2));
-                                })
-                                ->prefixIcon('heroicon-o-gift'),
-
-                            Forms\Components\TextInput::make('tax_amount')
-                                ->label('Tax Amount')
-                                ->translateLabel()
-                                ->disabled()
-                                ->numeric()
-                                ->prefixIcon('heroicon-o-calculator'),
-
-                            Forms\Components\TextInput::make('discount_amount')
-                                ->label('Discount Amount')
-                                ->translateLabel()
-                                ->disabled()
-                                ->numeric()
-                                ->prefixIcon('heroicon-o-calculator'),
-
-                            Forms\Components\TextInput::make('subtotal')
+                            Forms\Components\TextInput::make('total')
                                 ->label('Subtotal')
                                 ->translateLabel()
                                 ->disabled()
@@ -197,17 +122,7 @@ class SaleItems extends ManageRelatedRecords
                     ->money('usd')
                     ->sortable()
                     ->alignRight(),
-                Tables\Columns\TextColumn::make('tax_amount')
-                    ->label('Tax')
-                    ->money('usd')
-                    ->sortable()
-                    ->alignRight(),
-                Tables\Columns\TextColumn::make('discount_amount')
-                    ->label('Discount')
-                    ->money('usd')
-                    ->sortable()
-                    ->alignRight(),
-                Tables\Columns\TextColumn::make('subtotal')
+                Tables\Columns\TextColumn::make('total')
                     ->label('Subtotal')
                     ->money('usd')
                     ->sortable()
