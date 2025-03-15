@@ -11,6 +11,16 @@ class EditSale extends EditRecord
 {
     protected static string $resource = SaleResource::class;
 
+    public function getTitle(): string
+    {
+        return __('Purchase Payments');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Purchase Payments');
+    }
+
     public function mount($record): void
     {
         parent::mount($record);

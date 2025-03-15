@@ -27,17 +27,12 @@ class SalePayments extends ManageRelatedRecords
 
     public function getTitle(): string
     {
-        $totalAmount = $this->getOwnerRecord()->total_amount;
-        $paidAmount = $this->getOwnerRecord()->salePayments->sum('amount');
-        $remainingAmount = $totalAmount - $paidAmount;
-        $currencyCode = $this->getOwnerRecord()->currency->code;
-
-        return "Sale Payments - Remaining: {$currencyCode} " . number_format($remainingAmount, 2);
+        return __('Purchase Payments');
     }
 
     public static function getNavigationLabel(): string
     {
-        return 'Sale Payments';
+        return __('Purchase Payments');
     }
 
     public function form(Form $form): Form

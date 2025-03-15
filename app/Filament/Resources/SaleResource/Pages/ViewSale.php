@@ -11,6 +11,16 @@ class ViewSale extends ViewRecord
 {
     protected static string $resource = SaleResource::class;
 
+    public function getTitle(): string
+    {
+        return __('View Sale');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('View Sale');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

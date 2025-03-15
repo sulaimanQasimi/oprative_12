@@ -35,7 +35,7 @@ class SaleItems extends ManageRelatedRecords
 
     public static function getNavigationLabel(): string
     {
-        return 'Sale Items';
+        return __('Sale Items');
     }
 
     public function form(Form $form): Form
@@ -50,6 +50,7 @@ class SaleItems extends ManageRelatedRecords
                             ->preload()
                             ->required()
                             ->live()
+                            ->disabled(fn () => $this->getOwnerRecord()->status === 'completed')
                             ->afterStateUpdated(function ($state, Forms\Set $set) {
                                 if ($state) {
                                     $product = Product::find($state);
@@ -74,6 +75,7 @@ class SaleItems extends ManageRelatedRecords
                             ->minValue(1)
                             ->default(1)
                             ->live(onBlur: true)
+                            ->disabled(fn () => $this->getOwnerRecord()->status === 'completed')
                             ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
                                 if ($state && $get('unit_price')) {
                                     $set('total', $state * $get('unit_price'));
@@ -89,6 +91,7 @@ class SaleItems extends ManageRelatedRecords
                             ->minValue(0)
                             ->required()
                             ->live(onBlur: true)
+                            ->disabled(fn () => $this->getOwnerRecord()->status === 'completed')
                             ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
                                 if ($state && $get('quantity')) {
                                     $set('total', $state * $get('quantity'));
