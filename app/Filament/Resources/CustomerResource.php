@@ -119,6 +119,7 @@ class CustomerResource extends Resource
             'create' => Pages\CreateCustomer::route('/create'),
             'view' => Pages\ViewCustomer::route('/{record}'),
             'edit' => Pages\EditCustomer::route('/{record}/edit'),
+            'income' => Pages\CustomerIncome::route('/{record}/income'),
         ];
     }
 
@@ -133,6 +134,7 @@ class CustomerResource extends Resource
         return $page->generateNavigationItems([
             Pages\ViewCustomer::class,
             Pages\EditCustomer::class,
+            Pages\CustomerIncome::class
         ]);
     }
 }
