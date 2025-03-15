@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\WarehouseResource\Pages;
+namespace App\Filament\Resources\CustomerResource\Pages;
 
-use App\Filament\Resources\WarehouseResource;
+use App\Filament\Resources\CustomerResource;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Support\Enums\FontWeight;
@@ -11,9 +11,9 @@ use Filament\Tables\Table;
 
 class CustomerOutcome extends ManageRelatedRecords
 {
-    protected static string $resource = WarehouseResource::class;
+    protected static string $resource = CustomerResource::class;
 
-    protected static string $relationship = 'warehouseOutcome';
+    protected static string $relationship = 'customerStockOutcome';
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-down';
 
@@ -35,6 +35,13 @@ class CustomerOutcome extends ManageRelatedRecords
     {
         return $table
             ->modifyQueryUsing(fn ($query) => $query->orderBy('created_at', 'desc'))
+            ->headerActions([
+                // Tables\Actions\Action::make('view_report')
+                //     ->label(__('View Report'))
+                //     ->url(fn () => route('filament.pages.warehouse-income-report'))
+                //     ->icon('heroicon-o-document-chart-bar')
+                //     ->color('success')
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('reference_number')
                     ->label('Reference Number')
@@ -42,8 +49,8 @@ class CustomerOutcome extends ManageRelatedRecords
                     ->searchable()
                     ->sortable()
                     ->weight(FontWeight::Bold),
-                Tables\Columns\TextColumn::make('warehouse.name')
-                    ->label('Warehouse')
+                Tables\Columns\TextColumn::make('customer.name')
+                    ->label('Customer')
                     ->translateLabel()
                     ->searchable()
                     ->sortable(),
@@ -66,6 +73,11 @@ class CustomerOutcome extends ManageRelatedRecords
                     ->label('Total')
                     ->translateLabel()
                     ->money('AFN')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->label('Date')
+                    ->translateLabel()
+                    ->date()
                     ->sortable(),
             ]);
     }
