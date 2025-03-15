@@ -7,6 +7,7 @@ use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use App\Filament\Resources\ProductResource\Form\ProductResourceForm;
 use App\Filament\Resources\ProductResource\Tables\ProductResourceTable;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
 
-class ProductResource extends Resource
+class ProductResource extends Resource  implements HasShieldPermissions
 {
     // Model Configuration
     protected static ?string $model = Product::class;
@@ -34,6 +35,19 @@ class ProductResource extends Resource
     public static function getPluralModelLabel(): string
     {
         return __('Products');
+    }
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'delete',
+            'delete_any',
+            'publish'
+        ];
     }
 
     // Form and Table Methods
