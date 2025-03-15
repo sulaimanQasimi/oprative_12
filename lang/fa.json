@@ -179,5 +179,6 @@
     "Sale Completed": "فروش تکمیل شد",
     "Sale items have been successfully moved to customer stock.": "اقلام فروش با موفقیت به موجودی مشتری منتقل شد.",
     "Already Completed": "قبلاً تکمیل شده",
-    "This sale has already been moved to stock.": "این فروش قبلاً به موجودی منتقل شده است."
+    "This sale has already been moved to stock.": "این فروش قبلاً به موجودی منتقل شده است.",
+    "Move This to Customer Stock": "انتقال به موجودی مشتری"
 }
