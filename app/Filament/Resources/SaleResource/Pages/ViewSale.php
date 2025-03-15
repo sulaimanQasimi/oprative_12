@@ -16,7 +16,7 @@ class ViewSale extends ViewRecord
         return [
             ...($this->record->status !== 'completed' ? [Actions\EditAction::make()] : []),
             Actions\Action::make('complete')
-                ->label(trans('Completed'))
+                ->label(trans('Move This to Customer Stock'))
                 ->action(function ($record) {
                     if ($record->status === 'completed') {
                         Filament\Notifications\Notification::make()
