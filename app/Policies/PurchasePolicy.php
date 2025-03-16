@@ -13,7 +13,7 @@ class PurchasePolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->can('view_any_purchase');
     }
 
     /**
@@ -21,7 +21,10 @@ class PurchasePolicy
      */
     public function view(User $user, Purchase $purchase): bool
     {
-        return true;
+        if (!$purchase->status && !$user->can('view_any_purchase')) {
+            return false;
+        }
+        return $user->can('view_purchase');
     }
 
     /**
@@ -29,7 +32,7 @@ class PurchasePolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->can('create_purchase');
     }
 
     /**
@@ -37,7 +40,7 @@ class PurchasePolicy
      */
     public function update(User $user, Purchase $purchase): bool
     {
-        return true;
+        return $user->can('update_purchase');
     }
 
     /**
@@ -45,7 +48,7 @@ class PurchasePolicy
      */
     public function delete(User $user, Purchase $purchase): bool
     {
-        return true;
+        return $user->can('delete_purchase') || $user->can('delete_any_purchase');
     }
 
     /**
@@ -53,7 +56,7 @@ class PurchasePolicy
      */
     public function restore(User $user, Purchase $purchase): bool
     {
-        return true;
+        return $user->can('delete_any_purchase');
     }
 
     /**
@@ -61,6 +64,6 @@ class PurchasePolicy
      */
     public function forceDelete(User $user, Purchase $purchase): bool
     {
-        return true;
+        return $user->can('delete_any_purchase');
     }
 }
