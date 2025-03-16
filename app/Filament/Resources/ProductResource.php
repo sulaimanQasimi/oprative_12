@@ -46,7 +46,8 @@ class ProductResource extends Resource  implements HasShieldPermissions
             'update',
             'delete',
             'delete_any',
-            'publish'
+            'publish',
+            'view_widget',
         ];
     }
 

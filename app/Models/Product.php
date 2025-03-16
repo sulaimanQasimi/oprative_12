@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Filament\Resources\ProductResource;
+use App\Models\Contracts\HasResource;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
