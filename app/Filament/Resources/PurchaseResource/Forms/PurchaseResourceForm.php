@@ -108,11 +108,11 @@ class PurchaseResourceForm
                                         Forms\Components\TextInput::make('amount')
                                             ->label(__('Amount'))
                                             ->numeric()
-                                            ->default(0)
                                             ->live(debounce: 2000)
                                             ->prefixIcon('heroicon-o-currency-dollar'),
                                     ])->columns(2)
-                                    ->columnSpanFull(),
+                                    ->columnSpanFull()
+                                    ->default([]),
                             ]),
                     ]),
             ]);
