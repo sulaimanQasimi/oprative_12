@@ -55,7 +55,8 @@ class PurchaseResourceForm
                                     ->maxLength(255)
                                     ->prefixIcon('heroicon-o-currency-dollar')
                                     ->required()
-                                    ->numeric(),
+                                    ->numeric()
+                                    ->default(1),
                                 Forms\Components\Select::make('status')
                                     ->label('Status')
                                     ->translateLabel()
@@ -82,7 +83,7 @@ class PurchaseResourceForm
                                         'arrived',
                                         'warehouse_moved',
                                         'return',
-                                    ]),
+                                    ])->default('purchase'),
                                 Forms\Components\Select::make('warehouse_id')
                                     ->label('Warehouse')
                                     ->translateLabel()
