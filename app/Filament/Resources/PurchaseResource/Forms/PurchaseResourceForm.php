@@ -42,11 +42,13 @@ class PurchaseResourceForm
                                     ->required()
                                     ->unique('purchases', 'invoice_number', ignoreRecord: true),
                                 Forms\Components\DatePicker::make('invoice_date')
+                                    ->jalali()
                                     ->label('Invoice Date')
                                     ->translateLabel()
                                     ->prefixIcon('heroicon-o-calendar')
                                     ->required()
-                                    ->date(),
+                                    ->date()
+                                    ->default(now()),
                                 Forms\Components\TextInput::make('currency_rate')
                                     ->label('Currency Rate')
                                     ->translateLabel()
