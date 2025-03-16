@@ -33,7 +33,8 @@ class PurchaseResourceForm
                                     ->preload()
                                     ->prefixIcon('heroicon-o-currency-dollar')
                                     ->required()
-                                    ->exists('currencies', 'id'),
+                                    ->exists('currencies', 'id')
+                                    ->default(1),
                                 Forms\Components\TextInput::make('invoice_number')
                                     ->label('Invoice Number')
                                     ->translateLabel()

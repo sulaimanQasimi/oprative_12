@@ -35,7 +35,8 @@ class PurchaseResourceTable
                     ->label('Invoice Date')
                     ->translateLabel()
                     ->date()
-                    ->sortable(),
+                    ->sortable()
+                    ->jalaliDate(),
                 Tables\Columns\TextColumn::make('currency_rate')
                     ->label('Currency Rate')
                     ->translateLabel()
