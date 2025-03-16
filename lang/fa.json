@@ -74,6 +74,7 @@
     "Maximum Quantity": "حداکثر موجودی",
     "Purchase Details": "جزئیات خرید",
     "View Purchase": "مشاهده خرید",
+    "View Invoice": "مشاهده فاکتور",
     "Edit Purchase": "ویرایش خرید",
     "Purchase Payments": "پرداخت‌های خرید",
     "Purchase Items": "اقلام خرید",
@@ -180,6 +181,15 @@
     "Sale items have been successfully moved to customer stock.": "اقلام فروش با موفقیت به موجودی مشتری منتقل شد.",
     "Already Completed": "قبلاً تکمیل شده",
     "This sale has already been moved to stock.": "این فروش قبلاً به موجودی منتقل شده است.",
+    "Total Additional Costs": "مجموع هزینه‌های اضافی",
+    "Balance": "موجودی",
+    "Exchange Rate": "نرخ تبادل",
+    "Additional Cost": "هزینه اضافی",
     "Move This to Customer Stock": "انتقال به موجودی مشتری",
-    "View Sale": "مشاهده فروش"
+    "Move to Warehouse": "انتقال به گدام",
+    "Total Payment Amount": "مجموع مبلغ پرداختی",
+    "View Sale": "مشاهده فروش",
+    "Paid Amount": "مبلغ پرداخت شده",
+    "Update Product Price": "به‌روزرسانی قیمت محصول",
+    "Remaining Amount": "مبلغ باقیمانده"
 }

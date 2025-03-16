@@ -131,35 +131,9 @@ class PurchaseItemPageTable
                         Forms\Components\TextInput::make('purchase_price')
                             ->label(__('Purchase Price'))
                             ->numeric()
-                            ->default(fn (PurchaseItem $record): float => $record->price)
+                            ->default(fn(PurchaseItem $record): float => $record->price)
                             ->live(debounce: 2000)
-                            ->afterStateUpdated(function ($state, $get, $set) {
-                                $purchasePrice = floatval($state);
-                                $wholesaleProfit = floatval($get('wholesale_profit'));
-                                $set('wholesale_price', $purchasePrice + $wholesaleProfit);
-                            })->columnSpanFull()
-                            ->prefixIcon('heroicon-o-currency-dollar'),
-                        Forms\Components\TextInput::make('wholesale_profit')
-                            ->label(__('Wholesale Profit'))
-                            ->numeric()
-                            ->default(0)
-                            ->live(debounce: 2000)
-                            ->afterStateUpdated(function ($state, $get, $set) {
-                                $purchasePrice = floatval($get('purchase_price'));
-                                $wholesaleProfit = floatval($state);
-                                $set('wholesale_price', $purchasePrice + $wholesaleProfit);
-                            })
-                            ->prefixIcon('heroicon-o-currency-dollar'),
-                        Forms\Components\TextInput::make('retail_profit')
-                            ->label(__('Retail Profit'))
-                            ->numeric()
-                            ->default(0)
-                            ->live(debounce: 2000)
-                            ->afterStateUpdated(function ($state, $get, $set) {
-                                $retailProfit = floatval($state);
-                                $wholesalePrice = floatval($get('wholesale_price'));
-                                $set('retail_price', $wholesalePrice + $retailProfit);
-                            })
+                            ->columnSpanFull()
                             ->prefixIcon('heroicon-o-currency-dollar'),
                         Forms\Components\TextInput::make('wholesale_price')
                             ->label(__('Wholesale Price'))

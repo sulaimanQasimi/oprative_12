@@ -33,11 +33,13 @@ class ViewPurchase extends ViewRecord
                 ->visible(fn ($record) => $record->status !== 'warehouse_moved'),
             Actions\Action::make('viewInvoice')
                 ->label('View Invoice')
+                ->translateLabel()
                 ->icon('heroicon-o-document-text')
                 ->url(fn (Purchase $record): string => route('filament.admin.resources.purchases.invoice', $record))
                 ->openUrlInNewTab(),
             Actions\Action::make('moveToWarehouse')
                 ->label('Move to Warehouse')
+                ->translateLabel()
                 ->icon('heroicon-o-building-office')
                 ->requiresConfirmation()
                 ->visible(fn ($record) => $record->status === 'arrived' && !$record->is_moved_to_warehouse)
