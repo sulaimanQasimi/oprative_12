@@ -52,36 +52,7 @@ class ProductResourceForm
                                             ->numeric()
                                             ->default(0)
                                             ->live(debounce: 2000)
-                                            ->afterStateUpdated(function ($state, $get, $set) {
-                                                $purchasePrice = floatval($state);
-                                                $wholesaleProfit = floatval($get('wholesale_profit'));
-                                                $set('wholesale_price', $purchasePrice + $wholesaleProfit);
-                                            })->columnSpanFull()
-                                            ->prefixIcon('heroicon-o-currency-dollar'),
-                                        Forms\Components\TextInput::make('wholesale_profit')
-                                            ->label(__('Wholesale Profit'))
-                                            ->translateLabel()
-                                            ->numeric()
-                                            ->default(0)
-                                            ->live(debounce: 2000)
-                                            ->afterStateUpdated(function ($state, $get, $set) {
-                                                $purchasePrice = floatval($get('purchase_price'));
-                                                $wholesaleProfit = floatval($state);
-                                                $set('wholesale_price', $purchasePrice + $wholesaleProfit);
-                                            })
-                                            ->prefixIcon('heroicon-o-currency-dollar'),
-
-                                        Forms\Components\TextInput::make('retail_profit')
-                                            ->label(__('Retail Profit'))
-                                            ->translateLabel()
-                                            ->numeric()
-                                            ->default(0)
-                                            ->live(debounce: 2000)
-                                            ->afterStateUpdated(function ($state, $get, $set) {
-                                                $retailProfit = floatval($state);
-                                                $wholesalePrice = floatval($get('wholesale_price'));
-                                                $set('retail_price', $wholesalePrice + $retailProfit);
-                                            })
+                                            ->columnSpanFull()
                                             ->prefixIcon('heroicon-o-currency-dollar'),
                                         Forms\Components\TextInput::make('wholesale_price')
                                             ->label(__('Wholesale Price'))
@@ -89,12 +60,8 @@ class ProductResourceForm
                                             ->numeric()
                                             ->default(0)
                                             ->live()
-                                            ->afterStateUpdated(function ($state, $get, $set) {
-                                                $purchasePrice = floatval($get('purchase_price'));
-                                                $wholesaleProfit = floatval($get('wholesale_profit'));
-                                                $set('wholesale_price', $purchasePrice + $wholesaleProfit);
-                                            })->columnSpanFull()
-                                            ->prefixIcon('heroicon-o-currency-dollar'),
+                                            ->prefixIcon('heroicon-o-currency-dollar')
+                                            ->columnSpanFull(),
 
 
                                         Forms\Components\TextInput::make('retail_price')
@@ -103,12 +70,8 @@ class ProductResourceForm
                                             ->numeric()
                                             ->default(0)
                                             ->live()
-                                            ->afterStateUpdated(function ($state, $get, $set) {
-                                                $retailProfit = floatval($get('retail_profit'));
-                                                $wholesalePrice = floatval($get('wholesale_price'));
-                                                $set('retail_price', $wholesalePrice + $retailProfit);
-                                            })->columnSpanFull()
-                                            ->prefixIcon('heroicon-o-currency-dollar'),
+                                            ->prefixIcon('heroicon-o-currency-dollar')
+                                            ->columnSpanFull(),
 
                                     ])
                             ])->collapsible(),
