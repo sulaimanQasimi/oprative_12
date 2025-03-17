@@ -14,7 +14,7 @@ class ProductWarehouse extends ManageRelatedRecords
 
     protected static string $relationship = 'warehouseProducts';
 
-    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
+    protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
 
     protected static ?string $modelLabel = 'Purchase';
 
