@@ -75,28 +75,6 @@ class ProductResourceForm
 
                                     ])
                             ])->collapsible(),
-                        Forms\Components\Section::make(__('Status'))
-                            ->schema([
-                                Forms\Components\Grid::make(2)
-                                    ->schema([
-                                        Forms\Components\Toggle::make('is_activated')
-                                            ->label(__('Is Activated'))
-                                            ->translateLabel()
-                                            ->default(true),
-                                        Forms\Components\Toggle::make('is_in_stock')
-                                            ->label(__('Is In Stock'))
-                                            ->translateLabel()
-                                            ->default(true),
-                                        Forms\Components\Toggle::make('is_shipped')
-                                            ->label(__('Is Shipped'))
-                                            ->translateLabel()
-                                            ->default(false),
-                                        Forms\Components\Toggle::make('is_trend')
-                                            ->label(__('Is Trending'))
-                                            ->translateLabel()
-                                            ->default(false),
-                                    ])
-                            ])->collapsible(),
                         Forms\Components\Section::make(__('Media'))
                             ->schema([
                                 Forms\Components\FileUpload::make('image')

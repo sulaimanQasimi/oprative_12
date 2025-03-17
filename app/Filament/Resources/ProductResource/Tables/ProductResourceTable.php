@@ -26,27 +26,15 @@ class ProductResourceTable
                     ->label(__('Image')),
                 Tables\Columns\TextColumn::make('purchase_price')
                     ->label(__('Purchase Price'))
-                    ->money()
+                    ->money("AFN")
                     ->sortable(),
                 Tables\Columns\TextColumn::make('wholesale_price')
                     ->label(__('Wholesale Price'))
-                    ->money()
+                    ->money("AFN")
                     ->sortable(),
                 Tables\Columns\TextColumn::make('retail_price')
                     ->label(__('Retail Price'))
-                    ->money()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_activated')
-                    ->label(__('Active'))
-                    ->boolean()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_in_stock')
-                    ->label(__('In Stock'))
-                    ->boolean()
-                    ->sortable(),
-                Tables\Columns\IconColumn::make('is_trend')
-                    ->label(__('Trending'))
-                    ->boolean()
+                    ->money("AFN")
                     ->sortable(),
             ])
             ->filters([
