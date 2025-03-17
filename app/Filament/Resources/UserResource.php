@@ -52,10 +52,12 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label(__('user.table.name'))
+                    ->label('Name')
+                    ->translateLabel()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
-                    ->label(__('user.table.email'))
+                    ->label('Email')
+                    ->translateLabel()
                     ->searchable(),
             ])
             ->filters([
