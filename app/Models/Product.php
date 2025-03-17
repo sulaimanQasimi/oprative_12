@@ -48,4 +48,7 @@ class Product extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+    public function warehouseProducts(){
+        return $this->hasMany(WarehouseProduct::class);
+    }
 }

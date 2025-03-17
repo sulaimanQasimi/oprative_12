@@ -80,6 +80,7 @@ class ProductResource extends Resource  implements HasShieldPermissions
             'edit' => Pages\EditProduct::route('/{record}/edit'),
             'purchases' => Pages\ProductPurchases::route('/{record}/purchases'),
             'sales' => Pages\ProductSales::route('/{record}/sales'),
+            'warehouse' => Pages\ProductWarehouse::route('/{record}/warehouse'),
         ];
     }
 
@@ -91,6 +92,7 @@ class ProductResource extends Resource  implements HasShieldPermissions
             Pages\EditProduct::class,
             Pages\ProductPurchases::class,
             Pages\ProductSales::class,
+            Pages\ProductWarehouse::class,
         ]);
     }
 
