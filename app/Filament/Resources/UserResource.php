@@ -24,17 +24,24 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label('Name')
+                    ->translateLabel()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
+                    ->label('Email')
                     ->email()
+                    ->translateLabel()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('password')
+                    ->label('Password')
                     ->password()
+                    ->translateLabel()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('roles')
+                    ->label('Roles')
                     ->relationship('roles', 'name')
                     ->preload(),
             ]);
@@ -45,9 +52,10 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ,
+                    ->label(__('user.table.name'))
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label(__('user.table.email'))
                     ->searchable(),
             ])
             ->filters([
