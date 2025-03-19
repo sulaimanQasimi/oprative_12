@@ -55,7 +55,8 @@ class SaleResourceForm
                                     ->label('Date')
                                     ->required()
                                     ->before('tomorrow')
-                                    ->translateLabel(),
+                                    ->translateLabel()
+                                    ->jalili(),
                                 TextInput::make('reference')
                                     ->label('Reference')
                                     ->maxLength(255)
