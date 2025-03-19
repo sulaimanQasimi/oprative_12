@@ -77,6 +77,16 @@ class Dashboard extends Component
         };
     }
 
+    public function getStatusClassWithoutBg($status)
+    {
+        return match (true) {
+            $status === trans('Out of Stock') => 'bg-red-50/95 text-red-700',
+            $status === trans('Low Stock') => 'bg-yellow-50/95 text-yellow-700',
+            $status === trans('In Stock') => 'bg-green-50/95 text-green-700',
+            default => 'bg-gray-50/95 text-gray-700'
+        };
+    }
+
     public function openScanner()
     {
         $this->showScannerModal = true;

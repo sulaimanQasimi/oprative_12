@@ -35,10 +35,14 @@
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($customerStockProducts as $stockProduct)
-                        <div class="group relative transform transition-all duration-300 hover:-translate-y-1">
+                        <div class="group relative transform transition-all duration-300 hover:-translate-y-1" x-data="{ expanded: false }">
                             <div class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-xl blur-xl transition-all duration-300 group-hover:blur-2xl"></div>
-                            <div class="relative bg-white/95 p-5 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl border border-gray-100/50">
-                                <div class="flex items-center justify-between mb-4">
+                            <div class="relative p-5 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl border border-gray-100/50"
+                                :class="{
+                                    'bg-white/95': expanded,
+                                    [getStatusClassWithoutBg('{{ $stockProduct["status"] }}')]: !expanded
+                                }">
+                                <div class="flex items-center justify-between mb-4 cursor-pointer" @click="expanded = !expanded">
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-full flex items-center justify-center {{ $this->getStatusClass($stockProduct['status']) }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,56 +51,57 @@
                                         </div>
                                         <div>
                                             <h3 class="font-semibold text-gray-800">{{ $stockProduct['customer_name'] }}</h3>
-                                            <p class="text-sm text-gray-500">{{ $stockProduct['product_name'] }}</p>
-                                            <p class="text-xs text-gray-400">Barcode: {{ $stockProduct['barcode'] }}</p>
-                                            <div class="flex gap-2 mt-1">
-                                                <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">W: ${{ number_format($stockProduct['wholesale_price'], 2) }}</span>
-                                                <span class="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">R: ${{ number_format($stockProduct['retail_price'], 2) }}</span>
-                                            </div>
+                                            <div class="text-sm text-gray-500">Net Qty: {{ number_format($stockProduct['net_quantity']) }}</div>
                                         </div>
                                     </div>
-                                    <span class="px-3 py-1 rounded-full text-xs font-medium {{ $this->getStatusClass($stockProduct['status']) }}">
-                                        {{ ucfirst($stockProduct['status']) }}
-                                    </span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform transition-transform" :class="{ 'rotate-180': expanded }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
                                 </div>
-                                <div class="grid grid-cols-2 gap-4 mb-4">
-                                    <div class="bg-gray-50/50 p-3 rounded-lg">
-                                        <div class="text-sm text-gray-500 mb-1">Income</div>
-                                        <div class="flex justify-between items-end">
-                                            <div>
-                                                <div class="text-lg font-semibold text-gray-800">{{ number_format($stockProduct['income_quantity']) }}</div>
-                                                <div class="text-xs text-gray-500">Quantity</div>
+                                <div x-show="expanded" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-95">
+                                    <div class="mb-4">
+                                        <p class="text-sm text-gray-500">{{ $stockProduct['product_name'] }}</p>
+                                        <p class="text-xs text-gray-400">Barcode: {{ $stockProduct['barcode'] }}</p>
+                                        <div class="flex gap-2 mt-1">
+                                            <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">W: ${{ number_format($stockProduct['wholesale_price'], 2) }}</span>
+                                            <span class="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">R: ${{ number_format($stockProduct['retail_price'], 2) }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div class="bg-gray-50/50 p-3 rounded-lg">
+                                            <div class="text-sm text-gray-500 mb-1">Income</div>
+                                            <div class="flex justify-between items-end">
+                                                <div>
+                                                    <div class="text-lg font-semibold text-gray-800">{{ number_format($stockProduct['income_quantity']) }}</div>
+                                                    <div class="text-xs text-gray-500">Quantity</div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="text-lg font-semibold text-green-600">${{ number_format($stockProduct['income_total'], 2) }}</div>
+                                                    <div class="text-xs text-gray-500">Total</div>
+                                                </div>
                                             </div>
-                                            <div class="text-right">
-                                                <div class="text-lg font-semibold text-green-600">${{ number_format($stockProduct['income_total'], 2) }}</div>
-                                                <div class="text-xs text-gray-500">Total</div>
+                                        </div>
+                                        <div class="bg-gray-50/50 p-3 rounded-lg">
+                                            <div class="text-sm text-gray-500 mb-1">Outcome</div>
+                                            <div class="flex justify-between items-end">
+                                                <div>
+                                                    <div class="text-lg font-semibold text-gray-800">{{ number_format($stockProduct['outcome_quantity']) }}</div>
+                                                    <div class="text-xs text-gray-500">Quantity</div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <div class="text-lg font-semibold text-red-600">${{ number_format($stockProduct['outcome_total'], 2) }}</div>
+                                                    <div class="text-xs text-gray-500">Total</div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="bg-gray-50/50 p-3 rounded-lg">
-                                        <div class="text-sm text-gray-500 mb-1">Outcome</div>
-                                        <div class="flex justify-between items-end">
-                                            <div>
-                                                <div class="text-lg font-semibold text-gray-800">{{ number_format($stockProduct['outcome_quantity']) }}</div>
-                                                <div class="text-xs text-gray-500">Quantity</div>
-                                            </div>
+                                    <div class="border-t border-gray-100 pt-4">
+                                        <div class="flex justify-between items-center">
                                             <div class="text-right">
-                                                <div class="text-lg font-semibold text-red-600">${{ number_format($stockProduct['outcome_total'], 2) }}</div>
-                                                <div class="text-xs text-gray-500">Total</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="border-t border-gray-100 pt-4">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <div class="text-sm text-gray-500">Net Quantity</div>
-                                            <div class="text-lg font-semibold text-gray-800">{{ number_format($stockProduct['net_quantity']) }}</div>
-                                        </div>
-                                        <div class="text-right">
-                                            <div class="text-sm text-gray-500">Profit</div>
-                                            <div class="text-lg font-semibold {{ $stockProduct['profit'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                                                ${{ number_format($stockProduct['profit'], 2) }}
+                                                <div class="text-sm text-gray-500">Profit</div>
+                                                <div class="text-lg font-semibold {{ $stockProduct['profit'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                                    ${{ number_format($stockProduct['profit'], 2) }}
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
