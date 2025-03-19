@@ -40,12 +40,19 @@
                             <div class="relative bg-white/95 p-5 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl border border-gray-100/50">
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                                            <span class="text-lg font-semibold text-blue-600">{{ substr($stockProduct['customer_name'], 0, 1) }}</span>
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center {{ $this->getStatusClass($stockProduct['status']) }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                            </svg>
                                         </div>
                                         <div>
                                             <h3 class="font-semibold text-gray-800">{{ $stockProduct['customer_name'] }}</h3>
                                             <p class="text-sm text-gray-500">{{ $stockProduct['product_name'] }}</p>
+                                            <p class="text-xs text-gray-400">Barcode: {{ $stockProduct['barcode'] }}</p>
+                                            <div class="flex gap-2 mt-1">
+                                                <span class="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">W: ${{ number_format($stockProduct['wholesale_price'], 2) }}</span>
+                                                <span class="text-xs bg-purple-50 text-purple-600 px-2 py-0.5 rounded">R: ${{ number_format($stockProduct['retail_price'], 2) }}</span>
+                                            </div>
                                         </div>
                                     </div>
                                     <span class="px-3 py-1 rounded-full text-xs font-medium {{ $this->getStatusClass($stockProduct['status']) }}">
