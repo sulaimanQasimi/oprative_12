@@ -12,6 +12,8 @@ class ProductWarehouse extends ManageRelatedRecords
 {
     protected static string $resource = ProductResource::class;
 
+
+
     protected static string $relationship = 'warehouseProducts';
 
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
@@ -29,18 +31,28 @@ class ProductWarehouse extends ManageRelatedRecords
     {
         return trans('Product Warehouses');
     }
+    public function getTableRecordKey($record): string
+    {
+        return $record->product_id;
+    }
 
     public function table(Table $table): Table
     {
         return   $table
             ->modifyQueryUsing(fn($query) => $query->orderBy('product_id'))
             ->columns([
-                Tables\Columns\TextColumn::make('product.name')
-                    ->label('Product')
+                Tables\Columns\TextColumn::make('warehouse.name')
+                    ->label('Warehouse')
                     ->translateLabel()
                     ->searchable()
                     ->sortable()
                     ->weight(FontWeight::Bold),
+                    Tables\Columns\TextColumn::make('product.name')
+                        ->label('Product')
+                        ->translateLabel()
+                        ->searchable()
+                        ->sortable()
+                        ->weight(FontWeight::Bold),
                 Tables\Columns\TextColumn::make('income_quantity')
                     ->label('Income Qty')
                     ->translateLabel()

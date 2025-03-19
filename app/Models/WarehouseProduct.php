@@ -10,24 +10,6 @@ class WarehouseProduct extends Model
 {
     // use SoftDeletes;
     protected $table = 'warehouse_product_movements';
-
-    protected $primaryKey = 'id';
-    protected $fillable = [
-        'warehouse_id',
-        'product_id',
-        'quantity',
-        'minimum_quantity',
-        'maximum_quantity',
-        'is_active'
-    ];
-
-    protected $casts = [
-        'is_active' => 'boolean',
-        'quantity' => 'integer',
-        'minimum_quantity' => 'integer',
-        'maximum_quantity' => 'integer'
-    ];
-
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
@@ -38,8 +20,4 @@ class WarehouseProduct extends Model
         return $this->belongsTo(Product::class);
     }
 
-    // public function scopeActive($query)
-    // {
-    //     return $query->where('is_active', true);
-    // }
 }

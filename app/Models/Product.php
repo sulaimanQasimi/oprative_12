@@ -49,6 +49,6 @@ class Product extends Model
         return $this->hasMany(SaleItem::class);
     }
     public function warehouseProducts(){
-        return $this->hasMany(WarehouseProduct::class);
+        return $this->hasMany(WarehouseProduct::class,'product_id');
     }
 }
