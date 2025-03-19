@@ -42,7 +42,8 @@ class SaleResourceForm
                                     ->preload()
                                     ->required()
                                     ->exists('currencies', 'id')
-                                    ->translateLabel(),
+                                    ->translateLabel()
+                                    ->default(1),
                                 TextInput::make('currency_rate')
                                     ->label('Currency Rate')
                                     ->numeric()
@@ -50,13 +51,15 @@ class SaleResourceForm
                                     ->required()
                                     ->minValue(0.01)
                                     ->step(0.01)
-                                    ->translateLabel(),
+                                    ->translateLabel()
+                                    ->default(1),
                                 DateTimePicker::make('date')
                                     ->label('Date')
                                     ->required()
                                     ->before('tomorrow')
                                     ->translateLabel()
-                                    ->jalili(),
+                                    ->jalali()
+                                    ->default(now()),
                                 TextInput::make('reference')
                                     ->label('Reference')
                                     ->maxLength(255)
