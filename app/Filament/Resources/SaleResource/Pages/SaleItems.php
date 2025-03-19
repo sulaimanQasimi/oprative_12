@@ -50,7 +50,7 @@ class SaleItems extends ManageRelatedRecords
                             ->preload()
                             ->required()
                             ->live()
-                            ->disabled(fn () => $this->getOwnerRecord()->status === 'completed')
+                            ->disabled(fn() => $this->getOwnerRecord()->status === 'completed')
                             ->afterStateUpdated(function ($state, Forms\Set $set) {
                                 if ($state) {
                                     $product = Product::find($state);
@@ -75,7 +75,7 @@ class SaleItems extends ManageRelatedRecords
                             ->minValue(1)
                             ->default(1)
                             ->live(onBlur: true)
-                            ->disabled(fn () => $this->getOwnerRecord()->status === 'completed')
+                            ->disabled(fn() => $this->getOwnerRecord()->status === 'completed')
                             ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
                                 if ($state && $get('unit_price')) {
                                     $set('total', $state * $get('unit_price'));
@@ -91,19 +91,49 @@ class SaleItems extends ManageRelatedRecords
                             ->minValue(0)
                             ->required()
                             ->live(onBlur: true)
-                            ->disabled(fn () => $this->getOwnerRecord()->status === 'completed')
+                            ->disabled(fn() => $this->getOwnerRecord()->status === 'completed')
                             ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
                                 if ($state && $get('quantity')) {
                                     $set('total', $state * $get('quantity'));
                                 }
                             })
                             ->mask('999999.99')
-                            ->prefixIcon('heroicon-o-currency-dollar'),
+                            ->prefixIcon('heroicon-o-currency-dollar')
+                            ->suffixAction(
+                                Forms\Components\Actions\Action::make('selectPrice')
+                                    ->icon('heroicon-m-chevron-down')
+                                    ->label('Select Price')
+                                    ->disabled(fn() => $this->getOwnerRecord()->status === 'completed')
+                                    ->form([
+                                        Forms\Components\Select::make('price_type')
+                                            ->options([
+                                                'wholesale' => trans('Wholesale Price'),
+                                                'retail' => trans('Retail Price'),
+                                            ])
+                                            ->required()
+                                            ->label('Select Price Type')
+                                    ])
+                                    ->action(function (array $data, Forms\Set $set, $get) {
+                                        $productId = $get('product_id');
+                                        if ($productId) {
+                                            $product = Product::find($productId);
+                                            if ($product) {
+                                                $price = $data['price_type'] === 'wholesale'
+                                                    ? $product->wholesale_price
+                                                    : $product->retail_price;
+                                                $set('unit_price', $price);
+                                                if ($get('quantity')) {
+                                                    $set('total', $price * $get('quantity'));
+                                                }
+                                            }
+                                        }
+                                    })
+                            ),
 
                         Forms\Components\Hidden::make('price')
                             ->default(0),
                         Forms\Components\TextInput::make('total')
-                            ->label('Subtotal')
+                            ->label('Total')
                             ->translateLabel()
                             ->disabled()
                             ->numeric()
@@ -219,7 +249,7 @@ class SaleItems extends ManageRelatedRecords
                 Tables\Actions\CreateAction::make()
                     ->label('Add Item')
                     ->modalHeading('Add New Sale Item')
-                    ->hidden(fn () => $this->getOwnerRecord()->status === 'completed'),
+                    ->hidden(fn() => $this->getOwnerRecord()->status === 'completed'),
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
