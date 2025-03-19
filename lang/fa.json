@@ -98,6 +98,8 @@
     "Create": "ایجاد",
     "Back": "بازگشت",
     "Search": "جستجو",
+    "Select Price": "انتخاب قیمت",
+    "Select Price Type": "انتخاب نوع قیمت",
     "Filter": "فیلتر",
     "Reset": "بازنشانی",
     "Outcome": "رفت",
@@ -127,6 +129,7 @@
     "Category": "دسته‌بندی",
     "Stock": "موجودی",
     "Unit": "واحد",
+    "Unit Price": "قیمت واحد",
     "Code": "کد",
     "Reference": "مرجع",
     "Payment Status": "وضعیت پرداخت",
@@ -201,5 +204,6 @@
     "Warehouse Product Movements": "جابجایی محصولات گدام",
     "Update Product Price": "به‌روزرسانی قیمت محصول",
     "Remaining Amount": "مبلغ باقیمانده",
-    "Product Movements": "جابجایی محصولات"
+    "Product Movements": "جابجایی محصولات",
+        "Add Item": "افزودن"
 }

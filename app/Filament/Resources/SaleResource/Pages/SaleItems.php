@@ -27,10 +27,7 @@ class SaleItems extends ManageRelatedRecords
 
     public function getTitle(): string
     {
-        $totalAmount = $this->getOwnerRecord()->total_amount;
-        $currencyCode = $this->getOwnerRecord()->currency->code;
-
-        return "Sale Items - Total: {$currencyCode} " . number_format($totalAmount, 2);
+        return __('Sale Items');
     }
 
     public static function getNavigationLabel(): string
@@ -46,6 +43,8 @@ class SaleItems extends ManageRelatedRecords
                     ->schema([
                         Forms\Components\Select::make('product_id')
                             ->relationship('product', 'name')
+                            ->label('Product')
+                            ->translateLabel()
                             ->searchable()
                             ->preload()
                             ->required()
@@ -103,6 +102,7 @@ class SaleItems extends ManageRelatedRecords
                                 Forms\Components\Actions\Action::make('selectPrice')
                                     ->icon('heroicon-m-chevron-down')
                                     ->label('Select Price')
+                                    ->translateLabel()
                                     ->disabled(fn() => $this->getOwnerRecord()->status === 'completed')
                                     ->form([
                                         Forms\Components\Select::make('price_type')
@@ -112,6 +112,7 @@ class SaleItems extends ManageRelatedRecords
                                             ])
                                             ->required()
                                             ->label('Select Price Type')
+                                            ->translateLabel()
                                     ])
                                     ->action(function (array $data, Forms\Set $set, $get) {
                                         $productId = $get('product_id');
@@ -248,7 +249,9 @@ class SaleItems extends ManageRelatedRecords
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->label('Add Item')
-                    ->modalHeading('Add New Sale Item')
+                    ->translateLabel()
+                    ->modalHeading('')
+
                     ->hidden(fn() => $this->getOwnerRecord()->status === 'completed'),
             ])
             ->actions([
