@@ -63,9 +63,14 @@ class SaleResourceForm
                                 TextInput::make('reference')
                                     ->label('Reference')
                                     ->maxLength(255)
+                                    ->default(function () {
+                                        $latestSale = \App\Models\Sale::latest()->first();
+                                        $nextId = $latestSale ? (intval(substr($latestSale->reference, -4)) + 1) : 1;
+                                        return 'Store-' . now()->format('Ymd') . '-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                                    })
+                                    ->disabled()
+                                    ->dehydrated()
                                     ->unique(ignoreRecord: true)
-                                    ->regex('/^[A-Za-z0-9-]+$/')
-                                    ->helperText(trans('Only letters, numbers, and hyphens are allowed'))
                                     ->translateLabel(),
                                 Select::make('status')
                                     ->label('Status')
