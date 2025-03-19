@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\MarketOrder;
 use App\Models\MarketOrderItem;
 use App\Models\Product;
+use Illuminate\Support\Str;
 
 class MarketOrderCreate extends Component
 {
@@ -13,7 +14,17 @@ class MarketOrderCreate extends Component
     public $scannedBarcode = '';
     public $scanSuccess = false;
     public $orderItems = [];
+    public $subtotal = 0;
+    public $taxRate = 0.1; // 10% tax rate
+    public $taxAmount = 0;
+    public $discountAmount = 0;
     public $total = 0;
+    public $amountPaid = 0;
+    public $changeDue = 0;
+    public $paymentMethod = 'cash';
+    public $notes = '';
+    public $currentOrderId = null;
+    public $orderCreated = false;
 
     protected $listeners = ['closeModalAfterSuccess' => 'closeScanner'];
 
@@ -94,33 +105,81 @@ class MarketOrderCreate extends Component
 
     public function calculateTotal()
     {
-        $this->total = collect($this->orderItems)->sum('total');
+        $this->subtotal = collect($this->orderItems)->sum('total');
+        $this->taxAmount = round($this->subtotal * $this->taxRate, 2);
+        $this->total = $this->subtotal + $this->taxAmount - $this->discountAmount;
+        $this->calculateChange();
+    }
+
+    public function calculateChange()
+    {
+        $this->changeDue = max(0, $this->amountPaid - $this->total);
+    }
+
+    public function updatedAmountPaid()
+    {
+        $this->calculateChange();
+    }
+
+    public function applyDiscount($amount)
+    {
+        $this->discountAmount = min($amount, $this->subtotal);
+        $this->calculateTotal();
     }
 
     public function createOrder()
     {
-        if (empty($this->orderItems)) {
-            return;
-        }
+        if ($this->currentOrderId) {
+            if (empty($this->orderItems) || $this->amountPaid < $this->total) {
+                return;
+            }
 
-        $order = MarketOrder::create([
-            'total_amount' => $this->total,
-            'status' => 'pending'
-        ]);
+            $order = MarketOrder::find($this->currentOrderId);
+            if (!$order) {
+                return;
+            }
 
-        foreach ($this->orderItems as $item) {
-            MarketOrderItem::create([
-                'market_order_id' => $order->id,
-                'product_id' => $item['product_id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-                'total' => $item['total']
+            $order->update([
+                'subtotal' => $this->subtotal,
+                'tax_amount' => $this->taxAmount,
+                'discount_amount' => $this->discountAmount,
+                'total_amount' => $this->total,
+                'payment_method' => $this->paymentMethod,
+                'payment_status' => $this->amountPaid >= $this->total ? 'paid' : 'partial',
+                'order_status' => 'completed',
+                'notes' => $this->notes
             ]);
-        }
 
-        $this->orderItems = [];
-        $this->total = 0;
-        $this->dispatch('orderCreated');
+            foreach ($this->orderItems as $item) {
+                MarketOrderItem::create([
+                    'market_order_id' => $order->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'total' => $item['total']
+                ]);
+            }
+
+            $this->reset(['orderItems', 'subtotal', 'taxAmount', 'discountAmount', 'total',
+                         'amountPaid', 'changeDue', 'paymentMethod', 'notes', 'currentOrderId', 'orderCreated']);
+            $this->dispatch('orderCreated');
+        } else {
+            $order = MarketOrder::create([
+                'order_number' => 'POS-' . Str::random(8),
+                'customer_id' => 1, // Default customer for now
+                'subtotal' => 0,
+                'tax_amount' => 0,
+                'discount_amount' => 0,
+                'total_amount' => 0,
+                'payment_method' => 'cash',
+                'payment_status' => 'pending',
+                'order_status' => 'pending',
+                'notes' => ''
+            ]);
+
+            $this->currentOrderId = $order->id;
+            $this->orderCreated = true;
+        }
     }
 
     public function render()

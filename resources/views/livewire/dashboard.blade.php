@@ -1,17 +1,5 @@
 
 <div class="container mx-auto p-4 lg:p-6">
-    <livewire:market-order-create />
-    <!-- Header Section -->
-    <header class="mb-8 flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-800">POS Dashboard</h1>
-        <button wire:click="openScanner" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2m0 0H8m4 0h4m-4-8v1m-6 0a9 9 0 1018 0 9 9 0 00-18 0z" />
-            </svg>
-            Scan Barcode
-        </button>
-    </header>
-
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Table Layout Section (3 columns) -->
@@ -182,6 +170,8 @@
             </div>
         </div>
     </div>
+    <livewire:market-order-create />
+
 </div>
 @script
 <script>

@@ -1,12 +1,15 @@
 <div class="bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg">
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-semibold text-gray-700">Create Market Order</h2>
-        <button wire:click="openScanner" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2m0 0H8m4 0h4m-4-8v1m-6 0a9 9 0 1018 0 9 9 0 00-18 0z" />
-            </svg>
-            Scan Product
-        </button>
+        <div class="flex items-center gap-4">
+            <h2 class="text-xl font-semibold text-gray-700">Create Market Order</h2>
+            <button wire:click="createOrder" @class([
+                'px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1',
+                'bg-gradient-to-r from-green-500 to-emerald-600 text-white' => $amountPaid >= $total,
+                'bg-gray-300 text-gray-500 cursor-not-allowed' => empty($orderItems) || $amountPaid < $total
+            ])>
+                {{ empty($orderItems) ? 'Add Items to Order' : ($amountPaid >= $total ? 'Create Order' : 'Enter Full Payment') }}
+            </button>
+        </div>
     </div>
 
     <!-- Order Items -->
@@ -54,17 +57,69 @@
         @endforelse
     </div>
 
-    <!-- Order Summary -->
+    <!-- Order Summary and Checkout -->
     @if(count($orderItems) > 0)
-        <div class="border-t border-gray-200 pt-4 mb-6">
-            <div class="flex justify-between items-center text-lg font-semibold text-gray-800">
-                <span>Total Amount:</span>
-                <span>${{ number_format($total, 2) }}</span>
+        <div class="border-t border-gray-200 pt-4 mb-6 space-y-4">
+            <!-- Order Summary -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center text-gray-600">
+                    <span>Subtotal:</span>
+                    <span>${{ number_format($subtotal, 2) }}</span>
+                </div>
+                <div class="flex justify-between items-center text-gray-600">
+                    <span>Tax (10%):</span>
+                    <span>${{ number_format($taxAmount, 2) }}</span>
+                </div>
+                <div class="flex justify-between items-center text-gray-600">
+                    <span>Discount:</span>
+                    <span>-${{ number_format($discountAmount, 2) }}</span>
+                </div>
+                <div class="flex justify-between items-center text-lg font-semibold text-gray-800 pt-2 border-t">
+                    <span>Total Amount:</span>
+                    <span>${{ number_format($total, 2) }}</span>
+                </div>
             </div>
+
+            <!-- Payment Section -->
+            <div class="bg-gray-50 p-4 rounded-xl space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Payment Method</label>
+                        <select wire:model.live="paymentMethod" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            <option value="cash">Cash</option>
+                            <option value="card">Card</option>
+                            <option value="bank_transfer">Bank Transfer</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-sm font-medium text-gray-700">Amount Paid</label>
+                        <input type="number" wire:model.live="amountPaid" step="0.01" min="0" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="0.00">
+                    </div>
+                </div>
+
+                @if($changeDue > 0)
+                    <div class="bg-green-50 p-3 rounded-lg">
+                        <div class="flex justify-between items-center text-green-700 font-medium">
+                            <span>Change Due:</span>
+                            <span>${{ number_format($changeDue, 2) }}</span>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Notes</label>
+                    <textarea wire:model="notes" rows="2" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Add any notes about the order..."></textarea>
+                </div>
+            </div>
+
+            <button wire:click="createOrder" @class([
+                'w-full py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1',
+                'bg-gradient-to-r from-blue-500 to-purple-600 text-white' => $amountPaid >= $total,
+                'bg-gray-300 text-gray-500 cursor-not-allowed' => $amountPaid < $total
+            ])>
+                {{ $amountPaid >= $total ? 'Complete Order' : 'Enter Full Payment' }}
+            </button>
         </div>
-        <button wire:click="createOrder" class="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1">
-            Create Order
-        </button>
     @endif
 
     <!-- Barcode Scanner Modal -->
