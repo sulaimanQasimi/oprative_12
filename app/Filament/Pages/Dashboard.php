@@ -4,14 +4,12 @@ namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
 use App\Filament\Resources\WarehouseResource\Widgets\WarehouseProductWidget;
+use Filament\Pages\Dashboard as PagesDashboard;
 
-class Dashboard extends Page
+class Dashboard extends PagesDashboard
 {
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.pages.dashboard';
-
-    protected function getWidgets(): array
+    public function getWidgets(): array
     {
         return [
             WarehouseProductWidget::class,
