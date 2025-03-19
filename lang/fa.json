@@ -167,6 +167,9 @@
     "Product Sales": "فروش‌های محصول",
     "Product Warehouses": " محصول گدام‌ها",
     "Income": "امد",
+    "Income Quantity": "تعداد ورودی",
+    "Outcome Quantity": "تعداد خروجی",
+    "Remaining Quantity": "تعداد باقیمانده",
     "Income Qty": "تعداد ورودی",
     "Income Price": "قیمت ورودی",
     "Income Total": "مجموع ورودی",
@@ -195,6 +198,8 @@
     "Total Payment Amount": "مجموع مبلغ پرداختی",
     "View Sale": "مشاهده فروش",
     "Paid Amount": "مبلغ پرداخت شده",
+    "Warehouse Product Movements": "جابجایی محصولات گدام",
     "Update Product Price": "به‌روزرسانی قیمت محصول",
-    "Remaining Amount": "مبلغ باقیمانده"
+    "Remaining Amount": "مبلغ باقیمانده",
+    "Product Movements": "جابجایی محصولات"
 }
