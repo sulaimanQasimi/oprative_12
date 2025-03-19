@@ -42,7 +42,11 @@ class SaleItems extends ManageRelatedRecords
                 Forms\Components\Grid::make(2)
                     ->schema([
                         Forms\Components\Select::make('product_id')
-                            ->relationship('product', 'name')
+                            ->relationship('product', 'name', fn ($query) =>
+                                $query->whereHas('warehouseProducts', function ($query) {
+                                    $query->where('net_quantity', '>', 0);
+                                })
+                            )
                             ->label('Product')
                             ->translateLabel()
                             ->searchable()
@@ -75,12 +79,33 @@ class SaleItems extends ManageRelatedRecords
                             ->default(1)
                             ->live(onBlur: true)
                             ->disabled(fn() => $this->getOwnerRecord()->status === 'completed')
+                            ->maxValue(function ($get) {
+                                $productId = $get('product_id');
+                                if ($productId) {
+                                    $product = Product::find($productId);
+                                    if ($product) {
+                                        return $product->warehouseProducts()->sum('net_quantity');
+                                    }
+                                }
+                                return null;
+                            })
                             ->afterStateUpdated(function ($state, Forms\Set $set, $get) {
                                 if ($state && $get('unit_price')) {
                                     $set('total', $state * $get('unit_price'));
                                 }
                             })
                             ->required()
+                            ->helperText(function ($get) {
+                                $productId = $get('product_id');
+                                if ($productId) {
+                                    $product = Product::find($productId);
+                                    if ($product) {
+                                        $netQuantity = $product->warehouseProducts()->sum('net_quantity');
+                                        return __('Available in warehouse: :quantity', ['quantity' => $netQuantity]);
+                                    }
+                                }
+                                return null;
+                            })
                             ->prefixIcon('heroicon-o-hashtag'),
 
                         Forms\Components\TextInput::make('unit_price')

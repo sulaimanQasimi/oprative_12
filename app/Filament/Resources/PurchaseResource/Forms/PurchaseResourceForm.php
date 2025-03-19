@@ -40,7 +40,13 @@ class PurchaseResourceForm
                                     ->translateLabel()
                                     ->maxLength(255)
                                     ->prefixIcon('heroicon-o-document-text')
-                                    ->required()
+                                    ->default(function () {
+                                        $latestPurchase = \App\Models\Purchase::latest()->first();
+                                        $nextId = $latestPurchase ? (intval(substr($latestPurchase->invoice_number, -4)) + 1) : 1;
+                                        return 'INV-' . now()->format('Ymd') . '-' . str_pad($nextId, 4, '0', STR_PAD_LEFT);
+                                    })
+                                    ->disabled()
+                                    ->dehydrated()
                                     ->unique('purchases', 'invoice_number', ignoreRecord: true),
                                 Forms\Components\DatePicker::make('invoice_date')
                                     ->jalali()

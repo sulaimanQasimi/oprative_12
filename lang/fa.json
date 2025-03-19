@@ -205,5 +205,6 @@
     "Update Product Price": "به‌روزرسانی قیمت محصول",
     "Remaining Amount": "مبلغ باقیمانده",
     "Product Movements": "جابجایی محصولات",
-        "Add Item": "افزودن"
+        "Add Item": "افزودن",
+    "Available in warehouse: :quantity": "موجودی در گدام: :quantity"
 }

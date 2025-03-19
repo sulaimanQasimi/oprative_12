@@ -30,6 +30,7 @@ class Dashboard extends Component
     private function getStockStatus($quantity)
     {
         return match (true) {
+            is_null($quantity) => 'out_of_stock',
             $quantity <= 0 => 'out_of_stock',
             $quantity < 10 => 'low_stock',
             default => 'in_stock',
@@ -59,6 +60,8 @@ class Dashboard extends Component
             'in_stock' => 'bg-green-100 text-green-700',
             'out_of_stock' => 'bg-red-100 text-red-700',
             'low_stock' => 'bg-yellow-100 text-yellow-700',
+            null, '' => 'bg-gray-100 text-gray-700',
+            default => 'bg-gray-100 text-gray-700'
         };
     }
 
