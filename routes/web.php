@@ -9,5 +9,10 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
+// Inventory Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/inventory/dashboard/{warehouse}', \App\Livewire\Inventory\Dashboard::class)->name('inventory.dashboard');
+});
+
 require __DIR__.'/auth.php';
 require __DIR__.'/purchase.php';
