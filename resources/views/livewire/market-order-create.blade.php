@@ -1,19 +1,46 @@
 <div class="bg-white/80 backdrop-blur-lg rounded-2xl p-6 shadow-lg">
     <div class="flex justify-between items-center mb-6">
         <div class="flex items-center gap-4">
-            <h2 class="text-xl font-semibold text-gray-700">Create Market Order</h2>
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">Create Market Order</h2>
+                    <p class="text-sm text-gray-500">Manage your sales transactions</p>
+                </div>
+            </div>
             <button wire:click="createOrder" @class([
-                'px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1',
-                'bg-gradient-to-r from-green-500 to-emerald-600 text-white' => !$currentOrderId || ($currentOrderId && $amountPaid >= $total),
+                'px-6 py-2.5 rounded-xl font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 flex items-center gap-2',
+                'bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700' => !$currentOrderId || ($currentOrderId && $amountPaid >= $total),
                 'bg-gray-300 text-gray-500 cursor-not-allowed' => $currentOrderId && (empty($orderItems) || $amountPaid < $total)
             ])>
                 @if(!$currentOrderId)
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
                     Create New Order
                 @else
-                    {{ empty($orderItems) ? 'Add Items to Order' : ($amountPaid >= $total ? 'Complete Order' : 'Enter Full Payment') }}
+                    @if(empty($orderItems))
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Add Items to Order
+                    @elseif($amountPaid >= $total)
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Complete Order
+                    @else
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Enter Full Payment
+                    @endif
                 @endif
             </button>
-
         </div>
     </div>
 
