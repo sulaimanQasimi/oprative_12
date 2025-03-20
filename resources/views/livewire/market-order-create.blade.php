@@ -4,12 +4,81 @@
             <h2 class="text-xl font-semibold text-gray-700">Create Market Order</h2>
             <button wire:click="createOrder" @class([
                 'px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1',
-                'bg-gradient-to-r from-green-500 to-emerald-600 text-white' => $amountPaid >= $total,
-                'bg-gray-300 text-gray-500 cursor-not-allowed' => empty($orderItems) || $amountPaid < $total
+                'bg-gradient-to-r from-green-500 to-emerald-600 text-white' => !$currentOrderId || ($currentOrderId && $amountPaid >= $total),
+                'bg-gray-300 text-gray-500 cursor-not-allowed' => $currentOrderId && (empty($orderItems) || $amountPaid < $total)
             ])>
-                {{ empty($orderItems) ? 'Add Items to Order' : ($amountPaid >= $total ? 'Create Order' : 'Enter Full Payment') }}
+                @if(!$currentOrderId)
+                    Create New Order
+                @else
+                    {{ empty($orderItems) ? 'Add Items to Order' : ($amountPaid >= $total ? 'Complete Order' : 'Enter Full Payment') }}
+                @endif
             </button>
+
         </div>
+    </div>
+
+    <!-- Product Search -->
+    <div class="mb-6 relative">
+        <div class="flex items-center bg-white/90 rounded-xl shadow-sm overflow-hidden border border-gray-300 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500">
+            <div class="flex-shrink-0 pl-4 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+            </div>
+            <input type="text"
+                wire:model.live="searchQuery"
+                wire:keydown.escape="closeDropdown"
+                wire:keydown.tab="closeDropdown"
+                wire:keydown.arrow-down="incrementHighlight"
+                wire:keydown.arrow-up="decrementHighlight"
+                wire:keydown.enter.prevent="selectProduct"
+                class="w-full py-3 px-4 outline-none text-gray-600 placeholder-gray-400 bg-transparent"
+                placeholder="Search products...">
+        </div>
+@dump($searchResults)
+        @if($searchQuery && $showDropdown)
+            <div class="absolute z-50 w-full mt-1 bg-white rounded-xl shadow-lg border border-gray-200 max-h-96 overflow-y-auto">
+                @forelse($searchResults as $index => $product)
+                    <div class="flex justify-between items-center w-full">
+                        <button wire:click="selectProduct({{ $index }})"
+                        @class([
+                            'w-full px-4 py-3 flex items-start hover:bg-gray-50 transition-colors duration-150',
+                            'bg-gray-50' => $highlightIndex === $index
+                        ])>
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3">
+                                @if($product['image'])
+                                    <img src="{{ $product['image'] }}" alt="{{ $product['name'] }}" class="w-12 h-12 object-cover rounded-lg">
+                                @endif
+                                <div>
+                                    <h4 class="font-medium text-gray-800">{{ $product['name'] }}</h4>
+                                    <p class="text-sm text-gray-500">SKU: {{ $product['sku'] }}</p>
+                                </div>
+                            </div>
+                            <div class="mt-1 flex items-center gap-4 text-sm">
+                                <span class="text-green-600 font-medium">${{ number_format($product['price'], 2) }}</span>
+                                <span class="text-gray-500">Stock: {{ $product['stock'] }}</span>
+                            </div>
+                        </div>
+                        <div class="flex-shrink-0 self-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </button>
+                    @if($currentOrderId)
+                        <button wire:click="saveToOrder({{ $index }})" class="ml-4 px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-200">
+                            Save to Order
+                        </button>
+                    @endif
+                    </div>
+                @empty
+                    <div class="px-4 py-3 text-sm text-gray-500 text-center">
+                        No products found
+                    </div>
+                @endforelse
+            </div>
+        @endif
     </div>
 
     <!-- Order Items -->
@@ -114,61 +183,19 @@
 
             <button wire:click="createOrder" @class([
                 'w-full py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1',
-                'bg-gradient-to-r from-blue-500 to-purple-600 text-white' => $amountPaid >= $total,
-                'bg-gray-300 text-gray-500 cursor-not-allowed' => $amountPaid < $total
+                'bg-gradient-to-r from-blue-500 to-purple-600 text-white' => $currentOrderId && $amountPaid >= $total,
+                'bg-gray-300 text-gray-500 cursor-not-allowed' => !$currentOrderId || ($currentOrderId && $amountPaid < $total)
             ])>
-                {{ $amountPaid >= $total ? 'Complete Order' : 'Enter Full Payment' }}
+                {{ $currentOrderId ? ($amountPaid >= $total ? 'Complete Order' : 'Enter Full Payment') : 'Create Order First' }}
             </button>
         </div>
     @endif
 
-    <!-- Barcode Scanner Modal -->
-    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50" x-show="$wire.showScannerModal" x-cloak>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg">
-            <div class="bg-white/90 backdrop-blur-lg rounded-2xl p-6 shadow-2xl mx-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold">Scan Product</h3>
-                    <button wire:click="closeScanner" class="text-gray-500 hover:text-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-                <div class="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-                    <div class="text-center p-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2m0 0H8m4 0h4m-4-8v1m-6 0a9 9 0 1018 0 9 9 0 00-18 0z" />
-                        </svg>
-                        <p class="text-gray-600">Place barcode in front of the scanner</p>
-                        <input type="text" wire:model.live="scannedBarcode" wire:keydown.enter="processBarcode" class="sr-only" autofocus>
-                    </div>
-                </div>
-                @if($scanSuccess)
-                    <div class="mb-4 p-4 bg-green-50 rounded-lg">
-                        <div class="flex items-center gap-3 text-green-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span>Product added successfully!</span>
-                        </div>
-                    </div>
-                @endif
-                <button wire:click="closeScanner" class="w-full bg-gray-200 text-gray-700 py-2 rounded-xl hover:bg-gray-300 transition-colors">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 @script
 <script>
-    $wire.on('closeModalAfterSuccess', () => {
-        setTimeout(() => {
-            $wire.closeScanner();
-        }, 1000);
-    });
-
     $wire.on('orderCreated', () => {
         // You can add any additional UI feedback here
     });

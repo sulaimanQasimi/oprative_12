@@ -10,8 +10,10 @@ class MarketOrderItem extends Model
         'market_order_id',
         'product_id',
         'quantity',
-        'price',
-        'total'
+        'unit_price',
+        'subtotal',
+        'discount_amount',
+        'notes'
     ];
 
     public function order()

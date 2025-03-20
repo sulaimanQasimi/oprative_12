@@ -126,4 +126,76 @@ class Dashboard extends Component
     {
         return view('livewire.dashboard');
     }
+
+    public $searchQuery = '';
+    public $searchResults = [];
+    public $showDropdown = false;
+    public $highlightIndex = 0;
+
+    public function updatedSearchQuery()
+    {
+        if (strlen($this->searchQuery) > 0) {
+            $this->searchResults = CustomerStockProduct::with('product')
+                ->whereHas('product', function ($query) {
+                    $query->where('name', 'like', '%' . $this->searchQuery . '%')
+                        ->orWhere('barcode', 'like', '%' . $this->searchQuery . '%');
+                })
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'name' => $item->product->name,
+                        'sku' => $item->product->sku,
+                        'price' => $item->product->retail_price,
+                        'stock' => $item->net_quantity,
+                        'image' => $item->product->image
+                    ];
+                })
+                ->toArray();
+            $this->showDropdown = true;
+            $this->highlightIndex = 0;
+        } else {
+            $this->searchResults = [];
+            $this->showDropdown = false;
+        }
+    }
+
+    public function incrementHighlight()
+    {
+        if ($this->highlightIndex === count($this->searchResults) - 1) {
+            $this->highlightIndex = 0;
+            return;
+        }
+        $this->highlightIndex++;
+    }
+
+    public function decrementHighlight()
+    {
+        if ($this->highlightIndex === 0) {
+            $this->highlightIndex = count($this->searchResults) - 1;
+            return;
+        }
+        $this->highlightIndex--;
+    }
+
+    public function selectProduct($index = null)
+    {
+        $index = $index ?? $this->highlightIndex;
+        if (!isset($this->searchResults[$index])) return;
+
+        $selectedProduct = $this->searchResults[$index];
+        $this->cartItems[] = [
+            'name' => $selectedProduct['name'],
+            'quantity' => 1,
+            'price' => $selectedProduct['price'],
+            'current_stock' => $selectedProduct['stock']
+        ];
+
+        $this->searchQuery = '';
+        $this->showDropdown = false;
+    }
+
+    public function closeDropdown()
+    {
+        $this->showDropdown = false;
+    }
 }

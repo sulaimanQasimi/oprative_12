@@ -26,7 +26,116 @@ class MarketOrderCreate extends Component
     public $currentOrderId = null;
     public $orderCreated = false;
 
+    public $searchQuery = '';
+    public $searchResults = [];
+    public $showDropdown = false;
+    public $highlightIndex = 0;
+
     protected $listeners = ['closeModalAfterSuccess' => 'closeScanner'];
+
+    public function updatedSearchQuery()
+    {
+        if (strlen($this->searchQuery) > 0) {
+            $this->searchResults = Product::where('name', 'like', '%' . $this->searchQuery . '%')
+                ->orWhere('barcode', 'like', '%' . $this->searchQuery . '%')
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'name' => $item->name,
+                        'sku' => $item->sku,
+                        'price' => $item->retail_price,
+                        'stock' => $item->quantity,
+                        'image' => $item->image
+                    ];
+                })
+                ->toArray();
+            $this->showDropdown = true;
+            $this->highlightIndex = 0;
+        } else {
+            $this->searchResults = [];
+            $this->showDropdown = false;
+        }
+    }
+
+    public function incrementHighlight()
+    {
+        if ($this->highlightIndex === count($this->searchResults) - 1) {
+            $this->highlightIndex = 0;
+            return;
+        }
+        $this->highlightIndex++;
+    }
+
+    public function decrementHighlight()
+    {
+        if ($this->highlightIndex === 0) {
+            $this->highlightIndex = count($this->searchResults) - 1;
+            return;
+        }
+        $this->highlightIndex--;
+    }
+
+    public function selectProduct($index = null)
+    {
+        $index = $index ?? $this->highlightIndex;
+        if (!isset($this->searchResults[$index])) return;
+
+        $selectedProduct = $this->searchResults[$index];
+        $product = Product::where('name', $selectedProduct['name'])->first();
+        if (!$product) return;
+
+        $existingItem = collect($this->orderItems)->firstWhere('product_id', $product->id);
+
+        if ($existingItem) {
+            $this->orderItems = collect($this->orderItems)->map(function ($item) use ($selectedProduct) {
+                if ($item['name'] === $selectedProduct['name']) {
+                    $item['quantity'] += 1;
+                    $item['total'] = $item['quantity'] * $item['price'];
+                }
+                return $item;
+            })->toArray();
+        } else {
+            $this->orderItems[] = [
+                'product_id' => $product->id,
+                'name' => $selectedProduct['name'],
+                'price' => $selectedProduct['price'],
+                'quantity' => 1,
+                'total' => $selectedProduct['price']
+            ];
+        }
+
+        $this->calculateTotal();
+        $this->searchQuery = '';
+        $this->showDropdown = false;
+    }
+
+    public function saveToOrder($index)
+    {
+        if (!$this->currentOrderId || !isset($this->searchResults[$index])) return;
+
+        $selectedProduct = $this->searchResults[$index];
+        $product = Product::where('name', $selectedProduct['name'])->first();
+
+        if (!$product) return;
+        dd($selectedProduct);
+        // MarketOrderItem::create([
+        //     'market_order_id' => $this->currentOrderId,
+        //     'product_id' => $product->id,
+        //     'quantity' => 1,
+        //     'unit_price' => $selectedProduct['price'],
+        //     'subtotal' => $selectedProduct['price'],
+        //     'discount_amount' => 0
+        // ]);
+
+        // $this->searchQuery = '';
+        // $this->showDropdown = false;
+        // $this->redirect(request()->header('Referer'));
+    }
+
+    public function closeDropdown()
+    {
+        $this->showDropdown = false;
+    }
 
     public function openScanner()
     {
@@ -155,8 +264,9 @@ class MarketOrderCreate extends Component
                     'market_order_id' => $order->id,
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                    'total' => $item['total']
+                    'unit_price' => $item['price'],
+                    'subtotal' => $item['total'],
+                    'discount_amount' => 0
                 ]);
             }
 
