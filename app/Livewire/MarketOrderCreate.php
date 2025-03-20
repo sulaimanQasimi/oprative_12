@@ -218,6 +218,7 @@ class MarketOrderCreate extends Component
         $this->subtotal = collect($this->orderItems)->sum('total');
         $this->taxAmount = round($this->subtotal * $this->taxRate, 2);
         $this->total = $this->subtotal + $this->taxAmount - $this->discountAmount;
+        $this->amountPaid = $this->total;
         $this->calculateChange();
     }
 

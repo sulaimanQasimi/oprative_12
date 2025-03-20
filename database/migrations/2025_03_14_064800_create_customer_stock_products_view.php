@@ -30,21 +30,40 @@ return new class extends Migration
             // The view helps track inventory movements and financial metrics per product per warehouse
             DB::statement("
                 CREATE VIEW customer_stock_product_movements AS
+                WITH income_summary AS (
+                    SELECT
+                        product_id,
+                        customer_id,
+                        SUM(quantity) as income_quantity,
+                        SUM(price) as income_price,
+                        SUM(total) as income_total
+                    FROM customer_stock_incomes
+                    GROUP BY product_id, customer_id
+                ),
+                outcome_summary AS (
+                    SELECT
+                        product_id,
+                        customer_id,
+                        SUM(quantity) as outcome_quantity,
+                        SUM(price) as outcome_price,
+                        SUM(total) as outcome_total
+                    FROM customer_stock_outcomes
+                    GROUP BY product_id, customer_id
+                )
                 SELECT
-                    wi.product_id,
-                    wi.customer_id,
-                    COALESCE(SUM(wi.quantity), 0) as income_quantity,
-                    COALESCE(SUM(wi.price), 0) as income_price,
-                    COALESCE(SUM(wi.total), 0) as income_total,
-                    COALESCE(SUM(wo.quantity), 0) as outcome_quantity,
-                    COALESCE(SUM(wo.price), 0) as outcome_price,
-                    COALESCE(SUM(wo.total), 0) as outcome_total,
-                    COALESCE(SUM(wi.quantity), 0) - COALESCE(SUM(wo.quantity), 0) as net_quantity,
-                    COALESCE(SUM(wi.total), 0) - COALESCE(SUM(wo.total), 0) as net_total,
-                    COALESCE(SUM(wi.total), 0) - COALESCE(SUM(wo.total), 0) as profit
-                FROM customer_stock_incomes wi
-                LEFT JOIN customer_stock_outcomes wo ON wi.product_id = wo.product_id AND wi.customer_id = wo.customer_id
-                GROUP BY wi.product_id, wi.customer_id
+                    i.product_id,
+                    i.customer_id,
+                    COALESCE(i.income_quantity, 0) as income_quantity,
+                    COALESCE(i.income_price, 0) as income_price,
+                    COALESCE(i.income_total, 0) as income_total,
+                    COALESCE(o.outcome_quantity, 0) as outcome_quantity,
+                    COALESCE(o.outcome_price, 0) as outcome_price,
+                    COALESCE(o.outcome_total, 0) as outcome_total,
+                    COALESCE(i.income_quantity, 0) - COALESCE(o.outcome_quantity, 0) as net_quantity,
+                    COALESCE(i.income_total, 0) - COALESCE(o.outcome_total, 0) as net_total,
+                    COALESCE(i.income_total, 0) - COALESCE(o.outcome_total, 0) as profit
+                FROM income_summary i
+                LEFT JOIN outcome_summary o ON i.product_id = o.product_id AND i.customer_id = o.customer_id
             ");
     }
 
