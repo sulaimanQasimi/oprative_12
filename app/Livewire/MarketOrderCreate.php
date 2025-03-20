@@ -286,6 +286,7 @@ class MarketOrderCreate extends Component
             $this->reset(['orderItems', 'subtotal', 'taxAmount', 'discountAmount', 'total',
                          'amountPaid', 'changeDue', 'paymentMethod', 'notes', 'currentOrderId', 'orderCreated']);
             $this->dispatch('orderCreated');
+            $this->dispatch('refreshDashboard');
         } else {
             $order = MarketOrder::create([
                 'order_number' => 'POS-' . Str::random(8),
@@ -302,6 +303,7 @@ class MarketOrderCreate extends Component
 
             $this->currentOrderId = $order->id;
             $this->orderCreated = true;
+
         }
     }
 

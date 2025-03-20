@@ -15,13 +15,16 @@ class Dashboard extends Component
     public $scannedBarcode = '';
     public $scanSuccess = false;
     public $selectedCustomer = null;
-
+    protected $listeners = [
+        'closeModalAfterSuccess' => 'closeScanner',
+        'refreshDashboard' => 'loadCustomerStockProducts'
+    ];
     public function mount()
     {
         $this->loadCustomerStockProducts();
     }
 
-    private function loadCustomerStockProducts()
+    public function loadCustomerStockProducts()
     {
         // Load customer stock movement statistics from the database with product details
         $this->customerStockProducts = CustomerStockProduct::with('product')->get()->map(function ($item) {
