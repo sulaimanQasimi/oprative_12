@@ -49,8 +49,8 @@
         <div class="mb-6 relative">
             <div class="group relative">
                 <div class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl blur-xl transition-all duration-300 group-hover:blur-2xl"></div>
-                <div class="relative flex items-center bg-white/90 rounded-xl shadow-sm overflow-hidden border border-gray-200 focus-within:border-green-500 focus-within:ring-1 focus-within:ring-green-500 transition-all duration-200">
-                    <div class="flex-shrink-0 pl-4 text-gray-400">
+                <div class="relative flex items-center bg-white/95 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200/50 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-500/20 transition-all duration-300">
+                    <div class="flex-shrink-0 pl-4 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
@@ -62,48 +62,54 @@
                         wire:keydown.arrow-down="incrementHighlight"
                         wire:keydown.arrow-up="decrementHighlight"
                         wire:keydown.enter.prevent="selectProduct"
-                        class="w-full py-4 px-4 outline-none text-gray-600 placeholder-gray-400 bg-transparent text-lg"
+                        class="w-full py-4 px-4 outline-none text-gray-700 placeholder-gray-400 bg-transparent text-lg font-medium"
                         placeholder="Search products by name, SKU, or barcode..."
                         autofocus
                         x-data
                         x-init="$nextTick(() => $el.focus())">
                     <div class="flex-shrink-0 pr-4">
-                        <div class="text-xs text-gray-400 font-medium">Press Enter to select</div>
+                        <div class="text-xs text-gray-400 font-medium flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                            Press Enter to select
+                        </div>
                     </div>
                 </div>
             </div>
             @if($searchQuery && $showDropdown)
-                <div class="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-lg rounded-xl shadow-xl border border-gray-200/50 max-h-96 overflow-y-auto transform transition-all duration-200 ease-out">
+                <div class="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-lg rounded-xl shadow-2xl border border-gray-200/50 max-h-96 overflow-y-auto transform transition-all duration-300 ease-out">
                     @forelse($searchResults as $index => $product)
-                        <div class="group relative transform transition-all duration-200 hover:-translate-y-0.5">
-                            <div class="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                        <div class="group relative transform transition-all duration-300 hover:-translate-y-0.5">
+                            <div class="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                             <div class="relative flex justify-between items-center w-full">
                                 <button wire:click="selectProduct({{ $index }})" @class([
-                                    'w-full px-4 py-3 flex items-start transition-all duration-200',
-                                    'bg-green-50/50' => $highlightIndex === $index,
+                                    'w-full px-4 py-3 flex items-start transition-all duration-300',
+                                    'bg-green-50/80' => $highlightIndex === $index,
                                     'hover:bg-gray-50/50' => $highlightIndex !== $index
                                 ])>
                                     <div class="flex-1">
                                         <div class="flex items-center gap-3">
                                             @if($product['image'])
                                                 <div class="relative">
+                                                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                                     <img src="{{ $product['image'] }}" alt="{{ $product['name'] }}"
-                                                        class="w-12 h-12 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-shadow duration-200">
+                                                        class="w-12 h-12 object-cover rounded-lg shadow-sm group-hover:shadow-md transition-all duration-300">
                                                     @if($product['stock'] <= 5)
-                                                        <div class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full shadow-sm">
+                                                        <div class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full shadow-sm animate-pulse">
                                                             Low Stock
                                                         </div>
                                                     @endif
                                                 </div>
                                             @else
-                                                <div class="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center group-hover:from-green-50 group-hover:to-emerald-50 transition-all duration-300">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-green-500 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                     </svg>
                                                 </div>
                                             @endif
                                             <div>
-                                                <h4 class="font-medium text-gray-800 group-hover:text-green-600 transition-colors duration-200">{{ $product['name'] }}</h4>
+                                                <h4 class="font-medium text-gray-800 group-hover:text-green-600 transition-colors duration-300">{{ $product['name'] }}</h4>
                                                 <p class="text-sm text-gray-500">SKU: {{ $product['sku'] }}</p>
                                             </div>
                                         </div>
@@ -113,15 +119,15 @@
                                         </div>
                                     </div>
                                     <div class="flex-shrink-0 self-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-green-500 transition-colors duration-200" fill="none"
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-green-500 transition-colors duration-300" fill="none"
                                             viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                         </svg>
                                     </div>
                                 </button>
                                 <button wire:click="saveToOrder({{ $index }})"
-                                    class="ml-4 mr-4 px-4 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-200 shadow-sm hover:shadow-md flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    class="ml-4 mr-4 px-4 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2 group">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                     </svg>
                                     Add
@@ -130,7 +136,7 @@
                         </div>
                     @empty
                         <div class="px-6 py-8 text-center">
-                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
