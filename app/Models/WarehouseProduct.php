@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WarehouseProduct extends Model
 {
@@ -20,4 +21,15 @@ class WarehouseProduct extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function warehouseIncome(): HasMany
+    {
+        return $this->hasMany(WarehouseIncome::class, 'product_id', 'product_id')
+            ->where('warehouse_id', $this->warehouse_id);
+    }
+
+    public function warehouseOutcome(): HasMany
+    {
+        return $this->hasMany(WarehouseOutcome::class, 'product_id', 'product_id')
+            ->where('warehouse_id', $this->warehouse_id);
+    }
 }
