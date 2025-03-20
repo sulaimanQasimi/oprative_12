@@ -146,39 +146,60 @@
                                         </div>
 
                                         <div class="grid grid-cols-2 gap-4 mb-6">
-                                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100">
-                                                <div class="flex items-center gap-2 text-sm text-green-600 mb-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                    </svg>
-                                                    <span class="font-medium">Total Income</span>
-                                                </div>
-                                                <div class="flex justify-between items-end">
-                                                    <div>
-                                                        <div class="text-2xl font-bold text-gray-800">{{ number_format($item->warehouseIncome()->sum('quantity') ?? 0) }}</div>
-                                                        <div class="text-xs text-gray-500">Quantity</div>
+                                            <!-- Income Card -->
+                                            <div class="group relative transform transition-all duration-300 hover:-translate-y-1">
+                                                <div class="absolute inset-0 bg-gradient-to-br from-green-400/10 to-emerald-400/10 rounded-xl blur-xl transition-all duration-300 group-hover:blur-2xl"></div>
+                                                <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-4 rounded-xl border border-green-100 relative backdrop-blur-xl transition-all duration-300 hover:shadow-lg">
+                                                    <div class="flex items-center gap-2 text-sm text-green-600 mb-3">
+                                                        <div class="p-2 bg-green-100 rounded-lg transition-all duration-300 group-hover:bg-green-200">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                        </div>
+                                                        <span class="font-medium transition-all duration-300 group-hover:text-green-700">Total Income</span>
                                                     </div>
-                                                    <div class="text-right">
-                                                        <div class="text-2xl font-bold text-green-600">${{ number_format($item->warehouseIncome()->sum('total') ?? 0, 2) }}</div>
-                                                        <div class="text-xs text-gray-500">Total</div>
+                                                    <div class="flex justify-between items-end">
+                                                        <div>
+                                                            <div class="text-base font-bold text-gray-800 transition-all duration-300 group-hover:text-gray-900">
+                                                                {{ number_format($item->warehouseIncome()->sum('quantity') ?? 0, 0, '.', ',') }}
+                                                            </div>
+                                                            <div class="text-xs text-gray-500 font-medium transition-all duration-300 group-hover:text-gray-600">Quantity</div>
+                                                        </div>
+                                                        <div class="text-right">
+                                                            <div class="font-mono text-base font-bold text-green-600 transition-all duration-300 group-hover:text-green-700">
+                                                                ${{ number_format($item->warehouseIncome()->sum('total') ?? 0, 2, '.', ',') }}
+                                                            </div>
+                                                            <div class="text-xs text-gray-500 font-medium transition-all duration-300 group-hover:text-gray-600">Total</div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="bg-gradient-to-br from-red-50 to-rose-50 p-4 rounded-xl border border-red-100">
-                                                <div class="flex items-center gap-2 text-sm text-red-600 mb-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                                    </svg>
-                                                    <span class="font-medium">Total Outcome</span>
-                                                </div>
-                                                <div class="flex justify-between items-end">
-                                                    <div>
-                                                        <div class="text-2xl font-bold text-gray-800">{{ number_format($item->warehouseOutcome()->sum('quantity') ?? 0) }}</div>
-                                                        <div class="text-xs text-gray-500">Quantity</div>
+                                            
+                                            <!-- Outcome Card -->
+                                            <div class="group relative transform transition-all duration-300 hover:-translate-y-1">
+                                                <div class="absolute inset-0 bg-gradient-to-br from-red-400/10 to-rose-400/10 rounded-xl blur-xl transition-all duration-300 group-hover:blur-2xl"></div>
+                                                <div class="bg-gradient-to-br from-red-50 to-rose-50 p-4 rounded-xl border border-red-100 relative backdrop-blur-xl transition-all duration-300 hover:shadow-lg">
+                                                    <div class="flex items-center gap-2 text-sm text-red-600 mb-3">
+                                                        <div class="p-2 bg-red-100 rounded-lg transition-all duration-300 group-hover:bg-red-200">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                                            </svg>
+                                                        </div>
+                                                        <span class="font-medium transition-all duration-300 group-hover:text-red-700">Total Outcome</span>
                                                     </div>
-                                                    <div class="text-right">
-                                                        <div class="text-2xl font-bold text-red-600">${{ number_format($item->warehouseOutcome()->sum('total') ?? 0, 2) }}</div>
-                                                        <div class="text-xs text-gray-500">Total</div>
+                                                    <div class="flex justify-between items-end">
+                                                        <div>
+                                                            <div class="text-base font-bold text-gray-800 transition-all duration-300 group-hover:text-gray-900">
+                                                                {{ number_format($item->warehouseOutcome()->sum('quantity') ?? 0, 0, '.', ',') }}
+                                                            </div>
+                                                            <div class="text-xs text-gray-500 font-medium transition-all duration-300 group-hover:text-gray-600">Quantity</div>
+                                                        </div>
+                                                        <div class="text-right">
+                                                            <div class="font-mono text-base font-bold text-red-600 transition-all duration-300 group-hover:text-red-700">
+                                                                ${{ number_format($item->warehouseOutcome()->sum('total') ?? 0, 2, '.', ',') }}
+                                                            </div>
+                                                            <div class="text-xs text-gray-500 font-medium transition-all duration-300 group-hover:text-gray-600">Total</div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

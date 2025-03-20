@@ -18,30 +18,42 @@ return new class extends Migration
         // The view helps track inventory movements and financial metrics per product per warehouse
         DB::statement("DROP VIEW IF EXISTS warehouse_product_movements");
 
-        // This view calculates product movement statistics across warehouses
-        // It combines income and outcome data to show:
-        // - Total incoming quantities, prices and totals
-        // - Total outgoing quantities, prices and totals
-        // - Net quantities (income - outcome)
-        // - Net totals and profit calculations
-        // The view helps track inventory movements and financial metrics per product per warehouse
         DB::statement("
             CREATE VIEW warehouse_product_movements AS
+            WITH income_summary AS (
+                SELECT
+                    product_id,
+                    warehouse_id,
+                    SUM(quantity) as income_quantity,
+                    SUM(price) as income_price,
+                    SUM(total) as income_total
+                FROM warehouse_incomes
+                GROUP BY product_id, warehouse_id
+            ),
+            outcome_summary AS (
+                SELECT
+                    product_id,
+                    warehouse_id,
+                    SUM(quantity) as outcome_quantity,
+                    SUM(price) as outcome_price,
+                    SUM(total) as outcome_total
+                FROM warehouse_outcomes
+                GROUP BY product_id, warehouse_id
+            )
             SELECT
-                wi.product_id,
-                wi.warehouse_id,
-                COALESCE(SUM(wi.quantity), 0) as income_quantity,
-                COALESCE(SUM(wi.price), 0) as income_price,
-                COALESCE(SUM(wi.total), 0) as income_total,
-                COALESCE(SUM(wo.quantity), 0) as outcome_quantity,
-                COALESCE(SUM(wo.price), 0) as outcome_price,
-                COALESCE(SUM(wo.total), 0) as outcome_total,
-                COALESCE(SUM(wi.quantity), 0) - COALESCE(SUM(wo.quantity), 0) as net_quantity,
-                COALESCE(SUM(wi.total), 0) - COALESCE(SUM(wo.total), 0) as net_total,
-                COALESCE(SUM(wi.total), 0) - COALESCE(SUM(wo.total), 0) as profit
-            FROM warehouse_incomes wi
-            LEFT JOIN warehouse_outcomes wo ON wi.product_id = wo.product_id AND wi.warehouse_id = wo.warehouse_id
-            GROUP BY wi.product_id, wi.warehouse_id
+                i.product_id,
+                i.warehouse_id,
+                COALESCE(i.income_quantity, 0) as income_quantity,
+                COALESCE(i.income_price, 0) as income_price,
+                COALESCE(i.income_total, 0) as income_total,
+                COALESCE(o.outcome_quantity, 0) as outcome_quantity,
+                COALESCE(o.outcome_price, 0) as outcome_price,
+                COALESCE(o.outcome_total, 0) as outcome_total,
+                COALESCE(i.income_quantity, 0) - COALESCE(o.outcome_quantity, 0) as net_quantity,
+                COALESCE(i.income_total, 0) - COALESCE(o.outcome_total, 0) as net_total,
+                COALESCE(i.income_total, 0) - COALESCE(o.outcome_total, 0) as profit
+            FROM income_summary i
+            LEFT JOIN outcome_summary o ON i.product_id = o.product_id AND i.warehouse_id = o.warehouse_id
         ");
     }
 
