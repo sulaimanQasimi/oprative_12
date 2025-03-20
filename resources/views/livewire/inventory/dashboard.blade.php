@@ -1,41 +1,62 @@
 <div>
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
                 <!-- Warehouse Title Section -->
-                <div class="relative mb-8">
-                    <!-- Background gradient effect -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-green-500/10 rounded-2xl blur-3xl"></div>
+                <div class="relative mb-8" x-data="{ hovered: false }">
+                    <!-- Animated background gradient effect -->
+                    <div class="absolute inset-0 bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-green-500/10 rounded-2xl blur-3xl transition-all duration-1000"
+                        :class="{ 'blur-2xl scale-105': hovered, 'blur-3xl': !hovered }">
+                    </div>
 
-                    <!-- Main container -->
-                    <div class="relative bg-white/90 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20">
-                        <!-- Decorative elements -->
-                        <div class="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full blur-2xl -translate-x-16 -translate-y-16"></div>
-                        <div class="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-full blur-2xl translate-x-16 translate-y-16"></div>
+                    <!-- Main container with hover effects -->
+                    <div class="relative bg-white/90 backdrop-blur-xl rounded-2xl p-6 shadow-xl border border-white/20 transition-all duration-500 transform"
+                        :class="{ 'scale-[1.02] shadow-2xl': hovered, 'scale-100 shadow-xl': !hovered }"
+                        @mouseenter="hovered = true"
+                        @mouseleave="hovered = false">
+                        <!-- Animated decorative elements -->
+                        <div class="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full blur-2xl transition-all duration-1000"
+                            :class="{ 'translate-x-0 translate-y-0 scale-110': hovered, '-translate-x-16 -translate-y-16': !hovered }">
+                        </div>
+                        <div class="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-full blur-2xl transition-all duration-1000"
+                            :class="{ 'translate-x-0 translate-y-0 scale-110': hovered, 'translate-x-16 translate-y-16': !hovered }">
+                        </div>
 
-                        <!-- Content -->
+                        <!-- Content with enhanced animations -->
                         <div class="relative flex items-center justify-between">
                             <div class="flex items-center gap-4">
-                                <!-- Icon -->
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/20">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <!-- Animated Icon -->
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-green-500/20 transition-all duration-500 transform"
+                                    :class="{ 'scale-110 rotate-3': hovered, 'scale-100 rotate-0': !hovered }">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white transition-transform duration-500"
+                                        :class="{ 'scale-110': hovered, 'scale-100': !hovered }"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                     </svg>
                                 </div>
 
-                                <!-- Title and Info -->
-                                <div>
-                                    <h1 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                <!-- Title and Info with enhanced animations -->
+                                <div class="transition-all duration-500"
+                                    :class="{ 'translate-x-2': hovered, 'translate-x-0': !hovered }">
+                                    <h1 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent transition-all duration-500"
+                                        :class="{ 'text-green-500': hovered, 'text-green-600': !hovered }">
                                         {{ $warehouse->name }}
                                     </h1>
-                                    <p class="text-gray-500 text-sm mt-1">
+                                    <p class="text-gray-500 text-sm mt-1 transition-all duration-500"
+                                        :class="{ 'text-gray-600': hovered, 'text-gray-500': !hovered }">
                                         Warehouse ID: {{ $warehouse->id }}
                                     </p>
                                 </div>
                             </div>
 
-                            <!-- Status Badge -->
-                            <div class="flex items-center gap-2">
-                                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                <span class="text-sm font-medium text-gray-600">Active</span>
+                            <!-- Animated Status Badge -->
+                            <div class="flex items-center gap-2 transition-all duration-500"
+                                :class="{ 'translate-x-2': hovered, 'translate-x-0': !hovered }">
+                                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse transition-all duration-500"
+                                    :class="{ 'scale-125': hovered, 'scale-100': !hovered }">
+                                </div>
+                                <span class="text-sm font-medium text-gray-600 transition-all duration-500"
+                                    :class="{ 'text-green-600': hovered, 'text-gray-600': !hovered }">
+                                    Active
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -71,7 +92,7 @@
                                 <div class="relative p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl border border-gray-100/50 overflow-hidden"
                                     :class="{
                                         'bg-white/95': expanded,
-                                        [getStatusClassWithoutBg('{{ $item->product->status ?? "active" }}')]: !expanded
+                                        '{{ $this->getStatusClassWithoutBg($item->product->status ?? "active") }}': !expanded
                                     }">
                                     <!-- Header Section -->
                                     <div class="flex items-center justify-between mb-4 cursor-pointer" @click="expanded = !expanded">
