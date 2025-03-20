@@ -145,14 +145,6 @@
                         <span>Subtotal:</span>
                         <span>${{ number_format($subtotal, 2) }}</span>
                     </div>
-                    <div class="flex justify-between items-center text-gray-600">
-                        <span>Tax (10%):</span>
-                        <span>${{ number_format($taxAmount, 2) }}</span>
-                    </div>
-                    <div class="flex justify-between items-center text-gray-600">
-                        <span>Discount:</span>
-                        <span>-${{ number_format($discountAmount, 2) }}</span>
-                    </div>
                     <div class="flex justify-between items-center text-lg font-semibold text-gray-800 pt-2 border-t">
                         <span>Total Amount:</span>
                         <span>${{ number_format($total, 2) }}</span>

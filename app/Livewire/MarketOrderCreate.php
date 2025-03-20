@@ -16,9 +16,6 @@ class MarketOrderCreate extends Component
     public $scanSuccess = false;
     public $orderItems = [];
     public $subtotal = 0;
-    public $taxRate = 0.1; // 10% tax rate
-    public $taxAmount = 0;
-    public $discountAmount = 0;
     public $total = 0;
     public $amountPaid = 0;
     public $changeDue = 0;
@@ -216,8 +213,7 @@ class MarketOrderCreate extends Component
     public function calculateTotal()
     {
         $this->subtotal = collect($this->orderItems)->sum('total');
-        $this->taxAmount = round($this->subtotal * $this->taxRate, 2);
-        $this->total = $this->subtotal + $this->taxAmount - $this->discountAmount;
+        $this->total = $this->subtotal;
         $this->amountPaid = $this->total;
         $this->calculateChange();
     }
@@ -234,7 +230,6 @@ class MarketOrderCreate extends Component
 
     public function applyDiscount($amount)
     {
-        $this->discountAmount = min($amount, $this->subtotal);
         $this->calculateTotal();
     }
 
@@ -252,8 +247,8 @@ class MarketOrderCreate extends Component
 
             $order->update([
                 'subtotal' => $this->subtotal,
-                'tax_amount' => $this->taxAmount,
-                'discount_amount' => $this->discountAmount,
+                'tax_amount' => 0,
+                'discount_amount' => 0,
                 'total_amount' => $this->total,
                 'payment_method' => $this->paymentMethod,
                 'payment_status' => $this->amountPaid >= $this->total ? 'paid' : 'partial',
@@ -283,10 +278,9 @@ class MarketOrderCreate extends Component
                 ]);
             }
 
-            $this->reset(['orderItems', 'subtotal', 'taxAmount', 'discountAmount', 'total',
-                         'amountPaid', 'changeDue', 'paymentMethod', 'notes', 'currentOrderId', 'orderCreated']);
+            $this->reset(['orderItems', 'subtotal', 'total', 'amountPaid', 'changeDue',
+                         'paymentMethod', 'notes', 'currentOrderId', 'orderCreated']);
             $this->dispatch('orderCreated');
-            $this->dispatch('refreshDashboard');
         } else {
             $order = MarketOrder::create([
                 'order_number' => 'POS-' . Str::random(8),
@@ -303,7 +297,6 @@ class MarketOrderCreate extends Component
 
             $this->currentOrderId = $order->id;
             $this->orderCreated = true;
-
         }
     }
 
