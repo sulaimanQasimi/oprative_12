@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\MarketOrder;
 use App\Models\MarketOrderItem;
 use App\Models\Product;
+use App\Models\CustomerStockOutcome;
 use Illuminate\Support\Str;
 
 class MarketOrderCreate extends Component
@@ -267,6 +268,17 @@ class MarketOrderCreate extends Component
                     'unit_price' => $item['price'],
                     'subtotal' => $item['total'],
                     'discount_amount' => 0
+                ]);
+
+                CustomerStockOutcome::create([
+                    'reference_number' => $order->order_number,
+                    'customer_id' => $order->customer_id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'total' => $item['total'],
+                    'model_type' => MarketOrder::class,
+                    'model_id' => $order->id
                 ]);
             }
 
