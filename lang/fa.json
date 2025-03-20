@@ -205,6 +205,20 @@
     "Update Product Price": "به‌روزرسانی قیمت محصول",
     "Remaining Amount": "مبلغ باقیمانده",
     "Product Movements": "جابجایی محصولات",
-        "Add Item": "افزودن",
-    "Available in warehouse: :quantity": "موجودی در گدام: :quantity"
+    "Add Item": "افزودن",
+    "Available in warehouse: :quantity": "موجودی در گدام: :quantity",
+    "Warehouse ID": "شناسه گدام",
+    "Low Stock": "موجودی کم",
+    "Min": "حداقل",
+    "Max": "حداکثر",
+    "Product Code": "کد محصول",
+    "Income Details": "جزئیات ورودی",
+    "Outcome Details": "جزئیات خروجی",
+    "Net & Profit Summary": "خلاصه خالص و سود",
+    "Track your inventory items": "پیگیری اقلام موجودی",
+    "Warehouse Items": "اقلام گدام",
+    "Income": "ورودی",
+    "Net Quantity": "تعداد خالص",
+    "Net Total": "مجموع خالص",
+    "Profit": "سود"
 }
