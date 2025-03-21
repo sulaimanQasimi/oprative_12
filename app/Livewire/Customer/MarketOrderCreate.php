@@ -26,7 +26,7 @@ class MarketOrderCreate extends Component
     public $notes = '';
     public $currentOrderId = null;
     public $orderCreated = false;
-    public $customerId = 1; // TODO: Get from authenticated user
+    public $customerId = null; // TODO: Get from authenticated user
 
     public $searchQuery = '';
     public $searchResults = [];
