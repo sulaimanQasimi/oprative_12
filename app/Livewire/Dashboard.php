@@ -2,12 +2,14 @@
 
 namespace App\Livewire;
 
+use App\Models\Customer;
 use App\Models\CustomerStockProduct;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class Dashboard extends Component
 {
+    public $customer;
     public $customerStockProducts = [];
     public $cartItems = [];
     public $tables = [];
@@ -15,34 +17,58 @@ class Dashboard extends Component
     public $scannedBarcode = '';
     public $scanSuccess = false;
     public $selectedCustomer = null;
+    public $customers = [];
+    public $searchQuery = '';
+    public $searchResults = [];
+    public $showDropdown = false;
+    public $highlightIndex = 0;
+
     protected $listeners = [
         'closeModalAfterSuccess' => 'closeScanner',
         'refreshDashboard' => 'loadCustomerStockProducts'
     ];
+
     public function mount()
     {
+        $this->customer = auth()->guard('customer')->user();
+        $this->customers = Customer::all();
+        $this->selectedCustomer = $this->customer->id;
         $this->loadCustomerStockProducts();
     }
 
     public function loadCustomerStockProducts()
     {
+        if (!$this->selectedCustomer) {
+            $this->customerStockProducts = [];
+            return;
+        }
+
         // Load customer stock movement statistics from the database with product details
-        $this->customerStockProducts = CustomerStockProduct::with('product')->get()->map(function ($item) {
-            return [
-                'customer_name' => $item->customer->name ?? 'Unknown',
-                'product_name' => $item->product->name ?? 'Unknown',
-                'barcode' => $item->product->barcode ?? 'N/A',
-                'wholesale_price' => $item->product->wholesale_price ?? 0,
-                'retail_price' => $item->product->retail_price ?? 0,
-                'status' => $this->getStockStatus($item->net_quantity),
-                'income_quantity' => $item->income_quantity ?? 0,
-                'income_total' => $item->income_total ?? 0,
-                'outcome_quantity' => $item->outcome_quantity ?? 0,
-                'outcome_total' => $item->outcome_total ?? 0,
-                'net_quantity' => $item->net_quantity ?? 0,
-                'profit' => $item->profit ?? 0
-            ];
-        })->toArray();
+        $this->customerStockProducts = CustomerStockProduct::with('product')
+            ->where('customer_id', $this->selectedCustomer)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'customer_name' => $item->customer->name ?? 'Unknown',
+                    'product_name' => $item->product->name ?? 'Unknown',
+                    'barcode' => $item->product->barcode ?? 'N/A',
+                    'wholesale_price' => $item->product->wholesale_price ?? 0,
+                    'retail_price' => $item->product->retail_price ?? 0,
+                    'status' => $this->getStockStatus($item->net_quantity),
+                    'income_quantity' => $item->income_quantity ?? 0,
+                    'income_total' => $item->income_total ?? 0,
+                    'outcome_quantity' => $item->outcome_quantity ?? 0,
+                    'outcome_total' => $item->outcome_total ?? 0,
+                    'net_quantity' => $item->net_quantity ?? 0,
+                    'profit' => $item->profit ?? 0
+                ];
+            })->toArray();
+    }
+
+    public function updatedSelectedCustomer()
+    {
+        $this->loadCustomerStockProducts();
+        $this->cartItems = [];
     }
 
     private function getStockStatus($quantity)
@@ -53,6 +79,7 @@ class Dashboard extends Component
             default => trans('In Stock'),
         };
     }
+
     private function getGroupStatus($items)
     {
         $hasOutOfStock = collect($items)->contains(function ($item) {
@@ -118,27 +145,19 @@ class Dashboard extends Component
                 'id' => $stockProduct->id,
                 'name' => $stockProduct->product->name,
                 'quantity' => 1,
-                'current_stock' => $stockProduct->quantity
+                'current_stock' => $stockProduct->net_quantity,
+                'price' => $stockProduct->product->retail_price
             ];
             $this->scanSuccess = true;
             $this->dispatch('closeModalAfterSuccess');
         }
     }
 
-    public function render()
-    {
-        return view('livewire.dashboard');
-    }
-
-    public $searchQuery = '';
-    public $searchResults = [];
-    public $showDropdown = false;
-    public $highlightIndex = 0;
-
     public function updatedSearchQuery()
     {
-        if (strlen($this->searchQuery) > 0) {
+        if (strlen($this->searchQuery) > 0 && $this->selectedCustomer) {
             $this->searchResults = CustomerStockProduct::with('product')
+                ->where('customer_id', $this->selectedCustomer)
                 ->whereHas('product', function ($query) {
                     $query->where('name', 'like', '%' . $this->searchQuery . '%')
                         ->orWhere('barcode', 'like', '%' . $this->searchQuery . '%');
@@ -200,5 +219,10 @@ class Dashboard extends Component
     public function closeDropdown()
     {
         $this->showDropdown = false;
+    }
+
+    public function render()
+    {
+        return view('livewire.dashboard');
     }
 }

@@ -18,7 +18,9 @@ class Sale extends Model
         'date',
         'reference',
         'status',
-        'notes'
+        'notes',
+        'confirmed_by_warehouse',
+        'confirmed_by_shop'
     ];
 
     protected $casts = [
@@ -30,7 +32,9 @@ class Sale extends Model
         'shipping_cost' => 'decimal:2',
         'total_amount' => 'decimal:2',
         'paid_amount' => 'decimal:2',
-        'due_amount' => 'decimal:2'
+        'due_amount' => 'decimal:2',
+        'confirmed_by_warehouse' => 'boolean',
+        'confirmed_by_shop' => 'boolean'
     ];
 
     public function customer(): BelongsTo

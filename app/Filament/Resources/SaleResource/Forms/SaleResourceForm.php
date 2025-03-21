@@ -8,6 +8,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
 
 class SaleResourceForm
 {
@@ -82,6 +83,20 @@ class SaleResourceForm
                                     ])
                                     ->required()
                                     ->default('pending')
+                                    ->translateLabel(),
+                            ])
+                    ]),
+                Forms\Components\Section::make(trans('Confirmation Status'))
+                    ->schema([
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Toggle::make('confirmed_by_warehouse')
+                                    ->label('Confirmed by Warehouse')
+                                    ->default(false)
+                                    ->translateLabel(),
+                                Toggle::make('confirmed_by_shop')
+                                    ->label('Confirmed by Shop')
+                                    ->default(false)
                                     ->translateLabel(),
                             ])
                     ]),

@@ -220,5 +220,8 @@
     "Income": "ورودی",
     "Net Quantity": "تعداد خالص",
     "Net Total": "مجموع خالص",
-    "Profit": "فایده"
+    "Profit": "فایده",
+    "Confirmation Status": "وضعیت تایید",
+    "Confirmed by Warehouse": "تایید شده توسط گدام",
+    "Confirmed by Shop": "تایید شده توسط مغازه"
 }

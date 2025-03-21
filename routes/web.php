@@ -27,9 +27,11 @@ Route::prefix('customer')->name('customer.')->group(function () {
     // Authenticated routes
     Route::middleware('auth:customer')->group(function () {
         Route::post('logout', [App\Http\Controllers\Customer\AuthController::class, 'logout'])->name('logout');
-        Route::get('dashboard', function () {
-            return view('customer.dashboard');
-        })->name('dashboard');
+        // Route::get('dashboard', function () {
+        //     return view('customer.dashboard');
+        // })->name('dashboard');
+
+        Route::get('dashboard', \App\Livewire\Dashboard::class)->name('dashboard');
 
         // Profile routes
         Route::get('profile', [App\Http\Controllers\Customer\ProfileController::class, 'show'])->name('profile.show');
