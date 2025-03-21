@@ -23,9 +23,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        // Assign Super Admin role to the admin user
-        $adminUser->assignRole('Super Admin');
-
         $this->call(CurrencySeeder::class);
     }
 }
