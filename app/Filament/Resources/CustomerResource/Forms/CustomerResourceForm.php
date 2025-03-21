@@ -28,8 +28,15 @@ class CustomerResourceForm
                                 TextInput::make('email')
                                     ->email()
                                     ->maxLength(255)
+                                    ->unique(ignoreRecord: true)
                                     ->label('Email')
                                     ->translateLabel(),
+                                TextInput::make('password')
+                                    ->password()
+                                    ->maxLength(255)
+                                    ->label('Password')
+                                    ->translateLabel()
+                                    ->required(fn ($livewire) => $livewire instanceof \App\Filament\Resources\CustomerResource\Pages\CreateCustomer),
                                 TextInput::make('phone')
                                     ->tel()
                                     ->maxLength(255)
@@ -38,11 +45,6 @@ class CustomerResourceForm
                                 Toggle::make('status')
                                     ->default(true)
                                     ->label('Status')
-                                    ->translateLabel(),
-                                Select::make('user_id')
-                                    ->relationship('user', 'name')
-                                    ->required()
-                                    ->label('User')
                                     ->translateLabel(),
                             ])
                     ]),
