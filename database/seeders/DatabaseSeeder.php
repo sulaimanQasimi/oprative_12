@@ -14,11 +14,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::create([
-            'name' => 'Admin User',
-            'email' => 'admin@mod.af',
-            'password' => Hash::make('123'),
-        ]);
+        // Create or get admin user
+        $adminUser = User::firstOrCreate(
+            ['email' => 'admin@mod.af'],
+            [
+                'name' => 'Admin User',
+                'password' => Hash::make('123'),
+            ]
+        );
+
+        // Assign Super Admin role to the admin user
+        $adminUser->assignRole('Super Admin');
+
         $this->call(CurrencySeeder::class);
     }
 }
