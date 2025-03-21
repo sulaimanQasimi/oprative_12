@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
 
             $table->string("type")->default('product')->nullable();
-            $table->json("name");
+            $table->name("name");
             $table->string("barcode")->nullable();
 
             //Prices
