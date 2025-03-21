@@ -34,6 +34,7 @@ class CustomerResourceForm
                                 TextInput::make('password')
                                     ->password()
                                     ->maxLength(255)
+                                    ->dehydrateStateUsing(fn ($state) => bcrypt($state))
                                     ->label('Password')
                                     ->translateLabel()
                                     ->required(fn ($livewire) => $livewire instanceof \App\Filament\Resources\CustomerResource\Pages\CreateCustomer),
