@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Customer;
 
 use App\Models\Customer;
 use App\Models\CustomerStockProduct;
@@ -16,8 +16,6 @@ class Dashboard extends Component
     public $showScannerModal = false;
     public $scannedBarcode = '';
     public $scanSuccess = false;
-    public $selectedCustomer = null;
-    public $customers = [];
     public $searchQuery = '';
     public $searchResults = [];
     public $showDropdown = false;
@@ -31,21 +29,15 @@ class Dashboard extends Component
     public function mount()
     {
         $this->customer = auth()->guard('customer')->user();
-        $this->customers = Customer::all();
-        $this->selectedCustomer = $this->customer->id;
         $this->loadCustomerStockProducts();
     }
 
     public function loadCustomerStockProducts()
     {
-        if (!$this->selectedCustomer) {
-            $this->customerStockProducts = [];
-            return;
-        }
 
         // Load customer stock movement statistics from the database with product details
         $this->customerStockProducts = CustomerStockProduct::with('product')
-            ->where('customer_id', $this->selectedCustomer)
+            ->where('customer_id', $this->customer->id)
             ->get()
             ->map(function ($item) {
                 return [
@@ -223,6 +215,6 @@ class Dashboard extends Component
 
     public function render()
     {
-        return view('livewire.dashboard');
+        return view('livewire.customer.dashboard');
     }
 }

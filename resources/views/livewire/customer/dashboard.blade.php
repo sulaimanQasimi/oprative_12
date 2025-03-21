@@ -4,7 +4,7 @@
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-8 space-y-6">
-            <livewire:market-order-create />
+            <livewire:customer.market-order-create />
         </div>
         <div class="lg:col-span-4">
             <div class="bg-white/80 backdrop-blur-lg rounded-2xl p-4 sm:p-6 shadow-lg sticky top-4">

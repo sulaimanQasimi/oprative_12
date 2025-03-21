@@ -3,8 +3,6 @@
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Route::get('/', \App\Livewire\Dashboard::class)->name('home');
-
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -31,7 +29,7 @@ Route::prefix('customer')->name('customer.')->group(function () {
         //     return view('customer.dashboard');
         // })->name('dashboard');
 
-        Route::get('dashboard', \App\Livewire\Dashboard::class)->name('dashboard');
+        Route::get('dashboard', \App\Livewire\Customer\Dashboard::class)->name('dashboard');
 
         // Profile routes
         Route::get('profile', [App\Http\Controllers\Customer\ProfileController::class, 'show'])->name('profile.show');

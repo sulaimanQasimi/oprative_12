@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Customer;
 
 use Livewire\Component;
 use App\Models\MarketOrder;
@@ -317,12 +317,13 @@ class MarketOrderCreate extends Component
             ]);
 
             $this->currentOrderId = $order->id;
+            
             $this->orderCreated = true;
         }
     }
 
     public function render()
     {
-        return view('livewire.market-order-create');
+        return view('livewire.customer.market-order-create');
     }
 }
