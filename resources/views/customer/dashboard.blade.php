@@ -33,7 +33,10 @@
                                     <div class="relative p-6 rounded-xl shadow-sm transition-all duration-300 hover:shadow-xl border border-gray-100/50 overflow-hidden"
                                         :class="{
                                             'bg-white/95': expanded,
-                                            [getStatusClassWithoutBg('{{ $stockProduct["status"] }}')]: !expanded
+                                            'bg-green-50/95 text-green-700': !expanded && '{{ $stockProduct["status"] }}' === 'In Stock',
+                                            'bg-yellow-50/95 text-yellow-700': !expanded && '{{ $stockProduct["status"] }}' === 'Low Stock',
+                                            'bg-red-50/95 text-red-700': !expanded && '{{ $stockProduct["status"] }}' === 'Out of Stock',
+                                            'bg-gray-50/95 text-gray-700': !expanded && !['In Stock', 'Low Stock', 'Out of Stock'].includes('{{ $stockProduct["status"] }}')
                                         }">
                                         <!-- Header Section -->
                                         <div class="flex items-center justify-between mb-4 cursor-pointer" @click="expanded = !expanded">
