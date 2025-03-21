@@ -26,7 +26,6 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'name' => 'json',
         'purchase_price' => 'double',
         'wholesale_price' => 'double',
         'retail_price' => 'double',
