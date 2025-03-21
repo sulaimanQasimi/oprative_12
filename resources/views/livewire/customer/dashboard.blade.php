@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" dir="rtl">
     <x-customer-navbar />
 
     <!-- Existing Content -->
@@ -17,8 +17,8 @@
                             </svg>
                         </div>
                         <div>
-                            <h2 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">Stock Movement Overview</h2>
-                            <p class="text-sm text-gray-500">Track your inventory performance</p>
+                            <h2 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">@lang('Stock Movement Overview')</h2>
+                            <p class="text-sm text-gray-500">@lang('Track your inventory performance')</p>
                         </div>
                     </div>
                 </div>
@@ -42,22 +42,22 @@
                                             </div>
                                             @if($stockProduct['net_quantity'] <= 5)
                                                 <div class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full shadow-sm">
-                                                    Low Stock
+                                                    @lang('Low Stock')
                                                 </div>
                                             @endif
                                         </div>
                                         <div>
                                             <h3 class="font-bold text-gray-800 text-lg group-hover:text-blue-600 transition-colors duration-200">{{ $stockProduct['product_name'] }}</h3>
                                             <div class="flex items-center gap-2 mt-1">
-                                                <span class="text-sm text-gray-500">Net Qty:</span>
+                                                <span class="text-sm text-gray-500">@lang('Net Qty'):</span>
                                                 <span class="text-sm font-semibold text-gray-700">{{ number_format($stockProduct['net_quantity']) }}</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="flex items-center gap-3">
                                         <div class="flex gap-2">
-                                            <span class="text-xs bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full font-medium">W: ${{ number_format($stockProduct['wholesale_price'], 2) }}</span>
-                                            <span class="text-xs bg-purple-50 text-purple-600 px-2.5 py-1 rounded-full font-medium">R: ${{ number_format($stockProduct['retail_price'], 2) }}</span>
+                                            <span class="text-xs bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full font-medium">@lang('Wholesale'): ${{ number_format($stockProduct['wholesale_price'], 2) }}</span>
+                                            <span class="text-xs bg-purple-50 text-purple-600 px-2.5 py-1 rounded-full font-medium">@lang('Retail'): ${{ number_format($stockProduct['retail_price'], 2) }}</span>
                                         </div>
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 transform transition-transform duration-200" :class="{ 'rotate-180': expanded }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -78,7 +78,7 @@
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                                             </svg>
-                                            <span>Barcode: {{ $stockProduct['barcode'] }}</span>
+                                            <span>@lang('Barcode'): {{ $stockProduct['barcode'] }}</span>
                                         </div>
                                     </div>
 
@@ -88,16 +88,16 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                                 </svg>
-                                                <span class="font-medium">Income</span>
+                                                <span class="font-medium">@lang('Income')</span>
                                             </div>
                                             <div class="flex justify-between items-end">
                                                 <div>
                                                     <div class="text-2xl font-bold text-gray-800">{{ number_format($stockProduct['income_quantity']) }}</div>
-                                                    <div class="text-xs text-gray-500">Quantity</div>
+                                                    <div class="text-xs text-gray-500">@lang('Quantity')</div>
                                                 </div>
                                                 <div class="text-right">
                                                     <div class="text-2xl font-bold text-green-600">${{ number_format($stockProduct['income_total'], 2) }}</div>
-                                                    <div class="text-xs text-gray-500">Total</div>
+                                                    <div class="text-xs text-gray-500">@lang('Total')</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -106,16 +106,16 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                                                 </svg>
-                                                <span class="font-medium">Outcome</span>
+                                                <span class="font-medium">@lang('Outcome')</span>
                                             </div>
                                             <div class="flex justify-between items-end">
                                                 <div>
                                                     <div class="text-2xl font-bold text-gray-800">{{ number_format($stockProduct['outcome_quantity']) }}</div>
-                                                    <div class="text-xs text-gray-500">Quantity</div>
+                                                    <div class="text-xs text-gray-500">@lang('Quantity')</div>
                                                 </div>
                                                 <div class="text-right">
                                                     <div class="text-2xl font-bold text-red-600">${{ number_format($stockProduct['outcome_total'], 2) }}</div>
-                                                    <div class="text-xs text-gray-500">Total</div>
+                                                    <div class="text-xs text-gray-500">@lang('Total')</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -127,7 +127,7 @@
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                                 </svg>
-                                                <span class="text-sm font-medium text-blue-600">Profit</span>
+                                                <span class="text-sm font-medium text-blue-600">@lang('Profit')</span>
                                             </div>
                                             <div class="text-right">
                                                 <div class="text-2xl font-bold {{ $stockProduct['profit'] >= 0 ? 'text-green-600' : 'text-red-600' }}">
@@ -142,7 +142,6 @@
                     @endforeach
                 </div>
             </div>
-
         </div>
     </div>
     <!-- Main Content Grid -->
