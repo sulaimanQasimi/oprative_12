@@ -20,7 +20,7 @@ This project uses database seeders to populate the database with initial data fo
 5. Configure your database in `.env` file
 6. Run migrations:
    ```bash
-   php artisan migrate
+   php artisan migrate --seed
    ```
 7. Run the required seeders:
    ```bash
