@@ -90,12 +90,40 @@
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                                                <span class="text-white font-semibold">{{ substr($stock->product_name, 0, 1) }}</span>
+                                            <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center relative">
+                                                @if($stock->net_quantity <= 5)
+                                                    <div class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full shadow-sm">
+                                                        Low
+                                                    </div>
+                                                @endif
+                                                @if($stock->net_quantity > 5 && $stock->net_quantity <= 10)
+                                                    <div class="absolute -top-1 -right-1 bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full shadow-sm">
+                                                        Med
+                                                    </div>
+                                                @endif
+                                                @if($stock->net_quantity > 10)
+                                                    <div class="absolute -top-1 -right-1 bg-green-500 text-white text-xs px-2 py-0.5 rounded-full shadow-sm">
+                                                        High
+                                                    </div>
+                                                @endif
+                                                @if($stock->net_quantity <= 5)
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                    </svg>
+                                                @elseif($stock->net_quantity <= 10)
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                                    </svg>
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                @endif
                                             </div>
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-gray-900">{{ $stock->product_name }}</div>
+                                            <div class="text-xs text-gray-500">Barcode: {{ $stock->barcode }}</div>
                                         </div>
                                     </div>
                                 </td>
