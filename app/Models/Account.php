@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Model
 {
-    use HasUuids;
     protected $fillable = ['branch_id','account_number','account_type_id'];
     public function branch(){
         return $this->belongsTo(Branch::class);
