@@ -21,6 +21,8 @@ return new class extends Migration
             $table->double("total")->default(0)->nullable();
             $table->date('date');
             $table->boolean('moved_from_warehouse')->default(false);
+            $table->boolean('confirmed_by_warehouse');
+            $table->boolean('confirmed_by_shop');
             $table->timestamps();
         });
     }

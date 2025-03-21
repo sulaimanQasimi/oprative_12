@@ -32,6 +32,12 @@ return new class extends Migration
             $table->string('name')->nullable();
             $table->float('amount')->nullable();
         });
+        Schema::create('purchase_has_quality_check_by', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId("purchase_id")->references('id')->on('purchases')->onDelete('cascade')->unsigned();
+            $table->string('name')->nullable();
+            $table->boolean('check')->default(false);
+        });
     }
 
     /**

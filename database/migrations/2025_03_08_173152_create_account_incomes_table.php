@@ -13,15 +13,12 @@ return new class extends Migration
     {
         Schema::create('account_incomes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->nullable();
+            $table->foreignIdFor(\App\Models\Account::class)->references('id')->on('accounts')->onDelete('RESTRICT');
+            $table->string('reference_number')->nullable();;
             $table->decimal('amount', 10, 2);
-            $table->string('description');
-            $table->string('income_type');
-            $table->string('payment_method')->nullable();
-            $table->string('reference_number')->nullable();
-            $table->date('income_date');
-            $table->string('status')->default('completed');
-            $table->text('notes')->nullable();
+            $table->nullableMorphs('model');
+            $table->dateTime('date');
             $table->timestamps();
         });
     }

@@ -15,10 +15,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('accounts', function (Blueprint $table) {
-            $table->uuid();
-            $table->foreignIdFor(Customer::class)->nullable();
-            $table->string('account_number');
-            $table->foreignIdFor(AccountType::class)->nullable();
+            $table->id();
+            $table->foreignIdFor(Customer::class)->references('id')->on('customers')->onDelete('RESTRICT');
+            $table->string('account_number')->unique();
+            $table->string('name');
+            $table->string('phone');
+            $table->string('id_number');
+            $table->foreignIdFor(AccountType::class)->references('id')->on('account_types')->onDelete('RESTRICT');
+            $table->dateTime('date');
             $table->timestamps();
         });
     }

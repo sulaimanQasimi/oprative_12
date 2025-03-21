@@ -53,8 +53,8 @@
     "Barcode": "بارکد",
     "Pricing Details": "جزئیات قیمت‌گذاری",
     "Purchase Price": "قیمت خرید",
-    "Wholesale Profit": "سود عمده‌فروشی",
-    "Retail Profit": "سود خرده‌فروشی",
+    "Wholesale Profit": "فایده عمده‌فروشی",
+    "Retail Profit": "فایده خرده‌فروشی",
     "Wholesale Price": "قیمت عمده‌فروشی",
     "Retail Price": "قیمت خرده‌فروشی",
     "Status": "وضعیت",
@@ -181,7 +181,7 @@
     "Outcome Total": "مجموع خروجی",
     "Net Qty": "تعداد خالص",
     "Net Total": "مجموع خالص",
-    "Profit": "سود",
+    "Profit": "فایده",
     "Enter warehouse name": "نام گدام را وارد کنید",
     "Only letters, numbers, spaces, hyphens and dots are allowed": "فقط حروف، اعداد، فاصله، خط تیره و نقطه مجاز است",
     "Enter warehouse code": "کد گدام را وارد کنید",
@@ -214,11 +214,11 @@
     "Product Code": "کد محصول",
     "Income Details": "جزئیات ورودی",
     "Outcome Details": "جزئیات خروجی",
-    "Net & Profit Summary": "خلاصه خالص و سود",
+    "Net & Profit Summary": "خلاصه خالص و فایده",
     "Track your inventory items": "پیگیری اقلام موجودی",
     "Warehouse Items": "اقلام گدام",
     "Income": "ورودی",
     "Net Quantity": "تعداد خالص",
     "Net Total": "مجموع خالص",
-    "Profit": "سود"
+    "Profit": "فایده"
 }

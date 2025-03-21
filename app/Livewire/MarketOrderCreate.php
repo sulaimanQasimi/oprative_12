@@ -107,27 +107,39 @@ class MarketOrderCreate extends Component
         $this->showDropdown = false;
     }
 
-    public function saveToOrder($index)
+    public function saveToOrder()
     {
-        if (!$this->currentOrderId || !isset($this->searchResults[$index])) return;
+        if (empty($this->scannedBarcode)) {
+            return;
+        }
 
-        $selectedProduct = $this->searchResults[$index];
-        $product = Product::where('name', $selectedProduct['name'])->first();
+        $product = Product::where('barcode', $this->scannedBarcode)->first();
 
-        if (!$product) return;
-        dd($selectedProduct);
-        // MarketOrderItem::create([
-        //     'market_order_id' => $this->currentOrderId,
-        //     'product_id' => $product->id,
-        //     'quantity' => 1,
-        //     'unit_price' => $selectedProduct['price'],
-        //     'subtotal' => $selectedProduct['price'],
-        //     'discount_amount' => 0
-        // ]);
+        if ($product) {
+            $existingItem = collect($this->orderItems)->firstWhere('product_id', $product->id);
 
-        // $this->searchQuery = '';
-        // $this->showDropdown = false;
-        // $this->redirect(request()->header('Referer'));
+            if ($existingItem) {
+                $this->orderItems = collect($this->orderItems)->map(function ($item) use ($product) {
+                    if ($item['product_id'] === $product->id) {
+                        $item['quantity'] += 1;
+                        $item['total'] = $item['quantity'] * $item['price'];
+                    }
+                    return $item;
+                })->toArray();
+            } else {
+                $this->orderItems[] = [
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->retail_price,
+                    'quantity' => 1,
+                    'total' => $product->retail_price
+                ];
+            }
+
+            $this->calculateTotal();
+            $this->scanSuccess = true;
+            $this->dispatch('closeModalAfterSuccess');
+        }
     }
 
     public function closeDropdown()
@@ -278,8 +290,17 @@ class MarketOrderCreate extends Component
                 ]);
             }
 
-            $this->reset(['orderItems', 'subtotal', 'total', 'amountPaid', 'changeDue',
-                         'paymentMethod', 'notes', 'currentOrderId', 'orderCreated']);
+            $this->reset([
+                'orderItems',
+                'subtotal',
+                'total',
+                'amountPaid',
+                'changeDue',
+                'paymentMethod',
+                'notes',
+                'currentOrderId',
+                'orderCreated'
+            ]);
             $this->dispatch('orderCreated');
         } else {
             $order = MarketOrder::create([

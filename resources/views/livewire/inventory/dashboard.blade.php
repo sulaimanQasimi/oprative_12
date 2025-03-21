@@ -121,7 +121,7 @@
                                                 <h3 class="font-bold text-gray-800 text-lg group-hover:text-blue-600 transition-colors duration-200">{{ $item->product->name }}</h3>
                                                 <div class="flex items-center gap-2 mt-1">
                                                     <span class="text-sm text-gray-500">@lang('Quantity'):</span>
-                                                    <span class="text-sm font-semibold text-gray-700">{{ number_format($item->quantity) }}</span>
+                                                    <span class="text-sm font-semibold text-gray-700">{{ number_format($item->net_quantity) }}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -172,10 +172,6 @@
                                                             <span class="font-semibold">{{ number_format($item->income_quantity ?? 0, 0, '.', ',') }}</span>
                                                         </div>
                                                         <div class="flex justify-between items-center">
-                                                            <span class="text-sm text-gray-600">@lang('Price'):</span>
-                                                            <span class="font-semibold">${{ number_format($item->income_price ?? 0, 2, '.', ',') }}</span>
-                                                        </div>
-                                                        <div class="flex justify-between items-center">
                                                             <span class="text-sm text-gray-600">@lang('Total'):</span>
                                                             <span class="font-semibold text-green-600">${{ number_format($item->income_total ?? 0, 2, '.', ',') }}</span>
                                                         </div>
@@ -201,12 +197,8 @@
                                                             <span class="font-semibold">{{ number_format($item->outcome_quantity ?? 0, 0, '.', ',') }}</span>
                                                         </div>
                                                         <div class="flex justify-between items-center">
-                                                            <span class="text-sm text-gray-600">@lang('Price'):</span>
-                                                            <span class="font-semibold">${{ number_format($item->outcome_price ?? 0, 2, '.', ',') }}</span>
-                                                        </div>
-                                                        <div class="flex justify-between items-center">
                                                             <span class="text-sm text-gray-600">@lang('Total'):</span>
-                                                            <span class="font-semibold text-red-600">${{ number_format($item->outcome_total ?? 0, 2, '.', ',') }}</span>
+                                                            <span class="font-semibold text-red-600">${{ number_format(($item->outcome_total) ?? 0, 2, '.', ',') }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
