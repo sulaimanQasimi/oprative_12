@@ -191,61 +191,79 @@
                     <div class="space-y-4 overflow-y-auto max-h-[calc(100vh-20rem)] pr-2">
                         @forelse($orders as $order)
                             <div x-show="activeTab === 'all' || activeTab === '{{ strtolower($order->status) }}'"
-                                 x-transition:enter="transition ease-out duration-300"
-                                 x-transition:enter-start="opacity-0 transform scale-95"
-                                 x-transition:enter-end="opacity-100 transform scale-100"
+                                 x-transition:enter="transition ease-out duration-500"
+                                 x-transition:enter-start="opacity-0 transform -translate-y-4"
+                                 x-transition:enter-end="opacity-100 transform translate-y-0"
+                                 x-transition:leave="transition ease-in duration-300"
+                                 x-transition:leave-start="opacity-100 transform translate-y-0"
+                                 x-transition:leave-end="opacity-0 transform -translate-y-4"
                                  @click="selectedOrderId = {{ $order->id }}"
-                                 :class="{ 'ring-2 ring-purple-500 shadow-lg scale-[1.02]': selectedOrderId === {{ $order->id }} }"
-                                 class="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 cursor-pointer transform hover:scale-[1.02]">
-                                <div class="p-4">
+                                 :class="{ 'ring-2 ring-purple-500 shadow-xl scale-[1.02] bg-gradient-to-br from-white to-purple-50/50': selectedOrderId === {{ $order->id }}, 'hover:bg-gradient-to-br hover:from-white hover:to-indigo-50/30': selectedOrderId !== {{ $order->id }} }"
+                                 class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-500 cursor-pointer transform hover:scale-[1.02] group">
+                                <div class="p-6">
                                     <div class="flex justify-between items-start">
                                         <div class="flex items-start space-x-4 rtl:space-x-reverse">
-                                            <div class="p-3 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <div class="p-3 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-xl group-hover:from-purple-200 group-hover:to-indigo-200 transition-all duration-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-indigo-600 group-hover:text-indigo-700 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                                 </svg>
                                             </div>
                                             <div>
-                                                <h3 class="text-lg font-semibold text-gray-800">@lang('Order') #{{ $order->id }}</h3>
-                                                <p class="text-sm text-gray-500 mt-1">{{ $order->created_at->format('Y-m-d H:i') }}</p>
+                                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-indigo-600 transition-colors duration-300">@lang('Order') #{{ $order->id }}</h3>
+                                                <p class="text-sm text-gray-500 mt-1 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    {{ $order->created_at->format('Y-m-d H:i') }}
+                                                </p>
                                             </div>
                                         </div>
-                                        <span class="px-3 py-1 text-sm font-medium rounded-full
-                                            @if($order->status === 'pending') bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-700
-                                            @elseif($order->status === 'processing') bg-gradient-to-r from-blue-500/10 to-indigo-500/10 text-blue-700
-                                            @elseif($order->status === 'completed') bg-gradient-to-r from-emerald-500/10 to-green-500/10 text-emerald-700
-                                            @else bg-gray-100 text-gray-700 @endif">
+                                        <span class="px-4 py-1.5 text-sm font-semibold rounded-full shadow-sm
+                                            @if($order->status === 'pending') bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 border border-amber-200
+                                            @elseif($order->status === 'processing') bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border border-blue-200
+                                            @elseif($order->status === 'completed') bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border border-emerald-200
+                                            @else bg-gray-100 text-gray-700 border border-gray-200 @endif">
                                             {{ ucfirst($order->status) }}
                                         </span>
                                     </div>
 
-                                    <div class="mt-4 grid grid-cols-2 gap-4">
-                                        <div class="bg-gradient-to-br from-purple-50 to-indigo-50 rounded-xl p-3">
-                                            <span class="text-sm text-gray-600">@lang('Total Amount')</span>
-                                            <p class="text-lg font-semibold text-indigo-600">${{ number_format($order->total_amount, 2) }}</p>
+                                    <div class="mt-6 grid grid-cols-3 gap-6">
+                                        <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-4 group-hover:from-emerald-100 group-hover:to-green-100 transition-all duration-300">
+                                            <span class="text-sm text-gray-600 flex items-center gap-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                                </svg>
+                                                @lang('Products')
+                                            </span>
+                                            <p class="text-2xl font-bold text-emerald-600 mt-1">{{ $order->items->count() }}</p>
                                         </div>
-                                        <div class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-xl p-3">
-                                            <span class="text-sm text-gray-600">@lang('Items')</span>
-                                            <p class="text-lg font-semibold text-emerald-600">{{ $order->items_count }}</p>
+                                        <div class="col-span-2 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 group-hover:from-amber-100 group-hover:to-orange-100 transition-all duration-300">
+                                            <span class="text-sm text-gray-600 flex items-center gap-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                </svg>
+                                                @lang('Order Number')
+                                            </span>
+                                            <p class="text-2xl font-bold text-amber-600 mt-1">{{ $order->order_number ?? '#' . str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         @empty
-                            <div class="text-center py-12 bg-white rounded-2xl shadow-sm border border-gray-100">
-                                <div class="w-24 h-24 mx-auto mb-6">
+                            <div class="text-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100">
+                                <div class="w-32 h-32 mx-auto mb-8">
                                     <div class="relative">
-                                        <div class="absolute inset-0 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-full animate-pulse"></div>
-                                        <div class="relative bg-white rounded-full p-4">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <div class="absolute inset-0 bg-gradient-to-r from-purple-200 to-indigo-200 rounded-full animate-pulse"></div>
+                                        <div class="relative bg-white rounded-full p-6 shadow-lg">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-20 w-20 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                             </svg>
                                         </div>
                                     </div>
                                 </div>
-                                <h3 class="text-xl font-semibold text-gray-900 mb-2">@lang('No Orders Found')</h3>
-                                <p class="text-gray-500 mb-6">@lang('You have not placed any orders yet.')</p>
-                                <a href="#" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-medium rounded-xl transition-all duration-200">
+                                <h3 class="text-2xl font-bold text-gray-900 mb-3">@lang('No Orders Found')</h3>
+                                <p class="text-gray-500 mb-8 max-w-md mx-auto">@lang('You have not placed any orders yet. Start your shopping journey and discover amazing products!')</p>
+                                <a href="#" class="inline-flex items-center px-8 py-4 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-semibold rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                                     @lang('Start Shopping')
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -267,20 +285,38 @@
                             <template x-if="selectedOrderId">
                                 <div class="space-y-6">
                                     <!-- Order Header -->
-                                    <div class="flex justify-between items-start border-b border-gray-100 pb-6">
-                                        <div>
-                                            <h3 class="text-2xl font-bold text-gray-900" x-text="'@lang('Order') #' + selectedOrderId"></h3>
-                                            <p class="text-gray-500 mt-1" x-text="new Date().toLocaleDateString()"></p>
+                                    <div class="flex flex-col space-y-4 border-b border-gray-100 pb-6">
+                                        <div class="flex justify-between items-start">
+                                            <div class="space-y-1">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-lg px-3 py-1">
+                                                        <span class="text-sm font-medium text-indigo-700">@lang('Order Number')</span>
+                                                    </div>
+                                                    <h3 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent" x-text="$wire.getOrderNumber(selectedOrderId)"></h3>
+                                                </div>
+                                                <div class="flex items-center gap-2 text-gray-500">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    <span class="text-sm" x-text="new Date().toLocaleDateString()"></span>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-center gap-3">
+                                                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl px-4 py-2 shadow-sm border border-amber-100/50">
+                                                    <span class="text-sm text-gray-600 block mb-1">@lang('Order Number')</span>
+                                                    <p class="text-lg font-bold text-amber-600" x-text="$wire.getOrderNumber(selectedOrderId)"></p>
+                                                </div>
+                                                <span x-data="{ status: $wire.getOrderStatus(selectedOrderId) }"
+                                                      :class="{
+                                                        'bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-700': status === 'pending',
+                                                        'bg-gradient-to-r from-blue-500/10 to-indigo-500/10 text-blue-700': status === 'processing',
+                                                        'bg-gradient-to-r from-emerald-500/10 to-green-500/10 text-emerald-700': status === 'completed'
+                                                      }"
+                                                      class="px-4 py-2 rounded-full text-sm font-medium"
+                                                      x-text="status ? (status.charAt ? status.charAt(0).toUpperCase() + status.slice(1) : status) : ''">
+                                                </span>
+                                            </div>
                                         </div>
-                                        <span x-data="{ status: $wire.getOrderStatus(selectedOrderId) }"
-                                              :class="{
-                                                'bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-700': status === 'pending',
-                                                'bg-gradient-to-r from-blue-500/10 to-indigo-500/10 text-blue-700': status === 'processing',
-                                                'bg-gradient-to-r from-emerald-500/10 to-green-500/10 text-emerald-700': status === 'completed'
-                                              }"
-                                              class="px-4 py-2 rounded-full text-sm font-medium"
-                                              x-text="status ? status.charAt(0).toUpperCase() + status.slice(1) : ''">
-                                        </span>
                                     </div>
 
                                     <!-- Order Items -->
@@ -373,6 +409,13 @@
 
                                     <!-- Action Buttons -->
                                     <div class="flex justify-end gap-3">
+                                        <a href="{{ route('customer.orders.invoice', ['order' => $order->id]) }}" target="_blank"
+                                           class="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-2">
+                                            @lang('View Invoice')
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </a>
                                         <button wire:click="viewOrderDetails(selectedOrderId)"
                                                 class="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-2">
                                             @lang('View Full Details')

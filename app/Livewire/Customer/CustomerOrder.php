@@ -165,7 +165,7 @@ class CustomerOrder extends Component
     public function getOrderStatus($orderId)
     {
         $order = $this->orders->find($orderId);
-        return $order ? $order->status : null;
+        return $order ? (string)($order->status ?? '') : '';
     }
 
     public function getOrderItems($orderId)
@@ -206,6 +206,12 @@ class CustomerOrder extends Component
     {
         $order = $this->orders->find($orderId);
         return $order ? $order->is_paid : false;
+    }
+
+    public function getOrderNumber($orderId)
+    {
+        $order = $this->orders->find($orderId);
+        return $order ? ($order->order_number ?? '#' . str_pad($order->id, 6, '0', STR_PAD_LEFT)) : '';
     }
 
     public function render()

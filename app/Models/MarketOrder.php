@@ -53,4 +53,9 @@ class MarketOrder extends Model
     {
         return $this->hasMany(MarketOrderItem::class);
     }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
 }

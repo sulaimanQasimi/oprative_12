@@ -37,6 +37,9 @@ Route::prefix('customer')->name('customer.')->group(function () {
         // Customer Orders route
         Route::get('orders', \App\Livewire\Customer\CustomerOrder::class)->name('orders');
 
+        // Add new invoice route
+        Route::get('orders/{order}/invoice', \App\Http\Controllers\Customer\InvoiceController::class)->name('orders.invoice');
+
         // Profile routes
         Route::get('profile', [App\Http\Controllers\Customer\ProfileController::class, 'show'])->name('profile.show');
         Route::put('profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('profile.update');
