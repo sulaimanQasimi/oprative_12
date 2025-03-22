@@ -258,5 +258,8 @@
     "Add any notes about the order...": "یادداشت‌های مربوط به سفارش را اضافه کنید...",
     "Create Order First": "ابتدا سفارش را ایجاد کنید",
     "each": "هر واحد",
-    "Live Updates": "به‌روزرسانی‌های زنده"
+    "Live Updates": "به‌روزرسانی‌های زنده",
+    "Date Range": "بازه زمانی",
+    "All Time": "همه زمان‌ها",
+    "Order Number": "شماره سفارش"
 }

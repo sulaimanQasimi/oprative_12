@@ -149,7 +149,7 @@
                                         class="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700">
                                     <option value="created_at">@lang('Date')</option>
                                     <option value="total_amount">@lang('Amount')</option>
-                                    <option value="status">@lang('Status')</option>
+                                    <option value="order_status">@lang('Status')</option>
                                 </select>
                                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
