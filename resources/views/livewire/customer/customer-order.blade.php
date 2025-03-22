@@ -218,12 +218,20 @@
                                                 </p>
                                             </div>
                                         </div>
-                                        <span class="px-4 py-1.5 text-sm font-semibold rounded-full shadow-sm
-                                            @if($order->status === 'pending') bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 border border-amber-200
-                                            @elseif($order->status === 'processing') bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border border-blue-200
-                                            @elseif($order->status === 'completed') bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border border-emerald-200
-                                            @else bg-gray-100 text-gray-700 border border-gray-200 @endif">
-                                            {{ ucfirst($order->status) }}
+                                        <span class="px-4 py-1.5 text-sm font-semibold rounded-full shadow-sm"
+                                            x-data="{ status: '' }"
+                                            x-init="$watch('selectedOrderId', async () => {
+                                                if (selectedOrderId) {
+                                                    status = await $wire.getOrderStatus(selectedOrderId);
+                                                }
+                                            })"
+                                            :class="{
+                                                'bg-gradient-to-r from-amber-100 to-orange-100 text-amber-700 border border-amber-200': status === 'pending',
+                                                'bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 border border-blue-200': status === 'processing',
+                                                'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-700 border border-emerald-200': status === 'completed',
+                                                'bg-gray-100 text-gray-700 border border-gray-200': !status
+                                            }"
+                                            x-text="status ? status.charAt(0).toUpperCase() + status.slice(1) : ''">
                                         </span>
                                     </div>
 
@@ -235,7 +243,16 @@
                                                 </svg>
                                                 @lang('Products')
                                             </span>
-                                            <p class="text-2xl font-bold text-emerald-600 mt-1">{{ $order->items->count() }}</p>
+                                            <p class="text-2xl font-bold text-emerald-600 mt-1"
+                                                x-data="{ items: [] }"
+                                                x-init="$watch('selectedOrderId', async () => {
+                                                    if (selectedOrderId) {
+                                                        items = await $wire.getOrderItems(selectedOrderId);
+                                                    } else {
+                                                        items = [];
+                                                    }
+                                                })"
+                                                x-text="items.length"></p>
                                         </div>
                                         <div class="col-span-2 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 group-hover:from-amber-100 group-hover:to-orange-100 transition-all duration-300">
                                             <span class="text-sm text-gray-600 flex items-center gap-2">
@@ -244,7 +261,16 @@
                                                 </svg>
                                                 @lang('Order Number')
                                             </span>
-                                            <p class="text-2xl font-bold text-amber-600 mt-1">{{ $order->order_number ?? '#' . str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</p>
+                                            <p class="text-2xl font-bold text-amber-600 mt-1"
+                                                x-data="{ orderNumber: '' }"
+                                                x-init="$watch('selectedOrderId', async () => {
+                                                    if (selectedOrderId) {
+                                                        orderNumber = await $wire.getOrderNumber(selectedOrderId);
+                                                    } else {
+                                                        orderNumber = '';
+                                                    }
+                                                })"
+                                                x-text="orderNumber"></p>
                                         </div>
                                     </div>
                                 </div>
@@ -292,7 +318,16 @@
                                                     <div class="bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-lg px-3 py-1">
                                                         <span class="text-sm font-medium text-indigo-700">@lang('Order Number')</span>
                                                     </div>
-                                                    <h3 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent" x-text="$wire.getOrderNumber(selectedOrderId)"></h3>
+                                                    <h3 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent"
+                                                        x-data="{ orderNumber: '' }"
+                                                        x-init="$watch('selectedOrderId', async () => {
+                                                            if (selectedOrderId) {
+                                                                orderNumber = await $wire.getOrderNumber(selectedOrderId);
+                                                            } else {
+                                                                orderNumber = '';
+                                                            }
+                                                        })"
+                                                        x-text="orderNumber"></h3>
                                                 </div>
                                                 <div class="flex items-center gap-2 text-gray-500">
                                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -304,7 +339,16 @@
                                             <div class="flex items-center gap-3">
                                                 <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl px-4 py-2 shadow-sm border border-amber-100/50">
                                                     <span class="text-sm text-gray-600 block mb-1">@lang('Order Number')</span>
-                                                    <p class="text-lg font-bold text-amber-600" x-text="$wire.getOrderNumber(selectedOrderId)"></p>
+                                                    <p class="text-lg font-bold text-amber-600"
+                                                        x-data="{ orderNumber: '' }"
+                                                        x-init="$watch('selectedOrderId', async () => {
+                                                            if (selectedOrderId) {
+                                                                orderNumber = await $wire.getOrderNumber(selectedOrderId);
+                                                            } else {
+                                                                orderNumber = '';
+                                                            }
+                                                        })"
+                                                        x-text="orderNumber"></p>
                                                 </div>
                                                 <span x-data="{ status: $wire.getOrderStatus(selectedOrderId) }"
                                                       :class="{
@@ -407,15 +451,19 @@
                                         </div>
                                     </div>
 
+
                                     <!-- Action Buttons -->
                                     <div class="flex justify-end gap-3">
-                                        <a href="{{ route('customer.orders.invoice', ['order' => $order->id]) }}" target="_blank"
-                                           class="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-2">
-                                            @lang('View Invoice')
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                        </a>
+                                        <template x-if="selectedOrderId">
+                                            <a :href="`/customer/orders/${selectedOrderId}/invoice`" target="_blank"
+                                               class="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-2">
+                                                @lang('View Invoice')
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </a>
+                                        </template>
+
                                         <button wire:click="viewOrderDetails(selectedOrderId)"
                                                 class="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white text-sm font-medium rounded-lg transition-all duration-200 flex items-center gap-2">
                                             @lang('View Full Details')
