@@ -34,6 +34,9 @@ Route::prefix('customer')->name('customer.')->group(function () {
         // Stock Products route
         Route::get('stock-products', \App\Livewire\Customer\CustomerStockProducts::class)->name('stock-products');
 
+        // Customer Orders route
+        Route::get('orders', \App\Livewire\Customer\CustomerOrder::class)->name('orders');
+
         // Profile routes
         Route::get('profile', [App\Http\Controllers\Customer\ProfileController::class, 'show'])->name('profile.show');
         Route::put('profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('profile.update');
