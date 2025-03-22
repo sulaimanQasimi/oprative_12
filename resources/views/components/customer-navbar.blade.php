@@ -30,6 +30,13 @@
                         </svg>
                         <span class="font-medium">@lang('Stock Products')</span>
                     </a>
+                    <a href="{{ route('customer.orders') }}"
+                       class="inline-flex items-center px-3 pt-1 border-b-2 transition-all duration-200 ease-in-out {{ request()->routeIs('customer.orders') ? 'border-blue-500 text-gray-900 scale-105' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:scale-105' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <span class="font-medium">@lang('Orders')</span>
+                    </a>
                 </div>
             </div>
 
