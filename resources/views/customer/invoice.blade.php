@@ -15,7 +15,7 @@
             }
 
             body {
-                margin: 1.6cm;
+                margin: 0.5cm;
             }
 
             .no-print {
