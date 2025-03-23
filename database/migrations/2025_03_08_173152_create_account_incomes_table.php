@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignIdFor(\App\Models\Account::class)->references('id')->on('accounts')->onDelete('RESTRICT');
             $table->string('reference_number')->nullable();;
             $table->decimal('amount', 10, 2);
+            $table->string('status')->default('pending');
             $table->nullableMorphs('model');
             $table->dateTime('date');
             $table->timestamps();

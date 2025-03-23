@@ -64,23 +64,23 @@ class Account extends Model
     public function getMonthlyIncomeAttribute()
     {
         return $this->approvedIncomes()
-            ->whereMonth('income_date', now()->month)
-            ->whereYear('income_date', now()->year)
+            ->whereMonth('date', now()->month)
+            ->whereYear('date', now()->year)
             ->sum('amount');
     }
 
     public function getYearlyIncomeAttribute()
     {
         return $this->approvedIncomes()
-            ->whereYear('income_date', now()->year)
+            ->whereYear('date', now()->year)
             ->sum('amount');
     }
 
     public function getIncomeByMonthAttribute()
     {
         return $this->approvedIncomes()
-            ->select(DB::raw('MONTH(income_date) as month'), DB::raw('SUM(amount) as total'))
-            ->whereYear('income_date', now()->year)
+            ->select(DB::raw('MONTH(date) as month'), DB::raw('SUM(amount) as total'))
+            ->whereYear('date', now()->year)
             ->groupBy('month')
             ->get()
             ->pluck('total', 'month')

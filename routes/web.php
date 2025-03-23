@@ -46,10 +46,10 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::put('profile/password', [App\Http\Controllers\Customer\ProfileController::class, 'updatePassword'])->name('profile.password');
 
         // Customer Accounts route
-        Route::get('accounts', \App\Livewire\Customer\CustomerAccounts::class)->name('accounts');
+        Route::get('/accounts', \App\Livewire\Customer\CustomerAccounts::class)->name('accounts');
 
         // Account incomes route
-        Route::get('/account/{account}/incomes', App\Livewire\Customer\AccountIncomes::class)->name('account.incomes');
+        Route::get('/account/{account}/incomes', \App\Livewire\Customer\AccountIncomes::class)->name('account.incomes');
     });
 });
 
