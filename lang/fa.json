@@ -297,5 +297,14 @@
     "The name may not be greater than 255 characters": "نام نمی‌تواند بیشتر از ۲۵۵ کاراکتر باشد",
     "The id number may not be greater than 50 characters": "شماره شناسایی نمی‌تواند بیشتر از ۵۰ کاراکتر باشد",
     "The address may not be greater than 500 characters": "آدرس نمی‌تواند بیشتر از ۵۰۰ کاراکتر باشد",
-    "Account request submitted successfully. Pending approval.": "درخواست حساب با موفقیت ثبت شد. در انتظار تایید."
+    "Account request submitted successfully. Pending approval.": "درخواست حساب با موفقیت ثبت شد. در انتظار تایید.",
+    "Advanced Filter": "فیلتر پیشرفته",
+    "Clear Filters": "پاک کردن فیلترها",
+    "Search by ID Number": "جستجو با شماره شناسایی",
+    "Search by Account Number": "جستجو با شماره حساب",
+    "Enter ID number to search...": "شماره شناسایی را برای جستجو وارد کنید...",
+    "Enter account number to search...": "شماره حساب را برای جستجو وارد کنید...",
+    "Filtering by ID Number and Account Number": "فیلتر با شماره شناسایی و شماره حساب",
+    "Filtering by ID Number": "فیلتر با شماره شناسایی",
+    "Filtering by Account Number": "فیلتر با شماره حساب"
 }
