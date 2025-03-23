@@ -261,5 +261,14 @@
     "Live Updates": "به‌روزرسانی‌های زنده",
     "Date Range": "بازه زمانی",
     "All Time": "همه زمان‌ها",
-    "Order Number": "شماره سفارش"
+    "Order Number": "شماره سفارش",
+    "My Bank Accounts": "حساب‌های بانکی من",
+    "Add New Account": "افزودن حساب جدید",
+    "Account Name": "نام حساب",
+    "Account Number": "شماره حساب",
+    "Bank Name": "نام بانک",
+    "Branch": "شعبه",
+    "No accounts found. Add your first account!": "هیچ حسابی یافت نشد. اولین حساب خود را اضافه کنید!",
+    "Add New Bank Account": "افزودن حساب بانکی جدید",
+    "Save Account": "ذخیره حساب"
 }

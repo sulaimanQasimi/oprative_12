@@ -44,6 +44,9 @@ Route::prefix('customer')->name('customer.')->group(function () {
         Route::get('profile', [App\Http\Controllers\Customer\ProfileController::class, 'show'])->name('profile.show');
         Route::put('profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('profile.update');
         Route::put('profile/password', [App\Http\Controllers\Customer\ProfileController::class, 'updatePassword'])->name('profile.password');
+
+        // Customer Accounts route
+        Route::get('accounts', \App\Livewire\Customer\CustomerAccounts::class)->name('accounts');
     });
 });
 
