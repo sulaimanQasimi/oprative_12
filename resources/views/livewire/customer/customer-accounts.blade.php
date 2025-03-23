@@ -72,63 +72,118 @@
         <div class="mt-8 flex flex-col">
             <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
                 <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                    <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        @lang('Name')
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        @lang('ID Number')
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        @lang('Account Number')
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        @lang('Address')
-                                    </th>
-                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        @lang('Status')
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse($accounts as $account)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
-                                            {{ $account->name }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                            {{ $account->id_number }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                            {{ $account->account_number }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                            {{ $account->address }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                            @if($account->approved_by)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                    @lang('Approved')
-                                                </span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                                    @lang('Pending')
-                                                </span>
-                                            @endif
-                                        </td>
+                    <div class="shadow-lg hover:shadow-xl transform transition-all duration-300 rounded-2xl overflow-hidden border border-indigo-50">
+                        <div class="bg-gradient-to-l from-indigo-50/50 via-white to-purple-50/50">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr class="bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-blue-500/5">
+                                        <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-indigo-600 uppercase tracking-wider">
+                                            <div class="flex items-center justify-end">
+                                                <span class="ml-2">@lang('Name')</span>
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                            </div>
+                                        </th>
+                                        <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-indigo-600 uppercase tracking-wider">
+                                            <div class="flex items-center justify-end">
+                                                <span class="ml-2">@lang('ID Number')</span>
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4z" />
+                                                </svg>
+                                            </div>
+                                        </th>
+                                        <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-indigo-600 uppercase tracking-wider">
+                                            <div class="flex items-center justify-end">
+                                                <span class="ml-2">@lang('Account Number')</span>
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                </svg>
+                                            </div>
+                                        </th>
+                                        <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-indigo-600 uppercase tracking-wider">
+                                            <div class="flex items-center justify-end">
+                                                <span class="ml-2">@lang('Address')</span>
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                </svg>
+                                            </div>
+                                        </th>
+                                        <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-indigo-600 uppercase tracking-wider">
+                                            <div class="flex items-center justify-end">
+                                                <span class="ml-2">@lang('Status')</span>
+                                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                        </th>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                            @lang('No accounts found. Add your first account!')
-                                        </td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    @forelse($accounts as $account)
+                                        <tr class="hover:bg-gradient-to-r hover:from-indigo-50/50 hover:via-purple-50/50 hover:to-blue-50/50 transition-all duration-300">
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-right">
+                                                <div class="flex items-center justify-end space-x-2 space-x-reverse">
+                                                    <span class="font-semibold">{{ $account->name }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">
+                                                <div class="flex items-center justify-end space-x-2 space-x-reverse">
+                                                    <span class="font-medium">{{ $account->id_number }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">
+                                                <div class="flex items-center justify-end space-x-2 space-x-reverse">
+                                                    <span class="font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                                        {{ $account->account_number }}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 text-right">
+                                                <div class="flex items-center justify-end space-x-2 space-x-reverse">
+                                                    <span class="font-medium">{{ $account->address }}</span>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                                @if($account->approved_by)
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200 transform transition-all duration-300 hover:scale-105">
+                                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        @lang('Approved')
+                                                    </span>
+                                                @else
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200 transform transition-all duration-300 hover:scale-105">
+                                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        @lang('Pending')
+                                                    </span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="px-6 py-8 whitespace-nowrap text-sm text-center">
+                                                <div class="flex flex-col items-center justify-center space-y-3">
+                                                    <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                                    </svg>
+                                                    <span class="text-gray-500 font-medium">@lang('No accounts found. Add your first account!')</span>
+                                                    <button wire:click="toggleCreateModal" class="mt-2 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 hover:scale-105">
+                                                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                        </svg>
+                                                        @lang('Add New Account')
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
