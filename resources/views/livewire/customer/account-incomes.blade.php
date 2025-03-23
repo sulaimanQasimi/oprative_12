@@ -25,24 +25,30 @@
                 </div>
                 <p class="mt-2 text-sm text-gray-500">{{ $account->name }} - {{ $account->account_number }}</p>
             </div>
-            <div class="mt-4 flex md:mt-0 md:ml-4">
-                <a href="{{ route('customer.accounts') }}" class="ml-3 inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div class="mt-4 flex md:mt-0 md:ml-4 space-x-3 space-x-reverse">
+                <a href="{{ route('customer.accounts') }}"
+                    class="group relative inline-flex items-center px-6 py-2.5 border-2 border-indigo-100 rounded-xl shadow-sm text-sm font-medium text-indigo-700 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 hover:scale-105 hover:shadow-md">
+                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <svg class="-ml-1 mr-2 h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    @lang('Back to Accounts')
+                    <span class="relative">@lang('Back to Accounts')</span>
                 </a>
-                <button wire:click="toggleCreateModal" class="ml-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button wire:click="toggleCreateModal"
+                    class="group relative inline-flex items-center px-6 py-2.5 border-2 border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 hover:from-indigo-700 hover:via-purple-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <svg class="-ml-1 mr-2 h-5 w-5 transform group-hover:rotate-90 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                    @lang('Add New Income')
+                    <span class="relative">@lang('Add New Income')</span>
                 </button>
-                <button wire:click="toggleCreateOutcomeModal" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
-                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button wire:click="toggleCreateOutcomeModal"
+                    class="group relative inline-flex items-center px-6 py-2.5 border-2 border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-red-600 via-orange-600 to-yellow-600 hover:from-red-700 hover:via-orange-700 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform transition-all duration-300 hover:scale-105 hover:shadow-lg">
+                    <div class="absolute inset-0 bg-gradient-to-r from-red-400 via-orange-400 to-yellow-400 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <svg class="-ml-1 mr-2 h-5 w-5 transform group-hover:rotate-90 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                     </svg>
-                    @lang('Add New Outcome')
+                    <span class="relative">@lang('Add New Outcome')</span>
                 </button>
             </div>
         </div>
