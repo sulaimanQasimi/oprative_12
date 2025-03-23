@@ -29,11 +29,17 @@
                     </svg>
                     @lang('Back to Accounts')
                 </a>
-                <button wire:click="toggleCreateModal" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <button wire:click="toggleCreateModal" class="mr-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
                     @lang('Add New Income')
+                </button>
+                <button wire:click="toggleCreateOutcomeModal" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                    </svg>
+                    @lang('Add New Outcome')
                 </button>
             </div>
         </div>
@@ -76,16 +82,16 @@
                 </div>
             </div>
 
-            <!-- Pending Income -->
-            <div class="bg-white rounded-xl shadow-sm border border-yellow-50 p-6">
+            <!-- Total Outcome -->
+            <div class="bg-white rounded-xl shadow-sm border border-red-50 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-500">@lang('Pending Income')</p>
-                        <p class="text-2xl font-bold text-yellow-600">{{ number_format($pendingIncome, 2) }}</p>
+                        <p class="text-sm font-medium text-gray-500">@lang('Total Outcome')</p>
+                        <p class="text-2xl font-bold text-red-600">{{ number_format($totalOutcome, 2) }}</p>
                     </div>
-                    <div class="bg-yellow-50 rounded-full p-3">
-                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <div class="bg-red-50 rounded-full p-3">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                         </svg>
                     </div>
                 </div>
@@ -106,15 +112,15 @@
                 </div>
             </div>
 
-            <!-- Yearly Income -->
-            <div class="bg-white rounded-xl shadow-sm border border-blue-50 p-6">
+            <!-- Monthly Outcome -->
+            <div class="bg-white rounded-xl shadow-sm border border-yellow-50 p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-500">@lang('Yearly Income')</p>
-                        <p class="text-2xl font-bold text-blue-600">{{ number_format($yearlyIncome, 2) }}</p>
+                        <p class="text-sm font-medium text-gray-500">@lang('Monthly Outcome')</p>
+                        <p class="text-2xl font-bold text-yellow-600">{{ number_format($monthlyOutcome, 2) }}</p>
                     </div>
-                    <div class="bg-blue-50 rounded-full p-3">
-                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="bg-yellow-50 rounded-full p-3">
+                        <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
                     </div>
@@ -122,10 +128,30 @@
             </div>
         </div>
 
-        <!-- Income List -->
+        <!-- Tabs -->
+        <div class="mb-8">
+            <div class="border-b border-gray-200">
+                <nav class="-mb-px flex space-x-8 space-x-reverse" aria-label="Tabs">
+                    <button wire:click="$set('activeTab', 'incomes')" class="border-indigo-500 text-indigo-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        @lang('Incomes')
+                    </button>
+                    <button wire:click="$set('activeTab', 'outcomes')" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                        @lang('Outcomes')
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Income/Outcome List -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900">@lang('Income History')</h3>
+                <h3 class="text-lg font-medium text-gray-900">
+                    @if($activeTab === 'incomes')
+                        @lang('Income History')
+                    @else
+                        @lang('Outcome History')
+                    @endif
+                </h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -138,7 +164,11 @@
                                 @lang('Amount')
                             </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                @lang('Source')
+                                @if($activeTab === 'incomes')
+                                    @lang('Source')
+                                @else
+                                    @lang('Reference')
+                                @endif
                             </th>
                             <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 @lang('Status')
@@ -146,38 +176,72 @@
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        @forelse($incomes as $income)
-                            <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                    {{ $income->income_date->format('Y-m-d') }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                    {{ number_format($income->amount, 2) }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                    {{ $income->source }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                                        @if($income->status === 'approved') bg-green-100 text-green-800
-                                        @elseif($income->status === 'pending') bg-yellow-100 text-yellow-800
-                                        @else bg-red-100 text-red-800 @endif">
-                                        {{ $income->status_text }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
-                                    @lang('No income records found.')
-                                </td>
-                            </tr>
-                        @endforelse
+                        @if($activeTab === 'incomes')
+                            @forelse($incomes as $income)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                        {{ $income->income_date->format('Y-m-d') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                        {{ number_format($income->amount, 2) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                        {{ $income->source }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            @if($income->status === 'approved') bg-green-100 text-green-800
+                                            @elseif($income->status === 'pending') bg-yellow-100 text-yellow-800
+                                            @else bg-red-100 text-red-800 @endif">
+                                            {{ $income->status_text }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                        @lang('No income records found.')
+                                    </td>
+                                </tr>
+                            @endforelse
+                        @else
+                            @forelse($outcomes as $outcome)
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                        {{ $outcome->date->format('Y-m-d') }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                        {{ number_format($outcome->amount, 2) }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                        {{ $outcome->reference_number }}
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                            @if($outcome->status === 'approved') bg-green-100 text-green-800
+                                            @elseif($outcome->status === 'pending') bg-yellow-100 text-yellow-800
+                                            @else bg-red-100 text-red-800 @endif">
+                                            {{ $outcome->status_text }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                        @lang('No outcome records found.')
+                                    </td>
+                                </tr>
+                            @endforelse
+                        @endif
                     </tbody>
                 </table>
             </div>
             <div class="px-6 py-4 border-t border-gray-200">
-                {{ $incomes->links() }}
+                @if($activeTab === 'incomes')
+                    {{ $incomes->links() }}
+                @else
+                    {{ $outcomes->links() }}
+                @endif
             </div>
         </div>
     </div>
@@ -282,6 +346,114 @@
                             @lang('Save Income')
                         </button>
                         <button type="button" wire:click="toggleCreateModal" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 hover:scale-105 sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm">
+                            @lang('Cancel')
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Outcome Modal -->
+    <div x-show="showCreateOutcomeModal"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0 transform scale-95"
+        x-transition:enter-end="opacity-100 transform scale-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100 transform scale-100"
+        x-transition:leave-end="opacity-0 transform scale-95"
+        class="fixed z-10 inset-0 overflow-y-auto"
+        x-cloak>
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true"></div>
+
+            <div class="inline-block align-bottom bg-white rounded-2xl text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <form wire:submit.prevent="createOutcome">
+                    <div class="bg-gradient-to-l from-red-50 via-white to-yellow-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:text-right w-full">
+                                <div class="bg-gradient-to-r from-red-600 via-yellow-600 to-orange-600 p-4 -mx-4 -mt-5 mb-6">
+                                    <h3 class="text-xl leading-6 font-bold text-white" id="modal-title">
+                                        @lang('Add New Outcome')
+                                    </h3>
+                                    <p class="mt-2 text-red-100 text-sm">@lang('Enter outcome details below')</p>
+                                </div>
+                                <div class="mt-6 space-y-6">
+                                    <div class="input-group relative">
+                                        <label for="outcome_amount" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-red-600 to-yellow-600 bg-clip-text text-transparent">
+                                            @lang('Amount')
+                                        </label>
+                                        <div class="mt-1 relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
+                                            <input type="number" step="0.01" wire:model.defer="outcome_amount" id="outcome_amount"
+                                                class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-red-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
+                                                placeholder="@lang('Enter amount')">
+                                        </div>
+                                        @error('outcome_amount') <span class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
+                                    </div>
+
+                                    <div class="input-group relative">
+                                        <label for="outcome_reference_number" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-red-600 to-yellow-600 bg-clip-text text-transparent">
+                                            @lang('Reference Number')
+                                        </label>
+                                        <div class="mt-1 relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                                </svg>
+                                            </div>
+                                            <input type="text" wire:model.defer="outcome_reference_number" id="outcome_reference_number"
+                                                class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-red-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
+                                                placeholder="@lang('Enter reference number')">
+                                        </div>
+                                        @error('outcome_reference_number') <span class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
+                                    </div>
+
+                                    <div class="input-group relative">
+                                        <label for="outcome_description" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-red-600 to-yellow-600 bg-clip-text text-transparent">
+                                            @lang('Description')
+                                        </label>
+                                        <div class="mt-1 relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                                </svg>
+                                            </div>
+                                            <textarea wire:model.defer="outcome_description" id="outcome_description"
+                                                class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-red-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
+                                                placeholder="@lang('Enter description')" rows="3"></textarea>
+                                        </div>
+                                        @error('outcome_description') <span class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
+                                    </div>
+
+                                    <div class="input-group relative">
+                                        <label for="outcome_date" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-red-600 to-yellow-600 bg-clip-text text-transparent">
+                                            @lang('Date')
+                                        </label>
+                                        <div class="mt-1 relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                </svg>
+                                            </div>
+                                            <input type="date" wire:model.defer="outcome_date" id="outcome_date"
+                                                class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-red-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white">
+                                        </div>
+                                        @error('outcome_date') <span class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gradient-to-r from-gray-50 to-red-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2 bg-gradient-to-r from-red-600 to-yellow-600 text-base font-medium text-white hover:from-red-700 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform transition-all duration-300 hover:scale-105 sm:mr-3 sm:w-auto sm:text-sm">
+                            @lang('Save Outcome')
+                        </button>
+                        <button type="button" wire:click="toggleCreateOutcomeModal" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform transition-all duration-300 hover:scale-105 sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm">
                             @lang('Cancel')
                         </button>
                     </div>

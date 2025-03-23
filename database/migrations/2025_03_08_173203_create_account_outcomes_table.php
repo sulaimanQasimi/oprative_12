@@ -15,11 +15,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('RESTRICT');
             $table->foreignIdFor(\App\Models\Account::class)->references('id')->on('accounts')->onDelete('RESTRICT');
-            $table->string('reference_number')->nullable();;
+            $table->string('reference_number')->nullable();
             $table->decimal('amount', 10, 2);
             $table->nullableMorphs('model');
             $table->dateTime('date');
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
