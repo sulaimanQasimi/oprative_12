@@ -11,6 +11,8 @@
         }
     }
 }">
+<x-customer-navbar />
+
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <!-- Header Section -->
         <div class="md:flex md:items-center md:justify-between mb-8 pb-4 border-b border-gray-200">
