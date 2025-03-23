@@ -28,6 +28,14 @@
                 <p class="mt-2 text-sm text-gray-500">{{ $account->name }} - {{ $account->account_number }}</p>
             </div>
             <div class="mt-4 flex md:mt-0 md:ml-4 space-x-6 space-x-reverse">
+                <a href="{{ route('reports.account.statement', $account) }}" target="_blank"
+                    class="group relative inline-flex items-center px-6 py-2.5 border-2 border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-300 hover:scale-105 hover:shadow-lg ml-2">
+                    <svg class="ml-2 h-5 w-5 transform group-hover:rotate-90 transition-transform duration-300"
+                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span class="relative">@lang('Print Report')</span>
+                </a>
                 <button wire:click="toggleCreateModal"
                     class="group relative inline-flex items-center px-6 py-2.5 border-2 border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transform transition-all duration-300 hover:scale-105 hover:shadow-lg ml-2">
                     <svg class="ml-2 h-5 w-5 transform group-hover:rotate-90 transition-transform duration-300"

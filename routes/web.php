@@ -58,5 +58,7 @@ Route::get('/thermal/print/income/{income}', [App\Http\Controllers\ThermalPrinte
 Route::get('/thermal/print/outcome/{outcome}', [App\Http\Controllers\ThermalPrinterController::class, 'printOutcome'])
     ->name('thermal.print.outcome');
 
+Route::get('/reports/account/{account}/statement', [App\Http\Controllers\ReportController::class, 'accountStatement'])->name('reports.account.statement');
+
 require __DIR__.'/auth.php';
 require __DIR__.'/purchase.php';
