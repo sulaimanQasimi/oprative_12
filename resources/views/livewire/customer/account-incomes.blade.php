@@ -1,6 +1,5 @@
 <div class="rtl" dir="rtl" x-data="{
     showCreateModal: @entangle('showCreateModal'),
-    showCreateOutcomeModal: @entangle('showCreateOutcomeModal'),
     showSuccessMessage: false,
     init() {
         if ($wire.flash.success) {
@@ -20,7 +19,7 @@
                 <div class="relative">
                     <h2
                         class="text-3xl md:text-4xl font-bold leading-tight mb-2 bg-gradient-to-l from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                        @lang('Account Incomes')
+                        @lang('Customer Account')
                     </h2>
                     <div class="h-1 w-24 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 rounded-full">
                     </div>
@@ -45,21 +44,13 @@
                     </svg>
                     <span class="relative">@lang('Add New Income')</span>
                 </button>
-                <button wire:click="toggleCreateOutcomeModal"
-                    class="group relative inline-flex items-center px-6 py-2.5 border-2 border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform transition-all duration-300 hover:scale-105 hover:shadow-lg ml-2">
-                    <svg class="ml-2 h-5 w-5 transform group-hover:rotate-90 transition-transform duration-300"
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                    </svg>
-                    <span class="relative">@lang('Add New Rent')</span>
-                </button>
                 <a href="{{ route('customer.accounts') }}"
                     class="group relative inline-flex items-center px-6 py-2.5 border-2 border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transform transition-all duration-300 hover:scale-105 hover:shadow-md ml-2">
                     <span class="relative ml-2">@lang('Back to Accounts')</span>
                     <svg class="h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-300"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                 </a>
             </div>
@@ -467,143 +458,6 @@
                         <button type="submit"
                             class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
                             @lang('Save Income')
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Rent Modal -->
-    <div x-show="showCreateOutcomeModal" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100"
-        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 transform scale-100"
-        x-transition:leave-end="opacity-0 transform scale-95" class="fixed z-10 inset-0 overflow-y-auto" x-cloak>
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true">
-            </div>
-
-            <div
-                class="inline-block align-bottom bg-white rounded-2xl text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                <form wire:submit.prevent="createOutcome">
-                    <div class="bg-gradient-to-l from-red-50 via-white to-yellow-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
-                            <div class="mt-3 text-center sm:mt-0 sm:text-right w-full">
-                                <div
-                                    class="bg-gradient-to-r from-red-600 via-yellow-600 to-orange-600 p-4 -mx-4 -mt-5 mb-6">
-                                    <h3 class="text-xl leading-6 font-bold text-white" id="modal-title">
-                                        @lang('Add New Rent')
-                                    </h3>
-                                    <p class="mt-2 text-red-100 text-sm">@lang('Enter rent details below')</p>
-                                </div>
-                                <div class="mt-6 space-y-6">
-                                    <div class="input-group relative">
-                                        <label for="outcome_amount"
-                                            class="floating-label absolute text-sm font-medium bg-gradient-to-r from-red-600 to-yellow-600 bg-clip-text text-transparent">
-                                            @lang('Amount')
-                                        </label>
-                                        <div class="mt-1 relative">
-                                            <div
-                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <svg class="input-icon h-5 w-5 text-gray-400"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                            <input type="number" step="0.01" wire:model.defer="outcome_amount"
-                                                id="outcome_amount"
-                                                class="block w-full pr-10 pl-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-red-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
-                                                placeholder="@lang('Enter amount')">
-                                        </div>
-                                        @error('outcome_amount') <span
-                                        class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
-                                    </div>
-
-                                    <div class="input-group relative">
-                                        <label for="outcome_reference_number"
-                                            class="floating-label absolute text-sm font-medium bg-gradient-to-r from-red-600 to-yellow-600 bg-clip-text text-transparent">
-                                            @lang('Reference Number')
-                                        </label>
-                                        <div class="mt-1 relative">
-                                            <div
-                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <svg class="input-icon h-5 w-5 text-gray-400"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                                </svg>
-                                            </div>
-                                            <input type="text" wire:model.defer="outcome_reference_number"
-                                                id="outcome_reference_number"
-                                                class="block w-full pr-10 pl-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-red-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
-                                                placeholder="@lang('Enter reference number')">
-                                        </div>
-                                        @error('outcome_reference_number') <span
-                                        class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
-                                    </div>
-
-                                    <div class="input-group relative">
-                                        <label for="outcome_description"
-                                            class="floating-label absolute text-sm font-medium bg-gradient-to-r from-red-600 to-yellow-600 bg-clip-text text-transparent">
-                                            @lang('Description')
-                                        </label>
-                                        <div class="mt-1 relative">
-                                            <div
-                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <svg class="input-icon h-5 w-5 text-gray-400"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                                </svg>
-                                            </div>
-                                            <textarea wire:model.defer="outcome_description" id="outcome_description"
-                                                class="block w-full pr-10 pl-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-red-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
-                                                placeholder="@lang('Enter description')" rows="3"></textarea>
-                                        </div>
-                                        @error('outcome_description') <span
-                                        class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
-                                    </div>
-
-                                    <div class="input-group relative">
-                                        <label for="outcome_date"
-                                            class="floating-label absolute text-sm font-medium bg-gradient-to-r from-red-600 to-yellow-600 bg-clip-text text-transparent">
-                                            @lang('Date')
-                                        </label>
-                                        <div class="mt-1 relative">
-                                            <div
-                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <svg class="input-icon h-5 w-5 text-gray-400"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                            </div>
-                                            <input type="date" wire:model.defer="outcome_date" id="outcome_date"
-                                                class="block w-full pr-10 pl-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-red-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white">
-                                        </div>
-                                        @error('outcome_date') <span
-                                        class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-gradient-to-r from-gray-50 to-red-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="submit"
-                            class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2 bg-gradient-to-r from-red-600 to-yellow-600 text-base font-medium text-white hover:from-red-700 hover:to-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform transition-all duration-300 hover:scale-105 sm:ml-3 sm:w-auto sm:text-sm">
-                            @lang('Save Rent')
-                        </button>
-                        <button type="button" wire:click="toggleCreateOutcomeModal"
-                            class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transform transition-all duration-300 hover:scale-105 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
-                            @lang('Cancel')
                         </button>
                     </div>
                 </form>
