@@ -20,6 +20,7 @@ class AccountIncomes extends Component
     public $description;
     public $income_date;
     public $status = 'pending';
+    public $activeTab = 'incomes';
 
     // Outcome properties
     public $outcome_amount;
@@ -114,15 +115,15 @@ class AccountIncomes extends Component
             'monthlyIncome' => $this->account->monthly_income,
             'yearlyIncome' => $this->account->yearly_income,
             'incomeByMonth' => $this->account->income_by_month,
-            'totalOutcome' => $this->account->outcomes()->where('status', 'approved')->sum('amount'),
-            'pendingOutcome' => $this->account->outcomes()->where('status', 'pending')->sum('amount'),
+            'totalOutcome' => $this->account->outcomes()->where('status', '=', 'approved')->sum('amount'),
+            'pendingOutcome' => $this->account->outcomes()->where('status', '=', 'pending')->sum('amount'),
             'monthlyOutcome' => $this->account->outcomes()
-                ->where('status', 'approved')
+                ->where('status', '=', 'approved')
                 ->whereMonth('date', now()->month)
                 ->whereYear('date', now()->year)
                 ->sum('amount'),
             'yearlyOutcome' => $this->account->outcomes()
-                ->where('status', 'approved')
+                ->where('status', '=', 'approved')
                 ->whereYear('date', now()->year)
                 ->sum('amount'),
         ]);

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AccountOutcome extends Model
 {
-    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -16,7 +15,9 @@ class AccountOutcome extends Model
         'amount',
         'model_type',
         'model_id',
-        'date'
+        'date',
+        'status',
+        'description'
     ];
 
     protected $casts = [

@@ -1,8 +1,9 @@
 <div class="rtl" dir="rtl" x-data="{
     showCreateModal: @entangle('showCreateModal'),
+    showCreateOutcomeModal: @entangle('showCreateOutcomeModal'),
     showSuccessMessage: false,
     init() {
-        if ($wire.session.has('success')) {
+        if ($wire.flash.success) {
             this.showSuccessMessage = true;
             setTimeout(() => {
                 this.showSuccessMessage = false;
@@ -60,7 +61,7 @@
                     </svg>
                 </div>
                 <div class="mr-3">
-                    <p class="text-sm font-medium text-green-800" x-text="$wire.session.get('success')"></p>
+                    <p class="text-sm font-medium text-green-800" x-text="$wire.flash.success"></p>
                 </div>
             </div>
         </div>
