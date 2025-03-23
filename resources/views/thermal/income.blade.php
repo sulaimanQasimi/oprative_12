@@ -1,77 +1,157 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html dir="rtl" lang="fa">
 <head>
-    <meta charset="utf-8">
-    <title>Income Receipt</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>رسید بازپرداخت</title>
     <style>
-        body {
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.4;
+        @font-face {
+            font-family: 'B Nazanin';
+            src: url('/fonts/persian/B-NAZANIN.TTF') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'IRANSans';
+            src: url('/fonts/persian/IRANSansWeb.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @page {
+            size: 80mm auto;
             margin: 0;
-            padding: 10px;
+        }
+        * {
+            font-family: 'IRANSans', 'B Nazanin', tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            direction: rtl;
             width: 80mm;
+            background: white;
+            margin: 0 auto;
+            padding: 3mm;
+            font-size: 12pt;
+        }
+        .receipt {
+            text-align: center;
         }
         .header {
-            text-align: center;
-            margin-bottom: 10px;
             border-bottom: 1px dashed #000;
-            padding-bottom: 5px;
+            padding-bottom: 5mm;
+            margin-bottom: 5mm;
         }
-        .content {
-            margin: 10px 0;
+        .header h1 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin-bottom: 2mm;
         }
-        .row {
-            display: flex;
-            justify-content: space-between;
-            margin: 5px 0;
+        .header p {
+            font-size: 12pt;
+            margin: 1mm 0;
         }
-        .footer {
-            text-align: center;
-            margin-top: 10px;
-            border-top: 1px dashed #000;
-            padding-top: 5px;
+        .details {
+            text-align: right;
+            margin: 5mm 0;
+        }
+        .details p {
+            margin: 2mm 0;
+            font-size: 12pt;
         }
         .amount {
-            font-size: 16px;
+            font-size: 16pt;
             font-weight: bold;
+            margin: 5mm 0;
+            text-align: center;
+        }
+        .status {
+            text-align: center;
+            margin: 5mm 0;
+            font-weight: bold;
+            padding: 2mm;
+            border: 1px solid #000;
+            border-style: dashed;
+        }
+        .footer {
+            margin-top: 5mm;
+            padding-top: 5mm;
+            border-top: 1px dashed #000;
+            text-align: center;
+            font-size: 10pt;
+        }
+        @media print {
+            @page {
+                size: 80mm auto;
+                margin: 0;
+            }
+            html, body {
+                width: 80mm;
+                height: auto;
+                margin: 0;
+                padding: 3mm;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+        .print-button {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: tahoma, sans-serif;
+        }
+        .print-button:hover {
+            background: #45a049;
         }
     </style>
+    <script>
+        function printReceipt() {
+            window.print();
+        }
+        // Auto print when page loads
+        window.onload = function() {
+            window.print();
+        }
+    </script>
 </head>
 <body>
-    <div class="header">
-        <h2>بازپرداخت قرض</h2>
-        <p>{{ $account->name }}</p>
-    </div>
+    <button onclick="printReceipt()" class="print-button no-print">Print</button>
+    <div class="receipt">
+        <div class="header">
+            <h1>رسید بازپرداخت</h1>
+            <p>{{ $income->account->name }}</p>
+            <p>{{ $income->account->account_number }}</p>
+        </div>
 
-    <div class="content">
-        <div class="row">
-            <span>شماره حساب:</span>
-            <span>{{ $account->account_number }}</span>
+        <div class="details">
+            <p><strong>تاریخ:</strong> {{ $income->date->format('Y-m-d') }}</p>
+            <p><strong>مبلغ:</strong> {{ number_format($income->amount, 2) }}</p>
+            <p><strong>منبع:</strong> {{ $income->source }}</p>
+            @if($income->description)
+                <p><strong>توضیحات:</strong> {{ $income->description }}</p>
+            @endif
         </div>
-        <div class="row">
-            <span>تاریخ:</span>
-            <span>{{ $income->date->format('Y-m-d') }}</span>
-        </div>
-        <div class="row">
-            <span>منبع:</span>
-            <span>{{ $income->source }}</span>
-        </div>
-        <div class="row">
-            <span>مبلغ:</span>
-            <span class="amount">{{ number_format($income->amount, 2) }}</span>
-        </div>
-        @if($income->description)
-        <div class="row">
-            <span>توضیحات:</span>
-            <span>{{ $income->description }}</span>
-        </div>
-        @endif
-    </div>
 
-    <div class="footer">
-        <p>وضعیت: {{ $income->status_text }}</p>
-        <p>{{ now()->format('Y-m-d H:i:s') }}</p>
+        <div class="amount">
+            {{ number_format($income->amount, 2) }} ریال
+        </div>
+
+        <div class="status">
+            وضعیت: {{ $income->status === 'approved' ? 'تایید شده' : ($income->status === 'pending' ? 'در انتظار تایید' : 'رد شده') }}
+        </div>
+
+        <div class="footer">
+            <p>{{ $income->created_at->format('Y-m-d H:i:s') }}</p>
+            <p>شماره پیگیری: {{ str_pad($income->id, 6, '0', STR_PAD_LEFT) }}</p>
+        </div>
     </div>
 </body>
 </html>
