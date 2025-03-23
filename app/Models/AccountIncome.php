@@ -15,14 +15,14 @@ class AccountIncome extends Model
         'amount',
         'source',
         'description',
-        'income_date',
+        'date',
         'status',
         'approved_by'
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
-        'income_date' => 'date',
+        'date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime'
