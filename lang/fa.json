@@ -350,5 +350,8 @@
     "Income Amount": "مبلغ بازپرداخت",
     "Rent Amount": "مبلغ قرض",
     "Income Description": "توضیحات بازپرداخت",
-    "Rent Description": "توضیحات قرض"
+    "Rent Description": "توضیحات قرض",
+    "Print Report": "چاپ گزارش",
+    "Approve": "تایید",
+    "Print": "چاپ"
 }

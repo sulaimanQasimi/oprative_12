@@ -16,9 +16,7 @@ class AccountIncomes extends Component
     public $showCreateModal = false;
     public $showCreateOutcomeModal = false;
     public $amount;
-    public $source;
     public $description;
-    public $date;
     public $status = 'pending';
     public $activeTab = 'incomes';
 
@@ -30,9 +28,7 @@ class AccountIncomes extends Component
 
     protected $rules = [
         'amount' => 'required|numeric|min:0',
-        'source' => 'required|string|max:255',
         'description' => 'nullable|string|max:1000',
-        'date' => 'required|date',
         'outcome_amount' => 'required|numeric|min:0',
         'outcome_reference_number' => 'nullable|string|max:255',
         'outcome_date' => 'required|date',
@@ -42,7 +38,6 @@ class AccountIncomes extends Component
     public function mount(Account $account)
     {
         $this->account = $account;
-        $this->date = now()->format('Y-m-d');
         $this->outcome_date = now()->format('Y-m-d');
     }
 
@@ -50,20 +45,16 @@ class AccountIncomes extends Component
     {
         $this->validate([
             'amount' => 'required|numeric|min:0',
-            'source' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'date' => 'required|date',
         ]);
 
         $this->account->incomes()->create([
             'amount' => $this->amount,
-            'source' => $this->source,
             'description' => $this->description,
-            'date' => $this->date,
             'status' => 'pending'
         ]);
 
-        $this->reset(['amount', 'source', 'description', 'date', 'showCreateModal']);
+        $this->reset(['amount', 'description', 'showCreateModal']);
         session()->flash('success', __('Income request submitted successfully. Pending approval.'));
     }
 
@@ -112,7 +103,7 @@ class AccountIncomes extends Component
     public function toggleCreateModal()
     {
         $this->showCreateModal = !$this->showCreateModal;
-        $this->reset(['amount', 'source', 'description', 'date']);
+        $this->reset(['amount', 'description']);
     }
 
     public function toggleCreateOutcomeModal()

@@ -268,7 +268,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex items-center justify-end space-x-3 space-x-reverse">
+                                        <div class="flex items-center justify-end space-x-4 space-x-reverse">
                                             @if($income->status === 'pending')
                                                 <button wire:click="approveIncome({{ $income->id }})"
                                                         class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 transform hover:scale-105">
@@ -327,7 +327,7 @@
                                         </span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        <div class="flex items-center justify-end space-x-3 space-x-reverse">
+                                        <div class="flex items-center justify-end space-x-4 space-x-reverse">
                                             @if($outcome->status === 'pending')
                                                 <button wire:click="approveOutcome({{ $outcome->id }})"
                                                         class="inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200 transform hover:scale-105">
@@ -382,126 +382,91 @@
             <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true">
             </div>
 
-            <div
-                class="inline-block align-bottom bg-white rounded-2xl text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="inline-block align-bottom bg-white rounded-2xl text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <form wire:submit.prevent="createIncome">
-                    <div class="bg-gradient-to-l from-indigo-50 via-white to-purple-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div class="sm:flex sm:items-start">
-                            <div class="mt-3 text-center sm:mt-0 sm:text-right w-full">
-                                <div
-                                    class="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 p-4 -mx-4 -mt-5 mb-6">
-                                    <h3 class="text-xl leading-6 font-bold text-white" id="modal-title">
-                                        @lang('Add New Income')
-                                    </h3>
-                                    <p class="mt-2 text-indigo-100 text-sm">@lang('Enter income details below')</p>
+                    <!-- Header -->
+                    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
                                 </div>
-                                <div class="mt-6 space-y-6">
-                                    <div class="input-group relative">
-                                        <label for="amount"
-                                            class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                            @lang('Amount')
-                                        </label>
-                                        <div class="mt-1 relative">
-                                            <div
-                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <svg class="input-icon h-5 w-5 text-gray-400"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                                </svg>
-                                            </div>
-                                            <input type="number" step="0.01" wire:model.defer="amount" id="amount"
-                                                class="block w-full pr-10 pl-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
-                                                placeholder="@lang('Enter amount')">
-                                        </div>
-                                        @error('amount') <span class="text-red-500 text-xs mt-1">@lang($message)</span>
-                                        @enderror
-                                    </div>
+                                <div class="mr-3">
+                                    <h3 class="text-lg font-bold text-white">@lang('Add New Income')</h3>
+                                    <p class="text-sm text-indigo-100">@lang('Enter income details below')</p>
+                                </div>
+                            </div>
+                            <button type="button" wire:click="toggleCreateModal" class="text-white hover:text-indigo-100 focus:outline-none">
+                                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
 
-                                    <div class="input-group relative">
-                                        <label for="source"
-                                            class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                            @lang('Source')
-                                        </label>
-                                        <div class="mt-1 relative">
-                                            <div
-                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <svg class="input-icon h-5 w-5 text-gray-400"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                                </svg>
-                                            </div>
-                                            <input type="text" wire:model.defer="source" id="source"
-                                                class="block w-full pr-10 pl-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
-                                                placeholder="@lang('Enter income source')">
-                                        </div>
-                                        @error('source') <span class="text-red-500 text-xs mt-1">@lang($message)</span>
-                                        @enderror
+                    <!-- Content -->
+                    <div class="px-6 py-6">
+                        <div class="space-y-6">
+                            <!-- Amount Field -->
+                            <div class="relative">
+                                <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
+                                    @lang('Amount')
+                                </label>
+                                <div class="relative rounded-lg shadow-sm">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm font-medium">افغانی</span>
                                     </div>
+                                    <input type="number" step="0.01" wire:model.defer="amount" id="amount"
+                                        class="block w-full pr-20 pl-4 py-3 text-right border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                                        placeholder="@lang('Enter amount')">
+                                </div>
+                                @error('amount')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
 
-                                    <div class="input-group relative">
-                                        <label for="description"
-                                            class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                            @lang('Description')
-                                        </label>
-                                        <div class="mt-1 relative">
-                                            <div
-                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <svg class="input-icon h-5 w-5 text-gray-400"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                                                </svg>
-                                            </div>
-                                            <textarea wire:model.defer="description" id="description"
-                                                class="block w-full pr-10 pl-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
-                                                placeholder="@lang('Enter description')" rows="3"></textarea>
-                                        </div>
-                                        @error('description') <span
-                                        class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
+                            <!-- Description Field -->
+                            <div class="relative">
+                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                                    @lang('Description')
+                                </label>
+                                <div class="relative rounded-lg shadow-sm">
+                                    <textarea wire:model.defer="description" id="description" rows="3"
+                                        class="block w-full pr-4 py-3 text-right border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                                        placeholder="@lang('Enter description')"></textarea>
+                                </div>
+                                @error('description')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Auto-generated Info -->
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">@lang('Source Number')</p>
+                                        <p class="mt-1 text-sm text-gray-900 font-medium">@lang('Auto-generated')</p>
                                     </div>
-
-                                    <div class="input-group relative">
-                                        <label for="date"
-                                            class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                            @lang('Date')
-                                        </label>
-                                        <div class="mt-1 relative">
-                                            <div
-                                                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                <svg class="input-icon h-5 w-5 text-gray-400"
-                                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                        stroke-width="2"
-                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                            </div>
-                                            <input type="date" wire:model.defer="date" id="date"
-                                                class="block w-full pr-10 pl-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white">
-                                        </div>
-                                        @error('date') <span
-                                        class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-500">@lang('Date')</p>
+                                        <p class="mt-1 text-sm text-gray-900 font-medium">{{ now()->format('Y/m/d') }}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div
-                        class="bg-gradient-to-r from-gray-50 to-indigo-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                        <button type="submit"
-                            class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-base font-medium text-white hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 hover:scale-105 sm:ml-3 sm:w-auto sm:text-sm">
-                            @lang('Save Income')
-                        </button>
+
+                    <!-- Footer -->
+                    <div class="bg-gray-50 px-6 py-4 flex justify-end space-x-3 space-x-reverse">
                         <button type="button" wire:click="toggleCreateModal"
-                            class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 hover:scale-105 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            class="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
                             @lang('Cancel')
+                        </button>
+                        <button type="submit"
+                            class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 border border-transparent rounded-lg hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200">
+                            @lang('Save Income')
                         </button>
                     </div>
                 </form>

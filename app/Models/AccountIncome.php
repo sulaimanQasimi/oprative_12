@@ -15,7 +15,6 @@ class AccountIncome extends Model
         'amount',
         'source',
         'description',
-        'date',
         'status',
         'approved_by'
     ];
@@ -27,6 +26,25 @@ class AccountIncome extends Model
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($income) {
+            $income->date = now();
+            $income->source = static::generateSourceNumber();
+        });
+    }
+
+    protected static function generateSourceNumber()
+    {
+        $prefix = 'INC';
+        $year = now()->format('Y');
+        $lastIncome = static::whereYear('created_at', $year)->latest()->first();
+        $nextNumber = $lastIncome ? intval(substr($lastIncome->source, -4)) + 1 : 1;
+        return $prefix . $year . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+    }
 
     public function account()
     {
