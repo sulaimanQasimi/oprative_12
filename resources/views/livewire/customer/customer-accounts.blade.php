@@ -77,16 +77,19 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        @lang('Account Name')
+                                        @lang('Name')
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        @lang('ID Number')
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         @lang('Account Number')
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        @lang('Bank Name')
+                                        @lang('Address')
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        @lang('Branch')
+                                        @lang('Status')
                                     </th>
                                 </tr>
                             </thead>
@@ -97,18 +100,29 @@
                                             {{ $account->name }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
+                                            {{ $account->id_number }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
                                             {{ $account->account_number }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                            {{ $account->bank_name }}
+                                            {{ $account->address }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-right">
-                                            {{ $account->branch }}
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
+                                            @if($account->approved_by)
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    @lang('Approved')
+                                                </span>
+                                            @else
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    @lang('Pending')
+                                                </span>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                             @lang('No accounts found. Add your first account!')
                                         </td>
                                     </tr>
@@ -137,14 +151,14 @@
                                 <div class="mt-3 text-center sm:mt-0 sm:text-right w-full">
                                     <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 p-4 -mx-4 -mt-5 mb-6">
                                         <h3 class="text-xl leading-6 font-bold text-white" id="modal-title">
-                                            @lang('Add New Bank Account')
+                                            @lang('Add New Account Request')
                                         </h3>
-                                        <p class="mt-2 text-indigo-100 text-sm">@lang('Enter your bank account details below')</p>
+                                        <p class="mt-2 text-indigo-100 text-sm">@lang('Enter account details below')</p>
                                     </div>
                                     <div class="mt-6 space-y-8">
                                         <div class="input-group relative">
                                             <label for="name" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                                @lang('Account Name')
+                                                @lang('Full Name')
                                             </label>
                                             <div class="mt-1 relative">
                                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -152,11 +166,46 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                     </svg>
                                                 </div>
-                                                <input type="text" wire:model="name" id="name"
+                                                <input type="text" wire:model.defer="name" id="name"
                                                     class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
-                                                    placeholder="@lang('Enter account name')">
+                                                    placeholder="@lang('Enter your full name')">
                                             </div>
-                                            @error('name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                            @error('name') <span class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
+                                        </div>
+
+                                        <div class="input-group relative">
+                                            <label for="id_number" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                                @lang('ID Number')
+                                            </label>
+                                            <div class="mt-1 relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-3.17.789 6.721 6.721 0 01-3.168-.789 3.376 3.376 0 016.338 0z" />
+                                                    </svg>
+                                                </div>
+                                                <input type="text" wire:model.defer="id_number" id="id_number"
+                                                    class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
+                                                    placeholder="@lang('Enter your ID number')">
+                                            </div>
+                                            @error('id_number') <span class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
+                                        </div>
+
+                                        <div class="input-group relative">
+                                            <label for="address" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                                @lang('Address')
+                                            </label>
+                                            <div class="mt-1 relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                </div>
+                                                <textarea wire:model.defer="address" id="address"
+                                                    class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
+                                                    placeholder="@lang('Enter your full address')" rows="3"></textarea>
+                                            </div>
+                                            @error('address') <span class="text-red-500 text-xs mt-1">@lang($message)</span> @enderror
                                         </div>
 
                                         <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
@@ -168,45 +217,10 @@
                                                 </div>
                                                 <div class="mr-3">
                                                     <p class="text-sm text-blue-700">
-                                                        @lang('Account number will be automatically generated based on the bank name.')
+                                                        @lang('Your account request will be reviewed by our team'). @lang('Account number will be generated automatically').
                                                     </p>
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        <div class="input-group relative">
-                                            <label for="bank_name" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                                @lang('Bank Name')
-                                            </label>
-                                            <div class="mt-1 relative">
-                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                                    </svg>
-                                                </div>
-                                                <input type="text" wire:model="bank_name" id="bank_name"
-                                                    class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
-                                                    placeholder="@lang('Enter bank name')">
-                                            </div>
-                                            @error('bank_name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
-                                        </div>
-
-                                        <div class="input-group relative">
-                                            <label for="branch" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                                                @lang('Branch')
-                                            </label>
-                                            <div class="mt-1 relative">
-                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    </svg>
-                                                </div>
-                                                <input type="text" wire:model="branch" id="branch"
-                                                    class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
-                                                    placeholder="@lang('Enter branch name')">
-                                            </div>
-                                            @error('branch') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                         </div>
                                     </div>
                                 </div>

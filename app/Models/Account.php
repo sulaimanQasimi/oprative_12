@@ -8,12 +8,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'name',
+        'id_number',
         'account_number',
-        'bank_name',
-        'branch',
-        'customer_id'
+        'customer_id',
+        'approved_by',
+        'address'
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime'
     ];
 
     public function customer()

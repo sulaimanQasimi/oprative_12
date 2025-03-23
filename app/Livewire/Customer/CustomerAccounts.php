@@ -11,29 +11,31 @@ class CustomerAccounts extends Component
     use WithPagination;
 
     public $name;
-    public $bank_name;
-    public $branch;
+    public $id_number;
+    public $account_number;
+    public $customer_id;
+    public $approved_by;
+    public $address;
     public $showCreateModal = false;
 
     protected $rules = [
         'name' => 'required|string|max:255',
-        'bank_name' => 'required|string|max:255',
-        'branch' => 'required|string|max:255',
+        'id_number' => 'required|string|max:50|unique:accounts',
+        'address' => 'required|string|max:500',
     ];
 
     private function generateUniqueAccountNumber()
     {
         do {
-            // Format: YY-BANK-XXXXX where:
+            // Format: YY-CID-XXXXX where:
             // YY = Last 2 digits of current year
-            // BANK = First 4 letters of bank name (padded with X if shorter)
+            // CID = First 4 digits of customer ID
             // XXXXX = Random 5 digits
             $year = date('y');
-            $bankCode = strtoupper(substr(preg_replace('/[^A-Za-z0-9]/', '', $this->bank_name), 0, 4));
-            $bankCode = str_pad($bankCode, 4, 'X');
+            $customerId = str_pad(substr($this->customer_id, 0, 4), 4, '0');
             $random = str_pad(rand(0, 99999), 5, '0', STR_PAD_LEFT);
 
-            $accountNumber = "{$year}-{$bankCode}-{$random}";
+            $accountNumber = "{$year}-{$customerId}-{$random}";
         } while (Account::where('account_number', $accountNumber)->exists());
 
         return $accountNumber;
@@ -43,21 +45,26 @@ class CustomerAccounts extends Component
     {
         $this->validate();
 
+        // Set customer_id from authenticated user
+        $this->customer_id = auth('customer')->id();
+
         auth('customer')->user()->accounts()->create([
             'name' => $this->name,
+            'id_number' => $this->id_number,
             'account_number' => $this->generateUniqueAccountNumber(),
-            'bank_name' => $this->bank_name,
-            'branch' => $this->branch,
+            'customer_id' => $this->customer_id,
+            'address' => $this->address,
+            'approved_by' => null, // This will be set by admin/staff later
         ]);
 
-        $this->reset(['name', 'bank_name', 'branch', 'showCreateModal']);
-        session()->flash('success', 'Account created successfully with an auto-generated account number.');
+        $this->reset(['name', 'id_number', 'address', 'showCreateModal']);
+        session()->flash('success', __('Account request submitted successfully. Pending approval.'));
     }
 
     public function toggleCreateModal()
     {
         $this->showCreateModal = !$this->showCreateModal;
-        $this->reset(['name', 'bank_name', 'branch']);
+        $this->reset(['name', 'id_number', 'address']);
     }
 
     public function render()

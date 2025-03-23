@@ -15,10 +15,11 @@ return new class extends Migration
         Schema::create('accounts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->string('name');
-            $table->string('account_number');
-            $table->string('bank_name');
-            $table->string('branch');
+            $table->string('name')->nullable();
+            $table->string('id_number')->nullable();
+            $table->string('account_number')->nullable();
+            $table->string('approved_by')->nullable();
+            $table->string('address')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
