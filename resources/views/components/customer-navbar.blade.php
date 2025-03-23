@@ -70,7 +70,7 @@
                     <!-- Dropdown menu -->
                     <div x-show="open"
                          @click.away="open = false"
-                         class="origin-top-right absolute right-0 mt-3 w-48 rounded-xl shadow-lg py-2 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none transform transition-all"
+                         class="origin-top-right absolute right-0 mt-3 w-48 rounded-xl shadow-lg py-2 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none transform transition-all z-50"
                          x-transition:enter="transition ease-out duration-200"
                          x-transition:enter-start="opacity-0 scale-95"
                          x-transition:enter-end="opacity-100 scale-100"

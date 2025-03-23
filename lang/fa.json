@@ -361,5 +361,12 @@
     "Account": "حساب",
     "Account #": "شماره حساب",
     "Please select an account for the remaining balance": "لطفاً یک حساب برای مبلغ باقیمانده انتخاب کنید",
-    "Remaining balance for order": "مبلغ باقیمانده برای سفارش"
+    "Remaining balance for order": "مبلغ باقیمانده برای سفارش",
+    "Customer Portal": "پورتال مغازه",
+    "Dashboard": "داشبورد",
+    "Stock Products": "محصولات موجودی",
+    "Orders": "سفارشات",
+    "Bank Accounts": "حساب‌های بانکی",
+    "Profile": "پروفایل",
+    "Logout": "خروج"
 }
