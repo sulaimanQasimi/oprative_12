@@ -270,5 +270,12 @@
     "Branch": "شعبه",
     "No accounts found. Add your first account!": "هیچ حسابی یافت نشد. اولین حساب خود را اضافه کنید!",
     "Add New Bank Account": "افزودن حساب بانکی جدید",
-    "Save Account": "ذخیره حساب"
+    "Save Account": "ذخیره حساب",
+    "Manage your bank accounts and financial information": "مدیریت حساب‌های بانکی و اطلاعات مالی شما",
+    "Account number will be automatically generated based on the bank name": "شماره حساب به صورت خودکار بر اساس نام بانک تولید خواهد شد",
+    "Enter your bank account details below": "اطلاعات حساب بانکی خود را در زیر وارد کنید",
+    "Enter account name": "نام حساب را وارد کنید",
+    "Enter bank name": "نام بانک را وارد کنید",
+    "Enter branch name": "نام شعبه را وارد کنید",
+    "Account created successfully with an auto-generated account number": "حساب با موفقیت با شماره حساب خودکار ایجاد شد"
 }

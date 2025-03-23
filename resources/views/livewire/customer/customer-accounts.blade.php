@@ -1,13 +1,44 @@
 <div class="rtl" dir="rtl">
+    <style>
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animate-gradient {
+            background-size: 200% auto;
+            animation: gradient 4s linear infinite;
+        }
+        .floating-label {
+            top: -25px;
+            right: 0;
+            transition: all 0.3s ease;
+        }
+        .input-group:focus-within .floating-label {
+            transform: translateY(-2px);
+            color: theme('colors.indigo.600');
+        }
+        .input-icon {
+            transition: all 0.3s ease;
+        }
+        .input-group:focus-within .input-icon {
+            color: theme('colors.indigo.600');
+        }
+    </style>
+
     <x-customer-navbar />
 
     <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <!-- Header section -->
         <div class="md:flex md:items-center md:justify-between mb-8 pb-4 border-b border-gray-200">
             <div class="flex-1 min-w-0">
-                <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
-                    @lang('My Bank Accounts')
-                </h2>
+                <div class="relative">
+                    <h2 class="text-3xl md:text-4xl font-bold leading-tight mb-2 bg-gradient-to-l from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-gradient transform hover:scale-105 transition-transform duration-300 ease-in-out">
+                        @lang('My Bank Accounts')
+                    </h2>
+                    <div class="h-1 w-24 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 rounded-full transform hover:scale-x-110 transition-transform duration-300 ease-in-out"></div>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">@lang('Manage your bank accounts and financial information')</p>
             </div>
             <div class="mt-4 flex md:mt-0 md:mr-4">
                 <button wire:click="toggleCreateModal" class="mr-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -97,49 +128,95 @@
     @if($showCreateModal)
         <div class="fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
             <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+                <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true"></div>
 
-                <div class="inline-block align-bottom bg-white rounded-lg text-right overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="inline-block align-bottom bg-white rounded-2xl text-right overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full border border-indigo-50">
                     <form wire:submit.prevent="createAccount">
-                        <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="bg-gradient-to-l from-indigo-50 via-white to-purple-50 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                             <div class="sm:flex sm:items-start">
                                 <div class="mt-3 text-center sm:mt-0 sm:text-right w-full">
-                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                                        @lang('Add New Bank Account')
-                                    </h3>
-                                    <div class="mt-6 space-y-6">
-                                        <div>
-                                            <label for="name" class="block text-sm font-medium text-gray-700">@lang('Account Name')</label>
-                                            <input type="text" wire:model="name" id="name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md text-right">
+                                    <div class="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 p-4 -mx-4 -mt-5 mb-6">
+                                        <h3 class="text-xl leading-6 font-bold text-white" id="modal-title">
+                                            @lang('Add New Bank Account')
+                                        </h3>
+                                        <p class="mt-2 text-indigo-100 text-sm">@lang('Enter your bank account details below')</p>
+                                    </div>
+                                    <div class="mt-6 space-y-8">
+                                        <div class="input-group relative">
+                                            <label for="name" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                                @lang('Account Name')
+                                            </label>
+                                            <div class="mt-1 relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                    </svg>
+                                                </div>
+                                                <input type="text" wire:model="name" id="name"
+                                                    class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
+                                                    placeholder="@lang('Enter account name')">
+                                            </div>
                                             @error('name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                         </div>
 
-                                        <div>
-                                            <label for="account_number" class="block text-sm font-medium text-gray-700">@lang('Account Number')</label>
-                                            <input type="text" wire:model="account_number" id="account_number" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md text-right">
-                                            @error('account_number') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
+                                            <div class="flex">
+                                                <div class="flex-shrink-0">
+                                                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mr-3">
+                                                    <p class="text-sm text-blue-700">
+                                                        @lang('Account number will be automatically generated based on the bank name.')
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div>
-                                            <label for="bank_name" class="block text-sm font-medium text-gray-700">@lang('Bank Name')</label>
-                                            <input type="text" wire:model="bank_name" id="bank_name" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md text-right">
+                                        <div class="input-group relative">
+                                            <label for="bank_name" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                                @lang('Bank Name')
+                                            </label>
+                                            <div class="mt-1 relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                    </svg>
+                                                </div>
+                                                <input type="text" wire:model="bank_name" id="bank_name"
+                                                    class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
+                                                    placeholder="@lang('Enter bank name')">
+                                            </div>
                                             @error('bank_name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                         </div>
 
-                                        <div>
-                                            <label for="branch" class="block text-sm font-medium text-gray-700">@lang('Branch')</label>
-                                            <input type="text" wire:model="branch" id="branch" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md text-right">
+                                        <div class="input-group relative">
+                                            <label for="branch" class="floating-label absolute text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+                                                @lang('Branch')
+                                            </label>
+                                            <div class="mt-1 relative">
+                                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <svg class="input-icon h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    </svg>
+                                                </div>
+                                                <input type="text" wire:model="branch" id="branch"
+                                                    class="block w-full pl-10 pr-4 py-3 text-right border-0 rounded-xl text-gray-900 bg-gray-50 focus:ring-2 focus:ring-indigo-500 focus:bg-white shadow-sm transition-all duration-300 hover:bg-white"
+                                                    placeholder="@lang('Enter branch name')">
+                                            </div>
                                             @error('branch') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                            <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mr-3 sm:w-auto sm:text-sm">
+                        <div class="bg-gradient-to-r from-gray-50 to-indigo-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                            <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-base font-medium text-white hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 hover:scale-105 sm:mr-3 sm:w-auto sm:text-sm">
                                 @lang('Save Account')
                             </button>
-                            <button type="button" wire:click="toggleCreateModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm">
+                            <button type="button" wire:click="toggleCreateModal" class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-6 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transform transition-all duration-300 hover:scale-105 sm:mt-0 sm:mr-3 sm:w-auto sm:text-sm">
                                 @lang('Cancel')
                             </button>
                         </div>
