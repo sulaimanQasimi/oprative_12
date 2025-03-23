@@ -251,7 +251,7 @@
                                                     } else {
                                                         items = [];
                                                     }
-                                                })"
+                                                 })"
                                                 x-text="items.length"></p>
                                         </div>
                                         <div class="col-span-2 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 group-hover:from-amber-100 group-hover:to-orange-100 transition-all duration-300">

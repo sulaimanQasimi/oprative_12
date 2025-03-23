@@ -311,6 +311,68 @@
                                             </div>
                                         </div>
 
+                                        @if($amountPaid < $total)
+                                            <div class="mt-4 space-y-3">
+                                                <label class="block text-sm font-medium text-gray-700">@lang('Select Account for Remaining Balance')</label>
+                                                <div class="relative">
+                                                    <input type="text" wire:model.live="accountSearchQuery"
+                                                        wire:keydown.escape="showAccountDropdown = false"
+                                                        wire:keydown.tab="showAccountDropdown = false"
+                                                        wire:keydown.arrow-down="incrementAccountHighlight"
+                                                        wire:keydown.arrow-up="decrementAccountHighlight"
+                                                        wire:keydown.enter.prevent="selectAccount(accountHighlightIndex)"
+                                                        class="w-full bg-white border-gray-200 rounded-lg shadow-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors duration-200"
+                                                        placeholder="@lang('Search by name, account number, or ID number...')">
+                                                    
+                                                    @if($showAccountDropdown && count($accountSearchResults) > 0)
+                                                        <div class="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
+                                                            @foreach($accountSearchResults as $index => $account)
+                                                                <button wire:click="selectAccount({{ $index }})"
+                                                                    @class([
+                                                                        'w-full px-4 py-2 text-left hover:bg-gray-50 transition-colors duration-200',
+                                                                        'bg-green-50' => $accountHighlightIndex === $index
+                                                                    ])>
+                                                                    <div class="flex justify-between items-center">
+                                                                        <div>
+                                                                            <div class="font-medium text-gray-900">{{ $account['name'] }}</div>
+                                                                            <div class="text-sm text-gray-500">
+                                                                                @lang('Account') #{{ $account['account_number'] }}
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="text-right">
+                                                                            <div class="font-medium text-gray-900">${{ number_format($account['balance'], 2) }}</div>
+                                                                            <div class="text-sm text-gray-500">
+                                                                                @lang('Balance')
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </button>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
+                                                </div>
+
+                                                @if($selectedAccount)
+                                                    <div class="mt-2 p-3 bg-green-50 rounded-lg border border-green-200">
+                                                        <div class="flex justify-between items-center">
+                                                            <div>
+                                                                <div class="font-medium text-green-800">{{ $selectedAccount['name'] }}</div>
+                                                                <div class="text-sm text-green-600">
+                                                                    @lang('Account') #{{ $selectedAccount['account_number'] }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="text-right">
+                                                                <div class="font-medium text-green-800">${{ number_format($selectedAccount['balance'], 2) }}</div>
+                                                                <div class="text-sm text-green-600">
+                                                                    @lang('Current Balance')
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endif
+
                                         @if($changeDue > 0)
                                             <div
                                                 class="mt-4 bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-100">

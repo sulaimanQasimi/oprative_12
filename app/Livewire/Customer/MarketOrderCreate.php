@@ -11,6 +11,8 @@ use App\Models\CustomerStockProduct;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use App\Models\Account;
+use App\Models\AccountOutcome;
 
 class MarketOrderCreate extends Component
 {
@@ -32,6 +34,11 @@ class MarketOrderCreate extends Component
     public $searchResults = [];
     public $showDropdown = false;
     public $highlightIndex = 0;
+    public $accountSearchQuery = '';
+    public $accountSearchResults = [];
+    public $showAccountDropdown = false;
+    public $selectedAccount = null;
+    public $accountHighlightIndex = 0;
 
     protected $listeners = ['closeModalAfterSuccess' => 'closeScanner'];
 
@@ -53,6 +60,10 @@ class MarketOrderCreate extends Component
         $this->notes = '';
         $this->currentOrderId = null;
         $this->orderCreated = false;
+        $this->selectedAccount = null;
+        $this->accountSearchQuery = '';
+        $this->accountSearchResults = [];
+        $this->showAccountDropdown = false;
     }
 
     public function updatedSearchQuery()
@@ -316,7 +327,6 @@ class MarketOrderCreate extends Component
     {
         $this->subtotal = collect($this->orderItems)->sum('total');
         $this->total = $this->subtotal;
-        $this->amountPaid = $this->total;
         $this->calculateChange();
     }
 
@@ -335,84 +345,154 @@ class MarketOrderCreate extends Component
         $this->calculateTotal();
     }
 
+    public function updatedAccountSearchQuery()
+    {
+        if (strlen($this->accountSearchQuery) < 2) {
+            $this->accountSearchResults = [];
+            $this->showAccountDropdown = false;
+            return;
+        }
+
+        $this->accountSearchResults = Account::where('customer_id', $this->customerId)
+            ->where(function($query) {
+                $query->where('name', 'like', '%' . $this->accountSearchQuery . '%')
+                    ->orWhere('account_number', 'like', '%' . $this->accountSearchQuery . '%')
+                    ->orWhere('id_number', 'like', '%' . $this->accountSearchQuery . '%');
+            })
+            ->get()
+            ->map(function ($account) {
+                return [
+                    'id' => $account->id,
+                    'name' => $account->name,
+                    'account_number' => $account->account_number,
+                    'id_number' => $account->id_number,
+                    'balance' => $account->total_income - $account->total_outcome
+                ];
+            })
+            ->toArray();
+
+        $this->showAccountDropdown = true;
+        $this->accountHighlightIndex = 0;
+    }
+
+    public function selectAccount($index)
+    {
+        if (!isset($this->accountSearchResults[$index])) return;
+
+        $this->selectedAccount = $this->accountSearchResults[$index];
+        $this->accountSearchQuery = $this->selectedAccount['name'];
+        $this->showAccountDropdown = false;
+    }
+
+    public function incrementAccountHighlight()
+    {
+        if ($this->accountHighlightIndex === count($this->accountSearchResults) - 1) {
+            $this->accountHighlightIndex = 0;
+            return;
+        }
+        $this->accountHighlightIndex++;
+    }
+
+    public function decrementAccountHighlight()
+    {
+        if ($this->accountHighlightIndex === 0) {
+            $this->accountHighlightIndex = count($this->accountSearchResults) - 1;
+            return;
+        }
+        $this->accountHighlightIndex--;
+    }
+
     public function createOrder()
     {
-            if (!$this->currentOrderId) {
-                // Create new order
-                $order = MarketOrder::create([
-                    'order_number' => 'POS-' . Str::random(8),
-                    'customer_id' => $this->customerId,
-                    'subtotal' => 0,
-                    'tax_amount' => 0,
-                    'discount_amount' => 0,
-                    'total_amount' => 0,
-                    'payment_method' => 'cash',
-                    'payment_status' => 'pending',
-                    'order_status' => 'pending',
-                    'notes' => ''
-                ]);
-
-                $this->currentOrderId = $order->id;
-                $this->orderCreated = true;
-                DB::commit();
-                return;
-            }
-
-            // Complete existing order
-            if (empty($this->orderItems)) {
-                session()->flash('error', 'Please add items to the order before completing.');
-                return;
-            }
-
-            if ($this->amountPaid < $this->total) {
-                session()->flash('error', 'Please enter the full payment amount before completing the order.');
-                return;
-            }
-
-            $order = MarketOrder::findOrFail($this->currentOrderId);
-
-            // Update order details
-            $order->update([
+        if (!$this->currentOrderId) {
+            // Create new order
+            $order = MarketOrder::create([
+                'order_number' => 'POS-' . Str::random(8),
                 'customer_id' => $this->customerId,
-                'subtotal' => $this->subtotal,
+                'subtotal' => 0,
                 'tax_amount' => 0,
                 'discount_amount' => 0,
-                'total_amount' => $this->total,
-                'payment_method' => $this->paymentMethod,
-                'payment_status' => 'paid',
-                'order_status' => 'completed',
-                'notes' => $this->notes
+                'total_amount' => 0,
+                'payment_method' => 'cash',
+                'payment_status' => 'pending',
+                'order_status' => 'pending',
+                'notes' => ''
             ]);
 
-            // Process each order item
-            foreach ($this->orderItems as $item) {
+            $this->currentOrderId = $order->id;
+            $this->orderCreated = true;
+            DB::commit();
+            return;
+        }
 
-                MarketOrderItem::create([
-                    'market_order_id' => $order->id,
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['price'],
-                    'subtotal' => $item['total'],
-                    'discount_amount' => 0
-                ]);
+        // Complete existing order
+        if (empty($this->orderItems)) {
+            session()->flash('error', 'Please add items to the order before completing.');
+            return;
+        }
 
-                CustomerStockOutcome::create([
-                    'reference_number' => $order->order_number,
-                    'customer_id' => $order->customer_id,
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                    'total' => $item['total'],
-                    'model_type' => MarketOrder::class,
-                    'model_id' => $order->id
-                ]);
+        $order = MarketOrder::findOrFail($this->currentOrderId);
+
+        if ($this->amountPaid < $this->total) {
+            if (!$this->selectedAccount) {
+                session()->flash('error', 'Please select an account for the remaining balance.');
+                return;
             }
 
-            DB::commit();
-            session()->flash('success', 'Order completed successfully!');
-            $this->resetOrderState();
-            $this->dispatch('orderCreated');
+            // Create account outcome for the remaining balance
+            AccountOutcome::create([
+                'account_id' => $this->selectedAccount['id'],
+                'reference_number' => $order->order_number,
+                'amount' => $this->total - $this->amountPaid,
+                'date' => now(),
+                'status' => 'pending',
+                'user_id' => auth()->guard('customer')->id(),
+                'description' => 'Remaining balance for order ' . $order->order_number,
+                'model_type' => MarketOrder::class,
+                'model_id' => $order->id
+            ]);
+        }
 
+        // Update order details
+        $order->update([
+            'customer_id' => $this->customerId,
+            'subtotal' => $this->subtotal,
+            'tax_amount' => 0,
+            'discount_amount' => 0,
+            'total_amount' => $this->amountPaid,
+            'payment_method' => $this->paymentMethod,
+            'payment_status' => $this->amountPaid >= $this->total ? 'paid' : 'partial',
+            'order_status' => 'completed',
+            'notes' => $this->notes
+        ]);
+
+        // Process each order item
+        foreach ($this->orderItems as $item) {
+            MarketOrderItem::create([
+                'market_order_id' => $order->id,
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_price' => $item['price'],
+                'subtotal' => $item['total'],
+                'discount_amount' => 0
+            ]);
+
+            CustomerStockOutcome::create([
+                'reference_number' => $order->order_number,
+                'customer_id' => $order->customer_id,
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'price' => $item['price'],
+                'total' => $item['total'],
+                'model_type' => MarketOrder::class,
+                'model_id' => $order->id
+            ]);
+        }
+
+        DB::commit();
+        session()->flash('success', 'Order completed successfully!');
+        $this->resetOrderState();
+        $this->dispatch('orderCreated');
     }
 
     public function getStatusClassWithoutBg($status)

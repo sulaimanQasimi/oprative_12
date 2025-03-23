@@ -354,5 +354,12 @@
     "Rent Description": "توضیحات قرض",
     "Print Report": "چاپ گزارش",
     "Approve": "تایید",
-    "Print": "چاپ"
+    "Print": "چاپ",
+    "Select Account for Remaining Balance": "انتخاب حساب برای مبلغ باقیمانده",
+    "Search by name, account number, or ID number...": "جستجو بر اساس نام، شماره حساب یا شماره شناسایی...",
+    "Current Balance": "موجودی فعلی",
+    "Account": "حساب",
+    "Account #": "شماره حساب",
+    "Please select an account for the remaining balance": "لطفاً یک حساب برای مبلغ باقیمانده انتخاب کنید",
+    "Remaining balance for order": "مبلغ باقیمانده برای سفارش"
 }
