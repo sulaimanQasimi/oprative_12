@@ -4,31 +4,14 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>رسید قرض</title>
-    <script src="{{ asset('node_modules/@ericblade/quagga2/dist/quagga.min.js') }}"></script>
-    <style>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <style>
         @font-face {
             font-family: 'B Nazanin';
             src: url('/fonts/persian/B-NAZANIN.TTF') format('truetype');
             font-weight: normal;
             font-style: normal;
         }
-        @font-face {
-            font-family: 'IRANSans';
-            src: url('/fonts/persian/IRANSansWeb.ttf') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Vazir';
-            src: url('{{ public_path('fonts/persian/Vazir.ttf') }}') format('truetype');
-            font-weight: normal;
-            font-style: normal;
-        }
-        @font-face {
-            font-family: 'Yekan';
-            src: url('{{ public_path('fonts/persian/Yekan.ttf') }}') format('truetype');
-            font-weight: normal;
-            font-style: normal;
         }
         @page {
             size: 80mm auto;
@@ -102,8 +85,15 @@
         .qr-code {
             margin: 5mm auto;
             text-align: center;
+            background: white;
+            padding: 2mm;
+            border-radius: 2mm;
+            box-shadow: 0 0 2mm rgba(0,0,0,0.1);
         }
-        .qr-code canvas {
+        .qr-code img {
+            max-width: 100%;
+            height: auto;
+            display: block;
             margin: 0 auto;
         }
         @media print {
@@ -137,34 +127,6 @@
             background: #45a049;
         }
     </style>
-    <script>
-        window.onload = function() {
-            // Generate QR Code
-            const qrData = {
-                id: '{{ $outcome->id }}',
-                type: 'outcome',
-                amount: '{{ $outcome->amount }}',
-                date: '{{ $outcome->date->format("Y-m-d") }}',
-                account: '{{ $account->account_number }}',
-                reference: '{{ $outcome->reference_number }}',
-                status: '{{ $outcome->status }}'
-            };
-
-            const qr = new QRCode(document.getElementById('qrcode'), {
-                text: JSON.stringify(qrData),
-                width: 128,
-                height: 128,
-                colorDark: '#000000',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            // Auto print
-            if (!window.location.href.includes('printed')) {
-                window.print();
-            }
-        }
-    </script>
 </head>
 <body>
     <button onclick="window.print()" class="print-button no-print">چاپ رسید</button>
@@ -203,7 +165,15 @@
         </div>
 
         <div class="qr-code">
-            <div id="qrcode"></div>
+            <div id="qrcode"
+                data-id="{{ $outcome->id }}"
+                data-type="outcome"
+                data-amount="{{ $outcome->amount }}"
+                data-date="{{ $outcome->date->format('Y-m-d') }}"
+                data-account="{{ $account->account_number }}"
+                data-reference="{{ $outcome->reference_number }}"
+                data-status="{{ $outcome->status }}">
+            </div>
         </div>
 
         <div class="footer">

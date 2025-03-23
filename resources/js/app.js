@@ -3,8 +3,11 @@ import * as THREE from 'three';
 import anime from 'animejs';
 
 // Import QR Code library
-import QRCode from 'qrcode';
-window.QRCode = QRCode;
+import qrcode from 'qrcode-generator';
+window.qrcode = qrcode;
+
+// Import thermal receipt functionality
+import './thermal';
 
 // Particle background setup with Three.js
 const initParticleBackground = () => {
