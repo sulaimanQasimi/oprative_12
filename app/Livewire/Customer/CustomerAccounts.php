@@ -17,12 +17,41 @@ class CustomerAccounts extends Component
     public $approved_by;
     public $address;
     public $showCreateModal = false;
+    public $search_id_number = '';
+    public $search_account_number = '';
+    public $isFilterOpen = false;
 
+    protected $queryString = [
+        'search_id_number' => ['except' => ''],
+        'search_account_number' => ['except' => '']
+    ];
+
+    // Add listeners for search updates
+    protected $listeners = ['refresh' => '$refresh'];
+
+    // Update rules
     protected $rules = [
         'name' => 'required|string|max:255',
         'id_number' => 'required|string|max:50|unique:accounts',
         'address' => 'required|string|max:500',
     ];
+
+    // Add updatedSearchIdNumber method
+    public function updatedSearchIdNumber()
+    {
+        $this->resetPage();
+    }
+
+    // Add updatedSearchAccountNumber method
+    public function updatedSearchAccountNumber()
+    {
+        $this->resetPage();
+    }
+
+    public function mount()
+    {
+        $this->isFilterOpen = $this->search_id_number || $this->search_account_number;
+    }
 
     private function generateUniqueAccountNumber()
     {
@@ -67,10 +96,31 @@ class CustomerAccounts extends Component
         $this->reset(['name', 'id_number', 'address']);
     }
 
+    public function resetFilters()
+    {
+        $this->reset(['search_id_number', 'search_account_number']);
+        $this->resetPage();
+    }
+
+    public function toggleFilter()
+    {
+        $this->isFilterOpen = !$this->isFilterOpen;
+    }
+
     public function render()
     {
+        $query = auth('customer')->user()->accounts();
+
+        if (!empty($this->search_id_number)) {
+            $query->where('id_number', 'like', '%' . trim($this->search_id_number) . '%');
+        }
+
+        if (!empty($this->search_account_number)) {
+            $query->where('account_number', 'like', '%' . trim($this->search_account_number) . '%');
+        }
+
         return view('livewire.customer.customer-accounts', [
-            'accounts' => auth('customer')->user()->accounts()->latest()->paginate(10)
+            'accounts' => $query->latest()->paginate(10)
         ]);
     }
 }
