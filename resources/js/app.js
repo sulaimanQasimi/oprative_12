@@ -2,6 +2,10 @@
 import * as THREE from 'three';
 import anime from 'animejs';
 
+// Import QR Code library
+import QRCode from 'qrcode';
+window.QRCode = QRCode;
+
 // Particle background setup with Three.js
 const initParticleBackground = () => {
     const scene = new THREE.Scene();

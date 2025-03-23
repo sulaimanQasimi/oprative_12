@@ -53,8 +53,10 @@ Route::prefix('customer')->name('customer.')->group(function () {
     });
 });
 
-Route::get('/thermal/print/income/{income}', [App\Livewire\ThermalPrinter::class, 'printIncome'])->name('thermal.print.income');
-Route::get('/thermal/print/outcome/{outcome}', [App\Livewire\ThermalPrinter::class, 'printOutcome'])->name('thermal.print.outcome');
+Route::get('/thermal/print/income/{income}', [App\Http\Controllers\ThermalPrinterController::class, 'printIncome'])
+    ->name('thermal.print.income');
+Route::get('/thermal/print/outcome/{outcome}', [App\Http\Controllers\ThermalPrinterController::class, 'printOutcome'])
+    ->name('thermal.print.outcome');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/purchase.php';

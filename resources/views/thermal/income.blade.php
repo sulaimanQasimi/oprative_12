@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <title>رسید بازپرداخت</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script src="{{ asset('node_modules/qrcode/build/qrcode.min.js') }}"></script>
     <style>
         @font-face {
             font-family: 'B Nazanin';
@@ -66,6 +68,11 @@
             margin: 5mm 0;
             text-align: center;
         }
+        .currency {
+            font-size: 12pt;
+            color: #666;
+            margin-right: 2mm;
+        }
         .status {
             text-align: center;
             margin: 5mm 0;
@@ -80,6 +87,13 @@
             border-top: 1px dashed #000;
             text-align: center;
             font-size: 10pt;
+        }
+        .qr-code {
+            margin: 5mm auto;
+            text-align: center;
+        }
+        .qr-code canvas {
+            margin: 0 auto;
         }
         @media print {
             @page {
@@ -113,44 +127,76 @@
         }
     </style>
     <script>
-        function printReceipt() {
-            window.print();
-        }
-        // Auto print when page loads
         window.onload = function() {
-            window.print();
+            // Generate QR Code
+            const qrData = {
+                id: '{{ $income->id }}',
+                type: 'income',
+                amount: '{{ $income->amount }}',
+                date: '{{ $income->date->format("Y-m-d") }}',
+                account: '{{ $account->account_number }}',
+                status: '{{ $income->status }}'
+            };
+
+            const qr = new QRCode(document.getElementById('qrcode'), {
+                text: JSON.stringify(qrData),
+                width: 128,
+                height: 128,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // Auto print
+            if (!window.location.href.includes('printed')) {
+                window.print();
+            }
         }
     </script>
 </head>
 <body>
-    <button onclick="printReceipt()" class="print-button no-print">Print</button>
+    <button onclick="window.print()" class="print-button no-print">چاپ رسید</button>
     <div class="receipt">
         <div class="header">
             <h1>رسید بازپرداخت</h1>
-            <p>{{ $income->account->name }}</p>
-            <p>{{ $income->account->account_number }}</p>
+            <p>{{ $account->name }}</p>
+            <p>{{ $account->account_number }}</p>
+            <p>{{ now()->format('Y/m/d H:i:s') }}</p>
         </div>
 
         <div class="details">
-            <p><strong>تاریخ:</strong> {{ $income->date->format('Y-m-d') }}</p>
-            <p><strong>مبلغ:</strong> {{ number_format($income->amount, 2) }}</p>
-            <p><strong>منبع:</strong> {{ $income->source }}</p>
+            <p>
+                <span>منبع:</span>
+                <span>{{ $income->source }}</span>
+            </p>
+            <p>
+                <span>تاریخ:</span>
+                <span>{{ $income->date->format('Y/m/d') }}</span>
+            </p>
             @if($income->description)
-                <p><strong>توضیحات:</strong> {{ $income->description }}</p>
+            <p>
+                <span>توضیحات:</span>
+                <span>{{ $income->description }}</span>
+            </p>
             @endif
         </div>
 
         <div class="amount">
-            {{ number_format($income->amount, 2) }} ریال
+            <span>{{ number_format($income->amount, 2) }}</span>
+            <span class="currency">افغانی</span>
         </div>
 
         <div class="status">
-            وضعیت: {{ $income->status === 'approved' ? 'تایید شده' : ($income->status === 'pending' ? 'در انتظار تایید' : 'رد شده') }}
+            <span>وضعیت: {{ __($income->status_text) }}</span>
+        </div>
+
+        <div class="qr-code">
+            <div id="qrcode"></div>
         </div>
 
         <div class="footer">
-            <p>{{ $income->created_at->format('Y-m-d H:i:s') }}</p>
-            <p>شماره پیگیری: {{ str_pad($income->id, 6, '0', STR_PAD_LEFT) }}</p>
+            <p>با تشکر از شما</p>
+            <p>شماره تراکنش: {{ $income->id }}</p>
         </div>
     </div>
 </body>

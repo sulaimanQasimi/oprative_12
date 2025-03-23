@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Http\Controllers;
 
-use Livewire\Component;
 use App\Models\AccountIncome;
 use App\Models\AccountOutcome;
+use Illuminate\Http\Request;
 
-class ThermalPrinter extends Component
+class ThermalPrinterController extends Controller
 {
     public function printIncome(AccountIncome $income)
     {
@@ -22,10 +22,5 @@ class ThermalPrinter extends Component
             'outcome' => $outcome,
             'account' => $outcome->account,
         ]);
-    }
-
-    public function render()
-    {
-        return view('livewire.thermal-printer');
     }
 }
