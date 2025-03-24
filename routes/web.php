@@ -50,6 +50,9 @@ Route::prefix('customer')->name('customer.')->group(function () {
 
         // Account incomes route
         Route::get('/account/{account}/incomes', \App\Livewire\Customer\AccountIncomes::class)->name('account.incomes');
+
+        // Customer Sales route
+        Route::get('/sales', \App\Livewire\Customer\SalesList::class)->name('sales');
     });
 });
 

@@ -24,6 +24,7 @@ class Sale extends Model
     ];
 
     protected $casts = [
+        'date' => 'datetime',
         'sale_date' => 'datetime',
         'tax_percentage' => 'decimal:2',
         'tax_amount' => 'decimal:2',
