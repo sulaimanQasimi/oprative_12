@@ -43,20 +43,23 @@ class SalesList extends Component
         'sortDirection' => ['except' => 'desc'],
     ];
 
-    protected $rules = [
-        'search' => 'nullable|string|max:255',
-        'dateFrom' => 'nullable|date',
-        'dateTo' => 'nullable|date|after_or_equal:dateFrom',
-        'status' => ['nullable', Rule::in(['completed', 'pending', 'cancelled', ''])],
-        'confirmedByWarehouse' => ['nullable', Rule::in(['0', '1', ''])],
-        'confirmedByShop' => ['nullable', Rule::in(['0', '1', ''])],
-        'movedFromWarehouse' => ['nullable', Rule::in(['0', '1', ''])],
-        'sortField' => ['required', Rule::in(['reference', 'date', 'total_amount', 'status'])],
-        'sortDirection' => ['required', Rule::in(['asc', 'desc'])],
-        'paymentAmount' => 'required|numeric|min:0',
-        'paymentDate' => 'required|date',
-        'paymentNotes' => 'nullable|string|max:255',
-    ];
+    protected function rules()
+    {
+        return [
+            'search' => 'nullable|string|max:255',
+            'dateFrom' => 'nullable|date',
+            'dateTo' => 'nullable|date|after_or_equal:dateFrom',
+            'status' => ['nullable', Rule::in(['completed', 'pending', 'cancelled', ''])],
+            'confirmedByWarehouse' => ['nullable', Rule::in(['0', '1', ''])],
+            'confirmedByShop' => ['nullable', Rule::in(['0', '1', ''])],
+            'movedFromWarehouse' => ['nullable', Rule::in(['0', '1', ''])],
+            'sortField' => ['required', Rule::in(['reference', 'date', 'total_amount', 'status'])],
+            'sortDirection' => ['required', Rule::in(['asc', 'desc'])],
+            'paymentAmount' => 'required|numeric|min:0',
+            'paymentDate' => 'required|date',
+            'paymentNotes' => 'nullable|string|max:255',
+        ];
+    }
 
     public function mount()
     {
@@ -126,11 +129,10 @@ class SalesList extends Component
             abort(403, 'Unauthorized access.');
         }
 
-        $this->validate([
-            'paymentAmount' => 'required|numeric|min:0|max:' . $this->selectedSale->due_amount,
-            'paymentDate' => 'required|date',
-            'paymentNotes' => 'nullable|string|max:255',
-        ]);
+        $rules = $this->rules();
+        $rules['paymentAmount'] = 'required|numeric|min:0|max:' . $this->selectedSale->due_amount;
+
+        $this->validate($rules);
 
         try {
             DB::beginTransaction();
