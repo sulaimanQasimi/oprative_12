@@ -368,5 +368,21 @@
     "Orders": "سفارشات",
     "Bank Accounts": "حساب‌های بانکی",
     "Profile": "پروفایل",
-    "Logout": "خروج"
+    "Logout": "خروج",
+    "Manage your account settings and preferences": "مدیریت تنظیمات و ترجیحات حساب کاربری",
+    "Profile Information": "اطلاعات پروفایل",
+    "Security": "امنیت",
+    "Notifications": "اعلان‌ها",
+    "Member since": "عضو از",
+    "Update your account's profile information and email address.": "به‌روزرسانی اطلاعات پروفایل و آدرس ایمیل حساب کاربری",
+    "Security Settings": "تنظیمات امنیتی",
+    "Manage your account's security settings and password.": "مدیریت تنظیمات امنیتی و رمز عبور حساب کاربری",
+    "Notification Settings": "تنظیمات اعلان",
+    "Manage how you receive notifications.": "مدیریت نحوه دریافت اعلان‌ها",
+    "Email Notifications": "اعلان‌های ایمیل",
+    "Receive notifications about your orders and account updates.": "دریافت اعلان‌های مربوط به سفارشات و به‌روزرسانی‌های حساب",
+    "SMS Notifications": "اعلان‌های پیامکی",
+    "Receive order updates and promotions via SMS.": "دریافت به‌روزرسانی‌های سفارش و تبلیغات از طریق پیامک",
+    "Total Orders": "کل سفارشات",
+    "Total Spent": "کل هزینه‌ها"
 }
