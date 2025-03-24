@@ -384,5 +384,6 @@
     "SMS Notifications": "اعلان‌های پیامکی",
     "Receive order updates and promotions via SMS.": "دریافت به‌روزرسانی‌های سفارش و تبلیغات از طریق پیامک",
     "Total Orders": "کل سفارشات",
-    "Total Spent": "کل هزینه‌ها"
+    "Total Spent": "کل هزینه‌ها",
+    "Cannot confirm sale. Warehouse confirmation is required first.": "نمی‌توان فروش را تایید کرد. ابتدا نیاز به تایید گدام است."
 }
