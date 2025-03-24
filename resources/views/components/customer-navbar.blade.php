@@ -57,7 +57,7 @@
             <!-- Right side -->
             <div class="flex items-center gap-4">
                 <!-- Profile Link -->
-                <a href="{{ route('customer.profile.show') }}" 
+                <a href="{{ route('customer.profile.show') }}"
                    class="flex items-center gap-3 p-2 rounded-lg transition-all duration-200 hover:bg-gray-50 hover:shadow-md focus:outline-none {{ request()->routeIs('customer.profile.show') ? 'bg-gray-50 shadow-md' : '' }}">
                     <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center transform transition-all duration-300 hover:scale-105 hover:rotate-3">
                         <span class="text-white font-semibold">{{ substr(auth()->guard('customer')->user()->name, 0, 1) }}</span>
@@ -71,7 +71,7 @@
                 <!-- Logout Button -->
                 <form method="POST" action="{{ route('customer.logout') }}" class="flex items-center">
                     @csrf
-                    <button type="submit" 
+                    <button type="submit"
                             class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
