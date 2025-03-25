@@ -85,29 +85,42 @@ class Reports extends Component
         $query = null;
         $dateFrom = $this->dateFrom ? Carbon::parse($this->dateFrom)->startOfDay() : null;
         $dateTo = $this->dateTo ? Carbon::parse($this->dateTo)->endOfDay() : null;
+        $validSortFields = [];
 
         switch ($this->reportType) {
             case 'market_orders':
                 $query = MarketOrder::where('customer_id', auth()->guard('customer')->id());
+                // Define valid sort fields for market orders
+                $validSortFields = ['id', 'created_at', 'total_amount', 'status'];
                 break;
             case 'stocks':
                 $query = CustomerStock::where('customer_id', auth()->guard('customer')->id());
+                // Define valid sort fields for stocks
+                $validSortFields = ['id', 'product_id', 'quantity', 'created_at'];
                 break;
             case 'sales':
                 $query = Sale::where('customer_id', auth()->guard('customer')->id());
+                // Define valid sort fields for sales
+                $validSortFields = ['id', 'product_id', 'quantity', 'amount', 'created_at'];
                 break;
             case 'accounts':
                 $query = Account::where('customer_id', auth()->guard('customer')->id());
+                // Define valid sort fields for accounts
+                $validSortFields = ['id', 'name', 'balance', 'created_at'];
                 break;
             case 'incomes':
                 $query = AccountIncome::whereHas('account', function ($q) {
                     $q->where('customer_id', auth()->guard('customer')->id());
                 });
+                // Define valid sort fields for incomes
+                $validSortFields = ['id', 'account_id', 'amount', 'description', 'created_at'];
                 break;
             case 'outcomes':
                 $query = AccountOutcome::whereHas('account', function ($q) {
                     $q->where('customer_id', auth()->guard('customer')->id());
                 });
+                // Define valid sort fields for outcomes
+                $validSortFields = ['id', 'account_id', 'amount', 'description', 'created_at'];
                 break;
             default:
                 return collect();
@@ -124,7 +137,20 @@ class Reports extends Component
             });
         }
 
-        return $query->orderBy($this->sortField, $this->sortDirection);
+        // Handle sorting based on report type
+        if (in_array($this->sortField, $validSortFields)) {
+            if (in_array($this->reportType, ['incomes', 'outcomes']) && $this->sortField === 'account_id') {
+                $query->join('accounts', 'account_incomes.account_id', '=', 'accounts.id')
+                      ->orderBy('accounts.name', $this->sortDirection);
+            } else {
+                $query->orderBy($this->sortField, $this->sortDirection);
+            }
+        } else {
+            // Default to created_at if invalid sort field
+            $query->orderBy('created_at', 'desc');
+        }
+
+        return $query;
     }
 
     public function exportExcel()
