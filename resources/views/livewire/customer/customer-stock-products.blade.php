@@ -21,6 +21,27 @@
         .animate__delay-6s {
             animation-delay: 1.2s;
         }
+        /* Add hover animations */
+        .hover-scale {
+            transition: transform 0.3s ease;
+        }
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+        /* Add table row animations */
+        .table-row-animate {
+            animation: fadeInUp 0.5s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 
     <x-customer-navbar />
@@ -157,7 +178,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($stockProducts as $stock)
-                            <tr class="hover:bg-gray-50 transition-all duration-200 animate__animated animate__fadeIn animate__delay-6s">
+                            <tr class="hover:bg-gray-50 transition-all duration-200 animate__animated animate__fadeInUp table-row-animate" style="animation-delay: {{ $loop->index * 0.1 }}s">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-12 w-12 ml-4">
@@ -219,13 +240,13 @@
                         @empty
                             <tr>
                                 <td colspan="6" class="px-6 py-12 text-center">
-                                    <div class="flex flex-col items-center animate__animated animate__fadeIn">
-                                        <div class="bg-gray-50 rounded-full p-4 mb-4">
+                                    <div class="flex flex-col items-center animate__animated animate__fadeIn animate__delay-1s">
+                                        <div class="bg-gray-50 rounded-full p-4 mb-4 animate__animated animate__pulse animate__infinite">
                                             <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                             </svg>
                                         </div>
-                                        <p class="text-lg font-medium text-gray-500">@lang('No records found')</p>
+                                        <p class="text-lg font-medium text-gray-500 animate__animated animate__fadeInUp">@lang('No records found')</p>
                                     </div>
                                 </td>
                             </tr>
@@ -238,6 +259,11 @@
         <!-- Pagination -->
         <div class="mt-6 animate__animated animate__fadeIn animate__delay-6s">
             {{ $stockProducts->links() }}
+        </div>
+
+        <!-- Add animation to search results count -->
+        <div class="text-sm text-gray-500 mb-4 animate__animated animate__fadeIn animate__delay-2s">
+            @lang('Showing') {{ $stockProducts->firstItem() ?? 0 }} @lang('to') {{ $stockProducts->lastItem() ?? 0 }} @lang('of') {{ $stockProducts->total() }} @lang('results')
         </div>
     </div>
 </div>
