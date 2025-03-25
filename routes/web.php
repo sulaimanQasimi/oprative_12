@@ -53,6 +53,9 @@ Route::prefix('customer')->name('customer.')->group(function () {
 
         // Customer Sales route
         Route::get('/sales', \App\Livewire\Customer\SalesList::class)->name('sales');
+
+        // Customer Reports route
+        Route::get('/reports', \App\Livewire\Customer\Reports::class)->name('reports');
     });
 });
 

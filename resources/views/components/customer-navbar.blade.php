@@ -51,6 +51,13 @@
                         </svg>
                         <span class="font-medium">@lang('Bank Accounts')</span>
                     </a>
+                    <a href="{{ route('customer.reports') }}"
+                       class="inline-flex items-center px-3 pt-1 border-b-2 transition-all duration-200 ease-in-out {{ request()->routeIs('customer.reports') ? 'border-blue-500 text-gray-900 scale-105' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:scale-105' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span class="font-medium">@lang('Reports')</span>
+                    </a>
                 </div>
             </div>
 

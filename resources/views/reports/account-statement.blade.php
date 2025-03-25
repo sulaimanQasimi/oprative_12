@@ -241,7 +241,7 @@
             <div class="qr-code-label">اسکن برای مشاهده آنلاین</div>
         </div>
         <h1>گزارش حساب</h1>
-        <p>{{ $account->name }} - {{ $account->account_number }}</p>
+        <p>{{ $account->name }} - <span dir="ltr">{{ $account->account_number }}</span></p>
         <p>تاریخ گزارش: {{ \Verta::now()->format('Y/m/d H:i:s') }}</p>
     </div>
 
@@ -253,7 +253,7 @@
             </div>
             <div class="info-item">
                 <span class="label">شماره حساب</span>
-                <span class="value">{{ $account->account_number }}</span>
+                <span class="value"><span dir="ltr">{{ $account->account_number }}</span></span>
             </div>
         </div>
     </div>

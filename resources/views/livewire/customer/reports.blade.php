@@ -17,7 +17,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                     <div>
                         <label for="reportType" class="block text-sm font-medium text-gray-700">Report Type</label>
-                        <select wire:model="reportType" id="reportType" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                        <select wire:model.live="reportType" id="reportType" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
                             <option value="all">All</option>
                             <option value="market_orders">Market Orders</option>
                             <option value="stocks">Stocks</option>
@@ -30,113 +30,238 @@
 
                     <div>
                         <label for="dateFrom" class="block text-sm font-medium text-gray-700">Date From</label>
-                        <input type="date" wire:model="dateFrom" id="dateFrom" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <input type="date" wire:model.live="dateFrom" id="dateFrom" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
 
                     <div>
                         <label for="dateTo" class="block text-sm font-medium text-gray-700">Date To</label>
-                        <input type="date" wire:model="dateTo" id="dateTo" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <input type="date" wire:model.live="dateTo" id="dateTo" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                     </div>
 
                     <div>
                         <label for="searchTerm" class="block text-sm font-medium text-gray-700">Search</label>
-                        <input type="text" wire:model.debounce.300ms="searchTerm" id="searchTerm" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Search...">
+                        <input type="text" wire:model.live.debounce.300ms="searchTerm" id="searchTerm" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Search...">
                     </div>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                @switch($reportType)
-                                    @case('market_orders')
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Amount</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                        @break
-                                    @case('stocks')
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                        @break
-                                    @case('sales')
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                        @break
-                                    @case('accounts')
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                                        @break
-                                    @case('incomes')
-                                    @case('outcomes')
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                        @break
-                                    @default
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
-                                @endswitch
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @forelse($records as $record)
+                    <div class="relative">
+                        <div wire:loading class="absolute inset-0 bg-white bg-opacity-75 z-10 flex items-center justify-center">
+                            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                        </div>
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
                                 <tr>
                                     @switch($reportType)
                                         @case('market_orders')
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d') }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->total_amount }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->status }}</td>
+                                            <th wire:click="sortBy('id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                ID
+                                                @if($sortField === 'id')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Date
+                                                @if($sortField === 'created_at')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('total_amount')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Total Amount
+                                                @if($sortField === 'total_amount')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('status')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Status
+                                                @if($sortField === 'status')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
                                             @break
                                         @case('stocks')
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->product->name ?? 'N/A' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->quantity }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d H:i:s') }}</td>
+                                            <th wire:click="sortBy('id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                ID
+                                                @if($sortField === 'id')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('product_id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Product
+                                                @if($sortField === 'product_id')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('quantity')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Quantity
+                                                @if($sortField === 'quantity')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Date
+                                                @if($sortField === 'created_at')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
                                             @break
                                         @case('sales')
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->product->name ?? 'N/A' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->quantity }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->amount }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d H:i:s') }}</td>
+                                            <th wire:click="sortBy('id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                ID
+                                                @if($sortField === 'id')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('product_id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Product
+                                                @if($sortField === 'product_id')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('quantity')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Quantity
+                                                @if($sortField === 'quantity')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('amount')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Amount
+                                                @if($sortField === 'amount')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Date
+                                                @if($sortField === 'created_at')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
                                             @break
                                         @case('accounts')
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->name }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->balance }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d H:i:s') }}</td>
+                                            <th wire:click="sortBy('id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                ID
+                                                @if($sortField === 'id')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('name')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Name
+                                                @if($sortField === 'name')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('balance')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Balance
+                                                @if($sortField === 'balance')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Created At
+                                                @if($sortField === 'created_at')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
                                             @break
                                         @case('incomes')
                                         @case('outcomes')
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->account->name ?? 'N/A' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->amount }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->description }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d H:i:s') }}</td>
+                                            <th wire:click="sortBy('id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                ID
+                                                @if($sortField === 'id')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('account_id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Account
+                                                @if($sortField === 'account_id')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('amount')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Amount
+                                                @if($sortField === 'amount')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('description')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Description
+                                                @if($sortField === 'description')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Date
+                                                @if($sortField === 'created_at')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
                                             @break
                                         @default
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d H:i:s') }}</td>
+                                            <th wire:click="sortBy('id')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                ID
+                                                @if($sortField === 'id')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
+                                            <th wire:click="sortBy('created_at')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100">
+                                                Created At
+                                                @if($sortField === 'created_at')
+                                                    <span class="ml-1">{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
+                                                @endif
+                                            </th>
                                     @endswitch
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No records found</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @forelse($records as $record)
+                                    <tr>
+                                        @switch($reportType)
+                                            @case('market_orders')
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d') }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->total_amount }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->status }}</td>
+                                                @break
+                                            @case('stocks')
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->product->name ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->quantity }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d H:i:s') }}</td>
+                                                @break
+                                            @case('sales')
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->product->name ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->quantity }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->amount }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d H:i:s') }}</td>
+                                                @break
+                                            @case('accounts')
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->name }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->balance }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d H:i:s') }}</td>
+                                                @break
+                                            @case('incomes')
+                                            @case('outcomes')
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->account->name ?? 'N/A' }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->amount }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->description }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d H:i:s') }}</td>
+                                                @break
+                                            @default
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->id }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $record->created_at->format('Y-m-d H:i:s') }}</td>
+                                        @endswitch
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">No records found</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="mt-4">

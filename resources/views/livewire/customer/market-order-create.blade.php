@@ -323,7 +323,7 @@
                                                         wire:keydown.enter.prevent="selectAccount(accountHighlightIndex)"
                                                         class="w-full bg-white border-gray-200 rounded-lg shadow-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors duration-200"
                                                         placeholder="@lang('Search by name, account number, or ID number...')">
-                                                    
+
                                                     @if($showAccountDropdown && count($accountSearchResults) > 0)
                                                         <div class="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto">
                                                             @foreach($accountSearchResults as $index => $account)
@@ -336,7 +336,7 @@
                                                                         <div>
                                                                             <div class="font-medium text-gray-900">{{ $account['name'] }}</div>
                                                                             <div class="text-sm text-gray-500">
-                                                                                @lang('Account') #{{ $account['account_number'] }}
+                                                                                @lang('Account')<span dir="ltr"> #{{ $account['account_number'] }}</span>
                                                                             </div>
                                                                         </div>
                                                                         <div class="text-right">

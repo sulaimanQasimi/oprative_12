@@ -14,6 +14,7 @@ use App\Exports\CustomerReportExport;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class Reports extends Component
 {
@@ -41,6 +42,42 @@ class Reports extends Component
     {
         $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
         $this->dateTo = now()->format('Y-m-d');
+    }
+
+    public function updatedDateFrom()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedDateTo()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedReportType()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearchTerm()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedPerPage()
+    {
+        $this->resetPage();
+    }
+
+    public function sortBy($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
     }
 
     public function getReportData()
@@ -113,8 +150,30 @@ class Reports extends Component
 
     public function render()
     {
+        $query = $this->getReportData();
+
+        if ($query instanceof \Illuminate\Support\Collection) {
+            $items = $query->forPage($this->getPage(), $this->perPage);
+            $total = $query->count();
+
+            return view('livewire.customer.reports', [
+                'records' => new LengthAwarePaginator(
+                    $items,
+                    $total,
+                    $this->perPage,
+                    $this->getPage(),
+                    ['path' => request()->url()]
+                )
+            ]);
+        }
+
         return view('livewire.customer.reports', [
-            'records' => $this->getReportData()->paginate($this->perPage)
+            'records' => $query->paginate($this->perPage)
         ]);
+    }
+
+    protected function getPage()
+    {
+        return request()->query('page', 1);
     }
 }
