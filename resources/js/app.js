@@ -2,6 +2,9 @@
 import * as THREE from 'three';
 import anime from 'animejs';
 
+// Make anime globally available
+window.anime = anime;
+
 // Import QR Code library
 import qrcode from 'qrcode-generator';
 window.qrcode = qrcode;
