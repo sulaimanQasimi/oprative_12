@@ -2,6 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\WarehouseProductController;
+
+// Landing page route
+Route::get('/', [WarehouseProductController::class, 'index'])->name('landing');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -14,6 +23,11 @@ Route::middleware(['auth'])->group(function () {
 
 // Customer Authentication Routes
 Route::prefix('customer')->name('customer.')->group(function () {
+    // Redirect root customer path to dashboard if authenticated, otherwise to login
+    Route::get('/', function () {
+        return auth('customer')->check() ? redirect()->route('customer.dashboard') : redirect()->route('customer.login');
+    });
+
     // Guest routes
     Route::middleware('guest:customer')->group(function () {
         Route::get('login', [App\Http\Controllers\Customer\AuthController::class, 'showLoginForm'])->name('login');
@@ -25,10 +39,6 @@ Route::prefix('customer')->name('customer.')->group(function () {
     // Authenticated routes
     Route::middleware('auth:customer')->group(function () {
         Route::post('logout', [App\Http\Controllers\Customer\AuthController::class, 'logout'])->name('logout');
-        // Route::get('dashboard', function () {
-        //     return view('customer.dashboard');
-        // })->name('dashboard');
-
         Route::get('dashboard', \App\Livewire\Customer\Dashboard::class)->name('dashboard');
 
         // Stock Products route
@@ -57,6 +67,11 @@ Route::prefix('customer')->name('customer.')->group(function () {
         // Customer Reports route
         Route::get('/reports', \App\Livewire\Customer\Reports::class)->name('reports');
     });
+
+    // Catch-all route for unauthenticated access to protected routes
+    Route::fallback(function () {
+        return auth('customer')->check() ? redirect()->route('customer.dashboard') : redirect()->route('customer.login');
+    });
 });
 
 Route::get('/thermal/print/income/{income}', [App\Http\Controllers\ThermalPrinterController::class, 'printIncome'])
@@ -66,5 +81,9 @@ Route::get('/thermal/print/outcome/{outcome}', [App\Http\Controllers\ThermalPrin
 
 Route::get('/reports/account/{account}/statement', [App\Http\Controllers\ReportController::class, 'accountStatement'])->name('reports.account.statement');
 
-require __DIR__.'/auth.php';
+// Warehouse products API endpoint for load more functionality
+Route::get('/warehouse-products', [WarehouseProductController::class, 'index'])
+    ->name('warehouse-products.index')
+    ->middleware('ajax');
+
 require __DIR__.'/purchase.php';
