@@ -16,7 +16,7 @@ class ListCustomerUsers extends ManageRelatedRecords
 {
     protected static string $resource = CustomerResource::class;
 
-    protected static string $relationship = 'customerUsers';
+    protected static string $relationship = 'users';
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-up';
 
@@ -50,12 +50,7 @@ class ListCustomerUsers extends ManageRelatedRecords
                     ->required()
                     ->maxLength(255)
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
-                Forms\Components\Select::make('customer_id')
-                    ->relationship('customer', 'name')
-                    ->required()
-                    ->searchable()
-                    ->preload(),
-            ]);
+              ]);
     }
     public function table(Table $table): Table
     {
@@ -76,6 +71,11 @@ class ListCustomerUsers extends ManageRelatedRecords
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->headerActions([
+                Tables\Actions\CreateAction::make()
+                    ->label('Add Item')
+                    ->modalHeading('Add New Purchase Item'),
             ])
             ->filters([
                 //

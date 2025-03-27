@@ -50,8 +50,6 @@ class AddtionalCosts extends ManageRelatedRecords
                     ->default(0)
                     ->live(debounce: 2000)
                     ->prefixIcon('heroicon-o-currency-dollar'),
-
-
             ]);
     }
 
