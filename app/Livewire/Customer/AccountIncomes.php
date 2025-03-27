@@ -8,13 +8,15 @@ use App\Models\AccountOutcome;
 use App\Repositories\Customer\CustomerRepository;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
 
 class AccountIncomes extends Component
 {
     use WithPagination;
 
-    public $customer;
-    public $account;
+    protected $customer;
+    protected Account $account;
     public $showCreateModal = false;
     public $showCreateOutcomeModal = false;
     public $amount;
@@ -39,7 +41,13 @@ class AccountIncomes extends Component
 
     public function mount(Account $account)
     {
-        $this->customer = CustomerRepository::currentUserCustomer()->model;
+        // Verify account belongs to authenticated customer
+        $customer = CustomerRepository::currentUserCustomer()->model;
+        if ($account->customer_id !== $customer->id) {
+            abort(403, 'Unauthorized access to account');
+        }
+
+        $this->customer = $customer;
         $this->account = $account;
         $this->outcome_date = now()->format('Y-m-d');
     }
@@ -51,14 +59,28 @@ class AccountIncomes extends Component
             'description' => 'nullable|string|max:1000',
         ]);
 
-        $this->account->incomes()->create([
-            'amount' => $this->amount,
-            'description' => $this->description,
-            'status' => 'pending'
-        ]);
+        try {
+            DB::beginTransaction();
 
-        $this->reset(['amount', 'description', 'showCreateModal']);
-        session()->flash('success', __('Income request submitted successfully. Pending approval.'));
+            // Re-verify account belongs to customer
+            if ($this->account->customer_id !== $this->customer->id) {
+                throw ValidationException::withMessages(['amount' => 'Unauthorized operation']);
+            }
+
+            $this->account->incomes()->create([
+                'amount' => $this->amount,
+                'description' => $this->description,
+                'status' => 'pending'
+            ]);
+
+            DB::commit();
+
+            $this->reset(['amount', 'description', 'showCreateModal']);
+            session()->flash('success', __('Income request submitted successfully. Pending approval.'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', __('Error creating income: ') . $e->getMessage());
+        }
     }
 
     public function createOutcome()
@@ -70,37 +92,65 @@ class AccountIncomes extends Component
             'outcome_description' => 'nullable|string|max:1000',
         ]);
 
-        $this->account->outcomes()->create([
-            'amount' => $this->outcome_amount,
-            'reference_number' => $this->outcome_reference_number,
-            'date' => $this->outcome_date,
-            'description' => $this->outcome_description,
-            'status' => 'pending',
-            'user_id' => auth('customer')->id()
-        ]);
+        try {
+            DB::beginTransaction();
 
-        $this->reset(['outcome_amount', 'outcome_reference_number', 'outcome_date', 'outcome_description', 'showCreateOutcomeModal']);
-        session()->flash('success', __('Outcome request submitted successfully. Pending approval.'));
+            // Re-verify account belongs to customer
+            if ($this->account->customer_id !== $this->customer->id) {
+                throw ValidationException::withMessages(['outcome_amount' => 'Unauthorized operation']);
+            }
+
+            $this->account->outcomes()->create([
+                'amount' => $this->outcome_amount,
+                'reference_number' => $this->outcome_reference_number,
+                'date' => $this->outcome_date,
+                'description' => $this->outcome_description,
+                'status' => 'pending',
+                'user_id' => auth()->guard('customer_user')->id()
+            ]);
+
+            DB::commit();
+
+            $this->reset(['outcome_amount', 'outcome_reference_number', 'outcome_date', 'outcome_description', 'showCreateOutcomeModal']);
+            session()->flash('success', __('Outcome request submitted successfully. Pending approval.'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', __('Error creating outcome: ') . $e->getMessage());
+        }
     }
 
     public function approveIncome(AccountIncome $income)
     {
-        if ($income->account_id !== $this->account->id) {
+        if ($income->account_id !== $this->account->id || $this->account->customer_id !== $this->customer->id) {
             abort(403);
         }
 
-        $income->update(['status' => 'approved']);
-        session()->flash('success', __('Income approved successfully.'));
+        try {
+            DB::beginTransaction();
+            $income->update(['status' => 'approved']);
+            DB::commit();
+            session()->flash('success', __('Income approved successfully.'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', __('Error approving income: ') . $e->getMessage());
+        }
     }
 
     public function approveOutcome(AccountOutcome $outcome)
     {
-        if ($outcome->account_id !== $this->account->id) {
+        if ($outcome->account_id !== $this->account->id || $this->account->customer_id !== $this->customer->id) {
             abort(403);
         }
 
-        $outcome->update(['status' => 'approved']);
-        session()->flash('success', __('Rent approved successfully.'));
+        try {
+            DB::beginTransaction();
+            $outcome->update(['status' => 'approved']);
+            DB::commit();
+            session()->flash('success', __('Rent approved successfully.'));
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', __('Error approving outcome: ') . $e->getMessage());
+        }
     }
 
     public function toggleCreateModal()
@@ -117,6 +167,11 @@ class AccountIncomes extends Component
 
     public function render()
     {
+        // Final account ownership verification
+        if ($this->account->customer_id !== $this->customer->id) {
+            abort(403);
+        }
+
         return view('livewire.customer.account-incomes', [
             'incomes' => $this->account->incomes()
                 ->latest()

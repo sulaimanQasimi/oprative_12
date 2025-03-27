@@ -14,9 +14,14 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Account;
 use App\Models\AccountOutcome;
 use App\Repositories\Customer\CustomerRepository;
+use Illuminate\Validation\ValidationException;
 
 class MarketOrderCreate extends Component
 {
+    // Protected properties to prevent client-side manipulation
+    protected $userCustomerId; // Current authenticated customer ID
+
+    // Public properties that are needed for Livewire binding but will be validated
     public $showScannerModal = false;
     public $scannedBarcode = '';
     public $scanSuccess = false;
@@ -39,10 +44,36 @@ class MarketOrderCreate extends Component
     public $selectedAccount = null;
     public $accountHighlightIndex = 0;
 
+    // Add validation rules
+    protected $rules = [
+        'amountPaid' => 'numeric|min:0',
+        'paymentMethod' => 'required|in:cash,card',
+        'notes' => 'nullable|string|max:1000',
+        'orderItems' => 'array',
+        'orderItems.*.quantity' => 'required|numeric|min:1',
+        'selectedAccount' => 'nullable',
+        'selectedAccount.id' => 'nullable|numeric|exists:accounts,id',
+    ];
+
     protected $listeners = ['closeModalAfterSuccess' => 'closeScanner'];
+
+    public function boot()
+    {
+        // Set secure headers
+        header('X-Content-Type-Options: nosniff');
+        header('X-XSS-Protection: 1; mode=block');
+        header('X-Frame-Options: DENY');
+        header('Content-Security-Policy: default-src \'self\'');
+    }
 
     public function mount(): void
     {
+        // Get and store customer ID securely
+        $this->userCustomerId = auth()->guard('customer_user')->user()->customer_id;
+        if (!$this->userCustomerId) {
+            abort(403, 'Unauthorized access');
+        }
+
         $this->resetOrderState();
     }
 
@@ -63,6 +94,17 @@ class MarketOrderCreate extends Component
         $this->showAccountDropdown = false;
     }
 
+    // Helper method to get customer ID securely
+    protected function getCustomerId()
+    {
+        $customerId = auth()->guard('customer_user')->user()->customer_id;
+        if ($customerId !== $this->userCustomerId) {
+            // Something is wrong - user's customer ID changed mid-session
+            abort(403, 'Security validation failed');
+        }
+        return $customerId;
+    }
+
     public function updatedSearchQuery()
     {
         if (strlen($this->searchQuery) < 2) {
@@ -76,7 +118,7 @@ class MarketOrderCreate extends Component
                              'purchase_profit', 'wholesale_profit', 'retail_profit', 'is_activated',
                              'is_in_stock', 'is_shipped', 'is_trend', 'type');
             }])
-            ->where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+            ->where('customer_id', $this->getCustomerId())
             ->where('net_quantity', '>', 0)
             ->where(function($query) {
                 $query->whereHas('product', function($q) {
@@ -103,7 +145,7 @@ class MarketOrderCreate extends Component
                     'is_trend' => $item->product->is_trend,
                     'type' => $item->product->type,
                     'stock' => $item->net_quantity,
-                     ];
+                ];
             })
             ->toArray();
 
@@ -136,8 +178,8 @@ class MarketOrderCreate extends Component
 
         $selectedProduct = $this->searchResults[$index];
 
-        // Check stock availability
-        $stockAvailable = CustomerStockProduct::where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+        // Check stock availability with secure customer ID
+        $stockAvailable = CustomerStockProduct::where('customer_id', $this->getCustomerId())
             ->where('product_id', $selectedProduct['id'])
             ->where('net_quantity', '>', 0)
             ->exists();
@@ -147,7 +189,12 @@ class MarketOrderCreate extends Component
         $existingItem = collect($this->orderItems)->firstWhere('product_id', $selectedProduct['id']);
 
         if ($existingItem) {
-            if ($existingItem['quantity'] >= $selectedProduct['stock']) {
+            // Check stock limit again
+            $customerStock = CustomerStockProduct::where('customer_id', $this->getCustomerId())
+                ->where('product_id', $selectedProduct['id'])
+                ->first();
+
+            if (!$customerStock || $existingItem['quantity'] >= $customerStock->net_quantity) {
                 return;
             }
 
@@ -180,7 +227,7 @@ class MarketOrderCreate extends Component
         $customerStockProduct = CustomerStockProduct::with(['product' => function($query) {
             $query->select('id', 'name', 'retail_price');
         }])
-        ->where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+        ->where('customer_id', $this->getCustomerId())
         ->whereHas('product', function($query) {
             $query->where('barcode', $this->scannedBarcode);
         })
@@ -194,6 +241,11 @@ class MarketOrderCreate extends Component
 
     protected function addItemToOrder($customerStockProduct)
     {
+        // Verify again that this stock product belongs to the customer
+        if ($customerStockProduct->customer_id !== $this->getCustomerId()) {
+            return;
+        }
+
         $existingItem = collect($this->orderItems)->firstWhere('product_id', $customerStockProduct->product_id);
 
         if ($existingItem) {
@@ -249,7 +301,7 @@ class MarketOrderCreate extends Component
         }
 
         $customerStockProduct = CustomerStockProduct::with('product')
-            ->where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+            ->where('customer_id', $this->getCustomerId())
             ->whereHas('product', function($query) {
                 $query->where('barcode', $this->scannedBarcode);
             })
@@ -291,7 +343,7 @@ class MarketOrderCreate extends Component
         if (isset($this->orderItems[$index])) {
             $newQuantity = $this->orderItems[$index]['quantity'] + $change;
 
-            $customerStockProduct = CustomerStockProduct::where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+            $customerStockProduct = CustomerStockProduct::where('customer_id', $this->getCustomerId())
                 ->where('product_id', $this->orderItems[$index]['product_id'])
                 ->first();
 
@@ -334,11 +386,19 @@ class MarketOrderCreate extends Component
 
     public function updatedAmountPaid()
     {
+        // Validate amount
+        if (!is_numeric($this->amountPaid) || $this->amountPaid < 0) {
+            $this->amountPaid = 0;
+        }
         $this->calculateChange();
     }
 
     public function applyDiscount($amount)
     {
+        // Validate discount
+        if (!is_numeric($amount) || $amount < 0) {
+            return;
+        }
         $this->calculateTotal();
     }
 
@@ -350,7 +410,7 @@ class MarketOrderCreate extends Component
             return;
         }
 
-        $this->accountSearchResults = Account::where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+        $this->accountSearchResults = Account::where('customer_id', $this->getCustomerId())
             ->where(function($query) {
                 $query->where('name', 'like', '%' . $this->accountSearchQuery . '%')
                     ->orWhere('account_number', 'like', '%' . $this->accountSearchQuery . '%')
@@ -379,6 +439,16 @@ class MarketOrderCreate extends Component
         $this->selectedAccount = $this->accountSearchResults[$index];
         $this->accountSearchQuery = $this->selectedAccount['name'];
         $this->showAccountDropdown = false;
+
+        // Verify account ownership
+        $accountExists = Account::where('id', $this->selectedAccount['id'])
+            ->where('customer_id', $this->getCustomerId())
+            ->exists();
+
+        if (!$accountExists) {
+            $this->selectedAccount = null;
+            $this->accountSearchQuery = '';
+        }
     }
 
     public function incrementAccountHighlight()
@@ -407,7 +477,7 @@ class MarketOrderCreate extends Component
                 // Create new order
                 $order = MarketOrder::create([
                     'order_number' => 'POS-' . Str::random(8),
-                    'customer_id' => auth()->guard('customer_user')->user()->customer_id,
+                    'customer_id' => $this->getCustomerId(),
                     'subtotal' => 0,
                     'tax_amount' => 0,
                     'discount_amount' => 0,
@@ -429,6 +499,9 @@ class MarketOrderCreate extends Component
             }
         }
 
+        // Validate input
+        $this->validate();
+
         // Complete existing order
         if (empty($this->orderItems)) {
             session()->flash('error', 'Please add items to the order before completing.');
@@ -438,7 +511,7 @@ class MarketOrderCreate extends Component
         DB::beginTransaction();
         try {
             $order = MarketOrder::where('id', $this->currentOrderId)
-                ->where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+                ->where('customer_id', $this->getCustomerId())
                 ->firstOrFail();
 
             if ($this->amountPaid < $this->total) {
@@ -450,7 +523,7 @@ class MarketOrderCreate extends Component
 
                 // Verify account belongs to the authenticated customer
                 $accountExists = Account::where('id', $this->selectedAccount['id'])
-                    ->where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+                    ->where('customer_id', $this->getCustomerId())
                     ->exists();
 
                 if (!$accountExists) {
@@ -488,7 +561,7 @@ class MarketOrderCreate extends Component
             // Process each order item
             foreach ($this->orderItems as $item) {
                 // Verify product exists and has sufficient stock before creating order items
-                $stockProduct = CustomerStockProduct::where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+                $stockProduct = CustomerStockProduct::where('customer_id', $this->getCustomerId())
                     ->where('product_id', $item['product_id'])
                     ->where('net_quantity', '>=', $item['quantity'])
                     ->first();
@@ -508,7 +581,7 @@ class MarketOrderCreate extends Component
 
                 CustomerStockOutcome::create([
                     'reference_number' => $order->order_number,
-                    'customer_id' => auth()->guard('customer_user')->user()->customer_id,
+                    'customer_id' => $this->getCustomerId(),
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
@@ -540,6 +613,12 @@ class MarketOrderCreate extends Component
 
     public function render()
     {
+        // Verify user is still authenticated
+        if (!auth()->guard('customer_user')->check() ||
+            auth()->guard('customer_user')->user()->customer_id !== $this->userCustomerId) {
+            return redirect()->route('customer.login');
+        }
+
         return view('livewire.customer.market-order-create');
     }
 }
