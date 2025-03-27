@@ -121,6 +121,9 @@ class CustomerResource extends Resource
             'edit' => Pages\EditCustomer::route('/{record}/edit'),
             'income' => Pages\CustomerIncome::route('/{record}/income'),
             'outcome' => Pages\CustomerOutcome::route('/{record}/outcome'),
+            'users' => Pages\ListCustomerUsers::route('/{record}/users'),
+            'users.create' => Pages\CreateCustomerUser::route('/{record}/users/create'),
+            'users.edit' => Pages\EditCustomerUser::route('/{record}/users/{record}/edit'),
         ];
     }
 
@@ -136,7 +139,8 @@ class CustomerResource extends Resource
             Pages\ViewCustomer::class,
             Pages\EditCustomer::class,
             Pages\CustomerIncome::class,
-            Pages\CustomerOutcome::class
+            Pages\CustomerOutcome::class,
+            Pages\ListCustomerUsers::class,
         ]);
     }
 }
