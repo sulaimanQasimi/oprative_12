@@ -170,10 +170,10 @@
                         <tr>
                             <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">@lang('Product')</th>
                             <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">@lang('Barcode')</th>
-                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">@lang('Net Quantity')</th>
-                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">@lang('Income')</th>
-                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">@lang('Outcome')</th>
-                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">@lang('Profit')</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">@lang('Remain')</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">@lang('Purchase')</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">@lang('Sale')</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">@lang('Sale Profit')</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -232,7 +232,7 @@
                                     <div class="text-sm font-medium text-red-600">{{ number_format($stock->outcome_quantity) }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium {{ $stock->profit >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                    <div class="text-sm font-medium text-green-600">
                                         ${{ number_format($stock->profit, 2) }}
                                     </div>
                                 </td>

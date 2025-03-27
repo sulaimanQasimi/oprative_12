@@ -1,86 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Livewire\Volt\Volt;
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-use App\Http\Controllers\Auth\ResetPasswordController;
-use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\WarehouseProductController;
+use App\Repositories\Customer\CustomerRepository;
 
 // Landing page route
 Route::get('/', [WarehouseProductController::class, 'index'])->name('landing');
-
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
 
 // Inventory Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/inventory/dashboard/{warehouse}', \App\Livewire\Inventory\Dashboard::class)->name('inventory.dashboard');
 });
-
-// Customer Authentication Routes
-Route::prefix('customer')->name('customer.')->group(function () {
-    // Redirect root customer path to dashboard if authenticated, otherwise to login
-    Route::get('/', function () {
-        return auth('customer_user')->check() ? redirect()->route('customer.dashboard') : redirect()->route('customer.login');
-    });
-
-    // Guest routes
-    Route::middleware('guest:customer_user')->group(function () {
-        Route::get('login', [App\Http\Controllers\Customer\AuthController::class, 'showLoginForm'])->name('login');
-        Route::post('login', [App\Http\Controllers\Customer\AuthController::class, 'login']);
-        Route::get('register', [App\Http\Controllers\Customer\AuthController::class, 'showRegistrationForm'])->name('register');
-        Route::post('register', [App\Http\Controllers\Customer\AuthController::class, 'register']);
-    });
-
-    // Authenticated routes
-    Route::middleware('auth:customer_user')->group(function () {
-        Route::post('logout', [App\Http\Controllers\Customer\AuthController::class, 'logout'])->name('logout');
-        Route::get('dashboard', \App\Livewire\Customer\Dashboard::class)->name('dashboard');
-
-        // Stock Products route
-        Route::get('stock-products', \App\Livewire\Customer\CustomerStockProducts::class)->name('stock-products');
-
-        // Customer Orders route
-        Route::get('orders', \App\Livewire\Customer\CustomerOrder::class)->name('orders');
-
-        // Add new invoice route
-        Route::get('orders/{order}/invoice', \App\Http\Controllers\Customer\InvoiceController::class)->name('orders.invoice');
-
-        // Profile routes
-        Route::get('profile', [App\Http\Controllers\Customer\ProfileController::class, 'show'])->name('profile.show');
-        Route::put('profile', [App\Http\Controllers\Customer\ProfileController::class, 'update'])->name('profile.update');
-        Route::put('profile/password', [App\Http\Controllers\Customer\ProfileController::class, 'updatePassword'])->name('profile.password');
-
-        // Customer Accounts route
-        Route::get('/accounts', \App\Livewire\Customer\CustomerAccounts::class)->name('accounts');
-
-        // Account incomes route
-        Route::get('/account/{account}/incomes', \App\Livewire\Customer\AccountIncomes::class)->name('account.incomes');
-
-        // Customer Sales route
-        Route::get('/sales', \App\Livewire\Customer\SalesList::class)->name('sales');
-
-        // Customer Reports route
-        Route::get('/reports', \App\Livewire\Customer\Reports::class)->name('reports');
-    });
-
-    // Catch-all route for unauthenticated access to protected routes
-    Route::fallback(function () {
-        return auth('customer_user')->check() ? redirect()->route('customer.dashboard') : redirect()->route('customer.login');
-    });
-});
-
-Route::get('/thermal/print/income/{income}', [App\Http\Controllers\ThermalPrinterController::class, 'printIncome'])
-    ->name('thermal.print.income');
-Route::get('/thermal/print/outcome/{outcome}', [App\Http\Controllers\ThermalPrinterController::class, 'printOutcome'])
-    ->name('thermal.print.outcome');
-
-Route::get('/reports/account/{account}/statement', [App\Http\Controllers\ReportController::class, 'accountStatement'])->name('reports.account.statement');
-
+CustomerRepository::registerRoutes();
 // Warehouse products API endpoint for load more functionality
 Route::get('/warehouse-products', [WarehouseProductController::class, 'index'])
     ->name('warehouse-products.index')

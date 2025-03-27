@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Customer;
 
+use App\Repositories\Customer\CustomerRepository;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\MarketOrder;
@@ -19,6 +20,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class Reports extends Component
 {
     use WithPagination;
+    public $customer;
 
     public $dateFrom;
     public $dateTo;
@@ -40,6 +42,7 @@ class Reports extends Component
 
     public function mount()
     {
+        $this->customer = CustomerRepository::currentUserCustomer()->model;
         $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
         $this->dateTo = now()->format('Y-m-d');
     }
@@ -89,35 +92,35 @@ class Reports extends Component
 
         switch ($this->reportType) {
             case 'market_orders':
-                $query = MarketOrder::where('customer_id', auth()->guard('customer')->id());
+                $query = MarketOrder::where('customer_id', $this->customer->id);
                 // Define valid sort fields for market orders
                 $validSortFields = ['id', 'created_at', 'total_amount', 'status'];
                 break;
             case 'stocks':
-                $query = CustomerStock::where('customer_id', auth()->guard('customer')->id());
+                $query = CustomerStock::where('customer_id', $this->customer->id);
                 // Define valid sort fields for stocks
                 $validSortFields = ['id', 'product_id', 'quantity', 'created_at'];
                 break;
             case 'sales':
-                $query = Sale::where('customer_id', auth()->guard('customer')->id());
+                $query = Sale::where('customer_id', $this->customer->id);
                 // Define valid sort fields for sales
                 $validSortFields = ['id', 'product_id', 'quantity', 'amount', 'created_at'];
                 break;
             case 'accounts':
-                $query = Account::where('customer_id', auth()->guard('customer')->id());
+                $query = Account::where('customer_id', $this->customer->id);
                 // Define valid sort fields for accounts
                 $validSortFields = ['id', 'name', 'balance', 'created_at'];
                 break;
             case 'incomes':
                 $query = AccountIncome::whereHas('account', function ($q) {
-                    $q->where('customer_id', auth()->guard('customer')->id());
+                    $q->where('customer_id', $this->customer->id);
                 });
                 // Define valid sort fields for incomes
                 $validSortFields = ['id', 'account_id', 'amount', 'description', 'created_at'];
                 break;
             case 'outcomes':
                 $query = AccountOutcome::whereHas('account', function ($q) {
-                    $q->where('customer_id', auth()->guard('customer')->id());
+                    $q->where('customer_id', $this->customer->id);
                 });
                 // Define valid sort fields for outcomes
                 $validSortFields = ['id', 'account_id', 'amount', 'description', 'created_at'];

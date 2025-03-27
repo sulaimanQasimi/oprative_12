@@ -5,6 +5,7 @@ namespace App\Livewire\Customer;
 use App\Models\Account;
 use App\Models\AccountIncome;
 use App\Models\AccountOutcome;
+use App\Repositories\Customer\CustomerRepository;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -12,6 +13,7 @@ class AccountIncomes extends Component
 {
     use WithPagination;
 
+    public $customer;
     public $account;
     public $showCreateModal = false;
     public $showCreateOutcomeModal = false;
@@ -37,6 +39,7 @@ class AccountIncomes extends Component
 
     public function mount(Account $account)
     {
+        $this->customer = CustomerRepository::currentUserCustomer()->model;
         $this->account = $account;
         $this->outcome_date = now()->format('Y-m-d');
     }

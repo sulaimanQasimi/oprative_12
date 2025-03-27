@@ -5,6 +5,7 @@ namespace App\Livewire\Customer;
 use Livewire\Component;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Repositories\Customer\CustomerRepository;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 class SalesList extends Component
 {
     use WithPagination;
-
+    public $customer;
     public $search = '';
     public $dateFrom = '';
     public $dateTo = '';
@@ -63,11 +64,7 @@ class SalesList extends Component
 
     public function mount()
     {
-        // Verify user is authenticated as customer
-        if (!Auth::guard('customer')->check()) {
-            abort(403, 'Unauthorized access.');
-        }
-
+        $this->customer = CustomerRepository::currentUserCustomer()->model;
         $this->paymentDate = now()->format('Y-m-d');
     }
 
@@ -103,7 +100,7 @@ class SalesList extends Component
     public function showSaleDetails($saleId)
     {
         // Verify sale belongs to authenticated customer
-        $sale = Sale::where('customer_id', Auth::guard('customer')->id())
+        $sale = Sale::where('customer_id', $this->customer->id)
             ->findOrFail($saleId);
 
         $this->selectedSale = $sale->load(['saleItems.product', 'customer', 'currency']);
@@ -113,7 +110,7 @@ class SalesList extends Component
     public function showPaymentForm($saleId)
     {
         // Verify sale belongs to authenticated customer and has due amount
-        $sale = Sale::where('customer_id', Auth::guard('customer')->id())
+        $sale = Sale::where('customer_id', $this->customer->id)
             ->where('due_amount', '>', 0)
             ->findOrFail($saleId);
 
@@ -125,7 +122,7 @@ class SalesList extends Component
     public function addPayment()
     {
         // Verify sale belongs to authenticated customer
-        if (!$this->selectedSale || $this->selectedSale->customer_id !== Auth::guard('customer')->id()) {
+        if (!$this->selectedSale || $this->selectedSale->customer_id !== $this->customer->id) {
             abort(403, 'Unauthorized access.');
         }
 
@@ -165,7 +162,7 @@ class SalesList extends Component
     public function confirmSale($saleId)
     {
         // Verify sale belongs to authenticated customer
-        $sale = Sale::where('customer_id', Auth::guard('customer')->id())
+        $sale = Sale::where('customer_id', $this->customer->id)
             ->findOrFail($saleId);
 
         // Check if warehouse has already confirmed
@@ -226,7 +223,7 @@ class SalesList extends Component
         ]);
 
         $sales = Sale::query()
-            ->where('customer_id', Auth::guard('customer')->id())
+            ->where('customer_id', $this->customer->id)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('reference', 'like', '%' . $this->search . '%')

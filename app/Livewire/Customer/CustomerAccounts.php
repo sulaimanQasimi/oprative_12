@@ -4,12 +4,14 @@ namespace App\Livewire\Customer;
 
 use Livewire\Component;
 use App\Models\Account;
+use App\Repositories\Customer\CustomerRepository;
 use Livewire\WithPagination;
 
 class CustomerAccounts extends Component
 {
     use WithPagination;
 
+    public $customer;
     public $name;
     public $id_number;
     public $account_number;
@@ -50,6 +52,8 @@ class CustomerAccounts extends Component
 
     public function mount()
     {
+        $this->customer = CustomerRepository::currentUserCustomer()->model;
+        $this->customer_id = $this->customer->id;
         $this->isFilterOpen = $this->search_id_number || $this->search_account_number;
     }
 
@@ -74,14 +78,11 @@ class CustomerAccounts extends Component
     {
         $this->validate();
 
-        // Set customer_id from authenticated user
-        $this->customer_id = auth('customer')->id();
-
-        auth('customer')->user()->accounts()->create([
+        // Set customer_id from authent
+        $this->customer->accounts()->create([
             'name' => $this->name,
             'id_number' => $this->id_number,
             'account_number' => $this->generateUniqueAccountNumber(),
-            'customer_id' => $this->customer_id,
             'address' => $this->address,
             'approved_by' => null, // This will be set by admin/staff later
         ]);
@@ -109,7 +110,7 @@ class CustomerAccounts extends Component
 
     public function render()
     {
-        $query = auth('customer')->user()->accounts();
+        $query = $this->customer->accounts();
 
         if (!empty($this->search_id_number)) {
             $query->where('id_number', 'like', '%' . trim($this->search_id_number) . '%');
