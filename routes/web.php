@@ -12,9 +12,3 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/inventory/dashboard/{warehouse}', \App\Livewire\Inventory\Dashboard::class)->name('inventory.dashboard');
 });
 CustomerRepository::registerRoutes();
-// Warehouse products API endpoint for load more functionality
-Route::get('/warehouse-products', [WarehouseProductController::class, 'index'])
-    ->name('warehouse-products.index')
-    ->middleware('ajax');
-
-require __DIR__.'/purchase.php';
