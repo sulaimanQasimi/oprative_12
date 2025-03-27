@@ -477,5 +477,21 @@
     "Sale Profit": "سود فروش",
     "Access Denied": "دسترسی ممنوع",
     "Sorry, you do not have permission to access this page. Please contact your administrator if you believe this is an error.": "متأسفیم، شما مجوز دسترسی به این صفحه را ندارید. اگر فکر می‌کنید این یک خطا است، لطفاً با مدیر سیستم خود تماس بگیرید.",
-    "Back to Dashboard": "بازگشت به داشبورد"
+    "Back to Dashboard": "بازگشت به داشبورد",
+    "view_dashboard": "مشاهده داشبورد",
+    "view_orders": "مشاهده سفارشات",
+    "create_orders": "ایجاد سفارش",
+    "view_invoice": "مشاهده فاکتور",
+    "view_profile": "مشاهده پروفایل",
+    "edit_profile": "ویرایش پروفایل",
+    "view_stock": "مشاهده موجودی",
+    "view_accounts": "مشاهده حساب‌ها",
+    "manage_accounts": "مدیریت حساب‌ها",
+    "view_incomes": "مشاهده درآمدها",
+    "manage_incomes": "مدیریت درآمدها",
+    "view_sales": "مشاهده فروش‌ها",
+    "view_reports": "مشاهده گزارشات",
+    "ذخیره": "ذخیره",
+    "لغو": "لغو",
+    "Permissions": "دسترسی‌ها"
 }

@@ -10,6 +10,8 @@ use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Spatie\Permission\Models\Permission;
 
 class ListCustomerUsers extends ManageRelatedRecords
 {
@@ -44,12 +46,19 @@ class ListCustomerUsers extends ManageRelatedRecords
                     ->email()
                     ->required()
                     ->maxLength(255)
-                    ->unique(CustomerUser::class),
+                    ->unique(table: CustomerUser::class, ignoreRecord: true),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->required()
                     ->maxLength(255)
-                    ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
+                    ->dehydrateStateUsing(fn($state) => Hash::make($state)),
+                Forms\Components\CheckboxList::make('permissions')
+                    ->relationship('permissions', 'name', fn($query) => $query->where('guard_name', 'customer_user'))
+                    ->columns(2)
+                    ->searchable()
+                    ->required()
+                    ->getOptionLabelFromRecordUsing(fn($record) => __(Str::after($record->name, 'customer.')))
+                    ->label(__('Permissions')),
             ]);
     }
 
@@ -68,6 +77,11 @@ class ListCustomerUsers extends ManageRelatedRecords
                     ->label('Customer')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('permissions.name')
+                    ->badge()
+                    ->color('success')
+                    ->label(__('Permissions'))
+                    ->formatStateUsing(fn($state) => __($state)),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
