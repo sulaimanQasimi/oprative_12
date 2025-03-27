@@ -65,9 +65,7 @@ class AccountController extends Controller
     {
         $request->validate([
             'amount' => 'required|numeric|min:0',
-            'source' => 'required|string|max:255',
-            'date' => 'required|date',
-            'description' => 'nullable|string|max:1000',
+            'source' => 'nullable|string|max:255',
         ]);
 
         try {
@@ -81,8 +79,8 @@ class AccountController extends Controller
 
             $account->incomes()->create([
                 'amount' => $request->amount,
-                'source' => $request->source,
-                'date' => $request->date,
+                'source' => '',
+                'date' => now(),
                 'description' => $request->description,
                 'status' => 'pending'
             ]);

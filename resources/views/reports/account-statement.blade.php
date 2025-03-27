@@ -346,7 +346,7 @@
     <script>
         // Generate QR code with account link
         document.addEventListener('DOMContentLoaded', function() {
-            const accountUrl = "{{ url()->to(route('customer.account.incomes', $account)) }}";
+            const accountUrl = "{{ url()->to(route('customer.accounts.show', $account)) }}";
             if (typeof QRCode !== 'undefined') {
                 new QRCode(document.getElementById("url-qrcode"), {
                     text: accountUrl,
