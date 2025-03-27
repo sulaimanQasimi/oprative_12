@@ -3,6 +3,7 @@
 namespace App\Livewire\Customer;
 
 use App\Models\CustomerStockProduct;
+use App\Repositories\Customer\CustomerRepository;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
@@ -44,7 +45,7 @@ class CustomerStockProducts extends Component
                       ->orWhere('products.barcode', 'like', '%' . $this->search . '%');
                 });
             })
-            ->where('customer_stock_product_movements.customer_id', auth()->guard('customer')->id())
+            ->where('customer_stock_product_movements.customer_id', CustomerRepository::currentUserCustomer()->id)
             ->paginate($this->perPage);
 
         return view('livewire.customer.customer-stock-products', [

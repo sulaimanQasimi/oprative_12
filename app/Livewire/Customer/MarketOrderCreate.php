@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use App\Models\Account;
 use App\Models\AccountOutcome;
+use App\Repositories\Customer\CustomerRepository;
 
 class MarketOrderCreate extends Component
 {
@@ -46,7 +47,8 @@ class MarketOrderCreate extends Component
     {
         // Initialize any necessary data
         $this->resetOrderState();
-        $this->customerId = auth()->guard('customer_user')->user()->customer_id;
+        // $this->customerId = auth()->guard('customer_user')->user()->customer_id;
+        $this->customerId = CustomerRepository::currentUserCustomer()->id;
     }
 
     protected function resetOrderState()

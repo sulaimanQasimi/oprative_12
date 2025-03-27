@@ -3,6 +3,7 @@
 namespace App\Livewire\Customer;
 
 use App\Models\MarketOrder;
+use App\Repositories\Customer\CustomerRepository;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +12,7 @@ use Carbon\Carbon;
 class CustomerOrder extends Component
 {
     use WithPagination;
-
+    public $customer;
     public $orders;
     public $selectedOrder;
     public $showOrderDetails = false;
@@ -41,7 +42,8 @@ class CustomerOrder extends Component
 
     public function loadOrders()
     {
-        $query = MarketOrder::where('customer_id', auth()->guard('customer')->id())
+        $this->customer = CustomerRepository::currentUserCustomer()->model;
+        $query = MarketOrder::where('customer_id', $this->customer->id)
             ->with(['items.product']);
 
         // Apply search filter for order number

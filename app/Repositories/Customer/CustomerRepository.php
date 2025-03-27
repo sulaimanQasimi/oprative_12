@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\Auth;
 
 class CustomerRepository
 {
-    protected $model;
-
+    public $model;
+    public $id;
     public function __construct(Customer $model)
     {
         $this->model = $model;
+        $this->id = $model->id;
     }
 
     public static function currentUserCustomer(){

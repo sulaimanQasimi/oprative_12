@@ -264,8 +264,8 @@
                                             <p class="text-2xl font-bold text-amber-600 mt-1"
                                                 x-data="{ orderNumber: '' }"
                                                 x-init="$watch('selectedOrderId', async () => {
-                                                    if (selectedOrderId === {{ $order->id }}) {
-                                                        orderNumber = await $wire.getOrderNumber({{ $order->id }});
+                                                    if (selectedOrderId) {
+                                                        orderNumber = await $wire.getOrderNumber(selectedOrderId);
                                                     } else {
                                                         orderNumber = '';
                                                     }
@@ -342,8 +342,8 @@
                                                     <p class="text-lg font-bold text-amber-600"
                                                         x-data="{ orderNumber: '' }"
                                                         x-init="$watch('selectedOrderId', async () => {
-                                                            if (selectedOrderId === {{ $order->id }}) {
-                                                                orderNumber = await $wire.getOrderNumber({{ $order->id }});
+                                                            if (selectedOrderId) {
+                                                                orderNumber = await $wire.getOrderNumber(selectedOrderId);
                                                             } else {
                                                                 orderNumber = '';
                                                             }
