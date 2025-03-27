@@ -6,7 +6,6 @@ use App\Filament\Resources\CustomerResource;
 use App\Models\CustomerUser;
 use Filament\Forms\Form;
 use Filament\Forms;
-use Filament\Resources\Pages\ListRecords;
 use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -33,6 +32,7 @@ class ListCustomerUsers extends ManageRelatedRecords
     {
         return __("User");
     }
+
     public function form(Form $form): Form
     {
         return $form
@@ -50,8 +50,9 @@ class ListCustomerUsers extends ManageRelatedRecords
                     ->required()
                     ->maxLength(255)
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
-              ]);
+            ]);
     }
+
     public function table(Table $table): Table
     {
         return $table
@@ -74,8 +75,8 @@ class ListCustomerUsers extends ManageRelatedRecords
             ])
             ->headerActions([
                 Tables\Actions\CreateAction::make()
-                    ->label('Add Item')
-                    ->modalHeading('Add New Purchase Item'),
+                    ->label('Add User')
+                    ->modalHeading('Add New User'),
             ])
             ->filters([
                 //
