@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 class CustomerRepository
 {
     use RegisterRoutes;
-    public $model;
+    public Customer $model;
     public $id;
     public function __construct(Customer $model)
     {
@@ -51,9 +51,9 @@ class CustomerRepository
      * Find customer by ID
      *
      * @param int $id
-     * @return Model|null
+     * @return \Illuminate\Database\Eloquent\Builder|Model|null
      */
-    public function find(int $id): ?Model
+    public function find(int $id): \Illuminate\Database\Eloquent\Builder|Model|null
     {
         return $this->model->find($id);
     }
@@ -117,9 +117,9 @@ class CustomerRepository
      * Get customer with all related data
      *
      * @param int $id
-     * @return Model|null
+     * @return \Illuminate\Database\Eloquent\Builder|Model|null
      */
-    public function findWithRelations(int $id): ?Model
+    public function findWithRelations(int $id): \Illuminate\Database\Eloquent\Builder|Model|null
     {
         return $this->model->with(['users', 'sales', 'payments', 'accounts'])->find($id);
     }

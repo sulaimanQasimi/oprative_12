@@ -18,7 +18,8 @@ trait RegisterRoutes
             });
 
             // Guest routes
-            Route::middleware('guest:customer_user')->group(function () {
+            Route::middleware('guest:customer_user')
+                ->group(function () {
                 Route::get('login', [\App\Http\Controllers\Customer\AuthController::class, 'showLoginForm'])->name('login');
                 Route::post('login', [\App\Http\Controllers\Customer\AuthController::class, 'login']);
                 Route::get('register', [\App\Http\Controllers\Customer\AuthController::class, 'showRegistrationForm'])->name('register');
@@ -26,7 +27,8 @@ trait RegisterRoutes
             });
 
             // Authenticated routes
-            Route::middleware('auth:customer_user')->group(function () {
+            Route::middleware('auth:customer_user')
+                ->group(function () {
                 Route::post('logout', [\App\Http\Controllers\Customer\AuthController::class, 'logout'])->name('logout');
                 Route::get('dashboard', \App\Livewire\Customer\Dashboard::class)->name('dashboard');
 
