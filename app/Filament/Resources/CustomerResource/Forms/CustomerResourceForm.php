@@ -25,19 +25,6 @@ class CustomerResourceForm
                                     ->maxLength(255)
                                     ->label('Name')
                                     ->translateLabel(),
-                                TextInput::make('email')
-                                    ->email()
-                                    ->maxLength(255)
-                                    ->unique(ignoreRecord: true)
-                                    ->label('Email')
-                                    ->translateLabel(),
-                                TextInput::make('password')
-                                    ->password()
-                                    ->maxLength(255)
-                                    ->dehydrateStateUsing(fn ($state) => bcrypt($state))
-                                    ->label('Password')
-                                    ->translateLabel()
-                                    ->required(fn ($livewire) => $livewire instanceof \App\Filament\Resources\CustomerResource\Pages\CreateCustomer),
                                 TextInput::make('phone')
                                     ->tel()
                                     ->maxLength(255)
