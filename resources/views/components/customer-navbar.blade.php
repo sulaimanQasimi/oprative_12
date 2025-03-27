@@ -19,6 +19,7 @@
 
                 <!-- Desktop Navigation -->
                 <div class="hidden md:ml-8 md:flex md:space-x-4">
+                    @can('customer.view_dashboard')
                     <a href="{{ route('customer.dashboard') }}"
                        class="inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out {{ request()->routeIs('customer.dashboard') ? 'bg-white/20 text-white shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -26,6 +27,9 @@
                         </svg>
                         <span class="font-medium">@lang('Dashboard')</span>
                     </a>
+                    @endcan
+
+                    @can('customer.view_stock')
                     <a href="{{ route('customer.stock-products') }}"
                        class="inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out {{ request()->routeIs('customer.stock-products') ? 'bg-white/20 text-white shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -33,6 +37,9 @@
                         </svg>
                         <span class="font-medium">@lang('Stock Products')</span>
                     </a>
+                    @endcan
+
+                    @can('customer.view_orders')
                     <a href="{{ route('customer.orders') }}"
                        class="inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out {{ request()->routeIs('customer.orders') ? 'bg-white/20 text-white shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -40,6 +47,9 @@
                         </svg>
                         <span class="font-medium">@lang('Orders')</span>
                     </a>
+                    @endcan
+
+                    @can('customer.view_sales')
                     <a href="{{ route('customer.sales') }}"
                        class="inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out {{ request()->routeIs('customer.sales') ? 'bg-white/20 text-white shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -47,6 +57,9 @@
                         </svg>
                         <span class="font-medium">@lang('Sales')</span>
                     </a>
+                    @endcan
+
+                    @can('customer.view_accounts')
                     <a href="{{ route('customer.accounts') }}"
                        class="inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out {{ request()->routeIs('customer.accounts') ? 'bg-white/20 text-white shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -54,6 +67,9 @@
                         </svg>
                         <span class="font-medium">@lang('Bank Accounts')</span>
                     </a>
+                    @endcan
+
+                    @can('customer.view_reports')
                     <a href="{{ route('customer.reports') }}"
                        class="inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out {{ request()->routeIs('customer.reports') ? 'bg-white/20 text-white shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -61,6 +77,7 @@
                         </svg>
                         <span class="font-medium">@lang('Reports')</span>
                     </a>
+                    @endcan
                 </div>
             </div>
 
@@ -156,6 +173,7 @@
          x-transition:leave-end="opacity-0 transform -translate-y-4"
          class="md:hidden bg-white/10 backdrop-blur-lg absolute w-full z-50">
         <div class="px-2 pt-2 pb-3 space-y-1">
+            @can('customer.view_dashboard')
             <a href="{{ route('customer.dashboard') }}"
                class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition duration-150 ease-in-out flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -163,6 +181,9 @@
                 </svg>
                 <span>@lang('Dashboard')</span>
             </a>
+            @endcan
+
+            @can('customer.view_stock')
             <a href="{{ route('customer.stock-products') }}"
                class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition duration-150 ease-in-out flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -170,6 +191,9 @@
                 </svg>
                 <span>@lang('Stock Products')</span>
             </a>
+            @endcan
+
+            @can('customer.view_orders')
             <a href="{{ route('customer.orders') }}"
                class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition duration-150 ease-in-out flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -177,6 +201,9 @@
                 </svg>
                 <span>@lang('Orders')</span>
             </a>
+            @endcan
+
+            @can('customer.view_sales')
             <a href="{{ route('customer.sales') }}"
                class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition duration-150 ease-in-out flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -184,6 +211,9 @@
                 </svg>
                 <span>@lang('Sales')</span>
             </a>
+            @endcan
+
+            @can('customer.view_accounts')
             <a href="{{ route('customer.accounts') }}"
                class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition duration-150 ease-in-out flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -191,6 +221,9 @@
                 </svg>
                 <span>@lang('Bank Accounts')</span>
             </a>
+            @endcan
+
+            @can('customer.view_reports')
             <a href="{{ route('customer.reports') }}"
                class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition duration-150 ease-in-out flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -198,6 +231,8 @@
                 </svg>
                 <span>@lang('Reports')</span>
             </a>
+            @endcan
+
             <form method="POST" action="{{ route('customer.logout') }}" class="block">
                 @csrf
                 <button type="submit"

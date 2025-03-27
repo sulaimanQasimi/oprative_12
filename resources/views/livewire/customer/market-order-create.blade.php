@@ -1,4 +1,6 @@
+<div class="container" dir="rtl">
 <!-- Single root element wrapper -->
+<x-customer-navbar />
 <div class="relative">
     <!-- Three.js background container -->
     <div id="three-background" class="fixed inset-0 -z-10"></div>
@@ -440,4 +442,5 @@
         });
     </script>
     @endscript
+</div>
 </div>

@@ -31,8 +31,11 @@ trait RegisterRoutes
 
                 // Dashboard route
                 Route::get('dashboard', \App\Livewire\Customer\Dashboard::class)
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_dashboard')
-                    ->name('dashboard');
+                ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_dashboard')
+                ->name('dashboard');
+                Route::get('create_orders', \App\Livewire\Customer\MarketOrderCreate::class)
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.create_orders')
+                    ->name('create_orders');
 
                 // Stock Products route
                 Route::get('stock-products', \App\Livewire\Customer\CustomerStockProducts::class)
