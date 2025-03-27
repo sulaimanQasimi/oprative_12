@@ -24,5 +24,6 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->call(CurrencySeeder::class);
+        $this->call(CustomerPermissionSeeder::class);
     }
 }

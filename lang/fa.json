@@ -474,5 +474,8 @@
     "of": "از",
     "No results": "نتیجه‌ای یافت نشد",
     "Remain": "باقیمانده",
-    "Sale Profit": "مقدار فروش"
+    "Sale Profit": "سود فروش",
+    "Access Denied": "دسترسی ممنوع",
+    "Sorry, you do not have permission to access this page. Please contact your administrator if you believe this is an error.": "متأسفیم، شما مجوز دسترسی به این صفحه را ندارید. اگر فکر می‌کنید این یک خطا است، لطفاً با مدیر سیستم خود تماس بگیرید.",
+    "Back to Dashboard": "بازگشت به داشبورد"
 }
