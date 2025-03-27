@@ -29,8 +29,6 @@ class MarketOrderCreate extends Component
     public $notes = '';
     public $currentOrderId = null;
     public $orderCreated = false;
-    public $customerId = null; // TODO: Get from authenticated user
-
     public $searchQuery = '';
     public $searchResults = [];
     public $showDropdown = false;
@@ -43,12 +41,9 @@ class MarketOrderCreate extends Component
 
     protected $listeners = ['closeModalAfterSuccess' => 'closeScanner'];
 
-    public function mount()
+    public function mount(): void
     {
-        // Initialize any necessary data
         $this->resetOrderState();
-        // $this->customerId = auth()->guard('customer_user')->user()->customer_id;
-        $this->customerId = CustomerRepository::currentUserCustomer()->id;
     }
 
     protected function resetOrderState()
@@ -81,7 +76,7 @@ class MarketOrderCreate extends Component
                              'purchase_profit', 'wholesale_profit', 'retail_profit', 'is_activated',
                              'is_in_stock', 'is_shipped', 'is_trend', 'type');
             }])
-            ->where('customer_id', $this->customerId)
+            ->where('customer_id', auth()->guard('customer_user')->user()->customer_id)
             ->where('net_quantity', '>', 0)
             ->where(function($query) {
                 $query->whereHas('product', function($q) {
@@ -142,7 +137,7 @@ class MarketOrderCreate extends Component
         $selectedProduct = $this->searchResults[$index];
 
         // Check stock availability
-        $stockAvailable = CustomerStockProduct::where('customer_id', $this->customerId)
+        $stockAvailable = CustomerStockProduct::where('customer_id', auth()->guard('customer_user')->user()->customer_id)
             ->where('product_id', $selectedProduct['id'])
             ->where('net_quantity', '>', 0)
             ->exists();
@@ -185,7 +180,7 @@ class MarketOrderCreate extends Component
         $customerStockProduct = CustomerStockProduct::with(['product' => function($query) {
             $query->select('id', 'name', 'retail_price');
         }])
-        ->where('customer_id', $this->customerId)
+        ->where('customer_id', auth()->guard('customer_user')->user()->customer_id)
         ->whereHas('product', function($query) {
             $query->where('barcode', $this->scannedBarcode);
         })
@@ -254,7 +249,7 @@ class MarketOrderCreate extends Component
         }
 
         $customerStockProduct = CustomerStockProduct::with('product')
-            ->where('customer_id', 1)
+            ->where('customer_id', auth()->guard('customer_user')->user()->customer_id)
             ->whereHas('product', function($query) {
                 $query->where('barcode', $this->scannedBarcode);
             })
@@ -296,7 +291,7 @@ class MarketOrderCreate extends Component
         if (isset($this->orderItems[$index])) {
             $newQuantity = $this->orderItems[$index]['quantity'] + $change;
 
-            $customerStockProduct = CustomerStockProduct::where('customer_id', 1)
+            $customerStockProduct = CustomerStockProduct::where('customer_id', auth()->guard('customer_user')->user()->customer_id)
                 ->where('product_id', $this->orderItems[$index]['product_id'])
                 ->first();
 
@@ -355,7 +350,7 @@ class MarketOrderCreate extends Component
             return;
         }
 
-        $this->accountSearchResults = Account::where('customer_id', $this->customerId)
+        $this->accountSearchResults = Account::where('customer_id', auth()->guard('customer_user')->user()->customer_id)
             ->where(function($query) {
                 $query->where('name', 'like', '%' . $this->accountSearchQuery . '%')
                     ->orWhere('account_number', 'like', '%' . $this->accountSearchQuery . '%')
@@ -407,24 +402,31 @@ class MarketOrderCreate extends Component
     public function createOrder()
     {
         if (!$this->currentOrderId) {
-            // Create new order
-            $order = MarketOrder::create([
-                'order_number' => 'POS-' . Str::random(8),
-                'customer_id' => $this->customerId,
-                'subtotal' => 0,
-                'tax_amount' => 0,
-                'discount_amount' => 0,
-                'total_amount' => 0,
-                'payment_method' => 'cash',
-                'payment_status' => 'pending',
-                'order_status' => 'pending',
-                'notes' => ''
-            ]);
+            DB::beginTransaction();
+            try {
+                // Create new order
+                $order = MarketOrder::create([
+                    'order_number' => 'POS-' . Str::random(8),
+                    'customer_id' => auth()->guard('customer_user')->user()->customer_id,
+                    'subtotal' => 0,
+                    'tax_amount' => 0,
+                    'discount_amount' => 0,
+                    'total_amount' => 0,
+                    'payment_method' => 'cash',
+                    'payment_status' => 'pending',
+                    'order_status' => 'pending',
+                    'notes' => ''
+                ]);
 
-            $this->currentOrderId = $order->id;
-            $this->orderCreated = true;
-            DB::commit();
-            return;
+                $this->currentOrderId = $order->id;
+                $this->orderCreated = true;
+                DB::commit();
+                return;
+            } catch (\Exception $e) {
+                DB::rollBack();
+                session()->flash('error', 'Error creating order: ' . $e->getMessage());
+                return;
+            }
         }
 
         // Complete existing order
@@ -433,68 +435,97 @@ class MarketOrderCreate extends Component
             return;
         }
 
-        $order = MarketOrder::findOrFail($this->currentOrderId);
+        DB::beginTransaction();
+        try {
+            $order = MarketOrder::where('id', $this->currentOrderId)
+                ->where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+                ->firstOrFail();
 
-        if ($this->amountPaid < $this->total) {
-            if (!$this->selectedAccount) {
-                session()->flash('error', 'Please select an account for the remaining balance.');
-                return;
+            if ($this->amountPaid < $this->total) {
+                if (!$this->selectedAccount) {
+                    session()->flash('error', 'Please select an account for the remaining balance.');
+                    DB::rollBack();
+                    return;
+                }
+
+                // Verify account belongs to the authenticated customer
+                $accountExists = Account::where('id', $this->selectedAccount['id'])
+                    ->where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+                    ->exists();
+
+                if (!$accountExists) {
+                    session()->flash('error', 'Invalid account selected.');
+                    DB::rollBack();
+                    return;
+                }
+
+                // Create account outcome for the remaining balance
+                AccountOutcome::create([
+                    'account_id' => $this->selectedAccount['id'],
+                    'reference_number' => $order->order_number,
+                    'amount' => $this->total - $this->amountPaid,
+                    'date' => now(),
+                    'status' => 'pending',
+                    'user_id' => auth()->guard('customer_user')->id(),
+                    'description' => 'Remaining balance for order ' . $order->order_number,
+                    'model_type' => MarketOrder::class,
+                    'model_id' => $order->id
+                ]);
             }
 
-            // Create account outcome for the remaining balance
-            AccountOutcome::create([
-                'account_id' => $this->selectedAccount['id'],
-                'reference_number' => $order->order_number,
-                'amount' => $this->total - $this->amountPaid,
-                'date' => now(),
-                'status' => 'pending',
-                'user_id' => auth()->guard('customer')->id(),
-                'description' => 'Remaining balance for order ' . $order->order_number,
-                'model_type' => MarketOrder::class,
-                'model_id' => $order->id
+            // Update order details
+            $order->update([
+                'subtotal' => $this->subtotal,
+                'tax_amount' => 0,
+                'discount_amount' => 0,
+                'total_amount' => $this->amountPaid,
+                'payment_method' => $this->paymentMethod,
+                'payment_status' => $this->amountPaid >= $this->total ? 'paid' : 'partial',
+                'order_status' => 'completed',
+                'notes' => $this->notes
             ]);
+
+            // Process each order item
+            foreach ($this->orderItems as $item) {
+                // Verify product exists and has sufficient stock before creating order items
+                $stockProduct = CustomerStockProduct::where('customer_id', auth()->guard('customer_user')->user()->customer_id)
+                    ->where('product_id', $item['product_id'])
+                    ->where('net_quantity', '>=', $item['quantity'])
+                    ->first();
+
+                if (!$stockProduct) {
+                    throw new \Exception('Insufficient stock for product: ' . $item['name']);
+                }
+
+                MarketOrderItem::create([
+                    'market_order_id' => $order->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['price'],
+                    'subtotal' => $item['total'],
+                    'discount_amount' => 0
+                ]);
+
+                CustomerStockOutcome::create([
+                    'reference_number' => $order->order_number,
+                    'customer_id' => auth()->guard('customer_user')->user()->customer_id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'total' => $item['total'],
+                    'model_type' => MarketOrder::class,
+                    'model_id' => $order->id
+                ]);
+            }
+
+            DB::commit();
+            session()->flash('success', 'Order completed successfully!');
+            $this->resetOrderState();
+            $this->dispatch('orderCreated');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Error completing order: ' . $e->getMessage());
         }
-
-        // Update order details
-        $order->update([
-            'customer_id' => $this->customerId,
-            'subtotal' => $this->subtotal,
-            'tax_amount' => 0,
-            'discount_amount' => 0,
-            'total_amount' => $this->amountPaid,
-            'payment_method' => $this->paymentMethod,
-            'payment_status' => $this->amountPaid >= $this->total ? 'paid' : 'partial',
-            'order_status' => 'completed',
-            'notes' => $this->notes
-        ]);
-
-        // Process each order item
-        foreach ($this->orderItems as $item) {
-            MarketOrderItem::create([
-                'market_order_id' => $order->id,
-                'product_id' => $item['product_id'],
-                'quantity' => $item['quantity'],
-                'unit_price' => $item['price'],
-                'subtotal' => $item['total'],
-                'discount_amount' => 0
-            ]);
-
-            CustomerStockOutcome::create([
-                'reference_number' => $order->order_number,
-                'customer_id' => $order->customer_id,
-                'product_id' => $item['product_id'],
-                'quantity' => $item['quantity'],
-                'price' => $item['price'],
-                'total' => $item['total'],
-                'model_type' => MarketOrder::class,
-                'model_id' => $order->id
-            ]);
-        }
-
-        DB::commit();
-        session()->flash('success', 'Order completed successfully!');
-        $this->resetOrderState();
-        $this->dispatch('orderCreated');
     }
 
     public function getStatusClassWithoutBg($status)

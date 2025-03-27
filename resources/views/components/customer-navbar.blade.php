@@ -49,6 +49,16 @@
                     </a>
                     @endcan
 
+                    @can('customer.create_orders')
+                    <a href="{{ route('customer.create_orders') }}"
+                       class="inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out {{ request()->routeIs('customer.create_orders') ? 'bg-white/20 text-white shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        <span class="font-medium">@lang('Create Order')</span>
+                    </a>
+                    @endcan
+
                     @can('customer.view_sales')
                     <a href="{{ route('customer.sales') }}"
                        class="inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out {{ request()->routeIs('customer.sales') ? 'bg-white/20 text-white shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
@@ -200,6 +210,16 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                 </svg>
                 <span>@lang('Orders')</span>
+            </a>
+            @endcan
+
+            @can('customer.create_orders')
+            <a href="{{ route('customer.create_orders') }}"
+               class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition duration-150 ease-in-out flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>@lang('Create Order')</span>
             </a>
             @endcan
 
