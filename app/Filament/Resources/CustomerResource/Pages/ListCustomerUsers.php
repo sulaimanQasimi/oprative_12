@@ -4,14 +4,59 @@ namespace App\Filament\Resources\CustomerResource\Pages;
 
 use App\Filament\Resources\CustomerResource;
 use App\Models\CustomerUser;
+use Filament\Forms\Form;
+use Filament\Forms;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Resources\Pages\ManageRelatedRecords;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Hash;
 
-class ListCustomerUsers extends ListRecords
+class ListCustomerUsers extends ManageRelatedRecords
 {
     protected static string $resource = CustomerResource::class;
 
+    protected static string $relationship = 'customerUsers';
+
+    protected static ?string $navigationIcon = 'heroicon-o-arrow-trending-up';
+
+    protected static ?string $modelLabel = 'User';
+
+    protected static ?string $pluralModelLabel = 'Users';
+
+    public function getTitle(): string
+    {
+        return trans("User");
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __("User");
+    }
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('name')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('email')
+                    ->email()
+                    ->required()
+                    ->maxLength(255)
+                    ->unique(CustomerUser::class),
+                Forms\Components\TextInput::make('password')
+                    ->password()
+                    ->required()
+                    ->maxLength(255)
+                    ->dehydrateStateUsing(fn ($state) => Hash::make($state)),
+                Forms\Components\Select::make('customer_id')
+                    ->relationship('customer', 'name')
+                    ->required()
+                    ->searchable()
+                    ->preload(),
+            ]);
+    }
     public function table(Table $table): Table
     {
         return $table
