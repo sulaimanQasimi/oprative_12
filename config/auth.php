@@ -100,7 +100,7 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
-        'customers' => [
+        'customer_users' => [
             'provider' => 'customer_users',
             'table' => 'password_reset_tokens',
             'expire' => 60,
