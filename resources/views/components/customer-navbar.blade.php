@@ -72,13 +72,13 @@
                        class="flex items-center gap-3 p-2 text-sm transition-all duration-200 hover:bg-white/10 focus:outline-none {{ request()->routeIs('customer.profile.show') ? 'bg-white/20 shadow-lg' : '' }}">
                         <div class="relative">
                             <div class="h-10 w-10 bg-gradient-to-br from-white/30 to-white/10 backdrop-blur-sm flex items-center justify-center transform transition-all duration-300 hover:scale-105 hover:rotate-3">
-                                <span class="text-white font-semibold text-lg">{{ substr(auth()->guard('customer')->user()->name, 0, 1) }}</span>
+                                <span class="text-white font-semibold text-lg">{{ substr(auth()->guard('customer_user')->user()->name, 0, 1) }}</span>
                             </div>
                             <div class="absolute -bottom-1 -right-1 h-3 w-3 bg-green-400 rounded-full border-2 border-white"></div>
                         </div>
                         <div class="hidden md:block">
                             <div class="flex items-center gap-2">
-                                <span class="font-medium text-white">{{ auth()->guard('customer')->user()->name }}</span>
+                                <span class="font-medium text-white">{{ auth()->guard('customer_user')->user()->name }}</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white/60 transform transition-transform group-hover:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
@@ -87,7 +87,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
-                                <span class="text-xs">{{ auth()->guard('customer')->user()->email }}</span>
+                                <span class="text-xs">{{ auth()->guard('customer_user')->user()->email }}</span>
                             </div>
                         </div>
                     </a>

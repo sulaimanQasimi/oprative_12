@@ -46,7 +46,7 @@ class MarketOrderCreate extends Component
     {
         // Initialize any necessary data
         $this->resetOrderState();
-        $this->customerId = auth()->guard('customer')->id();
+        $this->customerId = auth()->guard('customer_user')->user()->customer_id;
     }
 
     protected function resetOrderState()

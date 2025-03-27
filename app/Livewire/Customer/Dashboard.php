@@ -28,7 +28,7 @@ class Dashboard extends Component
 
     public function mount()
     {
-        $this->customer = auth()->guard('customer')->user();
+        $this->customer = auth()->guard('customer_user')->user()->customer;
         $this->loadCustomerStockProducts();
     }
 
