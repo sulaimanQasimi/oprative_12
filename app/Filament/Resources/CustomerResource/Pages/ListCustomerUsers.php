@@ -78,10 +78,12 @@ class ListCustomerUsers extends ManageRelatedRecords
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('permissions.name')
+                    ->label(__('Permissions'))
+                    ->formatStateUsing(fn ($state) => __(Str::after($state, 'customer.')))
                     ->badge()
                     ->color('success')
-                    ->label(__('Permissions'))
-                    ->formatStateUsing(fn($state) => __($state)),
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
