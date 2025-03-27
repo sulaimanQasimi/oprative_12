@@ -68,4 +68,9 @@ class Customer extends Authenticatable implements FilamentUser
     {
         return $this->hasMany(Account::class);
     }
+
+    public function users(): HasMany
+    {
+        return $this->hasMany(CustomerUser::class);
+    }
 }
