@@ -18,20 +18,23 @@ class RedirectIfAuthenticated
     {
         $guards = empty($guards) ? [null] : $guards;
 
-        foreach ($guards as $guard) {
-            if (Auth::guard($guard)->check()) {
-                if ($guard === 'customer_user') {
-                    return redirect()->route('customer.dashboard');
-                }
-                return redirect('/');
+        // If the request is for a customer route
+        if (str_starts_with($request->path(), 'customer/')) {
+            // If authenticated with customer_user, redirect to dashboard if trying to access login/register
+            if (Auth::guard('customer_user')->check() && in_array($request->path(), ['customer/login', 'customer/register'])) {
+                return redirect()->route('customer.dashboard');
             }
-        }
 
-        // If the request is for a customer route and user is not authenticated with customer_user
-        if (str_starts_with($request->path(), 'customer/') && !Auth::guard('customer_user')->check()) {
-            // Don't redirect if already trying to login or register
-            if (!in_array($request->path(), ['customer/login', 'customer/register'])) {
+            // If not authenticated with customer_user and trying to access protected routes
+            if (!Auth::guard('customer_user')->check() && !in_array($request->path(), ['customer/login', 'customer/register'])) {
                 return redirect()->route('customer.login');
+            }
+        } else {
+            // For non-customer routes, check each guard
+            foreach ($guards as $guard) {
+                if (Auth::guard($guard)->check()) {
+                    return redirect('/');
+                }
             }
         }
 

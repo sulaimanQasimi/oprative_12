@@ -8,8 +8,6 @@ trait RegisterRoutes
 {
     public static function registerRoutes()
     {
-
-
         // Customer Authentication Routes
         Route::prefix('customer')->name('customer.')->group(function () {
             // Redirect root customer path to dashboard if authenticated, otherwise to login
@@ -20,15 +18,11 @@ trait RegisterRoutes
             // Guest routes
             Route::middleware('guest:customer_user')
                 ->group(function () {
-                Route::get('login', [\App\Http\Controllers\Customer\AuthController::class, 'showLoginForm'])->name('login');
-                Route::post('login', [\App\Http\Controllers\Customer\AuthController::class, 'login']);
-                Route::get('register', [\App\Http\Controllers\Customer\AuthController::class, 'showRegistrationForm'])->name('register');
-                Route::post('register', [\App\Http\Controllers\Customer\AuthController::class, 'register']);
-            });
+                    Route::get('login', [\App\Http\Controllers\Customer\AuthController::class, 'showLoginForm'])->name('login');
+                });
 
-            // Authenticated routes
-            Route::middleware('auth:customer_user')
-                ->group(function () {
+            // Authenticated routes - require customer_user auth
+            Route::middleware('auth:customer_user')->group(function () {
                 Route::post('logout', [\App\Http\Controllers\Customer\AuthController::class, 'logout'])->name('logout');
                 Route::get('dashboard', \App\Livewire\Customer\Dashboard::class)->name('dashboard');
 
