@@ -32,6 +32,7 @@
         "pxlrbt/filament-activity-log": "^1.1",
         "pxlrbt/filament-excel": "*",
         "shuvroroy/filament-spatie-laravel-backup": "^2.2",
+        "spatie/laravel-permission": "^6.16",
         "stechstudio/filament-impersonate": "^3.15",
         "stephenjude/filament-debugger": "^3.1",
         "tapp/filament-authentication-log": "3.1",
