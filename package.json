@@ -6,6 +6,7 @@
         "dev": "vite"
     },
     "dependencies": {
+        "@majidh1/jalalidatepicker": "^0.9.10",
         "@tailwindcss/vite": "^4.0.7",
         "animejs": "^3.2.2",
         "autoprefixer": "^10.4.20",

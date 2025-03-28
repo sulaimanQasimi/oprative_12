@@ -7,6 +7,7 @@ use App\Http\Controllers\Customer\AccountController;
 use App\Http\Controllers\Customer\AuthController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\InvoiceController;
+use App\Http\Controllers\Customer\SalesListController;
 use App\Http\Controllers\ThermalPrinterController;
 use App\Http\Controllers\ReportController;
 use App\Livewire\Customer\Dashboard;
@@ -14,7 +15,6 @@ use App\Livewire\Customer\MarketOrderCreate;
 use App\Livewire\Customer\CustomerStockProducts;
 use App\Livewire\Customer\CustomerOrder;
 use App\Livewire\Customer\CustomerAccounts;
-use App\Livewire\Customer\SalesList;
 use App\Livewire\Customer\Reports;
 
 trait RegisterRoutes
@@ -94,10 +94,20 @@ trait RegisterRoutes
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.manage_accounts')
                     ->name('accounts.outcomes.approve');
 
-                // Customer Sales route
-                Route::get('/sales', SalesList::class)
+                // Customer Sales routes
+                Route::get('/sales', [SalesListController::class, 'index'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_sales')
-                    ->name('sales');
+                    ->name('sales.index');
+                Route::get('/sales/{sale}', [SalesListController::class, 'show'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_sales')
+                    ->name('sales.show');
+
+                Route::post('/sales/{sale}/payment', [SalesListController::class, 'addPayment'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.manage_sales')
+                    ->name('sales.payment');
+                Route::post('/sales/{sale}/confirm', [SalesListController::class, 'confirmSale'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.manage_sales')
+                    ->name('sales.confirm');
 
                 // Customer Reports route
                 Route::get('/reports', Reports::class)

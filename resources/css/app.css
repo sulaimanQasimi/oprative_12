@@ -60,3 +60,11 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* Import Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Jalali Date Picker styles */
+@import './jalali-datepicker.css';

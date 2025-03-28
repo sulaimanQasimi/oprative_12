@@ -10,6 +10,11 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v27.2.2/dist/Vazir.css" rel="stylesheet" type="text/css" />
+
+        <!-- Jalali Date Picker -->
+        <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker@3.0.0/dist/jalalidatepicker.min.css">
+        <script src="https://unpkg.com/@majidh1/jalalidatepicker@3.0.0/dist/jalalidatepicker.min.js"></script>
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])

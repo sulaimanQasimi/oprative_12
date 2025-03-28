@@ -10,6 +10,21 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+        <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v27.2.2/dist/Vazir.css" rel="stylesheet" type="text/css" />
+
+        <!-- Jalali Date Picker -->
+        <script>
+            // Global jalaliDatepicker object
+            window.jalaliDatepicker = {
+                startWatch: function() {
+                    if (typeof window.JalaliDatepicker !== 'undefined') {
+                        window.JalaliDatepicker.init();
+                    }
+                }
+            };
+        </script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jalalidatepicker@0.0.2/dist/css/jalalidatepicker.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/jalalidatepicker@0.0.2/dist/jalalidatepicker.min.js"></script>
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])

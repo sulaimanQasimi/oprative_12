@@ -60,8 +60,8 @@
                     @endcan
 
                     @can('customer.view_sales')
-                    <a href="{{ route('customer.sales') }}"
-                       class="inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out {{ request()->routeIs('customer.sales') ? 'bg-white/20 text-white shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
+                    <a href="{{ route('customer.sales.index') }}"
+                       class="inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out {{ request()->routeIs('customer.sales.index') ? 'bg-white/20 text-white shadow-lg' : 'text-white/80 hover:bg-white/10 hover:text-white' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                         </svg>
@@ -224,7 +224,7 @@
             @endcan
 
             @can('customer.view_sales')
-            <a href="{{ route('customer.sales') }}"
+            <a href="{{ route('customer.sales.index') }}"
                class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition duration-150 ease-in-out flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
