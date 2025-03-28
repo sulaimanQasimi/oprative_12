@@ -11,8 +11,8 @@ use App\Http\Controllers\Customer\SalesListController;
 use App\Http\Controllers\ThermalPrinterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Customer\CustomerAccountsController;
+use App\Http\Controllers\Customer\MarketOrderController;
 use App\Livewire\Customer\Dashboard;
-use App\Livewire\Customer\MarketOrderCreate;
 use App\Livewire\Customer\CustomerStockProducts;
 use App\Livewire\Customer\CustomerOrder;
 use App\Livewire\Customer\Reports;
@@ -47,9 +47,31 @@ trait RegisterRoutes
                 ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_dashboard')
                 ->name('dashboard');
 
-                Route::get('create_orders', MarketOrderCreate::class)
+                // Market Order routes (controller-based)
+                Route::get('create_orders', [MarketOrderController::class, 'create'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.create_orders')
                     ->name('create_orders');
+
+                // Market Order API endpoints
+                Route::post('market-order/start', [MarketOrderController::class, 'startOrder'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.create_orders')
+                    ->name('market-order.start');
+
+                Route::get('market-order/search-products', [MarketOrderController::class, 'searchProducts'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.create_orders')
+                    ->name('market-order.search-products');
+
+                Route::post('market-order/process-barcode', [MarketOrderController::class, 'processBarcode'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.create_orders')
+                    ->name('market-order.process-barcode');
+
+                Route::get('market-order/search-accounts', [MarketOrderController::class, 'searchAccounts'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.create_orders')
+                    ->name('market-order.search-accounts');
+
+                Route::post('market-order/complete', [MarketOrderController::class, 'completeOrder'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.create_orders')
+                    ->name('market-order.complete');
 
                 // Stock Products route
                 Route::get('stock-products', CustomerStockProducts::class)
