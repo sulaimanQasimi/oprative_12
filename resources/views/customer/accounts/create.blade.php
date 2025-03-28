@@ -138,44 +138,32 @@
                     </h3>
                 </div>
                 <div class="p-6 bg-gradient-to-br from-white to-indigo-50/30">
-                    <div class="space-y-5">
+                    <div class="space-y-6">
                         <div class="flex items-start info-item">
-                            <div class="flex-shrink-0">
-                                <div class="flex items-center justify-center h-10 w-10 rounded-full bg-green-100 text-green-500">
-                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
+                            <div class="flex-shrink-0 w-16 h-16 mr-2">
+                                <lottie-player src="{{ asset('js/lottie/approval-animation.json') }}" background="transparent" speed="1" class="w-16 h-16" hover loop></lottie-player>
                             </div>
-                            <div class="ml-4">
+                            <div class="ml-2">
                                 <h4 class="text-sm font-semibold text-gray-900">{{ __('Approval Required') }}</h4>
                                 <p class="mt-1 text-sm text-gray-600">{{ __('All new accounts require approval by an administrator before they become active.') }}</p>
                             </div>
                         </div>
 
                         <div class="flex items-start info-item">
-                            <div class="flex-shrink-0">
-                                <div class="flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-500">
-                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                    </svg>
-                                </div>
+                            <div class="flex-shrink-0 w-16 h-16 mr-2">
+                                <lottie-player src="{{ asset('js/lottie/account-number-animation.json') }}" background="transparent" speed="1" class="w-16 h-16" hover loop></lottie-player>
                             </div>
-                            <div class="ml-4">
+                            <div class="ml-2">
                                 <h4 class="text-sm font-semibold text-gray-900">{{ __('Account Number') }}</h4>
                                 <p class="mt-1 text-sm text-gray-600">{{ __('A unique account number will be automatically generated for your account.') }}</p>
                             </div>
                         </div>
 
                         <div class="flex items-start info-item">
-                            <div class="flex-shrink-0">
-                                <div class="flex items-center justify-center h-10 w-10 rounded-full bg-yellow-100 text-yellow-500">
-                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                    </svg>
-                                </div>
+                            <div class="flex-shrink-0 w-16 h-16 mr-2">
+                                <lottie-player src="{{ asset('js/lottie/privacy-animation.json') }}" background="transparent" speed="1" class="w-16 h-16" hover loop></lottie-player>
                             </div>
-                            <div class="ml-4">
+                            <div class="ml-2">
                                 <h4 class="text-sm font-semibold text-gray-900">{{ __('Privacy') }}</h4>
                                 <p class="mt-1 text-sm text-gray-600">{{ __('Your account information is securely stored and only accessible by authorized personnel.') }}</p>
                             </div>
@@ -210,6 +198,83 @@
             easing: 'easeOutExpo',
             delay: 300,
             duration: 800
+        });
+
+        // Enhanced info item animations with staggered reveal
+        anime({
+            targets: '.info-item',
+            opacity: [0, 1],
+            translateY: [20, 0],
+            delay: anime.stagger(150, {start: 500}),
+            easing: 'easeOutCubic',
+            duration: 800,
+            complete: function() {
+                // Add pulse animation to Lottie containers after they appear
+                anime({
+                    targets: '.info-item .flex-shrink-0',
+                    scale: [0.95, 1],
+                    opacity: [0.8, 1],
+                    duration: 1200,
+                    easing: 'easeOutElastic(1, .6)'
+                });
+            }
+        });
+
+        // Make Lottie animations play when visible in viewport
+        const lottieObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const player = entry.target;
+                if (entry.isIntersecting) {
+                    if (player.isPaused) {
+                        player.play();
+                    }
+                } else {
+                    if (!player.isPaused) {
+                        player.pause();
+                    }
+                }
+            });
+        }, { threshold: 0.1 });
+
+        // Observe all lottie players
+        document.querySelectorAll('lottie-player').forEach(player => {
+            // Wait for player to be ready
+            player.addEventListener('ready', () => {
+                // Don't auto-play until visible
+                if (!player.hasAttribute('autoplay')) {
+                    player.pause();
+                }
+
+                // Add to intersection observer
+                lottieObserver.observe(player);
+            });
+
+            // Add interactive behavior
+            const infoItem = player.closest('.info-item');
+            if (infoItem) {
+                infoItem.addEventListener('mouseenter', () => {
+                    player.setLooping(true);
+                    player.play();
+
+                    // Add subtle scale animation
+                    anime({
+                        targets: player,
+                        scale: 1.1,
+                        duration: 400,
+                        easing: 'easeOutCubic'
+                    });
+                });
+
+                infoItem.addEventListener('mouseleave', () => {
+                    // Scale back
+                    anime({
+                        targets: player,
+                        scale: 1,
+                        duration: 400,
+                        easing: 'easeOutCubic'
+                    });
+                });
+            }
         });
 
         // Add hover effect to buttons
@@ -662,6 +727,75 @@
         left: auto;
         right: 1rem;
         background: linear-gradient(180deg, rgba(99, 102, 241, 0.3), transparent);
+    }
+
+    /* Info card animations and styling */
+    .info-item {
+        transition: all 0.3s ease;
+        border-radius: 0.75rem;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        border: 1px solid transparent;
+    }
+
+    .info-item:hover {
+        background-color: rgba(249, 250, 251, 0.7);
+        border-color: rgba(99, 102, 241, 0.1);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-item .ml-2 {
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover .ml-2 {
+        transform: translateX(5px);
+    }
+
+    .info-item h4 {
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover h4 {
+        color: theme('colors.indigo.700');
+    }
+
+    .info-item lottie-player {
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        transition: all 0.3s ease;
+    }
+
+    /* Ensures the Lottie players don't overflow on mobile */
+    @media (max-width: 640px) {
+        .info-item {
+            align-items: center;
+        }
+
+        .info-item .flex-shrink-0 {
+            width: 3rem;
+            height: 3rem;
+        }
+
+        .info-item lottie-player {
+            width: 3rem !important;
+            height: 3rem !important;
+        }
+    }
+
+    /* RTL support for info items */
+    html[dir="rtl"] .info-item:hover .ml-2 {
+        transform: translateX(-5px);
+    }
+
+    html[dir="rtl"] .ml-2 {
+        margin-left: 0;
+        margin-right: 0.5rem;
+    }
+
+    html[dir="rtl"] .mr-2 {
+        margin-right: 0;
+        margin-left: 0.5rem;
     }
 </style>
 @endpush
