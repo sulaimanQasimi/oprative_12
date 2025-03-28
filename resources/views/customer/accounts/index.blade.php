@@ -117,70 +117,99 @@
         </div>
     </div>
 
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8 account-list">
-        <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-            <h3 class="text-lg font-medium text-gray-800">{{ __('Your Accounts') }}</h3>
+    <div class="bg-gradient-to-br from-white to-indigo-50 rounded-xl shadow-xl overflow-hidden mb-8 account-list">
+        <div class="px-8 py-5 border-b border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50 backdrop-blur-sm">
+            <h3 class="text-xl font-semibold text-gray-800 flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2M7 7h10" />
+                </svg>
+                {{ __('Your Accounts') }}
+            </h3>
         </div>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <div class="overflow-x-auto bg-white relative">
+            <div class="absolute inset-0 bg-pattern opacity-[0.02] pointer-events-none"></div>
+            <table class="min-w-full divide-y divide-gray-200 table-fixed">
+                <thead>
+                    <tr class="bg-gradient-to-r from-gray-50 to-gray-100">
+                        <th scope="col" class="px-8 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             {{ __('Name') }}
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             {{ __('ID Number') }}
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             {{ __('Account Number') }}
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                             {{ __('Status') }}
                         </th>
-                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider pr-8">
                             {{ __('Actions') }}
                         </th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody class="bg-white divide-y divide-gray-100">
                     @forelse($accounts as $account)
-                    <tr class="hover:bg-gray-50 transition-colors duration-200 search-result">
-                        <td class="px-6 py-4 whitespace-nowrap">
+                    <tr class="hover:bg-indigo-50/30 transition-all duration-200 search-result table-row">
+                        <td class="px-8 py-5 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold">
-                                    {{ substr($account->name, 0, 1) }}
+                                <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l9-4 9 4m-9-4v20m0 0l-9-4m9 4l9-4M3 6l9 4 9-4" />
+                                    </svg>
                                 </div>
-                                <div class="ml-4">
-                                    <div class="text-sm font-medium text-gray-900">{{ $account->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ Str::limit($account->address, 30) }}</div>
+                                <div class="ml-4">                                    <div class="text-base font-medium text-gray-900">{{ $account->name }}</div>
+                                    <div class="text-sm text-gray-500 mt-1 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        {{ Str::limit($account->address, 30) }}
+                                    </div>
                                 </div>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm text-gray-900">{{ $account->id_number }}</div>
+                        <td class="px-6 py-5 whitespace-nowrap text-right">
+                            <div class="text-sm text-gray-900 bg-gray-50 py-1.5 px-3 rounded-md inline-flex items-center float-right">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                </svg>
+                                {{ $account->id_number }}
+                            </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="text-sm font-mono bg-gray-100 text-gray-900 p-1 rounded">{{ $account->account_number }}</div>
+                        <td class="px-6 py-5 whitespace-nowrap text-right">
+                            <div class="text-sm font-mono bg-indigo-50 text-indigo-800 py-1.5 px-3 rounded-md border border-indigo-100 shadow-sm inline-flex items-center float-right">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                                {{ $account->account_number }}
+                            </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-6 py-5 whitespace-nowrap text-right">
+                            <div class="flex justify-end">
                             @if($account->approved_by)
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                <span class="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border border-green-200 shadow-sm">
+                                    <span class="flex items-center justify-center h-5 w-5 bg-green-500 rounded-full mr-1.5 shadow-inner">
+                                        <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </span>
                                     {{ __('Approved') }}
                                 </span>
                             @else
-                                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
+                                <span class="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border border-amber-200 shadow-sm">
+                                    <span class="flex items-center justify-center h-5 w-5 bg-amber-500 rounded-full mr-1.5 shadow-inner">
+                                        <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </span>
                                     {{ __('Pending') }}
                                 </span>
                             @endif
+                            </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route('customer.accounts.show', $account) }}" class="group relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 hover:from-violet-600 hover:via-purple-600 hover:to-fuchsia-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg overflow-hidden">
+                        <td class="px-6 py-5 whitespace-nowrap text-sm font-medium text-right">
+                            <a href="{{ route('customer.accounts.show', $account) }}" class="group relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 hover:from-violet-600 hover:via-purple-600 hover:to-fuchsia-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg overflow-hidden">
                                 <span class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
                                 <span class="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-violet-500 rounded-lg blur opacity-20 group-hover:opacity-30 transition-opacity duration-300 animate-tilt"></span>
                                 <span class="absolute left-0 inset-y-0 flex items-center pl-3 relative">
@@ -195,15 +224,17 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-10 text-center">
-                            <div class="flex flex-col items-center">
-                                <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                                </svg>
-                                <h3 class="mt-2 text-sm font-medium text-gray-900">{{ __('No accounts found') }}</h3>
-                                <p class="mt-1 text-sm text-gray-500">{{ __('Get started by creating a new account.') }}</p>
-                                <div class="mt-6">
-                                    <button onclick="document.location='{{ route('customer.accounts.create') }}'" class="group relative inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 hover:from-violet-600 hover:via-purple-600 hover:to-fuchsia-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 shadow-md hover:shadow-lg overflow-hidden">
+                        <td colspan="5" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center bg-indigo-50/50 max-w-lg mx-auto py-10 px-6 rounded-2xl">
+                                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center mb-4 shadow-inner">
+                                    <svg class="h-10 w-10 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                    </svg>
+                                </div>
+                                <h3 class="mt-2 text-lg font-medium text-gray-900">{{ __('No accounts found') }}</h3>
+                                <p class="mt-2 text-sm text-gray-500 text-center max-w-xs">{{ __('Get started by creating a new account to manage your banking information securely.') }}</p>
+                                <div class="mt-8">
+                                    <button onclick="document.location='{{ route('customer.accounts.create') }}'" class="group relative inline-flex items-center px-5 py-2.5 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 hover:from-violet-600 hover:via-purple-600 hover:to-fuchsia-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 shadow-md hover:shadow-lg overflow-hidden">
                                         <span class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
                                         <span class="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-violet-500 rounded-lg blur opacity-20 group-hover:opacity-30 transition-opacity duration-300 animate-tilt"></span>
                                         <span class="relative flex items-center">
@@ -220,10 +251,13 @@
                     @endforelse
                 </tbody>
             </table>
+            <div class="absolute inset-0 pointer-events-none shadow-[inset_0_-1px_1px_rgba(0,0,0,0.05)]"></div>
         </div>
 
-        <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
-            {{ $accounts->links() }}
+        <div class="px-8 py-4 border-t border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50">
+            <div class="pagination-container">
+                {{ $accounts->links() }}
+            </div>
         </div>
     </div>
 </div>
@@ -316,6 +350,56 @@
     .animate-tilt {
         animation: tilt 10s infinite linear;
     }
+    @keyframes shine {
+        0% { background-position: -100% 0; }
+        100% { background-position: 200% 0; }
+    }
+    .table-row {
+        animation: fadeIn 0.6s ease-out backwards;
+    }
+    .table-row:nth-child(1) { animation-delay: 0.1s; }
+    .table-row:nth-child(2) { animation-delay: 0.2s; }
+    .table-row:nth-child(3) { animation-delay: 0.3s; }
+    .table-row:nth-child(4) { animation-delay: 0.4s; }
+    .table-row:nth-child(5) { animation-delay: 0.5s; }
+    .table-row:nth-child(6) { animation-delay: 0.6s; }
+    .table-row:nth-child(7) { animation-delay: 0.7s; }
+    .table-row:nth-child(8) { animation-delay: 0.8s; }
+    .table-row:nth-child(9) { animation-delay: 0.9s; }
+    .table-row:nth-child(10) { animation-delay: 1.0s; }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .pagination-container nav > div:first-child {
+        @apply hidden;
+    }
+
+    .pagination-container nav > div:last-child span:not(.text-gray-500),
+    .pagination-container nav > div:last-child a {
+        @apply px-3 py-1 mx-1 rounded-md border-0 shadow-sm;
+    }
+
+    .pagination-container nav > div:last-child span.text-gray-500 {
+        @apply px-3 py-1 mx-1;
+    }
+
+    .pagination-container nav > div:last-child span:not(.text-gray-500) {
+        @apply bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white font-medium;
+    }
+
+    .pagination-container nav > div:last-child a {
+        @apply bg-white hover:bg-gray-50 transition-colors duration-150;
+    }
+
     .bg-pattern {
         background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
@@ -323,3 +407,4 @@
 @endpush
 
 </x-customer-layout>
+
