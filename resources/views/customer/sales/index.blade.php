@@ -497,42 +497,144 @@
 
     @push('scripts')
         <script>
+            // Initialize page animations
+            document.addEventListener('DOMContentLoaded', function() {
+                // Header animation
+                anime({
+                    targets: '.bg-gradient-to-r.from-indigo-600',
+                    opacity: [0, 1],
+                    translateY: [-20, 0],
+                    easing: 'easeOutExpo',
+                    duration: 1000
+                });
 
-            // Filter form submission
-            document.getElementById('filterForm').addEventListener('submit', function (e) {
-                e.preventDefault();
-                const formData = new FormData(this);
-                const params = new URLSearchParams(formData);
-                console.log('Form data:', Object.fromEntries(formData));
-                window.location.href = `{{ route('customer.sales.index') }}?${params.toString()}`;
+                // Animate filters section
+                anime({
+                    targets: '.bg-white.rounded-lg.shadow-[0_8px_30px_rgb(0,0,0,0.12)]',
+                    opacity: [0, 1],
+                    translateY: [-15, 0],
+                    easing: 'easeOutQuint',
+                    duration: 800,
+                    delay: 300
+                });
+
+                // Staggered animation for table rows
+                anime({
+                    targets: 'tbody tr',
+                    opacity: [0, 1],
+                    translateX: [-20, 0],
+                    delay: anime.stagger(80, {start: 500}),
+                    easing: 'easeOutSine',
+                    duration: 600
+                });
+
+                // Animate filter input groups on focus
+                document.querySelectorAll('#filterForm input, #filterForm select').forEach(input => {
+                    input.addEventListener('focus', function() {
+                        anime({
+                            targets: this.closest('.group'),
+                            scale: 1.02,
+                            boxShadow: '0 4px 15px rgba(79, 70, 229, 0.15)',
+                            duration: 300,
+                            easing: 'easeOutQuart'
+                        });
+                    });
+
+                    input.addEventListener('blur', function() {
+                        anime({
+                            targets: this.closest('.group'),
+                            scale: 1,
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                            duration: 300,
+                            easing: 'easeOutQuart'
+                        });
+                    });
+                });
+
+                // Bounce effect for buttons
+                document.querySelectorAll('button:not([type="submit"])').forEach(button => {
+                    button.addEventListener('mouseenter', function() {
+                        anime({
+                            targets: this,
+                            scale: 1.05,
+                            duration: 300,
+                            easing: 'easeOutElastic(1, .8)'
+                        });
+                    });
+
+                    button.addEventListener('mouseleave', function() {
+                        anime({
+                            targets: this,
+                            scale: 1,
+                            duration: 300,
+                            easing: 'easeOutElastic(1, .8)'
+                        });
+                    });
+                });
+
+                // Special effect for submit button
+                document.querySelector('button[type="submit"]').addEventListener('mouseenter', function() {
+                    anime({
+                        targets: this,
+                        scale: 1.05,
+                        backgroundColor: '#4338ca', // Darker indigo
+                        boxShadow: '0 4px 15px rgba(79, 70, 229, 0.3)',
+                        duration: 300,
+                        easing: 'easeOutQuart'
+                    });
+                });
+
+                document.querySelector('button[type="submit"]').addEventListener('mouseleave', function() {
+                    anime({
+                        targets: this,
+                        scale: 1,
+                        backgroundColor: '#4f46e5', // Original indigo
+                        boxShadow: '0 0 0 rgba(79, 70, 229, 0)',
+                        duration: 300,
+                        easing: 'easeOutQuart'
+                    });
+                });
             });
 
-            // Sorting functionality
-            function sortBy(field) {
-                const currentDirection = new URLSearchParams(window.location.search).get('sortDirection') || 'asc';
-                const currentField = new URLSearchParams(window.location.search).get('sortField') || 'date';
-
-                let newDirection = 'asc';
-                if (currentField === field) {
-                    newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
-                }
-
-                const params = new URLSearchParams(window.location.search);
-                params.set('sortField', field);
-                params.set('sortDirection', newDirection);
-                window.location.href = `{{ route('customer.sales.index') }}?${params.toString()}`;
+            // Create a subtle background gradient animation
+            function animateBackground() {
+                anime({
+                    targets: '.py-12.bg-gray-50',
+                    background: [
+                        'linear-gradient(135deg, rgba(243, 244, 246, 1) 0%, rgba(249, 250, 251, 1) 100%)',
+                        'linear-gradient(225deg, rgba(243, 244, 246, 1) 0%, rgba(249, 250, 251, 1) 100%)',
+                        'linear-gradient(315deg, rgba(243, 244, 246, 1) 0%, rgba(249, 250, 251, 1) 100%)',
+                        'linear-gradient(45deg, rgba(243, 244, 246, 1) 0%, rgba(249, 250, 251, 1) 100%)'
+                    ],
+                    duration: 20000,
+                    easing: 'easeInOutSine',
+                    direction: 'alternate',
+                    loop: true
+                });
             }
 
-            // Sale details modal
+            document.addEventListener('DOMContentLoaded', animateBackground);
+
+            // Modal animations
             function showSaleDetails(saleId) {
                 const modal = document.getElementById('detailsModal');
                 const loadingState = document.getElementById('loadingState');
                 const saleDetails = document.getElementById('saleDetails');
+                const modalContent = modal.querySelector('.relative');
 
-                // Show modal and loading state
+                // Show modal with animation
                 modal.classList.remove('hidden');
                 loadingState.classList.remove('hidden');
                 saleDetails.classList.add('hidden');
+
+                // Animate modal appearing
+                anime({
+                    targets: modalContent,
+                    opacity: [0, 1],
+                    scale: [0.9, 1],
+                    duration: 400,
+                    easing: 'easeOutCubic'
+                });
 
                 // Fetch sale details
                 fetch(`{{ route('customer.sales.show', '') }}/${saleId}`)
@@ -603,15 +705,111 @@
                         // Update total amount
                         document.getElementById('saleTotalAmount').textContent = data.total_amount;
 
-                        // Hide loading state and show details
+                        // Hide loading state and show details with animation
                         loadingState.classList.add('hidden');
                         saleDetails.classList.remove('hidden');
+
+                        // Animate the sale details items appearing
+                        anime({
+                            targets: '#saleDetails > div, #saleDetails table tr',
+                            opacity: [0, 1],
+                            translateY: [15, 0],
+                            delay: anime.stagger(100),
+                            duration: 500,
+                            easing: 'easeOutCubic'
+                        });
                     })
                     .catch(error => {
                         console.error('Error fetching sale details:', error);
                         loadingState.classList.add('hidden');
                         alert('Error loading sale details. Please try again.');
                     });
+            }
+
+            function closeDetailsModal() {
+                const modal = document.getElementById('detailsModal');
+                const modalContent = modal.querySelector('.relative');
+
+                // Animate modal disappearing
+                anime({
+                    targets: modalContent,
+                    opacity: [1, 0],
+                    scale: [1, 0.9],
+                    duration: 300,
+                    easing: 'easeInCubic',
+                    complete: function() {
+                        modal.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Payment modal animations
+            function showPaymentForm(saleId) {
+                document.getElementById('saleId').value = saleId;
+                const modal = document.getElementById('paymentModal');
+                const modalContent = modal.querySelector('.relative');
+
+                modal.classList.remove('hidden');
+
+                anime({
+                    targets: modalContent,
+                    opacity: [0, 1],
+                    translateY: [50, 0],
+                    duration: 500,
+                    easing: 'easeOutQuint'
+                });
+
+                // Animate form fields
+                anime({
+                    targets: '#paymentForm > div',
+                    opacity: [0, 1],
+                    translateX: [-20, 0],
+                    delay: anime.stagger(100, {start: 200}),
+                    duration: 500,
+                    easing: 'easeOutCubic'
+                });
+            }
+
+            function closePaymentModal() {
+                const modal = document.getElementById('paymentModal');
+                const modalContent = modal.querySelector('.relative');
+
+                anime({
+                    targets: modalContent,
+                    opacity: [1, 0],
+                    translateY: [0, 50],
+                    duration: 400,
+                    easing: 'easeInCubic',
+                    complete: function() {
+                        modal.classList.add('hidden');
+                        document.getElementById('paymentForm').reset();
+                    }
+                });
+            }
+
+            // Filter form submission
+            document.getElementById('filterForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const params = new URLSearchParams(formData);
+                console.log('Form data:', Object.fromEntries(formData));
+                window.location.href = `{{ route('customer.sales.index') }}?${params.toString()}`;
+            });
+
+            // Sorting functionality
+            function sortBy(field) {
+                const currentDirection = new URLSearchParams(window.location.search).get('sortDirection') || 'asc';
+                const currentField = new URLSearchParams(window.location.search).get('sortField') || 'date';
+
+                let newDirection = 'asc';
+                if (currentField === field) {
+                    newDirection = currentDirection === 'asc' ? 'desc' : 'asc';
+                }
+
+                const params = new URLSearchParams(window.location.search);
+                params.set('sortField', field);
+                params.set('sortDirection', newDirection);
+                window.location.href = `{{ route('customer.sales.index') }}?${params.toString()}`;
             }
 
             function getStatusBadgeClass(status) {
@@ -627,25 +825,20 @@
                 }
             }
 
-            function closeDetailsModal() {
-                document.getElementById('detailsModal').classList.add('hidden');
-            }
-
-            // Payment modal
-            function showPaymentForm(saleId) {
-                document.getElementById('saleId').value = saleId;
-                document.getElementById('paymentModal').classList.remove('hidden');
-            }
-
-            function closePaymentModal() {
-                document.getElementById('paymentModal').classList.add('hidden');
-                document.getElementById('paymentForm').reset();
-            }
-
             document.getElementById('paymentForm').addEventListener('submit', function (e) {
                 e.preventDefault();
                 const formData = new FormData(this);
                 const saleId = formData.get('saleId');
+
+                // Add submission animation
+                const submitButton = this.querySelector('button[type="submit"]');
+                anime({
+                    targets: submitButton,
+                    scale: [1, 0.95, 1],
+                    backgroundColor: ['#4f46e5', '#4338ca', '#4f46e5'],
+                    duration: 700,
+                    easing: 'easeInOutQuad'
+                });
 
                 fetch(`{{ route('customer.sales.payment', '') }}/${saleId}`, {
                     method: 'POST',
@@ -669,7 +862,7 @@
                     });
             });
 
-            // Confirm sale
+            // Confirm sale with animation
             function confirmSale(saleId) {
                 if (!confirm('{{ __("Are you sure you want to confirm this sale?") }}')) {
                     return;
@@ -693,12 +886,43 @@
 
             // Reset filters function
             function resetFilters() {
+                // Ripple animation on reset
+                const resetButton = document.querySelector('button[onclick="resetFilters()"]');
+                const ripple = document.createElement('span');
+                ripple.classList.add('ripple-effect');
+                resetButton.appendChild(ripple);
+
+                anime({
+                    targets: ripple,
+                    scale: [0, 1],
+                    opacity: [1, 0],
+                    translateX: '-50%',
+                    translateY: '-50%',
+                    duration: 600,
+                    easing: 'easeOutCubic',
+                    complete: function() {
+                        ripple.remove();
+                    }
+                });
+
                 const form = document.getElementById('filterForm');
                 const inputs = form.querySelectorAll('input, select');
+
+                // Animate inputs being cleared
+                anime({
+                    targets: inputs,
+                    backgroundColor: ['#ffffff', '#f3f4f6', '#ffffff'],
+                    duration: 400,
+                    easing: 'easeInOutQuad'
+                });
+
                 inputs.forEach(input => {
                     input.value = '';
                 });
-                form.submit();
+
+                setTimeout(() => {
+                    form.submit();
+                }, 400);
             }
 
             // Add active state to filters when they have values
@@ -729,6 +953,40 @@
 
             // Update filter states on change
             document.getElementById('filterForm').addEventListener('change', updateFilterStates);
+
+            // Add a custom ripple style for the reset button
+            const style = document.createElement('style');
+            style.textContent = `
+                .ripple-effect {
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(79, 70, 229, 0.3);
+                    width: 100px;
+                    height: 100px;
+                    left: 50%;
+                    top: 50%;
+                    pointer-events: none;
+                }
+
+                .sort-icon::after {
+                    content: '↑';
+                    display: inline-block;
+                    transition: transform 0.3s ease;
+                }
+
+                [data-direction="desc"] .sort-icon::after {
+                    transform: rotate(180deg);
+                }
+
+                .hover-scale {
+                    transition: transform 0.3s ease;
+                }
+
+                .hover-scale:hover {
+                    transform: scale(1.05);
+                }
+            `;
+            document.head.appendChild(style);
         </script>
     @endpush
 </x-customer-layout>

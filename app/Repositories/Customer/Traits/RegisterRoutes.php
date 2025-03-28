@@ -10,11 +10,11 @@ use App\Http\Controllers\Customer\InvoiceController;
 use App\Http\Controllers\Customer\SalesListController;
 use App\Http\Controllers\ThermalPrinterController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\Customer\CustomerAccountsController;
 use App\Livewire\Customer\Dashboard;
 use App\Livewire\Customer\MarketOrderCreate;
 use App\Livewire\Customer\CustomerStockProducts;
 use App\Livewire\Customer\CustomerOrder;
-use App\Livewire\Customer\CustomerAccounts;
 use App\Livewire\Customer\Reports;
 
 trait RegisterRoutes
@@ -75,10 +75,19 @@ trait RegisterRoutes
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.edit_profile')
                     ->name('profile.password');
 
-                // Customer Accounts route
-                Route::get('/accounts', CustomerAccounts::class)
+                // Customer Accounts route - replaced Livewire with Controller
+                Route::get('/accounts', [CustomerAccountsController::class, 'index'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_accounts')
-                    ->name('accounts');
+                    ->name('accounts.index');
+                Route::get('/accounts/create', [CustomerAccountsController::class, 'create'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_accounts')
+                    ->name('accounts.create');
+                Route::post('/accounts', [CustomerAccountsController::class, 'store'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_accounts')
+                    ->name('accounts.store');
+                Route::get('/accounts/reset-filters', [CustomerAccountsController::class, 'resetFilters'])
+                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_accounts')
+                    ->name('accounts.resetFilters');
 
                 // Account routes (controller-based)
                 Route::get('/accounts/{account}/incomes', [AccountController::class, 'showIncomes'])

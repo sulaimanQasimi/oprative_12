@@ -44,7 +44,7 @@
                     </svg>
                     <span class="relative">@lang('Add New Income')</span>
                 </button>
-                <a href="{{ route('customer.accounts') }}"
+                <a href="{{ route('customer.accounts.index') }}"
                     class="group relative inline-flex items-center px-6 py-2.5 border-2 border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transform transition-all duration-300 hover:scale-105 hover:shadow-md ml-2">
                     <span class="relative ml-2">@lang('Back to Accounts')</span>
                     <svg class="h-5 w-5 transform group-hover:translate-x-1 transition-transform duration-300"
