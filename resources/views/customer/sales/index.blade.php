@@ -4,19 +4,19 @@
         <div class="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl shadow-xl p-8 mb-8 overflow-hidden">
             <div class="absolute inset-0 bg-pattern opacity-10"></div>
             <div class="relative z-10 flex justify-between items-center">
-                <div>
+                        <div>
                     <h2 class="text-3xl font-bold text-white">
                         {{ __('My Sales') }}
                     </h2>
                     <p class="mt-2 text-indigo-100 max-w-2xl">
                         {{ __('Manage and track your sales transactions securely in one place.') }}
                     </p>
-                </div>
+                        </div>
                 <div class="hidden md:block">
                     <lottie-player src="https://assets5.lottiefiles.com/packages/lf20_ystsffqy.json" background="transparent" speed="1" style="width: 120px; height: 120px;" loop autoplay></lottie-player>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
 
         @if(session('success'))
         <div class="animate-fade-in-down bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg shadow-lg p-4 mb-6" role="alert">
@@ -36,7 +36,7 @@
                     <div class="p-3 rounded-full bg-purple-100 mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                        </svg>
+                            </svg>
                     </div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ __('Total Sales') }}</h3>
                     <p class="text-2xl font-bold text-purple-600">{{ $sales->total() }}</p>
@@ -48,25 +48,25 @@
                     <div class="p-3 rounded-full bg-green-100 mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
+                                    </svg>
+                                </div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ __('Completed Sales') }}</h3>
                     <p class="text-2xl font-bold text-green-600">{{ $sales->where('status', 'completed')->count() }}</p>
-                </div>
-            </div>
+                            </div>
+                        </div>
 
             <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 account-card lg:col-span-1">
                 <div class="p-6 flex flex-col items-center text-center">
                     <div class="p-3 rounded-full bg-amber-100 mb-4">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+                                    </svg>
                     </div>
                     <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ __('Pending Sales') }}</h3>
                     <p class="text-2xl font-bold text-amber-600">{{ $sales->where('status', 'pending')->count() }}</p>
-                </div>
-            </div>
-        </div>
+                                </div>
+                            </div>
+                        </div>
 
         <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 account-card mb-8">
             <div class="p-6">
@@ -80,14 +80,14 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Reference') }}</label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-                                </svg>
-                            </div>
+                                    </svg>
+                                </div>
                             <input name="search" value="{{ request('search') }}" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" placeholder="{{ __('Search by reference') }}">
+                            </div>
                         </div>
-                    </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Status') }}</label>
                         <div class="relative">
@@ -97,43 +97,43 @@
                                 </svg>
                             </div>
                             <select name="status" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <option value="">{{ __('All Statuses') }}</option>
-                                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ __('Completed') }}</option>
-                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
-                                <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>{{ __('Cancelled') }}</option>
-                            </select>
+                                    <option value="">{{ __('All Statuses') }}</option>
+                                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>{{ __('Completed') }}</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>{{ __('Pending') }}</option>
+                                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>{{ __('Cancelled') }}</option>
+                                </select>
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Warehouse Confirmation') }}</label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                </svg>
-                            </div>
+                                    </svg>
+                                </div>
                             <select name="confirmedByWarehouse" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <option value="">{{ __('All') }}</option>
-                                <option value="1" {{ request('confirmedByWarehouse') == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-                                <option value="0" {{ request('confirmedByWarehouse') == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
-                            </select>
+                                    <option value="">{{ __('All') }}</option>
+                                    <option value="1" {{ request('confirmedByWarehouse') == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
+                                    <option value="0" {{ request('confirmedByWarehouse') == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
+                                </select>
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">{{ __('Shop Confirmation') }}</label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
+                                    </svg>
+                                </div>
                             <select name="confirmedByShop" class="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <option value="">{{ __('All') }}</option>
-                                <option value="1" {{ request('confirmedByShop') == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
-                                <option value="0" {{ request('confirmedByShop') == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
-                            </select>
-                        </div>
-                    </div>
+                                    <option value="">{{ __('All') }}</option>
+                                    <option value="1" {{ request('confirmedByShop') == '1' ? 'selected' : '' }}>{{ __('Yes') }}</option>
+                                    <option value="0" {{ request('confirmedByShop') == '0' ? 'selected' : '' }}>{{ __('No') }}</option>
+                                </select>
+                                </div>
+                                </div>
                     <div class="flex items-end">
                         <button type="submit" class="w-full px-4 py-2 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 hover:from-violet-600 hover:via-purple-600 hover:to-fuchsia-600 text-white text-sm font-medium rounded-md shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 relative overflow-hidden group">
                             <span class="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
@@ -141,31 +141,31 @@
                             <span class="relative flex items-center justify-center">
                                 <svg class="h-5 w-5 mr-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
+                                    </svg>
                                 {{ __('Search') }}
                             </span>
                         </button>
-                    </div>
+                                </div>
                     <div class="flex items-end">
                         <a href="{{ route('customer.sales.index') }}" class="w-full px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-300">
                             <span class="flex items-center justify-center">
                                 <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                </svg>
+                                    </svg>
                                 {{ __('Reset') }}
                             </span>
                         </a>
-                    </div>
+                                </div>
                 </form>
-            </div>
-        </div>
+                            </div>
+                        </div>
 
         <div class="bg-gradient-to-br from-white to-indigo-50 rounded-xl shadow-xl overflow-hidden mb-8 account-list">
             <div class="px-8 py-5 border-b border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50 backdrop-blur-sm">
                 <h3 class="text-xl font-semibold text-gray-800 flex items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2m-2 0h-2" />
-                    </svg>
+                                </svg>
                     {{ __('Your Sales') }}
                 </h3>
             </div>
@@ -174,25 +174,25 @@
             <div class="overflow-x-auto bg-white relative">
                 <div class="absolute inset-0 bg-pattern opacity-[0.02] pointer-events-none"></div>
                 <table class="min-w-full divide-y divide-gray-200 table-fixed">
-                    <thead>
+                        <thead>
                         <tr class="bg-gradient-to-r from-gray-50 to-gray-100">
                             <th scope="col" class="px-8 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 {{ __('Reference') }}
-                            </th>
+                                </th>
                             <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 {{ __('Date') }}
-                            </th>
+                                </th>
                             <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 {{ __('Total Amount') }}
-                            </th>
+                                </th>
                             <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 {{ __('Status') }}
-                            </th>
+                                </th>
                             <th scope="col" class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider pr-8">
                                 {{ __('Actions') }}
                             </th>
-                        </tr>
-                    </thead>
+                            </tr>
+                        </thead>
                     <tbody class="bg-white divide-y divide-gray-100">
                         @forelse($sales as $sale)
                         <tr class="hover:bg-indigo-50/30 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md search-result table-row account-row">
@@ -213,7 +213,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </td>
+                                    </td>
                             <td class="px-6 py-5 whitespace-nowrap text-right">
                                 <div class="text-sm text-gray-900 bg-gray-50 py-1.5 px-3 rounded-md inline-flex items-center float-right">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -221,7 +221,7 @@
                                     </svg>
                                     {{ $sale->date->format('Y-m-d') }}
                                 </div>
-                            </td>
+                                    </td>
                             <td class="px-6 py-5 whitespace-nowrap text-right">
                                 <div class="text-sm font-mono bg-indigo-50 text-indigo-800 py-1.5 px-3 rounded-md border border-indigo-100 shadow-sm inline-flex items-center float-right">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -229,7 +229,7 @@
                                     </svg>
                                     {{ $sale->total }}
                                 </div>
-                            </td>
+                                    </td>
                             <td class="px-6 py-5 whitespace-nowrap text-right">
                                 <div class="flex justify-end">
                                 @if($sale->status == 'completed')
@@ -255,11 +255,11 @@
                                         <span class="flex items-center justify-center h-5 w-5 bg-amber-500 rounded-full mr-1.5 shadow-inner">
                                             <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                            </svg>
+                                                </svg>
                                         </span>
                                         {{ __('Pending') }}
                                     </span>
-                                @endif
+                                        @endif
                                 </div>
                             </td>
                             <td class="px-6 py-5 whitespace-nowrap text-sm font-medium text-right">
@@ -270,12 +270,12 @@
                                         <svg class="h-4 w-4 text-white opacity-80 group-hover:opacity-100 transition-opacity duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                        </svg>
+                                                </svg>
                                     </span>
                                     <span class="pl-6 relative">{{ __('View Details') }}</span>
-                                </button>
-                            </td>
-                        </tr>
+                                            </button>
+                                    </td>
+                                </tr>
                         @empty
                         <tr>
                             <td colspan="5" class="px-6 py-12 text-center">
@@ -303,14 +303,14 @@
                             </td>
                         </tr>
                         @endforelse
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
                 <div class="absolute inset-0 pointer-events-none shadow-[inset_0_-1px_1px_rgba(0,0,0,0.05)]"></div>
             </div>
 
             <div class="px-8 py-4 border-t border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50">
                 <div class="pagination-container">
-                    {{ $sales->links() }}
+                {{ $sales->links() }}
                 </div>
             </div>
         </div>
@@ -410,7 +410,7 @@
                             <h4 class="text-sm font-medium text-gray-500">{{ __('Total Amount') }}</h4>
                         </div>
                         <p class="text-lg font-semibold text-gray-900" id="sale-amount"></p>
-                    </div>
+                </div>
 
                     <div class="bg-gray-50 p-4 rounded-lg">
                         <div class="flex items-center space-x-3 mb-2">
@@ -420,9 +420,9 @@
                                 </svg>
                             </div>
                             <h4 class="text-sm font-medium text-gray-500">{{ __('Warehouse') }}</h4>
-                        </div>
+                                            </div>
                         <p class="text-lg font-semibold text-gray-900" id="sale-warehouse"></p>
-                    </div>
+                                            </div>
                 </div>
 
                 <!-- Confirmation Status -->
@@ -432,8 +432,8 @@
                             <div class="bg-blue-100 p-2 rounded-lg">
                                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
+                                                </svg>
+                                            </div>
                             <h4 class="text-sm font-medium text-gray-500">{{ __('Warehouse Confirmation') }}</h4>
                         </div>
                         <div id="warehouse-confirmation">
@@ -446,8 +446,8 @@
                             <div class="bg-blue-100 p-2 rounded-lg">
                                 <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                            </div>
+                                                </svg>
+                                            </div>
                             <h4 class="text-sm font-medium text-gray-500">{{ __('Shop Confirmation') }}</h4>
                         </div>
                         <div id="shop-confirmation">
@@ -472,20 +472,20 @@
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Quantity') }}</th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Unit Price') }}</th>
                                     <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Subtotal') }}</th>
-                                </tr>
-                            </thead>
+                                    </tr>
+                                </thead>
                             <tbody id="sale-items-body" class="bg-white divide-y divide-gray-200">
                                 <!-- Will be filled by JavaScript -->
-                            </tbody>
+                                </tbody>
                             <tfoot class="bg-gray-50">
                                 <tr>
                                     <td colspan="3" class="px-6 py-4 text-right text-sm font-medium text-gray-900">{{ __('Total:') }}</td>
                                     <td class="px-6 py-4 text-right text-base font-bold text-gray-900" id="sale-total"></td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
-                </div>
 
                 <!-- Notes -->
                 <div class="bg-gray-50 p-4 rounded-lg" id="notes-section">
@@ -752,12 +752,12 @@
                             backgroundColor: 'rgba(238, 242, 255, 0.5)',
                             duration: 300,
                             easing: 'easeOutCubic'
-                        });
+                    });
 
                         // Animate the bank icon on hover
                         const bankIcon = row.querySelector('.flex-shrink-0.h-12.w-12 svg');
                         if (bankIcon) {
-                            anime({
+                        anime({
                                 targets: bankIcon,
                                 rotate: ['0deg', '5deg'],
                                 scale: 1.1,
@@ -773,18 +773,18 @@
                             backgroundColor: 'rgba(255, 255, 255, 1)',
                             duration: 300,
                             easing: 'easeOutCubic'
-                        });
+                    });
 
                         // Reset the bank icon animation
                         const bankIcon = row.querySelector('.flex-shrink-0.h-12.w-12 svg');
                         if (bankIcon) {
-                            anime({
+                        anime({
                                 targets: bankIcon,
                                 rotate: '0deg',
-                                scale: 1,
+                            scale: 1,
                                 duration: 400,
-                                easing: 'easeOutElastic(1, .8)'
-                            });
+                            easing: 'easeOutElastic(1, .8)'
+                        });
                         }
                     });
                 });
@@ -792,23 +792,23 @@
                 // Add hover effect to buttons
                 document.querySelectorAll('.animate-button').forEach(button => {
                     button.addEventListener('mouseenter', () => {
-                        anime({
+                    anime({
                             targets: button,
-                            scale: 1.05,
-                            duration: 300,
+                        scale: 1.05,
+                        duration: 300,
                             easing: 'easeOutCubic'
-                        });
-                    });
-
-                    button.addEventListener('mouseleave', () => {
-                        anime({
-                            targets: button,
-                            scale: 1,
-                            duration: 300,
-                            easing: 'easeOutCubic'
-                        });
                     });
                 });
+
+                    button.addEventListener('mouseleave', () => {
+                    anime({
+                            targets: button,
+                        scale: 1,
+                        duration: 300,
+                            easing: 'easeOutCubic'
+                    });
+                });
+            });
             });
         </script>
 
