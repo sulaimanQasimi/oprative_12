@@ -150,10 +150,10 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-100">
                     @forelse($accounts as $account)
-                    <tr class="hover:bg-indigo-50/30 transition-all duration-200 search-result table-row">
+                    <tr class="hover:bg-indigo-50/30 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md search-result table-row account-row">
                         <td class="px-8 py-5 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md">
+                                <div class="mx-6 flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M3 6l9-4 9 4m-9-4v20m0 0l-9-4m9 4l9-4M3 6l9 4 9-4" />
                                     </svg>
@@ -188,7 +188,7 @@
                         <td class="px-6 py-5 whitespace-nowrap text-right">
                             <div class="flex justify-end">
                             @if($account->approved_by)
-                                <span class="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border border-green-200 shadow-sm">
+                                <span class="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border border-green-200 shadow-sm status-badge status-approved">
                                     <span class="flex items-center justify-center h-5 w-5 bg-green-500 rounded-full mr-1.5 shadow-inner">
                                         <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -197,7 +197,7 @@
                                     {{ __('Approved') }}
                                 </span>
                             @else
-                                <span class="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border border-amber-200 shadow-sm">
+                                <span class="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border border-amber-200 shadow-sm status-badge status-pending">
                                     <span class="flex items-center justify-center h-5 w-5 bg-amber-500 rounded-full mr-1.5 shadow-inner">
                                         <svg class="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -284,6 +284,51 @@
             translateY: [30, 0],
             delay: 300,
             easing: 'easeOutExpo'
+        });
+
+        // Enhanced table row interactions
+        document.querySelectorAll('.account-row').forEach(row => {
+            row.addEventListener('mouseenter', () => {
+                anime({
+                    targets: row.querySelectorAll('td'),
+                    backgroundColor: 'rgba(238, 242, 255, 0.5)',
+                    duration: 300,
+                    easing: 'easeOutCubic'
+                });
+
+                // Animate the bank icon on hover
+                const bankIcon = row.querySelector('.flex-shrink-0.h-12.w-12 svg');
+                if (bankIcon) {
+                    anime({
+                        targets: bankIcon,
+                        rotate: ['0deg', '5deg'],
+                        scale: 1.1,
+                        duration: 400,
+                        easing: 'easeOutElastic(1, .8)'
+                    });
+                }
+            });
+
+            row.addEventListener('mouseleave', () => {
+                anime({
+                    targets: row.querySelectorAll('td'),
+                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                    duration: 300,
+                    easing: 'easeOutCubic'
+                });
+
+                // Reset the bank icon animation
+                const bankIcon = row.querySelector('.flex-shrink-0.h-12.w-12 svg');
+                if (bankIcon) {
+                    anime({
+                        targets: bankIcon,
+                        rotate: '0deg',
+                        scale: 1,
+                        duration: 400,
+                        easing: 'easeOutElastic(1, .8)'
+                    });
+                }
+            });
         });
 
         // Add hover effect to buttons
@@ -402,6 +447,109 @@
 
     .bg-pattern {
         background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .bank-icon-pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.1);
+        }
+
+        70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+        }
+
+        100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+        }
+    }
+
+    /* Table animations */
+    .account-row {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Account row staggered animation */
+    .account-row:nth-child(1) { animation-delay: 0.1s; }
+    .account-row:nth-child(2) { animation-delay: 0.2s; }
+    .account-row:nth-child(3) { animation-delay: 0.3s; }
+    .account-row:nth-child(4) { animation-delay: 0.4s; }
+    .account-row:nth-child(5) { animation-delay: 0.5s; }
+    .account-row:nth-child(6) { animation-delay: 0.6s; }
+    .account-row:nth-child(7) { animation-delay: 0.7s; }
+    .account-row:nth-child(8) { animation-delay: 0.8s; }
+    .account-row:nth-child(9) { animation-delay: 0.9s; }
+    .account-row:nth-child(10) { animation-delay: 1.0s; }
+
+    /* Cell content animations */
+    .account-row td {
+        transition: all 0.3s ease;
+    }
+
+    /* Status badge animations */
+    .status-badge {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .status-badge::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transform: translateX(-100%);
+    }
+
+    .account-row:hover .status-badge::after {
+        animation: shimmer 1.5s infinite;
+    }
+
+    .account-row:hover .status-approved {
+        box-shadow: 0 0 15px rgba(16, 185, 129, 0.15);
+        transform: translateY(-2px) scale(1.05);
+    }
+
+    .account-row:hover .status-pending {
+        box-shadow: 0 0 15px rgba(245, 158, 11, 0.15);
+        transform: translateY(-2px) scale(1.05);
+    }
+
+    @keyframes shimmer {
+        0% {
+            transform: translateX(-100%);
+        }
+        100% {
+            transform: translateX(100%);
+        }
+    }
+
+    /* View details button animation */
+    .account-row .inline-flex.items-center {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .account-row:hover .inline-flex.items-center {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px -10px rgba(124, 58, 237, 0.3);
     }
 </style>
 @endpush
