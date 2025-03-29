@@ -58,8 +58,8 @@ export default function CustomerNavbar() {
             icon: ShoppingCart,
             permission: 'customer.view_orders',
             submenu: [
-                { name: 'All Orders', route: 'customer.orders' },
-                { name: 'View Invoices', route: 'customer.orders' }
+                { name: 'All Orders', route: 'customer.orders', id: 'all-orders' },
+                { name: 'View Invoices', route: 'customer.orders', id: 'view-invoices' }
             ]
         },
         {
@@ -86,8 +86,8 @@ export default function CustomerNavbar() {
             icon: FileText,
             permission: 'customer.view_reports',
             submenu: [
-                { name: 'General Reports', route: 'customer.reports' },
-                { name: 'Account Statements', route: 'customer.reports' }
+                { name: 'General Reports', route: 'customer.reports', id: 'general-reports' },
+                { name: 'Account Statements', route: 'customer.reports', id: 'account-statements' }
             ]
         }
     ];
@@ -181,7 +181,7 @@ export default function CustomerNavbar() {
                                                     <div className="py-1">
                                                         {item.submenu.map((subitem) => (
                                                             <Link
-                                                                key={subitem.route}
+                                                                key={subitem.id || `${subitem.route}-${subitem.name}`}
                                                                 href={route(subitem.route)}
                                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                             >
@@ -221,7 +221,7 @@ export default function CustomerNavbar() {
                                                     <div className="py-1">
                                                         {item.submenu.map((subitem) => (
                                                             <Link
-                                                                key={subitem.route}
+                                                                key={subitem.id || `${subitem.route}-${subitem.name}`}
                                                                 href={route(subitem.route)}
                                                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                                                             >
@@ -460,7 +460,7 @@ export default function CustomerNavbar() {
                                         <div className="pl-4 space-y-1 border-l border-white/10 ml-4">
                                             {item.submenu.map((subitem) => (
                                                 <Link
-                                                    key={subitem.route}
+                                                    key={subitem.id || `${subitem.route}-${subitem.name}`}
                                                     href={route(subitem.route)}
                                                     className="block px-3 py-2 rounded-md text-base font-medium text-white/80 hover:bg-white/10 transition duration-150 ease-in-out"
                                                 >

@@ -423,437 +423,149 @@ export default function SalesIndex({ sales, filters }) {
                         </table>
                     </div>
 
-                    <div className="px-8 py-4 border-t border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50">
-                        {/* Pagination will be handled by Inertia */}
+                    <div className="px-8 py-6 border-t border-indigo-100 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+                        {/* RTL Pagination */}
+                        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-4 rtl:flex-row-reverse">
+                            {/* Records Info */}
+                            <div className="text-sm text-gray-600 rtl:text-right">
+                                <div className="flex items-center gap-2 rtl:flex-row-reverse">
+                                    <span className="bg-indigo-100 text-indigo-600 px-2 py-1 rounded-md rtl:font-semibold">
+                                        RTL {t('Support')}
+                                    </span>
+                                    {sales.total > 0 ? (
+                                        <p>
+                                            {t('Showing')} <span className="font-medium text-indigo-600">{sales.from}</span> {t('to')}{' '}
+                                            <span className="font-medium text-indigo-600">{sales.to}</span> {t('of')}{' '}
+                                            <span className="font-medium text-indigo-600">{sales.total}</span> {t('records')}
+                                        </p>
+                                    ) : (
+                                        <p>{t('No records found')}</p>
+                                    )}
+                                </div>
+                            </div>
+                            
+                            {/* Pagination Controls */}
+                            {sales.links && sales.links.length > 3 && (
+                                <div className="flex items-center justify-center rtl:flex-row-reverse">
+                                    <nav 
+                                        className="relative z-0 inline-flex rounded-xl shadow-md -space-x-px rtl:space-x-reverse overflow-hidden" 
+                                        aria-label="Pagination"
+                                        style={{ boxShadow: '0 4px 20px -2px rgba(103, 58, 183, 0.15)' }}
+                                    >
+                                        {/* First Page Button */}
+                                        <Link
+                                            href={sales.first_page_url}
+                                            className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
+                                                sales.current_page === 1
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'
+                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 rtl:border-r-0 rtl:border-l`}
+                                            disabled={sales.current_page === 1}
+                                        >
+                                            <span className="sr-only">{t('First Page')}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                                            </svg>
+                                        </Link>
+                                        
+                                        {/* Previous Page Button */}
+                                        <Link
+                                            href={sales.prev_page_url}
+                                            className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
+                                                sales.prev_page_url === null
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'
+                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 rtl:border-r-0 rtl:border-l`}
+                                            disabled={sales.prev_page_url === null}
+                                        >
+                                            <span className="sr-only">{t('Previous')}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </Link>
+                                        
+                                        {/* Page Numbers */}
+                                        {sales.links.slice(1, -1).map((link, index) => (
+                                            <Link
+                                                key={index}
+                                                href={link.url}
+                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out border-r border-indigo-100 rtl:border-r-0 rtl:border-l ${
+                                                    link.active
+                                                        ? 'z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-md transform scale-105'
+                                                        : 'bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600'
+                                                }`}
+                                            >
+                                                {link.label.replace(/&laquo;|&raquo;/g, '')}
+                                                {link.active && (
+                                                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full transform translate-y-1/2 opacity-60"></span>
+                                                )}
+                                            </Link>
+                                        ))}
+                                        
+                                        {/* Next Page Button */}
+                                        <Link
+                                            href={sales.next_page_url}
+                                            className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
+                                                sales.next_page_url === null
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'
+                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 rtl:border-r-0 rtl:border-l`}
+                                            disabled={sales.next_page_url === null}
+                                        >
+                                            <span className="sr-only">{t('Next')}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </Link>
+                                        
+                                        {/* Last Page Button */}
+                                        <Link
+                                            href={sales.last_page_url}
+                                            className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
+                                                sales.current_page === sales.last_page
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-white text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'
+                                            } transition-colors duration-200 ease-in-out rtl:rotate-180`}
+                                            disabled={sales.current_page === sales.last_page}
+                                        >
+                                            <span className="sr-only">{t('Last Page')}</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 6.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0zm6 0a1 1 0 010-1.414L14.586 10l-4.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                            </svg>
+                                        </Link>
+                                    </nav>
+                                </div>
+                            )}
+                        </div>
+                        
+                        {/* Page Selection Dropdown - For Mobile */}
+                        {sales.last_page > 1 && (
+                            <div className="mt-4 sm:hidden">
+                                <div className="flex items-center justify-between gap-2 rtl:flex-row-reverse">
+                                    <div className="text-sm text-gray-600">{t('Go to page')}:</div>
+                                    <select
+                                        value={sales.current_page}
+                                        onChange={(e) => {
+                                            const page = parseInt(e.target.value);
+                                            window.location.href = route('customer.sales.index', {
+                                                ...filters,
+                                                page,
+                                            });
+                                        }}
+                                        className="form-select block w-full md:w-32 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                    >
+                                        {[...Array(sales.last_page)].map((_, i) => (
+                                            <option key={i + 1} value={i + 1}>
+                                                {i + 1}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
-
-            {/* Sale Details Modal */}
-            {isSaleDetailsModalOpen && (
-                <div className="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm overflow-y-auto h-full w-full z-50 transition-opacity duration-300">
-                    <div className="relative top-20 mx-auto p-0 border-0 max-w-5xl shadow-2xl rounded-xl bg-white overflow-hidden transform transition-all duration-300">
-                        {loading ? (
-                            <div className="py-20">
-                                <div className="flex flex-col items-center justify-center">
-                                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mb-4"></div>
-                                    <p className="text-gray-500 text-lg">{t('Loading sale details...')}</p>
-                                </div>
-                            </div>
-                        ) : saleDetails ? (
-                            <div>
-                                {/* Header with gradient background */}
-                                <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 py-6 px-8 flex justify-between items-center">
-                                    <div className="flex items-center">
-                                        <div className="bg-white bg-opacity-20 p-3 rounded-lg mr-4 backdrop-blur-sm">
-                                            <ShoppingBag className="h-8 w-8 text-white" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-2xl font-bold text-white">{t('Sale #')}{saleDetails.reference}</h3>
-                                            <p className="text-indigo-100 flex items-center mt-1">
-                                                <Calendar className="h-4 w-4 mr-2" />
-                                                {new Date(saleDetails.date).toLocaleDateString('en-US', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric'
-                                                })}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="flex space-x-2">
-                                        <button
-                                            onClick={() => {
-                                                if (saleDetails.status === 'pending') {
-                                                    showPaymentModal(saleDetails);
-                                                }
-                                            }}
-                                            className={`px-4 py-2 rounded-lg flex items-center text-sm font-medium mr-2 ${
-                                                saleDetails.status === 'pending'
-                                                    ? 'bg-white text-indigo-700 hover:bg-indigo-50 transition-colors duration-200'
-                                                    : 'bg-white bg-opacity-20 text-white cursor-not-allowed'
-                                            }`}
-                                            disabled={saleDetails.status !== 'pending'}
-                                        >
-                                            <DollarSign className="h-4 w-4 mr-1" />
-                                            {t('Add Payment')}
-                                        </button>
-                                        <button
-                                            onClick={closeSaleDetailsModal}
-                                            className="bg-transparent text-white hover:bg-white hover:bg-opacity-10 rounded-full p-2 transition-colors duration-200"
-                                        >
-                                            <XCircle className="w-6 h-6" />
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="px-8 py-6">
-                                    {/* Status Bar */}
-                                    <div className="mb-6 flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
-                                        <div className="flex items-center">
-                                            <div className={`w-3 h-3 rounded-full mr-2 ${
-                                                saleDetails.status === 'completed' ? 'bg-green-500' :
-                                                saleDetails.status === 'cancelled' ? 'bg-red-500' : 'bg-amber-500'
-                                            }`}></div>
-                                            <span className="text-sm font-medium capitalize">
-                                                {t('Status')}: {saleDetails.status}
-                                            </span>
-                                        </div>
-                                        <div className="flex space-x-6">
-                                            <div className="flex items-center">
-                                                <Building2 className="h-5 w-5 mr-2 text-gray-400" />
-                                                <span className={`text-sm font-medium ${saleDetails.confirmed_by_warehouse ? 'text-green-600' : 'text-amber-600'}`}>
-                                                    {t('Warehouse')}: {saleDetails.confirmed_by_warehouse ? t('Confirmed') : t('Pending')}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center">
-                                                <ShoppingBag className="h-5 w-5 mr-2 text-gray-400" />
-                                                <span className={`text-sm font-medium ${saleDetails.confirmed_by_shop ? 'text-green-600' : 'text-amber-600'}`}>
-                                                    {t('Shop')}: {saleDetails.confirmed_by_shop ? t('Confirmed') : t('Pending')}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Financial Summary Cards */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100 shadow-sm">
-                                            <div className="flex justify-between items-start">
-                                                <h4 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">{t('Total Amount')}</h4>
-                                                <div className="bg-indigo-100 rounded-full p-1.5">
-                                                    <DollarSign className="h-4 w-4 text-indigo-600" />
-                                                </div>
-                                            </div>
-                                            <p className="mt-2 text-2xl font-bold text-gray-900">
-                                                {saleDetails.total} {saleDetails.currency?.symbol}
-                                            </p>
-                                        </div>
-                                        
-                                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100 shadow-sm">
-                                            <div className="flex justify-between items-start">
-                                                <h4 className="text-xs font-semibold text-green-600 uppercase tracking-wider">{t('Paid Amount')}</h4>
-                                                <div className="bg-green-100 rounded-full p-1.5">
-                                                    <CheckCircle className="h-4 w-4 text-green-600" />
-                                                </div>
-                                            </div>
-                                            <p className="mt-2 text-2xl font-bold text-gray-900">
-                                                {saleDetails.paid_amount} {saleDetails.currency?.symbol}
-                                            </p>
-                                        </div>
-                                        
-                                        <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100 shadow-sm">
-                                            <div className="flex justify-between items-start">
-                                                <h4 className="text-xs font-semibold text-amber-600 uppercase tracking-wider">{t('Due Amount')}</h4>
-                                                <div className="bg-amber-100 rounded-full p-1.5">
-                                                    <Clock className="h-4 w-4 text-amber-600" />
-                                                </div>
-                                            </div>
-                                            <p className="mt-2 text-2xl font-bold text-gray-900">
-                                                {saleDetails.due_amount} {saleDetails.currency?.symbol}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Sale Information */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                                        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                                            <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
-                                                <h4 className="text-sm font-medium text-gray-700">{t('Customer Information')}</h4>
-                                            </div>
-                                            <div className="p-4 space-y-3">
-                                                <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">{t('Name')}:</span>
-                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.customer?.name || 'N/A'}</span>
-                                                </div>
-                                                <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">{t('Email')}:</span>
-                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.customer?.email || 'N/A'}</span>
-                                                </div>
-                                                <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">{t('Phone')}:</span>
-                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.customer?.phone || 'N/A'}</span>
-                                                </div>
-                                                <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">{t('Currency')}:</span>
-                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.currency?.name || 'N/A'}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
-                                            <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
-                                                <h4 className="text-sm font-medium text-gray-700">{t('Additional Information')}</h4>
-                                            </div>
-                                            <div className="p-4 space-y-3">
-                                                <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">{t('Warehouse')}:</span>
-                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.warehouse?.name || 'N/A'}</span>
-                                                </div>
-                                                <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">{t('Shop')}:</span>
-                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.shop?.name || 'N/A'}</span>
-                                                </div>
-                                                <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">{t('Created By')}:</span>
-                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.created_by?.name || 'N/A'}</span>
-                                                </div>
-                                                <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">{t('Created At')}:</span>
-                                                    <span className="text-sm font-medium text-gray-900">
-                                                        {saleDetails.created_at ? new Date(saleDetails.created_at).toLocaleString() : 'N/A'}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Notes if any */}
-                                    {saleDetails.notes && (
-                                        <div className="mb-6 bg-yellow-50 border border-yellow-100 rounded-xl p-4">
-                                            <h4 className="text-sm font-medium text-yellow-800 mb-2 flex items-center">
-                                                <FileText className="h-4 w-4 mr-2" />
-                                                {t('Notes')}
-                                            </h4>
-                                            <p className="text-sm text-yellow-700">{saleDetails.notes}</p>
-                                        </div>
-                                    )}
-
-                                    {/* Sale Items */}
-                                    <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-6">
-                                        <div className="border-b border-gray-200 bg-gray-50 px-6 py-4 flex items-center">
-                                            <Package className="h-5 w-5 mr-2 text-gray-500" />
-                                            <h4 className="text-base font-medium text-gray-700">{t('Products')}</h4>
-                                        </div>
-                                        <div className="overflow-x-auto">
-                                            <table className="min-w-full divide-y divide-gray-200">
-                                                <thead className="bg-gray-50">
-                                                    <tr>
-                                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            {t('Product')}
-                                                        </th>
-                                                        <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            {t('Quantity')}
-                                                        </th>
-                                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            {t('Unit Price')}
-                                                        </th>
-                                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            {t('Discount')}
-                                                        </th>
-                                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            {t('Tax')}
-                                                        </th>
-                                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            {t('Total')}
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="bg-white divide-y divide-gray-200">
-                                                    {saleDetails.sale_items?.map((item, index) => (
-                                                        <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className="flex items-center">
-                                                                    <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-md bg-indigo-100 text-indigo-500">
-                                                                        <Package className="h-6 w-6" />
-                                                                    </div>
-                                                                    <div className="ml-4">
-                                                                        <div className="text-sm font-medium text-gray-900">{item.product?.name}</div>
-                                                                        <div className="text-sm text-gray-500">{item.product?.code}</div>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                                <span className="px-3 py-1 inline-flex text-sm leading-5 font-medium rounded-full bg-indigo-100 text-indigo-800">
-                                                                    {item.quantity}
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                                {item.unit_price} {saleDetails.currency?.symbol}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                                {item.discount || '0.00'} {saleDetails.currency?.symbol}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                                {item.tax || '0.00'} {saleDetails.currency?.symbol}
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-indigo-700">
-                                                                {item.total} {saleDetails.currency?.symbol}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                                <tfoot className="bg-gray-50">
-                                                    <tr>
-                                                        <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-medium text-gray-500">
-                                                            {t('Subtotal')}
-                                                        </th>
-                                                        <td className="px-6 py-3 text-right text-sm font-medium text-gray-900">
-                                                            {saleDetails.subtotal || saleDetails.total} {saleDetails.currency?.symbol}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-medium text-gray-500">
-                                                            {t('Tax')}
-                                                        </th>
-                                                        <td className="px-6 py-3 text-right text-sm font-medium text-gray-900">
-                                                            {saleDetails.tax_amount || '0.00'} {saleDetails.currency?.symbol}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-medium text-gray-500">
-                                                            {t('Discount')}
-                                                        </th>
-                                                        <td className="px-6 py-3 text-right text-sm font-medium text-gray-900">
-                                                            {saleDetails.discount_amount || '0.00'} {saleDetails.currency?.symbol}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-bold text-gray-900">
-                                                            {t('Total')}
-                                                        </th>
-                                                        <td className="px-6 py-3 text-right text-sm font-bold text-indigo-700">
-                                                            {saleDetails.total} {saleDetails.currency?.symbol}
-                                                        </td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-
-                                    {/* Payment History */}
-                                    {saleDetails.payments && saleDetails.payments.length > 0 && (
-                                        <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-6">
-                                            <div className="border-b border-gray-200 bg-gray-50 px-6 py-4 flex items-center">
-                                                <DollarSign className="h-5 w-5 mr-2 text-gray-500" />
-                                                <h4 className="text-base font-medium text-gray-700">{t('Payment History')}</h4>
-                                            </div>
-                                            <div className="overflow-x-auto">
-                                                <table className="min-w-full divide-y divide-gray-200">
-                                                    <thead className="bg-gray-50">
-                                                        <tr>
-                                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                {t('Date')}
-                                                            </th>
-                                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                {t('Reference')}
-                                                            </th>
-                                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                {t('Method')}
-                                                            </th>
-                                                            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                {t('Amount')}
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="bg-white divide-y divide-gray-200">
-                                                        {saleDetails.payments.map((payment, index) => (
-                                                            <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
-                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    {new Date(payment.date).toLocaleDateString()}
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    {payment.reference || '-'}
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                                    {payment.method || '-'}
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600">
-                                                                    {payment.amount} {saleDetails.currency?.symbol}
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {/* Footer with actions */}
-                                    <div className="flex justify-end space-x-3 mt-8 pt-4 border-t">
-                                        <button
-                                            onClick={closeSaleDetailsModal}
-                                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center"
-                                        >
-                                            <XCircle className="h-4 w-4 mr-2" />
-                                            {t('Close')}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ) : null}
-                    </div>
-                </div>
-            )}
-
-            {/* Payment Modal */}
-            {isPaymentModalOpen && selectedSale && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-6 border w-1/2 shadow-xl rounded-lg bg-white">
-                        <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-semibold text-gray-900">{t('Add Payment')}</h3>
-                            <button
-                                onClick={closePaymentModal}
-                                className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
-                            >
-                                <XCircle className="w-6 h-6" />
-                            </button>
-                        </div>
-                        <form onSubmit={handlePaymentSubmit} className="space-y-6">
-                            <input type="hidden" name="saleId" value={selectedSale.id} />
-                            <div>
-                                <label htmlFor="paymentAmount" className="block text-sm font-medium text-gray-700">
-                                    {t('Amount')}
-                                </label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    id="paymentAmount"
-                                    name="paymentAmount"
-                                    required
-                                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="paymentDate" className="block text-sm font-medium text-gray-700">
-                                    {t('Date')}
-                                </label>
-                                <input
-                                    type="date"
-                                    id="paymentDate"
-                                    name="paymentDate"
-                                    required
-                                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                />
-                            </div>
-                            <div>
-                                <label htmlFor="paymentNotes" className="block text-sm font-medium text-gray-700">
-                                    {t('Notes')}
-                                </label>
-                                <textarea
-                                    id="paymentNotes"
-                                    name="paymentNotes"
-                                    rows="3"
-                                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                ></textarea>
-                            </div>
-                            <div className="flex justify-end space-x-3">
-                                <button
-                                    type="button"
-                                    onClick={closePaymentModal}
-                                    className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200"
-                                >
-                                    {t('Cancel')}
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
-                                >
-                                    {t('Submit')}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
         </>
     );
 } 

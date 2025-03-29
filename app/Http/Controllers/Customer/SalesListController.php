@@ -64,7 +64,7 @@ class SalesListController extends Controller
             })
             ->orderBy($request->sortField ?? 'date', $request->sortDirection ?? 'desc')
             ->paginate(10)
-            ->withQueryString();
+            ->appends($request->except('page'));
 
         return Inertia::render('Customer/Sales/Index', [
             'sales' => $sales,
