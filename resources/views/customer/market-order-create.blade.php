@@ -9,13 +9,13 @@
 
     <div class="relative min-h-screen p-4">
         <!-- Main container with enhanced styling -->
-        <div class="relative bg-white/90 backdrop-blur-3xl rounded-3xl p-4 shadow-2xl border border-white/30 transition-all duration-500 hover:shadow-green-500/20 overflow-hidden">
+        <div class="relative bg-white/80 backdrop-blur-3xl rounded-3xl p-4 sm:p-6 shadow-2xl border border-white/40 transition-all duration-500 hover:shadow-green-500/30 overflow-hidden">
             <!-- Decorative elements -->
             <div
-                class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full blur-3xl translate-x-20 -translate-y-20 animate-pulse-slow">
+                class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-green-500/10 to-emerald-500/20 rounded-full blur-3xl translate-x-20 -translate-y-20 animate-pulse-slow">
             </div>
             <div
-                class="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-full blur-3xl -translate-x-20 translate-y-20 animate-pulse-slow animation-delay-1000">
+                class="absolute bottom-0 left-0 w-64 h-64 bg-gradient-to-br from-emerald-500/20 to-green-500/10 rounded-full blur-3xl -translate-x-20 translate-y-20 animate-pulse-slow animation-delay-1000">
             </div>
 
             <!-- Content -->
@@ -62,7 +62,7 @@
                                         </svg>
                                         @lang('Barcode Scanner')
                                     </h3>
-                                    <button id="newOrderBtn" class="inline-flex items-center px-3 py-1.5 bg-green-100 border border-transparent rounded-lg text-sm font-medium text-green-700 hover:bg-green-200 focus:outline-none transition-colors">
+                                    <button id="newOrderBtn" class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-transparent rounded-lg text-sm font-medium text-green-700 hover:bg-gradient-to-r hover:from-green-500/30 hover:to-emerald-500/30 focus:outline-none transition-colors shadow-sm hover:shadow">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                         </svg>
@@ -70,13 +70,13 @@
                                     </button>
                                 </div>
 
-                                <div class="relative mb-2" id="searchInputContainer">
+                                <div class="relative mb-2 group" id="searchInputContainer">
                                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-green-500 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                         </svg>
                                     </div>
-                                    <input type="text" id="searchQueryInput" class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full pl-10 pr-12 py-3 sm:text-sm border-gray-300 rounded-xl" placeholder="@lang('Enter barcode and press Enter to add product')">
+                                    <input type="text" id="searchQueryInput" class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full pl-10 pr-12 py-3 sm:text-sm border-gray-300 rounded-xl group-hover:border-green-300 transition-colors duration-300" placeholder="@lang('Enter barcode and press Enter to add product')">
                                     <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
                                         <div id="barcodeLoadingIndicator" class="hidden">
                                             <svg class="animate-spin h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -84,7 +84,7 @@
                                                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
                                         </div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-2 group-hover:text-green-500 transition-colors duration-300" viewBox="0 0 20 20" fill="currentColor">
                                             <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1zM13 12a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1v-3a1 1 0 00-1-1h-3zm1 2v1h1v-1h-1zM6 17h8a1 1 0 001-1v-1a1 1 0 00-1-1H6a1 1 0 00-1 1v1a1 1 0 001 1z" clip-rule="evenodd" />
                                         </svg>
                                     </div>
@@ -95,175 +95,190 @@
                                 <div id="searchResultMessage" class="hidden rounded-lg px-4 py-2 text-sm mb-4"></div>
                             </div>
 
-                            <!-- Product Categories -->
+                            <!-- Order Items Section (replacing Product Categories and Product List) -->
                             <div class="bg-white rounded-2xl shadow-md p-5 mb-6">
-                                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                    </svg>
-                                    @lang('Categories')
-                                </h3>
-                                <div class="flex flex-wrap gap-2">
-                                    <button class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
-                                        @lang('All Products')
-                                    </button>
-                                    <button class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                                        @lang('Food')
-                                    </button>
-                                    <button class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                                        @lang('Beverages')
-                                    </button>
-                                    <button class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                                        @lang('Snacks')
-                                    </button>
-                                    <button class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
-                                        @lang('Household')
-                                    </button>
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                        </svg>
+                                        @lang('Order Items')
+                                    </h3>
+                                    
+                                    <div class="flex space-x-2">
+                                        <button id="clearOrderBtn" class="inline-flex items-center px-3 py-1.5 bg-red-50 border border-transparent rounded-lg text-sm font-medium text-red-600 hover:bg-red-100 focus:outline-none transition-colors shadow-sm hover:shadow">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                            @lang('Clear Order')
+                                        </button>
+                                        <button id="quickCheckoutBtn" class="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-lg text-sm font-medium text-white hover:from-green-600 hover:to-emerald-700 focus:outline-none transition-colors shadow-sm hover:shadow">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            @lang('Quick Checkout')
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <!-- Product List -->
-                            <div class="bg-white rounded-2xl shadow-md p-5 mb-6">
-                                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                    </svg>
-                                    @lang('Products')
-                                </h3>
                                 
-                                <div id="productResults" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                                    <!-- Product template -->
-                                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 hover:border-green-200 transition-all cursor-pointer hidden" id="productTemplate">
-                                        <div class="h-24 bg-white rounded-lg mb-2 p-2 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                            </svg>
-                                        </div>
-                                        <h4 class="font-medium text-gray-800 text-sm mb-1 truncate product-name">Product Name</h4>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-green-600 font-bold product-price">$0.00</span>
-                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600 product-stock">
-                                                @lang('Stock'): 0
-                                            </span>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Sample products (for UI preview only) -->
-                                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
-                                        <div class="h-24 bg-white rounded-lg mb-2 p-2 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                            </svg>
-                                        </div>
-                                        <h4 class="font-medium text-gray-800 text-sm mb-1 truncate">Apple</h4>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-green-600 font-bold">$1.99</span>
-                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
-                                                @lang('Stock'): 45
-                                            </span>
+                                <!-- Quick Stats Cards -->
+                                <div class="grid grid-cols-3 gap-4 mb-6">
+                                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 shadow-sm border border-green-100">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-green-700 text-sm font-medium">@lang('Items')</p>
+                                                <h4 id="totalItemsCount" class="text-2xl font-bold text-green-800">0</h4>
+                                            </div>
+                                            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
-                                        <div class="h-24 bg-white rounded-lg mb-2 p-2 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                            </svg>
-                                        </div>
-                                        <h4 class="font-medium text-gray-800 text-sm mb-1 truncate">Banana</h4>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-green-600 font-bold">$0.79</span>
-                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
-                                                @lang('Stock'): 32
-                                            </span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
-                                        <div class="h-24 bg-white rounded-lg mb-2 p-2 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                            </svg>
-                                        </div>
-                                        <h4 class="font-medium text-gray-800 text-sm mb-1 truncate">Orange Juice (1L)</h4>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-green-600 font-bold">$3.49</span>
-                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
-                                                @lang('Stock'): 18
-                                            </span>
+                                    <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 shadow-sm border border-blue-100">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-blue-700 text-sm font-medium">@lang('Quantity')</p>
+                                                <h4 id="totalQuantityCount" class="text-2xl font-bold text-blue-800">0</h4>
+                                            </div>
+                                            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
                                     
-                                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
-                                        <div class="h-24 bg-white rounded-lg mb-2 p-2 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                            </svg>
+                                    <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 shadow-sm border border-purple-100">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-purple-700 text-sm font-medium">@lang('Total')</p>
+                                                <h4 id="cartTotalDisplay" class="text-2xl font-bold text-purple-800">{{ $defaultCurrency->symbol }}0.00</h4>
+                                            </div>
+                                            <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                </svg>
+                                            </div>
                                         </div>
-                                        <h4 class="font-medium text-gray-800 text-sm mb-1 truncate">Whole Wheat Bread</h4>
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-green-600 font-bold">$2.99</span>
-                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
-                                                @lang('Stock'): 12
-                                            </span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Order Items List - Larger View -->
+                                <div class="bg-gray-50 rounded-xl p-4 max-h-[calc(100vh-20rem)] overflow-y-auto scrollbar-thin">
+                                    <div id="orderItemsLargeView" class="space-y-3">
+                                        <!-- Items will be added dynamically here -->
+                                        <div id="emptyOrderStateLarge" class="text-center py-10">
+                                            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                </svg>
+                                            </div>
+                                            <h3 class="text-lg font-medium text-gray-500 mb-1">@lang('Your cart is empty')</h3>
+                                            <p class="text-gray-400 text-sm">@lang('Scan products with the barcode scanner to add them')</p>
                                         </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Quick Frequent Products Section -->
+                                <div class="mt-6">
+                                    <h4 class="font-medium text-gray-700 mb-3 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                        @lang('Frequent Items')
+                                    </h4>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                        <button class="text-left bg-white p-3 rounded-xl shadow-sm border border-gray-200 hover:border-green-200 hover:shadow-md transition-all flex items-center">
+                                            <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center mr-3">
+                                                <span class="text-green-600 font-bold">A</span>
+                                            </div>
+                                            <div class="flex-1 overflow-hidden">
+                                                <h5 class="font-medium text-gray-800 text-sm truncate">Apple</h5>
+                                                <p class="text-xs text-green-600 font-bold">{{ $defaultCurrency->symbol }}1.99</p>
+                                            </div>
+                                        </button>
+                                        <button class="text-left bg-white p-3 rounded-xl shadow-sm border border-gray-200 hover:border-green-200 hover:shadow-md transition-all flex items-center">
+                                            <div class="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center mr-3">
+                                                <span class="text-yellow-600 font-bold">B</span>
+                                            </div>
+                                            <div class="flex-1 overflow-hidden">
+                                                <h5 class="font-medium text-gray-800 text-sm truncate">Banana</h5>
+                                                <p class="text-xs text-green-600 font-bold">{{ $defaultCurrency->symbol }}0.79</p>
+                                            </div>
+                                        </button>
+                                        <button class="text-left bg-white p-3 rounded-xl shadow-sm border border-gray-200 hover:border-green-200 hover:shadow-md transition-all flex items-center">
+                                            <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center mr-3">
+                                                <span class="text-orange-600 font-bold">O</span>
+                                            </div>
+                                            <div class="flex-1 overflow-hidden">
+                                                <h5 class="font-medium text-gray-800 text-sm truncate">Orange Juice</h5>
+                                                <p class="text-xs text-green-600 font-bold">{{ $defaultCurrency->symbol }}3.49</p>
+                                            </div>
+                                        </button>
+                                        <button class="text-left bg-white p-3 rounded-xl shadow-sm border border-gray-200 hover:border-green-200 hover:shadow-md transition-all flex items-center">
+                                            <div class="w-10 h-10 rounded-lg bg-amber-100 flex items-center justify-center mr-3">
+                                                <span class="text-amber-600 font-bold">B</span>
+                                            </div>
+                                            <div class="flex-1 overflow-hidden">
+                                                <h5 class="font-medium text-gray-800 text-sm truncate">Bread</h5>
+                                                <p class="text-xs text-green-600 font-bold">{{ $defaultCurrency->symbol }}2.99</p>
+                                            </div>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Right column - Order items and Summary -->
+                        <!-- Right column - Payment and Checkout -->
                         <div class="lg:col-span-4">
-                            <!-- Current Order Panel -->
-                            <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-100/80 sticky top-4 overflow-hidden flex flex-col h-[calc(100vh-2rem)]">
-                                <!-- Order Header -->
-                                <div class="p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white">
-                                    <h3 class="text-lg font-semibold flex items-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            <div class="bg-white rounded-2xl shadow-xl p-5 mb-6 sticky top-24">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                                         </svg>
-                                        @lang('Current Order')
+                                        @lang('Payment & Checkout')
                                     </h3>
-                                    <p class="text-sm opacity-80">@lang('Order') #{{ date('Ymd') }}-xxxx</p>
+                                    <span id="cart-mini-total" class="text-green-600 text-lg font-bold">{{ $defaultCurrency->symbol }}0.00</span>
                                 </div>
 
-                                <!-- Order Items List -->
-                                <div class="flex-1 overflow-y-auto p-4 scrollbar-thin" id="orderItemsContainer">
-                                    <div id="emptyOrderState" class="text-center py-12">
-                                        <div
-                                            class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-500" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                            </svg>
+                                <!-- Order Summary Section -->
+                                <div class="mb-4">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">@lang('Order Summary')</h4>
+                                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 space-y-2">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 text-sm">@lang('Subtotal')</span>
+                                            <span id="cart-mini-subtotal" class="font-medium">{{ $defaultCurrency->symbol }}0.00</span>
                                         </div>
-                                        <h3 class="text-lg font-medium text-gray-900 mb-2">@lang('No items in the order')</h3>
-                                        <p class="text-gray-500">@lang('Scan products to add them to the order')</p>
-                                    </div>
-                                </div>
-
-                                <!-- Order Summary and Checkout -->
-                                <div id="orderSummarySection" class="border-t border-gray-200 p-4 bg-gray-50 hidden">
-                                    <div class="space-y-3 mb-4">
-                                        <div class="flex justify-between text-gray-600">
-                                            <span>@lang('Subtotal')</span>
-                                            <span id="subtotal">$0.00</span>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 text-sm">@lang('Tax') ({{ $tax_percentage }}%)</span>
+                                            <span id="cart-mini-tax" class="font-medium">{{ $defaultCurrency->symbol }}0.00</span>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-gray-600 text-sm">@lang('Shipping')</span>
+                                            <span id="cart-mini-shipping" class="font-medium">{{ $defaultCurrency->symbol }}0.00</span>
+                                        </div>
+                                        <div class="flex justify-between items-center pt-2 border-t border-gray-200">
+                                            <span class="text-gray-800 font-medium">@lang('Total')</span>
+                                            <span id="cart-mini-grandtotal" class="text-green-600 font-bold">{{ $defaultCurrency->symbol }}0.00</span>
                                         </div>
                                         <div class="flex justify-between text-gray-600">
                                             <span>@lang('Tax') ({{ $tax_percentage }}%)</span>
-                                            <span id="tax">$0.00</span>
+                                            <span id="tax">{{ $defaultCurrency->symbol }}0.00</span>
                                         </div>
                                         <div class="flex justify-between font-bold text-gray-800 text-lg">
                                             <span>@lang('Total')</span>
-                                            <span id="total" class="text-green-600">$0.00</span>
+                                            <span id="total" class="text-green-600">{{ $defaultCurrency->symbol }}0.00</span>
                                         </div>
                                     </div>
                                     
                                     <div class="mb-4">
                                         <h4 class="font-medium text-gray-700 mb-2">@lang('Payment Method')</h4>
                                         <div class="grid grid-cols-2 gap-2">
-                                            <label class="flex items-center bg-white p-2 rounded-lg shadow-sm border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
+                                            <label class="flex items-center bg-gradient-to-r from-white to-gray-50 p-2 rounded-lg shadow-sm border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
                                                 <input type="radio" name="payment_method" value="cash" class="text-green-600 focus:ring-green-500 h-4 w-4" checked>
                                                 <div class="ml-2">
                                                     <div class="flex items-center">
@@ -275,7 +290,7 @@
                                                 </div>
                                             </label>
                                             
-                                            <label class="flex items-center bg-white p-2 rounded-lg shadow-sm border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
+                                            <label class="flex items-center bg-gradient-to-r from-white to-gray-50 p-2 rounded-lg shadow-sm border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
                                                 <input type="radio" name="payment_method" value="card" class="text-green-600 focus:ring-green-500 h-4 w-4">
                                                 <div class="ml-2">
                                                     <div class="flex items-center">
@@ -293,17 +308,17 @@
                                         <label for="amountPaid" class="block text-sm font-medium text-gray-700 mb-1">@lang('Amount Received')</label>
                                         <div class="relative rounded-md shadow-sm">
                                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <span class="text-gray-500 sm:text-sm">$</span>
+                                                <span class="text-gray-500 sm:text-sm" id="currency-symbol">{{ $defaultCurrency->symbol }}</span>
                                             </div>
                                             <input type="number" name="amount_paid" id="amountPaid" class="focus:ring-green-500 focus:border-green-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-lg" placeholder="0.00" step="0.01">
                                         </div>
                                         <div class="mt-2 flex justify-between text-gray-600">
                                             <span>@lang('Change')</span>
-                                            <span id="change" class="font-medium">$0.00</span>
+                                            <span id="change" class="font-medium">{{ $defaultCurrency->symbol }}0.00</span>
                                         </div>
                                     </div>
                                     
-                                    <button id="completeOrderBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-colors duration-300 flex justify-center items-center">
+                                    <button id="completeOrderBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg shadow-green-500/20 hover:shadow-xl hover:shadow-green-500/30 transition-all duration-300 transform hover:-translate-y-1 flex justify-center items-center">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
@@ -677,26 +692,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add each order item with animation
         state.orderItems.forEach((item, index) => {
             const orderItemEl = document.createElement('div');
-            orderItemEl.className = 'mb-4 bg-white rounded-2xl p-4 shadow-lg border-2 border-gray-100 hover:border-green-300 transition-all duration-300 opacity-0';
+            orderItemEl.className = 'mb-4 bg-white rounded-2xl p-4 shadow-xl border border-gray-100/80 hover:border-green-300 transition-all duration-300 opacity-0 hover:shadow-green-500/10 transform hover:scale-[1.02] hover:-translate-y-1';
             orderItemEl.style.animation = `fadeIn 0.5s ${index * 0.1}s forwards`;
 
             const totalPrice = (item.quantity * item.price).toFixed(2);
 
             orderItemEl.innerHTML = `
-                <div class="flex justify-between items-start gap-3">
-                    <div class="flex-grow overflow-hidden">
+                <div class="flex justify-between items-start gap-3 relative overflow-hidden">
+                    <!-- Decorative circle in the background -->
+                    <div class="absolute -left-6 -top-6 w-16 h-16 bg-gradient-to-br from-green-100/30 to-emerald-100/30 rounded-full blur-md"></div>
+                    
+                    <div class="flex-grow overflow-hidden relative z-10">
                         <div class="flex items-center">
-                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mr-3 shadow-md">
+                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mr-3 shadow-lg shadow-green-500/20 animate-pulse-slow">
                                 <span class="font-bold text-white text-lg">${index + 1}</span>
                             </div>
                             <h4 class="font-bold text-gray-800 truncate text-base">${item.name}</h4>
                         </div>
                         <div class="ml-13 text-sm text-gray-600 flex items-center mt-2">
-                            <span class="inline-block font-medium">$${item.price.toFixed(2)} × ${item.quantity}</span>
+                            <span class="inline-block font-medium bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">$${item.price.toFixed(2)} × ${item.quantity}</span>
                         </div>
                     </div>
-                    <div class="text-right flex flex-col items-end">
-                        <div class="font-bold text-green-600 text-xl">$${totalPrice}</div>
+                    <div class="text-right flex flex-col items-end relative z-10">
+                        <div class="font-bold text-xl bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">${CURRENCY_SYMBOL + totalPrice}</div>
                         <button class="remove-item p-2 mt-1 text-red-500 hover:bg-red-50 rounded-lg transition-colors" data-index="${index}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -705,20 +723,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
                 <div class="mt-3 flex items-center">
-                    <div class="flex items-center shadow-md rounded-xl overflow-hidden border border-gray-100">
-                        <button class="decrease-qty p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors" data-index="${index}">
+                    <div class="flex items-center shadow-md rounded-xl overflow-hidden border border-gray-100 hover:shadow-green-500/10 transition-all">
+                        <button class="decrease-qty p-2 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-700 transition-colors" data-index="${index}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                             </svg>
                         </button>
                         <span class="w-14 text-center font-bold bg-white px-2 py-2 text-lg border-x border-gray-100">${item.quantity}</span>
-                        <button class="increase-qty p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors" data-index="${index}">
+                        <button class="increase-qty p-2 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-700 transition-colors" data-index="${index}">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
                         </button>
                     </div>
-                    <div class="ml-auto text-sm px-3 py-2 bg-green-50 rounded-lg text-green-700 font-medium border border-green-100">
+                    <div class="ml-auto text-sm px-3 py-2 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg text-green-700 font-medium border border-green-100 shadow-sm">
                         @lang('In stock'): <span class="font-bold text-green-700">${item.max_stock ? (item.max_stock - item.quantity) : 'N/A'}</span>
                     </div>
                 </div>
@@ -773,8 +791,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 @keyframes pulse-slow {
-                    0%, 100% { opacity: 0.5; }
-                    50% { opacity: 0.8; }
+                    0%, 100% { opacity: 0.8; }
+                    50% { opacity: 1; }
                 }
 
                 .animation-delay-1000 {
@@ -863,8 +881,8 @@ document.addEventListener('DOMContentLoaded', function() {
         state.subtotal = state.orderItems.reduce((sum, item) => sum + item.total, 0);
         state.total = state.subtotal;
 
-        if (subtotalElement) subtotalElement.textContent = '$' + parseFloat(state.subtotal).toFixed(2);
-        if (totalElement) totalElement.textContent = '$' + parseFloat(state.total).toFixed(2);
+        if (subtotalElement) subtotalElement.textContent = CURRENCY_SYMBOL + parseFloat(state.subtotal).toFixed(2);
+        if (totalElement) totalElement.textContent = CURRENCY_SYMBOL + parseFloat(state.total).toFixed(2);
 
         updateChangeDue();
     }
@@ -875,7 +893,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (changeDueContainer && state.changeDue > 0) {
             changeDueContainer.classList.remove('hidden');
-            if (changeDueElement) changeDueElement.textContent = '$' + parseFloat(state.changeDue).toFixed(2);
+            if (changeDueElement) changeDueElement.textContent = CURRENCY_SYMBOL + parseFloat(state.changeDue).toFixed(2);
         } else if (changeDueContainer) {
             changeDueContainer.classList.add('hidden');
         }
@@ -1360,7 +1378,367 @@ document.addEventListener('DOMContentLoaded', function() {
         calculateTotal();
         updateCreateOrderButtonState();
     }
+
+    // Add style for enhanced order summary
+    const enhancedStyles = document.createElement('style');
+    enhancedStyles.textContent = `
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-radius: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, rgba(249, 250, 251, 0.8), rgba(255, 255, 255, 0.8));
+            border: 1px solid rgba(229, 231, 235, 0.5);
+            transition: all 0.3s ease;
+        }
+        
+        .summary-item:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+        
+        .summary-item.total {
+            background: linear-gradient(to right, rgba(5, 150, 105, 0.05), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(5, 150, 105, 0.2);
+        }
+        
+        .summary-label {
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .summary-value {
+            font-weight: 600;
+        }
+        
+        .summary-value.total {
+            font-weight: 700;
+            background: linear-gradient(to right, #059669, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    `;
+    document.head.appendChild(enhancedStyles);
+    
+    // Function to enhance the order summary section
+    function enhanceOrderSummary() {
+        const orderSummarySection = document.getElementById('orderSummarySection');
+        if (!orderSummarySection) return;
+        
+        // Apply enhanced styling to order summary items
+        const summaryItems = orderSummarySection.querySelectorAll('.flex.justify-between');
+        summaryItems.forEach((item, index) => {
+            if (!item.classList.contains('summary-item')) {
+                item.classList.add('summary-item');
+                if (index === summaryItems.length - 1) {
+                    item.classList.add('total');
+                }
+                
+                const label = item.firstElementChild;
+                const value = item.lastElementChild;
+                
+                if (label) label.classList.add('summary-label');
+                if (value) {
+                    value.classList.add('summary-value');
+                    if (index === summaryItems.length - 1) {
+                        value.classList.add('total');
+                    }
+                }
+            }
+        });
+    }
+    
+    // Call this function whenever the order summary is updated
+    const originalCalculateTotal = calculateTotal;
+    calculateTotal = function() {
+        originalCalculateTotal.apply(this, arguments);
+        enhanceOrderSummary();
+    };
+    
+    // Initial enhancement
+    enhanceOrderSummary();
+
+    // Initialize the larger order items view
+    function updateOrderItemsLargeView() {
+        const orderItemsLargeView = document.getElementById('orderItemsLargeView');
+        const emptyOrderStateLarge = document.getElementById('emptyOrderStateLarge');
+        
+        if (!orderItemsLargeView || !emptyOrderStateLarge) return;
+        
+        // Define currency symbol for use in templates
+        const currencySymbol = "{{ $defaultCurrency->symbol }}";
+        
+        if (state.orderItems.length === 0) {
+            emptyOrderStateLarge.style.display = 'block';
+            orderItemsLargeView.innerHTML = '';
+            return;
+        }
+        
+        emptyOrderStateLarge.style.display = 'none';
+        orderItemsLargeView.innerHTML = '';
+        
+        state.orderItems.forEach((item, index) => {
+            // Generate a consistent color for each product
+            const itemColor = getItemColor(item.product_id || index);
+            const secondColor = getSecondaryColor(itemColor);
+            
+            const totalPrice = (item.price * item.quantity).toFixed(2);
+            
+            const itemElement = document.createElement('div');
+            itemElement.className = 'p-4 bg-white rounded-xl shadow-xl hover:shadow-green-500/10 transform hover:scale-[1.01] transition-all border border-gray-100 relative overflow-hidden';
+            itemElement.style.opacity = '0';
+            itemElement.style.animation = `fadeIn 0.5s ${index * 0.1}s forwards`;
+            
+            itemElement.innerHTML = `
+                <!-- Decorative background element -->
+                <div class="absolute -top-12 -right-12 w-24 h-24 bg-gradient-to-br from-${itemColor}-100/30 to-${secondColor}-100/30 rounded-full blur-xl"></div>
+                
+                <!-- Item number badge -->
+                <div class="absolute top-0.5 left-0.5 w-8 h-8 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-sm">
+                    <span class="text-gray-700 font-bold text-sm">#${index + 1}</span>
+                </div>
+                
+                <!-- Total price badge -->
+                <div class="absolute top-3 right-3 bg-gradient-to-r from-${itemColor}-50 to-${secondColor}-50 px-3 py-1.5 rounded-full text-sm font-bold text-${itemColor}-700 border border-${itemColor}-100 shadow-sm">
+                    $${totalPrice}
+                </div>
+                
+                <!-- Product title and primary details section -->
+                <div class="mt-2 flex items-start gap-3 pb-4 mb-4 border-b border-gray-100">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-${itemColor}-100 to-${secondColor}-200 flex items-center justify-center shadow-sm">
+                        <span class="font-bold text-${itemColor}-600 text-lg">${item.name.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <div class="flex-1 pt-1">
+                        <h4 class="font-bold text-gray-800 text-lg">${item.name}</h4>
+                        <div class="flex items-center mt-1 gap-2">
+                            <span class="inline-block bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent font-medium">$${item.price.toFixed(2)}</span>
+                            <span class="text-gray-400">×</span>
+                            <span class="font-medium text-gray-600">${item.quantity}</span>
+                            <span class="text-gray-400">=</span>
+                            <span class="font-bold bg-gradient-to-r from-${itemColor}-600 to-${secondColor}-600 bg-clip-text text-transparent">$${totalPrice}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Item details grid -->
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="bg-gray-50 rounded-lg p-2 border border-gray-100">
+                        <span class="text-xs text-gray-500 block">@lang('Product ID')</span>
+                        <span class="font-medium text-gray-700">${item.product_id || 'N/A'}</span>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-2 border border-gray-100">
+                        <span class="text-xs text-gray-500 block">@lang('Unit Price')</span>
+                        <span class="font-medium text-green-600">$${item.price.toFixed(2)}</span>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-2 border border-gray-100">
+                        <span class="text-xs text-gray-500 block">@lang('Quantity')</span>
+                        <span class="font-medium text-gray-700">${item.quantity}</span>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-2 border border-gray-100">
+                        <span class="text-xs text-gray-500 block">@lang('Available Stock')</span>
+                        <span class="font-medium text-${item.max_stock > 5 ? 'green' : 'orange'}-600">${item.max_stock ? (item.max_stock - item.quantity) : 'N/A'}</span>
+                    </div>
+                </div>
+                
+                <!-- Action controls -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                        <button class="decrease-qty-large p-2.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-700 active:bg-gray-200 transition-colors" data-index="${index}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                            </svg>
+                        </button>
+                        <span class="w-12 text-center font-bold py-2 px-2 bg-white">${item.quantity}</span>
+                        <button class="increase-qty-large p-2.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 text-gray-700 active:bg-gray-200 transition-colors" data-index="${index}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <!-- Edit button -->
+                        <button class="flex items-center justify-center p-2.5 text-blue-500 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors" data-index="${index}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                        </button>
+                        <!-- Remove button -->
+                        <button class="remove-item-large flex items-center justify-center p-2.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg transition-colors" data-index="${index}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            orderItemsLargeView.appendChild(itemElement);
+        });
+        
+        // Add event listeners to the new buttons
+        document.querySelectorAll('.decrease-qty-large').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                if (state.orderItems[index].quantity > 1) {
+                    state.orderItems[index].quantity--;
+                    updateOrder();
+                }
+            });
+        });
+        
+        document.querySelectorAll('.increase-qty-large').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                const item = state.orderItems[index];
+                const maxStock = item.max_stock || item.stock;
+                if (item.quantity < maxStock) {
+                    item.quantity++;
+                    updateOrder();
+                }
+            });
+        });
+        
+        document.querySelectorAll('.remove-item-large').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                removeItem(index);
+            });
+        });
+    }
+    
+    // Function to get a random color for the product icons
+    function getRandomColor() {
+        const colors = ['green', 'blue', 'red', 'yellow', 'purple', 'pink', 'indigo', 'teal', 'orange', 'amber'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+    
+    // Update quick stat counters
+    function updateOrderStats() {
+        const totalItemsCount = document.getElementById('totalItemsCount');
+        const totalQuantityCount = document.getElementById('totalQuantityCount');
+        const cartTotalDisplay = document.getElementById('cartTotalDisplay');
+        
+        if (totalItemsCount) {
+            totalItemsCount.textContent = state.orderItems.length;
+        }
+        
+        if (totalQuantityCount) {
+            const totalQuantity = state.orderItems.reduce((sum, item) => sum + item.quantity, 0);
+            totalQuantityCount.textContent = totalQuantity;
+        }
+        
+        if (cartTotalDisplay) {
+            cartTotalDisplay.textContent = CURRENCY_SYMBOL + state.subtotal.toFixed(2);
+        }
+    }
+    
+    // Wire up the clear order button
+    const clearOrderBtn = document.getElementById('clearOrderBtn');
+    if (clearOrderBtn) {
+        clearOrderBtn.addEventListener('click', function() {
+            if (state.orderItems.length > 0) {
+                if (confirm('@lang("Are you sure you want to clear the current order?")')) {
+                    state.orderItems = [];
+                    globalOrderItems = [];
+                    updateOrder();
+                }
+            }
+        });
+    }
+    
+    // Wire up the quick checkout button
+    const quickCheckoutBtn = document.getElementById('quickCheckoutBtn');
+    if (quickCheckoutBtn) {
+        quickCheckoutBtn.addEventListener('click', function() {
+            if (state.orderItems.length > 0) {
+                // Simulate payment with cash
+                if (amountPaidInput) {
+                    amountPaidInput.value = state.total.toFixed(2);
+                    updateChangeDue();
+                }
+                
+                // Scroll to the checkout section
+                const orderSummarySection = document.getElementById('orderSummarySection');
+                if (orderSummarySection) {
+                    orderSummarySection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+    }
+    
+    // Extend the updateOrder function to update the large view
+    const originalUpdateOrder = updateOrder;
+    updateOrder = function() {
+        originalUpdateOrder.apply(this, arguments);
+        updateOrderItemsLargeView();
+        updateOrderStats();
+    };
+    
+    // Call initially to set up
+    updateOrderItemsLargeView();
+    updateOrderStats();
 });
+
+// ... existing code ...
+    <script>
+        $(document).ready(function() {
+            // Get currency symbol from PHP
+            const currencySymbol = "{{ $defaultCurrency->symbol }}";
+            
+            // Format money with the currency symbol
+            function formatMoney(amount) {
+                return currencySymbol + parseFloat(amount).toFixed(2);
+            }
+            
+            // ... existing code ...
+        });
+    </script>
+// ... existing code ...
+</script>
+
+<!-- Load jQuery first if it's not already loaded -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+<!-- Currency and formatting utilities -->
+<script>
+    // Adding this at the top level so it's available globally
+    const CURRENCY_SYMBOL = "{{ $defaultCurrency->symbol }}";
+    
+    // Global formatMoney function
+    function formatMoney(amount) {
+        return CURRENCY_SYMBOL + parseFloat(amount).toFixed(2);
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // If jQuery is available, update currency displays
+        if (typeof jQuery !== 'undefined') {
+            jQuery(document).ready(function($) {
+                // Update all currency displays with proper symbol
+                function updateCurrencyDisplays() {
+                    // Cart totals
+                    $('#cart-mini-total').text(formatMoney(0));
+                    $('#cart-mini-subtotal').text(formatMoney(0));
+                    $('#cart-mini-tax').text(formatMoney(0));
+                    $('#cart-mini-shipping').text(formatMoney(0));
+                    $('#cart-mini-grandtotal').text(formatMoney(0));
+                    $('#tax').text(formatMoney(0));
+                    $('#total').text(formatMoney(0));
+                    $('#change').text(formatMoney(0));
+                    
+                    // Replace any dollar sign in the cartTotalDisplay
+                    const cartTotalDisplay = document.getElementById('cartTotalDisplay');
+                    if (cartTotalDisplay) {
+                        const value = cartTotalDisplay.textContent.replace(/\$/, CURRENCY_SYMBOL);
+                        cartTotalDisplay.textContent = value;
+                    }
+                }
+                
+                // Initial update when page loads
+                updateCurrencyDisplays();
+            });
+        }
+    });
 </script>
 
 </x-customer-layout>

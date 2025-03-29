@@ -47,8 +47,15 @@ class MarketOrderController extends Controller
 
         // Set default tax percentage
         $tax_percentage = 0; // You can adjust this or pull from config if needed
+        
+        // Define default currency
+        $defaultCurrency = (object)[
+            'symbol' => '$',
+            'code' => 'USD',
+            'name' => 'US Dollar'
+        ];
 
-        return view('customer.market-order-create', compact('products', 'paymentMethods', 'tax_percentage'));
+        return view('customer.market-order-create', compact('products', 'paymentMethods', 'tax_percentage', 'defaultCurrency'));
     }
 
     /**
