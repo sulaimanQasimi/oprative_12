@@ -409,12 +409,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show loading indicator
         const searchContainer = searchProductInput.closest('.relative');
-        let loadingIndicator = null;
-        
-        if (searchContainer) {
-            loadingIndicator = document.createElement('div');
-            loadingIndicator.className = 'absolute inset-y-0 right-10 flex items-center';
-            loadingIndicator.innerHTML = `
         const loadingIndicator = document.createElement('div');
         loadingIndicator.className = 'absolute inset-y-0 right-10 flex items-center';
         loadingIndicator.innerHTML = `
@@ -443,6 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Check if there's enough stock
                         if (state.orderItems[existingItemIndex].quantity >= product.stock) {
                             showError('No more stock available for this product');
+                            playSound('error');
                             focusSearchInput();
                             return;
                         }
@@ -467,6 +462,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         showSuccess(`${product.name} added to order`);
                     }
 
+                    // Play success sound
+                    playSound('success');
+                    
                     // Update global items array
                     globalOrderItems = [...state.orderItems];
 
@@ -478,12 +476,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Make sure order summary is visible
                     if (orderSummarySection) orderSummarySection.classList.remove('hidden');
                     if (emptyOrderState) emptyOrderState.style.display = 'none';
-                    
-                    // Play success sound if available
-                    playSound('success');
                 } else {
                     showError('Product not found. Please check the barcode and try again.');
-                    // Play error sound if available
                     playSound('error');
                 }
                 
