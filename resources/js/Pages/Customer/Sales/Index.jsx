@@ -405,20 +405,353 @@ export default function SalesIndex({ sales, filters }) {
 
             {/* Sale Details Modal */}
             {isSaleDetailsModalOpen && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-                    <div className="relative top-20 mx-auto p-5 border max-w-5xl shadow-xl rounded-lg bg-white">
-                        {/* Modal content will be rendered here */}
+                <div className="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm overflow-y-auto h-full w-full z-50 transition-opacity duration-300">
+                    <div className="relative top-20 mx-auto p-0 border-0 max-w-5xl shadow-2xl rounded-xl bg-white overflow-hidden transform transition-all duration-300">
                         {loading ? (
-                            <div className="py-12">
+                            <div className="py-20">
                                 <div className="flex flex-col items-center justify-center">
-                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mb-4"></div>
-                                    <p className="text-gray-500">Loading sale details...</p>
+                                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mb-4"></div>
+                                    <p className="text-gray-500 text-lg">Loading sale details...</p>
                                 </div>
                             </div>
                         ) : saleDetails ? (
-                            <div className="space-y-6">
-                                {/* Sale details content */}
-                                {/* ... */}
+                            <div>
+                                {/* Header with gradient background */}
+                                <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 py-6 px-8 flex justify-between items-center">
+                                    <div className="flex items-center">
+                                        <div className="bg-white bg-opacity-20 p-3 rounded-lg mr-4 backdrop-blur-sm">
+                                            <ShoppingBag className="h-8 w-8 text-white" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-2xl font-bold text-white">Sale #{saleDetails.reference}</h3>
+                                            <p className="text-indigo-100 flex items-center mt-1">
+                                                <Calendar className="h-4 w-4 mr-2" />
+                                                {new Date(saleDetails.date).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => {
+                                                if (saleDetails.status === 'pending') {
+                                                    showPaymentModal(saleDetails);
+                                                }
+                                            }}
+                                            className={`px-4 py-2 rounded-lg flex items-center text-sm font-medium mr-2 ${
+                                                saleDetails.status === 'pending'
+                                                    ? 'bg-white text-indigo-700 hover:bg-indigo-50 transition-colors duration-200'
+                                                    : 'bg-white bg-opacity-20 text-white cursor-not-allowed'
+                                            }`}
+                                            disabled={saleDetails.status !== 'pending'}
+                                        >
+                                            <DollarSign className="h-4 w-4 mr-1" />
+                                            Add Payment
+                                        </button>
+                                        <button
+                                            onClick={closeSaleDetailsModal}
+                                            className="bg-transparent text-white hover:bg-white hover:bg-opacity-10 rounded-full p-2 transition-colors duration-200"
+                                        >
+                                            <XCircle className="w-6 h-6" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="px-8 py-6">
+                                    {/* Status Bar */}
+                                    <div className="mb-6 flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                        <div className="flex items-center">
+                                            <div className={`w-3 h-3 rounded-full mr-2 ${
+                                                saleDetails.status === 'completed' ? 'bg-green-500' :
+                                                saleDetails.status === 'cancelled' ? 'bg-red-500' : 'bg-amber-500'
+                                            }`}></div>
+                                            <span className="text-sm font-medium capitalize">
+                                                Status: {saleDetails.status}
+                                            </span>
+                                        </div>
+                                        <div className="flex space-x-6">
+                                            <div className="flex items-center">
+                                                <Building2 className="h-5 w-5 mr-2 text-gray-400" />
+                                                <span className={`text-sm font-medium ${saleDetails.confirmed_by_warehouse ? 'text-green-600' : 'text-amber-600'}`}>
+                                                    Warehouse: {saleDetails.confirmed_by_warehouse ? 'Confirmed' : 'Pending'}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <ShoppingBag className="h-5 w-5 mr-2 text-gray-400" />
+                                                <span className={`text-sm font-medium ${saleDetails.confirmed_by_shop ? 'text-green-600' : 'text-amber-600'}`}>
+                                                    Shop: {saleDetails.confirmed_by_shop ? 'Confirmed' : 'Pending'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Financial Summary Cards */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100 shadow-sm">
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Total Amount</h4>
+                                                <div className="bg-indigo-100 rounded-full p-1.5">
+                                                    <DollarSign className="h-4 w-4 text-indigo-600" />
+                                                </div>
+                                            </div>
+                                            <p className="mt-2 text-2xl font-bold text-gray-900">
+                                                {saleDetails.total} {saleDetails.currency?.symbol}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100 shadow-sm">
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="text-xs font-semibold text-green-600 uppercase tracking-wider">Paid Amount</h4>
+                                                <div className="bg-green-100 rounded-full p-1.5">
+                                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                                </div>
+                                            </div>
+                                            <p className="mt-2 text-2xl font-bold text-gray-900">
+                                                {saleDetails.paid_amount} {saleDetails.currency?.symbol}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100 shadow-sm">
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Due Amount</h4>
+                                                <div className="bg-amber-100 rounded-full p-1.5">
+                                                    <Clock className="h-4 w-4 text-amber-600" />
+                                                </div>
+                                            </div>
+                                            <p className="mt-2 text-2xl font-bold text-gray-900">
+                                                {saleDetails.due_amount} {saleDetails.currency?.symbol}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Sale Information */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                                        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                                            <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
+                                                <h4 className="text-sm font-medium text-gray-700">Customer Information</h4>
+                                            </div>
+                                            <div className="p-4 space-y-3">
+                                                <div className="flex">
+                                                    <span className="text-sm text-gray-500 w-1/3">Name:</span>
+                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.customer?.name || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex">
+                                                    <span className="text-sm text-gray-500 w-1/3">Email:</span>
+                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.customer?.email || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex">
+                                                    <span className="text-sm text-gray-500 w-1/3">Phone:</span>
+                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.customer?.phone || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex">
+                                                    <span className="text-sm text-gray-500 w-1/3">Currency:</span>
+                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.currency?.name || 'N/A'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+                                            <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
+                                                <h4 className="text-sm font-medium text-gray-700">Additional Information</h4>
+                                            </div>
+                                            <div className="p-4 space-y-3">
+                                                <div className="flex">
+                                                    <span className="text-sm text-gray-500 w-1/3">Warehouse:</span>
+                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.warehouse?.name || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex">
+                                                    <span className="text-sm text-gray-500 w-1/3">Shop:</span>
+                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.shop?.name || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex">
+                                                    <span className="text-sm text-gray-500 w-1/3">Created By:</span>
+                                                    <span className="text-sm font-medium text-gray-900">{saleDetails.created_by?.name || 'N/A'}</span>
+                                                </div>
+                                                <div className="flex">
+                                                    <span className="text-sm text-gray-500 w-1/3">Created At:</span>
+                                                    <span className="text-sm font-medium text-gray-900">
+                                                        {saleDetails.created_at ? new Date(saleDetails.created_at).toLocaleString() : 'N/A'}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Notes if any */}
+                                    {saleDetails.notes && (
+                                        <div className="mb-6 bg-yellow-50 border border-yellow-100 rounded-xl p-4">
+                                            <h4 className="text-sm font-medium text-yellow-800 mb-2 flex items-center">
+                                                <FileText className="h-4 w-4 mr-2" />
+                                                Notes
+                                            </h4>
+                                            <p className="text-sm text-yellow-700">{saleDetails.notes}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Sale Items */}
+                                    <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-6">
+                                        <div className="border-b border-gray-200 bg-gray-50 px-6 py-4 flex items-center">
+                                            <Package className="h-5 w-5 mr-2 text-gray-500" />
+                                            <h4 className="text-base font-medium text-gray-700">Products</h4>
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <table className="min-w-full divide-y divide-gray-200">
+                                                <thead className="bg-gray-50">
+                                                    <tr>
+                                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Product
+                                                        </th>
+                                                        <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Quantity
+                                                        </th>
+                                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Unit Price
+                                                        </th>
+                                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Discount
+                                                        </th>
+                                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Tax
+                                                        </th>
+                                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                            Total
+                                                        </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="bg-white divide-y divide-gray-200">
+                                                    {saleDetails.sale_items?.map((item, index) => (
+                                                        <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
+                                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                                <div className="flex items-center">
+                                                                    <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-md bg-indigo-100 text-indigo-500">
+                                                                        <Package className="h-6 w-6" />
+                                                                    </div>
+                                                                    <div className="ml-4">
+                                                                        <div className="text-sm font-medium text-gray-900">{item.product?.name}</div>
+                                                                        <div className="text-sm text-gray-500">{item.product?.code}</div>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-center">
+                                                                <span className="px-3 py-1 inline-flex text-sm leading-5 font-medium rounded-full bg-indigo-100 text-indigo-800">
+                                                                    {item.quantity}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                                {item.unit_price} {saleDetails.currency?.symbol}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                                {item.discount || '0.00'} {saleDetails.currency?.symbol}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                                {item.tax || '0.00'} {saleDetails.currency?.symbol}
+                                                            </td>
+                                                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-indigo-700">
+                                                                {item.total} {saleDetails.currency?.symbol}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                                <tfoot className="bg-gray-50">
+                                                    <tr>
+                                                        <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-medium text-gray-500">
+                                                            Subtotal
+                                                        </th>
+                                                        <td className="px-6 py-3 text-right text-sm font-medium text-gray-900">
+                                                            {saleDetails.subtotal || saleDetails.total} {saleDetails.currency?.symbol}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-medium text-gray-500">
+                                                            Tax
+                                                        </th>
+                                                        <td className="px-6 py-3 text-right text-sm font-medium text-gray-900">
+                                                            {saleDetails.tax_amount || '0.00'} {saleDetails.currency?.symbol}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-medium text-gray-500">
+                                                            Discount
+                                                        </th>
+                                                        <td className="px-6 py-3 text-right text-sm font-medium text-gray-900">
+                                                            {saleDetails.discount_amount || '0.00'} {saleDetails.currency?.symbol}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-bold text-gray-900">
+                                                            Total
+                                                        </th>
+                                                        <td className="px-6 py-3 text-right text-sm font-bold text-indigo-700">
+                                                            {saleDetails.total} {saleDetails.currency?.symbol}
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    {/* Payment History */}
+                                    {saleDetails.payments && saleDetails.payments.length > 0 && (
+                                        <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-6">
+                                            <div className="border-b border-gray-200 bg-gray-50 px-6 py-4 flex items-center">
+                                                <DollarSign className="h-5 w-5 mr-2 text-gray-500" />
+                                                <h4 className="text-base font-medium text-gray-700">Payment History</h4>
+                                            </div>
+                                            <div className="overflow-x-auto">
+                                                <table className="min-w-full divide-y divide-gray-200">
+                                                    <thead className="bg-gray-50">
+                                                        <tr>
+                                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Date
+                                                            </th>
+                                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Reference
+                                                            </th>
+                                                            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Method
+                                                            </th>
+                                                            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                                Amount
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="bg-white divide-y divide-gray-200">
+                                                        {saleDetails.payments.map((payment, index) => (
+                                                            <tr key={index} className="hover:bg-gray-50 transition-colors duration-150">
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {new Date(payment.date).toLocaleDateString()}
+                                                                </td>
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {payment.reference || '-'}
+                                                                </td>
+                                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                                    {payment.method || '-'}
+                                                                </td>
+                                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-green-600">
+                                                                    {payment.amount} {saleDetails.currency?.symbol}
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Footer with actions */}
+                                    <div className="flex justify-end space-x-3 mt-8 pt-4 border-t">
+                                        <button
+                                            onClick={closeSaleDetailsModal}
+                                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center"
+                                        >
+                                            <XCircle className="h-4 w-4 mr-2" />
+                                            Close
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         ) : null}
                     </div>
