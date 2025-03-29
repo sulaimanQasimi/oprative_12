@@ -1027,6 +1027,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateCreateOrderButtonState() {
+        if (!completeOrderBtn) return;
+        
         if (state.orderItems.length === 0) {
             completeOrderBtn.disabled = true;
             completeOrderBtn.classList.add('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
