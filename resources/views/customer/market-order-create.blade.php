@@ -5,82 +5,125 @@
 <!-- Single root element wrapper -->
 <div class="relative">
     <!-- Three.js background container -->
-    <div id="three-background" class="fixed inset-0 -z-10"></div>
+    <div id="three-background" class="fixed inset-0 -z-10 bg-gradient-to-br from-gray-50 via-white to-gray-50"></div>
 
-    <div class="relative min-h-screen p-6">
+    <div class="relative min-h-screen p-4 md:p-6 lg:p-8">
         <!-- Main container with enhanced styling -->
-        <div class="relative bg-white/80 backdrop-blur-2xl rounded-2xl p-6 shadow-2xl border border-white/20 transition-all duration-300 hover:shadow-green-500/10">
+        <div class="relative bg-white/90 backdrop-blur-3xl rounded-3xl p-6 shadow-2xl border border-white/30 transition-all duration-500 hover:shadow-green-500/20 overflow-hidden">
             <!-- Decorative elements -->
             <div
-                class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full blur-2xl translate-x-16 -translate-y-16">
+                class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full blur-3xl translate-x-20 -translate-y-20 animate-pulse-slow">
             </div>
             <div
-                class="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-full blur-2xl -translate-x-16 translate-y-16">
+                class="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-full blur-3xl -translate-x-20 translate-y-20 animate-pulse-slow animation-delay-1000">
+            </div>
+            <div
+                class="absolute top-1/3 left-1/3 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl animate-pulse-slow animation-delay-2000">
             </div>
 
             <!-- Content -->
             <div class="relative">
-                <div class="flex justify-between items-center mb-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-3">
-                            <div class="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg shadow-lg animate-button">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none"
+                            <div class="p-3 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl shadow-lg shadow-green-500/20 animate-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-white" fill="none"
                                     viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                                 </svg>
                             </div>
                             <div>
-                                <h2 class="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                <h2 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                                     @lang('Create Market Order')</h2>
-                                <p class="text-sm text-gray-500">@lang('Manage your sales transactions')</p>
+                                <p class="text-sm text-gray-500">@lang('Manage your sales transactions with ease')</p>
                             </div>
                         </div>
-                        <button id="createOrderBtn" class="animate-button px-6 py-2.5 rounded-xl font-medium shadow-lg transition-all duration-300 flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                            @lang('Start New Order')
-                        </button>
                     </div>
+                    <button id="createOrderBtn" class="w-full md:w-auto animate-button px-6 py-3 rounded-xl font-medium shadow-lg transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl hover:shadow-green-500/20">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        @lang('Start New Order')
+                    </button>
                 </div>
 
                 <div id="orderSection" class="hidden">
-                    <!-- Product Search with enhanced animation -->
-                    <div class="mb-6 relative search-container">
-                        <div class="group relative transform transition-all duration-300 hover:scale-[1.01]">
-                            <div
-                                class="absolute inset-0 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-xl blur-xl transition-all duration-300 group-hover:blur-2xl">
-                            </div>
-                            <div
-                                class="relative flex items-center bg-white/95 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200/50 focus-within:border-green-500 focus-within:ring-2 focus-within:ring-green-500/20 transition-all duration-300">
-                                <div
-                                    class="flex-shrink-0 pr-4 text-gray-400 group-focus-within:text-green-500 transition-colors duration-200">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    <!-- Product List -->
+                    <div class="bg-white/70 backdrop-blur-lg p-5 rounded-2xl shadow-lg border border-gray-100/80 hover:shadow-xl transition-all duration-300">
+                        <h3 class="text-lg font-semibold mb-4 text-gray-800 border-b border-gray-100 pb-3 flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                            </svg>
+                            @lang('Products')
+                        </h3>
+
+                        <div class="mb-4">
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                 </div>
-                                <input type="text" id="searchQuery"
-                                    class="w-full py-4 px-4 outline-none text-gray-700 placeholder-gray-400 bg-transparent text-lg font-medium"
-                                    placeholder="@lang('Search products by name,or barcode...')" autofocus>
-                                <div class="flex-shrink-0 pl-4">
-                                    <div class="text-xs text-gray-400 font-medium flex items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24"
-                                            stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                        </svg>
-                                        @lang('Press Enter to select')
+                                <input id="searchProduct" type="text" placeholder="@lang('Search products...')" class="block w-full pl-10 bg-white border border-gray-300 rounded-xl py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all placeholder-gray-400">
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap -mx-2">
+                            <div class="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
+                                <div class="bg-white rounded-xl p-4 shadow-md border border-gray-100 h-full flex flex-col cursor-pointer hover:shadow-lg hover:border-green-100 transition-all duration-300 transform hover:-translate-y-1 group">
+                                    <div class="flex items-center mb-4 border-b border-gray-100 pb-3">
+                                        <div class="flex-shrink-0 w-10 h-10 bg-green-100 text-green-500 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-500 group-hover:text-white transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800 group-hover:text-green-600 transition-all">@lang('Add New Product')</h4>
+                                            <p class="text-sm text-gray-500">@lang('Quick create')</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow">
+                                        <p class="text-sm text-gray-500">@lang('Quickly add a new product to your inventory')</p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div id="searchDropdown" class="absolute z-50 w-full mt-2 bg-white/90 backdrop-blur-xl rounded-xl shadow-2xl border border-white/20 max-h-96 overflow-y-auto hidden">
-                            <!-- Search results will be populated here via JavaScript -->
+
+                            @foreach ($products as $product)
+                                <div class="w-full md:w-1/2 lg:w-1/3 px-2 mb-4 product-card" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}" data-product-price="{{ $product->price }}" data-product-stock="{{ $product->stock }}" data-search-term="{{ strtolower($product->name) }}">
+                                    <div class="bg-white rounded-xl p-4 shadow-md border border-gray-100 h-full flex flex-col cursor-pointer hover:shadow-lg hover:border-green-100 transition-all duration-300 transform hover:-translate-y-1 group product-item">
+                                        <div class="flex items-center mb-4 border-b border-gray-100 pb-3">
+                                            <div class="flex-shrink-0 w-10 h-10 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-500 group-hover:text-white transition-all">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-grow overflow-hidden">
+                                                <h4 class="font-semibold text-gray-800 truncate group-hover:text-green-600 transition-all">{{ $product->name }}</h4>
+                                                <p class="text-sm text-gray-500 truncate">@lang('Stock'): <span class="font-medium">{{ $product->stock }}</span></p>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow mb-4">
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-500 text-sm">@lang('Unit Price'):</span>
+                                                <span class="font-medium text-gray-800">${{ number_format($product->price, 2) }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between items-center">
+                                            <div class="text-sm text-gray-500">@lang('Tap to add to order')</div>
+                                            <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <div class="p-2 bg-green-100 text-green-600 rounded-lg group-hover:bg-green-500 group-hover:text-white transition-all">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
 
@@ -201,6 +244,29 @@
 
 <!-- JavaScript for Market Order Functionality -->
 <script>
+// Define a global variable to store order items
+let globalOrderItems = [];
+
+// Global function to remove items that will be accessible directly from HTML
+function removeItemFromOrder(index) {
+    console.log("Global removeItemFromOrder called with index:", index);
+
+    // Remove the item at the specified index
+    globalOrderItems = globalOrderItems.filter((_, i) => i !== index);
+
+    // Update any UI elements
+    const app = document.getElementById('app');
+    if (app) {
+        // Trigger an event to notify the application about the item removal
+        app.dispatchEvent(new CustomEvent('itemRemoved', { detail: { index } }));
+    }
+
+    // Refresh the UI directly if possible
+    if (window.refreshOrderItems) {
+        window.refreshOrderItems();
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // State management
     const state = {
@@ -226,8 +292,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Elements
     const createOrderBtn = document.getElementById('createOrderBtn');
     const orderSection = document.getElementById('orderSection');
-    const searchQueryInput = document.getElementById('searchQuery');
-    const searchDropdown = document.getElementById('searchDropdown');
     const orderItemsContainer = document.getElementById('orderItemsContainer');
     const emptyOrderState = document.getElementById('emptyOrderState');
     const orderSummarySection = document.getElementById('orderSummarySection');
@@ -244,15 +308,56 @@ document.addEventListener('DOMContentLoaded', function() {
     const orderNotesTextarea = document.getElementById('orderNotes');
     const completeOrderBtn = document.getElementById('completeOrderBtn');
     const orderSuccessNotification = document.getElementById('orderSuccessNotification');
+    const searchProductInput = document.getElementById('searchProduct');
 
-    // Event Listeners
-    createOrderBtn.addEventListener('click', startNewOrder);
-    searchQueryInput.addEventListener('input', handleSearchInput);
-    searchQueryInput.addEventListener('keydown', handleSearchKeydown);
-    amountPaidInput.addEventListener('input', updateChangeDue);
-    accountSearchQueryInput.addEventListener('input', handleAccountSearchInput);
-    accountSearchQueryInput.addEventListener('keydown', handleAccountSearchKeydown);
-    completeOrderBtn.addEventListener('click', completeOrder);
+    // Event Listeners - Only add if elements exist
+    if (createOrderBtn) {
+        createOrderBtn.addEventListener('click', startNewOrder);
+    }
+
+    if (searchProductInput) {
+        // Add event listener for the new search product input
+        searchProductInput.addEventListener('input', handleProductSearch);
+    }
+
+    if (amountPaidInput) {
+        amountPaidInput.addEventListener('input', updateChangeDue);
+    }
+
+    if (accountSearchQueryInput) {
+        accountSearchQueryInput.addEventListener('input', handleAccountSearchInput);
+        accountSearchQueryInput.addEventListener('keydown', handleAccountSearchKeydown);
+    }
+
+    if (completeOrderBtn) {
+        completeOrderBtn.addEventListener('click', completeOrder);
+    }
+
+    // Initialize product card click events
+    const productCards = document.querySelectorAll('.product-card');
+    productCards.forEach(card => {
+        card.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            const productName = this.getAttribute('data-product-name');
+            const productPrice = parseFloat(this.getAttribute('data-product-price'));
+            const productStock = parseInt(this.getAttribute('data-product-stock'));
+
+            addProductToOrderFromCard({
+                id: productId,
+                name: productName,
+                price: productPrice,
+                stock: productStock
+            });
+        });
+    });
+
+    // Expose functions to global scope for inline event handlers
+    window.selectProduct = selectProduct;
+    window.addProductToOrder = addProductToOrder;
+    window.updateQuantity = updateQuantity;
+    window.removeItem = removeItem;
+    window.selectAccount = selectAccount;
+    window.removeItemFromOrder = removeItemFromOrder;
 
     // Functions
     function startNewOrder() {
@@ -279,155 +384,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function handleSearchInput() {
-        state.searchQuery = searchQueryInput.value.trim();
+    function handleProductSearch(e) {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        const productCards = document.querySelectorAll('.product-card');
 
-        if (state.searchQuery.length < 2) {
-            searchDropdown.classList.add('hidden');
-            state.showDropdown = false;
-            return;
-        }
-
-        fetch(`{{ route("customer.market-order.search-products") }}?query=${encodeURIComponent(state.searchQuery)}`)
-            .then(response => response.json())
-            .then(data => {
-                state.searchResults = data;
-                renderSearchResults();
-                searchDropdown.classList.remove('hidden');
-                state.showDropdown = true;
-                state.highlightIndex = 0;
-            })
-            .catch(error => {
-                console.error('Error searching products:', error);
-            });
-    }
-
-    function renderSearchResults() {
-        if (state.searchResults.length === 0) {
-            searchDropdown.innerHTML = `
-                <div class="px-6 py-8 text-center">
-                    <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <p class="text-gray-500 font-medium">@lang('No products found')</p>
-                    <p class="text-sm text-gray-400 mt-1">@lang('Try adjusting your search terms')</p>
-                </div>
-            `;
-            return;
-        }
-
-        let html = '';
-        state.searchResults.forEach((product, index) => {
-            html += `
-                <div class="search-result group relative transform transition-all duration-300">
-                    <div class="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    </div>
-                    <div class="relative flex justify-between items-center w-full">
-                        <div class="w-full px-4 py-3 flex items-start transition-all duration-300 ${state.highlightIndex === index ? 'bg-green-50/80' : 'hover:bg-gray-50/50'}"
-                            onclick="selectProduct(${index})">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center group-hover:from-green-50 group-hover:to-emerald-50 transition-all duration-300">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-green-500 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-medium text-gray-800">${product.name}</h3>
-                                    </div>
-                                </div>
-                                <div class="mt-2 flex items-center gap-4 text-sm">
-                                    <span class="text-green-600 font-medium">$${parseFloat(product.retail_price).toFixed(2)}</span>
-                                    <span class="text-gray-500">@lang('Stock'): ${product.stock}</span>
-                                </div>
-                            </div>
-                            <div class="flex-shrink-0 self-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 group-hover:text-green-500 transition-colors duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </div>
-                        </div>
-                        <button onclick="addProductToOrder(${index})" class="ml-4 mr-4 px-4 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg hover:from-green-600 hover:to-emerald-600 transition-all duration-300 shadow-sm hover:shadow-md flex items-center gap-2 group">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                            </svg>
-                            @lang('Add Item')
-                        </button>
-                    </div>
-                </div>
-            `;
+        productCards.forEach(card => {
+            const searchValue = card.getAttribute('data-search-term');
+            if (searchValue.includes(searchTerm) || searchTerm === '') {
+                card.style.display = 'block';
+                // Add a subtle animation for items matching search
+                card.querySelector('.product-item').classList.add('scale-animation');
+                setTimeout(() => {
+                    card.querySelector('.product-item').classList.remove('scale-animation');
+                }, 300);
+            } else {
+                card.style.display = 'none';
+            }
         });
-
-        searchDropdown.innerHTML = html;
     }
 
-    function handleSearchKeydown(e) {
-        if (!state.showDropdown) return;
-
-        // Arrow down
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            incrementHighlight();
-        }
-
-        // Arrow up
-        if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            decrementHighlight();
-        }
-
-        // Enter
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            selectProduct(state.highlightIndex);
-        }
-
-        // Escape
-        if (e.key === 'Escape') {
-            e.preventDefault();
-            closeDropdown();
-        }
-    }
-
-    function incrementHighlight() {
-        if (state.highlightIndex === state.searchResults.length - 1) {
-            state.highlightIndex = 0;
-        } else {
-            state.highlightIndex++;
-        }
-        renderSearchResults();
-    }
-
-    function decrementHighlight() {
-        if (state.highlightIndex === 0) {
-            state.highlightIndex = state.searchResults.length - 1;
-        } else {
-            state.highlightIndex--;
-        }
-        renderSearchResults();
-    }
-
-    function closeDropdown() {
-        searchDropdown.classList.add('hidden');
-        state.showDropdown = false;
-    }
-
-    // Function to be called from inline onclick
-    window.selectProduct = function(index) {
-        if (!state.searchResults[index]) return;
-
-        const selectedProduct = state.searchResults[index];
-        addProductToOrder(index);
-
-        searchQueryInput.value = '';
-        state.searchQuery = '';
-        closeDropdown();
-    };
-
-    // Function to be called from inline onclick
-    window.addProductToOrder = function(index) {
+    function addProductToOrder(index) {
         if (!state.searchResults[index]) return;
 
         const product = state.searchResults[index];
@@ -457,73 +433,157 @@ document.addEventListener('DOMContentLoaded', function() {
         renderOrderItems();
         calculateTotal();
         updateCreateOrderButtonState();
-    };
+    }
 
     function renderOrderItems() {
+        const orderItemsContainer = document.getElementById('orderItemsContainer');
+        const emptyOrderState = document.getElementById('emptyOrderState');
+        const orderSummary = document.getElementById('orderSummary');
+
         if (state.orderItems.length === 0) {
-            emptyOrderState.classList.remove('hidden');
-            orderSummarySection.classList.add('hidden');
+            emptyOrderState.style.display = 'flex';
+            orderSummary.style.display = 'none';
             return;
         }
 
-        emptyOrderState.classList.add('hidden');
-        orderSummarySection.classList.remove('hidden');
+        emptyOrderState.style.display = 'none';
+        orderSummary.style.display = 'flex';
 
-        let html = '';
+        // Clear previous items
+        orderItemsContainer.innerHTML = '';
+
+        // Add each order item with animation
         state.orderItems.forEach((item, index) => {
-            html += `
-                <div class="order-item group relative transform transition-all duration-300 hover:scale-[1.02]">
-                    <div class="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            const orderItemEl = document.createElement('div');
+            orderItemEl.className = 'mb-3 bg-gray-50 rounded-xl p-3 shadow-sm border border-gray-100 hover:border-green-100 transition-all duration-300 opacity-0';
+            orderItemEl.style.animation = `fadeIn 0.5s ${index * 0.1}s forwards`;
+
+            const totalPrice = (item.quantity * item.price).toFixed(2);
+
+            orderItemEl.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div class="flex-grow overflow-hidden mr-2">
+                        <h4 class="font-medium text-gray-800 truncate">${item.name}</h4>
+                        <div class="text-sm text-gray-500 flex items-center mt-1">
+                            <span class="inline-block">$${item.price.toFixed(2)} × ${item.quantity}</span>
+                            <span class="mx-2">|</span>
+                            <span class="font-medium text-gray-700">$${totalPrice}</span>
+                        </div>
                     </div>
-                    <div class="relative bg-white/90 p-5 rounded-xl shadow-sm border border-gray-100">
-                        <div class="flex justify-between items-start">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-medium text-gray-800 group-hover:text-green-600 transition-colors duration-200">${item.name}</h3>
-                                        <p class="text-sm text-gray-500">$${parseFloat(item.price).toFixed(2)} @lang('each')</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <div class="flex items-center gap-2 bg-gradient-to-r from-green-50 via-emerald-50 to-green-50 rounded-xl px-3 py-1.5 border border-green-100/50 shadow-sm group hover:shadow-md transition-all duration-300">
-                                    <button onclick="updateQuantity(${index}, -1)" class="text-gray-500 hover:text-green-600 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gradient-to-br from-green-100 to-emerald-100 transition-all duration-300 hover:shadow-sm group-hover:shadow-md transform hover:-translate-y-0.5">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:-translate-y-0.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
-                                        </svg>
-                                    </button>
-                                    <span class="text-base font-semibold w-8 text-center text-gray-700 bg-gradient-to-br from-white to-green-50/50 px-2 py-1 rounded-lg shadow-sm border border-green-100/50">${item.quantity}</span>
-                                    <button onclick="updateQuantity(${index}, 1)" class="text-gray-500 hover:text-green-600 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-gradient-to-br from-green-100 to-emerald-100 transition-all duration-300 hover:shadow-sm group-hover:shadow-md transform hover:-translate-y-0.5">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transform group-hover:translate-y-0.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                <button onclick="removeItem(${index})" class="text-gray-400 hover:text-red-500 p-2.5 rounded-xl hover:bg-gradient-to-br from-red-50 to-pink-50/50 transition-all duration-300 hover:shadow-sm group-hover:shadow-md transform hover:-translate-y-0.5 border border-red-100/50">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transform group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mt-3 flex justify-between items-center">
-                            <div class="text-sm text-gray-500">@lang('Quantity'): ${item.quantity}</div>
-                            <div class="text-right">
-                                <div class="text-sm text-gray-500">@lang('Total')</div>
-                                <div class="text-lg font-semibold text-green-600">$${parseFloat(item.total).toFixed(2)}</div>
-                            </div>
-                        </div>
+                    <button class="remove-item p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors" data-index="${index}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="flex items-center mt-2 justify-between">
+                    <div class="flex items-center">
+                        <button class="decrease-qty p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-index="${index}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                            </svg>
+                        </button>
+                        <span class="mx-2 w-8 text-center font-medium">${item.quantity}</span>
+                        <button class="increase-qty p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-index="${index}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        @lang('In stock'): <span class="font-medium">${item.stock - item.quantity}</span>
                     </div>
                 </div>
             `;
+
+            orderItemsContainer.appendChild(orderItemEl);
         });
 
-        orderItemsContainer.innerHTML = html + (state.orderItems.length === 0 ? emptyOrderState.outerHTML : '');
+        // Add event listeners for buttons
+        document.querySelectorAll('.decrease-qty').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                if (state.orderItems[index].quantity > 1) {
+                    state.orderItems[index].quantity--;
+                    updateOrder();
+                }
+            });
+        });
+
+        document.querySelectorAll('.increase-qty').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                const item = state.orderItems[index];
+                if (item.quantity < item.stock) {
+                    item.quantity++;
+                    updateOrder();
+                }
+            });
+        });
+
+        document.querySelectorAll('.remove-item').forEach(button => {
+            button.addEventListener('click', function() {
+                const index = parseInt(this.dataset.index);
+                removeItem(index);
+            });
+        });
+
+        // Add these styles to the head of the document if not already present
+        if (!document.getElementById('fadeInAnimation')) {
+            const style = document.createElement('style');
+            style.id = 'fadeInAnimation';
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                @keyframes fadeOut {
+                    from { opacity: 1; transform: translateY(0); }
+                    to { opacity: 0; transform: translateY(10px); }
+                }
+
+                @keyframes pulse-slow {
+                    0%, 100% { opacity: 0.5; }
+                    50% { opacity: 0.8; }
+                }
+
+                .animation-delay-1000 {
+                    animation-delay: 1s;
+                }
+
+                .animation-delay-2000 {
+                    animation-delay: 2s;
+                }
+
+                .animate-pulse-slow {
+                    animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                }
+
+                .animate-button:hover {
+                    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                }
+
+                .scrollbar-thin::-webkit-scrollbar {
+                    width: 6px;
+                }
+
+                .scrollbar-thin::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 10px;
+                }
+
+                .scrollbar-thin::-webkit-scrollbar-thumb {
+                    background: #e2e8f0;
+                    border-radius: 10px;
+                }
+
+                .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                    background: #cbd5e0;
+                }
+            `;
+            document.head.appendChild(style);
+        }
     }
 
     function updateQuantity(index, change) {
@@ -550,12 +610,24 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function removeItem(index) {
-        if (!state.orderItems[index]) return;
+        console.log("Removing item at index:", index);
+        console.log("Before removal, items:", JSON.stringify(state.orderItems));
 
-        state.orderItems.splice(index, 1);
+        if (!state.orderItems[index]) {
+            console.error("Item at index " + index + " does not exist");
+            return;
+        }
+
+        // Remove the item from the array
+        state.orderItems = state.orderItems.filter((_, i) => i !== index);
+        console.log("After removal, items:", JSON.stringify(state.orderItems));
+
+        // Update the view
         renderOrderItems();
         calculateTotal();
         updateCreateOrderButtonState();
+
+        console.log("Remove operation completed");
     }
 
     function calculateTotal() {
@@ -697,7 +769,7 @@ document.addEventListener('DOMContentLoaded', function() {
         state.showAccountDropdown = false;
     }
 
-    window.selectAccount = function(index) {
+    function selectAccount(index) {
         if (!state.accountSearchResults[index]) return;
 
         state.selectedAccount = state.accountSearchResults[index];
@@ -723,7 +795,7 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedAccountContainer.classList.remove('hidden');
 
         updateCreateOrderButtonState();
-    };
+    }
 
     function updateCreateOrderButtonState() {
         if (state.orderItems.length === 0) {
@@ -814,7 +886,7 @@ document.addEventListener('DOMContentLoaded', function() {
         state.accountHighlightIndex = 0;
 
         // Reset UI
-        searchQueryInput.value = '';
+        searchProductInput.value = '';
         amountPaidInput.value = '';
         paymentMethodSelect.value = 'cash';
         orderNotesTextarea.value = '';
@@ -830,19 +902,232 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showError(message) {
-        // You could implement a toast notification system here
-        alert(message);
+        // Create notification container if it doesn't exist
+        let notificationContainer = document.getElementById('notificationContainer');
+        if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.id = 'notificationContainer';
+            notificationContainer.className = 'fixed top-4 right-4 z-50 flex flex-col items-end space-y-4 max-w-md';
+            document.body.appendChild(notificationContainer);
+        }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'bg-white rounded-xl shadow-lg border-l-4 border-red-500 p-4 transform translate-x-full opacity-0 transition-all duration-500 flex items-start';
+        notification.style.minWidth = '300px';
+        notification.style.maxWidth = '100%';
+
+        // Add content
+        notification.innerHTML = `
+            <div class="mr-3 bg-red-100 rounded-lg p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="flex-grow pr-6">
+                <h5 class="font-medium text-gray-900 mb-1">@lang('Error')</h5>
+                <p class="text-gray-600 text-sm">${message}</p>
+            </div>
+            <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        `;
+
+        // Add the notification to the container
+        notificationContainer.appendChild(notification);
+
+        // Animate the notification in
+        setTimeout(() => {
+            notification.classList.add('translate-x-0', 'opacity-100');
+        }, 10);
+
+        // Add click event to close button
+        const closeButton = notification.querySelector('button');
+        closeButton.addEventListener('click', () => {
+            removeNotification(notification);
+        });
+
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            removeNotification(notification);
+        }, 5000);
     }
 
     function showSuccess(message) {
-        // Show the success notification
-        orderSuccessNotification.classList.remove('scale-0', 'opacity-0');
-        orderSuccessNotification.classList.add('scale-100', 'opacity-100', 'transition-all', 'duration-300');
+        // Create notification container if it doesn't exist
+        let notificationContainer = document.getElementById('notificationContainer');
+        if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.id = 'notificationContainer';
+            notificationContainer.className = 'fixed top-4 right-4 z-50 flex flex-col items-end space-y-4 max-w-md';
+            document.body.appendChild(notificationContainer);
+        }
+
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = 'bg-white rounded-xl shadow-lg border-l-4 border-green-500 p-4 transform translate-x-full opacity-0 transition-all duration-500 flex items-start';
+        notification.style.minWidth = '300px';
+        notification.style.maxWidth = '100%';
+
+        // Add content
+        notification.innerHTML = `
+            <div class="mr-3 bg-green-100 rounded-lg p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+            <div class="flex-grow pr-6">
+                <h5 class="font-medium text-gray-900 mb-1">@lang('Success')</h5>
+                <p class="text-gray-600 text-sm">${message}</p>
+            </div>
+            <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        `;
+
+        // Add the notification to the container
+        notificationContainer.appendChild(notification);
+
+        // Animate the notification in
+        setTimeout(() => {
+            notification.classList.add('translate-x-0', 'opacity-100');
+        }, 10);
+
+        // Add click event to close button
+        const closeButton = notification.querySelector('button');
+        closeButton.addEventListener('click', () => {
+            removeNotification(notification);
+        });
+
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            removeNotification(notification);
+        }, 5000);
+    }
+
+    function removeNotification(notification) {
+        // Animate out
+        notification.classList.remove('translate-x-0', 'opacity-100');
+        notification.classList.add('translate-x-full', 'opacity-0');
+
+        // Remove from DOM after animation completes
+        setTimeout(() => {
+            notification.remove();
+        }, 500);
+    }
+
+    function addProductToOrderFromCard(product) {
+        const existingItemIndex = state.orderItems.findIndex(item => item.product_id === product.id);
+
+        if (existingItemIndex !== -1) {
+            // Check if there's enough stock
+            if (state.orderItems[existingItemIndex].quantity >= product.stock) {
+                showError('No more stock available for this product');
+                return;
+            }
+
+            state.orderItems[existingItemIndex].quantity++;
+            state.orderItems[existingItemIndex].total = state.orderItems[existingItemIndex].quantity * state.orderItems[existingItemIndex].price;
+        } else {
+            state.orderItems.push({
+                product_id: product.id,
+                name: product.name,
+                price: parseFloat(product.price),
+                quantity: 1,
+                total: parseFloat(product.price),
+                stock: product.stock
+            });
+        }
+
+        // Update global items array for direct access
+        globalOrderItems = [...state.orderItems];
+
+        renderOrderItems();
+        calculateTotal();
+        updateCreateOrderButtonState();
+    }
+
+    // Add style for scale animation
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+        .scale-animation {
+            animation: scaleIn 0.3s ease-out;
+        }
+
+        @keyframes scaleIn {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+    `;
+    document.head.appendChild(styleEl);
+
+    // Add ripple effect to buttons
+    function createRipple(event) {
+        const button = event.currentTarget;
+        const ripple = document.createElement('span');
+        const rect = button.getBoundingClientRect();
+
+        const size = Math.max(rect.width, rect.height);
+        const x = event.clientX - rect.left - size / 2;
+        const y = event.clientY - rect.top - size / 2;
+
+        ripple.style.width = ripple.style.height = `${size}px`;
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        ripple.className = 'ripple';
+
+        button.appendChild(ripple);
 
         setTimeout(() => {
-            orderSuccessNotification.classList.add('scale-0', 'opacity-0');
-            orderSuccessNotification.classList.remove('scale-100', 'opacity-100');
-        }, 3000);
+            ripple.remove();
+        }, 600);
+    }
+
+    // Add ripple style
+    const rippleStyle = document.createElement('style');
+    rippleStyle.textContent = `
+        button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(rippleStyle);
+
+    // Add ripple to all buttons
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.addEventListener('click', createRipple);
+    });
+
+    function updateOrder() {
+        // Update global items array for direct access
+        globalOrderItems = [...state.orderItems];
+
+        // Refresh the UI
+        renderOrderItems();
+        calculateTotal();
+        updateCreateOrderButtonState();
     }
 });
 </script>

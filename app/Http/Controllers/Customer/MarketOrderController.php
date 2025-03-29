@@ -24,7 +24,31 @@ class MarketOrderController extends Controller
      */
     public function create()
     {
-        return view('customer.market-order-create');
+        // Get products in customer's stock
+        $products = CustomerStockProduct::with('product')
+            ->where('customer_id', $this->getCustomerId())
+            ->where('net_quantity', '>', 0)
+            ->get()
+            ->map(function ($item) {
+                return (object)[
+                    'id' => $item->product_id,
+                    'name' => $item->product->name,
+                    'price' => $item->product->retail_price,
+                    'stock' => $item->net_quantity
+                ];
+            });
+
+        // Define payment methods
+        $paymentMethods = [
+            (object)['id' => 'cash', 'name' => __('Cash')],
+            (object)['id' => 'card', 'name' => __('Card')],
+            (object)['id' => 'bank_transfer', 'name' => __('Bank Transfer')]
+        ];
+
+        // Set default tax percentage
+        $tax_percentage = 0; // You can adjust this or pull from config if needed
+
+        return view('customer.market-order-create', compact('products', 'paymentMethods', 'tax_percentage'));
     }
 
     /**
