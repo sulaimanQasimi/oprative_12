@@ -20,6 +20,7 @@
         "guava/calendar": "^1.11",
         "guava/tutorials": "^1.1",
         "hekmatinasser/verta": "*",
+        "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^11.31",
         "laravel/reverb": "^1.0",
         "laravel/sanctum": "^4.0",
@@ -37,6 +38,7 @@
         "stephenjude/filament-debugger": "^3.1",
         "tapp/filament-authentication-log": "3.1",
         "teguh02/filament-db-sync": "^1.2",
+        "tightenco/ziggy": "^2.0",
         "tomatophp/filament-api": "^1.0",
         "tomatophp/filament-language-switcher": "^1.0",
         "tomatophp/filament-users": "*",
@@ -89,5 +91,10 @@
         }
     },
     "minimum-stability": "stable",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "require-dev": {
+        "laravel/breeze": "^2.3",
+        "pestphp/pest": "^3.7",
+        "pestphp/pest-plugin-laravel": "^3.0"
+    }
 }

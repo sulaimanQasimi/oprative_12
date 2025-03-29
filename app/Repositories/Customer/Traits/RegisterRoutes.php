@@ -12,7 +12,7 @@ use App\Http\Controllers\ThermalPrinterController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Customer\CustomerAccountsController;
 use App\Http\Controllers\Customer\MarketOrderController;
-use App\Livewire\Customer\Dashboard;
+use App\Http\Controllers\Customer\DashboardController;
 use App\Livewire\Customer\CustomerStockProducts;
 use App\Livewire\Customer\CustomerOrder;
 use App\Livewire\Customer\Reports;
@@ -43,7 +43,7 @@ trait RegisterRoutes
                 Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
                 // Dashboard route
-                Route::get('dashboard', Dashboard::class)
+                Route::get('dashboard', [DashboardController::class, 'index'])
                 ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_dashboard')
                 ->name('dashboard');
 
