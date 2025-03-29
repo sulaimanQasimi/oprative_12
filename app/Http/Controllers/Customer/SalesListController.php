@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
 
 class SalesListController extends Controller
 {
@@ -62,9 +63,13 @@ class SalesListController extends Controller
                 $query->where('moved_from_warehouse', $request->movedFromWarehouse === '1');
             })
             ->orderBy($request->sortField ?? 'date', $request->sortDirection ?? 'desc')
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('customer.sales.index', compact('sales'));
+        return Inertia::render('Customer/Sales/Index', [
+            'sales' => $sales,
+            'filters' => $request->only(['search', 'status', 'confirmedByWarehouse', 'confirmedByShop']),
+        ]);
     }
 
     public function show($saleId)

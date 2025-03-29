@@ -65,8 +65,23 @@ export default function CustomerNavbar() {
     ];
 
     const hasPermission = (permission) => {
-        return auth.user.permissions.includes(permission);
+        // Check if user has direct permission
+        if (auth.user.permissions && auth.user.permissions.includes(permission)) {
+            return true;
+        }
+        
+        // Check if user has role with permission
+        if (auth.user.roles) {
+            return auth.user.roles.some(role => 
+                role.permissions && role.permissions.includes(permission)
+            );
+        }
+        
+        return false;
     };
+
+    // Filter menu items based on permissions
+    const filteredMenuItems = menuItems.filter(item => hasPermission(item.permission));
 
     return (
         <nav className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-lg mb-6 transition-all duration-300">
@@ -87,21 +102,19 @@ export default function CustomerNavbar() {
 
                         {/* Desktop Navigation */}
                         <div className="hidden md:ml-8 md:flex md:space-x-4">
-                            {menuItems.map((item) => (
-                                hasPermission(item.permission) && (
-                                    <Link
-                                        key={item.route}
-                                        href={route(item.route)}
-                                        className={`inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out ${
-                                            route().current(item.route)
-                                                ? 'bg-white/20 text-white shadow-lg'
-                                                : 'text-white/80 hover:bg-white/10 hover:text-white'
-                                        }`}
-                                    >
-                                        <item.icon className="h-5 w-5 mr-2" />
-                                        <span className="font-medium">{item.name}</span>
-                                    </Link>
-                                )
+                            {filteredMenuItems.map((item) => (
+                                <Link
+                                    key={item.route}
+                                    href={route(item.route)}
+                                    className={`inline-flex items-center px-3 py-2 text-sm transition-all duration-200 ease-in-out ${
+                                        route().current(item.route)
+                                            ? 'bg-white/20 text-white shadow-lg'
+                                            : 'text-white/80 hover:bg-white/10 hover:text-white'
+                                    }`}
+                                >
+                                    <item.icon className="h-5 w-5 mr-2" />
+                                    <span className="font-medium">{item.name}</span>
+                                </Link>
                             ))}
                         </div>
                     </div>
@@ -170,17 +183,15 @@ export default function CustomerNavbar() {
             {isOpen && (
                 <div className="md:hidden bg-white/10 backdrop-blur-lg absolute w-full z-50">
                     <div className="px-2 pt-2 pb-3 space-y-1">
-                        {menuItems.map((item) => (
-                            hasPermission(item.permission) && (
-                                <Link
-                                    key={item.route}
-                                    href={route(item.route)}
-                                    className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition duration-150 ease-in-out flex items-center gap-2"
-                                >
-                                    <item.icon className="h-5 w-5" />
-                                    <span>{item.name}</span>
-                                </Link>
-                            )
+                        {filteredMenuItems.map((item) => (
+                            <Link
+                                key={item.route}
+                                href={route(item.route)}
+                                className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-white/10 transition duration-150 ease-in-out flex items-center gap-2"
+                            >
+                                <item.icon className="h-5 w-5" />
+                                <span>{item.name}</span>
+                            </Link>
                         ))}
                         <form method="POST" action={route('customer.logout')} className="block">
                             <button
