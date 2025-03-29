@@ -566,6 +566,218 @@ export default function SalesIndex({ sales, filters }) {
                     </div>
                 </div>
             </div>
+
+            {/* Sale Details Modal */}
+            {isSaleDetailsModalOpen && (
+                <div className="fixed inset-0 bg-gray-900 bg-opacity-75 backdrop-blur-sm overflow-y-auto h-full w-full z-50 transition-opacity duration-300">
+                    <div className="relative top-20 mx-auto p-0 border-0 max-w-5xl shadow-2xl rounded-xl bg-white overflow-hidden transform transition-all duration-300">
+                        {loading ? (
+                            <div className="py-20">
+                                <div className="flex flex-col items-center justify-center">
+                                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mb-4"></div>
+                                    <p className="text-gray-500 text-lg">{t('Loading sale details...')}</p>
+                                </div>
+                            </div>
+                        ) : saleDetails ? (
+                            <div>
+                                {/* Header with gradient background */}
+                                <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 py-6 px-8 flex justify-between items-center">
+                                    <div className="flex items-center">
+                                        <div className="bg-white bg-opacity-20 p-3 rounded-lg mr-4 backdrop-blur-sm">
+                                            <ShoppingBag className="h-8 w-8 text-white" />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-2xl font-bold text-white">{t('Sale #')}{saleDetails.reference}</h3>
+                                            <p className="text-indigo-100 flex items-center mt-1">
+                                                <Calendar className="h-4 w-4 mr-2" />
+                                                {new Date(saleDetails.date).toLocaleDateString('en-US', {
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => {
+                                                if (saleDetails.status === 'pending') {
+                                                    showPaymentModal(saleDetails);
+                                                }
+                                            }}
+                                            className={`px-4 py-2 rounded-lg flex items-center text-sm font-medium mr-2 ${
+                                                saleDetails.status === 'pending'
+                                                    ? 'bg-white text-indigo-700 hover:bg-indigo-50 transition-colors duration-200'
+                                                    : 'bg-white bg-opacity-20 text-white cursor-not-allowed'
+                                            }`}
+                                            disabled={saleDetails.status !== 'pending'}
+                                        >
+                                            <DollarSign className="h-4 w-4 mr-1" />
+                                            {t('Add Payment')}
+                                        </button>
+                                        <button
+                                            onClick={closeSaleDetailsModal}
+                                            className="bg-transparent text-white hover:bg-white hover:bg-opacity-10 rounded-full p-2 transition-colors duration-200"
+                                        >
+                                            <XCircle className="w-6 h-6" />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="px-8 py-6">
+                                    {/* Status Bar */}
+                                    <div className="mb-6 flex items-center justify-between bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                        <div className="flex items-center">
+                                            <div className={`w-3 h-3 rounded-full mr-2 ${
+                                                saleDetails.status === 'completed' ? 'bg-green-500' :
+                                                saleDetails.status === 'cancelled' ? 'bg-red-500' : 'bg-amber-500'
+                                            }`}></div>
+                                            <span className="text-sm font-medium capitalize">
+                                                {t('Status')}: {saleDetails.status}
+                                            </span>
+                                        </div>
+                                        <div className="flex space-x-6">
+                                            <div className="flex items-center">
+                                                <Building2 className="h-5 w-5 mr-2 text-gray-400" />
+                                                <span className={`text-sm font-medium ${saleDetails.confirmed_by_warehouse ? 'text-green-600' : 'text-amber-600'}`}>
+                                                    {t('Warehouse')}: {saleDetails.confirmed_by_warehouse ? t('Confirmed') : t('Pending')}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <ShoppingBag className="h-5 w-5 mr-2 text-gray-400" />
+                                                <span className={`text-sm font-medium ${saleDetails.confirmed_by_shop ? 'text-green-600' : 'text-amber-600'}`}>
+                                                    {t('Shop')}: {saleDetails.confirmed_by_shop ? t('Confirmed') : t('Pending')}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Financial Summary Cards */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                        <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100 shadow-sm">
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">{t('Total Amount')}</h4>
+                                                <div className="bg-indigo-100 rounded-full p-1.5">
+                                                    <DollarSign className="h-4 w-4 text-indigo-600" />
+                                                </div>
+                                            </div>
+                                            <p className="mt-2 text-2xl font-bold text-gray-900">
+                                                {saleDetails.total} {saleDetails.currency?.symbol}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100 shadow-sm">
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="text-xs font-semibold text-green-600 uppercase tracking-wider">{t('Paid Amount')}</h4>
+                                                <div className="bg-green-100 rounded-full p-1.5">
+                                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                                </div>
+                                            </div>
+                                            <p className="mt-2 text-2xl font-bold text-gray-900">
+                                                {saleDetails.paid_amount} {saleDetails.currency?.symbol}
+                                            </p>
+                                        </div>
+                                        
+                                        <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100 shadow-sm">
+                                            <div className="flex justify-between items-start">
+                                                <h4 className="text-xs font-semibold text-amber-600 uppercase tracking-wider">{t('Due Amount')}</h4>
+                                                <div className="bg-amber-100 rounded-full p-1.5">
+                                                    <Clock className="h-4 w-4 text-amber-600" />
+                                                </div>
+                                            </div>
+                                            <p className="mt-2 text-2xl font-bold text-gray-900">
+                                                {saleDetails.due_amount} {saleDetails.currency?.symbol}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Footer with actions */}
+                                    <div className="flex justify-end space-x-3 mt-8 pt-4 border-t">
+                                        <button
+                                            onClick={closeSaleDetailsModal}
+                                            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center"
+                                        >
+                                            <XCircle className="h-4 w-4 mr-2" />
+                                            {t('Close')}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : null}
+                    </div>
+                </div>
+            )}
+
+            {/* Payment Modal */}
+            {isPaymentModalOpen && selectedSale && (
+                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+                    <div className="relative top-20 mx-auto p-6 border w-1/2 shadow-xl rounded-lg bg-white">
+                        <div className="flex justify-between items-center mb-6">
+                            <h3 className="text-xl font-semibold text-gray-900">{t('Add Payment')}</h3>
+                            <button
+                                onClick={closePaymentModal}
+                                className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
+                            >
+                                <XCircle className="w-6 h-6" />
+                            </button>
+                        </div>
+                        <form onSubmit={handlePaymentSubmit} className="space-y-6">
+                            <input type="hidden" name="saleId" value={selectedSale.id} />
+                            <div>
+                                <label htmlFor="paymentAmount" className="block text-sm font-medium text-gray-700">
+                                    {t('Amount')}
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    id="paymentAmount"
+                                    name="paymentAmount"
+                                    required
+                                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="paymentDate" className="block text-sm font-medium text-gray-700">
+                                    {t('Date')}
+                                </label>
+                                <input
+                                    type="date"
+                                    id="paymentDate"
+                                    name="paymentDate"
+                                    required
+                                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="paymentNotes" className="block text-sm font-medium text-gray-700">
+                                    {t('Notes')}
+                                </label>
+                                <textarea
+                                    id="paymentNotes"
+                                    name="paymentNotes"
+                                    rows="3"
+                                    className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                ></textarea>
+                            </div>
+                            <div className="flex justify-end space-x-3">
+                                <button
+                                    type="button"
+                                    onClick={closePaymentModal}
+                                    className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                                >
+                                    {t('Cancel')}
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
+                                >
+                                    {t('Submit')}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </>
     );
 } 

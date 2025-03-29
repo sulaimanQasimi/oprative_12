@@ -57,10 +57,6 @@ export default function CustomerNavbar() {
             route: 'customer.orders',
             icon: ShoppingCart,
             permission: 'customer.view_orders',
-            submenu: [
-                { name: 'All Orders', route: 'customer.orders', id: 'all-orders' },
-                { name: 'View Invoices', route: 'customer.orders', id: 'view-invoices' }
-            ]
         },
         {
             name: 'Create Order',
@@ -85,10 +81,6 @@ export default function CustomerNavbar() {
             route: 'customer.reports',
             icon: FileText,
             permission: 'customer.view_reports',
-            submenu: [
-                { name: 'General Reports', route: 'customer.reports', id: 'general-reports' },
-                { name: 'Account Statements', route: 'customer.reports', id: 'account-statements' }
-            ]
         }
     ];
 
