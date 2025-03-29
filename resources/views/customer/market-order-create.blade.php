@@ -67,11 +67,20 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                     </svg>
                                 </div>
-                                <input id="searchProduct" type="text" placeholder="@lang('Search products...')" class="block w-full pl-10 bg-white border border-gray-300 rounded-xl py-2.5 px-4 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all placeholder-gray-400">
+                                <input id="searchProduct" type="text" placeholder="@lang('Enter barcode and press Enter to add product')" 
+                                    class="block w-full pl-10 bg-white/95 backdrop-blur-sm border border-gray-300 rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all placeholder-gray-400 text-base">
+                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                    <div class="text-xs text-gray-400 font-medium flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                        @lang('Press Enter to add')
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="flex flex-wrap -mx-2">
+                        <div class="flex flex-wrap -mx-2 hidden" id="productContainer">
                             <div class="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
                                 <div class="bg-white rounded-xl p-4 shadow-md border border-gray-100 h-full flex flex-col cursor-pointer hover:shadow-lg hover:border-green-100 transition-all duration-300 transform hover:-translate-y-1 group">
                                     <div class="flex items-center mb-4 border-b border-gray-100 pb-3">
@@ -310,14 +319,46 @@ document.addEventListener('DOMContentLoaded', function() {
     const orderSuccessNotification = document.getElementById('orderSuccessNotification');
     const searchProductInput = document.getElementById('searchProduct');
 
+    // Auto-focus the search input when the page loads or order is started
+    function focusSearchInput() {
+        if (searchProductInput && !searchProductInput.closest('.hidden')) {
+            setTimeout(() => {
+                searchProductInput.focus();
+            }, 100);
+        }
+    }
+
+    // Call focus function when page loads
+    focusSearchInput();
+
     // Event Listeners - Only add if elements exist
     if (createOrderBtn) {
-        createOrderBtn.addEventListener('click', startNewOrder);
+        createOrderBtn.addEventListener('click', function() {
+            startNewOrder();
+            // Focus search input after order is started
+            setTimeout(focusSearchInput, 500);
+        });
     }
 
     if (searchProductInput) {
-        // Add event listener for the new search product input
-        searchProductInput.addEventListener('input', handleProductSearch);
+        // Only listen for Enter key to search by barcode
+        searchProductInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const barcode = this.value.trim();
+                if (barcode) {
+                    selectProduct(barcode);
+                }
+            }
+        });
+        
+        // Auto-focus when clicked anywhere in the search container
+        const searchContainer = searchProductInput.closest('.relative');
+        if (searchContainer) {
+            searchContainer.addEventListener('click', function() {
+                searchProductInput.focus();
+            });
+        }
     }
 
     if (amountPaidInput) {
@@ -359,6 +400,122 @@ document.addEventListener('DOMContentLoaded', function() {
     window.selectAccount = selectAccount;
     window.removeItemFromOrder = removeItemFromOrder;
 
+    // Function to search for product by barcode and add it to order
+    function selectProduct(barcode) {
+        console.log("Searching for product with barcode:", barcode);
+
+        // Clear the search field
+        searchProductInput.value = '';
+        
+        // Show loading indicator
+        const searchContainer = searchProductInput.closest('.relative');
+        let loadingIndicator = null;
+        
+        if (searchContainer) {
+            loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'absolute inset-y-0 right-10 flex items-center';
+            loadingIndicator.innerHTML = `
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'absolute inset-y-0 right-10 flex items-center';
+        loadingIndicator.innerHTML = `
+            <svg class="animate-spin h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+        `;
+        searchContainer.appendChild(loadingIndicator);
+
+        // Find the product by barcode
+        fetch(`{{ route("customer.market-order.search-products") }}?query=${encodeURIComponent(barcode)}`)
+            .then(response => response.json())
+            .then(data => {
+                // Remove loading indicator
+                loadingIndicator.remove();
+                
+                if (data && data.length > 0) {
+                    // Add the first matching product to order
+                    const product = data[0];
+
+                    // Check if product already exists in order
+                    const existingItemIndex = state.orderItems.findIndex(item => item.product_id === product.id);
+
+                    if (existingItemIndex !== -1) {
+                        // Check if there's enough stock
+                        if (state.orderItems[existingItemIndex].quantity >= product.stock) {
+                            showError('No more stock available for this product');
+                            focusSearchInput();
+                            return;
+                        }
+
+                        // Increment quantity
+                        state.orderItems[existingItemIndex].quantity++;
+                        state.orderItems[existingItemIndex].total =
+                            state.orderItems[existingItemIndex].quantity * state.orderItems[existingItemIndex].price;
+                        
+                        showSuccess(`${product.name} quantity updated (${state.orderItems[existingItemIndex].quantity})`);
+                    } else {
+                        // Add new product to order
+                        state.orderItems.push({
+                            product_id: product.id,
+                            name: product.name,
+                            price: parseFloat(product.retail_price || product.price),
+                            quantity: 1,
+                            total: parseFloat(product.retail_price || product.price),
+                            max_stock: product.stock
+                        });
+                        
+                        showSuccess(`${product.name} added to order`);
+                    }
+
+                    // Update global items array
+                    globalOrderItems = [...state.orderItems];
+
+                    // Update UI
+                    renderOrderItems();
+                    calculateTotal();
+                    updateCreateOrderButtonState();
+                    
+                    // Make sure order summary is visible
+                    if (orderSummarySection) orderSummarySection.classList.remove('hidden');
+                    if (emptyOrderState) emptyOrderState.style.display = 'none';
+                    
+                    // Play success sound if available
+                    playSound('success');
+                } else {
+                    showError('Product not found. Please check the barcode and try again.');
+                    // Play error sound if available
+                    playSound('error');
+                }
+                
+                // Always focus back on input for continuous scanning
+                focusSearchInput();
+            })
+            .catch(error => {
+                // Remove loading indicator
+                loadingIndicator.remove();
+                console.error('Error searching for product:', error);
+                showError('Error searching for product');
+                playSound('error');
+                focusSearchInput();
+            });
+    }
+
+    // Function to play sound feedback for barcode scanning
+    function playSound(type) {
+        try {
+            let sound;
+            if (type === 'success') {
+                sound = new Audio("data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAKAAAGhgCFhYWFhYWFhYWFhYWFhYWFhYWFvb29vb29vb29vb29vb29vb29vb3T09PT09PT09PT09PT09PT09PT0+np6enp6enp6enp6enp6enp6enp//////////////////////////8AAAAKQkFNQQAAAQIARAAABoAEM4A4AABAAABoAAAAEQV5+K4AAAAAAAAAAAAAAAAA//uwxAAABS4TrjEGAAFKQrx9cY24I4LBJCY0AIAgaPWCA0bI3CCjggjgwQhMgxMDBv8oCAYB//8uOAiBAEQx+XnExMg0DMD//8IMRMgwGAhCJBQMWGXl//yYmQUGf/5cMLjMBgIQYCAYA2QKBADCQ//4wKECwaDQHf/8iJg3FYXv/+RwQiYP4rC9/zI4Dg4GA8MBAxMG/7IFBmAjIAw+EwY//+MFhcMLi4X//y4SEBDLgwCCQMCf/+CYCEQEKkHAWh3//wTBMbG4iIRxoUKFwahYCBf//FwiFwsNBgCh///5cEPAqOgYF4HAwIC8XheTEFNRTMuOTkuMqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpMQU1FMy45OS41qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//sQxE4D1HYdZ+wwbcKOQ2z9hg25qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr/+xDE0APVFh1h7DBtwmjDbX2GDbmqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqg==");
+            } else {
+                sound = new Audio("data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAJAAAJTgBpaWlpaWlpaWlpaWlpaWlpaWlpdXV1dXV1dXV1dXV1dXV1dXV1dXWAgICAgICAgICAgICAgICAgICAi4uLi4uLi4uLi4uLi4uLi4uLi4uWlpaWlpaWlpaWlpaWlpaWlpaW//////////////////////////8AAAAKQKFNZQAAAACAAAAAAA8cAAAAAP/7oMQAAAdWKYO0EQAg+EdsdoIgBGpBFNLAgQhVSQQnHLJMLjTZMRIjDFqFxyQyJISKaFGHEpCYOPMOVaxUuMwkjOeRpnBGlTBEhCdUUySjExWM1JbTQSQTLzY2aUDTqjESI3DHlVyp7AQmQvgscbizygiGZSzqjShZR5tjq664/J21zrVtfWvJWvK3rRHJAh61/Wta8NP0f//9akNP0f/o0/Ro0aE+j/o/R+tSGhsb9bX61vWtsESFv/pfffY9aIREhL3v330aNH6NCXvvXrQl7wIgQCKVB4VAqkUCKcqJy50TD9RQWvvUNQiIpx0EByUBaFhCKoVnCUCl4S4pGJiMkgkpIJIQkhmtyp0TVpq00jMPLEgkhoR0IUFT/+2DEFAAJMhtXvYWAKR9Dau+wsAX1nkpgHmASMBkoCYyeSiRwcIKAJFBC4kBggcFhwtUHFgVJiUhFElQchE5kIiVDaEkJIbUQlEFbpRBWwgrbQogoQhsQVvoEQV9ZEE/o//1oT+jWpDf/7r/6/RoC42NjY2NjfWHhsbGxsfGxQcUjQjgrRIRcPCxEWImGBoSIiLTDaEsRUK0QiJB4aGiIuHiQiLDQ8LEhVDw0NEheJFVBAGDQ4cOCAgICBAGBgYDAwEAYGAwMNAGDg4cOHDgiLA4cOHDY4LQhogMTIqIuIQgMQmJUNDBAkSJsP/7YMQXgAk2G1X9hYApMcNqf7CwBOnJycnJzk5OT9Pz/P/P4/XYqGh4iIiQiIaPk5cJERFrqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpGkaj/3/9pGhGhsf/X/+tfWkkhCXOqf/f7Iy653Tt0JrndO3LndO3AyRn7x9v12RkZGRkYHQHBwcHCD4BwcHBwg+CDg4ODhEdIjIyLOlF26dyLt07kZIyMjpUi5GRbpRkZFupF2UXP/+1DEJwAI+htR/YWAKSJDaj+wsAXbv//f/9XO61dP//9aqv6urq6urq6uZmZmZmIHYHBwcHCD4BwcHBwg+A4ODg4OCqz///V1dXV1dWpMQU1FMy45OS41qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//swxFeDzloRS+0ZW0AAAkMAAABKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=");
+            }
+            sound.volume = 0.3;
+            sound.play();
+        } catch (e) {
+            console.log('Sound play failed: ', e);
+        }
+    }
+
     // Functions
     function startNewOrder() {
         fetch('{{ route("customer.market-order.start") }}', {
@@ -381,25 +538,6 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .catch(error => {
             showError('Error starting order: ' + error.message);
-        });
-    }
-
-    function handleProductSearch(e) {
-        const searchTerm = e.target.value.toLowerCase().trim();
-        const productCards = document.querySelectorAll('.product-card');
-
-        productCards.forEach(card => {
-            const searchValue = card.getAttribute('data-search-term');
-            if (searchValue.includes(searchTerm) || searchTerm === '') {
-                card.style.display = 'block';
-                // Add a subtle animation for items matching search
-                card.querySelector('.product-item').classList.add('scale-animation');
-                setTimeout(() => {
-                    card.querySelector('.product-item').classList.remove('scale-animation');
-                }, 300);
-            } else {
-                card.style.display = 'none';
-            }
         });
     }
 
@@ -438,19 +576,20 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderOrderItems() {
         const orderItemsContainer = document.getElementById('orderItemsContainer');
         const emptyOrderState = document.getElementById('emptyOrderState');
-        const orderSummary = document.getElementById('orderSummary');
+        const orderSummarySection = document.getElementById('orderSummarySection');
 
         if (state.orderItems.length === 0) {
-            emptyOrderState.style.display = 'flex';
-            orderSummary.style.display = 'none';
+            if (emptyOrderState) emptyOrderState.style.display = 'flex';
+            if (orderSummarySection) orderSummarySection.classList.add('hidden');
             return;
         }
 
-        emptyOrderState.style.display = 'none';
-        orderSummary.style.display = 'flex';
+        if (emptyOrderState) emptyOrderState.style.display = 'none';
+        if (orderSummarySection) orderSummarySection.classList.remove('hidden');
 
         // Clear previous items
-        orderItemsContainer.innerHTML = '';
+        if (orderItemsContainer) orderItemsContainer.innerHTML = '';
+        else return; // Exit if container doesn't exist
 
         // Add each order item with animation
         state.orderItems.forEach((item, index) => {
@@ -491,7 +630,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </button>
                     </div>
                     <div class="text-xs text-gray-500">
-                        @lang('In stock'): <span class="font-medium">${item.stock - item.quantity}</span>
+                        @lang('In stock'): <span class="font-medium">${item.max_stock ? (item.max_stock - item.quantity) : 'N/A'}</span>
                     </div>
                 </div>
             `;
@@ -514,7 +653,8 @@ document.addEventListener('DOMContentLoaded', function() {
             button.addEventListener('click', function() {
                 const index = parseInt(this.dataset.index);
                 const item = state.orderItems[index];
-                if (item.quantity < item.stock) {
+                const maxStock = item.max_stock || item.stock;
+                if (item.quantity < maxStock) {
                     item.quantity++;
                     updateOrder();
                 }
