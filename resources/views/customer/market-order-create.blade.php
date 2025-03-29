@@ -5,11 +5,11 @@
 <!-- Single root element wrapper -->
 <div class="relative">
     <!-- Three.js background container -->
-    <div id="three-background" class="fixed inset-0 -z-10 bg-gradient-to-br from-gray-50 via-white to-gray-50"></div>
+    <div id="three-background" class="fixed inset-0 -z-10 bg-gradient-to-br from-gray-100 via-white to-gray-100"></div>
 
-    <div class="relative min-h-screen p-4 md:p-6 lg:p-8">
+    <div class="relative min-h-screen p-4">
         <!-- Main container with enhanced styling -->
-        <div class="relative bg-white/90 backdrop-blur-3xl rounded-3xl p-6 shadow-2xl border border-white/30 transition-all duration-500 hover:shadow-green-500/20 overflow-hidden">
+        <div class="relative bg-white/90 backdrop-blur-3xl rounded-3xl p-4 shadow-2xl border border-white/30 transition-all duration-500 hover:shadow-green-500/20 overflow-hidden">
             <!-- Decorative elements -->
             <div
                 class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-full blur-3xl translate-x-20 -translate-y-20 animate-pulse-slow">
@@ -17,13 +17,11 @@
             <div
                 class="absolute bottom-0 left-0 w-40 h-40 bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-full blur-3xl -translate-x-20 translate-y-20 animate-pulse-slow animation-delay-1000">
             </div>
-            <div
-                class="absolute top-1/3 left-1/3 w-32 h-32 bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-full blur-3xl animate-pulse-slow animation-delay-2000">
-            </div>
 
             <!-- Content -->
             <div class="relative">
-                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
                     <div class="flex items-center gap-4">
                         <div class="flex items-center gap-3">
                             <div class="p-3 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl shadow-lg shadow-green-500/20 animate-button">
@@ -35,8 +33,8 @@
                             </div>
                             <div>
                                 <h2 class="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                                    @lang('Create Market Order')</h2>
-                                <p class="text-sm text-gray-500">@lang('Manage your sales transactions with ease')</p>
+                                    @lang('Point of Sale')</h2>
+                                <p class="text-sm text-gray-500">@lang('Manage sales transactions efficiently')</p>
                             </div>
                         </div>
                     </div>
@@ -46,193 +44,274 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
-                        @lang('Start New Order')
+                        @lang('Start New Sale')
                     </button>
                 </div>
 
                 <div id="orderSection" class="hidden">
-                    <!-- Product List -->
-                    <div class="bg-white/70 backdrop-blur-lg p-5 rounded-2xl shadow-lg border border-gray-100/80 hover:shadow-xl transition-all duration-300">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-800 border-b border-gray-100 pb-3 flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                            </svg>
-                            @lang('Products')
-                        </h3>
-
-                        <div class="mb-4">
-                            <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                    </svg>
-                                </div>
-                                <input id="searchProduct" type="text" placeholder="@lang('Enter barcode and press Enter to add product')" 
-                                    class="block w-full pl-10 bg-white/95 backdrop-blur-sm border border-gray-300 rounded-xl py-3.5 px-4 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500 transition-all placeholder-gray-400 text-base">
-                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
-                                    <div class="text-xs text-gray-400 font-medium flex items-center gap-1">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <!-- POS-style layout: Two-column grid for large screens -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- Left column - Products and Barcode Scanner -->
+                        <div class="lg:col-span-8">
+                            <!-- Product Search and Barcode Scanner -->
+                            <div class="bg-white rounded-2xl shadow-md p-5 mb-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h3 class="text-lg font-bold text-gray-800 flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                         </svg>
-                                        @lang('Press Enter to add')
-                                    </div>
+                                        @lang('Barcode Scanner')
+                                    </h3>
+                                    <button id="newOrderBtn" class="inline-flex items-center px-3 py-1.5 bg-green-100 border border-transparent rounded-lg text-sm font-medium text-green-700 hover:bg-green-200 focus:outline-none transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                        </svg>
+                                        @lang('New Sale')
+                                    </button>
                                 </div>
-                            </div>
-                        </div>
 
-                        <div class="flex flex-wrap -mx-2 hidden" id="productContainer">
-                            <div class="w-full md:w-1/2 lg:w-1/3 px-2 mb-4">
-                                <div class="bg-white rounded-xl p-4 shadow-md border border-gray-100 h-full flex flex-col cursor-pointer hover:shadow-lg hover:border-green-100 transition-all duration-300 transform hover:-translate-y-1 group">
-                                    <div class="flex items-center mb-4 border-b border-gray-100 pb-3">
-                                        <div class="flex-shrink-0 w-10 h-10 bg-green-100 text-green-500 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-500 group-hover:text-white transition-all">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                <div class="relative mb-2" id="searchInputContainer">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
+                                    </div>
+                                    <input type="text" id="searchQueryInput" class="shadow-sm focus:ring-green-500 focus:border-green-500 block w-full pl-10 pr-12 py-3 sm:text-sm border-gray-300 rounded-xl" placeholder="@lang('Enter barcode and press Enter to add product')">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                        <div id="barcodeLoadingIndicator" class="hidden">
+                                            <svg class="animate-spin h-5 w-5 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>
                                         </div>
-                                        <div>
-                                            <h4 class="font-semibold text-gray-800 group-hover:text-green-600 transition-all">@lang('Add New Product')</h4>
-                                            <p class="text-sm text-gray-500">@lang('Quick create')</p>
-                                        </div>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm2 2V5h1v1H5zM3 13a1 1 0 011-1h3a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3zm2 2v-1h1v1H5zM13 3a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1V4a1 1 0 00-1-1h-3zm1 2v1h1V5h-1zM13 12a1 1 0 00-1 1v3a1 1 0 001 1h3a1 1 0 001-1v-3a1 1 0 00-1-1h-3zm1 2v1h1v-1h-1zM6 17h8a1 1 0 001-1v-1a1 1 0 00-1-1H6a1 1 0 00-1 1v1a1 1 0 001 1z" clip-rule="evenodd" />
+                                        </svg>
                                     </div>
-                                    <div class="flex-grow">
-                                        <p class="text-sm text-gray-500">@lang('Quickly add a new product to your inventory')</p>
-                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mb-4">@lang('Scan a barcode or type a product name and press Enter')</p>
+
+                                {{-- Loading & Success/Error Messages --}}
+                                <div id="searchResultMessage" class="hidden rounded-lg px-4 py-2 text-sm mb-4"></div>
+                            </div>
+
+                            <!-- Product Categories -->
+                            <div class="bg-white rounded-2xl shadow-md p-5 mb-6">
+                                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                                    </svg>
+                                    @lang('Categories')
+                                </h3>
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="px-3 py-2 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors">
+                                        @lang('All Products')
+                                    </button>
+                                    <button class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                                        @lang('Food')
+                                    </button>
+                                    <button class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                                        @lang('Beverages')
+                                    </button>
+                                    <button class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                                        @lang('Snacks')
+                                    </button>
+                                    <button class="px-3 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                                        @lang('Household')
+                                    </button>
                                 </div>
                             </div>
 
-                            @foreach ($products as $product)
-                                <div class="w-full md:w-1/2 lg:w-1/3 px-2 mb-4 product-card" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}" data-product-price="{{ $product->price }}" data-product-stock="{{ $product->stock }}" data-search-term="{{ strtolower($product->name) }}">
-                                    <div class="bg-white rounded-xl p-4 shadow-md border border-gray-100 h-full flex flex-col cursor-pointer hover:shadow-lg hover:border-green-100 transition-all duration-300 transform hover:-translate-y-1 group product-item">
-                                        <div class="flex items-center mb-4 border-b border-gray-100 pb-3">
-                                            <div class="flex-shrink-0 w-10 h-10 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mr-3 group-hover:bg-green-500 group-hover:text-white transition-all">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                                </svg>
-                                            </div>
-                                            <div class="flex-grow overflow-hidden">
-                                                <h4 class="font-semibold text-gray-800 truncate group-hover:text-green-600 transition-all">{{ $product->name }}</h4>
-                                                <p class="text-sm text-gray-500 truncate">@lang('Stock'): <span class="font-medium">{{ $product->stock }}</span></p>
-                                            </div>
+                            <!-- Product List -->
+                            <div class="bg-white rounded-2xl shadow-md p-5 mb-6">
+                                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                    @lang('Products')
+                                </h3>
+                                
+                                <div id="productResults" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                                    <!-- Product template -->
+                                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 hover:border-green-200 transition-all cursor-pointer hidden" id="productTemplate">
+                                        <div class="h-24 bg-white rounded-lg mb-2 p-2 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                            </svg>
                                         </div>
-                                        <div class="flex-grow mb-4">
-                                            <div class="flex justify-between">
-                                                <span class="text-gray-500 text-sm">@lang('Unit Price'):</span>
-                                                <span class="font-medium text-gray-800">${{ number_format($product->price, 2) }}</span>
-                                            </div>
-                                        </div>
+                                        <h4 class="font-medium text-gray-800 text-sm mb-1 truncate product-name">Product Name</h4>
                                         <div class="flex justify-between items-center">
-                                            <div class="text-sm text-gray-500">@lang('Tap to add to order')</div>
-                                            <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <div class="p-2 bg-green-100 text-green-600 rounded-lg group-hover:bg-green-500 group-hover:text-white transition-all">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                                                    </svg>
-                                                </div>
-                                            </div>
+                                            <span class="text-green-600 font-bold product-price">$0.00</span>
+                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600 product-stock">
+                                                @lang('Stock'): 0
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Sample products (for UI preview only) -->
+                                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
+                                        <div class="h-24 bg-white rounded-lg mb-2 p-2 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                            </svg>
+                                        </div>
+                                        <h4 class="font-medium text-gray-800 text-sm mb-1 truncate">Apple</h4>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-green-600 font-bold">$1.99</span>
+                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                                                @lang('Stock'): 45
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
+                                        <div class="h-24 bg-white rounded-lg mb-2 p-2 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                            </svg>
+                                        </div>
+                                        <h4 class="font-medium text-gray-800 text-sm mb-1 truncate">Banana</h4>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-green-600 font-bold">$0.79</span>
+                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                                                @lang('Stock'): 32
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
+                                        <div class="h-24 bg-white rounded-lg mb-2 p-2 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                            </svg>
+                                        </div>
+                                        <h4 class="font-medium text-gray-800 text-sm mb-1 truncate">Orange Juice (1L)</h4>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-green-600 font-bold">$3.49</span>
+                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                                                @lang('Stock'): 18
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-gray-50 rounded-xl p-3 border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
+                                        <div class="h-24 bg-white rounded-lg mb-2 p-2 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                            </svg>
+                                        </div>
+                                        <h4 class="font-medium text-gray-800 text-sm mb-1 truncate">Whole Wheat Bread</h4>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-green-600 font-bold">$2.99</span>
+                                            <span class="text-xs bg-gray-100 px-2 py-1 rounded text-gray-600">
+                                                @lang('Stock'): 12
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <!-- Order Items with enhanced animation -->
-                    <div class="space-y-4 mb-6" id="orderItemsContainer">
-                        <div id="emptyOrderState" class="text-center py-12">
-                            <div
-                                class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-500" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">@lang('No items in the order')</h3>
-                            <p class="text-gray-500">@lang('Scan products to add them to the order')</p>
-                        </div>
-                    </div>
-
-                    <!-- Order Summary and Checkout with enhanced styling -->
-                    <div id="orderSummarySection" class="border-t border-gray-200/50 pt-6 mb-6 space-y-6 hidden">
-                        <!-- Order Summary -->
-                        <div class="bg-white/80 backdrop-blur-lg rounded-xl p-5 shadow-sm border border-gray-100">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">@lang('Order Summary')</h3>
-                            <div class="space-y-3">
-                                <div class="flex justify-between items-center text-gray-600">
-                                    <span>@lang('Subtotal')</span>
-                                    <span id="subtotal">$0.00</span>
-                                </div>
-                                <div
-                                    class="flex justify-between items-center text-lg font-semibold text-gray-800 pt-3 border-t">
-                                    <span>@lang('Total Amount')</span>
-                                    <span id="total" class="text-green-600">$0.00</span>
-                                </div>
                             </div>
                         </div>
 
-                        <!-- Payment Section -->
-                        <div class="bg-white/80 backdrop-blur-lg rounded-xl p-5 shadow-sm border border-gray-100">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">@lang('Payment Details')</h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="space-y-3">
-                                    <label class="block text-sm font-medium text-gray-700">@lang('Payment Method')</label>
-                                    <select id="paymentMethod"
-                                        class="w-full bg-white border-gray-200 rounded-lg shadow-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors duration-200">
-                                        <option value="cash">@lang('Cash')</option>
-                                        <option value="card">@lang('Card')</option>
-                                        <option value="bank_transfer">@lang('Transfer')</option>
-                                    </select>
+                        <!-- Right column - Order items and Summary -->
+                        <div class="lg:col-span-4">
+                            <!-- Current Order Panel -->
+                            <div class="bg-white/80 backdrop-blur-lg rounded-2xl shadow-lg border border-gray-100/80 sticky top-4 overflow-hidden flex flex-col h-[calc(100vh-2rem)]">
+                                <!-- Order Header -->
+                                <div class="p-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white">
+                                    <h3 class="text-lg font-semibold flex items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                        </svg>
+                                        @lang('Current Order')
+                                    </h3>
+                                    <p class="text-sm opacity-80">@lang('Order') #{{ date('Ymd') }}-xxxx</p>
                                 </div>
-                                <div class="space-y-3">
-                                    <label class="block text-sm font-medium text-gray-700">@lang('Amount Paid')</label>
-                                    <div class="relative">
-                                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                                        <input type="number" id="amountPaid" step="0.01" min="0"
-                                            class="w-full pr-7 bg-white border-gray-200 rounded-lg shadow-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors duration-200"
-                                            placeholder="0.00">
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div id="accountSection" class="mt-4 space-y-3 hidden">
-                                <label class="block text-sm font-medium text-gray-700">@lang('Select Account for Remaining Balance')</label>
-                                <div class="relative">
-                                    <input type="text" id="accountSearchQuery"
-                                        class="w-full bg-white border-gray-200 rounded-lg shadow-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors duration-200"
-                                        placeholder="@lang('Search by name, account number, or ID number...')">
-
-                                    <div id="accountDropdown" class="absolute z-50 w-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 max-h-60 overflow-y-auto hidden">
-                                        <!-- Account search results will be populated here via JavaScript -->
+                                <!-- Order Items List -->
+                                <div class="flex-1 overflow-y-auto p-4 scrollbar-thin" id="orderItemsContainer">
+                                    <div id="emptyOrderState" class="text-center py-12">
+                                        <div
+                                            class="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-green-500" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                        </div>
+                                        <h3 class="text-lg font-medium text-gray-900 mb-2">@lang('No items in the order')</h3>
+                                        <p class="text-gray-500">@lang('Scan products to add them to the order')</p>
                                     </div>
                                 </div>
 
-                                <div id="selectedAccountContainer" class="mt-2 p-3 bg-green-50 rounded-lg border border-green-200 hidden">
-                                    <!-- Selected account details will be placed here -->
+                                <!-- Order Summary and Checkout -->
+                                <div id="orderSummarySection" class="border-t border-gray-200 p-4 bg-gray-50 hidden">
+                                    <div class="space-y-3 mb-4">
+                                        <div class="flex justify-between text-gray-600">
+                                            <span>@lang('Subtotal')</span>
+                                            <span id="subtotal">$0.00</span>
+                                        </div>
+                                        <div class="flex justify-between text-gray-600">
+                                            <span>@lang('Tax') ({{ $tax_percentage }}%)</span>
+                                            <span id="tax">$0.00</span>
+                                        </div>
+                                        <div class="flex justify-between font-bold text-gray-800 text-lg">
+                                            <span>@lang('Total')</span>
+                                            <span id="total" class="text-green-600">$0.00</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <h4 class="font-medium text-gray-700 mb-2">@lang('Payment Method')</h4>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <label class="flex items-center bg-white p-2 rounded-lg shadow-sm border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
+                                                <input type="radio" name="payment_method" value="cash" class="text-green-600 focus:ring-green-500 h-4 w-4" checked>
+                                                <div class="ml-2">
+                                                    <div class="flex items-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                        </svg>
+                                                        <span class="font-medium text-sm text-gray-800">@lang('Cash')</span>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                            
+                                            <label class="flex items-center bg-white p-2 rounded-lg shadow-sm border border-gray-200 hover:border-green-200 transition-all cursor-pointer">
+                                                <input type="radio" name="payment_method" value="card" class="text-green-600 focus:ring-green-500 h-4 w-4">
+                                                <div class="ml-2">
+                                                    <div class="flex items-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-500 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                                                        </svg>
+                                                        <span class="font-medium text-sm text-gray-800">@lang('Card')</span>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="cashPaymentSection" class="mb-4">
+                                        <label for="amountPaid" class="block text-sm font-medium text-gray-700 mb-1">@lang('Amount Received')</label>
+                                        <div class="relative rounded-md shadow-sm">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <span class="text-gray-500 sm:text-sm">$</span>
+                                            </div>
+                                            <input type="number" name="amount_paid" id="amountPaid" class="focus:ring-green-500 focus:border-green-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-lg" placeholder="0.00" step="0.01">
+                                        </div>
+                                        <div class="mt-2 flex justify-between text-gray-600">
+                                            <span>@lang('Change')</span>
+                                            <span id="change" class="font-medium">$0.00</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <button id="completeOrderBtn" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-colors duration-300 flex justify-center items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        @lang('Complete Order')
+                                    </button>
                                 </div>
-                            </div>
-
-                            <div id="changeDueContainer" class="mt-4 bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-100 hidden">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-green-700 font-medium">@lang('Change Due')</span>
-                                    <span id="changeDue" class="text-lg font-semibold text-green-600">$0.00</span>
-                                </div>
-                            </div>
-
-                            <div class="mt-4 space-y-3">
-                                <label class="block text-sm font-medium text-gray-700">@lang('Order Notes')</label>
-                                <textarea id="orderNotes" rows="2"
-                                    class="w-full bg-white border-gray-200 rounded-lg shadow-sm focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors duration-200"
-                                    placeholder="@lang('Add any notes about the order...')"></textarea>
                             </div>
                         </div>
-
-                        <button id="completeOrderBtn" class="w-full px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:-translate-y-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            @lang('Complete Order')
-                        </button>
                     </div>
                 </div>
             </div>
@@ -317,7 +396,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const orderNotesTextarea = document.getElementById('orderNotes');
     const completeOrderBtn = document.getElementById('completeOrderBtn');
     const orderSuccessNotification = document.getElementById('orderSuccessNotification');
-    const searchProductInput = document.getElementById('searchProduct');
+    const searchProductInput = document.getElementById('searchQueryInput');
 
     // Auto-focus the search input when the page loads or order is started
     function focusSearchInput() {
@@ -499,14 +578,16 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             let sound;
             if (type === 'success') {
-                sound = new Audio("data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAKAAAGhgCFhYWFhYWFhYWFhYWFhYWFhYWFvb29vb29vb29vb29vb29vb29vb3T09PT09PT09PT09PT09PT09PT0+np6enp6enp6enp6enp6enp6enp//////////////////////////8AAAAKQkFNQQAAAQIARAAABoAEM4A4AABAAABoAAAAEQV5+K4AAAAAAAAAAAAAAAAA//uwxAAABS4TrjEGAAFKQrx9cY24I4LBJCY0AIAgaPWCA0bI3CCjggjgwQhMgxMDBv8oCAYB//8uOAiBAEQx+XnExMg0DMD//8IMRMgwGAhCJBQMWGXl//yYmQUGf/5cMLjMBgIQYCAYA2QKBADCQ//4wKECwaDQHf/8iJg3FYXv/+RwQiYP4rC9/zI4Dg4GA8MBAxMG/7IFBmAjIAw+EwY//+MFhcMLi4X//y4SEBDLgwCCQMCf/+CYCEQEKkHAWh3//wTBMbG4iIRxoUKFwahYCBf//FwiFwsNBgCh///5cEPAqOgYF4HAwIC8XheTEFNRTMuOTkuMqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpMQU1FMy45OS41qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//sQxE4D1HYdZ+wwbcKOQ2z9hg25qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqr/+xDE0APVFh1h7DBtwmjDbX2GDbmqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqg==");
+                // Base64 encoded short beep sound
+                sound = new Audio("data:audio/wav;base64,UklGRjoAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YRYAAAAAAAAAAP//AQD//wIA//8BAP//AgD+/wMA//8AAAAA");
             } else {
-                sound = new Audio("data:audio/mp3;base64,//uQxAAAAAAAAAAAAAAAAAAAAAAAWGluZwAAAA8AAAAJAAAJTgBpaWlpaWlpaWlpaWlpaWlpaWlpdXV1dXV1dXV1dXV1dXV1dXV1dXWAgICAgICAgICAgICAgICAgICAi4uLi4uLi4uLi4uLi4uLi4uLi4uWlpaWlpaWlpaWlpaWlpaWlpaW//////////////////////////8AAAAKQKFNZQAAAACAAAAAAA8cAAAAAP/7oMQAAAdWKYO0EQAg+EdsdoIgBGpBFNLAgQhVSQQnHLJMLjTZMRIjDFqFxyQyJISKaFGHEpCYOPMOVaxUuMwkjOeRpnBGlTBEhCdUUySjExWM1JbTQSQTLzY2aUDTqjESI3DHlVyp7AQmQvgscbizygiGZSzqjShZR5tjq664/J21zrVtfWvJWvK3rRHJAh61/Wta8NP0f//9akNP0f/o0/Ro0aE+j/o/R+tSGhsb9bX61vWtsESFv/pfffY9aIREhL3v330aNH6NCXvvXrQl7wIgQCKVB4VAqkUCKcqJy50TD9RQWvvUNQiIpx0EByUBaFhCKoVnCUCl4S4pGJiMkgkpIJIQkhmtyp0TVpq00jMPLEgkhoR0IUFT/+2DEFAAJMhtXvYWAKR9Dau+wsAX1nkpgHmASMBkoCYyeSiRwcIKAJFBC4kBggcFhwtUHFgVJiUhFElQchE5kIiVDaEkJIbUQlEFbpRBWwgrbQogoQhsQVvoEQV9ZEE/o//1oT+jWpDf/7r/6/RoC42NjY2NjfWHhsbGxsfGxQcUjQjgrRIRcPCxEWImGBoSIiLTDaEsRUK0QiJB4aGiIuHiQiLDQ8LEhVDw0NEheJFVBAGDQ4cOCAgICBAGBgYDAwEAYGAwMNAGDg4cOHDgiLA4cOHDY4LQhogMTIqIuIQgMQmJUNDBAkSJsP/7YMQXgAk2G1X9hYApMcNqf7CwBOnJycnJzk5OT9Pz/P/P4/XYqGh4iIiQiIaPk5cJERFrqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqpGkaj/3/9pGhGhsf/X/+tfWkkhCXOqf/f7Iy653Tt0JrndO3LndO3AyRn7x9v12RkZGRkYHQHBwcHCD4BwcHBwg+CDg4ODhEdIjIyLOlF26dyLt07kZIyMjpUi5GRbpRkZFupF2UXP/+1DEJwAI+htR/YWAKSJDaj+wsAXbv//f/9XO61dP//9aqv6urq6urq6uZmZmZmIHYHBwcHCD4BwcHBwg+A4ODg4OCqz///V1dXV1dWpMQU1FMy45OS41qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//swxFeDzloRS+0ZW0AAAkMAAABKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqo=");
+                // Base64 encoded error sound
+                sound = new Audio("data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAAACAAgAZGF0YQAAAAA=");
             }
             sound.volume = 0.3;
             sound.play();
         } catch (e) {
-            console.log('Sound play failed: ', e);
+            console.error("Error playing sound:", e);
         }
     }
 
@@ -582,49 +663,63 @@ document.addEventListener('DOMContentLoaded', function() {
         if (orderSummarySection) orderSummarySection.classList.remove('hidden');
 
         // Clear previous items
-        if (orderItemsContainer) orderItemsContainer.innerHTML = '';
-        else return; // Exit if container doesn't exist
+        if (orderItemsContainer) {
+            // Only clear the actual order items, not the empty state
+            Array.from(orderItemsContainer.children).forEach(child => {
+                if (child.id !== 'emptyOrderState') {
+                    child.remove();
+                }
+            });
+        } else {
+            return; // Exit if container doesn't exist
+        }
 
         // Add each order item with animation
         state.orderItems.forEach((item, index) => {
             const orderItemEl = document.createElement('div');
-            orderItemEl.className = 'mb-3 bg-gray-50 rounded-xl p-3 shadow-sm border border-gray-100 hover:border-green-100 transition-all duration-300 opacity-0';
+            orderItemEl.className = 'mb-4 bg-white rounded-2xl p-4 shadow-lg border-2 border-gray-100 hover:border-green-300 transition-all duration-300 opacity-0';
             orderItemEl.style.animation = `fadeIn 0.5s ${index * 0.1}s forwards`;
 
             const totalPrice = (item.quantity * item.price).toFixed(2);
 
             orderItemEl.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div class="flex-grow overflow-hidden mr-2">
-                        <h4 class="font-medium text-gray-800 truncate">${item.name}</h4>
-                        <div class="text-sm text-gray-500 flex items-center mt-1">
-                            <span class="inline-block">$${item.price.toFixed(2)} × ${item.quantity}</span>
-                            <span class="mx-2">|</span>
-                            <span class="font-medium text-gray-700">$${totalPrice}</span>
+                <div class="flex justify-between items-start gap-3">
+                    <div class="flex-grow overflow-hidden">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mr-3 shadow-md">
+                                <span class="font-bold text-white text-lg">${index + 1}</span>
+                            </div>
+                            <h4 class="font-bold text-gray-800 truncate text-base">${item.name}</h4>
+                        </div>
+                        <div class="ml-13 text-sm text-gray-600 flex items-center mt-2">
+                            <span class="inline-block font-medium">$${item.price.toFixed(2)} × ${item.quantity}</span>
                         </div>
                     </div>
-                    <button class="remove-item p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors" data-index="${index}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>
+                    <div class="text-right flex flex-col items-end">
+                        <div class="font-bold text-green-600 text-xl">$${totalPrice}</div>
+                        <button class="remove-item p-2 mt-1 text-red-500 hover:bg-red-50 rounded-lg transition-colors" data-index="${index}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-                <div class="flex items-center mt-2 justify-between">
-                    <div class="flex items-center">
-                        <button class="decrease-qty p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-index="${index}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div class="mt-3 flex items-center">
+                    <div class="flex items-center shadow-md rounded-xl overflow-hidden border border-gray-100">
+                        <button class="decrease-qty p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors" data-index="${index}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
                             </svg>
                         </button>
-                        <span class="mx-2 w-8 text-center font-medium">${item.quantity}</span>
-                        <button class="increase-qty p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition-colors" data-index="${index}">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <span class="w-14 text-center font-bold bg-white px-2 py-2 text-lg border-x border-gray-100">${item.quantity}</span>
+                        <button class="increase-qty p-2 bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors" data-index="${index}">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                             </svg>
                         </button>
                     </div>
-                    <div class="text-xs text-gray-500">
-                        @lang('In stock'): <span class="font-medium">${item.max_stock ? (item.max_stock - item.quantity) : 'N/A'}</span>
+                    <div class="ml-auto text-sm px-3 py-2 bg-green-50 rounded-lg text-green-700 font-medium border border-green-100">
+                        @lang('In stock'): <span class="font-bold text-green-700">${item.max_stock ? (item.max_stock - item.quantity) : 'N/A'}</span>
                     </div>
                 </div>
             `;
@@ -768,26 +863,26 @@ document.addEventListener('DOMContentLoaded', function() {
         state.subtotal = state.orderItems.reduce((sum, item) => sum + item.total, 0);
         state.total = state.subtotal;
 
-        subtotalElement.textContent = '$' + parseFloat(state.subtotal).toFixed(2);
-        totalElement.textContent = '$' + parseFloat(state.total).toFixed(2);
+        if (subtotalElement) subtotalElement.textContent = '$' + parseFloat(state.subtotal).toFixed(2);
+        if (totalElement) totalElement.textContent = '$' + parseFloat(state.total).toFixed(2);
 
         updateChangeDue();
     }
 
     function updateChangeDue() {
-        state.amountPaid = parseFloat(amountPaidInput.value) || 0;
+        state.amountPaid = parseFloat(amountPaidInput && amountPaidInput.value) || 0;
         state.changeDue = Math.max(0, state.amountPaid - state.total);
 
-        if (state.changeDue > 0) {
+        if (changeDueContainer && state.changeDue > 0) {
             changeDueContainer.classList.remove('hidden');
-            changeDueElement.textContent = '$' + parseFloat(state.changeDue).toFixed(2);
-        } else {
+            if (changeDueElement) changeDueElement.textContent = '$' + parseFloat(state.changeDue).toFixed(2);
+        } else if (changeDueContainer) {
             changeDueContainer.classList.add('hidden');
         }
 
-        if (state.amountPaid < state.total) {
+        if (accountSection && state.amountPaid < state.total) {
             accountSection.classList.remove('hidden');
-        } else {
+        } else if (accountSection) {
             accountSection.classList.add('hidden');
         }
 
@@ -949,8 +1044,8 @@ document.addEventListener('DOMContentLoaded', function() {
         completeOrderBtn.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
         completeOrderBtn.classList.add('bg-gradient-to-r', 'from-green-500', 'to-emerald-600', 'text-white', 'hover:from-green-600', 'hover:to-emerald-700');
         completeOrderBtn.innerHTML = `
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             @lang('Complete Order')
         `;
