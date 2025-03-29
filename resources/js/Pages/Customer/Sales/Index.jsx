@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import CustomerNavbar from '@/Components/CustomerNavbar';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
+import LanguageSwitcher from '@/Components/LanguageSwitcher';
 import { 
     Package, 
     Search, 
@@ -21,6 +23,7 @@ import {
 } from 'lucide-react';
 
 export default function SalesIndex({ sales, filters }) {
+    const { t } = useLaravelReactI18n();
     const [isSaleDetailsModalOpen, setIsSaleDetailsModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [selectedSale, setSelectedSale] = useState(null);
@@ -114,7 +117,7 @@ export default function SalesIndex({ sales, filters }) {
 
     return (
         <>
-            <Head title="My Sales" />
+            <Head title={t('My Sales')} />
             <CustomerNavbar />
 
             <div className="container px-6 mx-auto">
@@ -123,20 +126,23 @@ export default function SalesIndex({ sales, filters }) {
                     <div className="absolute inset-0 bg-pattern opacity-10"></div>
                     <div className="relative z-10 flex justify-between items-center">
                         <div>
-                            <h2 className="text-3xl font-bold text-white">My Sales</h2>
+                            <h2 className="text-3xl font-bold text-white">{t('My Sales')}</h2>
                             <p className="mt-2 text-indigo-100 max-w-2xl">
-                                Manage and track your sales transactions securely in one place.
+                                {t('Manage and track your sales transactions securely in one place.')}
                             </p>
                         </div>
-                        <div className="hidden md:block">
-                            <lottie-player 
-                                src="https://assets5.lottiefiles.com/packages/lf20_ystsffqy.json" 
-                                background="transparent" 
-                                speed="1" 
-                                style={{ width: '120px', height: '120px' }} 
-                                loop 
-                                autoplay
-                            />
+                        <div className="flex items-center gap-4">
+                            <LanguageSwitcher />
+                            <div className="hidden md:block">
+                                <lottie-player 
+                                    src="https://assets5.lottiefiles.com/packages/lf20_ystsffqy.json" 
+                                    background="transparent" 
+                                    speed="1" 
+                                    style={{ width: '120px', height: '120px' }} 
+                                    loop 
+                                    autoplay
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -148,7 +154,7 @@ export default function SalesIndex({ sales, filters }) {
                             <div className="p-3 rounded-full bg-purple-100 mb-4">
                                 <Package className="h-8 w-8 text-purple-600" />
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-2">Total Sales</h3>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('Total Sales')}</h3>
                             <p className="text-2xl font-bold text-purple-600">{sales.total}</p>
                         </div>
                     </div>
@@ -158,7 +164,7 @@ export default function SalesIndex({ sales, filters }) {
                             <div className="p-3 rounded-full bg-green-100 mb-4">
                                 <CheckCircle className="h-8 w-8 text-green-600" />
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-2">Completed Sales</h3>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('Completed Sales')}</h3>
                             <p className="text-2xl font-bold text-green-600">
                                 {sales.data.filter(sale => sale.status === 'completed').length}
                             </p>
@@ -170,7 +176,7 @@ export default function SalesIndex({ sales, filters }) {
                             <div className="p-3 rounded-full bg-amber-100 mb-4">
                                 <Clock className="h-8 w-8 text-amber-600" />
                             </div>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-2">Pending Sales</h3>
+                            <h3 className="text-lg font-semibold text-gray-800 mb-2">{t('Pending Sales')}</h3>
                             <p className="text-2xl font-bold text-amber-600">
                                 {sales.data.filter(sale => sale.status === 'pending').length}
                             </p>
@@ -183,11 +189,11 @@ export default function SalesIndex({ sales, filters }) {
                     <div className="p-6">
                         <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
                             <Filter className="h-5 w-5 mr-2 text-pink-500" />
-                            Quick Filters
+                            {t('Quick Filters')}
                         </h3>
                         <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-3">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Reference</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Reference')}</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <Search className="h-5 w-5 text-gray-400" />
@@ -198,13 +204,13 @@ export default function SalesIndex({ sales, filters }) {
                                         value={data.search}
                                         onChange={e => setData('search', e.target.value)}
                                         className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                        placeholder="Search by reference"
+                                        placeholder={t('Search by reference')}
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Status')}</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <FileText className="h-5 w-5 text-gray-400" />
@@ -215,16 +221,16 @@ export default function SalesIndex({ sales, filters }) {
                                         onChange={e => setData('status', e.target.value)}
                                         className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                     >
-                                        <option value="">All Statuses</option>
-                                        <option value="completed">Completed</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="cancelled">Cancelled</option>
+                                        <option value="">{t('All Statuses')}</option>
+                                        <option value="completed">{t('Completed')}</option>
+                                        <option value="pending">{t('Pending')}</option>
+                                        <option value="cancelled">{t('Cancelled')}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Warehouse Confirmation</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Warehouse Confirmation')}</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <Building2 className="h-5 w-5 text-gray-400" />
@@ -235,15 +241,15 @@ export default function SalesIndex({ sales, filters }) {
                                         onChange={e => setData('confirmedByWarehouse', e.target.value)}
                                         className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                     >
-                                        <option value="">All</option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
+                                        <option value="">{t('All')}</option>
+                                        <option value="1">{t('Yes')}</option>
+                                        <option value="0">{t('No')}</option>
                                     </select>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Shop Confirmation</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">{t('Shop Confirmation')}</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <ShoppingBag className="h-5 w-5 text-gray-400" />
@@ -254,9 +260,9 @@ export default function SalesIndex({ sales, filters }) {
                                         onChange={e => setData('confirmedByShop', e.target.value)}
                                         className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                     >
-                                        <option value="">All</option>
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
+                                        <option value="">{t('All')}</option>
+                                        <option value="1">{t('Yes')}</option>
+                                        <option value="0">{t('No')}</option>
                                     </select>
                                 </div>
                             </div>
@@ -271,7 +277,7 @@ export default function SalesIndex({ sales, filters }) {
                                     <span className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-violet-500 rounded-lg blur opacity-20 group-hover:opacity-30 transition-opacity duration-300 animate-tilt"></span>
                                     <span className="relative flex items-center justify-center">
                                         <Search className="h-5 w-5 mr-2 text-white" />
-                                        Search
+                                        {t('Search')}
                                     </span>
                                 </button>
                             </div>
@@ -284,7 +290,7 @@ export default function SalesIndex({ sales, filters }) {
                                 >
                                     <span className="flex items-center justify-center">
                                         <RefreshCw className="h-5 w-5 mr-2" />
-                                        Reset
+                                        {t('Reset')}
                                     </span>
                                 </button>
                             </div>
@@ -297,7 +303,7 @@ export default function SalesIndex({ sales, filters }) {
                     <div className="px-8 py-5 border-b border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50 backdrop-blur-sm">
                         <h3 className="text-xl font-semibold text-gray-800 flex items-center">
                             <ShoppingBag className="h-6 w-6 mr-2 text-indigo-600" />
-                            Your Sales
+                            {t('Your Sales')}
                         </h3>
                     </div>
 
@@ -307,19 +313,19 @@ export default function SalesIndex({ sales, filters }) {
                             <thead>
                                 <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
                                     <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Reference
+                                        {t('Reference')}
                                     </th>
                                     <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Date
+                                        {t('Date')}
                                     </th>
                                     <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Total Amount
+                                        {t('Total Amount')}
                                     </th>
                                     <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        Status
+                                        {t('Status')}
                                     </th>
                                     <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider pr-8">
-                                        Actions
+                                        {t('Actions')}
                                     </th>
                                 </tr>
                             </thead>
@@ -388,7 +394,7 @@ export default function SalesIndex({ sales, filters }) {
                                                 <span className="absolute left-0 inset-y-0 flex items-center pl-3 relative">
                                                     <Eye className="h-4 w-4 text-white opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
                                                 </span>
-                                                <span className="pl-6 relative">View Details</span>
+                                                <span className="pl-6 relative">{t('View Details')}</span>
                                             </button>
                                         </td>
                                     </tr>
@@ -411,7 +417,7 @@ export default function SalesIndex({ sales, filters }) {
                             <div className="py-20">
                                 <div className="flex flex-col items-center justify-center">
                                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-indigo-600 mb-4"></div>
-                                    <p className="text-gray-500 text-lg">Loading sale details...</p>
+                                    <p className="text-gray-500 text-lg">{t('Loading sale details...')}</p>
                                 </div>
                             </div>
                         ) : saleDetails ? (
@@ -423,7 +429,7 @@ export default function SalesIndex({ sales, filters }) {
                                             <ShoppingBag className="h-8 w-8 text-white" />
                                         </div>
                                         <div>
-                                            <h3 className="text-2xl font-bold text-white">Sale #{saleDetails.reference}</h3>
+                                            <h3 className="text-2xl font-bold text-white">{t('Sale #')}{saleDetails.reference}</h3>
                                             <p className="text-indigo-100 flex items-center mt-1">
                                                 <Calendar className="h-4 w-4 mr-2" />
                                                 {new Date(saleDetails.date).toLocaleDateString('en-US', {
@@ -449,7 +455,7 @@ export default function SalesIndex({ sales, filters }) {
                                             disabled={saleDetails.status !== 'pending'}
                                         >
                                             <DollarSign className="h-4 w-4 mr-1" />
-                                            Add Payment
+                                            {t('Add Payment')}
                                         </button>
                                         <button
                                             onClick={closeSaleDetailsModal}
@@ -469,20 +475,20 @@ export default function SalesIndex({ sales, filters }) {
                                                 saleDetails.status === 'cancelled' ? 'bg-red-500' : 'bg-amber-500'
                                             }`}></div>
                                             <span className="text-sm font-medium capitalize">
-                                                Status: {saleDetails.status}
+                                                {t('Status')}: {saleDetails.status}
                                             </span>
                                         </div>
                                         <div className="flex space-x-6">
                                             <div className="flex items-center">
                                                 <Building2 className="h-5 w-5 mr-2 text-gray-400" />
                                                 <span className={`text-sm font-medium ${saleDetails.confirmed_by_warehouse ? 'text-green-600' : 'text-amber-600'}`}>
-                                                    Warehouse: {saleDetails.confirmed_by_warehouse ? 'Confirmed' : 'Pending'}
+                                                    {t('Warehouse')}: {saleDetails.confirmed_by_warehouse ? t('Confirmed') : t('Pending')}
                                                 </span>
                                             </div>
                                             <div className="flex items-center">
                                                 <ShoppingBag className="h-5 w-5 mr-2 text-gray-400" />
                                                 <span className={`text-sm font-medium ${saleDetails.confirmed_by_shop ? 'text-green-600' : 'text-amber-600'}`}>
-                                                    Shop: {saleDetails.confirmed_by_shop ? 'Confirmed' : 'Pending'}
+                                                    {t('Shop')}: {saleDetails.confirmed_by_shop ? t('Confirmed') : t('Pending')}
                                                 </span>
                                             </div>
                                         </div>
@@ -492,7 +498,7 @@ export default function SalesIndex({ sales, filters }) {
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                                         <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-100 shadow-sm">
                                             <div className="flex justify-between items-start">
-                                                <h4 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Total Amount</h4>
+                                                <h4 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">{t('Total Amount')}</h4>
                                                 <div className="bg-indigo-100 rounded-full p-1.5">
                                                     <DollarSign className="h-4 w-4 text-indigo-600" />
                                                 </div>
@@ -504,7 +510,7 @@ export default function SalesIndex({ sales, filters }) {
                                         
                                         <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100 shadow-sm">
                                             <div className="flex justify-between items-start">
-                                                <h4 className="text-xs font-semibold text-green-600 uppercase tracking-wider">Paid Amount</h4>
+                                                <h4 className="text-xs font-semibold text-green-600 uppercase tracking-wider">{t('Paid Amount')}</h4>
                                                 <div className="bg-green-100 rounded-full p-1.5">
                                                     <CheckCircle className="h-4 w-4 text-green-600" />
                                                 </div>
@@ -516,7 +522,7 @@ export default function SalesIndex({ sales, filters }) {
                                         
                                         <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100 shadow-sm">
                                             <div className="flex justify-between items-start">
-                                                <h4 className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Due Amount</h4>
+                                                <h4 className="text-xs font-semibold text-amber-600 uppercase tracking-wider">{t('Due Amount')}</h4>
                                                 <div className="bg-amber-100 rounded-full p-1.5">
                                                     <Clock className="h-4 w-4 text-amber-600" />
                                                 </div>
@@ -531,23 +537,23 @@ export default function SalesIndex({ sales, filters }) {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                                         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                                             <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
-                                                <h4 className="text-sm font-medium text-gray-700">Customer Information</h4>
+                                                <h4 className="text-sm font-medium text-gray-700">{t('Customer Information')}</h4>
                                             </div>
                                             <div className="p-4 space-y-3">
                                                 <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">Name:</span>
+                                                    <span className="text-sm text-gray-500 w-1/3">{t('Name')}:</span>
                                                     <span className="text-sm font-medium text-gray-900">{saleDetails.customer?.name || 'N/A'}</span>
                                                 </div>
                                                 <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">Email:</span>
+                                                    <span className="text-sm text-gray-500 w-1/3">{t('Email')}:</span>
                                                     <span className="text-sm font-medium text-gray-900">{saleDetails.customer?.email || 'N/A'}</span>
                                                 </div>
                                                 <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">Phone:</span>
+                                                    <span className="text-sm text-gray-500 w-1/3">{t('Phone')}:</span>
                                                     <span className="text-sm font-medium text-gray-900">{saleDetails.customer?.phone || 'N/A'}</span>
                                                 </div>
                                                 <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">Currency:</span>
+                                                    <span className="text-sm text-gray-500 w-1/3">{t('Currency')}:</span>
                                                     <span className="text-sm font-medium text-gray-900">{saleDetails.currency?.name || 'N/A'}</span>
                                                 </div>
                                             </div>
@@ -555,23 +561,23 @@ export default function SalesIndex({ sales, filters }) {
 
                                         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                                             <div className="border-b border-gray-200 bg-gray-50 px-4 py-3">
-                                                <h4 className="text-sm font-medium text-gray-700">Additional Information</h4>
+                                                <h4 className="text-sm font-medium text-gray-700">{t('Additional Information')}</h4>
                                             </div>
                                             <div className="p-4 space-y-3">
                                                 <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">Warehouse:</span>
+                                                    <span className="text-sm text-gray-500 w-1/3">{t('Warehouse')}:</span>
                                                     <span className="text-sm font-medium text-gray-900">{saleDetails.warehouse?.name || 'N/A'}</span>
                                                 </div>
                                                 <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">Shop:</span>
+                                                    <span className="text-sm text-gray-500 w-1/3">{t('Shop')}:</span>
                                                     <span className="text-sm font-medium text-gray-900">{saleDetails.shop?.name || 'N/A'}</span>
                                                 </div>
                                                 <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">Created By:</span>
+                                                    <span className="text-sm text-gray-500 w-1/3">{t('Created By')}:</span>
                                                     <span className="text-sm font-medium text-gray-900">{saleDetails.created_by?.name || 'N/A'}</span>
                                                 </div>
                                                 <div className="flex">
-                                                    <span className="text-sm text-gray-500 w-1/3">Created At:</span>
+                                                    <span className="text-sm text-gray-500 w-1/3">{t('Created At')}:</span>
                                                     <span className="text-sm font-medium text-gray-900">
                                                         {saleDetails.created_at ? new Date(saleDetails.created_at).toLocaleString() : 'N/A'}
                                                     </span>
@@ -585,7 +591,7 @@ export default function SalesIndex({ sales, filters }) {
                                         <div className="mb-6 bg-yellow-50 border border-yellow-100 rounded-xl p-4">
                                             <h4 className="text-sm font-medium text-yellow-800 mb-2 flex items-center">
                                                 <FileText className="h-4 w-4 mr-2" />
-                                                Notes
+                                                {t('Notes')}
                                             </h4>
                                             <p className="text-sm text-yellow-700">{saleDetails.notes}</p>
                                         </div>
@@ -595,29 +601,29 @@ export default function SalesIndex({ sales, filters }) {
                                     <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-6">
                                         <div className="border-b border-gray-200 bg-gray-50 px-6 py-4 flex items-center">
                                             <Package className="h-5 w-5 mr-2 text-gray-500" />
-                                            <h4 className="text-base font-medium text-gray-700">Products</h4>
+                                            <h4 className="text-base font-medium text-gray-700">{t('Products')}</h4>
                                         </div>
                                         <div className="overflow-x-auto">
                                             <table className="min-w-full divide-y divide-gray-200">
                                                 <thead className="bg-gray-50">
                                                     <tr>
                                                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            Product
+                                                            {t('Product')}
                                                         </th>
                                                         <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            Quantity
+                                                            {t('Quantity')}
                                                         </th>
                                                         <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            Unit Price
+                                                            {t('Unit Price')}
                                                         </th>
                                                         <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            Discount
+                                                            {t('Discount')}
                                                         </th>
                                                         <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            Tax
+                                                            {t('Tax')}
                                                         </th>
                                                         <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                            Total
+                                                            {t('Total')}
                                                         </th>
                                                     </tr>
                                                 </thead>
@@ -658,7 +664,7 @@ export default function SalesIndex({ sales, filters }) {
                                                 <tfoot className="bg-gray-50">
                                                     <tr>
                                                         <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-medium text-gray-500">
-                                                            Subtotal
+                                                            {t('Subtotal')}
                                                         </th>
                                                         <td className="px-6 py-3 text-right text-sm font-medium text-gray-900">
                                                             {saleDetails.subtotal || saleDetails.total} {saleDetails.currency?.symbol}
@@ -666,7 +672,7 @@ export default function SalesIndex({ sales, filters }) {
                                                     </tr>
                                                     <tr>
                                                         <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-medium text-gray-500">
-                                                            Tax
+                                                            {t('Tax')}
                                                         </th>
                                                         <td className="px-6 py-3 text-right text-sm font-medium text-gray-900">
                                                             {saleDetails.tax_amount || '0.00'} {saleDetails.currency?.symbol}
@@ -674,7 +680,7 @@ export default function SalesIndex({ sales, filters }) {
                                                     </tr>
                                                     <tr>
                                                         <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-medium text-gray-500">
-                                                            Discount
+                                                            {t('Discount')}
                                                         </th>
                                                         <td className="px-6 py-3 text-right text-sm font-medium text-gray-900">
                                                             {saleDetails.discount_amount || '0.00'} {saleDetails.currency?.symbol}
@@ -682,7 +688,7 @@ export default function SalesIndex({ sales, filters }) {
                                                     </tr>
                                                     <tr>
                                                         <th scope="row" colSpan="5" className="px-6 py-3 text-right text-sm font-bold text-gray-900">
-                                                            Total
+                                                            {t('Total')}
                                                         </th>
                                                         <td className="px-6 py-3 text-right text-sm font-bold text-indigo-700">
                                                             {saleDetails.total} {saleDetails.currency?.symbol}
@@ -698,23 +704,23 @@ export default function SalesIndex({ sales, filters }) {
                                         <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm mb-6">
                                             <div className="border-b border-gray-200 bg-gray-50 px-6 py-4 flex items-center">
                                                 <DollarSign className="h-5 w-5 mr-2 text-gray-500" />
-                                                <h4 className="text-base font-medium text-gray-700">Payment History</h4>
+                                                <h4 className="text-base font-medium text-gray-700">{t('Payment History')}</h4>
                                             </div>
                                             <div className="overflow-x-auto">
                                                 <table className="min-w-full divide-y divide-gray-200">
                                                     <thead className="bg-gray-50">
                                                         <tr>
                                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Date
+                                                                {t('Date')}
                                                             </th>
                                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Reference
+                                                                {t('Reference')}
                                                             </th>
                                                             <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Method
+                                                                {t('Method')}
                                                             </th>
                                                             <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                                Amount
+                                                                {t('Amount')}
                                                             </th>
                                                         </tr>
                                                     </thead>
@@ -748,7 +754,7 @@ export default function SalesIndex({ sales, filters }) {
                                             className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors duration-200 flex items-center"
                                         >
                                             <XCircle className="h-4 w-4 mr-2" />
-                                            Close
+                                            {t('Close')}
                                         </button>
                                     </div>
                                 </div>
@@ -763,7 +769,7 @@ export default function SalesIndex({ sales, filters }) {
                 <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
                     <div className="relative top-20 mx-auto p-6 border w-1/2 shadow-xl rounded-lg bg-white">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-semibold text-gray-900">Add Payment</h3>
+                            <h3 className="text-xl font-semibold text-gray-900">{t('Add Payment')}</h3>
                             <button
                                 onClick={closePaymentModal}
                                 className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
@@ -775,7 +781,7 @@ export default function SalesIndex({ sales, filters }) {
                             <input type="hidden" name="saleId" value={selectedSale.id} />
                             <div>
                                 <label htmlFor="paymentAmount" className="block text-sm font-medium text-gray-700">
-                                    Amount
+                                    {t('Amount')}
                                 </label>
                                 <input
                                     type="number"
@@ -788,7 +794,7 @@ export default function SalesIndex({ sales, filters }) {
                             </div>
                             <div>
                                 <label htmlFor="paymentDate" className="block text-sm font-medium text-gray-700">
-                                    Date
+                                    {t('Date')}
                                 </label>
                                 <input
                                     type="date"
@@ -800,7 +806,7 @@ export default function SalesIndex({ sales, filters }) {
                             </div>
                             <div>
                                 <label htmlFor="paymentNotes" className="block text-sm font-medium text-gray-700">
-                                    Notes
+                                    {t('Notes')}
                                 </label>
                                 <textarea
                                     id="paymentNotes"
@@ -815,13 +821,13 @@ export default function SalesIndex({ sales, filters }) {
                                     onClick={closePaymentModal}
                                     className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors duration-200"
                                 >
-                                    Cancel
+                                    {t('Cancel')}
                                 </button>
                                 <button
                                     type="submit"
                                     className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors duration-200"
                                 >
-                                    Submit
+                                    {t('Submit')}
                                 </button>
                             </div>
                         </form>
