@@ -8,6 +8,8 @@
     "dependencies": {
         "@lottiefiles/lottie-player": "^2.0.12",
         "@majidh1/jalalidatepicker": "^0.9.10",
+        "@react-three/drei": "^10.0.5",
+        "@react-three/fiber": "^9.1.0",
         "@tailwindcss/vite": "^4.0.7",
         "animejs": "^3.2.2",
         "autoprefixer": "^10.4.20",

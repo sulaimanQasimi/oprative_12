@@ -1,0 +1,86 @@
+/* 3D Navbar Styles */
+.navbar-3d {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(90deg, #1a2980 0%, #26d0ce 100%);
+}
+
+.navbar-3d-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.navbar-3d-content {
+    position: relative;
+    z-index: 10;
+}
+
+/* 3D effects for navbar elements */
+.navbar-3d-item {
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    transform: perspective(1000px);
+}
+
+.navbar-3d-item:hover {
+    transform: perspective(1000px) translateZ(10px) rotateX(5deg);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-3d-logo {
+    transform-style: preserve-3d;
+    transition: all 0.3s ease;
+}
+
+.navbar-3d-logo:hover {
+    transform: perspective(1000px) rotateY(10deg) translateZ(20px);
+}
+
+/* Fallback for browsers where Three.js doesn't work */
+.navbar-3d-fallback {
+    background: linear-gradient(90deg, #1a2980 0%, #26d0ce 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.navbar-3d-fallback::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.2) 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.navbar-3d-fallback::after {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.1) 75%, transparent 75%, transparent);
+    background-size: 10px 10px;
+    transform: rotate(30deg);
+    pointer-events: none;
+    opacity: 0.3;
+    z-index: 2;
+    animation: move-bg 20s linear infinite;
+}
+
+@keyframes move-bg {
+    0% {
+        transform: rotate(30deg) translateY(0);
+    }
+    100% {
+        transform: rotate(30deg) translateY(100px);
+    }
+} 
