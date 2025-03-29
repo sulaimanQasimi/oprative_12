@@ -21,6 +21,27 @@ import {
     Mail,
     User
 } from 'lucide-react';
+// Import the lottie player package
+import '@lottiefiles/lottie-player';
+
+// Create a React wrapper component for the lottie-player web component
+const LottiePlayer = ({ src, background = "transparent", speed = "1", style, loop = true, autoplay = true }) => {
+    useEffect(() => {
+        // Ensure the web component is properly defined
+        if (typeof document !== 'undefined') {
+            import('@lottiefiles/lottie-player');
+        }
+    }, []);
+    
+    return React.createElement('lottie-player', {
+        src,
+        background,
+        speed,
+        style,
+        loop: loop ? '' : null,
+        autoplay: autoplay ? '' : null
+    });
+};
 
 export default function SalesIndex({ sales, filters }) {
     const { t } = useLaravelReactI18n();
@@ -132,14 +153,13 @@ export default function SalesIndex({ sales, filters }) {
                             </p>
                         </div>
                         <div className="flex items-center gap-4">
-                            <LanguageSwitcher />
                             <div className="hidden md:block">
-                                <lottie-player 
-                                    src="https://assets5.lottiefiles.com/packages/lf20_ystsffqy.json" 
+                                <LottiePlayer 
+                                    src="/animations/sales-animation.json" 
                                     background="transparent" 
                                     speed="1" 
                                     style={{ width: '120px', height: '120px' }} 
-                                    loop 
+                                    loop
                                     autoplay
                                 />
                             </div>

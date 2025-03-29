@@ -6,6 +6,7 @@
         "dev": "vite"
     },
     "dependencies": {
+        "@lottiefiles/lottie-player": "^2.0.12",
         "@majidh1/jalalidatepicker": "^0.9.10",
         "@tailwindcss/vite": "^4.0.7",
         "animejs": "^3.2.2",
