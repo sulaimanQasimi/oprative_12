@@ -14,7 +14,7 @@ import {
     Shield,
     User,
     Calendar,
-    ArrowRight
+    ArrowLeft
 } from 'lucide-react';
 
 export default function AccountsIndex({ accounts, search_id_number, search_account_number, isFilterOpen, customer }) {
@@ -283,9 +283,8 @@ export default function AccountsIndex({ accounts, search_id_number, search_accou
                                                     href={route('customer.accounts.show', account.id)}
                                                     className="group relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md overflow-hidden"
                                                 >
-                                                    <span className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
                                                     <span className="relative">{t('View Details')}</span>
-                                                    <ArrowRight className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                                    <ArrowLeft className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                                                 </Link>
                                             </td>
                                         </tr>

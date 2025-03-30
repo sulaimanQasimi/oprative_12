@@ -42,14 +42,14 @@ export default function CreateAccount() {
                 {/* Header with gradient background */}
                 <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl shadow-xl p-8 mb-8 overflow-hidden">
                     <div className="absolute inset-0 bg-pattern opacity-10"></div>
-                    <div className="relative z-10 flex justify-between items-center">
-                        <div>
+                    <div className="relative z-10 flex justify-between items-start">
+                        <div className="max-w-3xl">
                             <h2 className="text-3xl font-bold text-white">{t('Create New Account')}</h2>
-                            <p className="mt-2 text-indigo-100 max-w-2xl">
+                            <p className="mt-2 text-indigo-100">
                                 {t('Complete the form below to request a new banking account.')}
                             </p>
                         </div>
-                        <div className="flex items-center gap-4">
+                        <div className="hidden md:flex items-center gap-4">
                             <div className="p-3 bg-white bg-opacity-20 rounded-full backdrop-blur-sm">
                                 <CreditCard className="h-8 w-8 text-white" />
                             </div>
@@ -63,8 +63,8 @@ export default function CreateAccount() {
                         href={route('customer.accounts.index')}
                         className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-700 bg-indigo-100 rounded-md hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
                     >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
                         {t('Back to Accounts')}
+                        <ArrowLeft className="w-4 h-4 mr-2" />
                     </Link>
                 </div>
 
@@ -168,7 +168,7 @@ export default function CreateAccount() {
                         </div>
 
                         {/* Submit Button */}
-                        <div className="mt-8 flex justify-end">
+                        <div className="mt-8 flex justify-start">
                             <button
                                 type="submit"
                                 disabled={processing}
