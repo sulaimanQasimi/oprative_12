@@ -286,7 +286,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 <div className="mr-3 bg-gradient-to-br from-indigo-100 to-blue-100 p-2.5 rounded-xl shadow-md">
                                     <TrendingUp className="h-6 w-6 text-indigo-600" />
                                 </div>
-                                <div>
+                            <div>
                                     <h2 className="text-2xl font-bold text-gray-800 mb-1 flex items-center">
                                         {t('Income History')}
                                         <span className="ml-2 bg-indigo-100 text-indigo-700 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
@@ -294,8 +294,8 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                             {incomes.data ? incomes.data.length : 0}
                                         </span>
                                     </h2>
-                                    <p className="text-sm text-gray-500">{t('Manage and track your income transactions')}</p>
-                                </div>
+                                <p className="text-sm text-gray-500">{t('Manage and track your income transactions')}</p>
+                            </div>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4 mt-4 sm:mt-0">
                                 <div className="relative w-full sm:w-64 md:w-80">
@@ -395,17 +395,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
                                                             <div className="flex items-center justify-end space-x-2">
-                                                                {income.status === 'pending' && (
-                                                                    <Link
-                                                                        href={route('customer.accounts.incomes.approve', {account: account.id, income: income.id})}
-                                                                        method="post"
-                                                                        as="button"
-                                                                        className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                                                                    >
-                                                                        <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                                                                        {t('Approve')}
-                                                                    </Link>
-                                                                )}
+                                                            {income.status === 'pending' && (
+                                                                <Link
+                                                                    href={route('customer.accounts.incomes.approve', {account: account.id, income: income.id})}
+                                                                    method="post"
+                                                                    as="button"
+                                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                                                >
+                                                                    <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
+                                                                    {t('Approve')}
+                                                                </Link>
+                                                            )}
 
                                                                 <a
                                                                     href={route('thermal.print.income', income.id)}
@@ -501,7 +501,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 <div className="mr-3 bg-gradient-to-br from-pink-100 to-red-100 p-2.5 rounded-xl shadow-md">
                                     <TrendingDown className="h-6 w-6 text-pink-600" />
                                 </div>
-                                <div>
+                            <div>
                                     <h2 className="text-2xl font-bold text-gray-800 mb-1 flex items-center">
                                         {t('Rent & Loan History')}
                                         <span className="ml-2 bg-pink-100 text-pink-700 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
@@ -509,8 +509,8 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                             {outcomes.data ? outcomes.data.length : 0}
                                         </span>
                                     </h2>
-                                    <p className="text-sm text-gray-500">{t('Track your rental payments and loan records')}</p>
-                                </div>
+                                <p className="text-sm text-gray-500">{t('Track your rental payments and loan records')}</p>
+                            </div>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4 mt-4 sm:mt-0">
                                 <div className="relative w-full sm:w-64 md:w-80">
@@ -620,17 +620,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
                                                             <div className="flex items-center justify-end space-x-2">
-                                                                {outcome.status === 'pending' && (
-                                                                    <Link
-                                                                        href={route('customer.accounts.outcomes.approve', {account: account.id, outcome: outcome.id})}
-                                                                        method="post"
-                                                                        as="button"
-                                                                        className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                                                                    >
-                                                                        <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                                                                        {t('Approve')}
-                                                                    </Link>
-                                                                )}
+                                                            {outcome.status === 'pending' && (
+                                                                <Link
+                                                                    href={route('customer.accounts.outcomes.approve', {account: account.id, outcome: outcome.id})}
+                                                                    method="post"
+                                                                    as="button"
+                                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                                                                >
+                                                                    <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
+                                                                    {t('Approve')}
+                                                                </Link>
+                                                            )}
 
                                                                 <a
                                                                     href={route('thermal.print.outcome', outcome.id)}
@@ -753,11 +753,11 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                             <form onSubmit={handleCreateIncome} className="relative z-10">
                                 {/* Modal Header */}
                                 <div className="px-8 pt-8 pb-6 bg-gradient-to-br from-white to-indigo-50/30">
-                                    <div className="flex items-center mb-4">
-                                        <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-3.5 rounded-2xl mr-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-indigo-200/50">
+                                    <div className="flex items-center mb-4 rtl:flex-row-reverse">
+                                        <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-3.5 rounded-2xl mr-4 rtl:mr-0 rtl:ml-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-indigo-200/50">
                                             <DollarSign className="h-7 w-7 text-white drop-shadow-sm" />
                                         </div>
-                                        <div>
+                                        <div className="rtl:text-right">
                                             <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
                                                 {t('Add New Income')}
                                             </h3>
@@ -770,17 +770,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 <div className="px-8 py-6 bg-gradient-to-br from-gray-50/80 to-indigo-50/20 border-y border-indigo-100/50 shadow-inner">
                                     <div className="space-y-5">
                                         <div>
-                                            <label htmlFor="source_number" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                            <label htmlFor="source_number" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
                                                 {t('Source Number')}
                                             </label>
                                             <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
                                                     <Shield className="h-5 w-5 text-indigo-400" />
                                                 </div>
                                                 <input
                                                     type="text"
                                                     id="source_number"
-                                                    className="bg-white/90 backdrop-blur-sm text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-xl shadow-sm transition-all duration-200"
+                                                    className="bg-white/90 backdrop-blur-sm text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-xl shadow-sm transition-all duration-200 rtl:text-right rtl:pl-3 rtl:pr-11"
                                                     value={`S-${new Date().getTime().toString().slice(-8)}`}
                                                     disabled
                                                 />
@@ -788,24 +788,24 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="amount" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                            <label htmlFor="amount" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
                                                 {t('Amount')} <span className="text-indigo-500">*</span>
                                             </label>
                                             <div className="relative rounded-xl shadow-sm">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
                                                     <DollarSign className="h-5 w-5 text-indigo-400" />
                                                 </div>
                                                 <input
                                                     type="number"
                                                     step="0.01"
                                                     id="amount"
-                                                    className="focus:ring-indigo-500 focus:border-indigo-400 block w-full pl-11 pr-12 py-3 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-indigo-100"
+                                                    className="focus:ring-indigo-500 focus:border-indigo-400 block w-full pl-11 pr-12 py-3 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-indigo-100 rtl:text-right rtl:pl-12 rtl:pr-11"
                                                     placeholder="0.00"
                                                     value={data.amount}
                                                     onChange={(e) => setData('amount', e.target.value)}
                                                     required
                                                 />
-                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <div className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 pr-3 rtl:pr-0 rtl:pl-3 flex items-center pointer-events-none">
                                                     <span className="text-indigo-500 font-medium sm:text-sm bg-indigo-50 px-2 py-1 rounded-md">USD</span>
                                                 </div>
                                             </div>
@@ -820,17 +820,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="date" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                            <label htmlFor="date" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
                                                 {t('Date')}
                                             </label>
                                             <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
                                                     <Calendar className="h-5 w-5 text-indigo-400" />
                                                 </div>
                                                 <input
                                                     type="text"
                                                     id="date"
-                                                    className="bg-white/90 backdrop-blur-sm text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-xl shadow-sm transition-all duration-200"
+                                                    className="bg-white/90 backdrop-blur-sm text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-xl shadow-sm transition-all duration-200 rtl:text-right rtl:pl-3 rtl:pr-11"
                                                     value={new Date().toLocaleDateString('en-US', {
                                                         weekday: 'long',
                                                         year: 'numeric',
@@ -843,13 +843,13 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="description" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                            <label htmlFor="description" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
                                                 {t('Description')} <span className="text-indigo-500">*</span>
                                             </label>
                                             <textarea
                                                 id="description"
                                                 rows="3"
-                                                className="focus:ring-indigo-500 focus:border-indigo-400 block w-full py-3 px-4 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-indigo-100"
+                                                className="focus:ring-indigo-500 focus:border-indigo-400 block w-full py-3 px-4 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-indigo-100 rtl:text-right"
                                                 placeholder={t('Enter details about this income')}
                                                 value={data.description}
                                                 onChange={(e) => setData('description', e.target.value)}
@@ -937,11 +937,11 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                             <form onSubmit={handleCreateOutcome} className="relative z-10">
                                 {/* Modal Header */}
                                 <div className="px-8 pt-8 pb-6 bg-gradient-to-br from-white to-pink-50/30">
-                                    <div className="flex items-center mb-4">
-                                        <div className="bg-gradient-to-r from-pink-500 to-red-500 p-3.5 rounded-2xl mr-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-pink-200/50">
+                                    <div className="flex items-center mb-4 rtl:flex-row-reverse">
+                                        <div className="bg-gradient-to-r from-pink-500 to-red-500 p-3.5 rounded-2xl mr-4 rtl:mr-0 rtl:ml-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-pink-200/50">
                                             <CardIcon className="h-7 w-7 text-white drop-shadow-sm" />
                                         </div>
-                                        <div>
+                                        <div className="rtl:text-right">
                                             <h3 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-red-600 bg-clip-text text-transparent drop-shadow-sm">
                                                 {t('Add Rent or Loan')}
                                             </h3>
@@ -954,24 +954,24 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 <div className="px-8 py-6 bg-gradient-to-br from-gray-50/80 to-pink-50/20 border-y border-pink-100/50 shadow-inner">
                                     <div className="space-y-5">
                                         <div>
-                                            <label htmlFor="amount" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                            <label htmlFor="amount" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
                                                 {t('Amount')} <span className="text-pink-500">*</span>
                                             </label>
                                             <div className="relative rounded-xl shadow-sm">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
                                                     <DollarSign className="h-5 w-5 text-pink-400" />
                                                 </div>
                                                 <input
                                                     type="number"
                                                     step="0.01"
                                                     id="amount"
-                                                    className="focus:ring-pink-500 focus:border-pink-400 block w-full pl-11 pr-12 py-3 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-pink-100"
+                                                    className="focus:ring-pink-500 focus:border-pink-400 block w-full pl-11 pr-12 py-3 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-pink-100 rtl:text-right rtl:pl-12 rtl:pr-11"
                                                     placeholder="0.00"
                                                     value={outcomeForm.data.amount}
                                                     onChange={(e) => outcomeForm.setData('amount', e.target.value)}
                                                     required
                                                 />
-                                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                                <div className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 pr-3 rtl:pr-0 rtl:pl-3 flex items-center pointer-events-none">
                                                     <span className="text-pink-500 font-medium sm:text-sm bg-pink-50 px-2 py-1 rounded-md">USD</span>
                                                 </div>
                                             </div>
@@ -986,17 +986,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="reference_number" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                            <label htmlFor="reference_number" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
                                                 {t('Reference Number')}
                                             </label>
                                             <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
                                                     <ReceiptText className="h-5 w-5 text-pink-400" />
                                                 </div>
                                                 <input
                                                     type="text"
                                                     id="reference_number"
-                                                    className="bg-gray-100 text-gray-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-lg shadow-sm"
+                                                    className="bg-gray-100 text-gray-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-lg shadow-sm rtl:text-right rtl:pl-3 rtl:pr-11"
                                                     value={t('Auto-generated by system')}
                                                     readOnly
                                                     disabled
@@ -1005,17 +1005,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="outcome_date" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                            <label htmlFor="outcome_date" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
                                                 {t('Date')}
                                             </label>
                                             <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
                                                     <Calendar className="h-5 w-5 text-pink-400" />
                                                 </div>
                                                 <input
                                                     type="text"
                                                     id="outcome_date"
-                                                    className="bg-gray-100 text-gray-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-lg shadow-sm"
+                                                    className="bg-gray-100 text-gray-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-lg shadow-sm rtl:text-right rtl:pl-3 rtl:pr-11"
                                                     value={new Date().toLocaleDateString('en-US', {
                                                         weekday: 'long',
                                                         year: 'numeric',
@@ -1029,13 +1029,13 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="outcome_description" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                            <label htmlFor="outcome_description" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
                                                 {t('Description')} <span className="text-pink-500">*</span>
                                             </label>
                                             <textarea
                                                 id="outcome_description"
                                                 rows="3"
-                                                className="focus:ring-pink-500 focus:border-pink-400 block w-full py-3 px-4 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-pink-100"
+                                                className="focus:ring-pink-500 focus:border-pink-400 block w-full py-3 px-4 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-pink-100 rtl:text-right"
                                                 placeholder={t('Enter details about this payment')}
                                                 value={outcomeForm.data.description}
                                                 onChange={(e) => outcomeForm.setData('description', e.target.value)}
