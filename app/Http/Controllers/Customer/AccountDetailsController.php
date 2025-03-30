@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
-class AccountController extends Controller
+class AccountDetailsController extends Controller
 {
     /**
      * Display the account incomes and outcomes.

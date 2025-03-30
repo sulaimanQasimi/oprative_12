@@ -3,7 +3,7 @@
 namespace App\Repositories\Customer\Traits;
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Customer\AccountController;
+use App\Http\Controllers\Customer\AccountDetailsController;
 use App\Http\Controllers\Customer\AuthController;
 use App\Http\Controllers\Customer\ProfileController;
 use App\Http\Controllers\Customer\InvoiceController;
@@ -112,16 +112,16 @@ trait RegisterRoutes
                     ->name('accounts.resetFilters');
 
                 // Account routes (controller-based)
-                Route::get('/accounts/{account}/incomes', [AccountController::class, 'showIncomes'])
+                Route::get('/accounts/{account}/incomes', [AccountDetailsController::class, 'showIncomes'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.view_incomes')
                     ->name('accounts.show');
-                Route::post('/accounts/{account}/incomes', [AccountController::class, 'createIncome'])
+                Route::post('/accounts/{account}/incomes', [AccountDetailsController::class, 'createIncome'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.manage_accounts')
                     ->name('accounts.incomes.store');
-                Route::post('/accounts/{account}/incomes/{income}/approve', [AccountController::class, 'approveIncome'])
+                Route::post('/accounts/{account}/incomes/{income}/approve', [AccountDetailsController::class, 'approveIncome'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.manage_accounts')
                     ->name('accounts.incomes.approve');
-                Route::post('/accounts/{account}/outcomes/{outcome}/approve', [AccountController::class, 'approveOutcome'])
+                Route::post('/accounts/{account}/outcomes/{outcome}/approve', [AccountDetailsController::class, 'approveOutcome'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class.':customer.manage_accounts')
                     ->name('accounts.outcomes.approve');
 
