@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Inertia\Inertia;
 
 class MarketOrderController extends Controller
 {
@@ -55,7 +56,7 @@ class MarketOrderController extends Controller
             'name' => 'US Dollar'
         ];
 
-        return view('customer.market-order-create', compact('products', 'paymentMethods', 'tax_percentage', 'defaultCurrency'));
+        return Inertia::render("Customer/Sales/MarketOrderCreate", compact('products', 'paymentMethods', 'tax_percentage', 'defaultCurrency'));
     }
 
     /**
