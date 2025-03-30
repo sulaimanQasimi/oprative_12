@@ -264,12 +264,18 @@ export default function AccountsIndex({ accounts, search_id_number, search_accou
                                                 <span className={`px-4 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full ${
                                                     account.status === 'active'
                                                         ? 'bg-green-100 text-green-800 border border-green-200'
-                                                        : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                                                        : account.status === 'suspended' || account.status === 'closed'
+                                                            ? 'bg-red-100 text-red-800 border border-red-200'
+                                                            : 'bg-yellow-100 text-yellow-800 border border-yellow-200'
                                                 } shadow-sm group-hover:shadow-md transition-all duration-300`}>
                                                     <span className={`flex h-2.5 w-2.5 rounded-full mr-2 ${
-                                                        account.status === 'active' ? 'bg-green-500 animate-pulse' : 'bg-yellow-500'
+                                                        account.status === 'active'
+                                                            ? 'bg-green-500 animate-pulse'
+                                                            : account.status === 'suspended' || account.status === 'closed'
+                                                                ? 'bg-red-500'
+                                                                : 'bg-yellow-500'
                                                     }`}></span>
-                                                    {account.status}
+                                                    {t(account.status.charAt(0).toUpperCase() + account.status.slice(1))}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-6 whitespace-nowrap">
