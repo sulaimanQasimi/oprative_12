@@ -57,7 +57,7 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
             {/* Background gradient */}
             <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
                 <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-                    {/* Header Section */}
+                {/* Header Section */}
                     <div className="mb-10">
                         <div className="flex items-center mb-6">
                             <Link
@@ -68,8 +68,8 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                             </Link>
                             <div>
                                 <h2 className="text-3xl md:text-4xl font-extrabold leading-tight bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
-                                    {t('Customer Account')}
-                                </h2>
+                                {t('Customer Account')}
+                            </h2>
                                 <div className="flex items-center space-x-2 mt-1">
                                     <span className="text-gray-600 font-medium">{account.name}</span>
                                     <span className="text-gray-400">•</span>
@@ -87,26 +87,26 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                                     <p className="text-xs text-gray-500">{t('Account Balance')}</p>
                                     <p className="text-lg font-bold text-gray-800">{formatNumber(totalIncome - totalOutcome)}</p>
                                 </div>
-                            </div>
+                    </div>
 
                             <div className="flex space-x-2">
-                                <Link href={route('reports.account.statement', account.id)} target="_blank"
+                        <Link href={route('reports.account.statement', account.id)} target="_blank"
                                     className="inline-flex items-center px-4 py-2.5 rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200">
                                     <FileText className="mr-2 h-4 w-4" />
                                     {t('Export Statement')}
-                                </Link>
-                                <button onClick={() => setShowCreateIncomeModal(true)}
+                        </Link>
+                        <button onClick={() => setShowCreateIncomeModal(true)}
                                     className="inline-flex items-center px-4 py-2.5 rounded-xl shadow-sm text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-200">
                                     <Plus className="mr-2 h-4 w-4" />
                                     {t('Add Income')}
-                                </button>
+                        </button>
                             </div>
                         </div>
-                    </div>
+                </div>
 
-                    {/* Income Summary Cards */}
+                {/* Income Summary Cards */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-                        {/* Total Income */}
+                    {/* Total Income */}
                         <div className="group bg-white rounded-2xl shadow-md border border-indigo-50 p-5 overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02] transform">
                             <div className="absolute top-0 right-0 mt-5 mr-5">
                                 <div className="bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-lg p-2.5 transform transition-all duration-300 group-hover:rotate-12">
@@ -134,7 +134,7 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                             <div className="absolute top-0 right-0 mt-5 mr-5">
                                 <div className="bg-gradient-to-br from-red-100 to-red-200 rounded-lg p-2.5 transform transition-all duration-300 group-hover:rotate-12">
                                     <TrendingDown className="w-6 h-6 text-red-600" />
-                                </div>
+                    </div>
                             </div>
                             <div className="space-y-2 pr-16">
                                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">{t('Total Rent')}</p>
@@ -149,10 +149,10 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                                 <div className="h-1.5 w-12 bg-red-200 rounded-full overflow-hidden">
                                     <div className="h-full bg-red-500 rounded-full w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                                 </div>
-                            </div>
                         </div>
+                    </div>
 
-                        {/* Monthly Income */}
+                    {/* Monthly Income */}
                         <div className="group bg-white rounded-2xl shadow-md border border-green-50 p-5 overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02] transform">
                             <div className="absolute top-0 right-0 mt-5 mr-5">
                                 <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-lg p-2.5 transform transition-all duration-300 group-hover:rotate-12">
@@ -180,7 +180,7 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                             <div className="absolute top-0 right-0 mt-5 mr-5">
                                 <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-lg p-2.5 transform transition-all duration-300 group-hover:rotate-12">
                                     <Clock className="w-6 h-6 text-yellow-600" />
-                                </div>
+                    </div>
                             </div>
                             <div className="space-y-2 pr-16">
                                 <p className="text-sm font-medium text-gray-500 uppercase tracking-wider">{t('Monthly Rent')}</p>
@@ -195,11 +195,11 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                                 <div className="h-1.5 w-12 bg-yellow-200 rounded-full overflow-hidden">
                                     <div className="h-full bg-yellow-500 rounded-full w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                                 </div>
-                            </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* Table section */}
+                {/* Table section */}
                     <div className="bg-white rounded-2xl p-6 shadow-md border border-gray-100">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-xl font-bold text-gray-800">{t('Income History')}</h2>
@@ -226,34 +226,34 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                         <div className="overflow-x-auto -mx-6">
                             <div className="inline-block min-w-full align-middle px-6">
                                 <div className="overflow-hidden border border-gray-200 rounded-xl">
-                                    <table className="min-w-full divide-y divide-gray-200">
+                        <table className="min-w-full divide-y divide-gray-200">
                                         <thead className="bg-gray-50">
-                                            <tr>
+                                <tr>
                                                 <th scope="col" className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    {t('Description')}
-                                                </th>
+                                        {t('Description')}
+                                    </th>
                                                 <th scope="col" className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    {t('Amount')}
-                                                </th>
+                                        {t('Amount')}
+                                    </th>
                                                 <th scope="col" className="px-6 py-3.5 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    {t('Status')}
-                                                </th>
+                                        {t('Status')}
+                                    </th>
                                                 <th scope="col" className="px-6 py-3.5 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                    {t('Actions')}
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-200">
+                                        {t('Actions')}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-gray-200">
                                             {incomes.data && incomes.data.length > 0 ? (
                                                 incomes.data.map((income) => (
                                                     <tr key={income.id} className="hover:bg-gray-50 transition-colors duration-200">
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                                                             <div className="font-medium">{income.description || t('Income payment')}</div>
                                                             <div className="text-gray-500 text-xs mt-0.5">{new Date(income.date).toLocaleDateString()}</div>
-                                                        </td>
+                                        </td>
                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                             <div className="text-sm font-medium text-gray-900">{formatNumber(income.amount)}</div>
-                                                        </td>
+                                        </td>
                                                         <td className="px-6 py-4 whitespace-nowrap">
                                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium
                                                                 ${income.status === 'approved'
@@ -266,21 +266,21 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                                                                 {income.status === 'pending' && <Clock className="w-3 h-3 mr-1.5" />}
                                                                 {income.status.charAt(0).toUpperCase() + income.status.slice(1)}
                                                             </span>
-                                                        </td>
+                                        </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                                            {income.status === 'pending' && (
-                                                                <Link
-                                                                    href={route('customer.accounts.incomes.approve', {account: account.id, income: income.id})}
-                                                                    method="post"
-                                                                    as="button"
+                                            {income.status === 'pending' && (
+                                                <Link
+                                                    href={route('customer.accounts.incomes.approve', {account: account.id, income: income.id})}
+                                                    method="post"
+                                                    as="button"
                                                                     className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors"
-                                                                >
+                                                >
                                                                     <CheckCircle className="w-3.5 h-3.5 mr-1" />
-                                                                    {t('Approve')}
-                                                                </Link>
-                                                            )}
-                                                        </td>
-                                                    </tr>
+                                                    {t('Approve')}
+                                                </Link>
+                                            )}
+                                        </td>
+                                    </tr>
                                                 ))
                                             ) : (
                                                 <tr>
@@ -301,21 +301,21 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                                                     </td>
                                                 </tr>
                                             )}
-                                        </tbody>
-                                    </table>
+                            </tbody>
+                        </table>
                                 </div>
                             </div>
-                        </div>
+                    </div>
 
-                        {/* Pagination Section */}
-                        {activeTab === 'incomes' && incomes.links && incomes.links.length > 3 && (
+                    {/* Pagination Section */}
+                    {activeTab === 'incomes' && incomes.links && incomes.links.length > 3 && (
                             <div className="px-4 py-5 border-t border-gray-200 sm:px-6 mt-4">
                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                                     <div className="mb-4 sm:mb-0">
-                                        <p className="text-sm text-gray-700">
-                                            {t('Showing')} <span className="font-medium">{incomes.from}</span> {t('to')} <span className="font-medium">{incomes.to}</span> {t('of')} <span className="font-medium">{incomes.total}</span> {t('results')}
-                                        </p>
-                                    </div>
+                                    <p className="text-sm text-gray-700">
+                                        {t('Showing')} <span className="font-medium">{incomes.from}</span> {t('to')} <span className="font-medium">{incomes.to}</span> {t('of')} <span className="font-medium">{incomes.total}</span> {t('results')}
+                                    </p>
+                                </div>
                                     <nav className="relative z-0 inline-flex justify-center rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                                         <Link
                                             href={incomes.prev_page_url}
@@ -352,7 +352,7 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                                 </div>
                             </div>
                         )}
-                    </div>
+                        </div>
                 </div>
             </div>
 
@@ -376,16 +376,16 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                                     <div className="flex items-center justify-between mb-3">
                                         <h3 className="text-xl font-bold text-gray-900 flex items-center">
                                             <DollarSign className="h-5 w-5 text-indigo-600 mr-2" />
-                                            {t('Create New Income')}
-                                        </h3>
-                                        <button
-                                            type="button"
+                                        {t('Create New Income')}
+                                    </h3>
+                                    <button
+                                        type="button"
                                             className="p-1.5 rounded-full bg-gray-100 text-gray-500 hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                                            onClick={() => setShowCreateIncomeModal(false)}
-                                        >
+                                        onClick={() => setShowCreateIncomeModal(false)}
+                                    >
                                             <X className="h-4 w-4" />
                                             <span className="sr-only">{t('Close')}</span>
-                                        </button>
+                                    </button>
                                     </div>
                                     <p className="text-sm text-gray-500 mb-4">{t('Add a new income transaction to your account.')}</p>
                                 </div>
@@ -401,13 +401,13 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                     <span className="text-gray-500 sm:text-sm">#</span>
                                                 </div>
-                                                <input
-                                                    type="text"
-                                                    id="source_number"
+                                            <input
+                                                type="text"
+                                                id="source_number"
                                                     className="bg-gray-100 text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-3 py-3 sm:text-sm border-gray-300 rounded-lg"
-                                                    value={`S-${new Date().getTime().toString().slice(-8)}`}
-                                                    disabled
-                                                />
+                                                value={`S-${new Date().getTime().toString().slice(-8)}`}
+                                                disabled
+                                            />
                                             </div>
                                         </div>
 
@@ -419,16 +419,16 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                     <span className="text-gray-500 sm:text-sm">$</span>
                                                 </div>
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    id="amount"
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                id="amount"
                                                     className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-12 py-3 sm:text-sm border-gray-300 rounded-lg"
-                                                    placeholder="0.00"
-                                                    value={data.amount}
-                                                    onChange={(e) => setData('amount', e.target.value)}
-                                                    required
-                                                />
+                                                placeholder="0.00"
+                                                value={data.amount}
+                                                onChange={(e) => setData('amount', e.target.value)}
+                                                required
+                                            />
                                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                                     <span className="text-gray-500 sm:text-sm">USD</span>
                                                 </div>
@@ -451,13 +451,13 @@ export default function Incomes({ account, incomes, outcomes, totalIncome, pendi
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                     <Calendar className="h-4 w-4 text-gray-500" />
                                                 </div>
-                                                <input
-                                                    type="text"
-                                                    id="date"
+                                            <input
+                                                type="text"
+                                                id="date"
                                                     className="bg-gray-100 text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-3 py-3 sm:text-sm border-gray-300 rounded-lg"
-                                                    value={new Date().toLocaleDateString()}
-                                                    disabled
-                                                />
+                                                value={new Date().toLocaleDateString()}
+                                                disabled
+                                            />
                                             </div>
                                         </div>
 
