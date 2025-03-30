@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Inertia\Inertia;
 
 class AccountController extends Controller
 {
@@ -35,7 +36,7 @@ class AccountController extends Controller
             ->latest()
             ->paginate(10, ['*'], 'outcomes_page');
 
-        return view('customer.accounts.incomes', [
+        return Inertia::render('Customer/Accounts/Incomes', [
             'account' => $account,
             'incomes' => $incomes,
             'outcomes' => $outcomes,
@@ -55,6 +56,8 @@ class AccountController extends Controller
                 ->where('status', '=', 'approved')
                 ->whereYear('date', now()->year)
                 ->sum('amount'),
+            'tab' => $tab,
+            'customer' => $customer,
         ]);
     }
 
@@ -87,10 +90,10 @@ class AccountController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('success', __('Income request submitted successfully. Pending approval.'));
+            return redirect()->back()->with('success', 'Income request submitted successfully. Pending approval.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', __('Error creating income: ') . $e->getMessage());
+            return redirect()->back()->with('error', 'Error creating income: ' . $e->getMessage());
         }
     }
 
@@ -126,10 +129,10 @@ class AccountController extends Controller
 
             DB::commit();
 
-            return redirect()->back()->with('success', __('Outcome request submitted successfully. Pending approval.'));
+            return redirect()->back()->with('success', 'Outcome request submitted successfully. Pending approval.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', __('Error creating outcome: ') . $e->getMessage());
+            return redirect()->back()->with('error', 'Error creating outcome: ' . $e->getMessage());
         }
     }
 
@@ -148,10 +151,10 @@ class AccountController extends Controller
             DB::beginTransaction();
             $income->update(['status' => 'approved']);
             DB::commit();
-            return redirect()->back()->with('success', __('Income approved successfully.'));
+            return redirect()->back()->with('success', 'Income approved successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', __('Error approving income: ') . $e->getMessage());
+            return redirect()->back()->with('error', 'Error approving income: ' . $e->getMessage());
         }
     }
 
@@ -170,10 +173,10 @@ class AccountController extends Controller
             DB::beginTransaction();
             $outcome->update(['status' => 'approved']);
             DB::commit();
-            return redirect()->back()->with('success', __('Rent approved successfully.'));
+            return redirect()->back()->with('success', 'Rent approved successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', __('Error approving outcome: ') . $e->getMessage());
+            return redirect()->back()->with('error', 'Error approving outcome: ' . $e->getMessage());
         }
     }
 }
