@@ -17,7 +17,8 @@ class Account extends Model
         'account_number',
         'customer_id',
         'approved_by',
-        'address'
+        'address',
+        'status'
     ];
 
     protected $casts = [

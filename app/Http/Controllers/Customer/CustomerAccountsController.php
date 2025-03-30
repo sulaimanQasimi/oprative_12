@@ -54,6 +54,7 @@ class CustomerAccountsController extends Controller
             'account_number' => $this->generateUniqueAccountNumber($customer->id),
             'address' => $request->address,
             'approved_by' => null, // This will be set by admin/staff later
+            'status' => 'pending', // Default status is pending until approved
         ]);
 
         return redirect()->route('customer.accounts.index')
