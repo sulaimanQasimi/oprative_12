@@ -11,7 +11,7 @@ import {
     ChevronRight,
     RefreshCw,
     DollarSign,
-    ShieldCheck,
+    Shield,
     User,
     Calendar,
     ArrowRight
@@ -88,7 +88,7 @@ export default function AccountsIndex({ accounts, search_id_number, search_accou
                                 <p className="text-xs text-gray-500">{t('Ready for transactions')}</p>
                             </div>
                             <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                                <ShieldCheck className="w-8 h-8 text-green-600" />
+                                <Shield className="w-8 h-8 text-green-600" />
                             </div>
                         </div>
                     </div>

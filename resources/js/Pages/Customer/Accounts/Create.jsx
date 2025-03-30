@@ -7,7 +7,7 @@ import {
     Save,
     ArrowLeft,
     User,
-    CreditCardCheck,
+    ClipboardCheck,
     Home,
     Check,
     AlertCircle
@@ -72,7 +72,7 @@ export default function CreateAccount() {
                 <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
                     <div className="px-8 py-5 border-b border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50 backdrop-blur-sm">
                         <h3 className="text-xl font-semibold text-gray-800 flex items-center">
-                            <CreditCardCheck className="h-6 w-6 mr-2 text-indigo-600" />
+                            <ClipboardCheck className="h-6 w-6 mr-2 text-indigo-600" />
                             {t('Account Details')}
                         </h3>
                     </div>
