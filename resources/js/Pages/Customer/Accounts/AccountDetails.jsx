@@ -242,23 +242,25 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 <h2 className="text-2xl font-bold text-gray-800 mb-1">{t('Income History')}</h2>
                                 <p className="text-sm text-gray-500">{t('Manage and track your income transactions')}</p>
                             </div>
-                            <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-                                <div className="relative">
+                            <div className="flex flex-col sm:flex-row gap-4 mt-4 sm:mt-0">
+                                <div className="relative w-full sm:w-64 md:w-80">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <Search className="h-4 w-4 text-gray-400" />
                                     </div>
                                     <input
                                         type="text"
-                                        className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm"
+                                        className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm bg-white backdrop-blur-sm transition-all duration-200 hover:shadow-md"
                                         placeholder={t('Search transactions...')}
                                     />
                                 </div>
-                                <div className="flex space-x-2">
-                                    <button className="inline-flex items-center p-2.5 border border-gray-200 rounded-xl text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200">
-                                        <Filter className="h-4 w-4" />
+                                <div className="flex justify-end gap-4">
+                                    <button className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                                        <Filter className="h-4 w-4 transition-transform group-hover:scale-110" />
+                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Filter')}</span>
                                     </button>
-                                    <button className="inline-flex items-center p-2.5 border border-gray-200 rounded-xl text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200">
-                                        <RefreshCw className="h-4 w-4" />
+                                    <button className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                                        <RefreshCw className="h-4 w-4 transition-transform group-hover:rotate-180 duration-500" />
+                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Refresh')}</span>
                                     </button>
                                 </div>
                             </div>
@@ -405,23 +407,25 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 <h2 className="text-2xl font-bold text-gray-800 mb-1">{t('Rent & Loan History')}</h2>
                                 <p className="text-sm text-gray-500">{t('Track your rental payments and loan records')}</p>
                             </div>
-                            <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-                                <div className="relative">
+                            <div className="flex flex-col sm:flex-row gap-4 mt-4 sm:mt-0">
+                                <div className="relative w-full sm:w-64 md:w-80">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <Search className="h-4 w-4 text-gray-400" />
                                     </div>
                                     <input
                                         type="text"
-                                        className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent shadow-sm"
+                                        className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent shadow-sm bg-white backdrop-blur-sm transition-all duration-200 hover:shadow-md"
                                         placeholder={t('Search loans & rents...')}
                                     />
                                 </div>
-                                <div className="flex space-x-2">
-                                    <button className="inline-flex items-center p-2.5 border border-gray-200 rounded-xl text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-colors duration-200">
-                                        <Filter className="h-4 w-4" />
+                                <div className="flex justify-end gap-4">
+                                    <button className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                                        <Filter className="h-4 w-4 transition-transform group-hover:scale-110" />
+                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Filter')}</span>
                                     </button>
-                                    <button className="inline-flex items-center p-2.5 border border-gray-200 rounded-xl text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-colors duration-200">
-                                        <RefreshCw className="h-4 w-4" />
+                                    <button className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                                        <RefreshCw className="h-4 w-4 transition-transform group-hover:rotate-180 duration-500" />
+                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Refresh')}</span>
                                     </button>
                                 </div>
                             </div>
