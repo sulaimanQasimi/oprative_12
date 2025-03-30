@@ -105,7 +105,7 @@ class AccountDetailsController extends Controller
         $request->validate([
             'amount' => 'required|numeric|min:0',
             'reference_number' => 'nullable|string|max:255',
-            'date' => 'required|date',
+            'date' => 'nullable|date',
             'description' => 'nullable|string|max:1000',
         ]);
 
@@ -118,10 +118,13 @@ class AccountDetailsController extends Controller
                 throw ValidationException::withMessages(['amount' => 'Unauthorized operation']);
             }
 
+            // Generate unique reference number
+            $reference_number = 'OUT-' . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
+
             $account->outcomes()->create([
                 'amount' => $request->amount,
-                'reference_number' => $request->reference_number,
-                'date' => $request->date,
+                'reference_number' => $reference_number,
+                'date' => $request->date ?? now(),
                 'description' => $request->description,
                 'status' => 'pending',
                 'user_id' => auth()->guard('customer_user')->id()

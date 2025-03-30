@@ -120,6 +120,10 @@ trait RegisterRoutes
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.manage_accounts')
                         ->name('accounts.incomes.store');
 
+                    Route::post('/accounts/{account}/outcomes', [AccountDetailsController::class, 'createOutcome'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.manage_accounts')
+                        ->name('accounts.outcomes.store');
+
                     Route::post('/accounts/{account}/incomes/{income}/approve', [AccountDetailsController::class, 'approveIncome'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.manage_accounts')
                         ->name('accounts.incomes.approve');
