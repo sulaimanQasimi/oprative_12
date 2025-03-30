@@ -33,6 +33,9 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
     const [activeTab, setActiveTab] = useState(tab);
     const [showCreateIncomeModal, setShowCreateIncomeModal] = useState(false);
     const [showCreateOutcomeModal, setShowCreateOutcomeModal] = useState(false);
+    const [searchIncomeQuery, setSearchIncomeQuery] = useState('');
+    const [searchOutcomeQuery, setSearchOutcomeQuery] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
 
     const formatNumber = (num) => {
         return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(num);
@@ -155,12 +158,12 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                             })()}
 
                             <div className="flex flex-wrap sm:flex-nowrap gap-3">
-                                <Link href={route('reports.account.statement', account.id)} target="_blank"
+                                <a href={route('reports.account.statement', account.id)} target="_blank"
                                     className="inline-flex items-center px-5 py-3 rounded-xl shadow-md text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                                 >
                                     <FileText className="mr-2 h-4 w-4" />
                                     {t('Export Statement')}
-                                </Link>
+                                </a>
                                 <button onClick={() => setShowCreateIncomeModal(true)}
                                     className="inline-flex items-center px-5 py-3 rounded-xl shadow-md text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
                                 >
@@ -279,9 +282,20 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                     {/* Table section */}
                     <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 mb-12">
                         <div className="flex flex-wrap justify-between items-center mb-8">
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-800 mb-1">{t('Income History')}</h2>
-                                <p className="text-sm text-gray-500">{t('Manage and track your income transactions')}</p>
+                            <div className="flex items-center">
+                                <div className="mr-3 bg-gradient-to-br from-indigo-100 to-blue-100 p-2.5 rounded-xl shadow-md">
+                                    <TrendingUp className="h-6 w-6 text-indigo-600" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-1 flex items-center">
+                                        {t('Income History')}
+                                        <span className="ml-2 bg-indigo-100 text-indigo-700 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
+                                            <DollarSign className="w-3 h-3 mr-1" />
+                                            {incomes.data ? incomes.data.length : 0}
+                                        </span>
+                                    </h2>
+                                    <p className="text-sm text-gray-500">{t('Manage and track your income transactions')}</p>
+                                </div>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4 mt-4 sm:mt-0">
                                 <div className="relative w-full sm:w-64 md:w-80">
@@ -291,17 +305,32 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                     <input
                                         type="text"
                                         className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm bg-white backdrop-blur-sm transition-all duration-200 hover:shadow-md"
-                                        placeholder={t('Search transactions...')}
+                                        placeholder={t('Search transactions or reference number...')}
+                                        value={searchIncomeQuery}
+                                        onChange={(e) => setSearchIncomeQuery(e.target.value)}
                                     />
                                 </div>
                                 <div className="flex justify-end gap-4">
+                                    <button
+                                        onClick={() => {
+                                            setIsSearching(true);
+                                            setTimeout(() => setIsSearching(false), 500);
+                                        }}
+                                        className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md"
+                                    >
+                                        <Search className={`h-4 w-4 transition-all duration-300 ${isSearching ? 'scale-110 text-indigo-500' : ''}`} />
+                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Search')}</span>
+                                    </button>
                                     <button className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md">
                                         <Filter className="h-4 w-4 transition-transform group-hover:scale-110" />
                                         <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Filter')}</span>
                                     </button>
-                                    <button className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                                    <button
+                                        onClick={() => setSearchIncomeQuery('')}
+                                        className={`group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${searchIncomeQuery ? 'opacity-100' : 'opacity-50'}`}
+                                    >
                                         <RefreshCw className="h-4 w-4 transition-transform group-hover:rotate-180 duration-500" />
-                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Refresh')}</span>
+                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Reset')}</span>
                                     </button>
                                 </div>
                             </div>
@@ -329,7 +358,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-100">
                                             {incomes.data && incomes.data.length > 0 ? (
-                                                incomes.data.map((income) => (
+                                                incomes.data
+                                                .filter(income => {
+                                                    if (!searchIncomeQuery) return true;
+                                                    const searchText = searchIncomeQuery.toLowerCase();
+                                                    return (
+                                                        (income.description || '').toLowerCase().includes(searchText) ||
+                                                        (income.id || '').toString().includes(searchText) ||
+                                                        (income.amount || '').toString().includes(searchText)
+                                                    );
+                                                })
+                                                .map((income) => (
                                                     <tr key={income.id} className="hover:bg-indigo-50/40 transition-all duration-200 border-b border-gray-50 last:border-b-0">
                                                         <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-800">
                                                             <div className="font-semibold">{income.description || t('Income payment')}</div>
@@ -458,9 +497,20 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                     {/* Rent/Loan History Table */}
                     <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100">
                         <div className="flex flex-wrap justify-between items-center mb-8">
-                            <div>
-                                <h2 className="text-2xl font-bold text-gray-800 mb-1">{t('Rent & Loan History')}</h2>
-                                <p className="text-sm text-gray-500">{t('Track your rental payments and loan records')}</p>
+                            <div className="flex items-center">
+                                <div className="mr-3 bg-gradient-to-br from-pink-100 to-red-100 p-2.5 rounded-xl shadow-md">
+                                    <TrendingDown className="h-6 w-6 text-pink-600" />
+                                </div>
+                                <div>
+                                    <h2 className="text-2xl font-bold text-gray-800 mb-1 flex items-center">
+                                        {t('Rent & Loan History')}
+                                        <span className="ml-2 bg-pink-100 text-pink-700 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
+                                            <CardIcon className="w-3 h-3 mr-1" />
+                                            {outcomes.data ? outcomes.data.length : 0}
+                                        </span>
+                                    </h2>
+                                    <p className="text-sm text-gray-500">{t('Track your rental payments and loan records')}</p>
+                                </div>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4 mt-4 sm:mt-0">
                                 <div className="relative w-full sm:w-64 md:w-80">
@@ -470,17 +520,32 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                     <input
                                         type="text"
                                         className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent shadow-sm bg-white backdrop-blur-sm transition-all duration-200 hover:shadow-md"
-                                        placeholder={t('Search loans & rents...')}
+                                        placeholder={t('Search by description or reference...')}
+                                        value={searchOutcomeQuery}
+                                        onChange={(e) => setSearchOutcomeQuery(e.target.value)}
                                     />
                                 </div>
                                 <div className="flex justify-end gap-4">
+                                    <button
+                                        onClick={() => {
+                                            setIsSearching(true);
+                                            setTimeout(() => setIsSearching(false), 500);
+                                        }}
+                                        className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 shadow-sm hover:shadow-md"
+                                    >
+                                        <Search className={`h-4 w-4 transition-all duration-300 ${isSearching ? 'scale-110 text-pink-500' : ''}`} />
+                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Search')}</span>
+                                    </button>
                                     <button className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 shadow-sm hover:shadow-md">
                                         <Filter className="h-4 w-4 transition-transform group-hover:scale-110" />
                                         <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Filter')}</span>
                                     </button>
-                                    <button className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 shadow-sm hover:shadow-md">
+                                    <button
+                                        onClick={() => setSearchOutcomeQuery('')}
+                                        className={`group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 shadow-sm hover:shadow-md ${searchOutcomeQuery ? 'opacity-100' : 'opacity-50'}`}
+                                    >
                                         <RefreshCw className="h-4 w-4 transition-transform group-hover:rotate-180 duration-500" />
-                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Refresh')}</span>
+                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Reset')}</span>
                                     </button>
                                 </div>
                             </div>
@@ -511,7 +576,18 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </thead>
                                         <tbody className="bg-white divide-y divide-gray-100">
                                             {outcomes.data && outcomes.data.length > 0 ? (
-                                                outcomes.data.map((outcome) => (
+                                                outcomes.data
+                                                .filter(outcome => {
+                                                    if (!searchOutcomeQuery) return true;
+                                                    const searchText = searchOutcomeQuery.toLowerCase();
+                                                    return (
+                                                        (outcome.description || '').toLowerCase().includes(searchText) ||
+                                                        (outcome.reference_number || '').toLowerCase().includes(searchText) ||
+                                                        (outcome.amount || '').toString().includes(searchText) ||
+                                                        (outcome.id || '').toString().includes(searchText)
+                                                    );
+                                                })
+                                                .map((outcome) => (
                                                     <tr key={outcome.id} className="hover:bg-pink-50/40 transition-all duration-200 border-b border-gray-50 last:border-b-0">
                                                         <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-800">
                                                             <div className="font-semibold">{outcome.description || t('Rent payment')}</div>
