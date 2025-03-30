@@ -103,15 +103,55 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                         </div>
 
                         <div className="mt-10 flex flex-wrap items-center justify-between gap-5">
-                            <div className="bg-white rounded-xl shadow-lg px-5 py-4 flex items-center space-x-4 border border-gray-100 backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:border-indigo-100">
-                                <div className="bg-gradient-to-br from-indigo-50 to-blue-100 p-3 rounded-xl">
-                                    <CreditCard className="h-6 w-6 text-indigo-600" />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Account Balance')}</p>
-                                    <p className="text-xl font-bold text-gray-800">{formatNumber(totalIncome - totalOutcome)}</p>
-                                </div>
-                            </div>
+                            {/* Balance Card with Dynamic Background */}
+                            {(() => {
+                                const balance = totalIncome - totalOutcome;
+                                let bgGradient, borderColor, iconGradient, iconColor, textColor, hoverBgGradient, title;
+
+                                if (balance < 0) {
+                                    // Negative balance - Red theme
+                                    bgGradient = "from-red-50 to-red-100";
+                                    borderColor = "border-red-200";
+                                    iconGradient = "from-red-100 to-red-200";
+                                    iconColor = "text-red-600";
+                                    textColor = "text-red-600";
+                                    hoverBgGradient = "hover:from-red-100 hover:to-red-50";
+                                    title = t('Negative Balance');
+                                } else if (balance === 0) {
+                                    // Zero balance - Yellow theme
+                                    bgGradient = "from-amber-50 to-amber-100";
+                                    borderColor = "border-amber-200";
+                                    iconGradient = "from-amber-100 to-amber-200";
+                                    iconColor = "text-amber-600";
+                                    textColor = "text-amber-600";
+                                    hoverBgGradient = "hover:from-amber-100 hover:to-amber-50";
+                                    title = t('Zero Balance');
+                                } else {
+                                    // Positive balance - Green theme
+                                    bgGradient = "from-green-50 to-green-100";
+                                    borderColor = "border-green-200";
+                                    iconGradient = "from-green-100 to-green-200";
+                                    iconColor = "text-green-600";
+                                    textColor = "text-green-600";
+                                    hoverBgGradient = "hover:from-green-100 hover:to-green-50";
+                                    title = t('Positive Balance');
+                                }
+
+                                return (
+                                    <div className={`bg-gradient-to-br ${bgGradient} rounded-xl shadow-lg px-5 py-4 flex items-center space-x-4 border ${borderColor} backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:bg-gradient-to-br ${hoverBgGradient} transform hover:scale-105`}>
+                                        <div className={`bg-gradient-to-br ${iconGradient} p-3 rounded-xl shadow-md`}>
+                                            <CreditCard className={`h-6 w-6 ${iconColor}`} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Account Balance')}</p>
+                                            <p className={`text-xl font-bold ${textColor}`}>
+                                                {balance < 0 && "-"}${formatNumber(Math.abs(balance))}
+                                            </p>
+                                            <p className="text-xs font-medium text-gray-400 mt-1">{title}</p>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
 
                             <div className="flex flex-wrap sm:flex-nowrap gap-3">
                                 <Link href={route('reports.account.statement', account.id)} target="_blank"
