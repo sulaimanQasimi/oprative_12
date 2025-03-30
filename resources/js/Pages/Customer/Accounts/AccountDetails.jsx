@@ -721,20 +721,22 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
 
             {/* Create Income Modal */}
             {showCreateIncomeModal && (
-                <div className="fixed inset-0 overflow-y-auto z-50">
+                <div className="fixed inset-0 overflow-y-auto z-50 animate-fadeIn">
                     <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        {/* Background overlay with blur effect */}
-                        <div className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+                        {/* Background overlay with enhanced blur effect */}
+                        <div className="fixed inset-0 bg-gradient-to-br from-gray-900/80 to-indigo-900/70 backdrop-blur-md transition-all duration-300"
+                             aria-hidden="true"
+                             onClick={() => setShowCreateIncomeModal(false)}></div>
 
                         {/* Modal positioning trick */}
                         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                         {/* Modal container */}
-                        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-fadeIn">
+                        <div className="inline-block align-bottom bg-white/95 backdrop-blur-sm rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all duration-500 sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-slideUp border border-indigo-100">
                             <div className="absolute top-0 right-0 pt-5 pr-5 z-10">
                                 <button
                                     type="button"
-                                    className="bg-white rounded-full p-2 text-gray-400 hover:text-gray-600 focus:outline-none transform transition-all hover:rotate-90 hover:scale-110 hover:shadow-md"
+                                    className="bg-white/80 backdrop-blur-sm rounded-full p-2.5 text-gray-400 hover:text-indigo-600 focus:outline-none transform transition-all hover:rotate-90 hover:scale-110 hover:shadow-lg border border-gray-100 shadow-sm"
                                     onClick={() => setShowCreateIncomeModal(false)}
                                 >
                                     <span className="sr-only">{t('Close')}</span>
@@ -742,19 +744,21 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 </button>
                             </div>
 
-                            {/* Decorative elements */}
-                            <div className="absolute -top-24 -left-24 w-64 h-64 bg-gradient-to-br from-indigo-100/60 to-blue-100/60 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-                            <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-gradient-to-tr from-green-100/50 to-emerald-100/50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+                            {/* Enhanced decorative elements */}
+                            <div className="absolute -top-24 -left-24 w-72 h-72 bg-gradient-to-br from-indigo-200/60 via-blue-200/50 to-indigo-100/60 rounded-full blur-3xl opacity-60 animate-pulse-slow pointer-events-none"></div>
+                            <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-gradient-to-tr from-emerald-200/50 via-green-200/40 to-teal-100/50 rounded-full blur-3xl opacity-60 animate-pulse-slow animation-delay-1000 pointer-events-none"></div>
+                            <div className="absolute top-1/3 -right-16 w-32 h-32 bg-gradient-to-tr from-blue-300/30 to-indigo-200/30 rounded-full blur-2xl opacity-40 animate-pulse-slow animation-delay-2000 pointer-events-none"></div>
+                            <div className="absolute bottom-1/3 -left-16 w-32 h-32 bg-gradient-to-tr from-green-300/30 to-emerald-200/30 rounded-full blur-2xl opacity-40 animate-pulse-slow animation-delay-3000 pointer-events-none"></div>
 
                             <form onSubmit={handleCreateIncome} className="relative z-10">
                                 {/* Modal Header */}
-                                <div className="px-8 pt-8 pb-6">
+                                <div className="px-8 pt-8 pb-6 bg-gradient-to-br from-white to-indigo-50/30">
                                     <div className="flex items-center mb-4">
-                                        <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-3 rounded-xl mr-4 shadow-lg">
-                                            <DollarSign className="h-6 w-6 text-white" />
+                                        <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-3.5 rounded-2xl mr-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-indigo-200/50">
+                                            <DollarSign className="h-7 w-7 text-white drop-shadow-sm" />
                                         </div>
                                         <div>
-                                            <h3 className="text-2xl font-bold text-gray-900">
+                                            <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
                                                 {t('Add New Income')}
                                             </h3>
                                             <p className="text-sm text-gray-500 mt-1">{t('Create a new income transaction for your account')}</p>
@@ -763,20 +767,20 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 </div>
 
                                 {/* Modal Content */}
-                                <div className="px-8 py-6 bg-gray-50/80 border-y border-gray-200">
+                                <div className="px-8 py-6 bg-gradient-to-br from-gray-50/80 to-indigo-50/20 border-y border-indigo-100/50 shadow-inner">
                                     <div className="space-y-5">
                                         <div>
-                                            <label htmlFor="source_number" className="block text-sm font-medium text-gray-700 mb-1">
+                                            <label htmlFor="source_number" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
                                                 {t('Source Number')}
                                             </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Shield className="h-5 w-5 text-gray-400" />
+                                                    <Shield className="h-5 w-5 text-indigo-400" />
                                                 </div>
                                                 <input
                                                     type="text"
                                                     id="source_number"
-                                                    className="bg-white/80 text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-300 rounded-lg shadow-sm"
+                                                    className="bg-white/90 backdrop-blur-sm text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-xl shadow-sm transition-all duration-200"
                                                     value={`S-${new Date().getTime().toString().slice(-8)}`}
                                                     disabled
                                                 />
@@ -784,29 +788,29 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-                                                {t('Amount')} <span className="text-red-500">*</span>
+                                            <label htmlFor="amount" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                                {t('Amount')} <span className="text-indigo-500">*</span>
                                             </label>
-                                            <div className="relative rounded-lg shadow-sm">
+                                            <div className="relative rounded-xl shadow-sm">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <DollarSign className="h-5 w-5 text-gray-400" />
+                                                    <DollarSign className="h-5 w-5 text-indigo-400" />
                                                 </div>
                                                 <input
                                                     type="number"
                                                     step="0.01"
                                                     id="amount"
-                                                    className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-12 py-3 sm:text-sm border-gray-300 rounded-lg shadow-sm bg-white"
+                                                    className="focus:ring-indigo-500 focus:border-indigo-400 block w-full pl-11 pr-12 py-3 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-indigo-100"
                                                     placeholder="0.00"
                                                     value={data.amount}
                                                     onChange={(e) => setData('amount', e.target.value)}
                                                     required
                                                 />
                                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                    <span className="text-gray-500 font-medium sm:text-sm">USD</span>
+                                                    <span className="text-indigo-500 font-medium sm:text-sm bg-indigo-50 px-2 py-1 rounded-md">USD</span>
                                                 </div>
                                             </div>
                                             {errors.amount && (
-                                                <p className="mt-1.5 text-sm text-red-600 flex items-center">
+                                                <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
                                                     <svg className="h-3.5 w-3.5 text-red-500 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                                     </svg>
@@ -816,17 +820,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                                            <label htmlFor="date" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
                                                 {t('Date')}
                                             </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Calendar className="h-5 w-5 text-gray-400" />
+                                                    <Calendar className="h-5 w-5 text-indigo-400" />
                                                 </div>
                                                 <input
                                                     type="text"
                                                     id="date"
-                                                    className="bg-white/80 text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-300 rounded-lg shadow-sm"
+                                                    className="bg-white/90 backdrop-blur-sm text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-xl shadow-sm transition-all duration-200"
                                                     value={new Date().toLocaleDateString('en-US', {
                                                         weekday: 'long',
                                                         year: 'numeric',
@@ -839,20 +843,20 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                                                {t('Description')} <span className="text-red-500">*</span>
+                                            <label htmlFor="description" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                                {t('Description')} <span className="text-indigo-500">*</span>
                                             </label>
                                             <textarea
                                                 id="description"
                                                 rows="3"
-                                                className="focus:ring-indigo-500 focus:border-indigo-500 block w-full py-3 px-4 sm:text-sm border-gray-300 rounded-lg shadow-sm bg-white"
+                                                className="focus:ring-indigo-500 focus:border-indigo-400 block w-full py-3 px-4 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-indigo-100"
                                                 placeholder={t('Enter details about this income')}
                                                 value={data.description}
                                                 onChange={(e) => setData('description', e.target.value)}
                                                 required
                                             ></textarea>
                                             {errors.description && (
-                                                <p className="mt-1.5 text-sm text-red-600 flex items-center">
+                                                <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
                                                     <svg className="h-3.5 w-3.5 text-red-500 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                                     </svg>
@@ -864,10 +868,10 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 </div>
 
                                 {/* Modal Footer */}
-                                <div className="px-8 py-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 bg-white">
+                                <div className="px-8 py-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 bg-gradient-to-br from-white to-indigo-50/20 border-t border-indigo-100/50">
                                     <button
                                         type="button"
-                                        className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+                                        className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105"
                                         onClick={() => setShowCreateIncomeModal(false)}
                                     >
                                         {t('Cancel')}
@@ -875,7 +879,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300"
+                                        className="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-green-100/60"
                                     >
                                         {processing ? (
                                             <>
@@ -901,20 +905,22 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
 
             {/* Create Outcome/Loan Modal */}
             {showCreateOutcomeModal && (
-                <div className="fixed inset-0 overflow-y-auto z-50">
+                <div className="fixed inset-0 overflow-y-auto z-50 animate-fadeIn">
                     <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        {/* Background overlay with blur effect */}
-                        <div className="fixed inset-0 bg-gray-900/70 backdrop-blur-sm transition-opacity" aria-hidden="true"></div>
+                        {/* Background overlay with enhanced blur effect */}
+                        <div className="fixed inset-0 bg-gradient-to-br from-gray-900/80 to-pink-900/70 backdrop-blur-md transition-all duration-300"
+                             aria-hidden="true"
+                             onClick={() => setShowCreateOutcomeModal(false)}></div>
 
                         {/* Modal positioning trick */}
                         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                         {/* Modal container */}
-                        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-fadeIn">
+                        <div className="inline-block align-bottom bg-white/95 backdrop-blur-sm rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all duration-500 sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-slideUp border border-pink-100">
                             <div className="absolute top-0 right-0 pt-5 pr-5 z-10">
                                 <button
                                     type="button"
-                                    className="bg-white rounded-full p-2 text-gray-400 hover:text-gray-600 focus:outline-none transform transition-all hover:rotate-90 hover:scale-110 hover:shadow-md"
+                                    className="bg-white/80 backdrop-blur-sm rounded-full p-2.5 text-gray-400 hover:text-pink-600 focus:outline-none transform transition-all hover:rotate-90 hover:scale-110 hover:shadow-lg border border-gray-100 shadow-sm"
                                     onClick={() => setShowCreateOutcomeModal(false)}
                                 >
                                     <span className="sr-only">{t('Close')}</span>
@@ -922,19 +928,21 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 </button>
                             </div>
 
-                            {/* Decorative elements */}
-                            <div className="absolute -top-24 -left-24 w-64 h-64 bg-gradient-to-br from-red-100/60 to-pink-100/60 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-                            <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-gradient-to-tr from-purple-100/50 to-pink-100/50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
+                            {/* Enhanced decorative elements */}
+                            <div className="absolute -top-24 -left-24 w-72 h-72 bg-gradient-to-br from-pink-200/60 via-red-200/50 to-pink-100/60 rounded-full blur-3xl opacity-60 animate-pulse-slow pointer-events-none"></div>
+                            <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-gradient-to-tr from-purple-200/50 via-pink-200/40 to-red-100/50 rounded-full blur-3xl opacity-60 animate-pulse-slow animation-delay-1000 pointer-events-none"></div>
+                            <div className="absolute top-1/3 -right-16 w-32 h-32 bg-gradient-to-tr from-red-300/30 to-pink-200/30 rounded-full blur-2xl opacity-40 animate-pulse-slow animation-delay-2000 pointer-events-none"></div>
+                            <div className="absolute bottom-1/3 -left-16 w-32 h-32 bg-gradient-to-tr from-purple-300/30 to-pink-200/30 rounded-full blur-2xl opacity-40 animate-pulse-slow animation-delay-3000 pointer-events-none"></div>
 
                             <form onSubmit={handleCreateOutcome} className="relative z-10">
                                 {/* Modal Header */}
-                                <div className="px-8 pt-8 pb-6">
+                                <div className="px-8 pt-8 pb-6 bg-gradient-to-br from-white to-pink-50/30">
                                     <div className="flex items-center mb-4">
-                                        <div className="bg-gradient-to-r from-red-500 to-pink-500 p-3 rounded-xl mr-4 shadow-lg">
-                                            <CardIcon className="h-6 w-6 text-white" />
+                                        <div className="bg-gradient-to-r from-pink-500 to-red-500 p-3.5 rounded-2xl mr-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-pink-200/50">
+                                            <CardIcon className="h-7 w-7 text-white drop-shadow-sm" />
                                         </div>
                                         <div>
-                                            <h3 className="text-2xl font-bold text-gray-900">
+                                            <h3 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-red-600 bg-clip-text text-transparent drop-shadow-sm">
                                                 {t('Add Rent or Loan')}
                                             </h3>
                                             <p className="text-sm text-gray-500 mt-1">{t('Record a new rent payment or loan transaction')}</p>
@@ -943,32 +951,32 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 </div>
 
                                 {/* Modal Content */}
-                                <div className="px-8 py-6 bg-gray-50/80 border-y border-gray-200">
+                                <div className="px-8 py-6 bg-gradient-to-br from-gray-50/80 to-pink-50/20 border-y border-pink-100/50 shadow-inner">
                                     <div className="space-y-5">
                                         <div>
-                                            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
-                                                {t('Amount')} <span className="text-red-500">*</span>
+                                            <label htmlFor="amount" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                                {t('Amount')} <span className="text-pink-500">*</span>
                                             </label>
-                                            <div className="relative rounded-lg shadow-sm">
+                                            <div className="relative rounded-xl shadow-sm">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <DollarSign className="h-5 w-5 text-gray-400" />
+                                                    <DollarSign className="h-5 w-5 text-pink-400" />
                                                 </div>
                                                 <input
                                                     type="number"
                                                     step="0.01"
                                                     id="amount"
-                                                    className="focus:ring-red-500 focus:border-red-500 block w-full pl-11 pr-12 py-3 sm:text-sm border-gray-300 rounded-lg shadow-sm bg-white"
+                                                    className="focus:ring-pink-500 focus:border-pink-400 block w-full pl-11 pr-12 py-3 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-pink-100"
                                                     placeholder="0.00"
                                                     value={outcomeForm.data.amount}
                                                     onChange={(e) => outcomeForm.setData('amount', e.target.value)}
                                                     required
                                                 />
                                                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                                    <span className="text-gray-500 font-medium sm:text-sm">USD</span>
+                                                    <span className="text-pink-500 font-medium sm:text-sm bg-pink-50 px-2 py-1 rounded-md">USD</span>
                                                 </div>
                                             </div>
                                             {outcomeForm.errors.amount && (
-                                                <p className="mt-1.5 text-sm text-red-600 flex items-center">
+                                                <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
                                                     <svg className="h-3.5 w-3.5 text-red-500 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                                     </svg>
@@ -978,17 +986,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="reference_number" className="block text-sm font-medium text-gray-700 mb-1">
+                                            <label htmlFor="reference_number" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
                                                 {t('Reference Number')}
                                             </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <ReceiptText className="h-5 w-5 text-gray-400" />
+                                                    <ReceiptText className="h-5 w-5 text-pink-400" />
                                                 </div>
                                                 <input
                                                     type="text"
                                                     id="reference_number"
-                                                    className="bg-gray-100 text-gray-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-300 rounded-lg shadow-sm"
+                                                    className="bg-gray-100 text-gray-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-lg shadow-sm"
                                                     value={t('Auto-generated by system')}
                                                     readOnly
                                                     disabled
@@ -997,17 +1005,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="outcome_date" className="block text-sm font-medium text-gray-700 mb-1">
+                                            <label htmlFor="outcome_date" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
                                                 {t('Date')}
                                             </label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Calendar className="h-5 w-5 text-gray-400" />
+                                                    <Calendar className="h-5 w-5 text-pink-400" />
                                                 </div>
                                                 <input
                                                     type="text"
                                                     id="outcome_date"
-                                                    className="bg-gray-100 text-gray-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-300 rounded-lg shadow-sm"
+                                                    className="bg-gray-100 text-gray-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-lg shadow-sm"
                                                     value={new Date().toLocaleDateString('en-US', {
                                                         weekday: 'long',
                                                         year: 'numeric',
@@ -1021,20 +1029,20 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                         </div>
 
                                         <div>
-                                            <label htmlFor="outcome_description" className="block text-sm font-medium text-gray-700 mb-1">
-                                                {t('Description')} <span className="text-red-500">*</span>
+                                            <label htmlFor="outcome_description" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1">
+                                                {t('Description')} <span className="text-pink-500">*</span>
                                             </label>
                                             <textarea
                                                 id="outcome_description"
                                                 rows="3"
-                                                className="focus:ring-red-500 focus:border-red-500 block w-full py-3 px-4 sm:text-sm border-gray-300 rounded-lg shadow-sm bg-white"
+                                                className="focus:ring-pink-500 focus:border-pink-400 block w-full py-3 px-4 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-pink-100"
                                                 placeholder={t('Enter details about this payment')}
                                                 value={outcomeForm.data.description}
                                                 onChange={(e) => outcomeForm.setData('description', e.target.value)}
                                                 required
                                             ></textarea>
                                             {outcomeForm.errors.description && (
-                                                <p className="mt-1.5 text-sm text-red-600 flex items-center">
+                                                <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
                                                     <svg className="h-3.5 w-3.5 text-red-500 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                                     </svg>
@@ -1046,10 +1054,10 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 </div>
 
                                 {/* Modal Footer */}
-                                <div className="px-8 py-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 bg-white">
+                                <div className="px-8 py-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 bg-gradient-to-br from-white to-pink-50/20 border-t border-indigo-100/50">
                                     <button
                                         type="button"
-                                        className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors"
+                                        className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-all duration-200 transform hover:scale-105"
                                         onClick={() => setShowCreateOutcomeModal(false)}
                                     >
                                         {t('Cancel')}
@@ -1057,7 +1065,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                     <button
                                         type="submit"
                                         disabled={outcomeForm.processing}
-                                        className="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-transparent rounded-lg shadow-md text-sm font-medium text-white bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300"
+                                        className="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-transparent rounded-xl shadow-md text-sm font-medium text-white bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-all duration-300"
                                     >
                                         {outcomeForm.processing ? (
                                             <>
