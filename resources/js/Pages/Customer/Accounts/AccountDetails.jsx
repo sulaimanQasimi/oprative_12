@@ -23,7 +23,7 @@ import {
     ChevronLeft
 } from 'lucide-react';
 
-export default function Incomes({ account, incomes, outcomes, totalIncome, pendingIncome,
+export default function AccountDetails({ account, incomes, outcomes, totalIncome, pendingIncome,
                                  monthlyIncome, yearlyIncome, incomeByMonth, totalOutcome,
                                  pendingOutcome, monthlyOutcome, yearlyOutcome, tab, customer }) {
     const { t } = useLaravelReactI18n();

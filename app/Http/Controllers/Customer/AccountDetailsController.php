@@ -36,7 +36,7 @@ class AccountDetailsController extends Controller
             ->latest()
             ->paginate(10, ['*'], 'outcomes_page');
 
-        return Inertia::render('Customer/Accounts/Incomes', [
+        return Inertia::render('Customer/Accounts/AccountDetails', [
             'account' => $account,
             'incomes' => $incomes,
             'outcomes' => $outcomes,
