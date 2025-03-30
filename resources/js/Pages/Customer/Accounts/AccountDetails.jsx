@@ -732,8 +732,8 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                         {/* Modal container */}
-                        <div className="inline-block align-bottom bg-white/95 backdrop-blur-sm rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all duration-500 sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-slideUp border border-indigo-100">
-                            <div className="absolute top-0 right-0 pt-5 pr-5 z-10">
+                        <div className="inline-block align-bottom bg-white/95 backdrop-blur-sm rounded-3xl text-left rtl:text-right overflow-hidden shadow-2xl transform transition-all duration-500 sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-slideUp border border-indigo-100">
+                            <div className="absolute top-0 right-0 rtl:right-auto rtl:left-0 pt-5 pr-5 rtl:pr-0 rtl:pl-5 z-10">
                                 <button
                                     type="button"
                                     className="bg-white/80 backdrop-blur-sm rounded-full p-2.5 text-gray-400 hover:text-indigo-600 focus:outline-none transform transition-all hover:rotate-90 hover:scale-110 hover:shadow-lg border border-gray-100 shadow-sm"
@@ -751,17 +751,18 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                             <div className="absolute bottom-1/3 -left-16 w-32 h-32 bg-gradient-to-tr from-green-300/30 to-emerald-200/30 rounded-full blur-2xl opacity-40 animate-pulse-slow animation-delay-3000 pointer-events-none"></div>
 
                             <form onSubmit={handleCreateIncome} className="relative z-10">
-                                {/* Modal Header */}
+                                {/* Modal Header - Fixed RTL Layout */}
                                 <div className="px-8 pt-8 pb-6 bg-gradient-to-br from-white to-indigo-50/30">
                                     <div className="flex items-center mb-4 rtl:flex-row-reverse">
-                                        <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-3.5 rounded-2xl mr-4 rtl:mr-0 rtl:ml-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-indigo-200/50">
-                                            <DollarSign className="h-7 w-7 text-white drop-shadow-sm" />
-                                        </div>
+                                      
                                         <div className="rtl:text-right">
                                             <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
                                                 {t('Add New Income')}
                                             </h3>
                                             <p className="text-sm text-gray-500 mt-1">{t('Create a new income transaction for your account')}</p>
+                                        </div>
+                                          <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-3.5 rounded-2xl mr-4 rtl:mr-0 rtl:ml-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-indigo-200/50">
+                                            <DollarSign className="h-7 w-7 text-white drop-shadow-sm" />
                                         </div>
                                     </div>
                                 </div>
@@ -811,7 +812,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                             </div>
                                             {errors.amount && (
                                                 <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
-                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5 rtl:mr-0 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                                     </svg>
                                                     {errors.amount}
@@ -857,7 +858,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                             ></textarea>
                                             {errors.description && (
                                                 <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
-                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5 rtl:mr-0 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                                     </svg>
                                                     {errors.description}
@@ -868,7 +869,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 </div>
 
                                 {/* Modal Footer */}
-                                <div className="px-8 py-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 bg-gradient-to-br from-white to-indigo-50/20 border-t border-indigo-100/50">
+                                <div className="px-8 py-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 rtl:sm:space-x-reverse bg-gradient-to-br from-white to-indigo-50/20 border-t border-indigo-100/50">
                                     <button
                                         type="button"
                                         className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105"
@@ -883,7 +884,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                     >
                                         {processing ? (
                                             <>
-                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white rtl:-mr-1 rtl:ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
@@ -891,7 +892,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                             </>
                                         ) : (
                                             <>
-                                                <CheckCircle className="mr-2 h-4 w-4" />
+                                                <CheckCircle className="mr-2 rtl:mr-0 rtl:ml-2 h-4 w-4" />
                                                 {t('Create Income')}
                                             </>
                                         )}
@@ -916,8 +917,8 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
                         {/* Modal container */}
-                        <div className="inline-block align-bottom bg-white/95 backdrop-blur-sm rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all duration-500 sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-slideUp border border-pink-100">
-                            <div className="absolute top-0 right-0 pt-5 pr-5 z-10">
+                        <div className="inline-block align-bottom bg-white/95 backdrop-blur-sm rounded-3xl text-left rtl:text-right overflow-hidden shadow-2xl transform transition-all duration-500 sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-slideUp border border-pink-100">
+                            <div className="absolute top-0 right-0 rtl:right-auto rtl:left-0 pt-5 pr-5 rtl:pr-0 rtl:pl-5 z-10">
                                 <button
                                     type="button"
                                     className="bg-white/80 backdrop-blur-sm rounded-full p-2.5 text-gray-400 hover:text-pink-600 focus:outline-none transform transition-all hover:rotate-90 hover:scale-110 hover:shadow-lg border border-gray-100 shadow-sm"
@@ -935,17 +936,18 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                             <div className="absolute bottom-1/3 -left-16 w-32 h-32 bg-gradient-to-tr from-purple-300/30 to-pink-200/30 rounded-full blur-2xl opacity-40 animate-pulse-slow animation-delay-3000 pointer-events-none"></div>
 
                             <form onSubmit={handleCreateOutcome} className="relative z-10">
-                                {/* Modal Header */}
+                                {/* Modal Header - Fixed RTL Layout */}
                                 <div className="px-8 pt-8 pb-6 bg-gradient-to-br from-white to-pink-50/30">
                                     <div className="flex items-center mb-4 rtl:flex-row-reverse">
-                                        <div className="bg-gradient-to-r from-pink-500 to-red-500 p-3.5 rounded-2xl mr-4 rtl:mr-0 rtl:ml-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-pink-200/50">
-                                            <CardIcon className="h-7 w-7 text-white drop-shadow-sm" />
-                                        </div>
+                                      
                                         <div className="rtl:text-right">
                                             <h3 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-red-600 bg-clip-text text-transparent drop-shadow-sm">
                                                 {t('Add Rent or Loan')}
                                             </h3>
                                             <p className="text-sm text-gray-500 mt-1">{t('Record a new rent payment or loan transaction')}</p>
+                                        </div>  
+                                        <div className="bg-gradient-to-r from-pink-500 to-red-500 p-3.5 rounded-2xl mr-4 rtl:mr-0 rtl:ml-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-pink-200/50">
+                                            <CardIcon className="h-7 w-7 text-white drop-shadow-sm" />
                                         </div>
                                     </div>
                                 </div>
@@ -977,7 +979,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                             </div>
                                             {outcomeForm.errors.amount && (
                                                 <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
-                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5 rtl:mr-0 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                                     </svg>
                                                     {outcomeForm.errors.amount}
@@ -1043,7 +1045,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                             ></textarea>
                                             {outcomeForm.errors.description && (
                                                 <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
-                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
+                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5 rtl:mr-0 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                                                     </svg>
                                                     {outcomeForm.errors.description}
@@ -1054,7 +1056,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                 </div>
 
                                 {/* Modal Footer */}
-                                <div className="px-8 py-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 bg-gradient-to-br from-white to-pink-50/20 border-t border-indigo-100/50">
+                                <div className="px-8 py-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 rtl:sm:space-x-reverse bg-gradient-to-br from-white to-pink-50/20 border-t border-indigo-100/50">
                                     <button
                                         type="button"
                                         className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-all duration-200 transform hover:scale-105"
@@ -1069,7 +1071,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                     >
                                         {outcomeForm.processing ? (
                                             <>
-                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white rtl:-mr-1 rtl:ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
@@ -1077,7 +1079,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                             </>
                                         ) : (
                                             <>
-                                                <CheckCircle className="mr-2 h-4 w-4" />
+                                                <CheckCircle className="mr-2 rtl:mr-0 rtl:ml-2 h-4 w-4" />
                                                 {t('Create Payment')}
                                             </>
                                         )}
