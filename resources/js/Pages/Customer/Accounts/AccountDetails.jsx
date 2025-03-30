@@ -22,7 +22,8 @@ import {
     FileText,
     ChevronLeft,
     CreditCard as CardIcon,
-    ReceiptText
+    ReceiptText,
+    Printer
 } from 'lucide-react';
 
 export default function AccountDetails({ account, incomes, outcomes, totalIncome, pendingIncome,
@@ -351,17 +352,28 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
-                                                            {income.status === 'pending' && (
+                                                            <div className="flex items-center justify-end space-x-2">
+                                                                {income.status === 'pending' && (
+                                                                    <Link
+                                                                        href={route('customer.accounts.incomes.approve', {account: account.id, income: income.id})}
+                                                                        method="post"
+                                                                        as="button"
+                                                                        className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                                                    >
+                                                                        <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
+                                                                        {t('Approve')}
+                                                                    </Link>
+                                                                )}
+
                                                                 <Link
-                                                                    href={route('customer.accounts.incomes.approve', {account: account.id, income: income.id})}
-                                                                    method="post"
-                                                                    as="button"
-                                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                                                                    href={route('thermal.print.income', income.id)}
+                                                                    target="_blank"
+                                                                    className="inline-flex items-center px-2 py-2 border border-gray-300 text-xs font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 group"
                                                                 >
-                                                                    <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                                                                    {t('Approve')}
+                                                                    <Printer className="w-3.5 h-3.5 text-indigo-500 group-hover:text-indigo-600" />
+
                                                                 </Link>
-                                                            )}
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 ))
@@ -524,17 +536,28 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                                             </span>
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
-                                                            {outcome.status === 'pending' && (
+                                                            <div className="flex items-center justify-end space-x-2">
+                                                                {outcome.status === 'pending' && (
+                                                                    <Link
+                                                                        href={route('customer.accounts.outcomes.approve', {account: account.id, outcome: outcome.id})}
+                                                                        method="post"
+                                                                        as="button"
+                                                                        className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                                                                    >
+                                                                        <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
+                                                                        {t('Approve')}
+                                                                    </Link>
+                                                                )}
+
                                                                 <Link
-                                                                    href={route('customer.accounts.outcomes.approve', {account: account.id, outcome: outcome.id})}
-                                                                    method="post"
-                                                                    as="button"
-                                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+                                                                    href={route('thermal.print.outcome', outcome.id)}
+                                                                    target="_blank"
+                                                                    className="inline-flex items-center px-2 py-2 border border-gray-300 text-xs font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 group"
                                                                 >
-                                                                    <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                                                                    {t('Approve')}
+                                                                    <Printer className="w-3.5 h-3.5  text-pink-500 group-hover:text-pink-600" />
+
                                                                 </Link>
-                                                            )}
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 ))
