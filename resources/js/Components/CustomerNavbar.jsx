@@ -3,17 +3,17 @@ import { Link, usePage } from '@inertiajs/react';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
 import NavbarAnimation from './NavbarAnimation';
 
-import { 
-    Home, 
-    Package, 
-    ShoppingCart, 
-    Plus, 
-    BarChart, 
-    CreditCard, 
-    FileText, 
-    LogOut, 
-    Menu, 
-    X, 
+import {
+    Home,
+    Package,
+    ShoppingCart,
+    Plus,
+    BarChart,
+    CreditCard,
+    FileText,
+    LogOut,
+    Menu,
+    X,
     ChevronDown,
     Mail,
     Settings,
@@ -26,7 +26,7 @@ export default function CustomerNavbar() {
     const [isOpen, setIsOpen] = useState(false);
     const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
     const { auth, permissions = [] } = usePage().props;
-    
+
     const profileDropdownRef = useRef(null);
     const navbarHeight = 80; // Fixed height for the navbar
 
@@ -80,24 +80,24 @@ export default function CustomerNavbar() {
         if (permissions && permissions.includes(permission)) {
             return true;
         }
-        
+
         // Fallback to checking user permissions directly
         if (auth.user && auth.user.permissions && auth.user.permissions.includes(permission)) {
             return true;
         }
-        
+
         // Check if user has role with permission
         if (auth.user && auth.user.roles) {
-            return auth.user.roles.some(role => 
+            return auth.user.roles.some(role =>
                 role.permissions && role.permissions.includes(permission)
             );
         }
-        
+
         // If no specific permission required or for development
         if (permission === undefined || process.env.NODE_ENV === 'development') {
             return true;
         }
-        
+
         return false;
     };
 
@@ -122,7 +122,7 @@ export default function CustomerNavbar() {
         <nav className="navbar-3d relative overflow-hidden shadow-xl mb-6 transition-all duration-300 sticky top-0 z-50" style={{ height: `${navbarHeight}px` }}>
             {/* 3D Animation Background */}
             <NavbarAnimation height={navbarHeight} />
-            
+
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 navbar-3d-content h-full">
                 <div className="flex justify-between h-full">
                     <div className="flex">
@@ -148,7 +148,7 @@ export default function CustomerNavbar() {
                                                 <item.icon className="h-5 w-5 mr-2 text-white/80 group-hover:text-white transition-colors" />
                                                 <span className="font-medium text-white/90 group-hover:text-white">{item.name}</span>
                                                 <ChevronDown className="h-4 w-4 ml-1 text-white/60 transform transition-transform group-hover:rotate-180" />
-                                                
+
                                                 {/* Submenu */}
                                                 <div className="absolute left-0 z-10 mt-7 w-56 origin-top-left bg-white/95 backdrop-blur-md rounded-md shadow-xl ring-1 ring-black/5 focus:outline-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-1">
                                                     <div className="py-1">
@@ -188,7 +188,7 @@ export default function CustomerNavbar() {
                                                 <item.icon className="h-5 w-5 mr-2 text-white/80 group-hover:text-white transition-colors" />
                                                 <span className="font-medium text-white/90 group-hover:text-white">{item.name}</span>
                                                 <ChevronDown className="h-4 w-4 ml-1 text-white/60 transform transition-transform group-hover:rotate-180" />
-                                                
+
                                                 {/* Submenu */}
                                                 <div className="absolute left-0 z-10 mt-7 w-56 origin-top-left bg-white/95 backdrop-blur-md rounded-md shadow-xl ring-1 ring-black/5 focus:outline-none opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform group-hover:translate-y-0 translate-y-1">
                                                     <div className="py-1">
@@ -230,8 +230,8 @@ export default function CustomerNavbar() {
                             <button
                                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                                 className={`flex items-center gap-3 px-3 py-1.5 text-sm transition-all duration-200 hover:bg-white/15 focus:outline-none rounded-lg border navbar-3d-item ${
-                                    route().current('customer.profile.show') || profileDropdownOpen 
-                                    ? 'bg-white/20 shadow-lg border-white/20' 
+                                    route().current('customer.profile.show') || profileDropdownOpen
+                                    ? 'bg-white/20 shadow-lg border-white/20'
                                     : 'border-transparent hover:border-white/10'
                                 }`}
                             >
@@ -254,7 +254,7 @@ export default function CustomerNavbar() {
                                     </div>
                                 </div>
                             </button>
-                            
+
                             {profileDropdownOpen && (
                                 <div className="absolute right-0 mt-2 w-60 bg-white/95 backdrop-blur-md rounded-lg shadow-xl overflow-hidden z-10 border border-indigo-100 animate-fade-in-down">
                                     <div className="border-b px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50">
@@ -357,7 +357,7 @@ export default function CustomerNavbar() {
                                 )}
                             </div>
                         ))}
-                        
+
                         {/* Mobile profile links */}
                         <div className="border-t border-white/10 pt-4">
                             <Link
@@ -382,7 +382,7 @@ export default function CustomerNavbar() {
                                 <span>Help & Support</span>
                             </Link>
                         </div>
-                        
+
                         <form method="POST" action={route('customer.logout')} className="block">
                             <button
                                 type="submit"
@@ -397,4 +397,4 @@ export default function CustomerNavbar() {
             )}
         </nav>
     );
-} 
+}

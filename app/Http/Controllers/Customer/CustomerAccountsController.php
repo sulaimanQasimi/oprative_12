@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Account;
 use App\Repositories\Customer\CustomerRepository;
+use Inertia\Inertia;
 
 class CustomerAccountsController extends Controller
 {
@@ -28,7 +29,7 @@ class CustomerAccountsController extends Controller
 
         $accounts = $query->latest()->paginate(10);
 
-        return view('customer.accounts.index', [
+        return Inertia::render('Customer/Accounts/Index', [
             'accounts' => $accounts,
             'search_id_number' => $search_id_number,
             'search_account_number' => $search_account_number,
@@ -61,12 +62,26 @@ class CustomerAccountsController extends Controller
 
     public function create()
     {
-        return view('customer.accounts.create');
+        return Inertia::render('Customer/Accounts/Create');
     }
 
     public function resetFilters()
     {
         return redirect()->route('customer.accounts.index');
+    }
+
+    public function show(Account $account)
+    {
+        // Check if the account belongs to the current user's customer
+        $customer = CustomerRepository::currentUserCustomer()->model;
+
+        if ($account->customer_id !== $customer->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return Inertia::render('Customer/Accounts/Show', [
+            'account' => $account
+        ]);
     }
 
     private function generateUniqueAccountNumber($customer_id)
