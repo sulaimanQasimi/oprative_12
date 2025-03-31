@@ -82,9 +82,11 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
     const [orderSectionVisible, setOrderSectionVisible] = useState(false);
     const [notification, setNotification] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [accountSearchLoading, setAccountSearchLoading] = useState(false);
     
     // Refs
     const searchInputRef = useRef(null);
+    const accountSearchInputRef = useRef(null);
     
     // Add CSS keyframes for animations
     const animationStyles = `
@@ -498,6 +500,84 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
         }
     };
     
+    // Handle account search
+    const handleAccountSearch = async (query) => {
+        if (query.length < 2) {
+            setAccountSearchResults([]);
+            setShowAccountDropdown(false);
+            return;
+        }
+
+        setAccountSearchLoading(true);
+        try {
+            // Change from POST to GET request with query parameter
+            const response = await axios.get(`/customer/market-order/search-accounts?query=${encodeURIComponent(query)}`);
+            
+            setAccountSearchResults(response.data);
+            setShowAccountDropdown(true);
+            setAccountHighlightIndex(0);
+        } catch (error) {
+            console.error('Error searching accounts:', error);
+            showError(t('Error searching accounts'));
+        } finally {
+            setAccountSearchLoading(false);
+        }
+    };
+
+    // Handle account selection
+    const selectAccount = (account) => {
+        setSelectedAccount(account);
+        setAccountSearchQuery(account.name);
+        setShowAccountDropdown(false);
+    };
+
+    // Handle account search input change with debounce
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (accountSearchQuery.length >= 2) {
+                handleAccountSearch(accountSearchQuery);
+            }
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [accountSearchQuery]);
+
+    // Handle keyboard navigation for account dropdown
+    const handleAccountKeyDown = (e) => {
+        if (!showAccountDropdown || accountSearchResults.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setAccountHighlightIndex(prev => 
+                prev < accountSearchResults.length - 1 ? prev + 1 : prev
+            );
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setAccountHighlightIndex(prev => prev > 0 ? prev - 1 : 0);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            const selectedAccount = accountSearchResults[accountHighlightIndex];
+            if (selectedAccount) {
+                selectAccount(selectedAccount);
+            }
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            setShowAccountDropdown(false);
+        }
+    };
+
+    // Close account dropdown when clicking outside
+    useEffect(() => {
+        const handleOutsideClick = (e) => {
+            if (accountSearchInputRef.current && !accountSearchInputRef.current.contains(e.target)) {
+                setShowAccountDropdown(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleOutsideClick);
+        return () => document.removeEventListener('mousedown', handleOutsideClick);
+    }, []);
+
     return (
         <>
             <Head title={t('Point of Sale')} />
@@ -876,30 +956,60 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                             {amountPaid < total && (
                                                                 <div className="mt-4">
                                                                     <label className="block text-sm font-medium text-gray-700 mb-1">{t('Select Account for Remaining Balance')}</label>
-                                                                    <div className="relative">
+                                                                    <div className="relative" ref={accountSearchInputRef}>
                                                                         <input
                                                                             type="text"
                                                                             value={accountSearchQuery}
-                                                                            onChange={(e) => {
-                                                                                setAccountSearchQuery(e.target.value);
-                                                                                if (e.target.value.length >= 2) {
-                                                                                    // Here you would implement account search functionality
-                                                                                    // For now we'll just show a message
-                                                                                    setShowAccountDropdown(true);
-                                                                                } else {
-                                                                                    setShowAccountDropdown(false);
-                                                                                }
-                                                                            }}
+                                                                            onChange={(e) => setAccountSearchQuery(e.target.value)}
+                                                                            onKeyDown={handleAccountKeyDown}
                                                                             className="focus:ring-green-500 focus:border-green-500 block w-full sm:text-sm border-gray-300 rounded-lg"
-                                                                            placeholder={t('Search for an account')}
+                                                                            placeholder={t('Search by account name or number')}
                                                                         />
                                                                         
-                                                                        {showAccountDropdown && (
+                                                                        {accountSearchLoading && (
+                                                                            <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                                                                <svg className="animate-spin h-4 w-4 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                                </svg>
+                                                                            </div>
+                                                                        )}
+                                                                        
+                                                                        {showAccountDropdown && accountSearchResults.length > 0 && (
+                                                                            <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden max-h-60 overflow-y-auto">
+                                                                                <ul className="py-1 divide-y divide-gray-100">
+                                                                                    {accountSearchResults.map((account, index) => (
+                                                                                        <li 
+                                                                                            key={account.id}
+                                                                                            onClick={() => selectAccount(account)}
+                                                                                            className={`cursor-pointer px-4 py-2 hover:bg-green-50 transition-colors ${
+                                                                                                index === accountHighlightIndex ? 'bg-green-50' : ''
+                                                                                            }`}
+                                                                                        >
+                                                                                            <div className="flex justify-between">
+                                                                                                <div>
+                                                                                                    <div className="font-medium text-gray-800">{account.name}</div>
+                                                                                                    <div className="text-xs text-gray-500">
+                                                                                                        {t('Account')} #{account.account_number}
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                                <div className="text-right">
+                                                                                                    <div className="font-medium text-green-600">{formatMoney(account.balance)}</div>
+                                                                                                    <div className="text-xs text-gray-500">
+                                                                                                        {t('Balance')}
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </li>
+                                                                                    ))}
+                                                                                </ul>
+                                                                            </div>
+                                                                        )}
+                                                                        
+                                                                        {showAccountDropdown && accountSearchQuery.length >= 2 && accountSearchResults.length === 0 && !accountSearchLoading && (
                                                                             <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md overflow-hidden">
-                                                                                <div className="py-1">
-                                                                                    <div className="px-4 py-2 text-sm text-gray-500">
-                                                                                        {t('This would show account search results')}
-                                                                                    </div>
+                                                                                <div className="px-4 py-3 text-sm text-gray-500">
+                                                                                    {t('No accounts found matching your search')}
                                                                                 </div>
                                                                             </div>
                                                                         )}
@@ -917,9 +1027,13 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                                 <div className="text-right">
                                                                                     <div className="font-medium text-green-800">{formatMoney(selectedAccount.balance)}</div>
                                                                                     <div className="text-sm text-green-600">
-                                                                                        {t('Current Balance')}
+                                                                                        {t('Balance')}
                                                                                     </div>
                                                                                 </div>
+                                                                            </div>
+                                                                            <div className="mt-2 flex justify-between items-center pt-2 border-t border-green-200">
+                                                                                <div className="text-sm text-green-700">{t('Remaining Amount')}:</div>
+                                                                                <div className="font-medium text-green-700">{formatMoney(total - amountPaid)}</div>
                                                                             </div>
                                                                         </div>
                                                                     )}
