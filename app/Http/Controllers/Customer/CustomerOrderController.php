@@ -159,4 +159,22 @@ class CustomerOrderController extends Controller
             'order_number' => $order->order_number ?? '#' . str_pad($order->id, 6, '0', STR_PAD_LEFT)
         ]);
     }
+    
+    public function thermalPrint($id)
+    {
+        $customer = CustomerRepository::currentUserCustomer()->model;
+        $order = MarketOrder::where('customer_id', $customer->id)
+            ->with(['items.product'])
+            ->findOrFail($id);
+            
+        $orderNumber = $order->order_number ?? '#' . str_pad($order->id, 6, '0', STR_PAD_LEFT);
+        
+        return view('customer.orders.thermal-print', [
+            'order' => $order,
+            'orderNumber' => $orderNumber,
+            'subtotal' => number_format($order->total_amount - ($order->tax ?? 0), 2),
+            'tax' => number_format($order->tax ?? 0, 2),
+            'total' => number_format($order->total_amount, 2)
+        ]);
+    }
 } 

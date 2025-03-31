@@ -110,6 +110,10 @@ trait RegisterRoutes
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_invoice')
                         ->name('orders.invoice');
 
+                    Route::get('orders/{order}/thermal-print', [CustomerOrderController::class, 'thermalPrint'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
+                        ->name('orders.thermal-print');
+
                     // Profile routes
                     Route::get('profile', [ProfileController::class, 'show'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_profile')
