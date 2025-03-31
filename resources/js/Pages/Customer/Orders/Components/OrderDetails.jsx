@@ -11,18 +11,31 @@ export default function OrderDetails({ order }) {
         return format(new Date(dateString), 'yyyy-MM-dd HH:mm');
     };
 
+    // Format the order number with a proper fallback
+    const formattedOrderNumber = order.order_number || `#${String(order.id).padStart(6, '0')}`;
+
     return (
         <div className="bg-white rounded-xl">
             <div className="mb-6">
-                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                    <span className="inline-flex items-center justify-center p-2 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                    </span>
-                    Order #{order.id} Details
-                </h2>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                    <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                        <span className="inline-flex items-center justify-center p-2 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                        </span>
+                        Order #{order.id} Details
+                    </h2>
+                    <div className="mt-3 sm:mt-0">
+                        <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-blue-100 text-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 rtl:ml-1.5 rtl:mr-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Order Number: {formattedOrderNumber}
+                        </span>
+                    </div>
+                </div>
                 <p className="text-gray-600 mt-1">Order placed on {formatDate(order.created_at)}</p>
             </div>
 
