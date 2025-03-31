@@ -1,5 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
+import moment from 'moment-jalaali';
 
 const getOrderStatusBadge = (status) => {
     const styles = {
@@ -56,7 +57,15 @@ const getOrderStatusBadge = (status) => {
 export default function OrderList({ orders, activeTab, setActiveTab, onOrderSelect, loading, pagination, onPageChange }) {
     const formatDate = (dateString) => {
         if (!dateString) return '';
-        return format(new Date(dateString), 'yyyy-MM-dd HH:mm');
+        const momentDate = moment(dateString);
+        return momentDate.format('jYYYY/jMM/jDD HH:mm');
+    };
+
+    const isToday = (dateString) => {
+        if (!dateString) return false;
+        const momentDate = moment(dateString);
+        const today = moment();
+        return momentDate.format('jYYYY/jMM/jDD') === today.format('jYYYY/jMM/jDD');
     };
 
     // Filter orders by active tab (filtering is handled on the server, but we still filter locally for tab view)
@@ -198,11 +207,11 @@ export default function OrderList({ orders, activeTab, setActiveTab, onOrderSele
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
                             {filteredOrders.map((order, index) => (
-                                <tr 
-                                    key={order.id} 
+                                <tr
+                                    key={order.id}
                                     className="hover:bg-indigo-50/30 transition-colors duration-150 group"
-                                    style={{ 
-                                        animation: `fadeIn 0.5s ease-out ${index * 0.1}s both` 
+                                    style={{
+                                        animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`
                                     }}
                                 >
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -224,7 +233,9 @@ export default function OrderList({ orders, activeTab, setActiveTab, onOrderSele
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 rtl:ml-1.5 rtl:mr-0 text-indigo-400 group-hover:text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            {formatDate(order.created_at)}
+                                            <span className={isToday(order.created_at) ? "text-green-600 font-medium" : ""}>
+                                                {formatDate(order.created_at)}
+                                            </span>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -275,8 +286,8 @@ export default function OrderList({ orders, activeTab, setActiveTab, onOrderSele
                                 onClick={() => onPageChange(1)}
                                 disabled={pagination.current_page === 1}
                                 className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                                    pagination.current_page === 1 
-                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100' 
+                                    pagination.current_page === 1
+                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100'
                                         : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200 shadow-sm hover:shadow hover:scale-105'
                                 }`}
                                 title="First Page"
@@ -285,14 +296,14 @@ export default function OrderList({ orders, activeTab, setActiveTab, onOrderSele
                                     <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
                                 </svg>
                             </button>
-                            
+
                             {/* Previous Page Button */}
                             <button
                                 onClick={() => onPageChange(pagination.current_page - 1)}
                                 disabled={pagination.current_page === 1}
                                 className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                                    pagination.current_page === 1 
-                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100' 
+                                    pagination.current_page === 1
+                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100'
                                         : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200 shadow-sm hover:shadow hover:scale-105'
                                 }`}
                                 title="Previous Page"
@@ -301,21 +312,21 @@ export default function OrderList({ orders, activeTab, setActiveTab, onOrderSele
                                     <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
                             </button>
-                            
+
                             {/* Page Indicator */}
                             <div className="relative px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg shadow-sm border border-indigo-100">
                                 <span className="text-indigo-600 font-bold">{pagination.current_page}</span>
                                 <span> of </span>
                                 <span className="text-indigo-600 font-bold">{pagination.last_page}</span>
                             </div>
-                            
+
                             {/* Next Page Button */}
                             <button
                                 onClick={() => onPageChange(pagination.current_page + 1)}
                                 disabled={pagination.current_page === pagination.last_page}
                                 className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                                    pagination.current_page === pagination.last_page 
-                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100' 
+                                    pagination.current_page === pagination.last_page
+                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100'
                                         : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200 shadow-sm hover:shadow hover:scale-105'
                                 }`}
                                 title="Next Page"
@@ -324,14 +335,14 @@ export default function OrderList({ orders, activeTab, setActiveTab, onOrderSele
                                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                                 </svg>
                             </button>
-                            
+
                             {/* Last Page Button */}
                             <button
                                 onClick={() => onPageChange(pagination.last_page)}
                                 disabled={pagination.current_page === pagination.last_page}
                                 className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
-                                    pagination.current_page === pagination.last_page 
-                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100' 
+                                    pagination.current_page === pagination.last_page
+                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100'
                                         : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200 shadow-sm hover:shadow hover:scale-105'
                                 }`}
                                 title="Last Page"
@@ -353,4 +364,4 @@ export default function OrderList({ orders, activeTab, setActiveTab, onOrderSele
             ` }} />
         </>
     );
-} 
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { format } from 'date-fns';
+import moment from 'moment-jalaali';
 
 export default function OrderDetails({ order }) {
     if (!order) {
@@ -8,7 +9,8 @@ export default function OrderDetails({ order }) {
 
     const formatDate = (dateString) => {
         if (!dateString) return '';
-        return format(new Date(dateString), 'yyyy-MM-dd HH:mm');
+        const momentDate = moment(dateString);
+        return momentDate.format('jYYYY/jMM/jDD HH:mm');
     };
 
     // Format the order number with a proper fallback
@@ -19,7 +21,7 @@ export default function OrderDetails({ order }) {
             {/* Decorative elements */}
             <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-200/30 to-purple-200/30 rounded-full -mr-16 -mt-16"></div>
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-green-200/30 to-emerald-200/30 rounded-full -ml-10 -mb-10"></div>
-            
+
             <div className="relative">
                 {/* Order Header with gradient background */}
                 <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white p-6 rounded-t-xl mb-6">
@@ -62,10 +64,10 @@ export default function OrderDetails({ order }) {
                                 </h3>
                                 <div className="mt-2 flex flex-wrap items-center gap-2">
                                     <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm ${
-                                        order.order_status === 'completed' 
-                                            ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white' 
-                                            : order.order_status === 'pending' 
-                                                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' 
+                                        order.order_status === 'completed'
+                                            ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white'
+                                            : order.order_status === 'pending'
+                                                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white'
                                                 : 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
                                     }`}>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 rtl:ml-1.5 rtl:mr-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -89,7 +91,7 @@ export default function OrderDetails({ order }) {
                                     )}
                                 </div>
                             </div>
-                            
+
                             <div className="text-right mt-4 sm:mt-0">
                                 <span className="text-sm text-gray-600">Total Amount</span>
                                 <p className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
@@ -147,8 +149,8 @@ export default function OrderDetails({ order }) {
                                 </thead>
                                 <tbody className="divide-y divide-gray-200 bg-white">
                                     {order.items && order.items.map((item, index) => (
-                                        <tr 
-                                            key={item.id} 
+                                        <tr
+                                            key={item.id}
                                             className="hover:bg-indigo-50/30 transition-colors duration-150"
                                             style={{ animation: `fadeIn 0.3s ease-out ${index * 0.05}s both` }}
                                         >
@@ -277,37 +279,54 @@ export default function OrderDetails({ order }) {
                             </div>
                         </div>
                     </div>
-                    
+
                     {/* Actions */}
                     <div className="flex justify-end space-x-6 mt-8">
                         <a
                             href={route('customer.orders.invoice', order.id)}
-                            className="px-4 py-2.5 flex items-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                            className="group relative px-6 py-3 flex items-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-0.5 overflow-hidden"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Invoice
+                            {/* Animated gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/20 via-purple-600/20 to-pink-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                            {/* Shine effect */}
+                            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+                            {/* Content */}
+                            <div className="relative flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                <span className="group-hover:translate-x-1 transition-transform duration-300">Invoice</span>
+                            </div>
                         </a>
-                        
+
                         <a
                             href={route('customer.orders.thermal-print', order.id)}
-                            className="px-4 py-2.5 flex items-center bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg hover:from-blue-700 hover:to-cyan-700 font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                            className="group relative px-6 py-3 flex items-center bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-0.5 overflow-hidden"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                            </svg>
-                            Thermal Print
+                            {/* Animated gradient overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-cyan-600/20 to-teal-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                            {/* Shine effect */}
+                            <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+
+                            {/* Content */}
+                            <div className="relative flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                </svg>
+                                <span className="group-hover:translate-x-1 transition-transform duration-300">Thermal Print</span>
+                            </div>
                         </a>
-                      
                     </div>
                 </div>
             </div>
-            
+
             <style dangerouslySetInnerHTML={{ __html: `
                 @keyframes fadeIn {
                     from { opacity: 0; transform: translateY(10px); }
@@ -316,4 +335,4 @@ export default function OrderDetails({ order }) {
             `}} />
         </div>
     );
-} 
+}
