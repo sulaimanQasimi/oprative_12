@@ -154,20 +154,20 @@ export default function OrderList({ orders, activeTab, setActiveTab, onOrderSele
 
                 {/* Pagination Controls */}
                 {pagination && pagination.last_page > 1 && (
-                    <div className="mt-6 flex justify-center">
-                        <div className="inline-flex rounded-md shadow-sm" aria-label="Pagination">
+                    <div className="mt-8 flex justify-center">
+                        <div className="flex items-center space-x-2 rtl:space-x-reverse" aria-label="Pagination">
                             {/* First Page Button */}
                             <button
                                 onClick={() => onPageChange(1)}
                                 disabled={pagination.current_page === 1}
-                                className={`relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${
+                                className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
                                     pagination.current_page === 1 
-                                        ? 'text-gray-300 cursor-not-allowed' 
-                                        : 'text-gray-700 hover:bg-gray-50 cursor-pointer'
+                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100' 
+                                        : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200 shadow-sm hover:shadow hover:scale-105'
                                 }`}
                                 title="First Page"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 rtl:rotate-180" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
                                 </svg>
                             </button>
@@ -176,35 +176,37 @@ export default function OrderList({ orders, activeTab, setActiveTab, onOrderSele
                             <button
                                 onClick={() => onPageChange(pagination.current_page - 1)}
                                 disabled={pagination.current_page === 1}
-                                className={`relative inline-flex items-center px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium ${
+                                className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
                                     pagination.current_page === 1 
-                                        ? 'text-gray-300 cursor-not-allowed' 
-                                        : 'text-gray-700 hover:bg-gray-50 cursor-pointer'
+                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100' 
+                                        : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200 shadow-sm hover:shadow hover:scale-105'
                                 }`}
                                 title="Previous Page"
                             >
-                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <svg className="h-5 w-5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                                 </svg>
                             </button>
                             
                             {/* Page Indicator */}
-                            <span className="relative inline-flex items-center px-4 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium text-gray-700">
-                                {pagination.current_page} of {pagination.last_page}
-                            </span>
+                            <div className="relative px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg shadow-sm border border-indigo-100">
+                                <span className="text-indigo-600 font-bold">{pagination.current_page}</span>
+                                <span> of </span>
+                                <span className="text-indigo-600 font-bold">{pagination.last_page}</span>
+                            </div>
                             
                             {/* Next Page Button */}
                             <button
                                 onClick={() => onPageChange(pagination.current_page + 1)}
                                 disabled={pagination.current_page === pagination.last_page}
-                                className={`relative inline-flex items-center px-3 py-2 border-t border-b border-gray-300 bg-white text-sm font-medium ${
+                                className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
                                     pagination.current_page === pagination.last_page 
-                                        ? 'text-gray-300 cursor-not-allowed' 
-                                        : 'text-gray-700 hover:bg-gray-50 cursor-pointer'
+                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100' 
+                                        : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200 shadow-sm hover:shadow hover:scale-105'
                                 }`}
                                 title="Next Page"
                             >
-                                <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <svg className="h-5 w-5 rtl:rotate-180" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                                 </svg>
                             </button>
@@ -213,14 +215,14 @@ export default function OrderList({ orders, activeTab, setActiveTab, onOrderSele
                             <button
                                 onClick={() => onPageChange(pagination.last_page)}
                                 disabled={pagination.current_page === pagination.last_page}
-                                className={`relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${
+                                className={`relative flex items-center justify-center w-10 h-10 rounded-full transition-all duration-200 ${
                                     pagination.current_page === pagination.last_page 
-                                        ? 'text-gray-300 cursor-not-allowed' 
-                                        : 'text-gray-700 hover:bg-gray-50 cursor-pointer'
+                                        ? 'text-gray-400 cursor-not-allowed bg-gray-100' 
+                                        : 'text-indigo-600 hover:bg-indigo-50 border border-indigo-200 shadow-sm hover:shadow hover:scale-105'
                                 }`}
                                 title="Last Page"
                             >
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 rtl:rotate-180" viewBox="0 0 20 20" fill="currentColor">
                                     <path fillRule="evenodd" d="M4.293 15.707a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L8.586 10 4.293 14.293a1 1 0 000 1.414zm7 0a1 1 0 001.414 0l5-5a1 1 0 000-1.414l-5-5a1 1 0 00-1.414 1.414L15.586 10l-4.293 4.293a1 1 0 000 1.414z" clipRule="evenodd" />
                                 </svg>
                             </button>
