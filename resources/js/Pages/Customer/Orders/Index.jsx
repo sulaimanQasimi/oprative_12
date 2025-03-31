@@ -194,18 +194,26 @@ export default function Index() {
                 {showOrderDetails && selectedOrder && (
                     <div className="fixed inset-0 z-50 overflow-y-auto">
                         <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                            {/* Backdrop with improved blur effect */}
                             <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-                                <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/70 via-purple-900/70 to-indigo-900/70 backdrop-blur-sm"></div>
                             </div>
                             
                             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
                             
-                            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
-                                <div className="absolute top-0 right-0 pt-4 pr-4">
+                            {/* Modal container with animation */}
+                            <div 
+                                className="inline-block align-bottom bg-gradient-to-br from-white to-indigo-50/30 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-indigo-100"
+                                style={{
+                                    animation: 'modalFadeIn 0.3s ease-out forwards'
+                                }}
+                            >
+                                {/* Close button - enhanced */}
+                                <div className="absolute top-4 right-4 z-10">
                                     <button
                                         type="button"
                                         onClick={() => setShowOrderDetails(false)}
-                                        className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
+                                        className="bg-white/80 backdrop-blur-sm rounded-full text-gray-500 hover:text-indigo-700 p-2 hover:bg-indigo-50 transition-all duration-200 transform hover:scale-110 focus:outline-none shadow-md hover:shadow-lg"
                                     >
                                         <span className="sr-only">Close</span>
                                         <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -214,7 +222,7 @@ export default function Index() {
                                     </button>
                                 </div>
                                 
-                                <div className="p-6">
+                                <div className="p-6 sm:p-8">
                                     <OrderDetails 
                                         order={selectedOrder}
                                         visible={showOrderDetails}
@@ -225,6 +233,14 @@ export default function Index() {
                         </div>
                     </div>
                 )}
+                
+                {/* Add animation keyframes */}
+                <style dangerouslySetInnerHTML={{ __html: `
+                    @keyframes modalFadeIn {
+                        from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                        to { opacity: 1; transform: scale(1) translateY(0); }
+                    }
+                `}} />
                 
                 {/* Footer */}
                 <div className="mt-12 text-center text-gray-500 text-sm py-6 border-t border-gray-200">
