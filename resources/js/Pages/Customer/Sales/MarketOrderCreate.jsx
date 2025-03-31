@@ -17,6 +17,32 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 
+// Configure axios for Laravel
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+axios.defaults.withCredentials = true;
+
+// Attempt to get CSRF token from Laravel's XSRF-TOKEN cookie
+const getCookie = (name) => {
+    const match = document.cookie.match(new RegExp('(^|;\\s*)(' + name + ')=([^;]*)'));
+    return match ? decodeURIComponent(match[3]) : null;
+};
+
+// Get CSRF token either from cookie or meta tag
+const xsrfToken = getCookie('XSRF-TOKEN');
+if (xsrfToken) {
+    axios.defaults.headers.common['X-XSRF-TOKEN'] = xsrfToken;
+}
+
+// Add response interceptor for debugging
+axios.interceptors.response.use(
+    response => {
+        return response;
+    },
+    error => {
+        return Promise.reject(error);
+    }
+);
+
 export default function MarketOrderCreate({ auth, products, paymentMethods, tax_percentage, defaultCurrency }) {
     const { t } = useLaravelReactI18n();
     
@@ -67,9 +93,17 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
     const startNewOrder = async () => {
         setIsLoading(true);
         try {
-            const response = await axios.post(route('customer.market-order.start'));
+            const response = await axios.post('/customer/market-order/start');
+            
             if (response.data.success) {
-                setCurrentOrderId(response.data.order_id);
+                const orderId = response.data.order_id;
+                
+                if (!orderId) {
+                    showError(t('Error: No order ID returned from server'));
+                    return;
+                }
+                
+                setCurrentOrderId(orderId);
                 setOrderSectionVisible(true);
                 showSuccess(t('Order started successfully'));
                 
@@ -79,9 +113,21 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                         searchInputRef.current.focus();
                     }
                 }, 100);
+            } else {
+                showError(response.data.message || t('Error starting order'));
             }
         } catch (error) {
-            showError(t('Error starting order') + ': ' + error.message);
+            if (error.response && error.response.status === 422) {
+                // Validation errors
+                const validationErrors = error.response.data.errors;
+                const errorMessages = Object.entries(validationErrors)
+                    .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+                    .join('\n');
+                    
+                showError(t('Validation error') + ':\n' + errorMessages);
+            } else {
+                showError(t('Error starting order') + ': ' + (error.response?.data?.message || error.message));
+            }
         } finally {
             setIsLoading(false);
         }
@@ -93,15 +139,26 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
         
         setIsLoading(true);
         try {
-            const response = await axios.post(route('customer.market-order.process-barcode'), { barcode });
+            const response = await axios.post('/customer/market-order/process-barcode', 
+                { barcode }
+            );
+            
             if (response.data.success && response.data.product) {
-                addProductToOrder(response.data.product);
-                showSuccess(t('Product added') + ': ' + response.data.product.name);
+                // Ensure product has a consistent structure
+                const product = {
+                    ...response.data.product,
+                    id: response.data.product.product_id || response.data.product.id,
+                    product_id: response.data.product.product_id || response.data.product.id
+                };
+                
+                addProductToOrder(product);
+                showSuccess(t('Product added') + ': ' + product.name);
             } else {
                 showError(t('Product not found or out of stock'));
             }
         } catch (error) {
-            showError(t('Error processing barcode') + ': ' + error.message);
+            console.error('Barcode process error:', error);
+            showError(t('Error processing barcode') + ': ' + (error.response?.data?.message || error.message));
         } finally {
             setIsLoading(false);
             // Reset search input
@@ -125,7 +182,16 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
     
     // Add product to order
     const addProductToOrder = (product) => {
-        const existingItemIndex = orderItems.findIndex(item => item.product_id === product.id);
+        // Make sure product has a valid id
+        if (!product.id && !product.product_id) {
+            showError(t('Cannot add product: Missing product ID'));
+            return;
+        }
+
+        // Use product_id if available, otherwise use id
+        const productId = product.product_id || product.id;
+        
+        const existingItemIndex = orderItems.findIndex(item => item.product_id === productId);
         
         if (existingItemIndex !== -1) {
             // Check if there's enough stock
@@ -143,7 +209,7 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
             setOrderItems([
                 ...orderItems,
                 {
-                    product_id: product.id,
+                    product_id: productId,
                     name: product.name,
                     price: parseFloat(product.price || product.retail_price),
                     quantity: 1,
@@ -226,10 +292,29 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
             showError(t('Please enter full payment or select an account for the remaining balance'));
             return;
         }
+
+        // Check if we have a valid order_id before submitting
+        if (!currentOrderId) {
+            showError(t('Invalid order ID. Please start a new order.'));
+            return;
+        }
+
+        // Validate each item to ensure it has a valid product_id
+        const invalidItems = orderItems.filter(item => !item.product_id);
+        if (invalidItems.length > 0) {
+            console.error('Items with invalid product_id:', invalidItems);
+            showError(t('Some items have invalid product IDs. Please remove them and try again.'));
+            return;
+        }
         
         const orderData = {
             order_id: currentOrderId,
-            items: orderItems,
+            items: orderItems.map(item => ({
+                product_id: item.product_id,
+                quantity: item.quantity,
+                price: item.price,
+                total: item.total
+            })),
             subtotal,
             total,
             payment_method: paymentMethod,
@@ -238,9 +323,15 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
             notes
         };
         
+        console.log('Submitting order data:', orderData);
+        
         setIsLoading(true);
         try {
-            const response = await axios.post(route('customer.market-order.complete'), orderData);
+            const response = await axios.post(
+                '/customer/market-order/complete', 
+                orderData
+            );
+            
             if (response.data.success) {
                 showSuccess(response.data.message || t('Order completed successfully'));
                 resetOrder();
@@ -248,7 +339,22 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                 showError(response.data.message || t('Error completing order'));
             }
         } catch (error) {
-            showError(t('Error completing order') + ': ' + error.message);
+            console.error('Complete order error:', error);
+            
+            if (error.response && error.response.status === 422) {
+                // Validation errors
+                const validationErrors = error.response.data.errors;
+                console.error('Validation errors:', validationErrors);
+                
+                // Create a readable error message from all validation errors
+                const errorMessages = Object.entries(validationErrors)
+                    .map(([field, messages]) => `${field}: ${messages.join(', ')}`)
+                    .join('\n');
+                    
+                showError(t('Validation error') + ':\n' + errorMessages);
+            } else {
+                showError(t('Error completing order') + ': ' + (error.response?.data?.message || error.message));
+            }
         } finally {
             setIsLoading(false);
         }
