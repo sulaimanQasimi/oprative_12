@@ -177,35 +177,54 @@ export default function Index() {
                     onSortChange={handleSortChange}
                 />
                 
-                {/* Main Grid Layout */}
-                <div className="lg:grid lg:grid-cols-12 lg:gap-8">
-                    {/* Left Column - Order List */}
-                    <div className="lg:col-span-5 xl:col-span-4">
-                        <div className="bg-white backdrop-blur-sm bg-opacity-80 rounded-2xl shadow-sm border border-gray-100 p-4 mb-6 lg:mb-0">
-                            <OrderList 
-                                orders={orders}
-                                activeTab={activeTab}
-                                setActiveTab={handleTabChange}
-                                selectedOrderId={selectedOrder?.id}
-                                onOrderSelect={handleOrderSelect}
-                                loading={loading}
-                                pagination={pagination}
-                                onPageChange={handlePageChange}
-                            />
-                        </div>
-                    </div>
-                    
-                    {/* Right Column - Order Details */}
-                    <div className="lg:col-span-7 xl:col-span-8 mt-8 lg:mt-0">
-                        <div className="h-full">
-                            <OrderDetails 
-                                order={selectedOrder}
-                                visible={showOrderDetails}
-                                onClose={() => setShowOrderDetails(false)}
-                            />
-                        </div>
-                    </div>
+                {/* Orders Table */}
+                <div className="bg-white backdrop-blur-sm bg-opacity-80 rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
+                    <OrderList 
+                        orders={orders}
+                        activeTab={activeTab}
+                        setActiveTab={handleTabChange}
+                        onOrderSelect={handleOrderSelect}
+                        loading={loading}
+                        pagination={pagination}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
+                
+                {/* Order Details Modal */}
+                {showOrderDetails && selectedOrder && (
+                    <div className="fixed inset-0 z-50 overflow-y-auto">
+                        <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                                <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+                            </div>
+                            
+                            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                            
+                            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+                                <div className="absolute top-0 right-0 pt-4 pr-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowOrderDetails(false)}
+                                        className="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none"
+                                    >
+                                        <span className="sr-only">Close</span>
+                                        <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
+                                
+                                <div className="p-6">
+                                    <OrderDetails 
+                                        order={selectedOrder}
+                                        visible={showOrderDetails}
+                                        onClose={() => setShowOrderDetails(false)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 
                 {/* Footer */}
                 <div className="mt-12 text-center text-gray-500 text-sm py-6 border-t border-gray-200">

@@ -1,16 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { format } from 'date-fns';
-import { Link } from '@inertiajs/react';
 
-export default function OrderDetails({ order, visible, onClose }) {
-    const [activeSection, setActiveSection] = useState('products');
-
-    if (!visible || !order) {
-        return (
-            <div className="h-full w-full flex items-center justify-center bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                <p className="text-gray-500 text-center">Select an order to view details</p>
-            </div>
-        );
+export default function OrderDetails({ order }) {
+    if (!order) {
+        return null;
     }
 
     const formatDate = (dateString) => {
@@ -18,215 +11,139 @@ export default function OrderDetails({ order, visible, onClose }) {
         return format(new Date(dateString), 'yyyy-MM-dd HH:mm');
     };
 
-    const getOrderStatusColor = (status) => {
-        return {
-            pending: {
-                bg: 'from-amber-500/10 to-orange-500/10',
-                text: 'text-amber-700'
-            },
-            processing: {
-                bg: 'from-blue-500/10 to-indigo-500/10',
-                text: 'text-blue-700'
-            },
-            completed: {
-                bg: 'from-emerald-500/10 to-green-500/10',
-                text: 'text-emerald-700'
-            },
-            default: {
-                bg: 'bg-gray-100',
-                text: 'text-gray-700'
-            }
-        }[status] || { bg: 'bg-gray-100', text: 'text-gray-700' };
-    };
-
-    const statusColors = getOrderStatusColor(order.order_status);
-
     return (
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden transition-all duration-500 transform hover:scale-[1.01]">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-purple-600/90 to-indigo-600/90 p-6 relative">
+        <div className="bg-white rounded-xl">
+            <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center p-2 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </span>
+                    Order #{order.id} Details
+                </h2>
+                <p className="text-gray-600 mt-1">Order placed on {formatDate(order.created_at)}</p>
+            </div>
+
+            {/* Order Status */}
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 mb-6 border border-indigo-100">
+                <div className="flex flex-wrap justify-between items-center">
+                    <div>
+                        <h3 className="text-md font-semibold text-gray-800">Order Status</h3>
+                        <div className="mt-1 flex items-center">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                order.order_status === 'completed' 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : order.order_status === 'pending' 
+                                        ? 'bg-amber-100 text-amber-800' 
+                                        : 'bg-blue-100 text-blue-800'
+                            }`}>
+                                {order.order_status ? order.order_status.charAt(0).toUpperCase() + order.order_status.slice(1) : 'Unknown'}
+                            </span>
+                            {order.is_paid && (
+                                <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                    Paid
+                                </span>
+                            )}
+                        </div>
+                    </div>
+                    
+                    <div className="text-right">
+                        <span className="text-sm text-gray-600">Total Amount</span>
+                        <p className="text-xl font-bold text-indigo-600">${Number(order.total_amount).toFixed(2)}</p>
+                    </div>
+                </div>
+            </div>
+
+            {/* Order Items */}
+            <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Order Items</h3>
+                <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                    <table className="min-w-full divide-y divide-gray-300">
+                        <thead className="bg-gray-50">
+                            <tr>
+                                <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900">Product</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Quantity</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Price</th>
+                                <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                            {order.items && order.items.map((item) => (
+                                <tr key={item.id}>
+                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900">
+                                        {item.product ? item.product.name : 'Unknown Product'}
+                                    </td>
+                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{item.quantity}</td>
+                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${Number(item.unit_price).toFixed(2)}</td>
+                                    <td className="whitespace-nowrap px-3 py-4 text-sm font-medium text-gray-900">
+                                        ${(Number(item.unit_price) * Number(item.quantity)).toFixed(2)}
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                        <tfoot>
+                            <tr className="border-t border-gray-200">
+                                <th scope="row" colSpan="3" className="pl-4 pr-3 pt-4 text-right text-sm font-semibold text-gray-900">Subtotal</th>
+                                <td className="pl-3 pr-4 pt-4 text-right text-sm text-gray-900">${(Number(order.total_amount) - (Number(order.tax) || 0)).toFixed(2)}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row" colSpan="3" className="pl-4 pr-3 py-2 text-right text-sm font-semibold text-gray-900">Tax</th>
+                                <td className="pl-3 pr-4 py-2 text-right text-sm text-gray-900">${(Number(order.tax) || 0).toFixed(2)}</td>
+                            </tr>
+                            <tr className="border-t border-gray-200">
+                                <th scope="row" colSpan="3" className="pl-4 pr-3 pt-4 pb-4 text-right text-sm font-bold text-gray-900">Total</th>
+                                <td className="pl-3 pr-4 pt-4 pb-4 text-right text-sm font-bold text-indigo-600">${Number(order.total_amount).toFixed(2)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+
+            {/* Customer Information */}
+            <div className="mb-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Customer Information</h3>
+                <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p className="text-sm text-gray-600">Customer ID</p>
+                            <p className="text-sm font-medium text-gray-900">{order.customer_id}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-600">Shipping Address</p>
+                            <p className="text-sm font-medium text-gray-900">
+                                {order.shipping_address || 'No shipping address provided'}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-600">Payment Method</p>
+                            <p className="text-sm font-medium text-gray-900">
+                                {order.payment_method || 'Not specified'}
+                            </p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-600">Notes</p>
+                            <p className="text-sm font-medium text-gray-900">
+                                {order.notes || 'No notes provided'}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex justify-end space-x-3 mt-8">
                 <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-all duration-200"
+                    type="button"
+                    className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 font-medium"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        window.print();
+                    }}
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    Print Order
                 </button>
-                <div className="flex items-center gap-3">
-                    <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                        </svg>
-                    </div>
-                    <div>
-                        <h2 className="text-2xl font-bold text-white">Order #{order.id}</h2>
-                        <div className="flex items-center gap-2 text-indigo-100 mt-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            <span className="text-sm">{formatDate(order.created_at)}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-4 grid grid-cols-3 gap-4">
-                    <div className="bg-white/10 rounded-lg backdrop-blur-sm p-4">
-                        <span className="text-indigo-100 text-sm">Status</span>
-                        <div className={`mt-1 inline-flex px-3 py-1 rounded-full bg-gradient-to-r ${statusColors.bg} ${statusColors.text}`}>
-                            {order.order_status ? order.order_status.charAt(0).toUpperCase() + order.order_status.slice(1) : ''}
-                        </div>
-                    </div>
-                    <div className="bg-white/10 rounded-lg backdrop-blur-sm p-4">
-                        <span className="text-indigo-100 text-sm">Total</span>
-                        <p className="text-xl font-bold text-white mt-1">${Number(order.total_amount).toFixed(2)}</p>
-                    </div>
-                    <div className="bg-white/10 rounded-lg backdrop-blur-sm p-4">
-                        <span className="text-indigo-100 text-sm">Payment</span>
-                        <p className="text-xl font-bold text-white mt-1">{order.is_paid ? 'Paid' : 'Unpaid'}</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Navigation Tabs */}
-            <div className="bg-gray-50 border-b border-gray-200">
-                <div className="flex overflow-x-auto">
-                    <button
-                        onClick={() => setActiveSection('products')}
-                        className={`flex items-center px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap transition-all duration-200 ${
-                            activeSection === 'products' ? 'text-indigo-600 border-indigo-500' : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                        </svg>
-                        Products
-                    </button>
-                    <button
-                        onClick={() => setActiveSection('details')}
-                        className={`flex items-center px-6 py-4 text-sm font-medium border-b-2 whitespace-nowrap transition-all duration-200 ${
-                            activeSection === 'details' ? 'text-indigo-600 border-indigo-500' : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-                        }`}
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        Details
-                    </button>
-                    <div className="flex-grow"></div>
-                    <Link
-                        href={route('customer.orders.invoice', order.id)}
-                        className="flex items-center px-6 py-4 text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-all duration-200"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                        Invoice
-                    </Link>
-                </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-6">
-                {activeSection === 'products' && (
-                    <div>
-                        <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
-                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-                                        <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {order.items && order.items.map((item) => (
-                                        <tr key={item.id} className="hover:bg-gray-50">
-                                            <td className="px-6 py-4 whitespace-nowrap text-right">
-                                                <div className="font-medium text-gray-900">{item.product?.name}</div>
-                                                <div className="text-sm text-gray-500">Stock: {item.product?.stock}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-gray-500">{item.quantity}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right text-gray-500">${Number(item.unit_price).toFixed(2)}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-right font-medium text-gray-900">${Number(item.quantity * item.unit_price).toFixed(2)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div className="mt-6 border-t border-gray-200 pt-6">
-                            <div className="flex justify-between py-2">
-                                <span className="text-gray-600">Subtotal</span>
-                                <span className="font-medium text-gray-900">${Number(order.total_amount - (order.tax || 0)).toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between py-2">
-                                <span className="text-gray-600">Tax</span>
-                                <span className="font-medium text-gray-900">${Number(order.tax || 0).toFixed(2)}</span>
-                            </div>
-                            <div className="flex justify-between py-2 text-lg font-bold">
-                                <span className="text-gray-900">Total</span>
-                                <span className="text-indigo-600">${Number(order.total_amount).toFixed(2)}</span>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {activeSection === 'details' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 shadow-sm border border-gray-100">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                </svg>
-                                Customer Information
-                            </h3>
-                            <div className="space-y-3">
-                                <div>
-                                    <span className="text-sm text-gray-500">Name</span>
-                                    <p className="font-medium text-gray-900">{order.customer?.name || 'N/A'}</p>
-                                </div>
-                                <div>
-                                    <span className="text-sm text-gray-500">Email</span>
-                                    <p className="font-medium text-gray-900">{order.customer?.email || 'N/A'}</p>
-                                </div>
-                                <div>
-                                    <span className="text-sm text-gray-500">Phone</span>
-                                    <p className="font-medium text-gray-900">{order.customer?.phone || 'N/A'}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 shadow-sm border border-gray-100">
-                            <h3 className="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                </svg>
-                                Order Information
-                            </h3>
-                            <div className="space-y-3">
-                                <div>
-                                    <span className="text-sm text-gray-500">Order Number</span>
-                                    <p className="font-medium text-gray-900">
-                                        {order.order_number || `#${String(order.id).padStart(6, '0')}`}
-                                    </p>
-                                </div>
-                                <div>
-                                    <span className="text-sm text-gray-500">Date</span>
-                                    <p className="font-medium text-gray-900">{formatDate(order.created_at)}</p>
-                                </div>
-                                <div>
-                                    <span className="text-sm text-gray-500">Payment Status</span>
-                                    <p className={`font-medium ${order.is_paid ? 'text-emerald-600' : 'text-amber-600'}`}>
-                                        {order.is_paid ? 'Paid' : 'Unpaid'}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
             </div>
         </div>
     );
