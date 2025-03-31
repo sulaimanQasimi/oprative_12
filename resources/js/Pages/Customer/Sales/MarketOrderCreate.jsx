@@ -775,8 +775,11 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                             opacity: 0
                                                                         }}
                                                                     >
+                                                                        {/* Decorative gradient background */}
+                                                                        <div className="absolute inset-0 bg-gradient-to-r from-green-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                                        
                                                                         {/* Streamlined layout - horizontal flex */}
-                                                                        <div className="flex items-center gap-2">
+                                                                        <div className="flex items-center gap-2 relative">
                                                                             {/* Item number badge */}
                                                                             <div className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-sm transition-all duration-300 group-hover:from-green-100 group-hover:to-emerald-100">
                                                                                 <span className="text-gray-700 font-bold text-xs group-hover:text-green-700 transition-all duration-300">#{index + 1}</span>
@@ -797,6 +800,31 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                                     <span className="text-gray-400">=</span>
                                                                                     <span className="font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{formatMoney(item.price * item.quantity)}</span>
                                                                                 </div>
+                                                                                
+                                                                                {/* Stock indicator */}
+                                                                                <div className="flex items-center mt-1">
+                                                                                    <div className="w-full bg-gray-200 rounded-full h-1.5 mr-2">
+                                                                                        <div 
+                                                                                            className={`h-1.5 rounded-full ${
+                                                                                                (item.max_stock - item.quantity) / item.max_stock > 0.6 
+                                                                                                ? 'bg-green-500' 
+                                                                                                : (item.max_stock - item.quantity) / item.max_stock > 0.3 
+                                                                                                ? 'bg-yellow-500' 
+                                                                                                : 'bg-red-500'
+                                                                                            }`}
+                                                                                            style={{ width: `${Math.min(100, ((item.max_stock - item.quantity) / item.max_stock) * 100)}%` }}
+                                                                                        ></div>
+                                                                                    </div>
+                                                                                    <span className={`text-xs font-medium ${
+                                                                                        (item.max_stock - item.quantity) / item.max_stock > 0.6 
+                                                                                        ? 'text-green-600' 
+                                                                                        : (item.max_stock - item.quantity) / item.max_stock > 0.3 
+                                                                                        ? 'text-yellow-600' 
+                                                                                        : 'text-red-600'
+                                                                                    }`}>
+                                                                                        {item.max_stock - item.quantity} {t('left')}
+                                                                                    </span>
+                                                                                </div>
                                                                             </div>
                                                                             
                                                                             {/* Quantity controls */}
@@ -810,7 +838,12 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                                 <span className="w-8 text-center font-medium py-1.5 px-1 bg-white text-sm">{item.quantity}</span>
                                                                                 <button 
                                                                                     onClick={() => updateQuantity(index, 1)}
-                                                                                    className="p-1.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-green-50 hover:to-green-100 text-gray-700 hover:text-green-600 active:bg-green-200 transition-all duration-300"
+                                                                                    disabled={item.quantity >= item.max_stock}
+                                                                                    className={`p-1.5 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 transition-all duration-300 ${
+                                                                                        item.quantity >= item.max_stock 
+                                                                                        ? 'opacity-50 cursor-not-allowed' 
+                                                                                        : 'hover:from-green-50 hover:to-green-100 hover:text-green-600 active:bg-green-200'
+                                                                                    }`}
                                                                                 >
                                                                                     <Plus className="h-3.5 w-3.5" />
                                                                                 </button>
@@ -823,9 +856,6 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                             >
                                                                                 <X className="h-4 w-4" />
                                                                             </button>
-                                                                            
-                                                                            {/* Stock indicator dot */}
-                                                                            <div className={`w-2 h-2 rounded-full ${item.max_stock - item.quantity > 5 ? 'bg-green-500' : 'bg-orange-500'}`}></div>
                                                                         </div>
                                                                     </div>
                                                                 ))
