@@ -91,6 +91,10 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
     
     // Start a new order
     const startNewOrder = async () => {
+        // If order section is visible but we have no items and no current order ID,
+        // then we've just completed an order and want to start a new one
+        const isPostCompletionState = orderSectionVisible && orderItems.length === 0 && !currentOrderId;
+        
         setIsLoading(true);
         try {
             const response = await axios.post('/customer/market-order/start');
@@ -302,7 +306,6 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
         // Validate each item to ensure it has a valid product_id
         const invalidItems = orderItems.filter(item => !item.product_id);
         if (invalidItems.length > 0) {
-            console.error('Items with invalid product_id:', invalidItems);
             showError(t('Some items have invalid product IDs. Please remove them and try again.'));
             return;
         }
@@ -323,8 +326,6 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
             notes
         };
         
-        console.log('Submitting order data:', orderData);
-        
         setIsLoading(true);
         try {
             const response = await axios.post(
@@ -334,17 +335,22 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
             
             if (response.data.success) {
                 showSuccess(response.data.message || t('Order completed successfully'));
-                resetOrder();
+                // Reset order data but keep the order section visible
+                resetOrder(false);
+                // Focus on new order button after completion
+                setTimeout(() => {
+                    const newOrderButton = document.querySelector('[data-new-order-button]');
+                    if (newOrderButton) {
+                        newOrderButton.focus();
+                    }
+                }, 100);
             } else {
                 showError(response.data.message || t('Error completing order'));
             }
         } catch (error) {
-            console.error('Complete order error:', error);
-            
             if (error.response && error.response.status === 422) {
                 // Validation errors
                 const validationErrors = error.response.data.errors;
-                console.error('Validation errors:', validationErrors);
                 
                 // Create a readable error message from all validation errors
                 const errorMessages = Object.entries(validationErrors)
@@ -361,7 +367,7 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
     };
     
     // Reset order state
-    const resetOrder = () => {
+    const resetOrder = (hideOrderSection = true) => {
         setCurrentOrderId(null);
         setOrderItems([]);
         setSubtotal(0);
@@ -379,7 +385,11 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
         setShowAccountDropdown(false);
         setSelectedAccount(null);
         setAccountHighlightIndex(0);
-        setOrderSectionVisible(false);
+        
+        // Only hide the order section if explicitly requested
+        if (hideOrderSection) {
+            setOrderSectionVisible(false);
+        }
     };
     
     return (
@@ -425,6 +435,7 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                     <button 
                                         onClick={startNewOrder}
                                         disabled={isLoading || orderSectionVisible}
+                                        data-new-order-button
                                         className={`w-full md:w-auto animate-button px-6 py-3 rounded-xl font-medium shadow-lg transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700 transform hover:scale-[1.02] hover:-translate-y-1 hover:shadow-xl hover:shadow-green-500/20 ${
                                             (isLoading || orderSectionVisible) ? 'opacity-50 cursor-not-allowed' : ''
                                         }`}
@@ -457,6 +468,7 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                         </h3>
                                                         <button 
                                                             onClick={startNewOrder}
+                                                            data-new-order-button
                                                             className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-green-500/20 to-emerald-500/20 border border-transparent rounded-lg text-sm font-medium text-green-700 hover:bg-gradient-to-r hover:from-green-500/30 hover:to-emerald-500/30 focus:outline-none transition-colors shadow-sm hover:shadow"
                                                         >
                                                             <Plus className="h-4 w-4 mr-1" />
@@ -497,6 +509,16 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                         </h3>
                                                         
                                                         <div className="flex space-x-2">
+                                                            {orderItems.length === 0 && currentOrderId === null && (
+                                                                <button 
+                                                                    onClick={startNewOrder}
+                                                                    data-new-order-button
+                                                                    className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-lg text-sm font-medium text-white hover:from-green-600 hover:to-emerald-700 focus:outline-none transition-colors shadow-sm hover:shadow"
+                                                                >
+                                                                    <Plus className="h-4 w-4 mr-1" />
+                                                                    {t('Start New Order')}
+                                                                </button>
+                                                            )}
                                                             <button 
                                                                 onClick={() => {
                                                                     if (orderItems.length > 0 && confirm(t('Are you sure you want to clear the current order?'))) {
