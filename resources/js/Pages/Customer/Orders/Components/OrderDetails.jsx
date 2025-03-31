@@ -281,7 +281,7 @@ export default function OrderDetails({ order }) {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex justify-end space-x-6 mt-8">
+                    <div className="flex justify-end gap-8 mt-8">
                         <a
                             href={route('customer.orders.invoice', order.id)}
                             className="group relative px-6 py-3 flex items-center bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-0.5 overflow-hidden"
