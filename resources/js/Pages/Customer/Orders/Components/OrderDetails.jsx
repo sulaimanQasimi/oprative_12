@@ -279,7 +279,7 @@ export default function OrderDetails({ order }) {
                     </div>
                     
                     {/* Actions */}
-                    <div className="flex justify-end space-x-3 mt-8">
+                    <div className="flex justify-end space-x-6 mt-8">
                         <a
                             href={route('customer.orders.invoice', order.id)}
                             className="px-4 py-2.5 flex items-center bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 font-medium shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
