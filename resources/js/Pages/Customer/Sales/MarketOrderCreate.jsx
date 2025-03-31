@@ -698,16 +698,7 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                         </h3>
                                                         
                                                         <div className="flex space-x-2">
-                                                            {orderItems.length === 0 && currentOrderId === null && (
-                                                                <button 
-                                                                    onClick={startNewOrder}
-                                                                    data-new-order-button
-                                                                    className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-lg text-sm font-medium text-white hover:from-green-600 hover:to-emerald-700 focus:outline-none transition-colors shadow-sm hover:shadow"
-                                                                >
-                                                                    <Plus className="h-4 w-4 mr-1" />
-                                                                    {t('Start New Order')}
-                                                                </button>
-                                                            )}
+                                                            
                                                             <button 
                                                                 onClick={() => {
                                                                     if (orderItems.length > 0 && confirm(t('Are you sure you want to clear the current order?'))) {
@@ -718,22 +709,6 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                             >
                                                                 <X className="h-4 w-4 mr-1" />
                                                                 {t('Clear Order')}
-                                                            </button>
-                                                            <button 
-                                                                onClick={() => {
-                                                                    if (orderItems.length > 0) {
-                                                                        setAmountPaid(total);
-                                                                        // Scroll to payment section
-                                                                        const paymentSection = document.getElementById('paymentSection');
-                                                                        if (paymentSection) {
-                                                                            paymentSection.scrollIntoView({ behavior: 'smooth' });
-                                                                        }
-                                                                    }
-                                                                }}
-                                                                className="inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 border border-transparent rounded-lg text-sm font-medium text-white hover:from-green-600 hover:to-emerald-700 focus:outline-none transition-colors shadow-sm hover:shadow"
-                                                            >
-                                                                <CheckCircle className="h-4 w-4 mr-1" />
-                                                                {t('Quick Checkout')}
                                                             </button>
                                                         </div>
                                                     </div>
