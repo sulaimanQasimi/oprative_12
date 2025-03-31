@@ -74,7 +74,7 @@ trait RegisterRoutes
                         ->name('market-order.complete');
 
                     // Stock Products route
-                    Route::get('stock-products', CustomerStockProducts::class)
+                    Route::get('stock-products', [\App\Http\Controllers\Customer\StockProductsController::class, 'index'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
                         ->name('stock-products');
 
@@ -82,30 +82,30 @@ trait RegisterRoutes
                     Route::get('orders', [CustomerOrderController::class,'view'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
                         ->name('orders');
-                    
+
                     // Customer Orders API endpoints
                     Route::prefix('api')->name('api.')->group(function () {
                         Route::get('orders', [CustomerOrderController::class, 'index'])
                             ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
                             ->name('orders.index');
-                        
+
                         Route::get('orders/{id}', [CustomerOrderController::class, 'show'])
                             ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
                             ->name('orders.show');
-                        
+
                         Route::get('orders/{id}/status', [CustomerOrderController::class, 'getOrderStatus'])
                             ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
                             ->name('orders.status');
-                        
+
                         Route::get('orders/{id}/items', [CustomerOrderController::class, 'getOrderItems'])
                             ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
                             ->name('orders.items');
-                        
+
                         Route::get('orders/{id}/details', [CustomerOrderController::class, 'getOrderDetails'])
                             ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
                             ->name('orders.details');
                     });
-                    
+
                     Route::get('orders/{order}/invoice', InvoiceController::class)
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_invoice')
                         ->name('orders.invoice');
@@ -124,6 +124,11 @@ trait RegisterRoutes
                     Route::put('profile/password', [ProfileController::class, 'updatePassword'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.edit_profile')
                         ->name('profile.password');
+
+                    // Settings route
+                    Route::get('settings', [ProfileController::class, 'show'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_profile')
+                        ->name('settings');
 
                     // Customer Accounts route - replaced Livewire with Controller
                     Route::get('/accounts', [CustomerAccountsController::class, 'index'])
