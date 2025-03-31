@@ -13,7 +13,22 @@ import {
     X,
     CreditCard,
     DollarSign,
-    Barcode
+    Barcode,
+    Coffee,
+    ShoppingBag,
+    Apple,
+    Pizza,
+    Utensils,
+    Shirt,
+    Smartphone,
+    Headphones,
+    Laptop,
+    BookOpen,
+    Scissors,
+    Gift,
+    Baby,
+    Heart,
+    Pill
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -444,6 +459,45 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
         }
     };
     
+    // Function to get icon based on product name or category
+    const getProductIcon = (product) => {
+        const name = product.name.toLowerCase();
+        
+        // Detect product type based on name
+        if (name.includes('coffee') || name.includes('tea') || name.includes('café')) {
+            return <Coffee className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('phone') || name.includes('mobile') || name.includes('smart')) {
+            return <Smartphone className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('laptop') || name.includes('computer') || name.includes('pc')) {
+            return <Laptop className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('headphone') || name.includes('earphone') || name.includes('audio')) {
+            return <Headphones className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('book') || name.includes('novel') || name.includes('magazine')) {
+            return <BookOpen className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('food') || name.includes('pizza') || name.includes('burger')) {
+            return <Pizza className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('fruit') || name.includes('apple') || name.includes('vegetable')) {
+            return <Apple className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('shirt') || name.includes('cloth') || name.includes('dress')) {
+            return <Shirt className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('med') || name.includes('pill') || name.includes('drug')) {
+            return <Pill className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('baby') || name.includes('toy') || name.includes('child')) {
+            return <Baby className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('beauty') || name.includes('cosmetic') || name.includes('makeup')) {
+            return <Heart className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('gift') || name.includes('present')) {
+            return <Gift className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('scissor') || name.includes('tool')) {
+            return <Scissors className="h-4 w-4 text-green-600" />;
+        } else if (name.includes('meal') || name.includes('dish') || name.includes('food')) {
+            return <Utensils className="h-4 w-4 text-green-600" />;
+        } else {
+            // Default icon
+            return <Package className="h-4 w-4 text-green-600" />;
+        }
+    };
+    
     return (
         <>
             <Head title={t('Point of Sale')} />
@@ -660,96 +714,63 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                 orderItems.map((item, index) => (
                                                                     <div 
                                                                         key={`${item.product_id}-${index}`}
-                                                                        className="p-5 bg-white rounded-xl shadow-lg hover:shadow-xl hover:shadow-green-500/20 transform hover:scale-[1.02] transition-all duration-500 border border-white/80 backdrop-blur-sm relative overflow-hidden group"
+                                                                        className="p-3 bg-white rounded-lg shadow-sm hover:shadow-md hover:shadow-green-500/10 transform hover:scale-[1.01] transition-all duration-300 border border-white/80 backdrop-blur-sm relative overflow-hidden group mb-2"
                                                                         style={{
                                                                             animation: `fadeIn 0.5s ${index * 0.1}s both`,
                                                                             opacity: 0
                                                                         }}
                                                                     >
-                                                                        {/* Decorative background elements */}
-                                                                        <div className="absolute -top-12 -right-12 w-32 h-32 bg-gradient-to-br from-green-100/50 to-emerald-100/50 rounded-full blur-2xl group-hover:w-40 group-hover:h-40 transition-all duration-500"></div>
-                                                                        <div className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-br from-blue-100/40 to-indigo-100/40 rounded-full blur-2xl group-hover:w-32 group-hover:h-32 transition-all duration-500"></div>
-                                                                        
-                                                                        {/* Subtle pattern overlay */}
-                                                                        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiMyMDIwMjAiIGZpbGwtb3BhY2l0eT0iMC4wMSI+PHBhdGggZD0iTTM2IDM0djZoNnYtNmgtNnptNi00aC0xMHYxMGgxMFYzMHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20 group-hover:opacity-30 transition-opacity duration-500"></div>
-                                                                        
-                                                                        {/* Item number badge with improved style */}
-                                                                        <div className="absolute top-0 left-0 w-10 h-10 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 rounded-br-2xl shadow-sm transition-all duration-300 group-hover:from-green-100 group-hover:to-emerald-100 overflow-hidden">
-                                                                            <div className="absolute inset-0 bg-white/30 group-hover:bg-white/10 transition-all duration-500"></div>
-                                                                            <span className="text-gray-700 font-bold text-sm group-hover:text-green-700 transition-all duration-300 relative">#{index + 1}</span>
-                                                                        </div>
-                                                                        
-                                                                        {/* Total price badge with enhanced animation */}
-                                                                        <div className="absolute top-3 right-3 bg-gradient-to-r from-green-50 to-emerald-50 px-4 py-2 rounded-full text-sm font-bold text-green-700 border border-green-100/80 shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg group-hover:shadow-green-500/10 group-hover:from-green-100 group-hover:to-emerald-100 hover:rotate-1">
-                                                                            {formatMoney(item.price * item.quantity)}
-                                                                        </div>
-                                                                        
-                                                                        {/* Product title and primary details section with luxurious design */}
-                                                                        <div className="mt-2 flex items-start gap-4 pb-4 mb-6 border-b border-gray-100/80">
-                                                                            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-200 flex items-center justify-center shadow-md group-hover:shadow-lg transition-all duration-500 group-hover:from-green-200 group-hover:to-emerald-300 overflow-hidden">
-                                                                                <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
-                                                                                <span className="font-bold text-green-600 text-2xl group-hover:text-green-700 transition-all duration-300 relative">{item.name.charAt(0).toUpperCase()}</span>
+                                                                        {/* Streamlined layout - horizontal flex */}
+                                                                        <div className="flex items-center gap-2">
+                                                                            {/* Item number badge */}
+                                                                            <div className="w-7 h-7 flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-sm transition-all duration-300 group-hover:from-green-100 group-hover:to-emerald-100">
+                                                                                <span className="text-gray-700 font-bold text-xs group-hover:text-green-700 transition-all duration-300">#{index + 1}</span>
                                                                             </div>
-                                                                            <div className="flex-1 pt-1">
-                                                                                <h4 className="font-bold text-gray-800 text-xl group-hover:text-green-800 transition-all duration-300">{item.name}</h4>
-                                                                                <div className="flex items-center mt-3 gap-2">
+                                                                            
+                                                                            {/* Product icon instead of avatar */}
+                                                                            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-green-100 to-emerald-200 flex items-center justify-center shadow-sm group-hover:shadow-md transition-all duration-300 group-hover:from-green-200 group-hover:to-emerald-300">
+                                                                                {getProductIcon(item)}
+                                                                            </div>
+                                                                            
+                                                                            {/* Product info - flexible width */}
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <h4 className="font-bold text-gray-800 text-sm truncate group-hover:text-green-800 transition-all duration-300">{item.name}</h4>
+                                                                                <div className="flex items-center text-xs gap-1">
                                                                                     <span className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent font-medium">{formatMoney(item.price)}</span>
-                                                                                    <span className="text-gray-400 text-lg">×</span>
+                                                                                    <span className="text-gray-400">×</span>
                                                                                     <span className="font-medium text-gray-600">{item.quantity}</span>
-                                                                                    <span className="text-gray-400 text-lg">=</span>
-                                                                                    <span className="font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent text-xl">{formatMoney(item.price * item.quantity)}</span>
+                                                                                    <span className="text-gray-400">=</span>
+                                                                                    <span className="font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{formatMoney(item.price * item.quantity)}</span>
                                                                                 </div>
                                                                             </div>
-                                                                        </div>
-                                                                        
-                                                                        {/* Item details grid with premium styling */}
-                                                                        <div className="grid grid-cols-2 gap-4 mb-6">
-                                                                            <div className="bg-gray-50/80 backdrop-blur-sm group-hover:bg-green-50/60 rounded-2xl p-4 border border-gray-100/80 group-hover:border-green-100/80 transition-all duration-300 hover:shadow-md hover:scale-[1.02] hover:bg-white/80">
-                                                                                <span className="text-xs text-gray-500 block mb-1">{t('Product ID')}</span>
-                                                                                <span className="font-medium text-gray-700 group-hover:text-green-700 transition-all duration-300 text-base">{item.product_id || 'N/A'}</span>
-                                                                            </div>
-                                                                            <div className="bg-gray-50/80 backdrop-blur-sm group-hover:bg-green-50/60 rounded-2xl p-4 border border-gray-100/80 group-hover:border-green-100/80 transition-all duration-300 hover:shadow-md hover:scale-[1.02] hover:bg-white/80">
-                                                                                <span className="text-xs text-gray-500 block mb-1">{t('Unit Price')}</span>
-                                                                                <span className="font-medium text-green-600 group-hover:text-green-700 transition-all duration-300 text-base">{formatMoney(item.price)}</span>
-                                                                            </div>
-                                                                            <div className="bg-gray-50/80 backdrop-blur-sm group-hover:bg-green-50/60 rounded-2xl p-4 border border-gray-100/80 group-hover:border-green-100/80 transition-all duration-300 hover:shadow-md hover:scale-[1.02] hover:bg-white/80">
-                                                                                <span className="text-xs text-gray-500 block mb-1">{t('Quantity')}</span>
-                                                                                <span className="font-medium text-gray-700 group-hover:text-green-700 transition-all duration-300 text-base">{item.quantity}</span>
-                                                                            </div>
-                                                                            <div className="bg-gray-50/80 backdrop-blur-sm group-hover:bg-green-50/60 rounded-2xl p-4 border border-gray-100/80 group-hover:border-green-100/80 transition-all duration-300 hover:shadow-md hover:scale-[1.02] hover:bg-white/80">
-                                                                                <span className="text-xs text-gray-500 block mb-1">{t('Available Stock')}</span>
-                                                                                <span className={`font-medium ${item.max_stock - item.quantity > 5 ? 'text-green-600 group-hover:text-green-700' : 'text-orange-600 group-hover:text-orange-700'} transition-all duration-300 text-base`}>
-                                                                                    {item.max_stock ? (item.max_stock - item.quantity) : 'N/A'}
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                        
-                                                                        {/* Action controls with elegant styling */}
-                                                                        <div className="flex items-center justify-between mt-5">
-                                                                            <div className="flex items-center rounded-xl overflow-hidden border border-gray-200/90 shadow-lg group-hover:shadow-xl group-hover:border-green-200/90 transition-all duration-500 bg-white/80 backdrop-blur-sm">
+                                                                            
+                                                                            {/* Quantity controls */}
+                                                                            <div className="flex items-center rounded-lg overflow-hidden border border-gray-200/90 shadow-sm group-hover:shadow-md group-hover:border-green-200/90 transition-all duration-300 bg-white/80 backdrop-blur-sm">
                                                                                 <button 
                                                                                     onClick={() => updateQuantity(index, -1)}
-                                                                                    className="p-3 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-red-50 hover:to-red-100 text-gray-700 hover:text-red-600 active:bg-red-200 transition-all duration-300"
+                                                                                    className="p-1.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-red-50 hover:to-red-100 text-gray-700 hover:text-red-600 active:bg-red-200 transition-all duration-300"
                                                                                 >
-                                                                                    <Minus className="h-5 w-5" />
+                                                                                    <Minus className="h-3.5 w-3.5" />
                                                                                 </button>
-                                                                                <span className="w-14 text-center font-bold py-3 px-2 bg-white text-lg">{item.quantity}</span>
+                                                                                <span className="w-8 text-center font-medium py-1.5 px-1 bg-white text-sm">{item.quantity}</span>
                                                                                 <button 
                                                                                     onClick={() => updateQuantity(index, 1)}
-                                                                                    className="p-3 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-green-50 hover:to-green-100 text-gray-700 hover:text-green-600 active:bg-green-200 transition-all duration-300"
+                                                                                    className="p-1.5 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-green-50 hover:to-green-100 text-gray-700 hover:text-green-600 active:bg-green-200 transition-all duration-300"
                                                                                 >
-                                                                                    <Plus className="h-5 w-5" />
+                                                                                    <Plus className="h-3.5 w-3.5" />
                                                                                 </button>
                                                                             </div>
-                                                                            <div className="flex items-center gap-2">
-                                                                                {/* Remove button with luxurious hover effects */}
-                                                                                <button 
-                                                                                    onClick={() => removeItem(index)}
-                                                                                    className="flex items-center justify-center p-3 text-red-500 bg-red-50/80 hover:bg-red-100/90 rounded-xl transition-all duration-500 hover:shadow-lg hover:shadow-red-100/50 hover:scale-110 backdrop-blur-sm"
-                                                                                >
-                                                                                    <X className="h-5 w-5" />
-                                                                                </button>
-                                                                            </div>
+                                                                            
+                                                                            {/* Remove button */}
+                                                                            <button 
+                                                                                onClick={() => removeItem(index)}
+                                                                                className="flex items-center justify-center p-1.5 text-red-500 bg-red-50/80 hover:bg-red-100/90 rounded-lg transition-all duration-300 hover:shadow-sm hover:shadow-red-100/50 hover:scale-105 backdrop-blur-sm"
+                                                                            >
+                                                                                <X className="h-4 w-4" />
+                                                                            </button>
+                                                                            
+                                                                            {/* Stock indicator dot */}
+                                                                            <div className={`w-2 h-2 rounded-full ${item.max_stock - item.quantity > 5 ? 'bg-green-500' : 'bg-orange-500'}`}></div>
                                                                         </div>
                                                                     </div>
                                                                 ))
