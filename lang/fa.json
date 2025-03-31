@@ -637,5 +637,12 @@
     "Invalid account selected.": "حساب انتخاب شده نامعتبر است.",
     "Remaining balance for order": "مانده باقیمانده برای سفارش",
     "Insufficient stock for product": "موجودی ناکافی برای محصول",
-    "Search": "جستجو"
+    "Search": "جستجو",
+    
+    "ORDER RECEIPT": "رسید سفارش",
+    "Order": "سفارش",
+    "Print": "چاپ",
+    "Subtotal": "جمع جزئی",
+    "Tax": "مالیات",
+    "Unknown Product": "محصول ناشناخته"
 }
