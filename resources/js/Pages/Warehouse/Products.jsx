@@ -57,7 +57,7 @@ export default function Products({ auth, products }) {
                             <Button variant="ghost" size="icon" as="a" href={route('warehouse.users')}>
                                 <Users className="h-6 w-6" />
                             </Button>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.profile.edit')}>
                                 <Settings className="h-6 w-6" />
                             </Button>
                         </nav>

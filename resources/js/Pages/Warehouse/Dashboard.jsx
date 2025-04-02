@@ -44,19 +44,22 @@ export default function Dashboard({ auth, stats }) {
                             <Package className="h-6 w-6" />
                         </div>
                         <nav className="flex flex-col items-center space-y-8 text-gray-500">
-                            <Button variant="ghost" size="icon" className="text-purple-600">
+                            <Button variant="ghost" size="icon" className="text-purple-600" as="a" href={route('warehouse.dashboard')}>
                                 <MessageSquare className="h-6 w-6" />
                             </Button>
-                            <Button variant="ghost" size="icon">
-                                <Users className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon">
-                                <TrendingUp className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.products')}>
                                 <Package className="h-6 w-6" />
                             </Button>
-                            <Button variant="ghost" size="icon">
+                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.income')}>
+                                <TrendingUp className="h-6 w-6" />
+                            </Button>
+                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.outcome')}>
+                                <TrendingUp className="h-6 w-6 rotate-180" />
+                            </Button>
+                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.users')}>
+                                <Users className="h-6 w-6" />
+                            </Button>
+                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.profile.edit')}>
                                 <Settings className="h-6 w-6" />
                             </Button>
                         </nav>
@@ -133,7 +136,7 @@ export default function Dashboard({ auth, stats }) {
                                     </div>
                                 </div>
                                 <div className="flex space-x-2">
-                                    <Button variant="outline" size="sm">
+                                    <Button variant="outline" size="sm" as="a" href={route('warehouse.profile.edit')}>
                                         <User className="h-4 w-4 mr-2" />
                                         Profile
                                     </Button>
@@ -202,7 +205,7 @@ export default function Dashboard({ auth, stats }) {
                                     <CardContent className="p-4">
                                         <div className="flex items-center justify-between mb-4">
                                             <h3 className="font-medium">Recent Activity</h3>
-                                            <Button variant="ghost" size="sm" className="text-purple-600">
+                                            <Button variant="ghost" size="sm" className="text-purple-600" as="a" href={route('warehouse.income')}>
                                                 View All
                                             </Button>
                                         </div>
