@@ -19,7 +19,7 @@ class ProductController extends Controller
         $products = $warehouse->products()->get()->map(function ($product) {
             return [
                 "product_id" => $product->product_id,
-                "product" => collect($product->product)->map(function ($item) {
+                "product" => collect([$product->product])->map(function ($item) {
                     return [
                         "id" => $item->id,
                         "type" => $item->type,
@@ -42,6 +42,7 @@ class ProductController extends Controller
                 "profit" => $product->profit,
             ];
         });
+
         return Inertia::render('Warehouse/Products', [
             'products' => $products,
         ]);

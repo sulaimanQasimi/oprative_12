@@ -25,10 +25,30 @@ export default function Products({ auth, products }) {
     // Filter products based on search term
     const filteredProducts = products && products.length
         ? products.filter(product =>
-            product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            product.sku.toLowerCase().includes(searchTerm.toLowerCase())
+            product.product[0].name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            product.product[0].barcode?.toLowerCase().includes(searchTerm.toLowerCase())
           )
         : [];
+
+    // Calculate total inventory value
+    const calculateTotalValue = () => {
+        if (!products || products.length === 0) return 0;
+        return products.reduce((sum, product) => {
+            return sum + (product.net_quantity * product.income_price);
+        }, 0).toFixed(2);
+    };
+
+    // Count low stock products
+    const getLowStockCount = () => {
+        if (!products || products.length === 0) return 0;
+        return products.filter(product => product.net_quantity < 10).length;
+    };
+
+    // Get unique product types for categories
+    const getCategories = () => {
+        if (!products || products.length === 0) return [];
+        return Array.from(new Set(products.map(p => p.product[0].type || 'Uncategorized')));
+    };
 
     return (
         <>
@@ -151,7 +171,7 @@ export default function Products({ auth, products }) {
                                 <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
                                 <input
                                     type="text"
-                                    placeholder="Search products by name or SKU..."
+                                    placeholder="Search products by name or barcode..."
                                     className="w-full py-2 pl-10 pr-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -161,7 +181,7 @@ export default function Products({ auth, products }) {
                             <div className="space-y-4">
                                 {filteredProducts && filteredProducts.length > 0 ? (
                                     filteredProducts.map(product => (
-                                        <Card key={product.id} className="shadow-sm border-none">
+                                        <Card key={product.product_id} className="shadow-sm border-none">
                                             <CardContent className="p-4">
                                                 <div className="flex items-center space-x-4">
                                                     <div className="h-12 w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-purple-600">
@@ -169,14 +189,14 @@ export default function Products({ auth, products }) {
                                                     </div>
                                                     <div className="flex-1">
                                                         <div className="flex items-center justify-between">
-                                                            <h3 className="font-medium">{product.name}</h3>
+                                                            <h3 className="font-medium">{product.product[0].name}</h3>
                                                             <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 py-1 px-2 rounded-full">
-                                                                {product.quantity} in stock
+                                                                {product.net_quantity} in stock
                                                             </span>
                                                         </div>
                                                         <div className="mt-1 flex items-center text-sm text-gray-500">
-                                                            <span className="mr-4">SKU: {product.sku}</span>
-                                                            <span>Price: ${product.price}</span>
+                                                            <span className="mr-4">Barcode: {product.product[0].barcode || 'N/A'}</span>
+                                                            <span>Price: ${product.income_price}</span>
                                                         </div>
                                                     </div>
                                                     <Button variant="ghost" size="sm">
@@ -239,7 +259,7 @@ export default function Products({ auth, products }) {
                                         <div className="flex flex-col">
                                             <span className="text-sm opacity-80">Total Value</span>
                                             <span className="text-2xl font-bold mt-1">
-                                                ${products?.reduce((sum, product) => sum + (product.price * product.quantity), 0)?.toFixed(2) || '0.00'}
+                                                ${calculateTotalValue()}
                                             </span>
                                             <span className="text-xs mt-1">Inventory value</span>
                                         </div>
@@ -250,7 +270,7 @@ export default function Products({ auth, products }) {
                                         <div className="flex flex-col">
                                             <span className="text-sm opacity-80">Low Stock</span>
                                             <span className="text-2xl font-bold mt-1">
-                                                {products?.filter(product => product.quantity < 10).length || 0}
+                                                {getLowStockCount()}
                                             </span>
                                             <span className="text-xs mt-1">Products to reorder</span>
                                         </div>
@@ -263,11 +283,12 @@ export default function Products({ auth, products }) {
                                     <h3 className="font-medium mb-3">Categories</h3>
                                     {products && products.length > 0 ? (
                                         <div className="space-y-2">
-                                            {Array.from(new Set(products.map(p => p.category))).map((category, index) => (
+                                            {getCategories().map((category, index) => (
                                                 <div key={index} className="flex items-center justify-between">
                                                     <span className="text-sm">{category}</span>
                                                     <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                                                        {products.filter(p => p.category === category).length}
+                                                        {products.filter(p => p.product[0].type === category ||
+                                                            (!p.product[0].type && category === 'Uncategorized')).length}
                                                     </span>
                                                 </div>
                                             ))}
