@@ -2,11 +2,14 @@ import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { Card, CardContent } from '@/Components/ui/card';
-import { Search, MessageSquare, Package, TrendingUp, Settings, ChevronRight, Plus, Filter } from 'lucide-react';
+import { Card, CardContent, CardFooter } from '@/Components/ui/card';
+import { Badge } from '@/Components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
+import { Search, MessageSquare, Package, TrendingUp, Settings, ChevronRight, Plus, Filter, ArrowUpRight, ArrowDownRight, BarChart3, Layers, PieChart } from 'lucide-react';
 
 export default function Products({ auth, products }) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [view, setView] = useState('grid');
 
     // Filter products based on search term
     const filteredProducts = products && products.length
@@ -40,175 +43,285 @@ export default function Products({ auth, products }) {
         <>
             <Head title="Warehouse Products" />
 
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900">
-                <div className="grid grid-cols-10 min-h-screen">
-                    {/* Sidebar */}
-                    <div className="col-span-1 bg-white dark:bg-gray-800 shadow-md flex flex-col items-center py-6 space-y-8">
-                        <div className="bg-purple-600 text-white p-2 rounded-xl">
-                            <Package className="h-6 w-6" />
-                        </div>
-                        <nav className="flex flex-col items-center space-y-8 text-gray-500">
-                            <Button variant="ghost" size="icon" className="text-purple-600" as="a" href={route('warehouse.dashboard')}>
-                                <MessageSquare className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.products')}>
+            <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+                {/* Sidebar */}
+                <div className="w-16 flex-shrink-0 bg-white dark:bg-gray-800 shadow-lg z-10">
+                    <div className="h-full flex flex-col items-center justify-between py-6">
+                        <div className="flex flex-col items-center space-y-8">
+                            <div className="bg-purple-600 text-white p-2 rounded-xl">
                                 <Package className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.income')}>
-                                <TrendingUp className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.outcome')}>
-                                <TrendingUp className="h-6 w-6 rotate-180" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.profile.edit')}>
-                                <Settings className="h-6 w-6" />
-                            </Button>
-                        </nav>
-                        <div className="mt-auto">
-                            <Avatar>
-                                <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}`} />
-                                <AvatarFallback>{auth.user.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                        </div>
-                    </div>
-
-                    {/* Main Content */}
-                    <div className="col-span-6 flex flex-col">
-                        <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <Avatar className="h-10 w-10">
-                                        <AvatarImage src={`https://ui-avatars.com/api/?name=Warehouse+Products`} />
-                                        <AvatarFallback>WP</AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <h2 className="font-semibold text-lg">Products</h2>
-                                        <p className="text-sm text-gray-500">{auth.user.warehouse.name} • {products?.length || 0} products</p>
-                                    </div>
-                                </div>
-                                <div className="flex space-x-2">
-                                    <Button variant="outline" size="sm">
-                                        <Filter className="h-4 w-4 mr-2" />
-                                        Filter
-                                    </Button>
-                                    <Button size="sm">
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        Add Product
-                                    </Button>
-                                </div>
                             </div>
+                            <nav className="flex flex-col items-center space-y-8">
+                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20" as="a" href={route('warehouse.dashboard')}>
+                                    <MessageSquare className="h-5 w-5" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="text-purple-600 bg-purple-100 dark:bg-purple-900/20" as="a" href={route('warehouse.products')}>
+                                    <Package className="h-5 w-5" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20" as="a" href={route('warehouse.income')}>
+                                    <TrendingUp className="h-5 w-5" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20" as="a" href={route('warehouse.outcome')}>
+                                    <TrendingUp className="h-5 w-5 rotate-180" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20" as="a" href={route('warehouse.profile.edit')}>
+                                    <Settings className="h-5 w-5" />
+                                </Button>
+                            </nav>
                         </div>
+                        <Avatar className="border-2 border-purple-200 dark:border-purple-900/40">
+                            <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}&background=8b5cf6&color=fff`} />
+                            <AvatarFallback className="bg-purple-600 text-white">{auth.user.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                    </div>
+                </div>
 
-                        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
-                            <div className="mb-6 relative">
-                                <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    {/* Header */}
+                    <header className="bg-white dark:bg-gray-800 shadow-sm p-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Products</h1>
+                            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800">
+                                {products?.length || 0} items
+                            </Badge>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                            <div className="relative w-64">
+                                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="text"
-                                    placeholder="Search products by name or barcode..."
-                                    className="w-full py-2 pl-10 pr-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm"
+                                    placeholder="Search products..."
+                                    className="w-full py-2 pl-10 pr-4 rounded-lg bg-gray-100 dark:bg-gray-700 border-0 focus:ring-2 focus:ring-purple-500"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                 />
                             </div>
-
-                            <div className="space-y-4">
-                                {filteredProducts && filteredProducts.length > 0 ? (
-                                    filteredProducts.map(product => (
-                                        <Card key={product.product_id} className="shadow-sm border-none">
-                                            <CardContent className="p-4">
-                                                <div className="flex items-center space-x-4">
-                                                    <div className="h-12 w-12 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center text-purple-600">
-                                                        <Package className="h-6 w-6" />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <div className="flex items-center justify-between">
-                                                            <h3 className="font-medium">{product.product[0].name}</h3>
-                                                            <span className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 py-1 px-2 rounded-full">
-                                                                {product.net_quantity} in stock
-                                                            </span>
-                                                        </div>
-                                                        <div className="mt-1 flex items-center text-sm text-gray-500">
-                                                            <span className="mr-4">Barcode: {product.product[0].barcode || 'N/A'}</span>
-                                                            <span>Price: ${product.income_price}</span>
-                                                        </div>
-                                                    </div>
-                                                    <Button variant="ghost" size="sm">
-                                                        <ChevronRight className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    ))
-                                ) : (
-                                    <div className="text-center py-12">
-                                        <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                                        <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">No products found</h3>
-                                        <p className="text-gray-500">
-                                            {searchTerm ? 'Try adjusting your search criteria' : 'Add products to your warehouse inventory'}
-                                        </p>
-                                        <Button className="mt-4">
-                                            <Plus className="h-4 w-4 mr-2" />
-                                            Add Product
-                                        </Button>
-                                    </div>
-                                )}
-                            </div>
+                            <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-700">
+                                <Filter className="h-4 w-4 mr-2" />
+                                Filter
+                            </Button>
+                            <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                                <Plus className="h-4 w-4 mr-2" />
+                                Add Product
+                            </Button>
                         </div>
-                    </div>
+                    </header>
 
-                    {/* Right Sidebar - Product Stats */}
-                    <div className="col-span-3 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                            <h2 className="font-semibold text-xl">Product Stats</h2>
-                        </div>
-
-                        <div className="p-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <Card className="shadow-sm border-none bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
-                                    <CardContent className="p-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm opacity-80">Total Value</span>
-                                            <span className="text-2xl font-bold mt-1">
-                                                ${calculateTotalValue()}
-                                            </span>
-                                            <span className="text-xs mt-1">Inventory value</span>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                                <Card className="shadow-sm border-none bg-gradient-to-br from-pink-500 to-rose-600 text-white">
-                                    <CardContent className="p-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-sm opacity-80">Low Stock</span>
-                                            <span className="text-2xl font-bold mt-1">
-                                                {getLowStockCount()}
-                                            </span>
-                                            <span className="text-xs mt-1">Products to reorder</span>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-
-                            <Card className="mt-4 shadow-sm border-none">
+                    {/* Dashboard Summary */}
+                    <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+                        <div className="grid grid-cols-4 gap-4">
+                            <Card className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white border-0 shadow-lg">
                                 <CardContent className="p-4">
-                                    <h3 className="font-medium mb-3">Categories</h3>
-                                    {products && products.length > 0 ? (
-                                        <div className="space-y-2">
-                                            {getCategories().map((category, index) => (
-                                                <div key={index} className="flex items-center justify-between">
-                                                    <span className="text-sm">{category}</span>
-                                                    <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                                                        {products.filter(p => p.product[0].type === category ||
-                                                            (!p.product[0].type && category === 'Uncategorized')).length}
-                                                    </span>
-                                                </div>
-                                            ))}
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="font-medium">Total Value</span>
+                                        <div className="p-2 bg-white/20 rounded-lg">
+                                            <BarChart3 className="h-5 w-5" />
                                         </div>
-                                    ) : (
-                                        <p className="text-sm text-gray-500 text-center py-2">No categories found</p>
-                                    )}
+                                    </div>
+                                    <div className="text-3xl font-bold mt-1">${calculateTotalValue()}</div>
+                                    <div className="mt-3 text-xs flex items-center text-white/80">
+                                        <ArrowUpRight className="h-3 w-3 mr-1" />
+                                        <span>Up 12% from last month</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white border-0 shadow-lg">
+                                <CardContent className="p-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="font-medium">Total Products</span>
+                                        <div className="p-2 bg-white/20 rounded-lg">
+                                            <Layers className="h-5 w-5" />
+                                        </div>
+                                    </div>
+                                    <div className="text-3xl font-bold mt-1">{products?.length || 0}</div>
+                                    <div className="mt-3 text-xs flex items-center text-white/80">
+                                        <ArrowUpRight className="h-3 w-3 mr-1" />
+                                        <span>Added 5 this month</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="bg-gradient-to-br from-pink-500 to-rose-600 text-white border-0 shadow-lg">
+                                <CardContent className="p-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="font-medium">Low Stock</span>
+                                        <div className="p-2 bg-white/20 rounded-lg">
+                                            <ArrowDownRight className="h-5 w-5" />
+                                        </div>
+                                    </div>
+                                    <div className="text-3xl font-bold mt-1">{getLowStockCount()}</div>
+                                    <div className="mt-3 text-xs flex items-center text-white/80">
+                                        <ArrowDownRight className="h-3 w-3 mr-1" />
+                                        <span>Critical items need restock</span>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="bg-gradient-to-br from-amber-500 to-orange-600 text-white border-0 shadow-lg">
+                                <CardContent className="p-4">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <span className="font-medium">Categories</span>
+                                        <div className="p-2 bg-white/20 rounded-lg">
+                                            <PieChart className="h-5 w-5" />
+                                        </div>
+                                    </div>
+                                    <div className="text-3xl font-bold mt-1">{getCategories().length}</div>
+                                    <div className="mt-3 text-xs flex items-center text-white/80">
+                                        <span>Product classifications</span>
+                                    </div>
                                 </CardContent>
                             </Card>
                         </div>
+                    </div>
+
+                    {/* Main Content Section */}
+                    <div className="flex-1 overflow-auto p-6 bg-gray-100 dark:bg-gray-900">
+                        <div className="mb-6 flex justify-between items-center">
+                            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                                {searchTerm ? `Search Results: "${searchTerm}"` : 'All Products'}
+                            </h2>
+                            <Tabs defaultValue="grid" className="w-auto">
+                                <TabsList className="bg-white dark:bg-gray-800">
+                                    <TabsTrigger value="grid" active={view === 'grid'} onClick={setView}>Grid</TabsTrigger>
+                                    <TabsTrigger value="list" active={view === 'list'} onClick={setView}>List</TabsTrigger>
+                                </TabsList>
+                            </Tabs>
+                        </div>
+
+                        <TabsContent value="grid" activeValue={view} className="mt-0">
+                            {filteredProducts && filteredProducts.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    {filteredProducts.map(product => (
+                                        <Card key={product.product_id} className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow">
+                                            <div className="h-3 bg-purple-600" />
+                                            <CardContent className="p-6">
+                                                <div className="flex items-start">
+                                                    <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center text-purple-600 mr-4">
+                                                        <Package className="h-6 w-6" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-medium text-lg text-gray-900 dark:text-white">{product.product[0].name}</h3>
+                                                        <div className="mt-1 flex flex-wrap gap-2">
+                                                            <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                                                                ID: {product.product_id}
+                                                            </Badge>
+                                                            <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+                                                                Barcode: {product.product[0].barcode || 'N/A'}
+                                                            </Badge>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-6 grid grid-cols-2 gap-4">
+                                                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Stock</p>
+                                                        <p className="text-lg font-semibold text-gray-900 dark:text-white">{product.net_quantity}</p>
+                                                    </div>
+                                                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Price</p>
+                                                        <p className="text-lg font-semibold text-gray-900 dark:text-white">${product.income_price}</p>
+                                                    </div>
+                                                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Incoming</p>
+                                                        <p className="text-lg font-semibold text-green-600">{product.income_quantity}</p>
+                                                    </div>
+                                                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Outgoing</p>
+                                                        <p className="text-lg font-semibold text-rose-600">{product.outcome_quantity}</p>
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                            <CardFooter className="bg-gray-50 dark:bg-gray-800 px-6 py-4 flex justify-between">
+                                                <span className="text-sm text-gray-500 dark:text-gray-400">
+                                                    Total: ${(product.net_quantity * product.income_price).toFixed(2)}
+                                                </span>
+                                                <Button variant="ghost" size="sm" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 dark:hover:bg-purple-900/20">
+                                                    View Details
+                                                    <ChevronRight className="h-4 w-4 ml-1" />
+                                                </Button>
+                                            </CardFooter>
+                                        </Card>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-10 text-center">
+                                    <div className="inline-flex h-20 w-20 rounded-full bg-purple-100 dark:bg-purple-900/30 items-center justify-center mb-6">
+                                        <Package className="h-10 w-10 text-purple-600" />
+                                    </div>
+                                    <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">No products found</h3>
+                                    <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
+                                        {searchTerm ? 'Try adjusting your search criteria or check for typos.' : 'Your warehouse inventory is empty. Add products to get started.'}
+                                    </p>
+                                    <Button className="bg-purple-600 hover:bg-purple-700">
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Add First Product
+                                    </Button>
+                                </div>
+                            )}
+                        </TabsContent>
+
+                        <TabsContent value="list" activeValue={view} className="mt-0">
+                            {filteredProducts && filteredProducts.length > 0 ? (
+                                <Card className="border-0 shadow-md overflow-hidden">
+                                    <div className="bg-gray-50 dark:bg-gray-800 px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-12 text-sm font-medium text-gray-500 dark:text-gray-400">
+                                        <div className="col-span-4">Product Name</div>
+                                        <div className="col-span-1 text-center">ID</div>
+                                        <div className="col-span-1 text-center">Stock</div>
+                                        <div className="col-span-1 text-center">Price</div>
+                                        <div className="col-span-1 text-center">Incoming</div>
+                                        <div className="col-span-1 text-center">Outgoing</div>
+                                        <div className="col-span-2 text-center">Value</div>
+                                        <div className="col-span-1"></div>
+                                    </div>
+                                    <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                                        {filteredProducts.map(product => (
+                                            <div key={product.product_id} className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 grid grid-cols-12 items-center">
+                                                <div className="col-span-4 flex items-center">
+                                                    <div className="h-10 w-10 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center text-purple-600 mr-3">
+                                                        <Package className="h-5 w-5" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="font-medium text-gray-900 dark:text-white">{product.product[0].name}</h3>
+                                                        <p className="text-xs text-gray-500">Barcode: {product.product[0].barcode || 'N/A'}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-300">{product.product_id}</div>
+                                                <div className="col-span-1 text-center">
+                                                    <Badge className={`${product.net_quantity < 10 ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'}`}>
+                                                        {product.net_quantity}
+                                                    </Badge>
+                                                </div>
+                                                <div className="col-span-1 text-center font-medium text-gray-900 dark:text-white">${product.income_price}</div>
+                                                <div className="col-span-1 text-center text-green-600">{product.income_quantity}</div>
+                                                <div className="col-span-1 text-center text-rose-600">{product.outcome_quantity}</div>
+                                                <div className="col-span-2 text-center font-medium text-gray-900 dark:text-white">${(product.net_quantity * product.income_price).toFixed(2)}</div>
+                                                <div className="col-span-1 text-right">
+                                                    <Button variant="ghost" size="sm" className="text-gray-500 hover:text-purple-600">
+                                                        <ChevronRight className="h-5 w-5" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </Card>
+                            ) : (
+                                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-10 text-center">
+                                    <div className="inline-flex h-20 w-20 rounded-full bg-purple-100 dark:bg-purple-900/30 items-center justify-center mb-6">
+                                        <Package className="h-10 w-10 text-purple-600" />
+                                    </div>
+                                    <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">No products found</h3>
+                                    <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
+                                        {searchTerm ? 'Try adjusting your search criteria or check for typos.' : 'Your warehouse inventory is empty. Add products to get started.'}
+                                    </p>
+                                    <Button className="bg-purple-600 hover:bg-purple-700">
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Add First Product
+                                    </Button>
+                                </div>
+                            )}
+                        </TabsContent>
                     </div>
                 </div>
             </div>
