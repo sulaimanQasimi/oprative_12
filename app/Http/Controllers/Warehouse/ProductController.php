@@ -16,20 +16,33 @@ class ProductController extends Controller
     {
         $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
 
-        $products = $warehouse->products()->with(['category'])->get()->map(function ($product) {
+        $products = $warehouse->products()->get()->map(function ($product) {
             return [
-                'id' => $product->id,
-                'name' => $product->name,
-                'sku' => $product->sku,
-                'quantity' => $product->pivot->quantity,
-                'minimum_quantity' => $product->pivot->minimum_quantity,
-                'maximum_quantity' => $product->pivot->maximum_quantity,
-                'is_active' => $product->pivot->is_active,
-                'price' => $product->price,
-                'category' => $product->category ? $product->category->name : 'Uncategorized',
+                "product_id" => $product->product_id,
+                "product" => collect($product->product)->map(function ($item) {
+                    return [
+                        "id" => $item->id,
+                        "type" => $item->type,
+                        "name" => $item->name,
+                        "barcode" => $item->barcode,
+                        "purchase_price" => $item->purchase_price,
+                        "wholesale_price" => $item->wholesale_price,
+                        "retail_price" => $item->retail_price,
+                    ];
+                })
+                ->toArray(),
+                "income_quantity" => $product->income_quantity,
+                "income_price" => $product->income_price,
+                "income_total" => $product->income_total,
+                "outcome_quantity" => $product->outcome_quantity,
+                "outcome_price" => $product->outcome_price,
+                "outcome_total" => $product->outcome_total,
+                "net_quantity" => $product->net_quantity,
+                "net_total" => $product->net_total,
+                "profit" => $product->profit,
             ];
         });
-
+        dd($products, $warehouse);
         return Inertia::render('Warehouse/Products', [
             'products' => $products,
         ]);

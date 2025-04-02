@@ -24,11 +24,14 @@ class Warehouse extends Model
         'is_active' => 'boolean'
     ];
 
-    public function products(): BelongsToMany
+    public function products()
     {
-        return $this->belongsToMany(Product::class, 'warehouse_products')
-            ->withPivot(['quantity', 'minimum_quantity', 'maximum_quantity', 'is_active'])
-            ->withTimestamps();
+        return $this->hasMany(WarehouseProduct::class);
+    }
+
+    public function productMovements()
+    {
+        return $this->hasMany(WarehouseProductMovement::class);
     }
 
     public function transfersFrom(): HasMany
