@@ -29,7 +29,6 @@ class OutcomeController extends Controller
                 'created_at' => $outcomeRecord->created_at->diffForHumans(),
             ];
         });
-
         return Inertia::render('Warehouse/Outcome', [
             'outcome' => $outcome,
         ]);

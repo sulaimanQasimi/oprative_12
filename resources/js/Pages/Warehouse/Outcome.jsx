@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Search, TrendingUp, ChevronRight, Plus, Filter, ArrowUpRight, ArrowDownRight, BarChart3, Calendar, Clock, Download, MoreHorizontal, ExternalLink, Tag, User, Bell } from 'lucide-react';
 import anime from 'animejs';
 import Navigation from '@/Components/Warehouse/Navigation';
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 export default function Outcome({ auth, outcome }) {
     // Add debugging to check outcome data
@@ -16,6 +17,8 @@ export default function Outcome({ auth, outcome }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [view, setView] = useState('grid');
     const [isAnimated, setIsAnimated] = useState(false);
+    const [dateFilter, setDateFilter] = useState('all');
+    const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
 
     // Refs for animation targets
     const headerRef = useRef(null);
@@ -27,12 +30,42 @@ export default function Outcome({ auth, outcome }) {
     // Animation timeline
     const timelineRef = useRef(null);
 
-    // Filter outcome records based on search term
+    // Filter outcome records based on search term and date filter
     const filteredOutcome = outcome && outcome.length
-        ? outcome.filter(record =>
-            (record.reference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            record.destination?.toLowerCase().includes(searchTerm.toLowerCase()))
-          )
+        ? outcome.filter(record => {
+            // Text search filter
+            const textMatch = (record.reference?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                             record.destination?.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            // Date filter
+            let dateMatch = true;
+            if (dateFilter !== 'all') {
+                const recordDate = new Date(record.date);
+                const now = new Date();
+
+                switch(dateFilter) {
+                    case 'today':
+                        dateMatch = recordDate.toDateString() === now.toDateString();
+                        break;
+                    case 'yesterday':
+                        const yesterday = new Date(now);
+                        yesterday.setDate(now.getDate() - 1);
+                        dateMatch = recordDate.toDateString() === yesterday.toDateString();
+                        break;
+                    case 'week':
+                        const weekAgo = new Date(now);
+                        weekAgo.setDate(now.getDate() - 7);
+                        dateMatch = recordDate >= weekAgo;
+                        break;
+                    case 'month':
+                        dateMatch = recordDate.getMonth() === now.getMonth() &&
+                                  recordDate.getFullYear() === now.getFullYear();
+                        break;
+                }
+            }
+
+            return textMatch && dateMatch;
+          })
         : [];
 
     // Calculate total outcome value
@@ -98,6 +131,56 @@ export default function Outcome({ auth, outcome }) {
     };
 
     const weeklyActivity = getWeeklyActivity();
+
+    // Function to get month name from number
+    const getMonthName = (monthNumber) => {
+        const months = ['January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December'];
+        return months[monthNumber];
+    };
+
+    // Calculate monthly breakdown
+    const calculateMonthlyBreakdown = () => {
+        if (!outcome || outcome.length === 0) return [];
+
+        const monthlyData = {};
+        const now = new Date();
+        const currentYear = now.getFullYear();
+
+        // Initialize all months for current year
+        for (let i = 0; i < 12; i++) {
+            monthlyData[i] = {
+                month: getMonthName(i),
+                value: 0,
+                count: 0
+            };
+        }
+
+        // Populate with actual data
+        outcome.forEach(record => {
+            const date = new Date(record.date);
+            if (date.getFullYear() === currentYear) {
+                const month = date.getMonth();
+                monthlyData[month].value += record.amount;
+                monthlyData[month].count += 1;
+            }
+        });
+
+        // Convert to array and add percentage
+        return Object.values(monthlyData).map((item, index) => {
+            const prevMonth = index > 0 ? monthlyData[index - 1].value : 0;
+            const percentChange = prevMonth === 0
+                ? 0
+                : ((item.value - prevMonth) / prevMonth * 100);
+
+            return {
+                ...item,
+                percentChange: percentChange
+            };
+        });
+    };
+
+    const monthlyBreakdown = calculateMonthlyBreakdown();
 
     // Initialize animations
     useEffect(() => {
@@ -218,11 +301,80 @@ export default function Outcome({ auth, outcome }) {
                             </Badge>
                         </div>
                         <div className="relative z-10 flex space-x-2">
-                            <Button size="sm" variant="outline" className="flex items-center gap-1.5">
-                                <Filter className="h-4 w-4" />
-                                <span>Filter</span>
-                            </Button>
-                            <Button size="sm" variant="outline" className="flex items-center gap-1.5">
+                            <div className="relative">
+                                <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="flex items-center gap-1.5"
+                                    onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+                                >
+                                    <Filter className="h-4 w-4" />
+                                    <span>Filter: {dateFilter === 'all' ? 'All Time' :
+                                        dateFilter === 'today' ? 'Today' :
+                                        dateFilter === 'yesterday' ? 'Yesterday' :
+                                        dateFilter === 'week' ? 'This Week' : 'This Month'}</span>
+                                    <ChevronRight className={`h-4 w-4 transition-transform duration-200 ${isFilterMenuOpen ? 'rotate-90' : ''}`} />
+                                </Button>
+
+                                {isFilterMenuOpen && (
+                                    <div className="absolute top-full right-0 mt-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 p-2 w-40 z-50">
+                                        {[
+                                            { id: 'all', label: 'All Time' },
+                                            { id: 'today', label: 'Today' },
+                                            { id: 'yesterday', label: 'Yesterday' },
+                                            { id: 'week', label: 'This Week' },
+                                            { id: 'month', label: 'This Month' }
+                                        ].map(item => (
+                                            <div
+                                                key={item.id}
+                                                className={`px-3 py-2 text-sm rounded-md cursor-pointer ${
+                                                    dateFilter === item.id
+                                                        ? 'bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 font-medium'
+                                                        : 'hover:bg-gray-50 dark:hover:bg-gray-700'
+                                                }`}
+                                                onClick={() => {
+                                                    setDateFilter(item.id);
+                                                    setIsFilterMenuOpen(false);
+                                                }}
+                                            >
+                                                {item.label}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="flex items-center gap-1.5"
+                                onClick={() => {
+                                    // Export to CSV functionality
+                                    if (!outcome || outcome.length === 0) return;
+
+                                    const headers = ['ID', 'Reference', 'Amount', 'Date', 'Destination', 'Notes', 'Created'];
+                                    const csvData = filteredOutcome.map(record => [
+                                        record.id,
+                                        record.reference,
+                                        record.amount,
+                                        record.date,
+                                        record.destination,
+                                        record.notes || '',
+                                        record.created_at
+                                    ]);
+
+                                    let csvContent = "data:text/csv;charset=utf-8," +
+                                        headers.join(",") + "\n" +
+                                        csvData.map(row => row.join(",")).join("\n");
+
+                                    const encodedUri = encodeURI(csvContent);
+                                    const link = document.createElement("a");
+                                    link.setAttribute("href", encodedUri);
+                                    link.setAttribute("download", `outcome_transactions_${new Date().toISOString().split('T')[0]}.csv`);
+                                    document.body.appendChild(link);
+                                    link.click();
+                                    document.body.removeChild(link);
+                                }}
+                            >
                                 <Download className="h-4 w-4" />
                                 <span>Export</span>
                             </Button>
@@ -274,26 +426,120 @@ export default function Outcome({ auth, outcome }) {
                                     trendIcon: null
                                 }
                             ].map((card, index) => (
-                                <Card
-                                    key={index}
-                                    ref={el => dashboardCardsRef.current[index] = el}
-                                    className={`bg-gradient-to-br ${card.bgClass} text-white border-0 shadow-lg`}
-                                >
-                                    <CardContent className="p-4">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="font-medium">{card.title}</span>
-                                            <div className="p-2 bg-white/20 rounded-lg">
-                                                {card.icon}
+                                <div key={index} ref={el => dashboardCardsRef.current[index] = el}>
+                                    <Card
+                                        className={`bg-gradient-to-br ${card.bgClass} text-white border-0 shadow-lg`}
+                                    >
+                                        <CardContent className="p-4">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="font-medium">{card.title}</span>
+                                                <div className="p-2 bg-white/20 rounded-lg">
+                                                    {card.icon}
+                                                </div>
                                             </div>
+                                            <div className="text-3xl font-bold mt-1">{card.value}</div>
+                                            <div className="mt-3 text-xs flex items-center text-white/80">
+                                                {card.trendIcon}
+                                                <span>{card.trend}</span>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Statistics Summary */}
+                    <div className="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                            <OutcomeChart data={weeklyActivity} />
+                            <DestinationsChart data={destinationTotals} />
+                        </div>
+
+                        {/* Monthly Breakdown */}
+                        <div className="mt-4">
+                            <div className="border-0 shadow-md overflow-hidden">
+                                <Card className="border-0 overflow-hidden">
+                                    <CardHeader className="pb-0">
+                                        <div className="flex justify-between items-center">
+                                            <CardTitle className="text-lg font-medium">Monthly Breakdown</CardTitle>
+                                            <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+                                                {new Date().getFullYear()}
+                                            </Badge>
                                         </div>
-                                        <div className="text-3xl font-bold mt-1">{card.value}</div>
-                                        <div className="mt-3 text-xs flex items-center text-white/80">
-                                            {card.trendIcon}
-                                            <span>{card.trend}</span>
+                                        <p className="text-sm text-gray-500">Monthly outcome analysis for the current year</p>
+                                    </CardHeader>
+                                    <CardContent className="p-4">
+                                        <div className="overflow-x-auto -mx-4 px-4">
+                                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                                <thead>
+                                                    <tr>
+                                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Month</th>
+                                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Transactions</th>
+                                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Amount</th>
+                                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Change</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                    {monthlyBreakdown.map((month, index) => (
+                                                        <tr
+                                                            key={month.month}
+                                                            className={`hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                                                                new Date().getMonth() === index ? 'bg-red-50/30 dark:bg-red-900/10' : ''
+                                                            }`}
+                                                        >
+                                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                                <div className="flex items-center">
+                                                                    <div className={`h-2 w-2 rounded-full mr-2 ${
+                                                                        new Date().getMonth() === index
+                                                                            ? 'bg-red-500'
+                                                                            : month.count > 0
+                                                                                ? 'bg-gray-400'
+                                                                                : 'bg-gray-200'
+                                                                    }`}></div>
+                                                                    <span className={`text-sm ${
+                                                                        new Date().getMonth() === index
+                                                                            ? 'font-medium text-gray-900 dark:text-white'
+                                                                            : 'text-gray-700 dark:text-gray-300'
+                                                                    }`}>
+                                                                        {month.month}
+                                                                    </span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
+                                                                {month.count}
+                                                            </td>
+                                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                                <span className="text-sm font-medium text-red-600 dark:text-red-400">
+                                                                    ${month.value.toFixed(2)}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                                {month.percentChange !== 0 ? (
+                                                                    <div className={`flex items-center text-sm ${
+                                                                        month.percentChange > 0
+                                                                            ? 'text-green-600 dark:text-green-400'
+                                                                            : 'text-red-600 dark:text-red-400'
+                                                                    }`}>
+                                                                        {month.percentChange > 0 ? (
+                                                                            <ArrowUpRight className="h-3 w-3 mr-1" />
+                                                                        ) : (
+                                                                            <ArrowDownRight className="h-3 w-3 mr-1" />
+                                                                        )}
+                                                                        {Math.abs(month.percentChange).toFixed(1)}%
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-sm text-gray-500">-</span>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </CardContent>
                                 </Card>
-                            ))}
+                            </div>
                         </div>
                     </div>
 
@@ -426,86 +672,90 @@ export default function Outcome({ auth, outcome }) {
                                     {filteredOutcome && filteredOutcome.length > 0 ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredOutcome.map((record, index) => (
-                                                <Card
+                                                <div
                                                     key={record.id}
                                                     ref={el => gridItemsRef.current[index] = el}
-                                                    className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow relative"
-                                                    onMouseEnter={(e) => animateHover(e.currentTarget, true)}
-                                                    onMouseLeave={(e) => animateHover(e.currentTarget, false)}
+                                                    className="overflow-hidden"
                                                 >
-                                                    <div className="h-2 bg-gradient-to-r from-red-400 via-red-500 to-rose-600" />
-                                                    <div className="absolute top-4 right-4">
-                                                        <Badge className="bg-red-100 text-red-700 hover:bg-red-200">
-                                                            Outcome
-                                                        </Badge>
-                                                    </div>
-                                                    <CardContent className="p-6 pt-8">
-                                                        <div className="flex items-start">
-                                                            <div className="h-14 w-14 bg-gradient-to-br from-red-400 to-rose-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
-                                                                <TrendingUp className="h-7 w-7 rotate-180" />
-                                                            </div>
-                                                            <div>
-                                                                <h3 className="font-medium text-lg text-gray-900 dark:text-white">{record.reference}</h3>
-                                                                <div className="mt-1 flex flex-wrap gap-2">
-                                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                                                        <Tag className="h-3 w-3" />
-                                                                        ID: {record.id}
-                                                                    </Badge>
-                                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                                                        <User className="h-3 w-3" />
-                                                                        {record.destination}
-                                                                    </Badge>
+                                                    <Card
+                                                        className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow relative"
+                                                        onMouseEnter={(e) => animateHover(e.currentTarget, true)}
+                                                        onMouseLeave={(e) => animateHover(e.currentTarget, false)}
+                                                    >
+                                                        <div className="h-2 bg-gradient-to-r from-red-400 via-red-500 to-rose-600" />
+                                                        <div className="absolute top-4 right-4">
+                                                            <Badge className="bg-red-100 text-red-700 hover:bg-red-200">
+                                                                Outcome
+                                                            </Badge>
+                                                        </div>
+                                                        <CardContent className="p-6 pt-8">
+                                                            <div className="flex items-start">
+                                                                <div className="h-14 w-14 bg-gradient-to-br from-red-400 to-rose-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
+                                                                    <TrendingUp className="h-7 w-7 rotate-180" />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="font-medium text-lg text-gray-900 dark:text-white">{record.reference}</h3>
+                                                                    <div className="mt-1 flex flex-wrap gap-2">
+                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                            <Tag className="h-3 w-3" />
+                                                                            ID: {record.id}
+                                                                        </Badge>
+                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                            <User className="h-3 w-3" />
+                                                                            {record.destination}
+                                                                        </Badge>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
 
-                                                        <div className="mt-6 grid grid-cols-2 gap-4">
-                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                <div className="flex items-center gap-1.5 mb-1">
-                                                                    <Calendar className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
+                                                            <div className="mt-6 grid grid-cols-2 gap-4">
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                        <Calendar className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
+                                                                    </div>
+                                                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.date}</p>
                                                                 </div>
-                                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.date}</p>
-                                                            </div>
-                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                <div className="flex items-center gap-1.5 mb-1">
-                                                                    <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                        <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
+                                                                    </div>
+                                                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.created_at}</p>
                                                                 </div>
-                                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.created_at}</p>
-                                                            </div>
-                                                            <div className="col-span-2 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-900/30 p-3 rounded-lg border border-red-200 dark:border-red-800">
-                                                                <div className="flex items-center gap-1.5 mb-1">
-                                                                    <ArrowDownRight className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Amount</p>
+                                                                <div className="col-span-2 bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-900/30 p-3 rounded-lg border border-red-200 dark:border-red-800">
+                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                        <ArrowDownRight className="h-3.5 w-3.5 text-red-600 dark:text-red-400" />
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Amount</p>
+                                                                    </div>
+                                                                    <p className="text-xl font-semibold text-red-600 dark:text-red-400">${record.amount.toFixed(2)}</p>
                                                                 </div>
-                                                                <p className="text-xl font-semibold text-red-600 dark:text-red-400">${record.amount.toFixed(2)}</p>
                                                             </div>
-                                                        </div>
 
-                                                        {record.notes && (
-                                                            <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Notes</p>
-                                                                <p className="text-sm text-gray-700 dark:text-gray-300">{record.notes}</p>
+                                                            {record.notes && (
+                                                                <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Notes</p>
+                                                                    <p className="text-sm text-gray-700 dark:text-gray-300">{record.notes}</p>
+                                                                </div>
+                                                            )}
+                                                        </CardContent>
+                                                        <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700">
+                                                            <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                                                <BarChart3 className="h-4 w-4 text-red-500" />
+                                                                {record.destination}
+                                                            </span>
+                                                            <div className="flex gap-2">
+                                                                <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full">
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button variant="default" size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+                                                                    Details
+                                                                    <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                                                                </Button>
                                                             </div>
-                                                        )}
-                                                    </CardContent>
-                                                    <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700">
-                                                        <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                                                            <BarChart3 className="h-4 w-4 text-red-500" />
-                                                            {record.destination}
-                                                        </span>
-                                                        <div className="flex gap-2">
-                                                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full">
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button variant="default" size="sm" className="bg-red-600 hover:bg-red-700 text-white">
-                                                                Details
-                                                                <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
-                                                            </Button>
-                                                        </div>
-                                                    </CardFooter>
-                                                </Card>
+                                                        </CardFooter>
+                                                    </Card>
+                                                </div>
                                             ))}
                                         </div>
                                     ) : (
@@ -527,80 +777,82 @@ export default function Outcome({ auth, outcome }) {
 
                                 <TabsContent value="list" activeValue={view} className="mt-0">
                                     {filteredOutcome && filteredOutcome.length > 0 ? (
-                                        <Card className="border-0 shadow-md overflow-hidden rounded-xl">
-                                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-12 text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                <div className="col-span-4 flex items-center gap-2">
-                                                    <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />
-                                                    Reference
-                                                </div>
-                                                <div className="col-span-1 text-center flex items-center justify-center gap-1">
-                                                    <Tag className="h-3.5 w-3.5 text-indigo-500" />
-                                                    ID
-                                                </div>
-                                                <div className="col-span-2 text-center flex items-center justify-center gap-1">
-                                                    <Calendar className="h-3.5 w-3.5 text-blue-500" />
-                                                    Date
-                                                </div>
-                                                <div className="col-span-2 text-center flex items-center justify-center gap-1">
-                                                    <User className="h-3.5 w-3.5 text-amber-500" />
-                                                    Destination
-                                                </div>
-                                                <div className="col-span-2 text-center flex items-center justify-center gap-1">
-                                                    <ArrowDownRight className="h-3.5 w-3.5 text-red-500" />
-                                                    Amount
-                                                </div>
-                                                <div className="col-span-1 text-right">
-                                                    <MoreHorizontal className="h-4 w-4 ml-auto text-gray-400" />
-                                                </div>
-                                            </div>
-                                            <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                                                {filteredOutcome.map((record, index) => (
-                                                    <div
-                                                        key={record.id}
-                                                        ref={el => listItemsRef.current[index] = el}
-                                                        className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-red-50/30 dark:hover:bg-red-900/10 grid grid-cols-12 items-center relative overflow-hidden group"
-                                                        onMouseEnter={(e) => {
-                                                            anime({
-                                                                targets: e.currentTarget,
-                                                                backgroundColor: 'rgba(254, 226, 226, 0.3)',
-                                                                duration: 300,
-                                                                easing: 'easeOutQuad'
-                                                            });
-                                                        }}
-                                                        onMouseLeave={(e) => {
-                                                            anime({
-                                                                targets: e.currentTarget,
-                                                                backgroundColor: 'rgba(255, 255, 255, 1)',
-                                                                duration: 300,
-                                                                easing: 'easeOutQuad'
-                                                            });
-                                                        }}
-                                                    >
-                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                                        <div className="col-span-4 flex items-center">
-                                                            <div className="h-10 w-10 bg-gradient-to-br from-red-400 to-rose-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-sm">
-                                                                <TrendingUp className="h-5 w-5 rotate-180" />
-                                                            </div>
-                                                            <div>
-                                                                <h3 className="font-medium text-gray-900 dark:text-white">{record.reference}</h3>
-                                                                {record.notes && (
-                                                                    <p className="text-xs text-gray-500 truncate max-w-[200px]">{record.notes}</p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-300">{record.id}</div>
-                                                        <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.date}</div>
-                                                        <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.destination}</div>
-                                                        <div className="col-span-2 text-center font-medium text-red-600">${record.amount.toFixed(2)}</div>
-                                                        <div className="col-span-1 text-right">
-                                                            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <ExternalLink className="h-4 w-4" />
-                                                            </Button>
-                                                        </div>
+                                        <div className="shadow-md overflow-hidden rounded-xl">
+                                            <Card className="border-0 overflow-hidden rounded-xl">
+                                                <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-12 text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                    <div className="col-span-4 flex items-center gap-2">
+                                                        <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />
+                                                        Reference
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </Card>
+                                                    <div className="col-span-1 text-center flex items-center justify-center gap-1">
+                                                        <Tag className="h-3.5 w-3.5 text-indigo-500" />
+                                                        ID
+                                                    </div>
+                                                    <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                        <Calendar className="h-3.5 w-3.5 text-blue-500" />
+                                                        Date
+                                                    </div>
+                                                    <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                        <User className="h-3.5 w-3.5 text-amber-500" />
+                                                        Destination
+                                                    </div>
+                                                    <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                        <ArrowDownRight className="h-3.5 w-3.5 text-red-500" />
+                                                        Amount
+                                                    </div>
+                                                    <div className="col-span-1 text-right">
+                                                        <MoreHorizontal className="h-4 w-4 ml-auto text-gray-400" />
+                                                    </div>
+                                                </div>
+                                                <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                                                    {filteredOutcome.map((record, index) => (
+                                                        <div
+                                                            key={record.id}
+                                                            ref={el => listItemsRef.current[index] = el}
+                                                            className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-red-50/30 dark:hover:bg-red-900/10 grid grid-cols-12 items-center relative overflow-hidden group"
+                                                            onMouseEnter={(e) => {
+                                                                anime({
+                                                                    targets: e.currentTarget,
+                                                                    backgroundColor: 'rgba(254, 226, 226, 0.3)',
+                                                                    duration: 300,
+                                                                    easing: 'easeOutQuad'
+                                                                });
+                                                            }}
+                                                            onMouseLeave={(e) => {
+                                                                anime({
+                                                                    targets: e.currentTarget,
+                                                                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                                                                    duration: 300,
+                                                                    easing: 'easeOutQuad'
+                                                                });
+                                                            }}
+                                                        >
+                                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                            <div className="col-span-4 flex items-center">
+                                                                <div className="h-10 w-10 bg-gradient-to-br from-red-400 to-rose-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-sm">
+                                                                    <TrendingUp className="h-5 w-5 rotate-180" />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="font-medium text-gray-900 dark:text-white">{record.reference}</h3>
+                                                                    {record.notes && (
+                                                                        <p className="text-xs text-gray-500 truncate max-w-[200px]">{record.notes}</p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-300">{record.id}</div>
+                                                            <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.date}</div>
+                                                            <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.destination}</div>
+                                                            <div className="col-span-2 text-center font-medium text-red-600">${record.amount.toFixed(2)}</div>
+                                                            <div className="col-span-1 text-right">
+                                                                <Button variant="ghost" size="sm" className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <ExternalLink className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </Card>
+                                        </div>
                                     ) : (
                                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-10 text-center">
                                             <div className="inline-flex h-20 w-20 rounded-full bg-red-100 dark:bg-red-900/30 items-center justify-center mb-6">
@@ -620,8 +872,289 @@ export default function Outcome({ auth, outcome }) {
                             </div>
                         </div>
                     </div>
+
+                    {/* Transaction Table */}
+                    <div className="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-400 dark:to-rose-400">
+                                Recent Transactions
+                            </h2>
+                            <Button size="sm" variant="outline" className="flex items-center gap-1.5">
+                                <Download className="h-4 w-4" />
+                                <span>Export CSV</span>
+                            </Button>
+                        </div>
+
+                        <div className="overflow-x-auto -mx-4 px-4">
+                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                <thead>
+                                    <tr>
+                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">ID</th>
+                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reference</th>
+                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Destination</th>
+                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                    {(outcome && outcome.length > 0) ?
+                                        outcome.slice(0, 10).map((record) => (
+                                            <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.id}</td>
+                                                <td className="px-4 py-3 whitespace-nowrap">
+                                                    <div className="flex items-center">
+                                                        <div className="flex-shrink-0 h-8 w-8 bg-red-100 dark:bg-red-900/30 rounded-md flex items-center justify-center text-red-600">
+                                                            <TrendingUp className="h-4 w-4 rotate-180" />
+                                                        </div>
+                                                        <div className="ml-3">
+                                                            <div className="text-sm font-medium text-gray-900 dark:text-white">{record.reference}</div>
+                                                            {record.notes && (
+                                                                <div className="text-xs text-gray-500 truncate max-w-[250px]">{record.notes}</div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.date}</td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.destination}</td>
+                                                <td className="px-4 py-3 whitespace-nowrap">
+                                                    <span className="text-sm font-medium text-red-600 dark:text-red-400">${record.amount.toFixed(2)}</span>
+                                                </td>
+                                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                    <div className="flex items-center justify-end space-x-2">
+                                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-500">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button variant="outline" size="sm" className="h-8 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300">
+                                                            View
+                                                        </Button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                        :
+                                        <tr>
+                                            <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                                                No transactions found
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {outcome && outcome.length > 10 && (
+                            <div className="mt-4 flex justify-center">
+                                <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300">
+                                    View All Transactions
+                                </Button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
-        </>
-    );
+        </div>
+
+        {/* Outcome Statistics Sidebar */}
+        <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 className="font-semibold text-xl">Outcome Statistics</h2>
+            </div>
+
+            <div className="p-4">
+                <div className="grid grid-cols-1 gap-4">
+                    <Card className="shadow-sm border-none bg-gradient-to-br from-red-500 to-rose-600 text-white">
+                        <CardContent className="p-4">
+                            <div className="flex flex-col">
+                                <span className="text-sm opacity-80">Total Outcome</span>
+                                <span className="text-2xl font-bold mt-1">
+                                    ${totalOutcomeValue.toFixed(2)}
+                                </span>
+                                <span className="text-xs mt-1">All time transactions</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                <Card className="mt-4 shadow-sm border-none">
+                    <CardContent className="p-4">
+                        <h3 className="font-medium mb-3">Recent Destinations</h3>
+                        {outcome && outcome.length > 0 ? (
+                            <div className="space-y-2">
+                                {destinationTotals.map((destination, index) => (
+                                    <div key={index} className="flex items-center justify-between">
+                                        <span className="text-sm">{destination.name}</span>
+                                        <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                                            ${destination.total.toFixed(2)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500 text-center py-2">No destinations found</p>
+                        )}
+                    </CardContent>
+                </Card>
+
+                <Card className="mt-4 shadow-sm border-none">
+                    <CardContent className="p-4">
+                        <h3 className="font-medium mb-3">Monthly Overview</h3>
+                        <div className="grid grid-cols-3 gap-2 text-center">
+                            <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <p className="text-xs text-gray-500 mb-1">This Month</p>
+                                <p className="font-semibold text-red-600">
+                                    ${thisMonthOutcome.toFixed(2)}
+                                </p>
+                            </div>
+                            <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <p className="text-xs text-gray-500 mb-1">Last Month</p>
+                                <p className="font-semibold text-red-600">
+                                    ${lastMonthOutcome.toFixed(2)}
+                                </p>
+                            </div>
+                            <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                <p className="text-xs text-gray-500 mb-1">This Year</p>
+                                <p className="font-semibold text-red-600">
+                                    ${totalOutcomeValue.toFixed(2)}
+                                </p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    </>
+);
 }
+
+// Chart components
+const OutcomeChart = ({ data }) => {
+    const [activeIndex, setActiveIndex] = useState(0);
+
+    const handleMouseEnter = (data, index) => {
+        setActiveIndex(index);
+    };
+
+    return (
+        <div className="border-0 shadow-md overflow-hidden">
+            <Card className="border-0 overflow-hidden">
+                <CardHeader className="pb-0">
+                    <CardTitle className="text-lg font-medium">Outcome Trend</CardTitle>
+                    <p className="text-sm text-gray-500">Showing last 7 days of transactions</p>
+                </CardHeader>
+                <CardContent className="p-4">
+                    <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart
+                                data={data}
+                                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                            >
+                                <defs>
+                                    <linearGradient id="colorOutcome" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
+                                        <stop offset="95%" stopColor="#ef4444" stopOpacity={0.1}/>
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <Tooltip
+                                    content={({ active, payload, label }) => {
+                                        if (active && payload && payload.length) {
+                                            return (
+                                                <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md">
+                                                    <p className="text-xs text-gray-500 mb-1">{label}</p>
+                                                    <p className="text-sm font-semibold text-red-600">
+                                                        {`${payload[0].value} transaction${payload[0].value !== 1 ? 's' : ''}`}
+                                                    </p>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    }}
+                                />
+                                <Area
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="#ef4444"
+                                    strokeWidth={2}
+                                    fillOpacity={1}
+                                    fill="url(#colorOutcome)"
+                                    activeDot={{ r: 6, strokeWidth: 0, fill: "#ef4444" }}
+                                    onMouseEnter={handleMouseEnter}
+                                />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </div>
+                    <div className="mt-4 grid grid-cols-7 gap-1">
+                        {data.map((entry, index) => (
+                            <div
+                                key={`dot-${index}`}
+                                className={`cursor-pointer py-2 px-0.5 text-center rounded-md transition-colors duration-200 ${
+                                    index === activeIndex
+                                        ? 'bg-red-50 dark:bg-red-900/20'
+                                        : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                                }`}
+                                onMouseEnter={() => setActiveIndex(index)}
+                            >
+                                <div className="text-xs font-medium">{entry.name}</div>
+                                <div className={`text-sm mt-1 ${
+                                    index === activeIndex ? 'text-red-600 font-semibold' : 'text-gray-500'
+                                }`}>{entry.value}</div>
+                            </div>
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+};
+
+const DestinationsChart = ({ data }) => {
+    return (
+        <div className="border-0 shadow-md overflow-hidden">
+            <Card className="border-0 overflow-hidden">
+                <CardHeader className="pb-0">
+                    <CardTitle className="text-lg font-medium">Top Destinations</CardTitle>
+                    <p className="text-sm text-gray-500">Distribution of outcomes by destination</p>
+                </CardHeader>
+                <CardContent className="p-4">
+                    <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart
+                                data={data}
+                                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                                barSize={20}
+                            >
+                                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                                <XAxis dataKey="name" scale="point" />
+                                <YAxis />
+                                <Tooltip
+                                    content={({ active, payload, label }) => {
+                                        if (active && payload && payload.length) {
+                                            return (
+                                                <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-md">
+                                                    <p className="text-xs text-gray-500 mb-1">{label}</p>
+                                                    <p className="text-sm font-semibold text-red-600">
+                                                        ${payload[0].value.toFixed(2)}
+                                                    </p>
+                                                </div>
+                                            );
+                                        }
+                                        return null;
+                                    }}
+                                />
+                                <Bar
+                                    dataKey="total"
+                                    fill="#ef4444"
+                                    radius={[4, 4, 0, 0]}
+                                    animationDuration={1500}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+};
