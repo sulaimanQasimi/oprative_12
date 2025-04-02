@@ -16,7 +16,7 @@ class IncomeController extends Controller
     {
         $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
 
-        $income = $warehouse->warehouseIncome()->latest()->get()->map(function ($incomeRecord) {
+        $income = $warehouse->warehouseIncome()->get()->map(function ($incomeRecord) {
             return [
                 'id' => $incomeRecord->id,
                 'reference' => $incomeRecord->reference,
