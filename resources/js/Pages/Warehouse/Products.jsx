@@ -186,32 +186,17 @@ export default function Products({ auth, products }) {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
-                    <header ref={headerRef} className="bg-white dark:bg-gray-800 shadow-sm p-4 flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                            <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Products</h1>
-                            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800">
+                    <header ref={headerRef} className="bg-white dark:bg-gray-800 shadow-sm p-4 flex items-center justify-between relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-white dark:from-gray-800 dark:to-gray-900 opacity-50"></div>
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-400 to-purple-600"></div>
+                        <div className="flex items-center space-x-3 relative z-10">
+                            <div className="relative">
+                                <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600 dark:from-purple-400 dark:to-indigo-400">Products</h1>
+                                <div className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"></div>
+                            </div>
+                            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800 ml-2 px-2.5 py-0.5 rounded-full font-medium">
                                 {products?.length || 0} items
                             </Badge>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                            <div className="relative w-64">
-                                <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Search products..."
-                                    className="w-full py-2 pl-10 pr-4 rounded-lg bg-gray-100 dark:bg-gray-700 border-0 focus:ring-2 focus:ring-purple-500"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                            </div>
-                            <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-700">
-                                <Filter className="h-4 w-4 mr-2" />
-                                Filter
-                            </Button>
-                            <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                                <Plus className="h-4 w-4 mr-2" />
-                                Add Product
-                            </Button>
                         </div>
                     </header>
 
@@ -278,21 +263,71 @@ export default function Products({ auth, products }) {
                     {/* Main Content Section */}
                     <div className="flex-1 overflow-auto p-6 bg-gray-100 dark:bg-gray-900">
                         <div className="mb-6 flex justify-between items-center">
-                            <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-                                {searchTerm ? `Search Results: "${searchTerm}"` : 'All Products'}
+                            <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 flex items-center">
+                                <span>{searchTerm ? `Search Results: "${searchTerm}"` : 'All Products'}</span>
+                                {searchTerm && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="ml-2 h-7 text-gray-500 hover:text-gray-700"
+                                        onClick={() => setSearchTerm('')}
+                                    >
+                                        Clear
+                                    </Button>
+                                )}
                             </h2>
-                            <Tabs defaultValue="grid" className="w-auto">
-                                <TabsList className="bg-white dark:bg-gray-800">
-                                    <TabsTrigger value="grid" active={view === 'grid'} onClick={() => handleViewChange('grid')} className="flex items-center gap-1.5">
-                                        <LayoutGrid className="h-4 w-4" />
-                                        <span>Grid</span>
-                                    </TabsTrigger>
-                                    <TabsTrigger value="list" active={view === 'list'} onClick={() => handleViewChange('list')} className="flex items-center gap-1.5">
-                                        <List className="h-4 w-4" />
-                                        <span>List</span>
-                                    </TabsTrigger>
-                                </TabsList>
-                            </Tabs>
+
+                            <div className="flex items-center gap-4">
+                                <div className="relative w-64 group">
+                                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-400 to-indigo-500 opacity-0 group-hover:opacity-100 blur transition-opacity -m-0.5"></div>
+                                    <div className="relative">
+                                        <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search products..."
+                                            className="w-full py-2 pl-10 pr-4 rounded-lg bg-gray-100 dark:bg-gray-700 border-0 focus:ring-2 focus:ring-purple-500 transition-all duration-200 hover:bg-gray-50"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 hover:text-purple-600 transition-colors">
+                                    <Filter className="h-4 w-4 mr-2" />
+                                    Filter
+                                </Button>
+
+                                <Button size="sm" className="relative group overflow-hidden">
+                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 group-hover:from-purple-500 group-hover:to-indigo-500 transition-colors"></div>
+                                    <span className="relative z-10 flex items-center">
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Add Product
+                                    </span>
+                                </Button>
+
+                                <Tabs defaultValue="grid" className="w-auto">
+                                    <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                                        <TabsTrigger
+                                            value="grid"
+                                            active={view === 'grid'}
+                                            onClick={() => handleViewChange('grid')}
+                                            className="flex items-center gap-1.5 px-4 py-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg transition-all duration-200 data-[state=active]:shadow-md"
+                                        >
+                                            <LayoutGrid className="h-4 w-4" />
+                                            <span>Grid</span>
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value="list"
+                                            active={view === 'list'}
+                                            onClick={() => handleViewChange('list')}
+                                            className="flex items-center gap-1.5 px-4 py-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg transition-all duration-200 data-[state=active]:shadow-md"
+                                        >
+                                            <List className="h-4 w-4" />
+                                            <span>List</span>
+                                        </TabsTrigger>
+                                    </TabsList>
+                                </Tabs>
+                            </div>
                         </div>
 
                         <div ref={cardsRef} className="transition-opacity duration-300" style={{ minHeight: '200px' }}>
