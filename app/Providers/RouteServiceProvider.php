@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Route;
 class RouteServiceProvider extends ServiceProvider
 {
     public const HOME = '/home';
+    public const CUSTOMER_HOME = '/customer/dashboard';
+    public const WAREHOUSE_HOME = '/warehouse/dashboard';
 
     public function boot(): void
     {

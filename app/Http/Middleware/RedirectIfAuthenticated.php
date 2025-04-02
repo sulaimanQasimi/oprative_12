@@ -6,6 +6,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
 {
@@ -14,7 +15,7 @@ class RedirectIfAuthenticated
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next, string ...$guards): mixed
+    public function handle(Request $request, Closure $next, string ...$guards): Response
     {
         $guards = empty($guards) ? [null] : $guards;
 
@@ -33,7 +34,15 @@ class RedirectIfAuthenticated
             // For non-customer routes, check each guard
             foreach ($guards as $guard) {
                 if (Auth::guard($guard)->check()) {
-                    return redirect('/');
+                    if ($guard === 'customer_user') {
+                        return redirect(RouteServiceProvider::CUSTOMER_HOME);
+                    }
+
+                    if ($guard === 'warehouse_user') {
+                        return redirect(RouteServiceProvider::WAREHOUSE_HOME);
+                    }
+
+                    return redirect(RouteServiceProvider::HOME);
                 }
             }
         }
