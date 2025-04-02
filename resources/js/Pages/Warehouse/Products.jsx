@@ -3,24 +3,10 @@ import { Head } from '@inertiajs/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
-import { Search, Bell, MessageSquare, Send, User, Users, Package, TrendingUp, Settings, ChevronRight, Plus, Filter } from 'lucide-react';
+import { Search, MessageSquare, Package, TrendingUp, Settings, ChevronRight, Plus, Filter } from 'lucide-react';
 
 export default function Products({ auth, products }) {
     const [searchTerm, setSearchTerm] = useState('');
-
-    // Sample messages for the sidebar (these would come from the backend in a real app)
-    const messages = [
-        { id: 1, sender: 'John Smith', avatar: `https://ui-avatars.com/api/?name=John+Smith`, content: 'New shipment arriving tomorrow at 9 AM', time: '10:35 AM', isNew: true },
-        { id: 2, sender: 'Sarah Lee', avatar: `https://ui-avatars.com/api/?name=Sarah+Lee`, content: 'Warehouse inspection scheduled for Friday', time: 'Yesterday', isNew: true },
-        { id: 3, sender: 'Robert Chen', avatar: `https://ui-avatars.com/api/?name=Robert+Chen`, content: 'Inventory report has been submitted', time: '2 days ago', isNew: false },
-    ];
-
-    // Sample active users
-    const activeUsers = [
-        { id: 1, name: 'Emma Watson', avatar: `https://ui-avatars.com/api/?name=Emma+Watson`, status: 'online' },
-        { id: 2, name: 'James Wilson', avatar: `https://ui-avatars.com/api/?name=James+Wilson`, status: 'online' },
-        { id: 3, name: 'Lisa Thompson', avatar: `https://ui-avatars.com/api/?name=Lisa+Thompson`, status: 'away' },
-    ];
 
     // Filter products based on search term
     const filteredProducts = products && products.length
@@ -55,7 +41,7 @@ export default function Products({ auth, products }) {
             <Head title="Warehouse Products" />
 
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900">
-                <div className="grid grid-cols-12 min-h-screen">
+                <div className="grid grid-cols-10 min-h-screen">
                     {/* Sidebar */}
                     <div className="col-span-1 bg-white dark:bg-gray-800 shadow-md flex flex-col items-center py-6 space-y-8">
                         <div className="bg-purple-600 text-white p-2 rounded-xl">
@@ -74,9 +60,6 @@ export default function Products({ auth, products }) {
                             <Button variant="ghost" size="icon" as="a" href={route('warehouse.outcome')}>
                                 <TrendingUp className="h-6 w-6 rotate-180" />
                             </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.users')}>
-                                <Users className="h-6 w-6" />
-                            </Button>
                             <Button variant="ghost" size="icon" as="a" href={route('warehouse.profile.edit')}>
                                 <Settings className="h-6 w-6" />
                             </Button>
@@ -89,58 +72,8 @@ export default function Products({ auth, products }) {
                         </div>
                     </div>
 
-                    {/* Messages List */}
-                    <div className="col-span-3 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
-                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                            <div className="flex items-center justify-between">
-                                <h2 className="font-semibold text-xl">Messages</h2>
-                                <Button variant="ghost" size="icon">
-                                    <Bell className="h-5 w-5" />
-                                </Button>
-                            </div>
-                            <div className="mt-4 relative">
-                                <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Search messages..."
-                                    className="w-full py-2 pl-10 pr-4 rounded-full bg-gray-100 dark:bg-gray-700 text-sm"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="overflow-y-auto h-[calc(100vh-140px)]">
-                            {messages.map((message) => (
-                                <div
-                                    key={message.id}
-                                    className={`p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
-                                        message.isNew ? 'bg-purple-50 dark:bg-purple-900/20' : ''
-                                    }`}
-                                >
-                                    <div className="flex items-start space-x-3">
-                                        <Avatar>
-                                            <AvatarImage src={message.avatar} />
-                                            <AvatarFallback>{message.sender.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center justify-between">
-                                                <h3 className="font-medium truncate">{message.sender}</h3>
-                                                <span className="text-xs text-gray-500">{message.time}</span>
-                                            </div>
-                                            <p className="text-sm text-gray-600 dark:text-gray-300 truncate mt-1">
-                                                {message.content}
-                                            </p>
-                                        </div>
-                                        {message.isNew && (
-                                            <div className="h-3 w-3 bg-purple-600 rounded-full"></div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-
                     {/* Main Content */}
-                    <div className="col-span-5 flex flex-col">
+                    <div className="col-span-6 flex flex-col">
                         <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-3">
@@ -223,36 +156,13 @@ export default function Products({ auth, products }) {
                         </div>
                     </div>
 
-                    {/* Right Sidebar - Activity & Users */}
+                    {/* Right Sidebar - Product Stats */}
                     <div className="col-span-3 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
                         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                            <h2 className="font-semibold text-xl">Active Users</h2>
+                            <h2 className="font-semibold text-xl">Product Stats</h2>
                         </div>
 
                         <div className="p-4">
-                            <div className="space-y-4">
-                                {activeUsers.map(user => (
-                                    <div key={user.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
-                                        <div className="relative">
-                                            <Avatar>
-                                                <AvatarImage src={user.avatar} />
-                                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <span className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
-                                                user.status === 'online' ? 'bg-green-500' : 'bg-yellow-500'
-                                            }`}></span>
-                                        </div>
-                                        <div>
-                                            <h3 className="font-medium text-sm">{user.name}</h3>
-                                            <p className="text-xs text-gray-500 capitalize">{user.status}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="p-4 border-t border-gray-200 dark:border-gray-700 mt-4">
-                            <h2 className="font-semibold text-xl mb-4">Product Stats</h2>
                             <div className="grid grid-cols-2 gap-4">
                                 <Card className="shadow-sm border-none bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
                                     <CardContent className="p-4">
