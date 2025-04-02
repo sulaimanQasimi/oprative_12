@@ -16,6 +16,8 @@ export default function Sale({ auth, sales }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [view, setView] = useState('grid');
     const [isAnimated, setIsAnimated] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 9;
 
     // Refs for animation targets
     const headerRef = useRef(null);
@@ -27,6 +29,9 @@ export default function Sale({ auth, sales }) {
     // Animation timeline
     const timelineRef = useRef(null);
 
+    // Add this ref for content area
+    const contentRef = useRef(null);
+
     // Filter sales records based on search term
     const filteredSales = sales && sales.length
         ? sales.filter(record =>
@@ -34,6 +39,14 @@ export default function Sale({ auth, sales }) {
              record.customer?.toLowerCase().includes(searchTerm.toLowerCase()))
           )
         : [];
+
+    // Paginate the filtered sales
+    const paginatedSales = filteredSales.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
 
     // Calculate total sales value
     const totalSalesValue = sales?.reduce((sum, record) => sum + record.amount, 0) || 0;
@@ -157,6 +170,11 @@ export default function Sale({ auth, sales }) {
         listItemsRef.current = [];
     }, [view, searchTerm]);
 
+    // Reset current page when search term changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
     // Animation for view transition
     const handleViewChange = (newView) => {
         if (newView === view) return;
@@ -193,6 +211,109 @@ export default function Sale({ auth, sales }) {
             easing: 'spring(1, 80, 10, 0)'
         });
     };
+
+    // Pagination component
+    const Pagination = () => {
+        if (totalPages <= 1) return null;
+
+        const pages = [];
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        // Adjust start page if end page is maxed out
+        if (endPage === totalPages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            pages.push(i);
+        }
+
+        return (
+            <div className="flex justify-center mt-8">
+                <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 p-1.5 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className={`h-8 w-8 p-0 text-gray-600 dark:text-gray-300 ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20'}`}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+                    </Button>
+
+                    {startPage > 1 && (
+                        <>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setCurrentPage(1)}
+                                className={`h-8 w-8 p-0 text-sm font-medium ${currentPage === 1 ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20'}`}
+                            >
+                                1
+                            </Button>
+                            {startPage > 2 && (
+                                <span className="text-gray-400 dark:text-gray-500">...</span>
+                            )}
+                        </>
+                    )}
+
+                    {pages.map(page => (
+                        <Button
+                            key={page}
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setCurrentPage(page)}
+                            className={`h-8 w-8 p-0 text-sm font-medium ${currentPage === page ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20'}`}
+                        >
+                            {page}
+                        </Button>
+                    ))}
+
+                    {endPage < totalPages && (
+                        <>
+                            {endPage < totalPages - 1 && (
+                                <span className="text-gray-400 dark:text-gray-500">...</span>
+                            )}
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setCurrentPage(totalPages)}
+                                className={`h-8 w-8 p-0 text-sm font-medium ${currentPage === totalPages ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20'}`}
+                            >
+                                {totalPages}
+                            </Button>
+                        </>
+                    )}
+
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className={`h-8 w-8 p-0 text-gray-600 dark:text-gray-300 ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20'}`}
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
+                    </Button>
+                </div>
+            </div>
+        );
+    };
+
+    // Reset animation when page changes
+    useEffect(() => {
+        setIsAnimated(false);
+        // Scroll to top of content with animation
+        if (contentRef.current) {
+            anime({
+                targets: contentRef.current,
+                scrollTop: 0,
+                duration: 500,
+                easing: 'easeOutQuad'
+            });
+        }
+    }, [currentPage]);
 
     return (
         <>
@@ -298,7 +419,7 @@ export default function Sale({ auth, sales }) {
                     </div>
 
                     {/* Main Content Section */}
-                    <div className="flex-1 overflow-auto p-6 bg-gray-100 dark:bg-gray-900">
+                    <div className="flex-1 overflow-auto p-6 bg-gray-100 dark:bg-gray-900" ref={contentRef}>
                         <div className="mb-6 flex justify-between items-center">
                             <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 flex items-center">
                                 <span>{searchTerm ? `Search Results: "${searchTerm}"` : 'All Sales'}</span>
@@ -401,90 +522,98 @@ export default function Sale({ auth, sales }) {
                         <div ref={cardsRef} className="transition-opacity duration-300" style={{ minHeight: '200px' }}>
                             <TabsContent value="grid" activeValue={view} className="mt-0">
                                 {filteredSales && filteredSales.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {filteredSales.map((record, index) => (
-                                            <Card
-                                                key={record.id}
-                                                ref={el => gridItemsRef.current[index] = el}
-                                                className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow relative"
-                                                onMouseEnter={(e) => animateHover(e.currentTarget, true)}
-                                                onMouseLeave={(e) => animateHover(e.currentTarget, false)}
-                                            >
-                                                <div className="h-2 bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-600" />
-                                                <div className="absolute top-4 right-4">
-                                                    <Badge className={`${record.status === 'completed' ? 'bg-green-100 text-green-700' : record.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'} hover:bg-opacity-80`}>
-                                                        {record.status}
-                                                    </Badge>
-                                                </div>
-                                                <CardContent className="p-6 pt-8">
-                                                    <div className="flex items-start">
-                                                        <div className="h-14 w-14 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
-                                                            <ShoppingCart className="h-7 w-7" />
-                                                        </div>
-                                                        <div>
-                                                            <h3 className="font-medium text-lg text-gray-900 dark:text-white">{record.reference}</h3>
-                                                            <div className="mt-1 flex flex-wrap gap-2">
-                                                                <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                                                    <Tag className="h-3 w-3" />
-                                                                    ID: {record.id}
-                                                                </Badge>
-                                                                <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                                                    <User className="h-3 w-3" />
-                                                                    {record.customer}
-                                                                </Badge>
+                                    <>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {paginatedSales.map((record, index) => (
+                                                <Card
+                                                    key={record.id}
+                                                    ref={el => gridItemsRef.current[index] = el}
+                                                    className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow relative"
+                                                    onMouseEnter={(e) => animateHover(e.currentTarget, true)}
+                                                    onMouseLeave={(e) => animateHover(e.currentTarget, false)}
+                                                >
+                                                    <div className="h-2 bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-600" />
+                                                    <div className="absolute top-4 right-4">
+                                                        <Badge className={`${record.status === 'completed' ? 'bg-green-100 text-green-700' : record.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'} hover:bg-opacity-80`}>
+                                                            {record.status}
+                                                        </Badge>
+                                                    </div>
+                                                    <CardContent className="p-6 pt-8">
+                                                        <div className="flex items-start">
+                                                            <div className="h-14 w-14 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
+                                                                <ShoppingCart className="h-7 w-7" />
+                                                            </div>
+                                                            <div>
+                                                                <h3 className="font-medium text-lg text-gray-900 dark:text-white">{record.reference}</h3>
+                                                                <div className="mt-1 flex flex-wrap gap-2">
+                                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                        <Tag className="h-3 w-3" />
+                                                                        ID: {record.id}
+                                                                    </Badge>
+                                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                        <User className="h-3 w-3" />
+                                                                        {record.customer}
+                                                                    </Badge>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div className="mt-6 grid grid-cols-2 gap-4">
-                                                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                            <div className="flex items-center gap-1.5 mb-1">
-                                                                <Calendar className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                                                <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
+                                                        <div className="mt-6 grid grid-cols-2 gap-4">
+                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <div className="flex items-center gap-1.5 mb-1">
+                                                                    <Calendar className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
+                                                                </div>
+                                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.date}</p>
                                                             </div>
-                                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.date}</p>
-                                                        </div>
-                                                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                            <div className="flex items-center gap-1.5 mb-1">
-                                                                <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                                                                <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
+                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <div className="flex items-center gap-1.5 mb-1">
+                                                                    <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
+                                                                </div>
+                                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.created_at}</p>
                                                             </div>
-                                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.created_at}</p>
-                                                        </div>
-                                                        <div className="col-span-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                                                            <div className="flex items-center gap-1.5 mb-1">
-                                                                <ArrowUpRight className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                                                <p className="text-xs text-gray-500 dark:text-gray-400">Amount</p>
+                                                            <div className="col-span-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                                                                <div className="flex items-center gap-1.5 mb-1">
+                                                                    <ArrowUpRight className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Amount</p>
+                                                                </div>
+                                                                <p className="text-xl font-semibold text-blue-600 dark:text-blue-400">${record.amount.toFixed(2)}</p>
                                                             </div>
-                                                            <p className="text-xl font-semibold text-blue-600 dark:text-blue-400">${record.amount.toFixed(2)}</p>
                                                         </div>
-                                                    </div>
 
-                                                    {record.notes && (
-                                                        <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Notes</p>
-                                                            <p className="text-sm text-gray-700 dark:text-gray-300">{record.notes}</p>
+                                                        {record.notes && (
+                                                            <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Notes</p>
+                                                                <p className="text-sm text-gray-700 dark:text-gray-300">{record.notes}</p>
+                                                            </div>
+                                                        )}
+                                                    </CardContent>
+                                                    <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700">
+                                                        <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                                            <BarChart3 className="h-4 w-4 text-blue-500" />
+                                                            Items: {record.items_count || 0}
+                                                        </span>
+                                                        <div className="flex gap-2">
+                                                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full">
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                                                                Details
+                                                                <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                                                            </Button>
                                                         </div>
-                                                    )}
-                                                </CardContent>
-                                                <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700">
-                                                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                                                        <BarChart3 className="h-4 w-4 text-blue-500" />
-                                                        Items: {record.items_count || 0}
-                                                    </span>
-                                                    <div className="flex gap-2">
-                                                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                        <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                                                            Details
-                                                            <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
-                                                        </Button>
-                                                    </div>
-                                                </CardFooter>
-                                            </Card>
-                                        ))}
-                                    </div>
+                                                    </CardFooter>
+                                                </Card>
+                                            ))}
+                                        </div>
+
+                                        <Pagination />
+
+                                        <div className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                            Showing {Math.min(filteredSales.length, (currentPage - 1) * itemsPerPage + 1)} to {Math.min(filteredSales.length, currentPage * itemsPerPage)} of {filteredSales.length} sales
+                                        </div>
+                                    </>
                                 ) : (
                                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-10 text-center">
                                         <div className="inline-flex h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center mb-6">
@@ -503,36 +632,94 @@ export default function Sale({ auth, sales }) {
                             </TabsContent>
 
                             <TabsContent value="list" activeValue={view} className="mt-0">
-                                {/* List view similar to grid view but in a table format */}
                                 {filteredSales && filteredSales.length > 0 ? (
-                                    <Card className="border-0 shadow-md overflow-hidden rounded-xl">
-                                        <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-12 text-sm font-medium text-gray-500 dark:text-gray-400">
-                                            <div className="col-span-4 flex items-center gap-2">
-                                                <ShoppingCart className="h-4 w-4 text-blue-500" />
-                                                Reference
+                                    <>
+                                        <Card className="border-0 shadow-md overflow-hidden rounded-xl">
+                                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-12 text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                <div className="col-span-4 flex items-center gap-2">
+                                                    <ShoppingCart className="h-4 w-4 text-blue-500" />
+                                                    Reference
+                                                </div>
+                                                <div className="col-span-1 text-center flex items-center justify-center gap-1">
+                                                    <Tag className="h-3.5 w-3.5 text-indigo-500" />
+                                                    ID
+                                                </div>
+                                                <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                    <Calendar className="h-3.5 w-3.5 text-blue-500" />
+                                                    Date
+                                                </div>
+                                                <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                    <User className="h-3.5 w-3.5 text-amber-500" />
+                                                    Customer
+                                                </div>
+                                                <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                    <ArrowUpRight className="h-3.5 w-3.5 text-blue-500" />
+                                                    Amount
+                                                </div>
+                                                <div className="col-span-1 text-right">
+                                                    <MoreHorizontal className="h-4 w-4 ml-auto text-gray-400" />
+                                                </div>
                                             </div>
-                                            <div className="col-span-1 text-center flex items-center justify-center gap-1">
-                                                <Tag className="h-3.5 w-3.5 text-indigo-500" />
-                                                ID
+                                            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                                                {paginatedSales.map((record, index) => (
+                                                    <div
+                                                        key={record.id}
+                                                        ref={el => listItemsRef.current[index] = el}
+                                                        className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 grid grid-cols-12 items-center relative overflow-hidden group"
+                                                        onMouseEnter={(e) => {
+                                                            anime({
+                                                                targets: e.currentTarget,
+                                                                backgroundColor: 'rgba(219, 234, 254, 0.3)',
+                                                                duration: 300,
+                                                                easing: 'easeOutQuad'
+                                                            });
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            anime({
+                                                                targets: e.currentTarget,
+                                                                backgroundColor: 'rgba(255, 255, 255, 1)',
+                                                                duration: 300,
+                                                                easing: 'easeOutQuad'
+                                                            });
+                                                        }}
+                                                    >
+                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                        <div className="col-span-4 flex items-center">
+                                                            <div className="h-10 w-10 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-sm">
+                                                                <ShoppingCart className="h-5 w-5" />
+                                                            </div>
+                                                            <div>
+                                                                <h3 className="font-medium text-gray-900 dark:text-white">{record.reference}</h3>
+                                                                {record.notes && (
+                                                                    <p className="text-xs text-gray-500 truncate max-w-[200px]">{record.notes}</p>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-300">{record.id}</div>
+                                                        <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.date}</div>
+                                                        <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.customer}</div>
+                                                        <div className="col-span-2 text-center font-medium text-blue-600">${record.amount.toFixed(2)}</div>
+                                                        <div className="col-span-1 text-right">
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <Badge className={`${record.status === 'completed' ? 'bg-green-100 text-green-700' : record.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'} text-xs`}>
+                                                                    {record.status}
+                                                                </Badge>
+                                                                <Button variant="ghost" size="sm" className="text-gray-500 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0">
+                                                                    <ExternalLink className="h-4 w-4" />
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                             </div>
-                                            <div className="col-span-2 text-center flex items-center justify-center gap-1">
-                                                <Calendar className="h-3.5 w-3.5 text-blue-500" />
-                                                Date
-                                            </div>
-                                            <div className="col-span-2 text-center flex items-center justify-center gap-1">
-                                                <User className="h-3.5 w-3.5 text-amber-500" />
-                                                Customer
-                                            </div>
-                                            <div className="col-span-2 text-center flex items-center justify-center gap-1">
-                                                <ArrowUpRight className="h-3.5 w-3.5 text-blue-500" />
-                                                Amount
-                                            </div>
-                                            <div className="col-span-1 text-right">
-                                                <MoreHorizontal className="h-4 w-4 ml-auto text-gray-400" />
-                                            </div>
+                                        </Card>
+
+                                        <Pagination />
+
+                                        <div className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                                            Showing {Math.min(filteredSales.length, (currentPage - 1) * itemsPerPage + 1)} to {Math.min(filteredSales.length, currentPage * itemsPerPage)} of {filteredSales.length} sales
                                         </div>
-                                        {/* List items would go here - similar to income but with sales data */}
-                                    </Card>
+                                    </>
                                 ) : (
                                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-10 text-center">
                                         <div className="inline-flex h-20 w-20 rounded-full bg-blue-100 dark:bg-blue-900/30 items-center justify-center mb-6">
