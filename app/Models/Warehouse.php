@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -86,10 +87,8 @@ class Warehouse extends Model
     /**
      * Get the users assigned to this warehouse.
      */
-    public function users(): BelongsToMany
+    public function users(): BelongsTo
     {
-        return $this->belongsToMany(User::class, 'ware_house_users')
-            ->withPivot(['role', 'is_active'])
-            ->withTimestamps();
+        return $this->belongsTo(WarehouseUser::class);
     }
 }

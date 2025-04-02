@@ -59,6 +59,7 @@ class WarehouseResource extends Resource
             'products' => Pages\WarehouseProduct::route('/{record}/products'),
             'income' => Pages\WarehouseIncome::route('/{record}/income'),
             'outcome' => Pages\WarehouseOutcome::route('/{record}/outcome'),
+            'users' => Pages\ListWarehouseUsers::route('/{record}/users'),
         ];
     }
 
@@ -66,11 +67,11 @@ class WarehouseResource extends Resource
     public static function getRecordSubNavigation(\Filament\Resources\Pages\Page $page): array
     {
         return $page->generateNavigationItems([
-            // Pages\ViewWarehouse::class,
             Pages\EditWarehouse::class,
             Pages\WarehouseProduct::class,
             Pages\WarehouseIncome::class,
             Pages\WarehouseOutcome::class,
+            Pages\ListWarehouseUsers::class,
         ]);
     }
 }
