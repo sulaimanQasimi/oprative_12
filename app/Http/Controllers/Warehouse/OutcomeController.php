@@ -16,14 +16,16 @@ class OutcomeController extends Controller
     {
         $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
 
-        $outcome = $warehouse->warehouseOutcome()->latest()->get()->map(function ($outcomeRecord) {
+        $outcome = $warehouse->warehouseOutcome()->get()->map(function ($outcomeRecord) {
             return [
                 'id' => $outcomeRecord->id,
-                'reference' => $outcomeRecord->reference,
-                'amount' => (float) $outcomeRecord->amount,
+                'reference' => $outcomeRecord->reference_number,
+                'amount' => (float) $outcomeRecord->total,
+                'quantity' => (float) $outcomeRecord->quantity,
+                'price' => (float) $outcomeRecord->price,
                 'date' => $outcomeRecord->created_at->format('Y-m-d'),
-                'destination' => $outcomeRecord->destination,
-                'notes' => $outcomeRecord->notes,
+                'destination' => $outcomeRecord->product ? $outcomeRecord->product->name : 'Unknown',
+                'notes' => $outcomeRecord->notes ?? null,
                 'created_at' => $outcomeRecord->created_at->diffForHumans(),
             ];
         });
