@@ -1,0 +1,102 @@
+import React from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
+import { Button } from '@/Components/ui/button';
+import { MessageSquare, Package, TrendingUp, Settings, Users } from 'lucide-react';
+import { Link } from '@inertiajs/react';
+
+export default function Navigation({ auth, currentRoute }) {
+    return (
+        <div className="w-16 flex-shrink-0 bg-white dark:bg-gray-800 shadow-lg z-10">
+            <div className="h-full flex flex-col items-center justify-between py-6">
+                <div className="flex flex-col items-center space-y-8">
+                    <div className="bg-purple-600 text-white p-2 rounded-xl">
+                        <Package className="h-6 w-6" />
+                    </div>
+                    <nav className="flex flex-col items-center space-y-8">
+                        <Link href={route('warehouse.dashboard')}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`${currentRoute === 'warehouse.dashboard' ?
+                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
+                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
+                                type="button"
+                            >
+                                <MessageSquare className="h-5 w-5" />
+                            </Button>
+                        </Link>
+
+                        <Link href={route('warehouse.products')}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`${currentRoute === 'warehouse.products' ?
+                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
+                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
+                                type="button"
+                            >
+                                <Package className="h-5 w-5" />
+                            </Button>
+                        </Link>
+
+                        <Link href={route('warehouse.income')}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`${currentRoute === 'warehouse.income' ?
+                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
+                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
+                                type="button"
+                            >
+                                <TrendingUp className="h-5 w-5" />
+                            </Button>
+                        </Link>
+
+                        <Link href={route('warehouse.outcome')}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`${currentRoute === 'warehouse.outcome' ?
+                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
+                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
+                                type="button"
+                            >
+                                <TrendingUp className="h-5 w-5 rotate-180" />
+                            </Button>
+                        </Link>
+
+                        <Link href={route('warehouse.users')}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`${currentRoute === 'warehouse.users' ?
+                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
+                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
+                                type="button"
+                            >
+                                <Users className="h-5 w-5" />
+                            </Button>
+                        </Link>
+
+                        <Link href={route('warehouse.profile.edit')}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`${currentRoute === 'warehouse.profile.edit' ?
+                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
+                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
+                                type="button"
+                            >
+                                <Settings className="h-5 w-5" />
+                            </Button>
+                        </Link>
+                    </nav>
+                </div>
+                <Avatar className="border-2 border-purple-200 dark:border-purple-900/40">
+                    <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}&background=8b5cf6&color=fff`} />
+                    <AvatarFallback className="bg-purple-600 text-white">{auth.user.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+            </div>
+        </div>
+    );
+}

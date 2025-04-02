@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { Search, Bell, MessageSquare, Send, User, Users, Package, TrendingUp, Settings, ChevronRight, Plus, Calendar, Clock } from 'lucide-react';
+import Navigation from '@/Components/Warehouse/Navigation';
 
 export default function Outcome({ auth, outcome }) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -40,36 +41,8 @@ export default function Outcome({ auth, outcome }) {
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900">
                 <div className="grid grid-cols-12 min-h-screen">
                     {/* Sidebar */}
-                    <div className="col-span-1 bg-white dark:bg-gray-800 shadow-md flex flex-col items-center py-6 space-y-8">
-                        <div className="bg-purple-600 text-white p-2 rounded-xl">
-                            <Package className="h-6 w-6" />
-                        </div>
-                        <nav className="flex flex-col items-center space-y-8 text-gray-500">
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.dashboard')}>
-                                <MessageSquare className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.products')}>
-                                <Package className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.income')}>
-                                <TrendingUp className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon" className="text-purple-600" as="a" href={route('warehouse.outcome')}>
-                                <TrendingUp className="h-6 w-6 rotate-180" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.users')}>
-                                <Users className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.profile.edit')}>
-                                <Settings className="h-6 w-6" />
-                            </Button>
-                        </nav>
-                        <div className="mt-auto">
-                            <Avatar>
-                                <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}`} />
-                                <AvatarFallback>{auth.user.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                        </div>
+                    <div className="col-span-1">
+                        <Navigation auth={auth} currentRoute="warehouse.outcome" />
                     </div>
 
                     {/* Messages List */}

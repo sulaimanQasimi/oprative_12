@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/Components/ui/card';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Search, Bell, MessageSquare, Send, User, Users, Package, TrendingUp, Settings, ChevronRight } from 'lucide-react';
 import { Link } from '@inertiajs/react';
+import Navigation from '@/Components/Warehouse/Navigation';
 
 export default function Dashboard({ auth, stats }) {
     // Sample data for charts
@@ -40,51 +41,8 @@ export default function Dashboard({ auth, stats }) {
             <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900">
                 <div className="grid grid-cols-12 min-h-screen">
                     {/* Sidebar */}
-                    <div className="col-span-1 bg-white dark:bg-gray-800 shadow-md flex flex-col items-center py-6 space-y-8">
-                        <div className="bg-purple-600 text-white p-2 rounded-xl">
-                            <Package className="h-6 w-6" />
-                        </div>
-                        <nav className="flex flex-col items-center space-y-8 text-gray-500">
-                            <Button variant="ghost" size="icon" className="text-purple-600" as="a" href={route('warehouse.dashboard')}>
-                                <MessageSquare className="h-6 w-6" />
-                            </Button>
-                            <Link
-                                href={route('warehouse.products')}
-                                className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                            >
-                                <Package className="h-6 w-6" />
-                            </Link>
-                            <Link
-                                href={route('warehouse.income')}
-                                className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                            >
-                                <TrendingUp className="h-6 w-6" />
-                            </Link>
-                            <Link
-                                href={route('warehouse.outcome')}
-                                className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                            >
-                                <TrendingUp className="h-6 w-6 rotate-180" />
-                            </Link>
-                            <Link
-                                href={route('warehouse.users')}
-                                className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                            >
-                                <Users className="h-6 w-6" />
-                            </Link>
-                            <Link
-                                href={route('warehouse.profile.edit')}
-                                className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                            >
-                                <Settings className="h-6 w-6" />
-                            </Link>
-                        </nav>
-                        <div className="mt-auto">
-                            <Avatar>
-                                <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}`} />
-                                <AvatarFallback>{auth.user.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                        </div>
+                    <div className="col-span-1">
+                        <Navigation auth={auth} currentRoute="warehouse.dashboard" />
                     </div>
 
                     {/* Messages List */}

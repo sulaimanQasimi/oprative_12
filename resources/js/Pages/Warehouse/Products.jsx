@@ -7,6 +7,7 @@ import { Badge } from '@/Components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { Search, MessageSquare, Package, TrendingUp, Settings, ChevronRight, Plus, Filter, ArrowUpRight, ArrowDownRight, BarChart3, Layers, PieChart, Grid, List, MoreHorizontal, ExternalLink, Tag, Clock, Calendar, LayoutGrid, Users } from 'lucide-react';
 import anime from 'animejs';
+import Navigation from '@/Components/Warehouse/Navigation';
 
 export default function Products({ auth, products }) {
     const [searchTerm, setSearchTerm] = useState('');
@@ -152,36 +153,7 @@ export default function Products({ auth, products }) {
 
             <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
                 {/* Sidebar */}
-                <div className="w-16 flex-shrink-0 bg-white dark:bg-gray-800 shadow-lg z-10">
-                    <div className="h-full flex flex-col items-center justify-between py-6">
-                        <div className="flex flex-col items-center space-y-8">
-                            <div className="bg-purple-600 text-white p-2 rounded-xl">
-                                <Package className="h-6 w-6" />
-                            </div>
-                            <nav className="flex flex-col items-center space-y-8">
-                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20" as="a" href={route('warehouse.dashboard')}>
-                                    <MessageSquare className="h-5 w-5" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="text-purple-600 bg-purple-100 dark:bg-purple-900/20" as="a" href={route('warehouse.products')}>
-                                    <Package className="h-5 w-5" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20" as="a" href={route('warehouse.income')}>
-                                    <TrendingUp className="h-5 w-5" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20" as="a" href={route('warehouse.outcome')}>
-                                    <TrendingUp className="h-5 w-5 rotate-180" />
-                                </Button>
-                                <Button variant="ghost" size="icon" className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20" as="a" href={route('warehouse.profile.edit')}>
-                                    <Settings className="h-5 w-5" />
-                                </Button>
-                            </nav>
-                        </div>
-                        <Avatar className="border-2 border-purple-200 dark:border-purple-900/40">
-                            <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}&background=8b5cf6&color=fff`} />
-                            <AvatarFallback className="bg-purple-600 text-white">{auth.user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                    </div>
-                </div>
+                <Navigation auth={auth} currentRoute="warehouse.products" />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
