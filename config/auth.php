@@ -44,6 +44,10 @@ return [
             'driver' => 'session',
             'provider' => 'customer_users',
         ],
+        'warehouse_user' => [
+            'driver' => 'session',
+            'provider' => 'warehouse_users',
+        ],
     ],
 
     /*
@@ -71,6 +75,10 @@ return [
         'customer_users' => [
             'driver' => 'eloquent',
             'model' => App\Models\CustomerUser::class,
+        ],
+        'warehouse_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\WareHouseUser::class,
         ],
     ],
 
@@ -102,6 +110,12 @@ return [
         ],
         'customer_users' => [
             'provider' => 'customer_users',
+            'table' => 'password_reset_tokens',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'warehouse_users' => [
+            'provider' => 'warehouse_users',
             'table' => 'password_reset_tokens',
             'expire' => 60,
             'throttle' => 60,
