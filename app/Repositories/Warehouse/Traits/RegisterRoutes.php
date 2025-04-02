@@ -10,6 +10,7 @@ use App\Http\Controllers\Warehouse\ProductController;
 use App\Http\Controllers\Warehouse\IncomeController;
 use App\Http\Controllers\Warehouse\OutcomeController;
 use App\Http\Controllers\Warehouse\UsersController;
+use App\Http\Controllers\Warehouse\SaleController;
 
 trait RegisterRoutes
 {
@@ -53,6 +54,15 @@ trait RegisterRoutes
                 Route::get('outcome/{outcome}/edit', [OutcomeController::class, 'edit'])->name('outcome.edit');
                 Route::put('outcome/{outcome}', [OutcomeController::class, 'update'])->name('outcome.update');
                 Route::delete('outcome/{outcome}', [OutcomeController::class, 'destroy'])->name('outcome.destroy');
+
+                // Sales management
+                Route::get('sales', [SaleController::class, 'index'])->name('sales');
+                Route::get('sales/create', [SaleController::class, 'create'])->name('sales.create');
+                Route::post('sales', [SaleController::class, 'store'])->name('sales.store');
+                Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
+                Route::get('sales/{sale}/edit', [SaleController::class, 'edit'])->name('sales.edit');
+                Route::put('sales/{sale}', [SaleController::class, 'update'])->name('sales.update');
+                Route::delete('sales/{sale}', [SaleController::class, 'destroy'])->name('sales.destroy');
 
                 // Users management
                 Route::get('users', [UsersController::class, 'index'])->name('users');

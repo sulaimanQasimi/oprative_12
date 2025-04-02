@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { MessageSquare, Package, TrendingUp, Settings, Users, Sun, Moon } from 'lucide-react';
+import { MessageSquare, Package, TrendingUp, Settings, Users, Sun, Moon, ShoppingCart } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 
 export default function Navigation({ auth, currentRoute }) {
@@ -64,6 +64,19 @@ export default function Navigation({ auth, currentRoute }) {
                                 type="button"
                             >
                                 <Package className="h-5 w-5" />
+                            </Button>
+                        </Link>
+
+                        <Link href={route('warehouse.sales')}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`${currentRoute === 'warehouse.sales' ?
+                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
+                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
+                                type="button"
+                            >
+                                <ShoppingCart className="h-5 w-5" />
                             </Button>
                         </Link>
 
