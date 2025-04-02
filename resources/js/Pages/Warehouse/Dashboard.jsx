@@ -1,12 +1,12 @@
 import React from 'react';
 import { Head } from '@inertiajs/react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { CheckCircle } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent } from '@/Components/ui/card';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Search, Bell, MessageSquare, Send, User, Users, Package, TrendingUp, Settings, ChevronRight } from 'lucide-react';
 
 export default function Dashboard({ auth, stats }) {
-    const colors = ['#4ade80', '#2563eb', '#f43f5e', '#a855f7'];
-
     // Sample data for charts
     const activityData = [
         { name: 'Mon', value: 20 },
@@ -18,141 +18,309 @@ export default function Dashboard({ auth, stats }) {
         { name: 'Sun', value: 10 },
     ];
 
-    const pieData = [
-        { name: 'In Stock', value: stats?.products_count || 30 },
-        { name: 'Incoming', value: stats?.incoming_transfers_count || 15 },
-        { name: 'Outgoing', value: stats?.outgoing_transfers_count || 10 },
+    // Sample conversations
+    const messages = [
+        { id: 1, sender: 'John Smith', avatar: `https://ui-avatars.com/api/?name=John+Smith`, content: 'New shipment arriving tomorrow at 9 AM', time: '10:35 AM', isNew: true },
+        { id: 2, sender: 'Sarah Lee', avatar: `https://ui-avatars.com/api/?name=Sarah+Lee`, content: 'Warehouse inspection scheduled for Friday', time: 'Yesterday', isNew: true },
+        { id: 3, sender: 'Robert Chen', avatar: `https://ui-avatars.com/api/?name=Robert+Chen`, content: 'Inventory report has been submitted', time: '2 days ago', isNew: false },
+    ];
+
+    // Sample active users
+    const activeUsers = [
+        { id: 1, name: 'Emma Watson', avatar: `https://ui-avatars.com/api/?name=Emma+Watson`, status: 'online' },
+        { id: 2, name: 'James Wilson', avatar: `https://ui-avatars.com/api/?name=James+Wilson`, status: 'online' },
+        { id: 3, name: 'Lisa Thompson', avatar: `https://ui-avatars.com/api/?name=Lisa+Thompson`, status: 'away' },
     ];
 
     return (
         <>
             <Head title="Warehouse Dashboard" />
 
-            <div className="py-6 bg-black text-green-400">
-                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center mb-6 border-b border-green-900 pb-3">
-                        <h1 className="text-2xl font-bold text-green-400">
-                            CRITICAL SERVER STATUS: {auth.user.warehouse.name.toUpperCase()}
-                        </h1>
-                        <div className="flex items-center">
-                            <div className="h-3 w-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                            <span>ONLINE</span>
+            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900">
+                <div className="grid grid-cols-12 min-h-screen">
+                    {/* Sidebar */}
+                    <div className="col-span-1 bg-white dark:bg-gray-800 shadow-md flex flex-col items-center py-6 space-y-8">
+                        <div className="bg-purple-600 text-white p-2 rounded-xl">
+                            <Package className="h-6 w-6" />
+                        </div>
+                        <nav className="flex flex-col items-center space-y-8 text-gray-500">
+                            <Button variant="ghost" size="icon" className="text-purple-600">
+                                <MessageSquare className="h-6 w-6" />
+                            </Button>
+                            <Button variant="ghost" size="icon">
+                                <Users className="h-6 w-6" />
+                            </Button>
+                            <Button variant="ghost" size="icon">
+                                <TrendingUp className="h-6 w-6" />
+                            </Button>
+                            <Button variant="ghost" size="icon">
+                                <Package className="h-6 w-6" />
+                            </Button>
+                            <Button variant="ghost" size="icon">
+                                <Settings className="h-6 w-6" />
+                            </Button>
+                        </nav>
+                        <div className="mt-auto">
+                            <Avatar>
+                                <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}`} />
+                                <AvatarFallback>{auth.user.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <Card className="bg-gray-900 border border-green-700 shadow-lg shadow-green-900/20">
-                            <CardHeader className="pb-2 border-b border-green-900">
-                                <CardTitle className="text-sm font-medium text-green-400">TOTAL PRODUCTS</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                <div className="text-3xl font-bold text-white">{stats?.products_count || 0}</div>
-                                <div className="mt-2 text-xs text-green-500">+5% from last week</div>
-                            </CardContent>
-                        </Card>
+                    {/* Messages List */}
+                    <div className="col-span-3 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <div className="flex items-center justify-between">
+                                <h2 className="font-semibold text-xl">Messages</h2>
+                                <Button variant="ghost" size="icon">
+                                    <Bell className="h-5 w-5" />
+                                </Button>
+                            </div>
+                            <div className="mt-4 relative">
+                                <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
+                                <input
+                                    type="text"
+                                    placeholder="Search messages..."
+                                    className="w-full py-2 pl-10 pr-4 rounded-full bg-gray-100 dark:bg-gray-700 text-sm"
+                                />
+                            </div>
+                        </div>
 
-                        <Card className="bg-gray-900 border border-green-700 shadow-lg shadow-green-900/20">
-                            <CardHeader className="pb-2 border-b border-green-900">
-                                <CardTitle className="text-sm font-medium text-green-400">INCOMING TRANSFERS</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                <div className="text-3xl font-bold text-white">{stats?.incoming_transfers_count || 0}</div>
-                                <div className="mt-2 text-xs text-green-500">+2 pending approval</div>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="bg-gray-900 border border-green-700 shadow-lg shadow-green-900/20">
-                            <CardHeader className="pb-2 border-b border-green-900">
-                                <CardTitle className="text-sm font-medium text-green-400">OUTGOING TRANSFERS</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-4">
-                                <div className="text-3xl font-bold text-white">{stats?.outgoing_transfers_count || 0}</div>
-                                <div className="mt-2 text-xs text-green-500">3 in transit</div>
-                            </CardContent>
-                        </Card>
+                        <div className="overflow-y-auto h-[calc(100vh-140px)]">
+                            {messages.map((message) => (
+                                <div
+                                    key={message.id}
+                                    className={`p-4 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer ${
+                                        message.isNew ? 'bg-purple-50 dark:bg-purple-900/20' : ''
+                                    }`}
+                                >
+                                    <div className="flex items-start space-x-3">
+                                        <Avatar>
+                                            <AvatarImage src={message.avatar} />
+                                            <AvatarFallback>{message.sender.charAt(0)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between">
+                                                <h3 className="font-medium truncate">{message.sender}</h3>
+                                                <span className="text-xs text-gray-500">{message.time}</span>
+                                            </div>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300 truncate mt-1">
+                                                {message.content}
+                                            </p>
+                                        </div>
+                                        {message.isNew && (
+                                            <div className="h-3 w-3 bg-purple-600 rounded-full"></div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <Card className="bg-gray-900 border border-green-700 shadow-lg shadow-green-900/20">
-                            <CardHeader className="border-b border-green-900">
-                                <CardTitle className="text-sm font-medium text-green-400">WAREHOUSE ACTIVITY</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-4 h-60">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={activityData}>
-                                        <XAxis dataKey="name" stroke="#22c55e" />
-                                        <YAxis stroke="#22c55e" />
-                                        <Bar dataKey="value" fill="#22c55e" radius={[4, 4, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="bg-gray-900 border border-green-700 shadow-lg shadow-green-900/20">
-                            <CardHeader className="border-b border-green-900">
-                                <CardTitle className="text-sm font-medium text-green-400">INVENTORY DISTRIBUTION</CardTitle>
-                            </CardHeader>
-                            <CardContent className="pt-4 h-60">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={pieData}
-                                            cx="50%"
-                                            cy="50%"
-                                            outerRadius={80}
-                                            dataKey="value"
-                                            label={({name, percent}) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                        >
-                                            {pieData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                                            ))}
-                                        </Pie>
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    <Card className="bg-gray-900 border border-green-700 shadow-lg shadow-green-900/20">
-                        <CardHeader className="border-b border-green-900">
-                            <CardTitle className="text-sm font-medium text-green-400">SYSTEM STATUS</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="mt-4 flex justify-center">
-                                <div className="rounded-full p-10 bg-gray-800 border-4 border-green-600 relative">
-                                    <CheckCircle className="h-20 w-20 text-green-500" />
-                                    <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-green-400 animate-spin"></div>
+                    {/* Main Content */}
+                    <div className="col-span-5 flex flex-col">
+                        <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                    <Avatar className="h-10 w-10">
+                                        <AvatarImage src={`https://ui-avatars.com/api/?name=Warehouse+Team`} />
+                                        <AvatarFallback>WH</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <h2 className="font-semibold text-lg">{auth.user.warehouse.name}</h2>
+                                        <p className="text-sm text-gray-500">{stats?.products_count || 0} products · {stats?.incoming_transfers_count || 0} incoming · {stats?.outgoing_transfers_count || 0} outgoing</p>
+                                    </div>
+                                </div>
+                                <div className="flex space-x-2">
+                                    <Button variant="outline" size="sm">
+                                        <User className="h-4 w-4 mr-2" />
+                                        Profile
+                                    </Button>
                                 </div>
                             </div>
-                            <div className="text-center mt-6 text-xl font-bold text-white">ALL SYSTEMS OPERATIONAL</div>
-                        </CardContent>
-                    </Card>
+                        </div>
 
-                    <Card className="mt-6 bg-gray-900 border border-green-700 shadow-lg shadow-green-900/20">
-                        <CardHeader className="border-b border-green-900">
-                            <CardTitle className="text-sm font-medium text-green-400">RECENT ACTIVITY LOG</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            {stats?.recent_activities?.length > 0 ? (
-                                <div className="space-y-4 mt-4">
-                                    {stats.recent_activities.map((activity, index) => (
-                                        <div key={index} className="flex items-center gap-4 p-3 border-b border-green-900 last:border-b-0">
-                                            <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
-                                            <div>
-                                                <p className="font-medium text-white">{activity.title}</p>
-                                                <p className="text-sm text-green-500">{activity.time}</p>
+                        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
+                            <div className="space-y-6">
+                                {/* Stats Cards */}
+                                <div className="grid grid-cols-3 gap-4">
+                                    <Card className="shadow-sm bg-white dark:bg-gray-800 border-none">
+                                        <CardContent className="p-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm text-gray-500">Products</span>
+                                                <span className="text-2xl font-bold mt-1">{stats?.products_count || 0}</span>
+                                                <span className="text-xs text-green-500 mt-1">+5% from last week</span>
                                             </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="shadow-sm bg-white dark:bg-gray-800 border-none">
+                                        <CardContent className="p-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm text-gray-500">Incoming</span>
+                                                <span className="text-2xl font-bold mt-1">{stats?.incoming_transfers_count || 0}</span>
+                                                <span className="text-xs text-green-500 mt-1">+2 pending approval</span>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="shadow-sm bg-white dark:bg-gray-800 border-none">
+                                        <CardContent className="p-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-sm text-gray-500">Outgoing</span>
+                                                <span className="text-2xl font-bold mt-1">{stats?.outgoing_transfers_count || 0}</span>
+                                                <span className="text-xs text-green-500 mt-1">3 in transit</span>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                                {/* Activity Chart */}
+                                <Card className="shadow-sm bg-white dark:bg-gray-800 border-none">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="font-medium">Warehouse Activity</h3>
+                                            <Button variant="ghost" size="sm" className="text-purple-600">
+                                                Weekly
+                                            </Button>
                                         </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center py-8">
-                                    <div className="h-3 w-3 bg-green-500 rounded-full mb-4 animate-pulse"></div>
-                                    <p className="text-center text-green-500">No recent activity detected</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                                        <div className="h-60">
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <BarChart data={activityData}>
+                                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                                    <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                                                    <YAxis axisLine={false} tickLine={false} />
+                                                    <Tooltip />
+                                                    <Bar dataKey="value" fill="#8884d8" radius={[4, 4, 0, 0]} />
+                                                </BarChart>
+                                            </ResponsiveContainer>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+
+                                {/* Recent Activity */}
+                                <Card className="shadow-sm bg-white dark:bg-gray-800 border-none">
+                                    <CardContent className="p-4">
+                                        <div className="flex items-center justify-between mb-4">
+                                            <h3 className="font-medium">Recent Activity</h3>
+                                            <Button variant="ghost" size="sm" className="text-purple-600">
+                                                View All
+                                            </Button>
+                                        </div>
+                                        {stats?.recent_activities?.length > 0 ? (
+                                            <div className="space-y-4">
+                                                {stats.recent_activities.map((activity, index) => (
+                                                    <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700">
+                                                        <div className="h-8 w-8 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center text-purple-600">
+                                                            <Package className="h-4 w-4" />
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <p className="text-sm font-medium">{activity.title}</p>
+                                                            <p className="text-xs text-gray-500">{activity.time}</p>
+                                                        </div>
+                                                        <ChevronRight className="h-4 w-4 text-gray-400" />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-6 text-gray-500">
+                                                <p>No recent activity</p>
+                                            </div>
+                                        )}
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </div>
+
+                        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                            <div className="flex items-center">
+                                <input
+                                    type="text"
+                                    placeholder="Type a message..."
+                                    className="flex-1 py-2 px-4 rounded-full bg-gray-100 dark:bg-gray-700 mr-2"
+                                />
+                                <Button className="rounded-full p-2 bg-purple-600 hover:bg-purple-700">
+                                    <Send className="h-5 w-5" />
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right Sidebar - Activity & Users */}
+                    <div className="col-span-3 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700">
+                        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                            <h2 className="font-semibold text-xl">Active Users</h2>
+                        </div>
+
+                        <div className="p-4">
+                            <div className="space-y-4">
+                                {activeUsers.map(user => (
+                                    <div key={user.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
+                                        <div className="relative">
+                                            <Avatar>
+                                                <AvatarImage src={user.avatar} />
+                                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <span className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${
+                                                user.status === 'online' ? 'bg-green-500' : 'bg-yellow-500'
+                                            }`}></span>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-medium text-sm">{user.name}</h3>
+                                            <p className="text-xs text-gray-500 capitalize">{user.status}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="p-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+                            <h2 className="font-semibold text-xl mb-4">Analytics</h2>
+                            <Card className="shadow-sm border-none bg-gray-50 dark:bg-gray-700">
+                                <CardContent className="p-4">
+                                    <h3 className="text-sm font-medium mb-2">Activity Trend</h3>
+                                    <div className="h-40">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <LineChart data={activityData}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                                <XAxis dataKey="name" axisLine={false} tickLine={false} />
+                                                <YAxis axisLine={false} tickLine={false} />
+                                                <Tooltip />
+                                                <Line
+                                                    type="monotone"
+                                                    dataKey="value"
+                                                    stroke="#8b5cf6"
+                                                    strokeWidth={2}
+                                                    dot={{ r: 4 }}
+                                                    activeDot={{ r: 6 }}
+                                                />
+                                            </LineChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <div className="grid grid-cols-2 gap-4 mt-4">
+                                <Card className="shadow-sm border-none bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+                                    <CardContent className="p-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-sm opacity-80">Stock Status</span>
+                                            <span className="text-2xl font-bold mt-1">85%</span>
+                                            <span className="text-xs mt-1">Capacity utilized</span>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                                <Card className="shadow-sm border-none bg-gradient-to-br from-pink-500 to-rose-600 text-white">
+                                    <CardContent className="p-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-sm opacity-80">Performance</span>
+                                            <span className="text-2xl font-bold mt-1">92%</span>
+                                            <span className="text-xs mt-1">Efficiency rate</span>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </>
