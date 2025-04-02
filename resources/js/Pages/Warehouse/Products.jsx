@@ -303,90 +303,152 @@ export default function Products({ auth, products }) {
                         <div ref={cardsRef} className="transition-opacity duration-300" style={{ minHeight: '200px' }}>
                             <TabsContent value="grid" activeValue={view} className="mt-0">
                                 {filteredProducts && filteredProducts.length > 0 ? (
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {filteredProducts.map((product, index) => (
-                                            <Card
-                                                key={product.product_id}
-                                                ref={el => gridItemsRef.current[index] = el}
-                                                className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow relative"
-                                                onMouseEnter={(e) => animateHover(e.currentTarget, true)}
-                                                onMouseLeave={(e) => animateHover(e.currentTarget, false)}
-                                            >
-                                                <div className="h-2 bg-gradient-to-r from-purple-500 via-purple-600 to-indigo-600" />
-                                                <div className="absolute top-4 right-4">
-                                                    <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">
-                                                        {product.product[0].type || 'Item'}
-                                                    </Badge>
+                                    <>
+                                        <div className="mb-5 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-white dark:from-gray-800 dark:to-gray-900 opacity-50"></div>
+                                            <div className="relative z-10">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <div className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-2 rounded-lg">
+                                                        <BarChart3 className="h-5 w-5" />
+                                                    </div>
+                                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Barcode Search</h3>
                                                 </div>
-                                                <CardContent className="p-6 pt-8">
-                                                    <div className="flex items-start">
-                                                        <div className="h-14 w-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
-                                                            <Package className="h-7 w-7" />
+                                                <div className="relative w-full group">
+                                                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-400 to-indigo-500 opacity-0 group-focus-within:opacity-100 blur transition-opacity -m-0.5"></div>
+                                                    <div className="relative flex">
+                                                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center pointer-events-none">
+                                                            <Tag className="h-5 w-5 text-gray-400" />
                                                         </div>
-                                                        <div>
-                                                            <h3 className="font-medium text-lg text-gray-900 dark:text-white">{product.product[0].name}</h3>
-                                                            <div className="mt-1 flex flex-wrap gap-2">
-                                                                <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                                                    <Tag className="h-3 w-3" />
-                                                                    ID: {product.product_id}
-                                                                </Badge>
-                                                                <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                                                    <BarChart3 className="h-3 w-3" />
-                                                                    {product.product[0].barcode || 'N/A'}
-                                                                </Badge>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Scan or type product barcode to search..."
+                                                            className="flex-1 py-3 pl-11 pr-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                                                            value={searchTerm}
+                                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                                            onFocus={(e) => {
+                                                                anime({
+                                                                    targets: e.currentTarget,
+                                                                    scale: [1, 1.02],
+                                                                    boxShadow: ['0 0 0 rgba(0,0,0,0)', '0 4px 20px rgba(0,0,0,0.1)'],
+                                                                    duration: 300,
+                                                                    easing: 'easeOutQuad'
+                                                                });
+                                                            }}
+                                                            onBlur={(e) => {
+                                                                anime({
+                                                                    targets: e.currentTarget,
+                                                                    scale: [1.02, 1],
+                                                                    boxShadow: ['0 4px 20px rgba(0,0,0,0.1)', '0 0 0 rgba(0,0,0,0)'],
+                                                                    duration: 300,
+                                                                    easing: 'easeOutQuad'
+                                                                });
+                                                            }}
+                                                        />
+                                                        {searchTerm && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                                                onClick={() => setSearchTerm('')}
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                {searchTerm && (
+                                                    <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 animate-pulse">
+                                                        <span className="inline-block h-2 w-2 rounded-full bg-green-500"></span>
+                                                        Searching for: {searchTerm}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {filteredProducts.map((product, index) => (
+                                                <Card
+                                                    key={product.product_id}
+                                                    ref={el => gridItemsRef.current[index] = el}
+                                                    className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow relative"
+                                                    onMouseEnter={(e) => animateHover(e.currentTarget, true)}
+                                                    onMouseLeave={(e) => animateHover(e.currentTarget, false)}
+                                                >
+                                                    <div className="h-2 bg-gradient-to-r from-purple-500 via-purple-600 to-indigo-600" />
+                                                    <div className="absolute top-4 right-4">
+                                                        <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">
+                                                            {product.product[0].type || 'Item'}
+                                                        </Badge>
+                                                    </div>
+                                                    <CardContent className="p-6 pt-8">
+                                                        <div className="flex items-start">
+                                                            <div className="h-14 w-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
+                                                                <Package className="h-7 w-7" />
+                                                            </div>
+                                                            <div>
+                                                                <h3 className="font-medium text-lg text-gray-900 dark:text-white">{product.product[0].name}</h3>
+                                                                <div className="mt-1 flex flex-wrap gap-2">
+                                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                        <Tag className="h-3 w-3" />
+                                                                        ID: {product.product_id}
+                                                                    </Badge>
+                                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                        <BarChart3 className="h-3 w-3" />
+                                                                        {product.product[0].barcode || 'N/A'}
+                                                                    </Badge>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
 
-                                                    <div className="mt-6 grid grid-cols-2 gap-4">
-                                                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                            <div className="flex items-center gap-1.5 mb-1">
-                                                                <Layers className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-                                                                <p className="text-xs text-gray-500 dark:text-gray-400">Stock</p>
+                                                        <div className="mt-6 grid grid-cols-2 gap-4">
+                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <div className="flex items-center gap-1.5 mb-1">
+                                                                    <Layers className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Stock</p>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-gray-900 dark:text-white">{product.net_quantity}</p>
                                                             </div>
-                                                            <p className="text-lg font-semibold text-gray-900 dark:text-white">{product.net_quantity}</p>
-                                                        </div>
-                                                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                            <div className="flex items-center gap-1.5 mb-1">
-                                                                <Tag className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                                                                <p className="text-xs text-gray-500 dark:text-gray-400">Price</p>
+                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <div className="flex items-center gap-1.5 mb-1">
+                                                                    <Tag className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Price</p>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-gray-900 dark:text-white">${product.income_price}</p>
                                                             </div>
-                                                            <p className="text-lg font-semibold text-gray-900 dark:text-white">${product.income_price}</p>
-                                                        </div>
-                                                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                            <div className="flex items-center gap-1.5 mb-1">
-                                                                <ArrowUpRight className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                                                                <p className="text-xs text-gray-500 dark:text-gray-400">Incoming</p>
+                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <div className="flex items-center gap-1.5 mb-1">
+                                                                    <ArrowUpRight className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Incoming</p>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-green-600">{product.income_quantity}</p>
                                                             </div>
-                                                            <p className="text-lg font-semibold text-green-600">{product.income_quantity}</p>
-                                                        </div>
-                                                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                            <div className="flex items-center gap-1.5 mb-1">
-                                                                <ArrowDownRight className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
-                                                                <p className="text-xs text-gray-500 dark:text-gray-400">Outgoing</p>
+                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <div className="flex items-center gap-1.5 mb-1">
+                                                                    <ArrowDownRight className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Outgoing</p>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-rose-600">{product.outcome_quantity}</p>
                                                             </div>
-                                                            <p className="text-lg font-semibold text-rose-600">{product.outcome_quantity}</p>
                                                         </div>
-                                                    </div>
-                                                </CardContent>
-                                                <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700">
-                                                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                                                        <BarChart3 className="h-4 w-4 text-indigo-500" />
-                                                        ${(product.net_quantity * product.income_price).toFixed(2)}
-                                                    </span>
-                                                    <div className="flex gap-2">
-                                                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                        <Button variant="default" size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
-                                                            Details
-                                                            <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
-                                                        </Button>
-                                                    </div>
-                                                </CardFooter>
-                                            </Card>
-                                        ))}
-                                    </div>
+                                                    </CardContent>
+                                                    <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700">
+                                                        <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                                            <BarChart3 className="h-4 w-4 text-indigo-500" />
+                                                            ${(product.net_quantity * product.income_price).toFixed(2)}
+                                                        </span>
+                                                        <div className="flex gap-2">
+                                                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full">
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button variant="default" size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                                                                Details
+                                                                <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                                                            </Button>
+                                                        </div>
+                                                    </CardFooter>
+                                                </Card>
+                                            ))}
+                                        </div>
+                                    </>
                                 ) : (
                                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-10 text-center">
                                         <div className="inline-flex h-20 w-20 rounded-full bg-purple-100 dark:bg-purple-900/30 items-center justify-center mb-6">
@@ -406,95 +468,157 @@ export default function Products({ auth, products }) {
 
                             <TabsContent value="list" activeValue={view} className="mt-0">
                                 {filteredProducts && filteredProducts.length > 0 ? (
-                                    <Card className="border-0 shadow-md overflow-hidden rounded-xl">
-                                        <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-12 text-sm font-medium text-gray-500 dark:text-gray-400">
-                                            <div className="col-span-4 flex items-center gap-2">
-                                                <Package className="h-4 w-4 text-purple-500" />
-                                                Product Name
-                                            </div>
-                                            <div className="col-span-1 text-center flex items-center justify-center gap-1">
-                                                <Tag className="h-3.5 w-3.5 text-indigo-500" />
-                                                ID
-                                            </div>
-                                            <div className="col-span-1 text-center flex items-center justify-center gap-1">
-                                                <Layers className="h-3.5 w-3.5 text-green-500" />
-                                                Stock
-                                            </div>
-                                            <div className="col-span-1 text-center flex items-center justify-center gap-1">
-                                                <Tag className="h-3.5 w-3.5 text-amber-500" />
-                                                Price
-                                            </div>
-                                            <div className="col-span-1 text-center flex items-center justify-center gap-1">
-                                                <ArrowUpRight className="h-3.5 w-3.5 text-green-500" />
-                                                In
-                                            </div>
-                                            <div className="col-span-1 text-center flex items-center justify-center gap-1">
-                                                <ArrowDownRight className="h-3.5 w-3.5 text-rose-500" />
-                                                Out
-                                            </div>
-                                            <div className="col-span-2 text-center flex items-center justify-center gap-1">
-                                                <BarChart3 className="h-3.5 w-3.5 text-purple-500" />
-                                                Value
-                                            </div>
-                                            <div className="col-span-1 text-right">
-                                                <MoreHorizontal className="h-4 w-4 ml-auto text-gray-400" />
-                                            </div>
-                                        </div>
-                                        <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                                            {filteredProducts.map((product, index) => (
-                                                <div
-                                                    key={product.product_id}
-                                                    ref={el => listItemsRef.current[index] = el}
-                                                    className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-purple-50/30 dark:hover:bg-purple-900/10 grid grid-cols-12 items-center relative overflow-hidden group"
-                                                    onMouseEnter={(e) => {
-                                                        anime({
-                                                            targets: e.currentTarget,
-                                                            backgroundColor: 'rgba(233, 213, 255, 0.2)',
-                                                            duration: 300,
-                                                            easing: 'easeOutQuad'
-                                                        });
-                                                    }}
-                                                    onMouseLeave={(e) => {
-                                                        anime({
-                                                            targets: e.currentTarget,
-                                                            backgroundColor: 'rgba(255, 255, 255, 1)',
-                                                            duration: 300,
-                                                            easing: 'easeOutQuad'
-                                                        });
-                                                    }}
-                                                >
-                                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                                    <div className="col-span-4 flex items-center">
-                                                        <div className="h-10 w-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-sm">
-                                                            <Package className="h-5 w-5" />
-                                                        </div>
-                                                        <div>
-                                                            <h3 className="font-medium text-gray-900 dark:text-white">{product.product[0].name}</h3>
-                                                            <p className="text-xs text-gray-500 flex items-center gap-1">
-                                                                <BarChart3 className="h-3 w-3" />
-                                                                {product.product[0].barcode || 'N/A'}
-                                                            </p>
-                                                        </div>
+                                    <>
+                                        <div className="mb-5 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-white dark:from-gray-800 dark:to-gray-900 opacity-50"></div>
+                                            <div className="relative z-10">
+                                                <div className="flex items-center gap-3 mb-3">
+                                                    <div className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white p-2 rounded-lg">
+                                                        <BarChart3 className="h-5 w-5" />
                                                     </div>
-                                                    <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-300">{product.product_id}</div>
-                                                    <div className="col-span-1 text-center">
-                                                        <Badge className={`${product.net_quantity < 10 ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'}`}>
-                                                            {product.net_quantity}
-                                                        </Badge>
-                                                    </div>
-                                                    <div className="col-span-1 text-center font-medium text-gray-900 dark:text-white">${product.income_price}</div>
-                                                    <div className="col-span-1 text-center text-green-600">{product.income_quantity}</div>
-                                                    <div className="col-span-1 text-center text-rose-600">{product.outcome_quantity}</div>
-                                                    <div className="col-span-2 text-center font-medium text-gray-900 dark:text-white">${(product.net_quantity * product.income_price).toFixed(2)}</div>
-                                                    <div className="col-span-1 text-right">
-                                                        <Button variant="ghost" size="sm" className="text-gray-500 hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                            <ExternalLink className="h-4 w-4" />
-                                                        </Button>
+                                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Barcode Search</h3>
+                                                </div>
+                                                <div className="relative w-full group">
+                                                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-400 to-indigo-500 opacity-0 group-focus-within:opacity-100 blur transition-opacity -m-0.5"></div>
+                                                    <div className="relative flex">
+                                                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center pointer-events-none">
+                                                            <Tag className="h-5 w-5 text-gray-400" />
+                                                        </div>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Scan or type product barcode to search..."
+                                                            className="flex-1 py-3 pl-11 pr-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200"
+                                                            value={searchTerm}
+                                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                                            onFocus={(e) => {
+                                                                anime({
+                                                                    targets: e.currentTarget,
+                                                                    scale: [1, 1.02],
+                                                                    boxShadow: ['0 0 0 rgba(0,0,0,0)', '0 4px 20px rgba(0,0,0,0.1)'],
+                                                                    duration: 300,
+                                                                    easing: 'easeOutQuad'
+                                                                });
+                                                            }}
+                                                            onBlur={(e) => {
+                                                                anime({
+                                                                    targets: e.currentTarget,
+                                                                    scale: [1.02, 1],
+                                                                    boxShadow: ['0 4px 20px rgba(0,0,0,0.1)', '0 0 0 rgba(0,0,0,0)'],
+                                                                    duration: 300,
+                                                                    easing: 'easeOutQuad'
+                                                                });
+                                                            }}
+                                                        />
+                                                        {searchTerm && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                                                onClick={() => setSearchTerm('')}
+                                                            >
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                                            </Button>
+                                                        )}
                                                     </div>
                                                 </div>
-                                            ))}
+                                                {searchTerm && (
+                                                    <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 animate-pulse">
+                                                        <span className="inline-block h-2 w-2 rounded-full bg-green-500"></span>
+                                                        Searching for: {searchTerm}
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
-                                    </Card>
+                                        <Card className="border-0 shadow-md overflow-hidden rounded-xl">
+                                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-12 text-sm font-medium text-gray-500 dark:text-gray-400">
+                                                <div className="col-span-4 flex items-center gap-2">
+                                                    <Package className="h-4 w-4 text-purple-500" />
+                                                    Product Name
+                                                </div>
+                                                <div className="col-span-1 text-center flex items-center justify-center gap-1">
+                                                    <Tag className="h-3.5 w-3.5 text-indigo-500" />
+                                                    ID
+                                                </div>
+                                                <div className="col-span-1 text-center flex items-center justify-center gap-1">
+                                                    <Layers className="h-3.5 w-3.5 text-green-500" />
+                                                    Stock
+                                                </div>
+                                                <div className="col-span-1 text-center flex items-center justify-center gap-1">
+                                                    <Tag className="h-3.5 w-3.5 text-amber-500" />
+                                                    Price
+                                                </div>
+                                                <div className="col-span-1 text-center flex items-center justify-center gap-1">
+                                                    <ArrowUpRight className="h-3.5 w-3.5 text-green-500" />
+                                                    In
+                                                </div>
+                                                <div className="col-span-1 text-center flex items-center justify-center gap-1">
+                                                    <ArrowDownRight className="h-3.5 w-3.5 text-rose-500" />
+                                                    Out
+                                                </div>
+                                                <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                    <BarChart3 className="h-3.5 w-3.5 text-purple-500" />
+                                                    Value
+                                                </div>
+                                                <div className="col-span-1 text-right">
+                                                    <MoreHorizontal className="h-4 w-4 ml-auto text-gray-400" />
+                                                </div>
+                                            </div>
+                                            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                                                {filteredProducts.map((product, index) => (
+                                                    <div
+                                                        key={product.product_id}
+                                                        ref={el => listItemsRef.current[index] = el}
+                                                        className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-purple-50/30 dark:hover:bg-purple-900/10 grid grid-cols-12 items-center relative overflow-hidden group"
+                                                        onMouseEnter={(e) => {
+                                                            anime({
+                                                                targets: e.currentTarget,
+                                                                backgroundColor: 'rgba(233, 213, 255, 0.2)',
+                                                                duration: 300,
+                                                                easing: 'easeOutQuad'
+                                                            });
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            anime({
+                                                                targets: e.currentTarget,
+                                                                backgroundColor: 'rgba(255, 255, 255, 1)',
+                                                                duration: 300,
+                                                                easing: 'easeOutQuad'
+                                                            });
+                                                        }}
+                                                    >
+                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                        <div className="col-span-4 flex items-center">
+                                                            <div className="h-10 w-10 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-sm">
+                                                                <Package className="h-5 w-5" />
+                                                            </div>
+                                                            <div>
+                                                                <h3 className="font-medium text-gray-900 dark:text-white">{product.product[0].name}</h3>
+                                                                <p className="text-xs text-gray-500 flex items-center gap-1">
+                                                                    <BarChart3 className="h-3 w-3" />
+                                                                    {product.product[0].barcode || 'N/A'}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-300">{product.product_id}</div>
+                                                        <div className="col-span-1 text-center">
+                                                            <Badge className={`${product.net_quantity < 10 ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' : 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'}`}>
+                                                                {product.net_quantity}
+                                                            </Badge>
+                                                        </div>
+                                                        <div className="col-span-1 text-center font-medium text-gray-900 dark:text-white">${product.income_price}</div>
+                                                        <div className="col-span-1 text-center text-green-600">{product.income_quantity}</div>
+                                                        <div className="col-span-1 text-center text-rose-600">{product.outcome_quantity}</div>
+                                                        <div className="col-span-2 text-center font-medium text-gray-900 dark:text-white">${(product.net_quantity * product.income_price).toFixed(2)}</div>
+                                                        <div className="col-span-1 text-right">
+                                                            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-purple-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <ExternalLink className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </Card>
+                                    </>
                                 ) : (
                                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-10 text-center">
                                         <div className="inline-flex h-20 w-20 rounded-full bg-purple-100 dark:bg-purple-900/30 items-center justify-center mb-6">
