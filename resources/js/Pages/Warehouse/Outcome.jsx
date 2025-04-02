@@ -19,6 +19,7 @@ export default function Outcome({ auth, outcome }) {
     const [isAnimated, setIsAnimated] = useState(false);
     const [dateFilter, setDateFilter] = useState('all');
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+    const [showCharts, setShowCharts] = useState(true);
 
     // Refs for animation targets
     const headerRef = useRef(null);
@@ -451,123 +452,130 @@ export default function Outcome({ auth, outcome }) {
 
                     {/* Statistics Summary */}
                     <div className="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            <OutcomeChart data={weeklyActivity} />
-                            <DestinationsChart data={destinationTotals} />
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-lg font-semibold">Analytics Dashboard</h2>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => setShowCharts(!showCharts)}
+                                className="flex items-center gap-1.5"
+                            >
+                                {showCharts ? (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye-off"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                                        <span>Hide Charts</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-eye"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        <span>Show Charts</span>
+                                    </>
+                                )}
+                            </Button>
                         </div>
 
-                        {/* Monthly Breakdown */}
-                        <div className="mt-4">
-                            <div className="border-0 shadow-md overflow-hidden">
-                                <Card className="border-0 overflow-hidden">
-                                    <CardHeader className="pb-0">
-                                        <div className="flex justify-between items-center">
-                                            <CardTitle className="text-lg font-medium">Monthly Breakdown</CardTitle>
-                                            <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
-                                                {new Date().getFullYear()}
-                                            </Badge>
-                                        </div>
-                                        <p className="text-sm text-gray-500">Monthly outcome analysis for the current year</p>
-                                    </CardHeader>
-                                    <CardContent className="p-4">
-                                        <div className="overflow-x-auto -mx-4 px-4">
-                                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                                <thead>
-                                                    <tr>
-                                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Month</th>
-                                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Transactions</th>
-                                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Amount</th>
-                                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Change</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                                    {monthlyBreakdown.map((month, index) => (
-                                                        <tr
-                                                            key={month.month}
-                                                            className={`hover:bg-gray-50 dark:hover:bg-gray-700 ${
-                                                                new Date().getMonth() === index ? 'bg-red-50/30 dark:bg-red-900/10' : ''
-                                                            }`}
-                                                        >
-                                                            <td className="px-4 py-3 whitespace-nowrap">
-                                                                <div className="flex items-center">
-                                                                    <div className={`h-2 w-2 rounded-full mr-2 ${
-                                                                        new Date().getMonth() === index
-                                                                            ? 'bg-red-500'
-                                                                            : month.count > 0
-                                                                                ? 'bg-gray-400'
-                                                                                : 'bg-gray-200'
-                                                                    }`}></div>
-                                                                    <span className={`text-sm ${
-                                                                        new Date().getMonth() === index
-                                                                            ? 'font-medium text-gray-900 dark:text-white'
-                                                                            : 'text-gray-700 dark:text-gray-300'
-                                                                    }`}>
-                                                                        {month.month}
-                                                                    </span>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                                                                {month.count}
-                                                            </td>
-                                                            <td className="px-4 py-3 whitespace-nowrap">
-                                                                <span className="text-sm font-medium text-red-600 dark:text-red-400">
-                                                                    ${month.value.toFixed(2)}
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-4 py-3 whitespace-nowrap">
-                                                                {month.percentChange !== 0 ? (
-                                                                    <div className={`flex items-center text-sm ${
-                                                                        month.percentChange > 0
-                                                                            ? 'text-green-600 dark:text-green-400'
-                                                                            : 'text-red-600 dark:text-red-400'
-                                                                    }`}>
-                                                                        {month.percentChange > 0 ? (
-                                                                            <ArrowUpRight className="h-3 w-3 mr-1" />
+                        {showCharts && (
+                            <>
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    <OutcomeChart data={weeklyActivity} />
+                                    <DestinationsChart data={destinationTotals} />
+                                </div>
+
+                                {/* Monthly Breakdown */}
+                                <div className="mt-4">
+                                    <div className="border-0 shadow-md overflow-hidden">
+                                        <Card className="border-0 overflow-hidden">
+                                            <CardHeader className="pb-0">
+                                                <div className="flex justify-between items-center">
+                                                    <CardTitle className="text-lg font-medium">Monthly Breakdown</CardTitle>
+                                                    <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+                                                        {new Date().getFullYear()}
+                                                    </Badge>
+                                                </div>
+                                                <p className="text-sm text-gray-500">Monthly outcome analysis for the current year</p>
+                                            </CardHeader>
+                                            <CardContent className="p-4">
+                                                <div className="overflow-x-auto -mx-4 px-4">
+                                                    <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                                        <thead>
+                                                            <tr>
+                                                                <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Month</th>
+                                                                <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Transactions</th>
+                                                                <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Total Amount</th>
+                                                                <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Change</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                            {monthlyBreakdown.map((month, index) => (
+                                                                <tr
+                                                                    key={month.month}
+                                                                    className={`hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors duration-150 ${
+                                                                        new Date().getMonth() === index ? 'bg-red-50/30 dark:bg-red-900/10' : 'bg-white dark:bg-gray-800'
+                                                                    }`}
+                                                                >
+                                                                    <td className="px-4 py-3 whitespace-nowrap bg-white dark:bg-gray-800">
+                                                                        <div className="flex items-center">
+                                                                            <div className={`h-2 w-2 rounded-full mr-2 ${
+                                                                                new Date().getMonth() === index
+                                                                                    ? 'bg-red-500'
+                                                                                    : month.count > 0
+                                                                                        ? 'bg-gray-400 dark:bg-gray-300'
+                                                                                        : 'bg-gray-200 dark:bg-gray-600'
+                                                                            }`}></div>
+                                                                            <span className={`text-sm ${
+                                                                                new Date().getMonth() === index
+                                                                                    ? 'font-medium text-gray-900 dark:text-white'
+                                                                                    : 'text-gray-700 dark:text-gray-300'
+                                                                            }`}>
+                                                                                {month.month}
+                                                                            </span>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800">
+                                                                        {month.count}
+                                                                    </td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap bg-white dark:bg-gray-800">
+                                                                        <span className="text-sm font-medium text-red-600 dark:text-red-400">
+                                                                            ${month.value.toFixed(2)}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-4 py-3 whitespace-nowrap">
+                                                                        {month.percentChange !== 0 ? (
+                                                                            <div className={`flex items-center text-sm ${
+                                                                                month.percentChange > 0
+                                                                                    ? 'text-green-600 dark:text-green-400'
+                                                                                    : 'text-red-600 dark:text-red-400'
+                                                                            }`}>
+                                                                                {month.percentChange > 0 ? (
+                                                                                    <ArrowUpRight className="h-3 w-3 mr-1" />
+                                                                                ) : (
+                                                                                    <ArrowDownRight className="h-3 w-3 mr-1" />
+                                                                                )}
+                                                                                {Math.abs(month.percentChange).toFixed(1)}%
+                                                                            </div>
                                                                         ) : (
-                                                                            <ArrowDownRight className="h-3 w-3 mr-1" />
+                                                                            <span className="text-sm text-gray-500 dark:text-gray-400">-</span>
                                                                         )}
-                                                                        {Math.abs(month.percentChange).toFixed(1)}%
-                                                                    </div>
-                                                                ) : (
-                                                                    <span className="text-sm text-gray-500">-</span>
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Main Content */}
-                    <div className="flex-1 flex flex-col">
-                        <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <Avatar className="h-10 w-10">
-                                        <AvatarImage src={`https://ui-avatars.com/api/?name=Warehouse+Outcome`} />
-                                        <AvatarFallback>WO</AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <h2 className="font-semibold text-lg">Outcome Transactions</h2>
-                                        <p className="text-sm text-gray-500">{auth.user.warehouse.name} • {outcome?.length || 0} transactions</p>
-                                    </div>
-                                </div>
-                                <div className="flex space-x-2">
-                                    <Button size="sm">
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        New Transaction
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
+                    <div className="flex-1 flex flex-col overflow-y-scroll">
+
 
                         {/* Main Content Section */}
-                        <div className="flex-1 overflow-auto p-6 bg-gray-100 dark:bg-gray-900">
+                        <div className="flex-1 flex flex-col  p-6 bg-gray-100 dark:bg-gray-900">
                             <div className="mb-6 flex justify-between items-center">
                                 <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 flex items-center">
                                     <span>{searchTerm ? `Search Results: "${searchTerm}"` : 'All Transactions'}</span>
@@ -619,12 +627,12 @@ export default function Outcome({ auth, outcome }) {
                                         <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-red-400 to-rose-500 opacity-0 group-focus-within:opacity-100 blur transition-opacity -m-0.5"></div>
                                         <div className="relative flex">
                                             <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center pointer-events-none">
-                                                <Search className="h-5 w-5 text-gray-400" />
+                                                <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                             </div>
                                             <input
                                                 type="text"
                                                 placeholder="Search by reference or destination..."
-                                                className="flex-1 py-3 pl-11 pr-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                                                className="flex-1 py-3 pl-11 pr-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 dark:text-gray-200 dark:placeholder-gray-400"
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
                                                 onFocus={(e) => {
@@ -650,7 +658,7 @@ export default function Outcome({ auth, outcome }) {
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
                                                     onClick={() => setSearchTerm('')}
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
@@ -684,7 +692,7 @@ export default function Outcome({ auth, outcome }) {
                                                     >
                                                         <div className="h-2 bg-gradient-to-r from-red-400 via-red-500 to-rose-600" />
                                                         <div className="absolute top-4 right-4">
-                                                            <Badge className="bg-red-100 text-red-700 hover:bg-red-200">
+                                                            <Badge className="bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-300 dark:hover:bg-red-900/50">
                                                                 Outcome
                                                             </Badge>
                                                         </div>
@@ -696,11 +704,11 @@ export default function Outcome({ auth, outcome }) {
                                                                 <div>
                                                                     <h3 className="font-medium text-lg text-gray-900 dark:text-white">{record.reference}</h3>
                                                                     <div className="mt-1 flex flex-wrap gap-2">
-                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 flex items-center gap-1">
                                                                             <Tag className="h-3 w-3" />
                                                                             ID: {record.id}
                                                                         </Badge>
-                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200 flex items-center gap-1">
                                                                             <User className="h-3 w-3" />
                                                                             {record.destination}
                                                                         </Badge>
@@ -740,12 +748,12 @@ export default function Outcome({ auth, outcome }) {
                                                             )}
                                                         </CardContent>
                                                         <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700">
-                                                            <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                                                                <BarChart3 className="h-4 w-4 text-red-500" />
+                                                            <span className="text-sm text-gray-500 dark:text-gray-300 flex items-center gap-1.5">
+                                                                <BarChart3 className="h-4 w-4 text-red-500 dark:text-red-400" />
                                                                 {record.destination}
                                                             </span>
                                                             <div className="flex gap-2">
-                                                                <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full">
+                                                                <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 dark:text-gray-300">
                                                                     <MoreHorizontal className="h-4 w-4" />
                                                                 </Button>
                                                                 <Button variant="default" size="sm" className="bg-red-600 hover:bg-red-700 text-white">
@@ -777,82 +785,80 @@ export default function Outcome({ auth, outcome }) {
 
                                 <TabsContent value="list" activeValue={view} className="mt-0">
                                     {filteredOutcome && filteredOutcome.length > 0 ? (
-                                        <div className="shadow-md overflow-hidden rounded-xl">
-                                            <Card className="border-0 overflow-hidden rounded-xl">
-                                                <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-12 text-sm font-medium text-gray-500 dark:text-gray-400">
-                                                    <div className="col-span-4 flex items-center gap-2">
-                                                        <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />
-                                                        Reference
-                                                    </div>
-                                                    <div className="col-span-1 text-center flex items-center justify-center gap-1">
-                                                        <Tag className="h-3.5 w-3.5 text-indigo-500" />
-                                                        ID
-                                                    </div>
-                                                    <div className="col-span-2 text-center flex items-center justify-center gap-1">
-                                                        <Calendar className="h-3.5 w-3.5 text-blue-500" />
-                                                        Date
-                                                    </div>
-                                                    <div className="col-span-2 text-center flex items-center justify-center gap-1">
-                                                        <User className="h-3.5 w-3.5 text-amber-500" />
-                                                        Destination
-                                                    </div>
-                                                    <div className="col-span-2 text-center flex items-center justify-center gap-1">
-                                                        <ArrowDownRight className="h-3.5 w-3.5 text-red-500" />
-                                                        Amount
-                                                    </div>
-                                                    <div className="col-span-1 text-right">
-                                                        <MoreHorizontal className="h-4 w-4 ml-auto text-gray-400" />
-                                                    </div>
+                                        <Card className="border-0 shadow-md overflow-hidden rounded-xl">
+                                            <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-12 text-sm font-medium text-gray-500 dark:text-gray-300">
+                                                <div className="col-span-4 flex items-center gap-2">
+                                                    <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />
+                                                    Reference
                                                 </div>
-                                                <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                                                    {filteredOutcome.map((record, index) => (
-                                                        <div
-                                                            key={record.id}
-                                                            ref={el => listItemsRef.current[index] = el}
-                                                            className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-red-50/30 dark:hover:bg-red-900/10 grid grid-cols-12 items-center relative overflow-hidden group"
-                                                            onMouseEnter={(e) => {
-                                                                anime({
-                                                                    targets: e.currentTarget,
-                                                                    backgroundColor: 'rgba(254, 226, 226, 0.3)',
-                                                                    duration: 300,
-                                                                    easing: 'easeOutQuad'
-                                                                });
-                                                            }}
-                                                            onMouseLeave={(e) => {
-                                                                anime({
-                                                                    targets: e.currentTarget,
-                                                                    backgroundColor: 'rgba(255, 255, 255, 1)',
-                                                                    duration: 300,
-                                                                    easing: 'easeOutQuad'
-                                                                });
-                                                            }}
-                                                        >
-                                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                                            <div className="col-span-4 flex items-center">
-                                                                <div className="h-10 w-10 bg-gradient-to-br from-red-400 to-rose-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-sm">
-                                                                    <TrendingUp className="h-5 w-5 rotate-180" />
-                                                                </div>
-                                                                <div>
-                                                                    <h3 className="font-medium text-gray-900 dark:text-white">{record.reference}</h3>
-                                                                    {record.notes && (
-                                                                        <p className="text-xs text-gray-500 truncate max-w-[200px]">{record.notes}</p>
-                                                                    )}
-                                                                </div>
+                                                <div className="col-span-1 text-center flex items-center justify-center gap-1">
+                                                    <Tag className="h-3.5 w-3.5 text-indigo-500" />
+                                                    ID
+                                                </div>
+                                                <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                    <Calendar className="h-3.5 w-3.5 text-blue-500" />
+                                                    Date
+                                                </div>
+                                                <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                    <User className="h-3.5 w-3.5 text-amber-500" />
+                                                    Destination
+                                                </div>
+                                                <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                    <ArrowDownRight className="h-3.5 w-3.5 text-red-500" />
+                                                    Amount
+                                                </div>
+                                                <div className="col-span-1 text-right">
+                                                    <MoreHorizontal className="h-4 w-4 ml-auto text-gray-400" />
+                                                </div>
+                                            </div>
+                                            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                                                {filteredOutcome.map((record, index) => (
+                                                    <div
+                                                        key={record.id}
+                                                        ref={el => listItemsRef.current[index] = el}
+                                                        className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-red-50/30 dark:hover:bg-red-900/10 grid grid-cols-12 items-center relative overflow-hidden group"
+                                                        onMouseEnter={(e) => {
+                                                            anime({
+                                                                targets: e.currentTarget,
+                                                                backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(127, 29, 29, 0.1)' : 'rgba(254, 226, 226, 0.3)',
+                                                                duration: 300,
+                                                                easing: 'easeOutQuad'
+                                                            });
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                            anime({
+                                                                targets: e.currentTarget,
+                                                                backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(31, 41, 55, 1)' : 'rgba(255, 255, 255, 1)',
+                                                                duration: 300,
+                                                                easing: 'easeOutQuad'
+                                                            });
+                                                        }}
+                                                    >
+                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                        <div className="col-span-4 flex items-center">
+                                                            <div className="h-10 w-10 bg-gradient-to-br from-red-400 to-rose-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-sm">
+                                                                <TrendingUp className="h-5 w-5 rotate-180" />
                                                             </div>
-                                                            <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-300">{record.id}</div>
-                                                            <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.date}</div>
-                                                            <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.destination}</div>
-                                                            <div className="col-span-2 text-center font-medium text-red-600">${record.amount.toFixed(2)}</div>
-                                                            <div className="col-span-1 text-right">
-                                                                <Button variant="ghost" size="sm" className="text-gray-500 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                    <ExternalLink className="h-4 w-4" />
-                                                                </Button>
+                                                            <div>
+                                                                <h3 className="font-medium text-gray-900 dark:text-white">{record.reference}</h3>
+                                                                {record.notes && (
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px]">{record.notes}</p>
+                                                                )}
                                                             </div>
                                                         </div>
-                                                    ))}
-                                                </div>
-                                            </Card>
-                                        </div>
+                                                        <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-200">{record.id}</div>
+                                                        <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-200">{record.date}</div>
+                                                        <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-200">{record.destination}</div>
+                                                        <div className="col-span-2 text-center font-medium text-red-600 dark:text-red-300">${record.amount.toFixed(2)}</div>
+                                                        <div className="col-span-1 text-right">
+                                                            <Button variant="ghost" size="sm" className="text-gray-500 hover:text-red-600 dark:text-gray-300 dark:hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                <ExternalLink className="h-4 w-4" />
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </Card>
                                     ) : (
                                         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-10 text-center">
                                             <div className="inline-flex h-20 w-20 rounded-full bg-red-100 dark:bg-red-900/30 items-center justify-center mb-6">
@@ -935,9 +941,9 @@ export default function Outcome({ auth, outcome }) {
                                             <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                                 {(outcome && outcome.length > 0) ?
                                                     outcome.slice(0, 10).map((record) => (
-                                                        <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.id}</td>
-                                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                        <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150">
+                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-800">{record.id}</td>
+                                                            <td className="px-4 py-3 whitespace-nowrap bg-white dark:bg-gray-800">
                                                                 <div className="flex items-center">
                                                                     <div className="flex-shrink-0 h-8 w-8 bg-red-100 dark:bg-red-900/30 rounded-md flex items-center justify-center text-red-600">
                                                                         <TrendingUp className="h-4 w-4 rotate-180" />
@@ -945,22 +951,22 @@ export default function Outcome({ auth, outcome }) {
                                                                     <div className="ml-3">
                                                                         <div className="text-sm font-medium text-gray-900 dark:text-white">{record.reference}</div>
                                                                         {record.notes && (
-                                                                            <div className="text-xs text-gray-500 truncate max-w-[250px]">{record.notes}</div>
+                                                                            <div className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[250px]">{record.notes}</div>
                                                                         )}
                                                                     </div>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.date}</td>
-                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.destination}</td>
-                                                            <td className="px-4 py-3 whitespace-nowrap">
-                                                                <span className="text-sm font-medium text-red-600 dark:text-red-400">${record.amount.toFixed(2)}</span>
+                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-800">{record.date}</td>
+                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-800">{record.destination}</td>
+                                                            <td className="px-4 py-3 whitespace-nowrap bg-white dark:bg-gray-800">
+                                                                <span className="text-sm font-medium text-red-600 dark:text-red-300">${record.amount.toFixed(2)}</span>
                                                             </td>
-                                                            <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                            <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium bg-white dark:bg-gray-800">
                                                                 <div className="flex items-center justify-end space-x-2">
-                                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-500">
+                                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-500 dark:text-gray-300">
                                                                         <MoreHorizontal className="h-4 w-4" />
                                                                     </Button>
-                                                                    <Button variant="outline" size="sm" className="h-8 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300">
+                                                                    <Button variant="outline" size="sm" className="h-8 text-red-600 dark:text-red-300 border-red-200 dark:border-red-800 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-200 hover:border-red-300">
                                                                         View
                                                                     </Button>
                                                                 </div>
@@ -969,7 +975,7 @@ export default function Outcome({ auth, outcome }) {
                                                     ))
                                                     :
                                                     <tr>
-                                                        <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                                                        <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-300">
                                                             No transactions found
                                                         </td>
                                                     </tr>
@@ -980,7 +986,7 @@ export default function Outcome({ auth, outcome }) {
 
                                     {outcome && outcome.length > 10 && (
                                         <div className="p-4 flex justify-center">
-                                            <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300">
+                                            <Button variant="outline" size="sm" className="text-red-600 dark:text-red-300 border-red-200 dark:border-red-800 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20 dark:hover:text-red-200 hover:border-red-300">
                                                 View All Transactions
                                             </Button>
                                         </div>
@@ -990,7 +996,7 @@ export default function Outcome({ auth, outcome }) {
                                 {/* Outcome Statistics Sidebar */}
                                 <div className="xl:col-span-1 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
                                     <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                                        <h2 className="font-semibold text-xl">Outcome Statistics</h2>
+                                        <h2 className="font-semibold text-xl dark:text-white">Outcome Statistics</h2>
                                     </div>
 
                                     <div className="p-4">
@@ -1010,13 +1016,13 @@ export default function Outcome({ auth, outcome }) {
 
                                         <Card className="mt-4 shadow-sm border-none">
                                             <CardContent className="p-4">
-                                                <h3 className="font-medium mb-3">Recent Destinations</h3>
+                                                <h3 className="font-medium mb-3 dark:text-white">Recent Destinations</h3>
                                                 {outcome && outcome.length > 0 ? (
                                                     <div className="space-y-2">
                                                         {destinationTotals.map((destination, index) => (
                                                             <div key={index} className="flex items-center justify-between">
-                                                                <span className="text-sm">{destination.name}</span>
-                                                                <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                                                                <span className="text-sm dark:text-gray-200">{destination.name}</span>
+                                                                <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full dark:text-gray-200">
                                                                     ${destination.total.toFixed(2)}
                                                                 </span>
                                                             </div>
@@ -1030,23 +1036,23 @@ export default function Outcome({ auth, outcome }) {
 
                                         <Card className="mt-4 shadow-sm border-none">
                                             <CardContent className="p-4">
-                                                <h3 className="font-medium mb-3">Monthly Overview</h3>
+                                                <h3 className="font-medium mb-3 dark:text-white">Monthly Overview</h3>
                                                 <div className="grid grid-cols-3 gap-2 text-center">
                                                     <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                                        <p className="text-xs text-gray-500 mb-1">This Month</p>
-                                                        <p className="font-semibold text-red-600">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-300 mb-1">This Month</p>
+                                                        <p className="font-semibold text-red-600 dark:text-red-300">
                                                             ${thisMonthOutcome.toFixed(2)}
                                                         </p>
                                                     </div>
                                                     <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                                        <p className="text-xs text-gray-500 mb-1">Last Month</p>
-                                                        <p className="font-semibold text-red-600">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-300 mb-1">Last Month</p>
+                                                        <p className="font-semibold text-red-600 dark:text-red-300">
                                                             ${lastMonthOutcome.toFixed(2)}
                                                         </p>
                                                     </div>
                                                     <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                                        <p className="text-xs text-gray-500 mb-1">This Year</p>
-                                                        <p className="font-semibold text-red-600">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-300 mb-1">This Year</p>
+                                                        <p className="font-semibold text-red-600 dark:text-red-300">
                                                             ${totalOutcomeValue.toFixed(2)}
                                                         </p>
                                                     </div>

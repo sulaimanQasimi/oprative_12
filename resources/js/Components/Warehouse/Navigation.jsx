@@ -1,10 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { MessageSquare, Package, TrendingUp, Settings, Users } from 'lucide-react';
+import { MessageSquare, Package, TrendingUp, Settings, Users, Sun, Moon } from 'lucide-react';
 import { Link } from '@inertiajs/react';
 
 export default function Navigation({ auth, currentRoute }) {
+    const [isDarkMode, setIsDarkMode] = useState(false);
+
+    // Check system preference and localStorage on component mount
+    useEffect(() => {
+        // Check if user has saved preference
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setIsDarkMode(savedTheme === 'dark');
+            document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+        } else {
+            // Check system preference
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            setIsDarkMode(prefersDark);
+            document.documentElement.classList.toggle('dark', prefersDark);
+        }
+    }, []);
+
+    const toggleDarkMode = () => {
+        const newMode = !isDarkMode;
+        setIsDarkMode(newMode);
+
+        // Update document class
+        document.documentElement.classList.toggle('dark', newMode);
+
+        // Save preference to localStorage
+        localStorage.setItem('theme', newMode ? 'dark' : 'light');
+    };
+
     return (
         <div className="w-16 flex-shrink-0 bg-white dark:bg-gray-800 shadow-lg z-10">
             <div className="h-full flex flex-col items-center justify-between py-6">
@@ -90,6 +118,22 @@ export default function Navigation({ auth, currentRoute }) {
                                 <Settings className="h-5 w-5" />
                             </Button>
                         </Link>
+
+                        {/* Dark Mode Toggle */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={toggleDarkMode}
+                            className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-all duration-200"
+                            type="button"
+                            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+                        >
+                            {isDarkMode ? (
+                                <Sun className="h-5 w-5 text-amber-400" />
+                            ) : (
+                                <Moon className="h-5 w-5 text-slate-700" />
+                            )}
+                        </Button>
                     </nav>
                 </div>
                 <Avatar className="border-2 border-purple-200 dark:border-purple-900/40">
