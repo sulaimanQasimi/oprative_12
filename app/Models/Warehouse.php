@@ -74,4 +74,22 @@ class Warehouse extends Model
     {
         return $this->hasMany(WarehouseOutcome::class);
     }
+
+    /**
+     * Get the warehouse user relationships for this warehouse.
+     */
+    public function warehouseUsers(): HasMany
+    {
+        return $this->hasMany(WareHouseUser::class);
+    }
+
+    /**
+     * Get the users assigned to this warehouse.
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'ware_house_users')
+            ->withPivot(['role', 'is_active'])
+            ->withTimestamps();
+    }
 }

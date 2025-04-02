@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -57,5 +59,23 @@ class User extends Authenticatable
             ->explode(' ')
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
+    }
+
+    /**
+     * Get the warehouse user relationships for this user.
+     */
+    public function warehouseUsers(): HasMany
+    {
+        return $this->hasMany(WareHouseUser::class);
+    }
+
+    /**
+     * Get the warehouses that the user is assigned to.
+     */
+    public function warehouses(): BelongsToMany
+    {
+        return $this->belongsToMany(Warehouse::class, 'ware_house_users')
+            ->withPivot(['role', 'is_active'])
+            ->withTimestamps();
     }
 }
