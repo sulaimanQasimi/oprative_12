@@ -21,7 +21,10 @@ class ProductController extends Controller
                 'id' => $product->id,
                 'name' => $product->name,
                 'sku' => $product->sku,
-                'quantity' => $product->quantity,
+                'quantity' => $product->pivot->quantity,
+                'minimum_quantity' => $product->pivot->minimum_quantity,
+                'maximum_quantity' => $product->pivot->maximum_quantity,
+                'is_active' => $product->pivot->is_active,
                 'price' => $product->price,
                 'category' => $product->category ? $product->category->name : 'Uncategorized',
             ];

@@ -5,6 +5,7 @@ import { Button } from '@/Components/ui/button';
 import { Card, CardContent } from '@/Components/ui/card';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Search, Bell, MessageSquare, Send, User, Users, Package, TrendingUp, Settings, ChevronRight } from 'lucide-react';
+import { Link } from '@inertiajs/react';
 
 export default function Dashboard({ auth, stats }) {
     // Sample data for charts
@@ -47,21 +48,36 @@ export default function Dashboard({ auth, stats }) {
                             <Button variant="ghost" size="icon" className="text-purple-600" as="a" href={route('warehouse.dashboard')}>
                                 <MessageSquare className="h-6 w-6" />
                             </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.products')}>
+                            <Link
+                                href={route('warehouse.products')}
+                                className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                            >
                                 <Package className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.income')}>
+                            </Link>
+                            <Link
+                                href={route('warehouse.income')}
+                                className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                            >
                                 <TrendingUp className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.outcome')}>
+                            </Link>
+                            <Link
+                                href={route('warehouse.outcome')}
+                                className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                            >
                                 <TrendingUp className="h-6 w-6 rotate-180" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.users')}>
+                            </Link>
+                            <Link
+                                href={route('warehouse.users')}
+                                className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                            >
                                 <Users className="h-6 w-6" />
-                            </Button>
-                            <Button variant="ghost" size="icon" as="a" href={route('warehouse.profile.edit')}>
+                            </Link>
+                            <Link
+                                href={route('warehouse.profile.edit')}
+                                className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                            >
                                 <Settings className="h-6 w-6" />
-                            </Button>
+                            </Link>
                         </nav>
                         <div className="mt-auto">
                             <Avatar>
