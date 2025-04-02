@@ -276,58 +276,28 @@ export default function Products({ auth, products }) {
                                     </Button>
                                 )}
                             </h2>
-
-                            <div className="flex items-center gap-4">
-                                <div className="relative w-64 group">
-                                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-400 to-indigo-500 opacity-0 group-hover:opacity-100 blur transition-opacity -m-0.5"></div>
-                                    <div className="relative">
-                                        <Search className="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                                        <input
-                                            type="text"
-                                            placeholder="Search products..."
-                                            className="w-full py-2 pl-10 pr-4 rounded-lg bg-gray-100 dark:bg-gray-700 border-0 focus:ring-2 focus:ring-purple-500 transition-all duration-200 hover:bg-gray-50"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
-
-                                <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-700 hover:bg-gray-50 hover:text-purple-600 transition-colors">
-                                    <Filter className="h-4 w-4 mr-2" />
-                                    Filter
-                                </Button>
-
-                                <Button size="sm" className="relative group overflow-hidden">
-                                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 group-hover:from-purple-500 group-hover:to-indigo-500 transition-colors"></div>
-                                    <span className="relative z-10 flex items-center">
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        Add Product
-                                    </span>
-                                </Button>
-
-                                <Tabs defaultValue="grid" className="w-auto">
-                                    <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-                                        <TabsTrigger
-                                            value="grid"
-                                            active={view === 'grid'}
-                                            onClick={() => handleViewChange('grid')}
-                                            className="flex items-center gap-1.5 px-4 py-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg transition-all duration-200 data-[state=active]:shadow-md"
-                                        >
-                                            <LayoutGrid className="h-4 w-4" />
-                                            <span>Grid</span>
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value="list"
-                                            active={view === 'list'}
-                                            onClick={() => handleViewChange('list')}
-                                            className="flex items-center gap-1.5 px-4 py-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg transition-all duration-200 data-[state=active]:shadow-md"
-                                        >
-                                            <List className="h-4 w-4" />
-                                            <span>List</span>
-                                        </TabsTrigger>
-                                    </TabsList>
-                                </Tabs>
-                            </div>
+                            <Tabs defaultValue="grid" className="w-auto">
+                                <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                                    <TabsTrigger
+                                        value="grid"
+                                        active={view === 'grid'}
+                                        onClick={() => handleViewChange('grid')}
+                                        className="flex items-center gap-1.5 px-4 py-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg transition-all duration-200 data-[state=active]:shadow-md"
+                                    >
+                                        <LayoutGrid className="h-4 w-4" />
+                                        <span>Grid</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                        value="list"
+                                        active={view === 'list'}
+                                        onClick={() => handleViewChange('list')}
+                                        className="flex items-center gap-1.5 px-4 py-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white rounded-lg transition-all duration-200 data-[state=active]:shadow-md"
+                                    >
+                                        <List className="h-4 w-4" />
+                                        <span>List</span>
+                                    </TabsTrigger>
+                                </TabsList>
+                            </Tabs>
                         </div>
 
                         <div ref={cardsRef} className="transition-opacity duration-300" style={{ minHeight: '200px' }}>
