@@ -871,160 +871,197 @@ export default function Outcome({ auth, outcome }) {
                                 </TabsContent>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Transaction Table */}
-                    <div className="p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                        <div className="mb-4 flex items-center justify-between">
-                            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-400 dark:to-rose-400">
-                                Recent Transactions
-                            </h2>
-                            <Button size="sm" variant="outline" className="flex items-center gap-1.5">
-                                <Download className="h-4 w-4" />
-                                <span>Export CSV</span>
-                            </Button>
-                        </div>
+                        {/* Additional Content Area */}
+                        <div className="p-6 bg-gray-100 dark:bg-gray-900">
+                            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                                {/* Transaction Table */}
+                                <div className="xl:col-span-2 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+                                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                                        <div className="flex items-center justify-between">
+                                            <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-400 dark:to-rose-400">
+                                                Recent Transactions
+                                            </h2>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="flex items-center gap-1.5"
+                                                onClick={() => {
+                                                    // Export to CSV functionality
+                                                    if (!outcome || outcome.length === 0) return;
 
-                        <div className="overflow-x-auto -mx-4 px-4">
-                            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead>
-                                    <tr>
-                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">ID</th>
-                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reference</th>
-                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
-                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Destination</th>
-                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
-                                        <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                    {(outcome && outcome.length > 0) ?
-                                        outcome.slice(0, 10).map((record) => (
-                                            <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.id}</td>
-                                                <td className="px-4 py-3 whitespace-nowrap">
-                                                    <div className="flex items-center">
-                                                        <div className="flex-shrink-0 h-8 w-8 bg-red-100 dark:bg-red-900/30 rounded-md flex items-center justify-center text-red-600">
-                                                            <TrendingUp className="h-4 w-4 rotate-180" />
-                                                        </div>
-                                                        <div className="ml-3">
-                                                            <div className="text-sm font-medium text-gray-900 dark:text-white">{record.reference}</div>
-                                                            {record.notes && (
-                                                                <div className="text-xs text-gray-500 truncate max-w-[250px]">{record.notes}</div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.date}</td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.destination}</td>
-                                                <td className="px-4 py-3 whitespace-nowrap">
-                                                    <span className="text-sm font-medium text-red-600 dark:text-red-400">${record.amount.toFixed(2)}</span>
-                                                </td>
-                                                <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                                    <div className="flex items-center justify-end space-x-2">
-                                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-500">
-                                                            <MoreHorizontal className="h-4 w-4" />
-                                                        </Button>
-                                                        <Button variant="outline" size="sm" className="h-8 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300">
-                                                            View
-                                                        </Button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                        :
-                                        <tr>
-                                            <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-                                                No transactions found
-                                            </td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                                                    const headers = ['ID', 'Reference', 'Amount', 'Date', 'Destination', 'Notes', 'Created'];
+                                                    const csvData = outcome.map(record => [
+                                                        record.id,
+                                                        record.reference,
+                                                        record.amount,
+                                                        record.date,
+                                                        record.destination,
+                                                        record.notes || '',
+                                                        record.created_at
+                                                    ]);
 
-                        {outcome && outcome.length > 10 && (
-                            <div className="mt-4 flex justify-center">
-                                <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300">
-                                    View All Transactions
-                                </Button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        </div>
+                                                    let csvContent = "data:text/csv;charset=utf-8," +
+                                                        headers.join(",") + "\n" +
+                                                        csvData.map(row => row.join(",")).join("\n");
 
-        {/* Outcome Statistics Sidebar */}
-        <div className="mt-6 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <h2 className="font-semibold text-xl">Outcome Statistics</h2>
-            </div>
-
-            <div className="p-4">
-                <div className="grid grid-cols-1 gap-4">
-                    <Card className="shadow-sm border-none bg-gradient-to-br from-red-500 to-rose-600 text-white">
-                        <CardContent className="p-4">
-                            <div className="flex flex-col">
-                                <span className="text-sm opacity-80">Total Outcome</span>
-                                <span className="text-2xl font-bold mt-1">
-                                    ${totalOutcomeValue.toFixed(2)}
-                                </span>
-                                <span className="text-xs mt-1">All time transactions</span>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <Card className="mt-4 shadow-sm border-none">
-                    <CardContent className="p-4">
-                        <h3 className="font-medium mb-3">Recent Destinations</h3>
-                        {outcome && outcome.length > 0 ? (
-                            <div className="space-y-2">
-                                {destinationTotals.map((destination, index) => (
-                                    <div key={index} className="flex items-center justify-between">
-                                        <span className="text-sm">{destination.name}</span>
-                                        <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
-                                            ${destination.total.toFixed(2)}
-                                        </span>
+                                                    const encodedUri = encodeURI(csvContent);
+                                                    const link = document.createElement("a");
+                                                    link.setAttribute("href", encodedUri);
+                                                    link.setAttribute("download", `outcome_transactions_${new Date().toISOString().split('T')[0]}.csv`);
+                                                    document.body.appendChild(link);
+                                                    link.click();
+                                                    document.body.removeChild(link);
+                                                }}
+                                            >
+                                                <Download className="h-4 w-4" />
+                                                <span>Export CSV</span>
+                                            </Button>
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="text-sm text-gray-500 text-center py-2">No destinations found</p>
-                        )}
-                    </CardContent>
-                </Card>
 
-                <Card className="mt-4 shadow-sm border-none">
-                    <CardContent className="p-4">
-                        <h3 className="font-medium mb-3">Monthly Overview</h3>
-                        <div className="grid grid-cols-3 gap-2 text-center">
-                            <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <p className="text-xs text-gray-500 mb-1">This Month</p>
-                                <p className="font-semibold text-red-600">
-                                    ${thisMonthOutcome.toFixed(2)}
-                                </p>
-                            </div>
-                            <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <p className="text-xs text-gray-500 mb-1">Last Month</p>
-                                <p className="font-semibold text-red-600">
-                                    ${lastMonthOutcome.toFixed(2)}
-                                </p>
-                            </div>
-                            <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                                <p className="text-xs text-gray-500 mb-1">This Year</p>
-                                <p className="font-semibold text-red-600">
-                                    ${totalOutcomeValue.toFixed(2)}
-                                </p>
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                                            <thead>
+                                                <tr>
+                                                    <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-16">ID</th>
+                                                    <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reference</th>
+                                                    <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                                                    <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Destination</th>
+                                                    <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Amount</th>
+                                                    <th className="px-4 py-3 bg-gray-50 dark:bg-gray-800 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-24">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                                                {(outcome && outcome.length > 0) ?
+                                                    outcome.slice(0, 10).map((record) => (
+                                                        <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.id}</td>
+                                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                                <div className="flex items-center">
+                                                                    <div className="flex-shrink-0 h-8 w-8 bg-red-100 dark:bg-red-900/30 rounded-md flex items-center justify-center text-red-600">
+                                                                        <TrendingUp className="h-4 w-4 rotate-180" />
+                                                                    </div>
+                                                                    <div className="ml-3">
+                                                                        <div className="text-sm font-medium text-gray-900 dark:text-white">{record.reference}</div>
+                                                                        {record.notes && (
+                                                                            <div className="text-xs text-gray-500 truncate max-w-[250px]">{record.notes}</div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.date}</td>
+                                                            <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">{record.destination}</td>
+                                                            <td className="px-4 py-3 whitespace-nowrap">
+                                                                <span className="text-sm font-medium text-red-600 dark:text-red-400">${record.amount.toFixed(2)}</span>
+                                                            </td>
+                                                            <td className="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                                <div className="flex items-center justify-end space-x-2">
+                                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-gray-500">
+                                                                        <MoreHorizontal className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <Button variant="outline" size="sm" className="h-8 text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300">
+                                                                        View
+                                                                    </Button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    ))
+                                                    :
+                                                    <tr>
+                                                        <td colSpan={6} className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+                                                            No transactions found
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {outcome && outcome.length > 10 && (
+                                        <div className="p-4 flex justify-center">
+                                            <Button variant="outline" size="sm" className="text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 hover:border-red-300">
+                                                View All Transactions
+                                            </Button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Outcome Statistics Sidebar */}
+                                <div className="xl:col-span-1 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
+                                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                                        <h2 className="font-semibold text-xl">Outcome Statistics</h2>
+                                    </div>
+
+                                    <div className="p-4">
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <Card className="shadow-sm border-none bg-gradient-to-br from-red-500 to-rose-600 text-white">
+                                                <CardContent className="p-4">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-sm opacity-80">Total Outcome</span>
+                                                        <span className="text-2xl font-bold mt-1">
+                                                            ${totalOutcomeValue.toFixed(2)}
+                                                        </span>
+                                                        <span className="text-xs mt-1">All time transactions</span>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+
+                                        <Card className="mt-4 shadow-sm border-none">
+                                            <CardContent className="p-4">
+                                                <h3 className="font-medium mb-3">Recent Destinations</h3>
+                                                {outcome && outcome.length > 0 ? (
+                                                    <div className="space-y-2">
+                                                        {destinationTotals.map((destination, index) => (
+                                                            <div key={index} className="flex items-center justify-between">
+                                                                <span className="text-sm">{destination.name}</span>
+                                                                <span className="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                                                                    ${destination.total.toFixed(2)}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-sm text-gray-500 text-center py-2">No destinations found</p>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+
+                                        <Card className="mt-4 shadow-sm border-none">
+                                            <CardContent className="p-4">
+                                                <h3 className="font-medium mb-3">Monthly Overview</h3>
+                                                <div className="grid grid-cols-3 gap-2 text-center">
+                                                    <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                                        <p className="text-xs text-gray-500 mb-1">This Month</p>
+                                                        <p className="font-semibold text-red-600">
+                                                            ${thisMonthOutcome.toFixed(2)}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                                        <p className="text-xs text-gray-500 mb-1">Last Month</p>
+                                                        <p className="font-semibold text-red-600">
+                                                            ${lastMonthOutcome.toFixed(2)}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                                                        <p className="text-xs text-gray-500 mb-1">This Year</p>
+                                                        <p className="font-semibold text-red-600">
+                                                            ${totalOutcomeValue.toFixed(2)}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
-        </div>
-    </>
-);
+        </>
+    );
 }
 
 // Chart components
