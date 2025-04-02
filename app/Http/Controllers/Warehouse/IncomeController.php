@@ -19,11 +19,13 @@ class IncomeController extends Controller
         $income = $warehouse->warehouseIncome()->get()->map(function ($incomeRecord) {
             return [
                 'id' => $incomeRecord->id,
-                'reference' => $incomeRecord->reference,
-                'amount' => (float) $incomeRecord->amount,
+                'reference' => $incomeRecord->reference_number,
+                'amount' => (float) $incomeRecord->total,
+                'quantity' => (float) $incomeRecord->quantity,
+                'price' => (float) $incomeRecord->price,
                 'date' => $incomeRecord->created_at->format('Y-m-d'),
-                'source' => $incomeRecord->source,
-                'notes' => $incomeRecord->notes,
+                'source' => $incomeRecord->product ? $incomeRecord->product->name : 'Unknown',
+                'notes' => $incomeRecord->notes ?? null,
                 'created_at' => $incomeRecord->created_at->diffForHumans(),
             ];
         });

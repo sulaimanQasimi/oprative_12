@@ -1,13 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Head } from '@inertiajs/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
-import { Search, User, TrendingUp, ChevronRight, Plus, Calendar, Clock, Filter, FileText, Download, ArrowUpRight } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/Components/ui/card';
+import { Badge } from '@/Components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
+import { Search, TrendingUp, ChevronRight, Plus, Filter, ArrowUpRight, ArrowDownRight, BarChart3, Calendar, Clock, Download, MoreHorizontal, ExternalLink, Tag, User } from 'lucide-react';
+import anime from 'animejs';
 import Navigation from '@/Components/Warehouse/Navigation';
 
 export default function Income({ auth, income }) {
+    // Add debugging to check income data
+    console.log("Income data received:", income);
+
     const [searchTerm, setSearchTerm] = useState('');
+    const [view, setView] = useState('grid');
+    const [isAnimated, setIsAnimated] = useState(false);
+
+    // Refs for animation targets
+    const headerRef = useRef(null);
+    const cardsRef = useRef(null);
+    const gridItemsRef = useRef([]);
+    const listItemsRef = useRef([]);
+    const dashboardCardsRef = useRef([]);
+
+    // Animation timeline
+    const timelineRef = useRef(null);
 
     // Filter income records based on search term
     const filteredIncome = income && income.length
@@ -57,245 +75,525 @@ export default function Income({ auth, income }) {
             .sort((a, b) => b.total - a.total)
             .slice(0, 5) : [];
 
+    // Get transaction count by day for the past week
+    const getWeeklyActivity = () => {
+        if (!income || income.length === 0) return [];
+
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const result = [];
+        const now = new Date();
+
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date(now);
+            date.setDate(date.getDate() - i);
+            const dayOfWeek = days[date.getDay()];
+
+            const dateString = date.toISOString().split('T')[0];
+            const count = income.filter(item => item.date === dateString).length;
+
+            result.push({ name: dayOfWeek, value: count });
+        }
+
+        return result;
+    };
+
+    const weeklyActivity = getWeeklyActivity();
+
+    // Initialize animations
+    useEffect(() => {
+        if (!isAnimated) {
+            // Initialize the timeline
+            timelineRef.current = anime.timeline({
+                easing: 'easeOutExpo',
+                duration: 800
+            });
+
+            // Animate header
+            timelineRef.current.add({
+                targets: headerRef.current,
+                opacity: [0, 1],
+                translateY: [-20, 0],
+                duration: 600
+            });
+
+            // Animate dashboard cards with stagger
+            timelineRef.current.add({
+                targets: dashboardCardsRef.current,
+                opacity: [0, 1],
+                translateY: [20, 0],
+                delay: anime.stagger(100),
+                duration: 700
+            }, '-=400');
+
+            // Animate income cards or list items with stagger based on view
+            if (view === 'grid' && gridItemsRef.current.length > 0) {
+                timelineRef.current.add({
+                    targets: gridItemsRef.current,
+                    opacity: [0, 1],
+                    translateY: [30, 0],
+                    scale: [0.95, 1],
+                    delay: anime.stagger(50),
+                    duration: 600
+                }, '-=500');
+            } else if (view === 'list' && listItemsRef.current.length > 0) {
+                timelineRef.current.add({
+                    targets: listItemsRef.current,
+                    opacity: [0, 1],
+                    translateX: [-20, 0],
+                    delay: anime.stagger(30),
+                    duration: 500
+                }, '-=500');
+            }
+
+            setIsAnimated(true);
+        }
+    }, [isAnimated, view, filteredIncome.length]);
+
+    // Reset animation state when view changes
+    useEffect(() => {
+        setIsAnimated(false);
+        // Clear refs
+        gridItemsRef.current = [];
+        listItemsRef.current = [];
+    }, [view, searchTerm]);
+
+    // Animation for view transition
+    const handleViewChange = (newView) => {
+        if (newView === view) return;
+
+        anime({
+            targets: cardsRef.current,
+            opacity: [1, 0],
+            scale: [1, 0.95],
+            duration: 200,
+            easing: 'easeInOutQuad',
+            complete: () => {
+                setView(newView);
+                // Force immediate rerender to avoid flash of empty content
+                setTimeout(() => {
+                    anime({
+                        targets: cardsRef.current,
+                        opacity: [0, 1],
+                        scale: [0.95, 1],
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                }, 50);
+            }
+        });
+    };
+
+    // Animation for hover effects
+    const animateHover = (target, enter) => {
+        anime({
+            targets: target,
+            scale: enter ? 1.03 : 1,
+            boxShadow: enter ? '0 10px 30px rgba(0, 0, 0, 0.1)' : '0 4px 10px rgba(0, 0, 0, 0.08)',
+            duration: 300,
+            easing: 'spring(1, 80, 10, 0)'
+        });
+    };
+
     return (
         <>
             <Head title="Warehouse Income" />
 
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-100 dark:from-gray-900 dark:to-purple-900">
-                <div className="grid grid-cols-12 min-h-screen">
-                    {/* Sidebar */}
-                    <div className="col-span-1">
-                        <Navigation auth={auth} currentRoute="warehouse.income" />
+            <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+                {/* Sidebar */}
+                <Navigation auth={auth} currentRoute="warehouse.income" />
+
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    {/* Header */}
+                    <header ref={headerRef} className="bg-white dark:bg-gray-800 shadow-sm p-4 flex items-center justify-between relative overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-white dark:from-gray-800 dark:to-gray-900 opacity-50"></div>
+                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-green-400 to-emerald-600"></div>
+                        <div className="flex items-center space-x-3 relative z-10">
+                            <div className="relative">
+                                <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-600 dark:from-green-400 dark:to-emerald-400">Income Transactions</h1>
+                                <div className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+                            </div>
+                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800 ml-2 px-2.5 py-0.5 rounded-full font-medium">
+                                {income?.length || 0} transactions
+                            </Badge>
+                        </div>
+                        <div className="relative z-10 flex space-x-2">
+                            <Button size="sm" variant="outline" className="flex items-center gap-1.5">
+                                <Filter className="h-4 w-4" />
+                                <span>Filter</span>
+                            </Button>
+                            <Button size="sm" variant="outline" className="flex items-center gap-1.5">
+                                <Download className="h-4 w-4" />
+                                <span>Export</span>
+                            </Button>
+                            <Button size="sm" className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-sm">
+                                <Plus className="h-4 w-4 mr-1.5" />
+                                <span>New Transaction</span>
+                            </Button>
+                        </div>
+                    </header>
+
+                    {/* Dashboard Summary */}
+                    <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4">
+                        <div className="grid grid-cols-4 gap-4">
+                            {[
+                                {
+                                    title: "Total Income",
+                                    value: "$" + totalIncomeValue.toFixed(2),
+                                    icon: <BarChart3 className="h-5 w-5" />,
+                                    bgClass: "from-green-500 to-emerald-600",
+                                    trend: "All time transactions",
+                                    trendIcon: <ArrowUpRight className="h-3 w-3 mr-1" />
+                                },
+                                {
+                                    title: "This Month",
+                                    value: "$" + thisMonthIncome.toFixed(2),
+                                    icon: <Calendar className="h-5 w-5" />,
+                                    bgClass: "from-blue-500 to-cyan-600",
+                                    trend: incomeChangePercent > 0
+                                        ? `Up ${Math.abs(incomeChangePercent).toFixed(1)}% from last month`
+                                        : `Down ${Math.abs(incomeChangePercent).toFixed(1)}% from last month`,
+                                    trendIcon: incomeChangePercent >= 0
+                                        ? <ArrowUpRight className="h-3 w-3 mr-1" />
+                                        : <ArrowDownRight className="h-3 w-3 mr-1" />
+                                },
+                                {
+                                    title: "Transactions",
+                                    value: income?.length || 0,
+                                    icon: <TrendingUp className="h-5 w-5" />,
+                                    bgClass: "from-purple-500 to-indigo-600",
+                                    trend: "Total recorded transactions",
+                                    trendIcon: null
+                                },
+                                {
+                                    title: "Avg. Transaction",
+                                    value: "$" + (income && income.length ? (totalIncomeValue / income.length).toFixed(2) : "0.00"),
+                                    icon: <BarChart3 className="h-5 w-5" />,
+                                    bgClass: "from-amber-500 to-orange-600",
+                                    trend: "Average per transaction",
+                                    trendIcon: null
+                                }
+                            ].map((card, index) => (
+                                <Card
+                                    key={index}
+                                    ref={el => dashboardCardsRef.current[index] = el}
+                                    className={`bg-gradient-to-br ${card.bgClass} text-white border-0 shadow-lg`}
+                                >
+                                    <CardContent className="p-4">
+                                        <div className="flex justify-between items-center mb-2">
+                                            <span className="font-medium">{card.title}</span>
+                                            <div className="p-2 bg-white/20 rounded-lg">
+                                                {card.icon}
+                                            </div>
+                                        </div>
+                                        <div className="text-3xl font-bold mt-1">{card.value}</div>
+                                        <div className="mt-3 text-xs flex items-center text-white/80">
+                                            {card.trendIcon}
+                                            <span>{card.trend}</span>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            ))}
+                        </div>
                     </div>
 
-                    {/* Main Content */}
-                    <div className="col-span-11 flex flex-col">
-                        <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center space-x-3">
-                                    <Avatar className="h-10 w-10">
-                                        <AvatarImage src={`https://ui-avatars.com/api/?name=Warehouse+Income`} />
-                                        <AvatarFallback>WI</AvatarFallback>
-                                    </Avatar>
-                                    <div>
-                                        <h2 className="font-semibold text-lg">Income Transactions</h2>
-                                        <p className="text-sm text-gray-500">{auth.user.warehouse.name} • {income?.length || 0} transactions • ${totalIncomeValue.toFixed(2)} total</p>
-                                    </div>
-                                </div>
-                                <div className="flex space-x-2">
-                                    <Button variant="outline" size="sm">
-                                        <Filter className="h-4 w-4 mr-2" />
-                                        Filter
+                    {/* Main Content Section */}
+                    <div className="flex-1 overflow-auto p-6 bg-gray-100 dark:bg-gray-900">
+                        <div className="mb-6 flex justify-between items-center">
+                            <h2 className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 flex items-center">
+                                <span>{searchTerm ? `Search Results: "${searchTerm}"` : 'All Transactions'}</span>
+                                {searchTerm && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="ml-2 h-7 text-gray-500 hover:text-gray-700"
+                                        onClick={() => setSearchTerm('')}
+                                    >
+                                        Clear
                                     </Button>
-                                    <Button variant="outline" size="sm">
-                                        <Download className="h-4 w-4 mr-2" />
-                                        Export
-                                    </Button>
-                                    <Button size="sm">
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        New Transaction
-                                    </Button>
-                                </div>
-                            </div>
+                                )}
+                            </h2>
+                            <Tabs defaultValue="grid" className="w-auto">
+                                <TabsList className="bg-white dark:bg-gray-800 p-1 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                                    <TabsTrigger
+                                        value="grid"
+                                        active={view === 'grid'}
+                                        onClick={() => handleViewChange('grid')}
+                                        className="flex items-center gap-1.5 px-4 py-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white rounded-lg transition-all duration-200 data-[state=active]:shadow-md"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-layout-grid"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                                        <span>Grid</span>
+                                    </TabsTrigger>
+                                    <TabsTrigger
+                                        value="list"
+                                        active={view === 'list'}
+                                        onClick={() => handleViewChange('list')}
+                                        className="flex items-center gap-1.5 px-4 py-1.5 data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white rounded-lg transition-all duration-200 data-[state=active]:shadow-md"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+                                        <span>List</span>
+                                    </TabsTrigger>
+                                </TabsList>
+                            </Tabs>
                         </div>
 
-                        <div className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900">
-                            <div className="grid grid-cols-4 gap-4 mb-6">
-                                <Card className="shadow-sm bg-gradient-to-br from-green-500 to-emerald-600 text-white border-none">
-                                    <CardContent className="p-4">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-sm text-white/80">Total Income</span>
-                                            <ArrowUpRight className="h-5 w-5 text-white/80" />
+                        <div className="mb-5 bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-white dark:from-gray-800 dark:to-gray-900 opacity-50"></div>
+                            <div className="relative z-10">
+                                <div className="flex items-center gap-3 mb-3">
+                                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-2 rounded-lg">
+                                        <Search className="h-5 w-5" />
+                                    </div>
+                                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Transaction Search</h3>
+                                </div>
+                                <div className="relative w-full group">
+                                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-green-400 to-emerald-500 opacity-0 group-focus-within:opacity-100 blur transition-opacity -m-0.5"></div>
+                                    <div className="relative flex">
+                                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center pointer-events-none">
+                                            <Search className="h-5 w-5 text-gray-400" />
                                         </div>
-                                        <div className="text-2xl font-bold">${totalIncomeValue.toFixed(2)}</div>
-                                        <div className="mt-1 text-xs text-white/80">All time transactions</div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card className="shadow-sm bg-white dark:bg-gray-800 border-none">
-                                    <CardContent className="p-4">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-sm text-gray-500">This Month</span>
-                                            <Calendar className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <div className="text-2xl font-bold text-green-600">${thisMonthIncome.toFixed(2)}</div>
-                                        <div className="mt-1 text-xs text-gray-500 flex items-center">
-                                            {incomeChangePercent > 0 ? (
-                                                <ArrowUpRight className="h-3 w-3 mr-1 text-green-500" />
-                                            ) : (
-                                                <ChevronRight className="h-3 w-3 mr-1" />
-                                            )}
-                                            <span>{Math.abs(incomeChangePercent).toFixed(1)}% from last month</span>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card className="shadow-sm bg-white dark:bg-gray-800 border-none">
-                                    <CardContent className="p-4">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-sm text-gray-500">Transactions</span>
-                                            <FileText className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <div className="text-2xl font-bold">{income?.length || 0}</div>
-                                        <div className="mt-1 text-xs text-gray-500">Total transactions recorded</div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card className="shadow-sm bg-white dark:bg-gray-800 border-none">
-                                    <CardContent className="p-4">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="text-sm text-gray-500">Avg. Transaction</span>
-                                            <TrendingUp className="h-5 w-5 text-gray-400" />
-                                        </div>
-                                        <div className="text-2xl font-bold text-green-600">
-                                            ${income && income.length ? (totalIncomeValue / income.length).toFixed(2) : '0.00'}
-                                        </div>
-                                        <div className="mt-1 text-xs text-gray-500">Average income per transaction</div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-
-                            <div className="grid grid-cols-3 gap-6 mb-6">
-                                <div className="col-span-2">
-                                    <div className="mb-6 relative">
-                                        <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
                                         <input
                                             type="text"
                                             placeholder="Search by reference or source..."
-                                            className="w-full py-2 pl-10 pr-4 rounded-lg bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-sm"
+                                            className="flex-1 py-3 pl-11 pr-4 rounded-lg bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all duration-200"
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
+                                            onFocus={(e) => {
+                                                anime({
+                                                    targets: e.currentTarget,
+                                                    scale: [1, 1.02],
+                                                    boxShadow: ['0 0 0 rgba(0,0,0,0)', '0 4px 20px rgba(0,0,0,0.1)'],
+                                                    duration: 300,
+                                                    easing: 'easeOutQuad'
+                                                });
+                                            }}
+                                            onBlur={(e) => {
+                                                anime({
+                                                    targets: e.currentTarget,
+                                                    scale: [1.02, 1],
+                                                    boxShadow: ['0 4px 20px rgba(0,0,0,0.1)', '0 0 0 rgba(0,0,0,0)'],
+                                                    duration: 300,
+                                                    easing: 'easeOutQuad'
+                                                });
+                                            }}
                                         />
-                                    </div>
-
-                                    <div className="space-y-4">
-                                        {filteredIncome && filteredIncome.length > 0 ? (
-                                            filteredIncome.map(record => (
-                                                <Card key={record.id} className="shadow-sm border-none">
-                                                    <CardContent className="p-4">
-                                                        <div className="flex items-center space-x-4">
-                                                            <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center text-green-600">
-                                                                <TrendingUp className="h-6 w-6" />
-                                                            </div>
-                                                            <div className="flex-1">
-                                                                <div className="flex items-center justify-between">
-                                                                    <h3 className="font-medium">{record.reference}</h3>
-                                                                    <span className="text-lg font-semibold text-green-600">
-                                                                        +${record.amount.toFixed(2)}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="mt-1 flex items-center text-sm text-gray-500">
-                                                                    <span className="flex items-center mr-4">
-                                                                        <Calendar className="h-3 w-3 mr-1" />
-                                                                        {record.date}
-                                                                    </span>
-                                                                    <span className="flex items-center">
-                                                                        <User className="h-3 w-3 mr-1" />
-                                                                        {record.source}
-                                                                    </span>
-                                                                </div>
-                                                                {record.notes && (
-                                                                    <p className="mt-2 text-xs text-gray-500">
-                                                                        {record.notes}
-                                                                    </p>
-                                                                )}
-                                                            </div>
-                                                            <Button variant="ghost" size="sm">
-                                                                <ChevronRight className="h-4 w-4" />
-                                                            </Button>
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            ))
-                                        ) : (
-                                            <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
-                                                <TrendingUp className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                                                <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-1">No income transactions found</h3>
-                                                <p className="text-gray-500">
-                                                    {searchTerm ? 'Try adjusting your search criteria' : 'Add income transactions to track your inventory'}
-                                                </p>
-                                                <Button className="mt-4">
-                                                    <Plus className="h-4 w-4 mr-2" />
-                                                    New Transaction
-                                                </Button>
-                                            </div>
+                                        {searchTerm && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                                onClick={() => setSearchTerm('')}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                                            </Button>
                                         )}
                                     </div>
                                 </div>
-
-                                <div className="space-y-6">
-                                    <Card className="shadow-sm border-none">
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-lg">Top Income Sources</CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="p-4">
-                                            {sourceTotals.length > 0 ? (
-                                                <div className="space-y-4">
-                                                    {sourceTotals.map((source, index) => (
-                                                        <div key={index} className="flex items-center justify-between">
-                                                            <div className="flex items-center space-x-3">
-                                                                <div className={`h-8 w-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-600`}>
-                                                                    <span className="text-xs font-medium">{index + 1}</span>
-                                                                </div>
-                                                                <span className="font-medium">{source.name}</span>
-                                                            </div>
-                                                            <span className="text-green-600 font-semibold">${source.total.toFixed(2)}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <p className="text-center py-4 text-gray-500">No data available</p>
-                                            )}
-                                        </CardContent>
-                                    </Card>
-
-                                    <Card className="shadow-sm border-none">
-                                        <CardHeader className="pb-2">
-                                            <CardTitle className="text-lg">Monthly Overview</CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="p-4">
-                                            <div className="grid grid-cols-3 gap-3">
-                                                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
-                                                    <p className="text-xs text-gray-500 mb-1">This Month</p>
-                                                    <p className="font-semibold text-green-600">
-                                                        ${thisMonthIncome.toFixed(2)}
-                                                    </p>
-                                                </div>
-                                                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
-                                                    <p className="text-xs text-gray-500 mb-1">Last Month</p>
-                                                    <p className="font-semibold text-green-600">
-                                                        ${lastMonthIncome.toFixed(2)}
-                                                    </p>
-                                                </div>
-                                                <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
-                                                    <p className="text-xs text-gray-500 mb-1">This Year</p>
-                                                    <p className="font-semibold text-green-600">
-                                                        ${income?.filter(i => {
-                                                            const date = new Date(i.date);
-                                                            const now = new Date();
-                                                            return date.getFullYear() === now.getFullYear();
-                                                        }).reduce((sum, i) => sum + i.amount, 0).toFixed(2) || '0.00'}
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div className="mt-4">
-                                                <h4 className="text-sm font-medium mb-2">Recent Activity</h4>
-                                                <div className="space-y-2">
-                                                    {income && income.length > 0 ? income.slice(0, 3).map((record, idx) => (
-                                                        <div key={idx} className="flex items-center justify-between text-sm p-2 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
-                                                            <span className="truncate max-w-[120px]">{record.reference}</span>
-                                                            <span className="text-green-600">${record.amount.toFixed(2)}</span>
-                                                        </div>
-                                                    )) : (
-                                                        <p className="text-sm text-gray-500 text-center">No recent activity</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </div>
+                                {searchTerm && (
+                                    <div className="mt-2 text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2 animate-pulse">
+                                        <span className="inline-block h-2 w-2 rounded-full bg-green-500"></span>
+                                        Searching for: {searchTerm}
+                                    </div>
+                                )}
                             </div>
+                        </div>
+
+                        <div ref={cardsRef} className="transition-opacity duration-300" style={{ minHeight: '200px' }}>
+                            <TabsContent value="grid" activeValue={view} className="mt-0">
+                                {filteredIncome && filteredIncome.length > 0 ? (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {filteredIncome.map((record, index) => (
+                                            <Card
+                                                key={record.id}
+                                                ref={el => gridItemsRef.current[index] = el}
+                                                className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow relative"
+                                                onMouseEnter={(e) => animateHover(e.currentTarget, true)}
+                                                onMouseLeave={(e) => animateHover(e.currentTarget, false)}
+                                            >
+                                                <div className="h-2 bg-gradient-to-r from-green-400 via-green-500 to-emerald-600" />
+                                                <div className="absolute top-4 right-4">
+                                                    <Badge className="bg-green-100 text-green-700 hover:bg-green-200">
+                                                        Income
+                                                    </Badge>
+                                                </div>
+                                                <CardContent className="p-6 pt-8">
+                                                    <div className="flex items-start">
+                                                        <div className="h-14 w-14 bg-gradient-to-br from-green-400 to-emerald-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
+                                                            <TrendingUp className="h-7 w-7" />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="font-medium text-lg text-gray-900 dark:text-white">{record.reference}</h3>
+                                                            <div className="mt-1 flex flex-wrap gap-2">
+                                                                <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                    <Tag className="h-3 w-3" />
+                                                                    ID: {record.id}
+                                                                </Badge>
+                                                                <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                    <User className="h-3 w-3" />
+                                                                    {record.source}
+                                                                </Badge>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="mt-6 grid grid-cols-2 gap-4">
+                                                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                            <div className="flex items-center gap-1.5 mb-1">
+                                                                <Calendar className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                                                                <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
+                                                            </div>
+                                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.date}</p>
+                                                        </div>
+                                                        <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                            <div className="flex items-center gap-1.5 mb-1">
+                                                                <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                                                                <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
+                                                            </div>
+                                                            <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.created_at}</p>
+                                                        </div>
+                                                        <div className="col-span-2 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-900/30 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                                                            <div className="flex items-center gap-1.5 mb-1">
+                                                                <ArrowUpRight className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                                                                <p className="text-xs text-gray-500 dark:text-gray-400">Amount</p>
+                                                            </div>
+                                                            <p className="text-xl font-semibold text-green-600 dark:text-green-400">${record.amount.toFixed(2)}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {record.notes && (
+                                                        <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Notes</p>
+                                                            <p className="text-sm text-gray-700 dark:text-gray-300">{record.notes}</p>
+                                                        </div>
+                                                    )}
+                                                </CardContent>
+                                                <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700">
+                                                    <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                                        <BarChart3 className="h-4 w-4 text-green-500" />
+                                                        {record.source}
+                                                    </span>
+                                                    <div className="flex gap-2">
+                                                        <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full">
+                                                            <MoreHorizontal className="h-4 w-4" />
+                                                        </Button>
+                                                        <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                                                            Details
+                                                            <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                                                        </Button>
+                                                    </div>
+                                                </CardFooter>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-10 text-center">
+                                        <div className="inline-flex h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/30 items-center justify-center mb-6">
+                                            <TrendingUp className="h-10 w-10 text-green-600" />
+                                        </div>
+                                        <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">No income transactions found</h3>
+                                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
+                                            {searchTerm ? 'Try adjusting your search criteria or check for typos.' : 'No income transactions have been recorded yet. Add your first transaction to get started.'}
+                                        </p>
+                                        <Button className="bg-green-600 hover:bg-green-700">
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            Add First Transaction
+                                        </Button>
+                                    </div>
+                                )}
+                            </TabsContent>
+
+                            <TabsContent value="list" activeValue={view} className="mt-0">
+                                {filteredIncome && filteredIncome.length > 0 ? (
+                                    <Card className="border-0 shadow-md overflow-hidden rounded-xl">
+                                        <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b border-gray-200 dark:border-gray-700 grid grid-cols-12 text-sm font-medium text-gray-500 dark:text-gray-400">
+                                            <div className="col-span-4 flex items-center gap-2">
+                                                <TrendingUp className="h-4 w-4 text-green-500" />
+                                                Reference
+                                            </div>
+                                            <div className="col-span-1 text-center flex items-center justify-center gap-1">
+                                                <Tag className="h-3.5 w-3.5 text-indigo-500" />
+                                                ID
+                                            </div>
+                                            <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                <Calendar className="h-3.5 w-3.5 text-blue-500" />
+                                                Date
+                                            </div>
+                                            <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                <User className="h-3.5 w-3.5 text-amber-500" />
+                                                Source
+                                            </div>
+                                            <div className="col-span-2 text-center flex items-center justify-center gap-1">
+                                                <ArrowUpRight className="h-3.5 w-3.5 text-green-500" />
+                                                Amount
+                                            </div>
+                                            <div className="col-span-1 text-right">
+                                                <MoreHorizontal className="h-4 w-4 ml-auto text-gray-400" />
+                                            </div>
+                                        </div>
+                                        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                                            {filteredIncome.map((record, index) => (
+                                                <div
+                                                    key={record.id}
+                                                    ref={el => listItemsRef.current[index] = el}
+                                                    className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-green-50/30 dark:hover:bg-green-900/10 grid grid-cols-12 items-center relative overflow-hidden group"
+                                                    onMouseEnter={(e) => {
+                                                        anime({
+                                                            targets: e.currentTarget,
+                                                            backgroundColor: 'rgba(220, 252, 231, 0.3)',
+                                                            duration: 300,
+                                                            easing: 'easeOutQuad'
+                                                        });
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        anime({
+                                                            targets: e.currentTarget,
+                                                            backgroundColor: 'rgba(255, 255, 255, 1)',
+                                                            duration: 300,
+                                                            easing: 'easeOutQuad'
+                                                        });
+                                                    }}
+                                                >
+                                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-green-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                    <div className="col-span-4 flex items-center">
+                                                        <div className="h-10 w-10 bg-gradient-to-br from-green-400 to-emerald-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-sm">
+                                                            <TrendingUp className="h-5 w-5" />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="font-medium text-gray-900 dark:text-white">{record.reference}</h3>
+                                                            {record.notes && (
+                                                                <p className="text-xs text-gray-500 truncate max-w-[200px]">{record.notes}</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-300">{record.id}</div>
+                                                    <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.date}</div>
+                                                    <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.source}</div>
+                                                    <div className="col-span-2 text-center font-medium text-green-600">${record.amount.toFixed(2)}</div>
+                                                    <div className="col-span-1 text-right">
+                                                        <Button variant="ghost" size="sm" className="text-gray-500 hover:text-green-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <ExternalLink className="h-4 w-4" />
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </Card>
+                                ) : (
+                                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-10 text-center">
+                                        <div className="inline-flex h-20 w-20 rounded-full bg-green-100 dark:bg-green-900/30 items-center justify-center mb-6">
+                                            <TrendingUp className="h-10 w-10 text-green-600" />
+                                        </div>
+                                        <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">No income transactions found</h3>
+                                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6">
+                                            {searchTerm ? 'Try adjusting your search criteria or check for typos.' : 'No income transactions have been recorded yet. Add your first transaction to get started.'}
+                                        </p>
+                                        <Button className="bg-green-600 hover:bg-green-700">
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            Add First Transaction
+                                        </Button>
+                                    </div>
+                                )}
+                            </TabsContent>
                         </div>
                     </div>
                 </div>
