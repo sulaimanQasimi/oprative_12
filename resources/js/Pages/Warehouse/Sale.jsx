@@ -41,7 +41,7 @@ const MiniBarChart = ({ data, height = 40, barWidth = 6, gapWidth = 6, animated 
     const max = Math.max(...data.map(d => d.value));
 
     return (
-        <div className={`flex items-end h-${height} gap-${gapWidth} ${className}`}>
+        <div className={`flex items-end ${className}`} style={{ height: `${height}px`, gap: `${gapWidth}px` }}>
             {data.map((item, i) => {
                 const barHeight = (item.value / max) * 100;
                 return (
@@ -60,7 +60,8 @@ const MiniBarChart = ({ data, height = 40, barWidth = 6, gapWidth = 6, animated 
                         }}
                     >
                         <div
-                            className={`w-${barWidth} rounded-t-sm bg-gradient-to-b from-white/80 to-white/40 hover:from-white/90 hover:to-white/50 transition-all duration-200`}
+                            className="rounded-t-sm bg-gradient-to-b from-white/80 to-white/40 hover:from-white/90 hover:to-white/50 transition-all duration-200"
+                            style={{ width: `${barWidth}px` }}
                         ></div>
                         <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-white/20 backdrop-blur-md text-white text-xs py-1 px-2 rounded whitespace-nowrap">
                             {item.name}: {item.value}
@@ -136,7 +137,7 @@ const NewsTicker = () => {
 
     return (
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 border-b border-blue-100 dark:border-gray-700 py-2 relative overflow-hidden">
-            <div className="absolute inset-0 bg-grid-blue-500/[0.03] dark:bg-grid-white/[0.02]"></div>
+            <div className="absolute inset-0 bg-opacity-[0.03] dark:bg-opacity-[0.02]"></div>
             <div className="relative">
                 <motion.div
                     className="flex items-center gap-6 whitespace-nowrap"
@@ -674,7 +675,8 @@ export default function Sale({ auth, sales }) {
                                     <motion.div
                                         key={index}
                                         ref={el => dashboardCardsRef.current[index] = el}
-                                        className={`bg-gradient-to-br ${card.bgClass} text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group perspective`}
+                                        className={`bg-gradient-to-br ${card.bgClass} text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group`}
+                                        style={{ perspective: '1000px' }}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{
@@ -886,7 +888,8 @@ export default function Sale({ auth, sales }) {
 
                                 <div className="lg:w-1/2">
                                     <motion.div
-                                        className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 shadow-xl relative overflow-hidden perspective-900"
+                                        className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20 shadow-xl relative overflow-hidden"
+                                        style={{ perspective: '900px' }}
                                         initial={{ opacity: 0, y: 20, rotateY: -10 }}
                                         whileInView={{ opacity: 1, y: 0, rotateY: 0 }}
                                         viewport={{ once: true }}
@@ -1028,7 +1031,7 @@ export default function Sale({ auth, sales }) {
                                         whileTap={{ scale: 0.98 }}
                                     >
                                         <Link
-                                            href={route('warehouse.sale.create')}
+                                            href="#"
                                             className="group flex items-center justify-center gap-1.5 bg-gradient-to-br from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:shadow-lg relative overflow-hidden"
                                         >
                                             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-white/0 via-white/20 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
