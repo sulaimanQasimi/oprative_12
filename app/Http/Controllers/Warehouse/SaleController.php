@@ -19,6 +19,7 @@ class SaleController extends Controller
 
         $sales = Sale::where('warehouse_id', $warehouse->id)
             ->with(['customer', 'currency'])
+            ->latest()
             ->get()
             ->map(function ($sale) {
                 return [
@@ -31,9 +32,13 @@ class SaleController extends Controller
                     'notes' => $sale->notes ?? null,
                     'created_at' => $sale->created_at->diffForHumans(),
                     'currency' => $sale->currency ? $sale->currency->code : null,
-                    'paid_amount' => (float) $sale->paid_amount,
+                    'paid_amount' => (float) $sale->total,
                     'due_amount' => (float) $sale->due_amount,
                     'items_count' => $sale->saleItems->count(),
+                    'confirmed_by_warehouse' => (bool) $sale->confirmed_by_warehouse,
+                    'detail_url' => route('warehouse.sales.show', $sale->id),
+                    'edit_url' => route('warehouse.sales.edit', $sale->id),
+                    'invoice_url' => route('warehouse.sales.invoice', $sale->id),
                 ];
             });
 
@@ -81,11 +86,87 @@ class SaleController extends Controller
 
         $sale = Sale::where('id', $id)
             ->where('warehouse_id', $warehouse->id)
-            ->with(['customer', 'currency', 'saleItems.product'])
+            ->with([
+                'customer',
+                'currency',
+                'warehouse',
+                'saleItems.product',
+                'payments' // Load payment history
+            ])
             ->firstOrFail();
 
+        // Transform sale items to include product details
+        $saleItems = $sale->saleItems->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'product' => [
+                    'id' => $item->product->id,
+                    'name' => $item->product->name,
+                    'barcode' => $item->product->barcode
+                ],
+                'unit' => $item->unit,
+                'quantity' => (float) $item->quantity,
+                'unit_price' => (float) $item->unit_price,
+                'total' => (float) $item->total
+            ];
+        });
+
+        // Transform payments
+        $payments = $sale->payments->map(function ($payment) {
+            return [
+                'id' => $payment->id,
+                'payment_date' => $payment->payment_date->format('Y-m-d'),
+                'amount' => (float) $payment->amount,
+                'payment_method' => $payment->payment_method,
+                'reference' => $payment->reference,
+                'notes' => $payment->notes,
+                'currency' => $payment->currency ? $payment->currency->code : null
+            ];
+        });
+
+        // Transform customer data
+        $customer = [
+            'id' => $sale->customer->id,
+            'name' => $sale->customer->name,
+            'email' => $sale->customer->email,
+            'phone' => $sale->customer->phone,
+            'address' => $sale->customer->address,
+            'tax_number' => $sale->customer->tax_number
+        ];
+
+        // Format sale data for the view
+        $saleData = [
+            'id' => $sale->id,
+            'reference' => $sale->reference,
+            'date' => $sale->date->format('Y-m-d'),
+            'status' => $sale->status,
+            'notes' => $sale->notes,
+            'customer' => $customer,
+            'currency' => $sale->currency ? $sale->currency->code : null,
+            'total_amount' => (float) $sale->total_amount,
+            'paid_amount' => (float) $sale->paid_amount,
+            'due_amount' => (float) $sale->due_amount,
+            'tax_percentage' => (float) $sale->tax_percentage,
+            'tax_amount' => (float) $sale->tax_amount,
+            'discount_percentage' => (float) $sale->discount_percentage,
+            'discount_amount' => (float) $sale->discount_amount,
+            'shipping_cost' => (float) $sale->shipping_cost,
+            'created_at' => $sale->created_at->diffForHumans(),
+            'items_count' => $sale->saleItems->count(),
+            'sale_items' => $saleItems,
+            'payments' => $payments,
+            'confirmed_by_warehouse' => (bool) $sale->confirmed_by_warehouse,
+            'warehouse' => [
+                'id' => $sale->warehouse->id,
+                'name' => $sale->warehouse->name,
+                'address' => $sale->warehouse->address,
+                'phone' => $sale->warehouse->phone,
+                'email' => $sale->warehouse->email
+            ]
+        ];
+
         return Inertia::render('Warehouse/ShowSale', [
-            'sale' => $sale,
+            'sale' => $saleData,
         ]);
     }
 
@@ -139,5 +220,130 @@ class SaleController extends Controller
         $sale->delete();
 
         return redirect()->route('warehouse.sales')->with('success', 'Sale deleted successfully.');
+    }
+
+    /**
+     * Confirm a sale by warehouse.
+     */
+    public function confirm($id)
+    {
+        $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
+
+        $sale = Sale::where('id', $id)
+            ->where('warehouse_id', $warehouse->id)
+            ->firstOrFail();
+
+        // Update the confirmed_by_warehouse status
+        $sale->confirmed_by_warehouse = true;
+        $sale->save();
+
+        return redirect()->route('warehouse.sales.show', $sale->id)
+            ->with('success', 'Sale has been confirmed successfully.');
+    }
+
+    /**
+     * Generate a PDF invoice for the sale.
+     */
+    public function invoice($id)
+    {
+        $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
+
+        $sale = Sale::where('id', $id)
+            ->where('warehouse_id', $warehouse->id)
+            ->with([
+                'customer',
+                'currency',
+                'warehouse',
+                'saleItems.product',
+                'payments'
+            ])
+            ->firstOrFail();
+
+        // Transform sale items to include product details
+        $saleItems = $sale->saleItems->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'product' => [
+                    'id' => $item->product->id,
+                    'name' => $item->product->name,
+                    'barcode' => $item->product->barcode
+                ],
+                'unit' => $item->unit,
+                'quantity' => (float) $item->quantity,
+                'unit_price' => (float) $item->unit_price,
+                'total' => (float) $item->total
+            ];
+        });
+
+        // Transform payments
+        $payments = $sale->payments->map(function ($payment) {
+            return [
+                'id' => $payment->id,
+                'payment_date' => $payment->payment_date->format('Y-m-d'),
+                'amount' => (float) $payment->amount,
+                'payment_method' => $payment->payment_method,
+                'reference' => $payment->reference,
+                'notes' => $payment->notes,
+                'currency' => $payment->currency ? $payment->currency->code : null
+            ];
+        });
+
+        // Transform customer data
+        $customer = [
+            'id' => $sale->customer->id,
+            'name' => $sale->customer->name,
+            'email' => $sale->customer->email,
+            'phone' => $sale->customer->phone,
+            'address' => $sale->customer->address,
+            'tax_number' => $sale->customer->tax_number
+        ];
+
+        // Format sale data for the view
+        $saleData = [
+            'id' => $sale->id,
+            'reference' => $sale->reference,
+            'date' => $sale->date->format('Y-m-d'),
+            'status' => $sale->status,
+            'notes' => $sale->notes,
+            'customer' => $customer,
+            'currency' => $sale->currency ? $sale->currency->code : null,
+            'total_amount' => (float) $sale->total_amount,
+            'paid_amount' => (float) $sale->paid_amount,
+            'due_amount' => (float) $sale->due_amount,
+            'tax_percentage' => (float) $sale->tax_percentage,
+            'tax_amount' => (float) $sale->tax_amount,
+            'discount_percentage' => (float) $sale->discount_percentage,
+            'discount_amount' => (float) $sale->discount_amount,
+            'shipping_cost' => (float) $sale->shipping_cost,
+            'created_at' => $sale->created_at->diffForHumans(),
+            'items_count' => $sale->saleItems->count(),
+            'sale_items' => $saleItems,
+            'payments' => $payments,
+            'confirmed_by_warehouse' => (bool) $sale->confirmed_by_warehouse,
+            'warehouse' => [
+                'id' => $sale->warehouse->id,
+                'name' => $sale->warehouse->name,
+                'address' => $sale->warehouse->address,
+                'phone' => $sale->warehouse->phone,
+                'email' => $sale->warehouse->email
+            ]
+        ];
+
+        // Company info for the invoice
+        $company = [
+            'name' => 'Your Company Name',
+            'address' => 'Company Address',
+            'phone' => '+1 123 456 7890',
+            'email' => 'info@company.com',
+            'website' => 'www.company.com',
+            'tax_number' => 'TAX-123456',
+            'logo' => '/logo.png',
+            'footer_text' => 'Invoice generated by Company ERP System'
+        ];
+
+        return Inertia::render('Warehouse/SaleInvoice', [
+            'sale' => $saleData,
+            'company' => $company
+        ]);
     }
 }

@@ -61,6 +61,8 @@ trait RegisterRoutes
                 Route::post('sales', [SaleController::class, 'store'])->name('sales.store');
                 Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
                 Route::get('sales/{sale}/edit', [SaleController::class, 'edit'])->name('sales.edit');
+                Route::get('sales/{sale}/invoice', [SaleController::class, 'invoice'])->name('sales.invoice');
+                Route::post('sales/{sale}/confirm', [SaleController::class, 'confirm'])->name('sales.confirm');
                 Route::put('sales/{sale}', [SaleController::class, 'update'])->name('sales.update');
                 Route::delete('sales/{sale}', [SaleController::class, 'destroy'])->name('sales.destroy');
 

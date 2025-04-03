@@ -1241,10 +1241,12 @@ export default function Sale({ auth, sales }) {
                                                             <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors duration-200">
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
-                                                            <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200">
-                                                                Details
-                                                                <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
-                                                            </Button>
+                                                            <Link href={record.detail_url}>
+                                                                <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200">
+                                                                    Details
+                                                                    <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                                                                </Button>
+                                                            </Link>
                                                         </div>
                                                     </CardFooter>
                                                 </Card>
@@ -1268,10 +1270,12 @@ export default function Sale({ auth, sales }) {
                                             <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8 text-lg">
                                                 {searchTerm ? 'Try adjusting your search criteria or check for typos.' : 'No sales have been recorded yet. Add your first sale to get started.'}
                                             </p>
-                                            <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-lg py-6 px-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
-                                                <Plus className="h-5 w-5 mr-2" />
-                                                Add First Sale
-                                            </Button>
+                                            <Link href={route('warehouse.sales.create')}>
+                                                <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-lg py-6 px-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+                                                    <Plus className="h-5 w-5 mr-2" />
+                                                    Add First Sale
+                                                </Button>
+                                            </Link>
                                         </div>
                                     </div>
                                 )}
@@ -1350,9 +1354,11 @@ export default function Sale({ auth, sales }) {
                                                                 <Badge className={`${record.status === 'completed' ? 'bg-green-100 text-green-700' : record.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'} text-xs`}>
                                                                     {record.status}
                                                                 </Badge>
-                                                                <Button variant="ghost" size="sm" className="text-gray-500 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0">
-                                                                    <ExternalLink className="h-4 w-4" />
-                                                                </Button>
+                                                                <Link href={record.detail_url}>
+                                                                    <Button variant="ghost" size="sm" className="text-gray-500 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0">
+                                                                        <ExternalLink className="h-4 w-4" />
+                                                                    </Button>
+                                                                </Link>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1377,10 +1383,12 @@ export default function Sale({ auth, sales }) {
                                             <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8 text-lg">
                                                 {searchTerm ? 'Try adjusting your search criteria or check for typos.' : 'No sales have been recorded yet. Add your first sale to get started.'}
                                             </p>
-                                            <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-lg py-6 px-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
-                                                <Plus className="h-5 w-5 mr-2" />
-                                                Add First Sale
-                                            </Button>
+                                            <Link href={route('warehouse.sales.create')}>
+                                                <Button className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white text-lg py-6 px-8 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+                                                    <Plus className="h-5 w-5 mr-2" />
+                                                    Add First Sale
+                                                </Button>
+                                            </Link>
                                         </div>
                                     </div>
                                 )}
