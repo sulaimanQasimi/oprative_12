@@ -674,7 +674,6 @@ export default function Sale({ auth, sales }) {
                                 ].map((card, index) => (
                                     <motion.div
                                         key={index}
-                                        ref={el => dashboardCardsRef.current[index] = el}
                                         className={`bg-gradient-to-br ${card.bgClass} text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group`}
                                         style={{ perspective: '1000px' }}
                                         initial={{ opacity: 0, y: 20 }}
@@ -719,56 +718,61 @@ export default function Sale({ auth, sales }) {
                                             });
                                         }}
                                     >
-                                        {/* Card shine effect */}
-                                        <div className="card-shine absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full pointer-events-none"></div>
+                                        <div
+                                            ref={el => dashboardCardsRef.current[index] = el}
+                                            className="w-full h-full"
+                                        >
+                                            {/* Card shine effect */}
+                                            <div className="card-shine absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full pointer-events-none"></div>
 
-                                        {/* Background decorations */}
-                                        <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-bl-full transform rotate-12 -translate-y-8 translate-x-8"></div>
-                                        <div className="absolute left-10 bottom-10 w-16 h-16 bg-white/5 rounded-full"></div>
+                                            {/* Background decorations */}
+                                            <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-bl-full transform rotate-12 -translate-y-8 translate-x-8"></div>
+                                            <div className="absolute left-10 bottom-10 w-16 h-16 bg-white/5 rounded-full"></div>
 
-                                        {/* Extra decorative elements */}
-                                        {card.decorator}
+                                            {/* Extra decorative elements */}
+                                            {card.decorator}
 
-                                        {card.secondaryIcon}
+                                            {card.secondaryIcon}
 
-                                        <div className="p-5 relative z-10">
-                                            <div className="flex justify-between items-center mb-3">
-                                                <span className="font-medium text-lg">{card.title}</span>
-                                                <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300">
-                                                    {card.icon}
+                                            <div className="p-5 relative z-10">
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <span className="font-medium text-lg">{card.title}</span>
+                                                    <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300">
+                                                        {card.icon}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className="text-3xl font-bold mt-1 flex items-end transform group-hover:scale-105 transition-transform origin-left duration-300">
-                                                <AnimatedCounter
-                                                    value={typeof card.value === 'string' ?
-                                                        parseInt(card.value.replace(/[^0-9.-]+/g, '')) :
-                                                        card.value}
-                                                    prefix={typeof card.value === 'string' && card.value.startsWith('$') ? '$' : ''}
-                                                    duration={2000}
-                                                />
-                                                <span className="text-sm ml-2 mb-1 font-medium text-white/70 group-hover:translate-x-1 transition-transform duration-300">{card.trendValue}</span>
-                                            </div>
-                                            <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-2.5 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300">
-                                                {card.trendIcon}
-                                                <span>{card.trend}</span>
-                                            </div>
+                                                <div className="text-3xl font-bold mt-1 flex items-end transform group-hover:scale-105 transition-transform origin-left duration-300">
+                                                    <AnimatedCounter
+                                                        value={typeof card.value === 'string' ?
+                                                            parseInt(card.value.replace(/[^0-9.-]+/g, '')) :
+                                                            card.value}
+                                                        prefix={typeof card.value === 'string' && card.value.startsWith('$') ? '$' : ''}
+                                                        duration={2000}
+                                                    />
+                                                    <span className="text-sm ml-2 mb-1 font-medium text-white/70 group-hover:translate-x-1 transition-transform duration-300">{card.trendValue}</span>
+                                                </div>
+                                                <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-2.5 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300">
+                                                    {card.trendIcon}
+                                                    <span>{card.trend}</span>
+                                                </div>
 
-                                            {/* Interactive elements that appear on hover */}
-                                            <div className="mt-4 flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                                <motion.button
-                                                    className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
-                                                    whileHover={{ scale: 1.1 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                >
-                                                    <BarChart3 className="h-4 w-4" />
-                                                </motion.button>
-                                                <motion.button
-                                                    className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
-                                                    whileHover={{ scale: 1.1 }}
-                                                    whileTap={{ scale: 0.95 }}
-                                                >
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </motion.button>
+                                                {/* Interactive elements that appear on hover */}
+                                                <div className="mt-4 flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
+                                                    <motion.button
+                                                        className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                    >
+                                                        <BarChart3 className="h-4 w-4" />
+                                                    </motion.button>
+                                                    <motion.button
+                                                        className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                                                        whileHover={{ scale: 1.1 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                    >
+                                                        <MoreHorizontal className="h-4 w-4" />
+                                                    </motion.button>
+                                                </div>
                                             </div>
                                         </div>
                                     </motion.div>
@@ -1163,92 +1167,96 @@ export default function Sale({ auth, sales }) {
                                             {paginatedSales.map((record, index) => (
                                                 <Card
                                                     key={record.id}
-                                                    ref={el => gridItemsRef.current[index] = el}
                                                     className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 relative group hover:translate-y-[-3px]"
                                                     onMouseEnter={(e) => animateHover(e.currentTarget, true)}
                                                     onMouseLeave={(e) => animateHover(e.currentTarget, false)}
                                                 >
-                                                    <div className="h-2 bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-600" />
-                                                    <div className="absolute top-4 right-4 z-10">
-                                                        <Badge className={`${
-                                                            record.status === 'completed'
-                                                                ? 'bg-green-100 text-green-700 border-green-200'
-                                                                : record.status === 'pending'
-                                                                    ? 'bg-yellow-100 text-yellow-700 border-yellow-200'
-                                                                    : 'bg-red-100 text-red-700 border-red-200'
-                                                        } hover:bg-opacity-80 shadow-sm font-medium transition-all duration-200`}>
-                                                            {record.status}
-                                                        </Badge>
-                                                    </div>
-                                                    <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-indigo-50/20 dark:from-blue-900/10 dark:to-indigo-900/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                                                    <CardContent className="p-6 pt-8 relative z-0">
-                                                        <div className="flex items-start">
-                                                            <div className="h-14 w-14 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
-                                                                <ShoppingCart className="h-7 w-7" />
-                                                            </div>
-                                                            <div>
-                                                                <h3 className="font-medium text-lg text-gray-900 dark:text-white">{record.reference}</h3>
-                                                                <div className="mt-1 flex flex-wrap gap-2">
-                                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                                                        <Tag className="h-3 w-3" />
-                                                                        ID: {record.id}
-                                                                    </Badge>
-                                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                                                        <User className="h-3 w-3" />
-                                                                        {record.customer}
-                                                                    </Badge>
-                                                                </div>
-                                                            </div>
+                                                    <div
+                                                        ref={el => gridItemsRef.current[index] = el}
+                                                        className="w-full h-full"
+                                                    >
+                                                        <div className="h-2 bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-600" />
+                                                        <div className="absolute top-4 right-4 z-10">
+                                                            <Badge className={`${
+                                                                record.status === 'completed'
+                                                                    ? 'bg-green-100 text-green-700 border-green-200'
+                                                                    : record.status === 'pending'
+                                                                        ? 'bg-yellow-100 text-yellow-700 border-yellow-200'
+                                                                        : 'bg-red-100 text-red-700 border-red-200'
+                                                            } hover:bg-opacity-80 shadow-sm font-medium transition-all duration-200`}>
+                                                                {record.status}
+                                                            </Badge>
                                                         </div>
+                                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-indigo-50/20 dark:from-blue-900/10 dark:to-indigo-900/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                                                        <CardContent className="p-6 pt-8 relative z-0">
+                                                            <div className="flex items-start">
+                                                                <div className="h-14 w-14 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
+                                                                    <ShoppingCart className="h-7 w-7" />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="font-medium text-lg text-gray-900 dark:text-white">{record.reference}</h3>
+                                                                    <div className="mt-1 flex flex-wrap gap-2">
+                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                            <Tag className="h-3 w-3" />
+                                                                            ID: {record.id}
+                                                                        </Badge>
+                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                            <User className="h-3 w-3" />
+                                                                            {record.customer}
+                                                                        </Badge>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
 
-                                                        <div className="mt-6 grid grid-cols-2 gap-4">
-                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                <div className="flex items-center gap-1.5 mb-1">
-                                                                    <Calendar className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
+                                                            <div className="mt-6 grid grid-cols-2 gap-4">
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                        <Calendar className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
+                                                                    </div>
+                                                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.date}</p>
                                                                 </div>
-                                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.date}</p>
-                                                            </div>
-                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                <div className="flex items-center gap-1.5 mb-1">
-                                                                    <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                        <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
+                                                                    </div>
+                                                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.created_at}</p>
                                                                 </div>
-                                                                <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.created_at}</p>
-                                                            </div>
-                                                            <div className="col-span-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
-                                                                <div className="flex items-center gap-1.5 mb-1">
-                                                                    <ArrowUpRight className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Amount</p>
+                                                                <div className="col-span-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                        <ArrowUpRight className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Amount</p>
+                                                                    </div>
+                                                                    <p className="text-xl font-semibold text-blue-600 dark:text-blue-400">${record.amount.toFixed(2)}</p>
                                                                 </div>
-                                                                <p className="text-xl font-semibold text-blue-600 dark:text-blue-400">${record.amount.toFixed(2)}</p>
                                                             </div>
-                                                        </div>
 
-                                                        {record.notes && (
-                                                            <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Notes</p>
-                                                                <p className="text-sm text-gray-700 dark:text-gray-300">{record.notes}</p>
-                                                            </div>
-                                                        )}
-                                                    </CardContent>
-                                                    <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700 relative z-0">
-                                                        <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                                                            <BarChart3 className="h-4 w-4 text-blue-500" />
-                                                            Items: {record.items_count || 0}
-                                                        </span>
-                                                        <div className="flex gap-2">
-                                                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors duration-200">
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                            </Button>
-                                                            <Link href={record.detail_url}>
-                                                                <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200">
-                                                                    Details
-                                                                    <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                                                            {record.notes && (
+                                                                <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Notes</p>
+                                                                    <p className="text-sm text-gray-700 dark:text-gray-300">{record.notes}</p>
+                                                                </div>
+                                                            )}
+                                                        </CardContent>
+                                                        <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700 relative z-0">
+                                                            <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                                                <BarChart3 className="h-4 w-4 text-blue-500" />
+                                                                Items: {record.items_count || 0}
+                                                            </span>
+                                                            <div className="flex gap-2">
+                                                                <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors duration-200">
+                                                                    <MoreHorizontal className="h-4 w-4" />
                                                                 </Button>
-                                                            </Link>
-                                                        </div>
-                                                    </CardFooter>
+                                                                <Link href={record.detail_url}>
+                                                                    <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200">
+                                                                        Details
+                                                                        <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                                                                    </Button>
+                                                                </Link>
+                                                            </div>
+                                                        </CardFooter>
+                                                    </div>
                                                 </Card>
                                             ))}
                                         </div>
@@ -1314,7 +1322,6 @@ export default function Sale({ auth, sales }) {
                                                 {paginatedSales.map((record, index) => (
                                                     <div
                                                         key={record.id}
-                                                        ref={el => listItemsRef.current[index] = el}
                                                         className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 grid grid-cols-12 items-center relative overflow-hidden group"
                                                         onMouseEnter={(e) => {
                                                             anime({
@@ -1333,32 +1340,37 @@ export default function Sale({ auth, sales }) {
                                                             });
                                                         }}
                                                     >
-                                                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                                        <div className="col-span-4 flex items-center">
-                                                            <div className="h-10 w-10 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-sm">
-                                                                <ShoppingCart className="h-5 w-5" />
+                                                        <div
+                                                            ref={el => listItemsRef.current[index] = el}
+                                                            className="contents"
+                                                        >
+                                                            <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                            <div className="col-span-4 flex items-center">
+                                                                <div className="h-10 w-10 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-lg flex items-center justify-center text-white mr-3 shadow-sm">
+                                                                    <ShoppingCart className="h-5 w-5" />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="font-medium text-gray-900 dark:text-white">{record.reference}</h3>
+                                                                    {record.notes && (
+                                                                        <p className="text-xs text-gray-500 truncate max-w-[200px]">{record.notes}</p>
+                                                                    )}
+                                                                </div>
                                                             </div>
-                                                            <div>
-                                                                <h3 className="font-medium text-gray-900 dark:text-white">{record.reference}</h3>
-                                                                {record.notes && (
-                                                                    <p className="text-xs text-gray-500 truncate max-w-[200px]">{record.notes}</p>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                        <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-300">{record.id}</div>
-                                                        <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.date}</div>
-                                                        <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.customer}</div>
-                                                        <div className="col-span-2 text-center font-medium text-blue-600">${record.amount.toFixed(2)}</div>
-                                                        <div className="col-span-1 text-right">
-                                                            <div className="flex items-center justify-end gap-2">
-                                                                <Badge className={`${record.status === 'completed' ? 'bg-green-100 text-green-700' : record.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'} text-xs`}>
-                                                                    {record.status}
-                                                                </Badge>
-                                                                <Link href={record.detail_url}>
-                                                                    <Button variant="ghost" size="sm" className="text-gray-500 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0">
-                                                                        <ExternalLink className="h-4 w-4" />
-                                                                    </Button>
-                                                                </Link>
+                                                            <div className="col-span-1 text-center text-sm text-gray-600 dark:text-gray-300">{record.id}</div>
+                                                            <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.date}</div>
+                                                            <div className="col-span-2 text-center text-sm text-gray-600 dark:text-gray-300">{record.customer}</div>
+                                                            <div className="col-span-2 text-center font-medium text-blue-600">${record.amount.toFixed(2)}</div>
+                                                            <div className="col-span-1 text-right">
+                                                                <div className="flex items-center justify-end gap-2">
+                                                                    <Badge className={`${record.status === 'completed' ? 'bg-green-100 text-green-700' : record.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'} text-xs`}>
+                                                                        {record.status}
+                                                                    </Badge>
+                                                                    <Link href={record.detail_url}>
+                                                                        <Button variant="ghost" size="sm" className="text-gray-500 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0">
+                                                                            <ExternalLink className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </Link>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
