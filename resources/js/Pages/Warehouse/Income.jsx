@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/Components/ui/card';
@@ -15,8 +15,6 @@ import Navigation from '@/Components/Warehouse/Navigation';
 import { motion } from 'framer-motion';
 
 export default function Income({ auth, income }) {
-    // Add debugging to check income data
-    console.log("Income data received:", income);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [view, setView] = useState('grid');
@@ -500,9 +498,11 @@ export default function Income({ auth, income }) {
                                                                 <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 w-8 h-8 p-0">
                                                                     <MoreHorizontal className="h-4 w-4" />
                                                                 </Button>
-                                                                <Button variant="default" size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg h-8">
-                                                                    Details
-                                                                </Button>
+                                                                <Link href={route('warehouse.income.show', record.id)}>
+                                                                    <Button variant="default" size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg h-8">
+                                                                        Details
+                                                                    </Button>
+                                                                </Link>
                                                             </div>
                                                         </CardFooter>
                                                     </Card>
@@ -596,10 +596,12 @@ export default function Income({ auth, income }) {
                                                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
-                                                            <Button variant="outline" size="sm" className="h-8 bg-white dark:bg-transparent dark:text-slate-400 dark:border-slate-700 text-slate-700 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <span>Details</span>
-                                                                <ChevronRight className="h-3.5 w-3.5 ml-1" />
-                                                            </Button>
+                                                            <Link href={route('warehouse.income.show', record.id)}>
+                                                                <Button variant="outline" size="sm" className="h-8 bg-white dark:bg-transparent dark:text-slate-400 dark:border-slate-700 text-slate-700 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                                    <span>Details</span>
+                                                                    <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                                                                </Button>
+                                                            </Link>
                                                         </div>
                                                     </motion.div>
                                                 ))}
