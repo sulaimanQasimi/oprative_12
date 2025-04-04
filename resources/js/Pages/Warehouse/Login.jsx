@@ -358,24 +358,26 @@ export default function Login() {
                         </div>
                         
                         {/* Card Content */}
-                        <div className="p-6">
-                            <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+                        <div className="p-6 pt-8">
+                            <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                                 {/* Email field */}
                                 <div className="animate-input">
                                     <div className="mb-2 flex items-center">
-                                        <UserCircle className="h-4 w-4 text-emerald-400 mr-2" />
+                                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center mr-3 border border-emerald-500/20">
+                                            <UserCircle className="h-4 w-4 text-emerald-400" />
+                                        </div>
                                         <label className="block text-sm font-medium text-slate-200">
                                             Username
                                         </label>
                                     </div>
-                                    <div className="relative group" dir='ltr'>
+                                    <div className="relative group mt-2" dir='ltr'>
                                         <input
                                             id="email"
                                             type="email"
                                             value={data.email}
                                             onChange={(e) => setData('email', e.target.value)}
-                                            className="w-full bg-slate-900/80 border border-slate-700 focus:border-emerald-500 text-slate-200 rounded-lg px-4 py-2.5 
-                                            placeholder-slate-500 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-all duration-200"
+                                            className="w-full bg-slate-900/80 border border-slate-700 focus:border-emerald-500 text-slate-200 rounded-lg px-4 py-3 
+                                            placeholder-slate-500 focus:ring-2 focus:ring-emerald-500/30 focus:outline-none transition-all duration-200"
                                             placeholder="Enter your username"
                                             required
                                         />
@@ -384,26 +386,33 @@ export default function Login() {
                                         </div>
                                     </div>
                                     {errors.email && (
-                                        <p className="text-rose-500 text-xs mt-1">{errors.email}</p>
+                                        <p className="text-rose-500 text-xs mt-1 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                            {errors.email}
+                                        </p>
                                     )}
                                 </div>
 
                                 {/* Password field */}
                                 <div className="animate-input">
                                     <div className="mb-2 flex items-center">
-                                        <Key className="h-4 w-4 text-emerald-400 mr-2" />
+                                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center mr-3 border border-emerald-500/20">
+                                            <Key className="h-4 w-4 text-emerald-400" />
+                                        </div>
                                         <label className="block text-sm font-medium text-slate-200">
                                             Password
                                         </label>
                                     </div>
-                                    <div className="relative group" dir='ltr'>
+                                    <div className="relative group mt-2" dir='ltr'>
                                         <input
                                             id="password"
                                             type={showPassword ? "text" : "password"}
                                             value={data.password}
                                             onChange={(e) => setData('password', e.target.value)}
-                                            className="w-full bg-slate-900/80 border border-slate-700 focus:border-emerald-500 text-slate-200 rounded-lg px-4 py-2.5 
-                                            placeholder-slate-500 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-all duration-200"
+                                            className="w-full bg-slate-900/80 border border-slate-700 focus:border-emerald-500 text-slate-200 rounded-lg px-4 py-3 
+                                            placeholder-slate-500 focus:ring-2 focus:ring-emerald-500/30 focus:outline-none transition-all duration-200"
                                             placeholder="••••••••••••••"
                                             required
                                         />
@@ -416,16 +425,21 @@ export default function Login() {
                                         </button>
                                     </div>
                                     {errors.password && (
-                                        <p className="text-rose-500 text-xs mt-1">{errors.password}</p>
+                                        <p className="text-rose-500 text-xs mt-1 flex items-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                                            </svg>
+                                            {errors.password}
+                                        </p>
                                     )}
                                 </div>
 
                                 {/* Remember me toggle */}
                                 <div className="flex items-center justify-between animate-input">
                                     <label className="flex items-center cursor-pointer group">
-                                        <div className="relative flex items-center justify-center mr-3 w-5 h-5 border border-slate-600 rounded group-hover:border-emerald-400 transition-colors duration-200">
+                                        <div className="relative flex items-center justify-center mr-3 w-5 h-5 border border-slate-600 rounded-md group-hover:border-emerald-400 transition-colors duration-200">
                                             {data.remember && (
-                                                <div className="absolute inset-0 flex items-center justify-center bg-emerald-500 rounded">
+                                                <div className="absolute inset-0 flex items-center justify-center bg-emerald-500 rounded-md">
                                                     <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                                                         <polyline points="20 6 9 17 4 12"></polyline>
                                                     </svg>
@@ -450,14 +464,15 @@ export default function Login() {
                                 </div>
 
                                 {/* Submit button */}
-                                <div className="animate-input">
+                                <div className="animate-input pt-2">
                                     <button
                                         type="submit"
                                         disabled={processing || authorized}
                                         className="auth-button w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 
-                                        text-white font-medium rounded-lg py-2.5 px-4 transition-all duration-300 shadow-lg shadow-emerald-500/20
-                                        flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-not-allowed"
+                                        text-white font-medium rounded-lg py-3 px-4 transition-all duration-300 shadow-lg shadow-emerald-500/20
+                                        flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden group"
                                     >
+                                        <div className="absolute inset-0 w-full bg-white/10 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
                                         {processing ? (
                                             <>
                                                 <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -470,7 +485,7 @@ export default function Login() {
                                             <>
                                                 <Shield className="h-5 w-5" />
                                                 <span>Sign In</span>
-                                                <ArrowRight className="h-5 w-5 ml-1" />
+                                                <ArrowRight className="h-5 w-5 ml-1 group-hover:translate-x-1 transition-transform duration-200" />
                                             </>
                                         )}
                                     </button>
@@ -479,10 +494,17 @@ export default function Login() {
                         </div>
                         
                         {/* Card Footer */}
-                        <div className="py-3 px-6 border-t border-slate-800/50 text-left">
-                            <p className="text-xs text-slate-500">
-                                Warehouse Management System • Secure Access
-                            </p>
+                        <div className="py-4 px-6 border-t border-slate-800/50 bg-slate-900/50">
+                            <div className="flex items-center justify-between">
+                                <p className="text-xs text-slate-500 flex items-center">
+                                    <Lock className="h-3 w-3 mr-1.5 text-emerald-500" />
+                                    Secure Connection
+                                </p>
+                                <div className="flex items-center">
+                                    <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></div>
+                                    <span className="text-xs text-emerald-400">System Active</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -492,13 +514,16 @@ export default function Login() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 2, duration: 1 }}
-                            className="inline-flex items-center px-2.5 py-1 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full"
+                            className="inline-flex items-center px-3 py-1.5 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full"
                         >
                             <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>
-                            <span className="text-xs text-slate-400">System Active • Encrypted Connection</span>
+                            <span className="text-xs text-slate-400">Warehouse Management System • v1.0</span>
                         </motion.div>
                     </div>
                 </motion.div>
+                
+                {/* Add light effect to bottom */}
+                <div className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-emerald-900/10 to-transparent"></div>
             </div>
         </>
     );
