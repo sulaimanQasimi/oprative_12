@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { Package, TrendingUp, Settings, Sun, Moon, ShoppingCart, BarChart3 } from 'lucide-react';
-import { Link } from '@inertiajs/react';
+import { Package, TrendingUp, Settings, Sun, Moon, ShoppingCart, BarChart3, LogOut } from 'lucide-react';
+import { Link, useForm } from '@inertiajs/react';
 
 export default function Navigation({ auth, currentRoute }) {
     const [isDarkMode, setIsDarkMode] = useState(false);
+    const { post } = useForm();
 
     // Check system preference and localStorage on component mount
     useEffect(() => {
@@ -31,6 +32,10 @@ export default function Navigation({ auth, currentRoute }) {
 
         // Save preference to localStorage
         localStorage.setItem('theme', newMode ? 'dark' : 'light');
+    };
+
+    const handleLogout = () => {
+        post(route('warehouse.logout'));
     };
 
     return (
@@ -133,6 +138,18 @@ export default function Navigation({ auth, currentRoute }) {
                             ) : (
                                 <Moon className="h-5 w-5 text-slate-700" />
                             )}
+                        </Button>
+
+                        {/* Logout Button */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={handleLogout}
+                            className="text-gray-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 transition-all duration-200"
+                            type="button"
+                            title="Logout"
+                        >
+                            <LogOut className="h-5 w-5" />
                         </Button>
                     </nav>
                 </div>
