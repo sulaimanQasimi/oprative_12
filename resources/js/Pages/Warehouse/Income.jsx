@@ -9,11 +9,48 @@ import {
     Search, TrendingUp, ChevronRight, Plus, Filter, ArrowUpRight, ArrowDownRight,
     BarChart3, Calendar, Clock, Download, MoreHorizontal, ExternalLink, Tag, User,
     CreditCard, DollarSign, Mail, Settings, Inbox, ChevronDown, Eye, RefreshCw, Sliders,
-    ShoppingCart
+    ShoppingCart, Package, UserCheck
 } from 'lucide-react';
 import anime from 'animejs';
 import Navigation from '@/Components/Warehouse/Navigation';
 import { motion } from 'framer-motion';
+
+// Safe querySelector utility function that checks if element exists
+const safeQuerySelector = (element, selector) => {
+    if (!element || !selector) return null;
+    try {
+        return element.querySelector(selector);
+    } catch (error) {
+        console.error("Error in querySelector:", error);
+        return null;
+    }
+};
+
+// AnimatedCounter component
+const AnimatedCounter = ({ value, prefix = '', suffix = '', duration = 1500 }) => {
+    const nodeRef = useRef(null);
+    const [counted, setCounted] = useState(false);
+
+    useEffect(() => {
+        if (!counted && nodeRef.current) {
+            anime({
+                targets: nodeRef.current,
+                innerHTML: [0, value],
+                easing: 'easeInOutExpo',
+                duration: duration,
+                round: 1, // Rounds the values to 1 decimal
+                delay: 300,
+                begin: () => setCounted(true)
+            });
+        }
+    }, [value, counted, duration]);
+
+    return (
+        <span className="inline-block" ref={nodeRef}>
+            {prefix}0{suffix}
+        </span>
+    );
+};
 
 // Add PageLoader component after AnimatedCounter
 const PageLoader = ({ isVisible }) => {
@@ -458,109 +495,244 @@ export default function Income({ auth, income }) {
                     {/* Main Content Container - will modify dashboard cards next */}
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
                         {/* Dashboard Stats Section */}
-                        <div className="px-6 pt-6">
-                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                                {/* Stat Card 1 - Total Income */}
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.4 }}
-                                    className="col-span-1 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
-                                    ref={el => dashboardCardsRef.current[0] = el}
-                                >
-                                    <div className="p-6 flex items-start justify-between">
-                                        <div>
-                                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Income</p>
-                                            <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">${totalIncomeValue.toFixed(2)}</p>
-                                            <div className="mt-2 flex items-center text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                                                <ArrowUpRight className="mr-1 h-3 w-3" />
-                                                <span>All time transactions</span>
-                                            </div>
-                                        </div>
-                                        <div className="rounded-xl bg-emerald-100 dark:bg-emerald-900/30 p-2.5">
-                                            <DollarSign className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
-                                        </div>
-                                    </div>
-                                    <div className="h-1.5 bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-500 w-full"></div>
-                                </motion.div>
+                        <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-6 relative flex-shrink-0">
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-50/30 to-white/30 dark:from-slate-900/30 dark:to-slate-950/30 opacity-80"></div>
 
-                                {/* Stat Card 2 - This Month */}
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.4, delay: 0.1 }}
-                                    className="col-span-1 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
-                                    ref={el => dashboardCardsRef.current[1] = el}
-                                >
-                                    <div className="p-6 flex items-start justify-between">
-                                        <div>
-                                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">This Month</p>
-                                            <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">${thisMonthIncome.toFixed(2)}</p>
-                                            <div className={`mt-2 flex items-center text-xs font-medium ${incomeChangePercent >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                                                {incomeChangePercent >= 0 ? (
-                                                    <ArrowUpRight className="mr-1 h-3 w-3" />
-                                                ) : (
-                                                    <ArrowDownRight className="mr-1 h-3 w-3" />
-                                                )}
-                                                <span>{incomeChangePercent > 0
-                                                    ? `Up ${Math.abs(incomeChangePercent).toFixed(1)}% from last month`
-                                                    : `Down ${Math.abs(incomeChangePercent).toFixed(1)}% from last month`}</span>
-                                            </div>
-                                        </div>
-                                        <div className="rounded-xl bg-blue-100 dark:bg-blue-900/30 p-2.5">
-                                            <Calendar className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                                        </div>
-                                    </div>
-                                    <div className="h-1.5 bg-gradient-to-r from-blue-400 via-indigo-500 to-blue-500 w-full"></div>
-                                </motion.div>
+                            {/* Animated background elements */}
+                            <div className="absolute -left-40 -top-40 w-96 h-96 bg-emerald-200/20 dark:bg-emerald-900/10 rounded-full filter blur-3xl animate-pulse"></div>
+                            <div className="absolute right-20 top-10 w-72 h-72 bg-teal-200/20 dark:bg-teal-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '15s' }}></div>
+                            <div className="absolute -right-40 -bottom-40 w-80 h-80 bg-green-200/20 dark:bg-green-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '20s', animationDelay: '2s' }}></div>
+                            <div className="absolute left-1/3 bottom-0 w-64 h-64 bg-lime-200/20 dark:bg-lime-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '18s', animationDelay: '1s' }}></div>
 
-                                {/* Stat Card 3 - Transactions */}
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.4, delay: 0.2 }}
-                                    className="col-span-1 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
-                                    ref={el => dashboardCardsRef.current[2] = el}
-                                >
-                                    <div className="p-6 flex items-start justify-between">
-                                        <div>
-                                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Transactions</p>
-                                            <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{income?.length || 0}</p>
-                                            <div className="mt-2 flex items-center text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                <span>Total recorded transactions</span>
-                                            </div>
-                                        </div>
-                                        <div className="rounded-xl bg-purple-100 dark:bg-purple-900/30 p-2.5">
-                                            <CreditCard className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                                        </div>
-                                    </div>
-                                    <div className="h-1.5 bg-gradient-to-r from-purple-400 via-fuchsia-500 to-purple-500 w-full"></div>
-                                </motion.div>
+                            <div className="relative z-10">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    {[
+                                        {
+                                            title: "Total Income",
+                                            value: "$" + totalIncomeValue.toFixed(2),
+                                            icon: <DollarSign className="h-6 w-6" />,
+                                            bgClass: "from-emerald-500 to-teal-600",
+                                            secondaryIcon: <motion.div
+                                                initial={{ opacity: 0.1, scale: 0.8 }}
+                                                animate={{ opacity: [0.1, 0.15, 0.1], scale: [0.8, 0.9, 0.8] }}
+                                                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                                                className="absolute right-4 bottom-4"
+                                            >
+                                                <CreditCard className="h-16 w-16" />
+                                            </motion.div>,
+                                            trend: "All time transactions",
+                                            trendIcon: <ArrowUpRight className="h-3.5 w-3.5 mr-1" />,
+                                            trendValue: "",
+                                            decorator: <motion.div
+                                                className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full"
+                                                animate={{
+                                                    scale: [1, 1.2, 1],
+                                                    opacity: [0.3, 0.2, 0.3]
+                                                }}
+                                                transition={{
+                                                    duration: 8,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                            />
+                                        },
+                                        {
+                                            title: "This Month",
+                                            value: "$" + thisMonthIncome.toFixed(2),
+                                            icon: <Calendar className="h-6 w-6" />,
+                                            bgClass: "from-teal-500 to-emerald-600",
+                                            secondaryIcon: <motion.div
+                                                initial={{ opacity: 0.1, rotate: 0 }}
+                                                animate={{ opacity: [0.1, 0.15, 0.1], rotate: [0, 5, 0] }}
+                                                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                                                className="absolute right-4 bottom-4"
+                                            >
+                                                <TrendingUp className="h-16 w-16" />
+                                            </motion.div>,
+                                            trend: incomeChangePercent > 0
+                                                ? `Up ${Math.abs(incomeChangePercent).toFixed(1)}% from last month`
+                                                : `Down ${Math.abs(incomeChangePercent).toFixed(1)}% from last month`,
+                                            trendIcon: incomeChangePercent >= 0
+                                                ? <ArrowUpRight className="h-3.5 w-3.5 mr-1" />
+                                                : <ArrowDownRight className="h-3.5 w-3.5 mr-1" />,
+                                            decorator: <motion.div
+                                                className="absolute -left-6 -bottom-6 w-24 h-24 bg-teal-500/10 rounded-full"
+                                                animate={{
+                                                    scale: [1, 1.2, 1],
+                                                    opacity: [0.3, 0.2, 0.3]
+                                                }}
+                                                transition={{
+                                                    duration: 7,
+                                                    delay: 1,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                            />
+                                        },
+                                        {
+                                            title: "Transactions",
+                                            value: income?.length || 0,
+                                            icon: <CreditCard className="h-6 w-6" />,
+                                            bgClass: "from-green-500 to-emerald-600",
+                                            secondaryIcon: <motion.div
+                                                initial={{ opacity: 0.1, y: 0 }}
+                                                animate={{ opacity: [0.1, 0.15, 0.1], y: [0, -5, 0] }}
+                                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                                className="absolute right-4 bottom-4"
+                                            >
+                                                <Package className="h-16 w-16" />
+                                            </motion.div>,
+                                            trend: "Total recorded transactions",
+                                            trendIcon: null,
+                                            trendValue: "",
+                                            decorator: <motion.div
+                                                className="absolute right-10 top-10 w-16 h-16 bg-green-500/10 rounded-full"
+                                                animate={{
+                                                    scale: [1, 1.3, 1],
+                                                    opacity: [0.3, 0.2, 0.3]
+                                                }}
+                                                transition={{
+                                                    duration: 5,
+                                                    delay: 2,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                            />
+                                        },
+                                        {
+                                            title: "Avg. Transaction",
+                                            value: "$" + (income && income.length ? (totalIncomeValue / income.length).toFixed(2) : "0.00"),
+                                            icon: <BarChart3 className="h-6 w-6" />,
+                                            bgClass: "from-lime-500 to-green-600",
+                                            secondaryIcon: <motion.div
+                                                initial={{ opacity: 0.1, scale: 1 }}
+                                                animate={{ opacity: [0.1, 0.15, 0.1], scale: [1, 1.05, 1] }}
+                                                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                                                className="absolute right-4 bottom-4"
+                                            >
+                                                <UserCheck className="h-16 w-16" />
+                                            </motion.div>,
+                                            trend: "Average per transaction",
+                                            trendIcon: null,
+                                            trendValue: "",
+                                            decorator: <motion.div
+                                                className="absolute left-10 bottom-10 w-20 h-20 bg-lime-500/10 rounded-full"
+                                                animate={{
+                                                    scale: [1, 1.2, 1],
+                                                    opacity: [0.3, 0.15, 0.3]
+                                                }}
+                                                transition={{
+                                                    duration: 6,
+                                                    delay: 3,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                            />
+                                        }
+                                    ].map((card, index) => (
+                                        <motion.div
+                                            key={index}
+                                            className={`bg-gradient-to-br ${card.bgClass} text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group`}
+                                            style={{ perspective: '1000px' }}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{
+                                                duration: 0.5,
+                                                delay: index * 0.1,
+                                                ease: "easeOut"
+                                            }}
+                                            whileHover={{
+                                                translateY: -8,
+                                                transition: { duration: 0.3 }
+                                            }}
+                                            onHoverStart={(e) => {
+                                                try {
+                                                    anime({
+                                                        targets: e.currentTarget,
+                                                        boxShadow: ['0 4px 12px rgba(0,0,0,0.1)', '0 20px 40px rgba(0,0,0,0.2)'],
+                                                        translateZ: ['0px', '30px'],
+                                                        rotateX: [-2, 0],
+                                                        rotateY: [0, -3],
+                                                        duration: 500,
+                                                        easing: 'easeOutQuint'
+                                                    });
 
-                                {/* Stat Card 4 - Avg. Transaction */}
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ duration: 0.4, delay: 0.3 }}
-                                    className="col-span-1 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden"
-                                    ref={el => dashboardCardsRef.current[3] = el}
-                                >
-                                    <div className="p-6 flex items-start justify-between">
-                                        <div>
-                                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Avg. Transaction</p>
-                                            <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
-                                                ${income && income.length ? (totalIncomeValue / income.length).toFixed(2) : "0.00"}
-                                            </p>
-                                            <div className="mt-2 flex items-center text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                <span>Average per transaction</span>
+                                                    // Animate the card shine - use safe querySelector
+                                                    const shineElement = safeQuerySelector(e.currentTarget, '.card-shine');
+                                                    if (shineElement) {
+                                                        anime({
+                                                            targets: shineElement,
+                                                            translateX: ['0%', '100%'],
+                                                            duration: 1200,
+                                                            easing: 'easeInOutQuart'
+                                                        });
+                                                    }
+                                                } catch (error) {
+                                                    console.error("Error in onHoverStart:", error);
+                                                }
+                                            }}
+                                            onHoverEnd={(e) => {
+                                                try {
+                                                    anime({
+                                                        targets: e.currentTarget,
+                                                        boxShadow: ['0 20px 40px rgba(0,0,0,0.2)', '0 4px 12px rgba(0,0,0,0.1)'],
+                                                        translateZ: ['30px', '0px'],
+                                                        rotateX: [0, 0],
+                                                        rotateY: [-3, 0],
+                                                        duration: 500,
+                                                        easing: 'easeOutQuint'
+                                                    });
+                                                } catch (error) {
+                                                    console.error("Error in onHoverEnd:", error);
+                                                }
+                                            }}
+                                        >
+                                            <div
+                                                ref={el => dashboardCardsRef.current[index] = el}
+                                                className="w-full h-full"
+                                            >
+                                                {/* Card shine effect */}
+                                                <div className="card-shine absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full pointer-events-none"></div>
+
+                                                {/* Glass overlay effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-[1px] opacity-50"></div>
+
+                                                {/* Background decorations */}
+                                                <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-bl-full transform rotate-12 -translate-y-8 translate-x-8"></div>
+                                                <div className="absolute left-10 bottom-10 w-16 h-16 bg-white/5 rounded-full"></div>
+                                                <div className="absolute right-10 bottom-0 w-20 h-20 bg-white/5 rounded-tl-full"></div>
+
+                                                {/* Extra decorative elements */}
+                                                {card.decorator}
+
+                                                {card.secondaryIcon}
+
+                                                <div className="p-6 relative z-10">
+                                                    <div className="flex justify-between items-center mb-4">
+                                                        <span className="font-medium text-lg">{card.title}</span>
+                                                        <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
+                                                            {card.icon}
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-3xl font-bold mt-2 flex items-end transform group-hover:scale-105 transition-transform origin-left duration-300">
+                                                        <AnimatedCounter
+                                                            value={typeof card.value === 'string' ?
+                                                                parseInt(card.value.replace(/[^0-9.-]+/g, '')) :
+                                                                card.value}
+                                                            prefix={typeof card.value === 'string' && card.value.startsWith('$') ? '$' : ''}
+                                                            duration={2000}
+                                                        />
+                                                        <span className="text-sm ml-2 mb-1 font-medium text-white/80 group-hover:translate-x-1 transition-transform duration-300">{card.trendValue}</span>
+                                                    </div>
+                                                    <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
+                                                        {card.trendIcon}
+                                                        <span>{card.trend}</span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="rounded-xl bg-amber-100 dark:bg-amber-900/30 p-2.5">
-                                            <BarChart3 className="h-6 w-6 text-amber-600 dark:text-amber-400" />
-                                        </div>
-                                    </div>
-                                    <div className="h-1.5 bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 w-full"></div>
-                                </motion.div>
+                                        </motion.div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
 
