@@ -89,7 +89,7 @@ const MiniBarChart = ({ data, height = 40, barWidth = 6, gapWidth = 6, animated 
 const PageLoader = ({ isVisible }) => {
     return (
         <motion.div
-            className="fixed inset-0 bg-gradient-to-br from-blue-900 to-indigo-900 z-50 flex items-center justify-center"
+            className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 z-50 flex flex-col items-center justify-center"
             initial={{ opacity: 1 }}
             animate={{
                 opacity: isVisible ? 1 : 0,
@@ -97,42 +97,97 @@ const PageLoader = ({ isVisible }) => {
             }}
             transition={{ duration: 0.5, ease: 'easeInOut' }}
         >
-            <div className="relative">
+            <div className="relative flex flex-col items-center">
+                {/* Animated background elements */}
                 <motion.div
-                    className="h-24 w-24 rounded-full border-4 border-blue-300/20"
+                    className="absolute w-96 h-96 rounded-full bg-blue-600/10 filter blur-3xl"
                     animate={{
-                        rotate: 360,
-                        scale: [1, 1.1, 1]
+                        scale: [1, 1.2, 1],
+                        opacity: [0.3, 0.5, 0.3]
                     }}
                     transition={{
-                        rotate: { duration: 2, ease: "linear", repeat: Infinity },
-                        scale: { duration: 1, repeat: Infinity }
+                        duration: 5,
+                        repeat: Infinity,
+                        ease: "easeInOut"
                     }}
                 />
                 <motion.div
-                    className="h-24 w-24 rounded-full border-4 border-r-blue-400 border-t-transparent border-l-transparent border-b-transparent absolute top-0"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
-                />
-                <motion.div
-                    className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl"
+                    className="absolute w-80 h-80 rounded-full bg-indigo-500/10 filter blur-2xl"
                     animate={{
-                        opacity: [0.5, 1, 0.5],
-                        scale: [0.9, 1.1, 0.9]
+                        scale: [1.2, 1, 1.2],
+                        opacity: [0.3, 0.5, 0.3]
                     }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                    transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 1
+                    }}
+                />
+
+                {/* Loader rings */}
+                <div className="relative">
+                    <motion.div
+                        className="h-32 w-32 rounded-full border-4 border-blue-300/20"
+                        animate={{
+                            rotate: 360,
+                            scale: [1, 1.05, 1]
+                        }}
+                        transition={{
+                            rotate: { duration: 3, ease: "linear", repeat: Infinity },
+                            scale: { duration: 2, repeat: Infinity }
+                        }}
+                    />
+                    <motion.div
+                        className="h-32 w-32 rounded-full border-4 border-r-blue-400 border-t-transparent border-l-transparent border-b-transparent absolute top-0"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
+                    />
+                    <motion.div
+                        className="h-32 w-32 rounded-full border-4 border-b-indigo-400 border-t-transparent border-l-transparent border-r-transparent absolute top-0"
+                        animate={{ rotate: -180 }}
+                        transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
+                    />
+                    <motion.div
+                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl"
+                        animate={{
+                            opacity: [0.5, 1, 0.5],
+                            scale: [0.9, 1.1, 0.9]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                    >
+                        <ShoppingCart className="h-12 w-12" />
+                    </motion.div>
+                </div>
+
+                <motion.div
+                    className="mt-10 text-center text-white text-xl font-medium"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5, duration: 0.5 }}
                 >
-                    <ShoppingCart className="h-10 w-10" />
+                    <span className="bg-gradient-to-r from-blue-200 to-indigo-200 text-transparent bg-clip-text">
+                        Loading Dashboard...
+                    </span>
                 </motion.div>
+
+                {/* Progress dots */}
+                <div className="mt-6 flex space-x-3">
+                    {[0, 1, 2].map((index) => (
+                        <motion.div
+                            key={index}
+                            className="h-2.5 w-2.5 rounded-full bg-blue-400"
+                            initial={{ opacity: 0.3 }}
+                            animate={{ opacity: [0.3, 1, 0.3] }}
+                            transition={{
+                                duration: 1.5,
+                                repeat: Infinity,
+                                delay: index * 0.3
+                            }}
+                        />
+                    ))}
+                </div>
             </div>
-            <motion.div
-                className="absolute bottom-1/3 left-0 right-0 text-center text-white text-lg font-medium"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.5 }}
-            >
-                Loading Dashboard...
-            </motion.div>
         </motion.div>
     );
 };
@@ -148,17 +203,17 @@ const NewsTicker = () => {
     ];
 
     return (
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 border-b border-blue-100 dark:border-gray-700 py-2 relative overflow-hidden">
-            <div className="absolute inset-0 bg-opacity-[0.03] dark:bg-opacity-[0.02]"></div>
+        <div className="bg-gradient-to-r from-blue-50/80 via-indigo-50/60 to-blue-50/80 dark:from-gray-800/90 dark:via-gray-850/80 dark:to-gray-900/90 border-b border-blue-100 dark:border-gray-700 py-2.5 relative overflow-hidden shadow-sm">
+            <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] dark:opacity-[0.05]"></div>
             <div className="relative">
                 <motion.div
-                    className="flex items-center gap-6 whitespace-nowrap"
+                    className="flex items-center gap-8 whitespace-nowrap"
                     animate={{
                         x: [0, -2500],
                     }}
                     transition={{
                         x: {
-                            duration: 30,
+                            duration: 35,
                             ease: "linear",
                             repeat: Infinity,
                         }
@@ -167,12 +222,12 @@ const NewsTicker = () => {
                     {[...notifications, ...notifications, ...notifications].map((notification, index) => (
                         <div
                             key={`${notification.id}-${index}`}
-                            className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-sm border border-blue-100 dark:border-gray-700"
+                            className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/60 backdrop-blur-sm px-3.5 py-2 rounded-full shadow-sm border border-blue-100/80 dark:border-gray-700/80 hover:border-blue-300/60 dark:hover:border-blue-700/60 transition-all duration-300 group"
                         >
-                            <div className="flex items-center justify-center h-5 w-5 rounded-full bg-blue-50 dark:bg-gray-700">
+                            <div className="flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700 dark:to-gray-800 border border-blue-100 dark:border-gray-600">
                                 {notification.icon}
                             </div>
-                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                            <span className="text-xs font-medium text-gray-700 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
                                 {notification.text}
                             </span>
                             <span className="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
@@ -186,7 +241,6 @@ const NewsTicker = () => {
 
 export default function Sale({ auth, sales }) {
     // Add debugging to check sales data
-    console.log("Sales data received:", sales);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [view, setView] = useState('grid');
@@ -412,15 +466,15 @@ export default function Sale({ auth, sales }) {
 
         return (
             <div className="flex justify-center mt-10">
-                <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 p-2 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center space-x-2 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-2 rounded-xl shadow-md border border-gray-200 dark:border-gray-700">
                     <Button
                         variant="ghost"
                         size="sm"
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
-                        className={`h-9 w-9 p-0 text-gray-600 dark:text-gray-300 rounded-lg ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400'} transition-all duration-200`}
+                        className={`h-9 w-9 p-0 rounded-lg flex items-center justify-center ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400'} transition-all duration-200`}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+                        <ChevronLeft className="h-4 w-4" />
                     </Button>
 
                     {startPage > 1 && (
@@ -429,12 +483,12 @@ export default function Sale({ auth, sales }) {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setCurrentPage(1)}
-                                className={`h-9 w-9 p-0 text-sm font-medium rounded-lg ${currentPage === 1 ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400'} transition-all duration-200`}
+                                className={`h-9 w-9 p-0 text-sm font-medium rounded-lg ${currentPage === 1 ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400'} transition-all duration-200`}
                             >
                                 1
                             </Button>
                             {startPage > 2 && (
-                                <span className="text-gray-400 dark:text-gray-500 px-1">•••</span>
+                                <span className="text-gray-400 dark:text-gray-500 px-1 select-none">•••</span>
                             )}
                         </>
                     )}
@@ -445,7 +499,7 @@ export default function Sale({ auth, sales }) {
                             variant="ghost"
                             size="sm"
                             onClick={() => setCurrentPage(page)}
-                            className={`h-9 w-9 p-0 text-sm font-medium rounded-lg ${currentPage === page ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400'} transition-all duration-200`}
+                            className={`h-9 w-9 p-0 text-sm font-medium rounded-lg ${currentPage === page ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400'} transition-all duration-200`}
                         >
                             {page}
                         </Button>
@@ -454,7 +508,7 @@ export default function Sale({ auth, sales }) {
                     {endPage < totalPages && (
                         <>
                             {endPage < totalPages - 1 && (
-                                <span className="text-gray-400 dark:text-gray-500 px-1">•••</span>
+                                <span className="text-gray-400 dark:text-gray-500 px-1 select-none">•••</span>
                             )}
                             <Button
                                 variant="ghost"
@@ -507,7 +561,44 @@ export default function Sale({ auth, sales }) {
 
     return (
         <>
-            <Head title="Warehouse Sales" />
+            <Head title="Warehouse Sales">
+                <style>{`
+                    @keyframes shimmer {
+                        0% {
+                            transform: translateX(-100%);
+                        }
+                        100% {
+                            transform: translateX(100%);
+                        }
+                    }
+                    .animate-shimmer {
+                        animation: shimmer 3s infinite;
+                    }
+
+                    @keyframes pulse-soft {
+                        0%, 100% {
+                            opacity: 0.8;
+                        }
+                        50% {
+                            opacity: 1;
+                        }
+                    }
+                    .animate-pulse-soft {
+                        animation: pulse-soft 3s infinite;
+                    }
+
+                    .bg-grid-pattern {
+                        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+                        background-size: 14px 14px;
+                    }
+
+                    .dark .bg-grid-pattern {
+                        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                    }
+                `}</style>
+            </Head>
 
             <PageLoader isVisible={loading} />
 
@@ -518,33 +609,22 @@ export default function Sale({ auth, sales }) {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-auto" ref={contentRef}>
                     {/* Header */}
-                    <header ref={headerRef} className="bg-white dark:bg-gray-800 shadow-sm p-4 flex items-center justify-between relative overflow-hidden backdrop-blur-sm flex-shrink-0">
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/90 to-white/90 dark:from-gray-800/90 dark:to-gray-900/90 opacity-90"></div>
-                        <div className="absolute -left-40 -top-40 w-80 h-80 bg-blue-200/30 dark:bg-blue-900/20 rounded-full filter blur-3xl"></div>
-                        <div className="absolute -right-40 -bottom-40 w-80 h-80 bg-indigo-200/30 dark:bg-indigo-900/20 rounded-full filter blur-3xl"></div>
-                        <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-indigo-600"></div>
-                        <div className="flex items-center space-x-3 relative z-10">
+                    <header ref={headerRef} className="bg-white dark:bg-gray-800 shadow-md p-5 flex items-center justify-between relative overflow-hidden backdrop-blur-md flex-shrink-0">
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-50/90 via-indigo-50/80 to-white/90 dark:from-gray-800/90 dark:via-indigo-950/30 dark:to-gray-900/90 opacity-90"></div>
+                        <div className="absolute -left-40 -top-40 w-96 h-96 bg-blue-200/30 dark:bg-blue-900/20 rounded-full filter blur-3xl"></div>
+                        <div className="absolute -right-40 -bottom-40 w-96 h-96 bg-indigo-200/30 dark:bg-indigo-900/20 rounded-full filter blur-3xl"></div>
+                        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-blue-400 via-indigo-500 to-indigo-600 rounded-r-full"></div>
+                        <div className="flex items-center space-x-4 relative z-10">
                             <div className="relative">
                                 <h1 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">Sales Transactions</h1>
-                                <div className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
+                                <div className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full"></div>
                             </div>
-                            <Badge variant="outline" className="bg-blue-50/80 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800 ml-2 px-3 py-1 rounded-full font-medium shadow-sm">
+                            <Badge variant="outline" className="bg-blue-50/80 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800 ml-2 px-3.5 py-1.5 rounded-full font-medium shadow-sm">
                                 {sales?.length || 0} transactions
                             </Badge>
                         </div>
                         <div className="relative z-10 flex space-x-2">
-                            <Button size="sm" variant="outline" className="flex items-center gap-1.5 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 transition-all duration-200 shadow-sm">
-                                <Filter className="h-4 w-4" />
-                                <span>Filter</span>
-                            </Button>
-                            <Button size="sm" variant="outline" className="flex items-center gap-1.5 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/30 dark:hover:text-blue-400 transition-all duration-200 shadow-sm">
-                                <Download className="h-4 w-4" />
-                                <span>Export</span>
-                            </Button>
-                            <Button size="sm" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-sm hover:shadow-md transition-all duration-200">
-                                <Plus className="h-4 w-4 mr-1.5" />
-                                <span>New Sale</span>
-                            </Button>
+                            {/* Buttons removed */}
                         </div>
                     </header>
 
@@ -702,37 +782,45 @@ export default function Sale({ auth, sales }) {
                                             transition: { duration: 0.3 }
                                         }}
                                         onHoverStart={(e) => {
-                                            anime({
-                                                targets: e.currentTarget,
-                                                boxShadow: ['0 4px 12px rgba(0,0,0,0.1)', '0 20px 40px rgba(0,0,0,0.2)'],
-                                                translateZ: ['0px', '30px'],
-                                                rotateX: [-2, 0],
-                                                rotateY: [0, -3],
-                                                duration: 500,
-                                                easing: 'easeOutQuint'
-                                            });
-
-                                            // Animate the card shine - use safe querySelector
-                                            const shineElement = safeQuerySelector(e.currentTarget, '.card-shine');
-                                            if (shineElement) {
+                                            try {
                                                 anime({
-                                                    targets: shineElement,
-                                                    translateX: ['0%', '100%'],
-                                                    duration: 1200,
-                                                    easing: 'easeInOutQuart'
+                                                    targets: e.currentTarget,
+                                                    boxShadow: ['0 4px 12px rgba(0,0,0,0.1)', '0 20px 40px rgba(0,0,0,0.2)'],
+                                                    translateZ: ['0px', '30px'],
+                                                    rotateX: [-2, 0],
+                                                    rotateY: [0, -3],
+                                                    duration: 500,
+                                                    easing: 'easeOutQuint'
                                                 });
+
+                                                // Animate the card shine - use safe querySelector
+                                                const shineElement = safeQuerySelector(e.currentTarget, '.card-shine');
+                                                if (shineElement) {
+                                                    anime({
+                                                        targets: shineElement,
+                                                        translateX: ['0%', '100%'],
+                                                        duration: 1200,
+                                                        easing: 'easeInOutQuart'
+                                                    });
+                                                }
+                                            } catch (error) {
+                                                console.error("Error in onHoverStart:", error);
                                             }
                                         }}
                                         onHoverEnd={(e) => {
-                                            anime({
-                                                targets: e.currentTarget,
-                                                boxShadow: ['0 20px 40px rgba(0,0,0,0.2)', '0 4px 12px rgba(0,0,0,0.1)'],
-                                                translateZ: ['30px', '0px'],
-                                                rotateX: [0, 0],
-                                                rotateY: [-3, 0],
-                                                duration: 500,
-                                                easing: 'easeOutQuint'
-                                            });
+                                            try {
+                                                anime({
+                                                    targets: e.currentTarget,
+                                                    boxShadow: ['0 20px 40px rgba(0,0,0,0.2)', '0 4px 12px rgba(0,0,0,0.1)'],
+                                                    translateZ: ['30px', '0px'],
+                                                    rotateX: [0, 0],
+                                                    rotateY: [-3, 0],
+                                                    duration: 500,
+                                                    easing: 'easeOutQuint'
+                                                });
+                                            } catch (error) {
+                                                console.error("Error in onHoverEnd:", error);
+                                            }
                                         }}
                                     >
                                         <div
@@ -742,23 +830,27 @@ export default function Sale({ auth, sales }) {
                                             {/* Card shine effect */}
                                             <div className="card-shine absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full pointer-events-none"></div>
 
+                                            {/* Glass overlay effect */}
+                                            <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-[1px] opacity-50"></div>
+
                                             {/* Background decorations */}
                                             <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-bl-full transform rotate-12 -translate-y-8 translate-x-8"></div>
                                             <div className="absolute left-10 bottom-10 w-16 h-16 bg-white/5 rounded-full"></div>
+                                            <div className="absolute right-10 bottom-0 w-20 h-20 bg-white/5 rounded-tl-full"></div>
 
                                             {/* Extra decorative elements */}
                                             {card.decorator}
 
                                             {card.secondaryIcon}
 
-                                            <div className="p-5 relative z-10">
-                                                <div className="flex justify-between items-center mb-3">
+                                            <div className="p-6 relative z-10">
+                                                <div className="flex justify-between items-center mb-4">
                                                     <span className="font-medium text-lg">{card.title}</span>
-                                                    <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300">
+                                                    <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
                                                         {card.icon}
                                                     </div>
                                                 </div>
-                                                <div className="text-3xl font-bold mt-1 flex items-end transform group-hover:scale-105 transition-transform origin-left duration-300">
+                                                <div className="text-3xl font-bold mt-2 flex items-end transform group-hover:scale-105 transition-transform origin-left duration-300">
                                                     <AnimatedCounter
                                                         value={typeof card.value === 'string' ?
                                                             parseInt(card.value.replace(/[^0-9.-]+/g, '')) :
@@ -766,9 +858,9 @@ export default function Sale({ auth, sales }) {
                                                         prefix={typeof card.value === 'string' && card.value.startsWith('$') ? '$' : ''}
                                                         duration={2000}
                                                     />
-                                                    <span className="text-sm ml-2 mb-1 font-medium text-white/70 group-hover:translate-x-1 transition-transform duration-300">{card.trendValue}</span>
+                                                    <span className="text-sm ml-2 mb-1 font-medium text-white/80 group-hover:translate-x-1 transition-transform duration-300">{card.trendValue}</span>
                                                 </div>
-                                                <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-2.5 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300">
+                                                <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
                                                     {card.trendIcon}
                                                     <span>{card.trend}</span>
                                                 </div>
@@ -776,14 +868,14 @@ export default function Sale({ auth, sales }) {
                                                 {/* Interactive elements that appear on hover */}
                                                 <div className="mt-4 flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
                                                     <motion.button
-                                                        className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                                                        className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-colors border border-white/10"
                                                         whileHover={{ scale: 1.1 }}
                                                         whileTap={{ scale: 0.95 }}
                                                     >
                                                         <BarChart3 className="h-4 w-4" />
                                                     </motion.button>
                                                     <motion.button
-                                                        className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                                                        className="p-1.5 bg-white/20 rounded-lg hover:bg-white/30 transition-colors border border-white/10"
                                                         whileHover={{ scale: 1.1 }}
                                                         whileTap={{ scale: 0.95 }}
                                                     >
@@ -1221,31 +1313,35 @@ export default function Sale({ auth, sales }) {
                                                         className="w-full h-full"
                                                     >
                                                         <div className="h-2 bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-600" />
+
+                                                        {/* Add subtle shimmer effect */}
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer pointer-events-none"></div>
+
                                                         <div className="absolute top-4 right-4 z-10">
                                                             <Badge className={`${
                                                                 record.status === 'completed'
-                                                                    ? 'bg-green-100 text-green-700 border-green-200'
+                                                                    ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/30'
                                                                     : record.status === 'pending'
-                                                                        ? 'bg-yellow-100 text-yellow-700 border-yellow-200'
-                                                                        : 'bg-red-100 text-red-700 border-red-200'
-                                                            } hover:bg-opacity-80 shadow-sm font-medium transition-all duration-200`}>
+                                                                        ? 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800/30'
+                                                                        : 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/30'
+                                                            } hover:bg-opacity-90 shadow-sm font-medium transition-all duration-200 px-2.5 py-1`}>
                                                                 {record.status}
                                                             </Badge>
                                                         </div>
-                                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 to-indigo-50/20 dark:from-blue-900/10 dark:to-indigo-900/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+                                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-white/20 to-indigo-50/20 dark:from-blue-900/10 dark:via-gray-900/0 dark:to-indigo-900/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
                                                         <CardContent className="p-6 pt-8 relative z-0">
                                                             <div className="flex items-start">
-                                                                <div className="h-14 w-14 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
+                                                                <div className="h-14 w-14 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-lg group-hover:shadow-blue-500/20 transition-all">
                                                                     <ShoppingCart className="h-7 w-7" />
                                                                 </div>
                                                                 <div>
-                                                                    <h3 className="font-medium text-lg text-gray-900 dark:text-white">{record.reference}</h3>
+                                                                    <h3 className="font-medium text-lg text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{record.reference}</h3>
                                                                     <div className="mt-1 flex flex-wrap gap-2">
-                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1 text-xs px-2 py-0.5">
                                                                             <Tag className="h-3 w-3" />
                                                                             ID: {record.id}
                                                                         </Badge>
-                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1 text-xs px-2 py-0.5">
                                                                             <User className="h-3 w-3" />
                                                                             {record.customer}
                                                                         </Badge>
@@ -1254,26 +1350,26 @@ export default function Sale({ auth, sales }) {
                                                             </div>
 
                                                             <div className="mt-6 grid grid-cols-2 gap-4">
-                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 group-hover:border-blue-200 dark:group-hover:border-blue-900/30 transition-colors">
                                                                     <div className="flex items-center gap-1.5 mb-1">
                                                                         <Calendar className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
                                                                         <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
                                                                     </div>
                                                                     <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.date}</p>
                                                                 </div>
-                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 group-hover:border-blue-200 dark:group-hover:border-blue-900/30 transition-colors">
                                                                     <div className="flex items-center gap-1.5 mb-1">
                                                                         <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                                                                         <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
                                                                     </div>
                                                                     <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.created_at}</p>
                                                                 </div>
-                                                                <div className="col-span-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                                                                <div className="col-span-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800 shadow-sm group-hover:shadow-md transition-shadow">
                                                                     <div className="flex items-center gap-1.5 mb-1">
                                                                         <ArrowUpRight className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Amount</p>
+                                                                        <p className="text-xs text-gray-600 dark:text-gray-400">Amount</p>
                                                                     </div>
-                                                                    <p className="text-xl font-semibold text-blue-600 dark:text-blue-400">${record.amount.toFixed(2)}</p>
+                                                                    <p className="text-xl font-semibold text-blue-600 dark:text-blue-400 group-hover:scale-105 transform transition-transform origin-left">${record.amount.toFixed(2)}</p>
                                                                 </div>
                                                             </div>
 
@@ -1294,7 +1390,7 @@ export default function Sale({ auth, sales }) {
                                                                     <MoreHorizontal className="h-4 w-4" />
                                                                 </Button>
                                                                 <Link href={record.detail_url}>
-                                                                    <Button variant="default" size="sm" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200">
+                                                                    <Button variant="default" size="sm" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-sm hover:shadow-md transition-all duration-200">
                                                                         Details
                                                                         <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
                                                                     </Button>

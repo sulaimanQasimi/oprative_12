@@ -14,3 +14,5 @@ Route::middleware(['auth'])->group(function () {
 });
 CustomerRepository::registerRoutes();
 WarehouseRepository::registerRoutes();
+
+require __DIR__.'/purchase.php';
