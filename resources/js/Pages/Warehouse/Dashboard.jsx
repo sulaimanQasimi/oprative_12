@@ -1,14 +1,236 @@
-import React from 'react';
-import { Head } from '@inertiajs/react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Head, Link } from '@inertiajs/react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/Components/ui/card';
+import { Badge } from '@/Components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
-import { User, Package, TrendingUp, ChevronRight, DollarSign, Layers, AlertTriangle, TrendingDown, BarChart3, ArrowUp, ArrowDown, Percent, RefreshCcw } from 'lucide-react';
-import { Link } from '@inertiajs/react';
+import {
+    User, Package, TrendingUp, ChevronRight, DollarSign, Layers, AlertTriangle, 
+    TrendingDown, BarChart3, ArrowUp, ArrowDown, Percent, RefreshCcw, 
+    Search, Plus, Filter, ArrowUpRight, ArrowDownRight, Calendar, Clock, 
+    Download, MoreHorizontal, ExternalLink, Tag, CreditCard, Mail, Settings, 
+    Inbox, ChevronDown, Eye, RefreshCw, Sliders, ShoppingCart, UserCheck
+} from 'lucide-react';
+import anime from 'animejs';
 import Navigation from '@/Components/Warehouse/Navigation';
+import { motion } from 'framer-motion';
+
+// AnimatedCounter component
+const AnimatedCounter = ({ value, prefix = '', suffix = '', duration = 1500 }) => {
+    const nodeRef = useRef(null);
+    const [counted, setCounted] = useState(false);
+
+    useEffect(() => {
+        if (!counted && nodeRef.current) {
+            anime({
+                targets: nodeRef.current,
+                innerHTML: [0, value],
+                easing: 'easeInOutExpo',
+                duration: duration,
+                round: 1, // Rounds the values to 1 decimal
+                delay: 300,
+                begin: () => setCounted(true)
+            });
+        }
+    }, [value, counted, duration]);
+
+    return (
+        <span className="inline-block" ref={nodeRef}>
+            {prefix}0{suffix}
+        </span>
+    );
+};
+
+// PageLoader component
+const PageLoader = ({ isVisible }) => {
+    return (
+        <motion.div
+            className="fixed inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 z-50 flex flex-col items-center justify-center overflow-hidden"
+            initial={{ opacity: 1 }}
+            animate={{
+                opacity: isVisible ? 1 : 0,
+                pointerEvents: isVisible ? 'all' : 'none'
+            }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+        >
+            {/* Background patterns */}
+            <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
+
+            {/* Animated light beams */}
+            <div className="absolute w-full h-full overflow-hidden">
+                {[...Array(5)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute bg-gradient-to-r from-emerald-400/10 via-teal-500/10 to-transparent h-[30vh] w-[100vw]"
+                        style={{
+                            top: `${10 + i * 20}%`,
+                            left: '-100%',
+                            transformOrigin: 'left center',
+                            rotate: `${-20 + i * 10}deg`,
+                        }}
+                        animate={{
+                            left: ['100%', '-100%'],
+                        }}
+                        transition={{
+                            duration: 15 + i * 2,
+                            repeat: Infinity,
+                            ease: "linear",
+                            delay: i * 3,
+                        }}
+                    />
+                ))}
+            </div>
+
+            {/* Animated particles */}
+            <div className="absolute inset-0">
+                {[...Array(30)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute rounded-full bg-white"
+                        style={{
+                            width: Math.random() * 4 + 1,
+                            height: Math.random() * 4 + 1,
+                            x: `${Math.random() * 100}%`,
+                            y: `${Math.random() * 100}%`,
+                            opacity: Math.random() * 0.5 + 0.2,
+                        }}
+                        animate={{
+                            y: [null, `${-Math.random() * 100 - 50}%`],
+                            opacity: [null, 0],
+                        }}
+                        transition={{
+                            duration: Math.random() * 10 + 5,
+                            repeat: Infinity,
+                            ease: "linear",
+                        }}
+                    />
+                ))}
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center">
+                {/* Main animated container */}
+                <motion.div
+                    className="relative"
+                    animate={{
+                        scale: [0.95, 1.05, 0.95],
+                    }}
+                    transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                >
+                    {/* Pulsing background circles */}
+                    <motion.div
+                        className="absolute w-64 h-64 rounded-full bg-emerald-600/5 filter blur-2xl"
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.3, 0.5, 0.3]
+                        }}
+                        transition={{
+                            duration: 5,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    />
+                    <motion.div
+                        className="absolute w-72 h-72 rounded-full bg-teal-500/5 filter blur-2xl transform -translate-x-4 translate-y-4"
+                        animate={{
+                            scale: [1.2, 1, 1.2],
+                            opacity: [0.3, 0.5, 0.3]
+                        }}
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1
+                        }}
+                    />
+
+                    {/* Animated logo/icon container */}
+                    <div className="relative flex items-center justify-center h-40 w-40">
+                        {/* Spinning rings */}
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-emerald-300/10"
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 20,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+                        <motion.div
+                            className="absolute h-[85%] w-[85%] rounded-full border-4 border-teal-400/20"
+                            animate={{
+                                rotate: -360,
+                            }}
+                            transition={{
+                                duration: 15,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+                        <motion.div
+                            className="absolute h-[70%] w-[70%] rounded-full border-4 border-emerald-400/30"
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 10,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+
+                        {/* Spinner arcs */}
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-r-emerald-400 border-t-transparent border-l-transparent border-b-transparent"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
+                        />
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-b-teal-400 border-t-transparent border-l-transparent border-r-transparent"
+                            animate={{ rotate: -180 }}
+                            transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
+                        />
+
+                        {/* Icon/logo in center */}
+                        <motion.div
+                            className="relative z-10 bg-gradient-to-br from-emerald-500 to-teal-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
+                            animate={{
+                                rotate: [0, 10, 0, -10, 0],
+                                scale: [1, 1.1, 1, 1.1, 1]
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        >
+                            <BarChart3 className="h-10 w-10 text-white drop-shadow-lg" />
+                        </motion.div>
+                    </div>
+                </motion.div>
+            </div>
+        </motion.div>
+    );
+};
 
 export default function Dashboard({ auth, stats }) {
+    // State for loading and animations
+    const [loading, setLoading] = useState(true);
+    const [isAnimated, setIsAnimated] = useState(false);
+    
+    // Refs for animation targets
+    const headerRef = useRef(null);
+    const statsCardsRef = useRef(null);
+    const chartsRef = useRef(null);
+    const timelineRef = useRef(null);
+    
     // Format currency values
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('en-US', {
@@ -34,6 +256,55 @@ export default function Dashboard({ auth, stats }) {
         name: product.name,
         value: product.qty_sold
     })) || [];
+    
+    // Initialize animations
+    useEffect(() => {
+        if (!isAnimated) {
+            // Initialize the timeline
+            timelineRef.current = anime.timeline({
+                easing: 'easeOutExpo',
+                duration: 800
+            });
+
+            // Animate header
+            timelineRef.current.add({
+                targets: headerRef.current,
+                opacity: [0, 1],
+                translateY: [-20, 0],
+                duration: 600
+            });
+
+            // Animate stats cards
+            timelineRef.current.add({
+                targets: statsCardsRef.current,
+                opacity: [0, 1],
+                translateY: [20, 0],
+                scale: [0.98, 1],
+                delay: anime.stagger(100),
+                duration: 700
+            }, '-=400');
+
+            // Animate charts
+            timelineRef.current.add({
+                targets: chartsRef.current,
+                opacity: [0, 1],
+                translateY: [30, 0],
+                delay: anime.stagger(150),
+                duration: 800
+            }, '-=600');
+
+            setIsAnimated(true);
+        }
+    }, [isAnimated]);
+
+    // Simulate loading delay
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <>
