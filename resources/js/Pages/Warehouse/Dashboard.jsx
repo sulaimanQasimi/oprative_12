@@ -227,8 +227,8 @@ export default function Dashboard({ auth, stats }) {
     
     // Refs for animation targets
     const headerRef = useRef(null);
-    const statsCardsRef = useRef(null);
-    const chartsRef = useRef(null);
+    const statsCardsRef = useRef([]);
+    const chartsRef = useRef([]);
     const timelineRef = useRef(null);
     
     // Format currency values
@@ -257,6 +257,13 @@ export default function Dashboard({ auth, stats }) {
         value: product.qty_sold
     })) || [];
     
+    // Reset refs when items change
+    useEffect(() => {
+        // Clear ref arrays when needed
+        statsCardsRef.current = [];
+        chartsRef.current = [];
+    }, []);
+
     // Initialize animations
     useEffect(() => {
         if (!isAnimated) {
@@ -406,8 +413,9 @@ export default function Dashboard({ auth, stats }) {
                             <div className="absolute left-1/3 bottom-0 w-64 h-64 bg-lime-200/20 dark:bg-lime-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '18s', animationDelay: '1s' }}></div>
 
                             <div className="relative z-10 max-w-7xl mx-auto">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6" ref={statsCardsRef}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6">
                                     <motion.div
+                                        ref={el => statsCardsRef.current.push(el)}
                                         className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
                                         style={{ perspective: '1000px' }}
                                         initial={{ opacity: 0, y: 20 }}
@@ -459,6 +467,7 @@ export default function Dashboard({ auth, stats }) {
                                     </motion.div>
 
                                     <motion.div
+                                        ref={el => statsCardsRef.current.push(el)}
                                         className="bg-gradient-to-br from-blue-500 to-cyan-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
                                         style={{ perspective: '1000px' }}
                                         initial={{ opacity: 0, y: 20 }}
@@ -505,6 +514,7 @@ export default function Dashboard({ auth, stats }) {
                                     </motion.div>
 
                                     <motion.div
+                                        ref={el => statsCardsRef.current.push(el)}
                                         className="bg-gradient-to-br from-pink-500 to-rose-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
                                         style={{ perspective: '1000px' }}
                                         initial={{ opacity: 0, y: 20 }}
@@ -550,6 +560,7 @@ export default function Dashboard({ auth, stats }) {
                                     </motion.div>
 
                                     <motion.div
+                                        ref={el => statsCardsRef.current.push(el)}
                                         className="bg-gradient-to-br from-amber-500 to-orange-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
                                         style={{ perspective: '1000px' }}
                                         initial={{ opacity: 0, y: 20 }}
@@ -596,6 +607,7 @@ export default function Dashboard({ auth, stats }) {
                                     </motion.div>
 
                                     <motion.div
+                                        ref={el => statsCardsRef.current.push(el)}
                                         className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
                                         style={{ perspective: '1000px' }}
                                         initial={{ opacity: 0, y: 20 }}
@@ -645,11 +657,12 @@ export default function Dashboard({ auth, stats }) {
 
                         {/* Charts and Data Section */}
                         <div className="p-6">
-                            <div className="max-w-full mx-auto space-y-6" ref={chartsRef}>
+                            <div className="max-w-full mx-auto space-y-6">
                                 {/* Charts Row */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                                     {/* Monthly Sales Chart */}
                                     <motion.div
+                                        ref={el => chartsRef.current.push(el)}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.5, delay: 0.1 }}
@@ -699,6 +712,7 @@ export default function Dashboard({ auth, stats }) {
 
                                     {/* Top Products Chart */}
                                     <motion.div
+                                        ref={el => chartsRef.current.push(el)}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.5, delay: 0.2 }}
@@ -769,6 +783,7 @@ export default function Dashboard({ auth, stats }) {
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                     {/* Daily Activity Chart */}
                                     <motion.div
+                                        ref={el => chartsRef.current.push(el)}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.5, delay: 0.3 }}
@@ -807,6 +822,7 @@ export default function Dashboard({ auth, stats }) {
 
                                     {/* Recent Products Activity */}
                                     <motion.div
+                                        ref={el => chartsRef.current.push(el)}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         transition={{ duration: 0.5, delay: 0.4 }}
@@ -869,6 +885,7 @@ export default function Dashboard({ auth, stats }) {
 
                                 {/* Recent Activity */}
                                 <motion.div
+                                    ref={el => chartsRef.current.push(el)}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ duration: 0.5, delay: 0.5 }}
@@ -912,8 +929,16 @@ export default function Dashboard({ auth, stats }) {
                                                                 </div>
                                                                 <div className="flex-1 min-w-0">
                                                                     <p className="font-medium text-slate-900 dark:text-white truncate">{activity.title}</p>
-                                                                    <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                                                        <span className="flex items-center">
+                                                                    <div className="flex items-center flex-wrap gap-3 mt-1 text-xs">
+                                                                        <span className="flex items-center text-slate-500 dark:text-slate-400">
+                                                                            <Tag className="h-3 w-3 mr-1" />
+                                                                            Ref: {activity.reference || 'N/A'}
+                                                                        </span>
+                                                                        <span className="flex items-center text-slate-500 dark:text-slate-400">
+                                                                            <Package className="h-3 w-3 mr-1" />
+                                                                            Items: {activity.items || 0}
+                                                                        </span>
+                                                                        <span className="flex items-center text-slate-500 dark:text-slate-400">
                                                                             <Clock className="h-3 w-3 mr-1" />
                                                                             {activity.time}
                                                                         </span>
@@ -926,9 +951,17 @@ export default function Dashboard({ auth, stats }) {
                                                                 }`}>
                                                                     {activity.type === 'income' ? '+' : '-'}{formatCurrency(activity.amount)}
                                                                 </div>
-                                                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                    <ChevronRight className="h-4 w-4 text-slate-400" />
-                                                                </Button>
+                                                                {activity.id && (
+                                                                    <Link 
+                                                                        href={route(`warehouse.${activity.type}.show`, activity.id)} 
+                                                                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                    >
+                                                                        <Button variant="outline" size="sm" className="bg-white dark:bg-transparent dark:text-slate-400 dark:border-slate-700 text-slate-700 flex items-center h-8">
+                                                                            <span>Details</span>
+                                                                            <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                                                                        </Button>
+                                                                    </Link>
+                                                                )}
                                                             </div>
                                                         ))}
                                                     </div>
