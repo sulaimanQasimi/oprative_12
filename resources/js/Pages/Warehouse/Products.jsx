@@ -209,25 +209,25 @@ export default function Products({ auth, products }) {
                                     trendIcon: null
                                 }
                             ].map((card, index) => (
-                                <Card
-                                    key={index}
-                                    ref={el => dashboardCardsRef.current[index] = el}
-                                    className={`bg-gradient-to-br ${card.bgClass} text-white border-0 shadow-lg`}
-                                >
-                                    <CardContent className="p-4">
-                                        <div className="flex justify-between items-center mb-2">
-                                            <span className="font-medium">{card.title}</span>
-                                            <div className="p-2 bg-white/20 rounded-lg">
-                                                {card.icon}
+                                <div key={index} ref={el => dashboardCardsRef.current[index] = el}>
+                                    <Card
+                                        className={`bg-gradient-to-br ${card.bgClass} text-white border-0 shadow-lg`}
+                                    >
+                                        <CardContent className="p-4">
+                                            <div className="flex justify-between items-center mb-2">
+                                                <span className="font-medium">{card.title}</span>
+                                                <div className="p-2 bg-white/20 rounded-lg">
+                                                    {card.icon}
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div className="text-3xl font-bold mt-1">{card.value}</div>
-                                        <div className="mt-3 text-xs flex items-center text-white/80">
-                                            {card.trendIcon}
-                                            <span>{card.trend}</span>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                            <div className="text-3xl font-bold mt-1">{card.value}</div>
+                                            <div className="mt-3 text-xs flex items-center text-white/80">
+                                                {card.trendIcon}
+                                                <span>{card.trend}</span>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -338,86 +338,86 @@ export default function Products({ auth, products }) {
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredProducts.map((product, index) => (
-                                                <Card
-                                                    key={product.product_id}
-                                                    ref={el => gridItemsRef.current[index] = el}
-                                                    className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow relative"
-                                                    onMouseEnter={(e) => animateHover(e.currentTarget, true)}
-                                                    onMouseLeave={(e) => animateHover(e.currentTarget, false)}
-                                                >
-                                                    <div className="h-2 bg-gradient-to-r from-purple-500 via-purple-600 to-indigo-600" />
-                                                    <div className="absolute top-4 right-4">
-                                                        <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">
-                                                            {product.product[0].type || 'Item'}
-                                                        </Badge>
-                                                    </div>
-                                                    <CardContent className="p-6 pt-8">
-                                                        <div className="flex items-start">
-                                                            <div className="h-14 w-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
-                                                                <Package className="h-7 w-7" />
-                                                            </div>
-                                                            <div>
-                                                                <h3 className="font-medium text-lg text-gray-900 dark:text-white">{product.product[0].name}</h3>
-                                                                <div className="mt-1 flex flex-wrap gap-2">
-                                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                                                        <Tag className="h-3 w-3" />
-                                                                        ID: {product.product_id}
-                                                                    </Badge>
-                                                                    <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
-                                                                        <BarChart3 className="h-3 w-3" />
-                                                                        {product.product[0].barcode || 'N/A'}
-                                                                    </Badge>
+                                                <div key={product.product_id} ref={el => gridItemsRef.current[index] = el}>
+                                                    <Card
+                                                        className="overflow-hidden border-0 shadow-md hover:shadow-lg transition-shadow relative"
+                                                        onMouseEnter={(e) => animateHover(e.currentTarget, true)}
+                                                        onMouseLeave={(e) => animateHover(e.currentTarget, false)}
+                                                    >
+                                                        <div className="h-2 bg-gradient-to-r from-purple-500 via-purple-600 to-indigo-600" />
+                                                        <div className="absolute top-4 right-4">
+                                                            <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200">
+                                                                {product.product[0].type || 'Item'}
+                                                            </Badge>
+                                                        </div>
+                                                        <CardContent className="p-6 pt-8">
+                                                            <div className="flex items-start">
+                                                                <div className="h-14 w-14 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-sm">
+                                                                    <Package className="h-7 w-7" />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="font-medium text-lg text-gray-900 dark:text-white">{product.product[0].name}</h3>
+                                                                    <div className="mt-1 flex flex-wrap gap-2">
+                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                            <Tag className="h-3 w-3" />
+                                                                            ID: {product.product_id}
+                                                                        </Badge>
+                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1">
+                                                                            <BarChart3 className="h-3 w-3" />
+                                                                            {product.product[0].barcode || 'N/A'}
+                                                                        </Badge>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
 
-                                                        <div className="mt-6 grid grid-cols-2 gap-4">
-                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                <div className="flex items-center gap-1.5 mb-1">
-                                                                    <Layers className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Stock</p>
+                                                            <div className="mt-6 grid grid-cols-2 gap-4">
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                        <Layers className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Stock</p>
+                                                                    </div>
+                                                                    <p className="text-lg font-semibold text-gray-900 dark:text-white">{product.net_quantity}</p>
                                                                 </div>
-                                                                <p className="text-lg font-semibold text-gray-900 dark:text-white">{product.net_quantity}</p>
-                                                            </div>
-                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                <div className="flex items-center gap-1.5 mb-1">
-                                                                    <Tag className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Price</p>
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                        <Tag className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Price</p>
+                                                                    </div>
+                                                                    <p className="text-lg font-semibold text-gray-900 dark:text-white">${product.income_price}</p>
                                                                 </div>
-                                                                <p className="text-lg font-semibold text-gray-900 dark:text-white">${product.income_price}</p>
-                                                            </div>
-                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                <div className="flex items-center gap-1.5 mb-1">
-                                                                    <ArrowUpRight className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Incoming</p>
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                        <ArrowUpRight className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Incoming</p>
+                                                                    </div>
+                                                                    <p className="text-lg font-semibold text-green-600">{product.income_quantity}</p>
                                                                 </div>
-                                                                <p className="text-lg font-semibold text-green-600">{product.income_quantity}</p>
-                                                            </div>
-                                                            <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                <div className="flex items-center gap-1.5 mb-1">
-                                                                    <ArrowDownRight className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">Outgoing</p>
+                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+                                                                    <div className="flex items-center gap-1.5 mb-1">
+                                                                        <ArrowDownRight className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Outgoing</p>
+                                                                    </div>
+                                                                    <p className="text-lg font-semibold text-rose-600">{product.outcome_quantity}</p>
                                                                 </div>
-                                                                <p className="text-lg font-semibold text-rose-600">{product.outcome_quantity}</p>
                                                             </div>
-                                                        </div>
-                                                    </CardContent>
-                                                    <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700">
-                                                        <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                                                            <BarChart3 className="h-4 w-4 text-indigo-500" />
-                                                            ${(product.net_quantity * product.income_price).toFixed(2)}
-                                                        </span>
-                                                        <div className="flex gap-2">
-                                                            <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full">
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button variant="default" size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
-                                                                Details
-                                                                <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
-                                                            </Button>
-                                                        </div>
-                                                    </CardFooter>
-                                                </Card>
+                                                        </CardContent>
+                                                        <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700">
+                                                            <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                                                <BarChart3 className="h-4 w-4 text-indigo-500" />
+                                                                ${(product.net_quantity * product.income_price).toFixed(2)}
+                                                            </span>
+                                                            <div className="flex gap-2">
+                                                                <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full">
+                                                                    <MoreHorizontal className="h-4 w-4" />
+                                                                </Button>
+                                                                <Button variant="default" size="sm" className="bg-purple-600 hover:bg-purple-700 text-white">
+                                                                    Details
+                                                                    <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                                                                </Button>
+                                                            </div>
+                                                        </CardFooter>
+                                                    </Card>
+                                                </div>
                                             ))}
                                         </div>
                                     </>

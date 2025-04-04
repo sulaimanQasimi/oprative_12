@@ -10,6 +10,17 @@ import anime from 'animejs/lib/anime.es.js';
 import Navigation from '@/Components/Warehouse/Navigation';
 import { motion } from 'framer-motion';
 
+// Safe querySelector utility function that checks if element exists
+const safeQuerySelector = (element, selector) => {
+    if (!element || !selector) return null;
+    try {
+        return element.querySelector(selector);
+    } catch (error) {
+        console.error("Error in querySelector:", error);
+        return null;
+    }
+};
+
 // Add the AnimatedCounter component right before the main component
 const AnimatedCounter = ({ value, prefix = '', suffix = '', duration = 1500 }) => {
     const nodeRef = useRef(null);
@@ -38,12 +49,13 @@ const AnimatedCounter = ({ value, prefix = '', suffix = '', duration = 1500 }) =
 
 // After the AnimatedCounter component, add this new component
 const MiniBarChart = ({ data, height = 40, barWidth = 6, gapWidth = 6, animated = true, className = "" }) => {
-    const max = Math.max(...data.map(d => d.value));
+    const max = Math.max(...data.map(d => d.value), 0.1); // Add 0.1 as minimum to prevent division by zero
 
     return (
         <div className={`flex items-end ${className}`} style={{ height: `${height}px`, gap: `${gapWidth}px` }}>
             {data.map((item, i) => {
-                const barHeight = (item.value / max) * 100;
+                // Make sure barHeight is never NaN by using a default minimal height
+                const barHeight = item.value > 0 ? (item.value / max) * 100 : 1;
                 return (
                     <motion.div
                         key={i}
@@ -369,6 +381,8 @@ export default function Sale({ auth, sales }) {
 
     // Animation for hover effects
     const animateHover = (target, enter) => {
+        if (!target) return; // Safety check for null targets
+
         anime({
             targets: target,
             scale: enter ? 1.03 : 1,
@@ -698,8 +712,8 @@ export default function Sale({ auth, sales }) {
                                                 easing: 'easeOutQuint'
                                             });
 
-                                            // Animate the card shine - add null checking
-                                            const shineElement = e.currentTarget.querySelector('.card-shine');
+                                            // Animate the card shine - use safe querySelector
+                                            const shineElement = safeQuerySelector(e.currentTarget, '.card-shine');
                                             if (shineElement) {
                                                 anime({
                                                     targets: shineElement,
@@ -1062,22 +1076,30 @@ export default function Sale({ auth, sales }) {
                                             key={index}
                                             className="relative overflow-hidden rounded-xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-sm hover:shadow-md transition-all duration-300 hover:border-blue-200 dark:hover:border-blue-800 group"
                                             onMouseEnter={(e) => {
-                                                anime({
-                                                    targets: e.currentTarget,
-                                                    translateY: [0, -4],
-                                                    boxShadow: ['0 1px 2px rgba(0,0,0,0.05)', '0 8px 24px rgba(0,0,0,0.1)'],
-                                                    duration: 500,
-                                                    easing: 'easeOutQuad'
-                                                });
+                                                try {
+                                                    anime({
+                                                        targets: e.currentTarget,
+                                                        translateY: [0, -4],
+                                                        boxShadow: ['0 1px 2px rgba(0,0,0,0.05)', '0 8px 24px rgba(0,0,0,0.1)'],
+                                                        duration: 500,
+                                                        easing: 'easeOutQuad'
+                                                    });
+                                                } catch (error) {
+                                                    console.error("Error in stats onMouseEnter:", error);
+                                                }
                                             }}
                                             onMouseLeave={(e) => {
-                                                anime({
-                                                    targets: e.currentTarget,
-                                                    translateY: [-4, 0],
-                                                    boxShadow: ['0 8px 24px rgba(0,0,0,0.1)', '0 1px 2px rgba(0,0,0,0.05)'],
-                                                    duration: 500,
-                                                    easing: 'easeOutQuad'
-                                                });
+                                                try {
+                                                    anime({
+                                                        targets: e.currentTarget,
+                                                        translateY: [-4, 0],
+                                                        boxShadow: ['0 8px 24px rgba(0,0,0,0.1)', '0 1px 2px rgba(0,0,0,0.05)'],
+                                                        duration: 500,
+                                                        easing: 'easeOutQuad'
+                                                    });
+                                                } catch (error) {
+                                                    console.error("Error in stats onMouseLeave:", error);
+                                                }
                                             }}
                                         >
                                             <div className="absolute bottom-0 left-0 h-1 w-0 group-hover:w-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-700 ease-out"></div>
@@ -1123,22 +1145,30 @@ export default function Sale({ auth, sales }) {
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
                                             onFocus={(e) => {
-                                                anime({
-                                                    targets: e.currentTarget,
-                                                    scale: [1, 1.02],
-                                                    boxShadow: ['0 1px 2px rgba(0,0,0,0.05)', '0 4px 20px rgba(0,0,0,0.1)'],
-                                                    duration: 300,
-                                                    easing: 'easeOutQuad'
-                                                });
+                                                try {
+                                                    anime({
+                                                        targets: e.currentTarget,
+                                                        scale: [1, 1.02],
+                                                        boxShadow: ['0 1px 2px rgba(0,0,0,0.05)', '0 4px 20px rgba(0,0,0,0.1)'],
+                                                        duration: 300,
+                                                        easing: 'easeOutQuad'
+                                                    });
+                                                } catch (error) {
+                                                    console.error("Error in onFocus anime:", error);
+                                                }
                                             }}
                                             onBlur={(e) => {
-                                                anime({
-                                                    targets: e.currentTarget,
-                                                    scale: [1.02, 1],
-                                                    boxShadow: ['0 4px 20px rgba(0,0,0,0.1)', '0 1px 2px rgba(0,0,0,0.05)'],
-                                                    duration: 300,
-                                                    easing: 'easeOutQuad'
-                                                });
+                                                try {
+                                                    anime({
+                                                        targets: e.currentTarget,
+                                                        scale: [1.02, 1],
+                                                        boxShadow: ['0 4px 20px rgba(0,0,0,0.1)', '0 1px 2px rgba(0,0,0,0.05)'],
+                                                        duration: 300,
+                                                        easing: 'easeOutQuad'
+                                                    });
+                                                } catch (error) {
+                                                    console.error("Error in onBlur anime:", error);
+                                                }
                                             }}
                                         />
                                         {searchTerm && (
@@ -1171,8 +1201,20 @@ export default function Sale({ auth, sales }) {
                                                 <Card
                                                     key={record.id}
                                                     className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 relative group hover:translate-y-[-3px]"
-                                                    onMouseEnter={(e) => animateHover(e.currentTarget, true)}
-                                                    onMouseLeave={(e) => animateHover(e.currentTarget, false)}
+                                                    onMouseEnter={(e) => {
+                                                        try {
+                                                            animateHover(e.currentTarget, true);
+                                                        } catch (error) {
+                                                            console.error("Error in animateHover:", error);
+                                                        }
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        try {
+                                                            animateHover(e.currentTarget, false);
+                                                        } catch (error) {
+                                                            console.error("Error in animateHover:", error);
+                                                        }
+                                                    }}
                                                 >
                                                     <div
                                                         ref={el => gridItemsRef.current[index] = el}
@@ -1327,20 +1369,28 @@ export default function Sale({ auth, sales }) {
                                                         key={record.id}
                                                         className="px-6 py-4 bg-white dark:bg-gray-800 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 grid grid-cols-12 items-center relative overflow-hidden group"
                                                         onMouseEnter={(e) => {
-                                                            anime({
-                                                                targets: e.currentTarget,
-                                                                backgroundColor: 'rgba(219, 234, 254, 0.3)',
-                                                                duration: 300,
-                                                                easing: 'easeOutQuad'
-                                                            });
+                                                            try {
+                                                                anime({
+                                                                    targets: e.currentTarget,
+                                                                    backgroundColor: 'rgba(219, 234, 254, 0.3)',
+                                                                    duration: 300,
+                                                                    easing: 'easeOutQuad'
+                                                                });
+                                                            } catch (error) {
+                                                                console.error("Error in onMouseEnter anime:", error);
+                                                            }
                                                         }}
                                                         onMouseLeave={(e) => {
-                                                            anime({
-                                                                targets: e.currentTarget,
-                                                                backgroundColor: 'rgba(255, 255, 255, 1)',
-                                                                duration: 300,
-                                                                easing: 'easeOutQuad'
-                                                            });
+                                                            try {
+                                                                anime({
+                                                                    targets: e.currentTarget,
+                                                                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                                                                    duration: 300,
+                                                                    easing: 'easeOutQuad'
+                                                                });
+                                                            } catch (error) {
+                                                                console.error("Error in onMouseLeave anime:", error);
+                                                            }
                                                         }}
                                                     >
                                                         <div
