@@ -2,6 +2,196 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import anime from 'animejs';
 import '@lottiefiles/lottie-player';
+import { motion } from 'framer-motion';
+import { 
+    Lock, 
+    UserCircle, 
+    Key, 
+    Shield, 
+    ArrowRight, 
+    Eye, 
+    EyeOff,
+    CheckCircle,
+    BarChart3,
+    Fingerprint
+} from 'lucide-react';
+
+// PageLoader component
+const PageLoader = ({ isVisible }) => {
+    return (
+        <motion.div
+            className="fixed inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 z-50 flex flex-col items-center justify-center overflow-hidden"
+            initial={{ opacity: 1 }}
+            animate={{
+                opacity: isVisible ? 1 : 0,
+                pointerEvents: isVisible ? 'all' : 'none'
+            }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+        >
+            {/* Background patterns */}
+            <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
+
+            {/* Animated light beams */}
+            <div className="absolute w-full h-full overflow-hidden">
+                {[...Array(5)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute bg-gradient-to-r from-emerald-400/10 via-teal-500/10 to-transparent h-[30vh] w-[100vw]"
+                        style={{
+                            top: `${10 + i * 20}%`,
+                            left: '-100%',
+                            transformOrigin: 'left center',
+                            rotate: `${-20 + i * 10}deg`,
+                        }}
+                        animate={{
+                            left: ['100%', '-100%'],
+                        }}
+                        transition={{
+                            duration: 15 + i * 2,
+                            repeat: Infinity,
+                            ease: "linear",
+                            delay: i * 3,
+                        }}
+                    />
+                ))}
+            </div>
+
+            {/* Animated particles */}
+            <div className="absolute inset-0">
+                {[...Array(30)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute rounded-full bg-white"
+                        style={{
+                            width: Math.random() * 4 + 1,
+                            height: Math.random() * 4 + 1,
+                            x: `${Math.random() * 100}%`,
+                            y: `${Math.random() * 100}%`,
+                            opacity: Math.random() * 0.5 + 0.2,
+                        }}
+                        animate={{
+                            y: [null, `${-Math.random() * 100 - 50}%`],
+                            opacity: [null, 0],
+                        }}
+                        transition={{
+                            duration: Math.random() * 10 + 5,
+                            repeat: Infinity,
+                            ease: "linear",
+                        }}
+                    />
+                ))}
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center">
+                {/* Main animated container */}
+                <motion.div
+                    className="relative"
+                    animate={{
+                        scale: [0.95, 1.05, 0.95],
+                    }}
+                    transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                >
+                    {/* Pulsing background circles */}
+                    <motion.div
+                        className="absolute w-64 h-64 rounded-full bg-emerald-600/5 filter blur-2xl"
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.3, 0.5, 0.3]
+                        }}
+                        transition={{
+                            duration: 5,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    />
+                    <motion.div
+                        className="absolute w-72 h-72 rounded-full bg-teal-500/5 filter blur-2xl transform -translate-x-4 translate-y-4"
+                        animate={{
+                            scale: [1.2, 1, 1.2],
+                            opacity: [0.3, 0.5, 0.3]
+                        }}
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1
+                        }}
+                    />
+
+                    {/* Animated logo/icon container */}
+                    <div className="relative flex items-center justify-center h-40 w-40">
+                        {/* Spinning rings */}
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-emerald-300/10"
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 20,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+                        <motion.div
+                            className="absolute h-[85%] w-[85%] rounded-full border-4 border-teal-400/20"
+                            animate={{
+                                rotate: -360,
+                            }}
+                            transition={{
+                                duration: 15,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+                        <motion.div
+                            className="absolute h-[70%] w-[70%] rounded-full border-4 border-emerald-400/30"
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 10,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+
+                        {/* Spinner arcs */}
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-r-emerald-400 border-t-transparent border-l-transparent border-b-transparent"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
+                        />
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-b-teal-400 border-t-transparent border-l-transparent border-r-transparent"
+                            animate={{ rotate: -180 }}
+                            transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
+                        />
+
+                        {/* Icon/logo in center */}
+                        <motion.div
+                            className="relative z-10 bg-gradient-to-br from-emerald-500 to-teal-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
+                            animate={{
+                                rotate: [0, 10, 0, -10, 0],
+                                scale: [1, 1.1, 1, 1.1, 1]
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        >
+                            <BarChart3 className="h-10 w-10 text-white drop-shadow-lg" />
+                        </motion.div>
+                    </div>
+                </motion.div>
+            </div>
+        </motion.div>
+    );
+};
 
 export default function Login() {
     const { data, setData, post, processing, errors } = useForm({
@@ -10,349 +200,236 @@ export default function Login() {
         remember: false,
     });
 
-    const scannerRef = useRef(null);
-    const containerRef = useRef(null);
-    const faceScanRef = useRef(null);
+    const [loading, setLoading] = useState(true);
+    const [showPassword, setShowPassword] = useState(false);
     const [authorized, setAuthorized] = useState(false);
-
+    const formRef = useRef(null);
+    const cardRef = useRef(null);
+    
+    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
 
         // Create authorization animation
         setAuthorized(true);
 
-        // Animate the form submission with anime.js
-        anime({
-            targets: '#login-container',
-            translateY: [0, 5, 0],
-            duration: 300,
-            easing: 'easeInOutQuad',
-        });
-
-        // Simulate scanning complete
-        const scanComplete = anime.timeline({
+        // Simulate verification process with animation
+        const timeline = anime.timeline({
             easing: 'easeOutExpo',
         });
 
-        scanComplete
+        timeline
             .add({
-                targets: '.face-outline path',
-                strokeDashoffset: [anime.setDashoffset, 0],
-                easing: 'easeInOutQuad',
-                duration: 1000,
-                delay: function(el, i) { return i * 250 },
-            })
-            .add({
-                targets: '.scan-status',
-                innerHTML: ['SCANNING...', 'IDENTITY CONFIRMED'],
-                duration: 800,
-                color: ['#22c55e', '#10b981'],
-                easing: 'easeInOutQuad',
+                targets: '.verification-status',
+                innerHTML: ['Verifying...', 'Authenticating...', 'Identity Confirmed'],
+                duration: 1500,
+                delay: 300,
+                easing: 'steps(15)'
             })
             .add({
                 targets: '.auth-button',
                 backgroundColor: '#10b981',
-                duration: 400,
-            }, '-=400');
+                scale: [1, 1.05, 1],
+                duration: 600
+            }, '-=800');
 
         // Add slight delay before actual submission
         setTimeout(() => {
             post(route('warehouse.login'));
-        }, 1500);
+        }, 2000);
     };
 
+    // Simulate loading state
     useEffect(() => {
-        // Scanner animation effect
-        const scannerEffect = () => {
-            if (!scannerRef.current) return;
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1500);
 
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Card animation effects
+    useEffect(() => {
+        if (!loading && cardRef.current) {
             anime({
-                targets: scannerRef.current,
-                top: ['0%', '100%'],
-                opacity: [1, 0],
-                easing: 'easeInOutQuad',
-                duration: 2000,
-                complete: function() {
-                    if (scannerRef.current) {
-                        scannerRef.current.style.top = '0%';
-                    }
-                }
-            });
-        };
-
-        // Grid animation
-        const animateGrid = () => {
-            if (!faceScanRef.current) return;
-
-            anime({
-                targets: '.face-grid',
-                opacity: [0, 0.6],
-                easing: 'easeInOutQuad',
-                duration: 1000,
-                delay: 500
-            });
-
-            // Animate grid lines appearing one by one
-            anime({
-                targets: '.grid-cell',
+                targets: cardRef.current,
                 opacity: [0, 1],
-                easing: 'easeInOutQuad',
-                duration: 50,
-                delay: anime.stagger(10),
-            });
-        };
-
-        // Background matrix effect
-        const createMatrixEffect = () => {
-            const canvas = document.getElementById('matrix-canvas');
-            if (!canvas) return;
-
-            const ctx = canvas.getContext('2d');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-
-            const characters = "01";
-            const fontSize = 14;
-            const columns = canvas.width / fontSize;
-
-            const drops = [];
-            for (let i = 0; i < columns; i++) {
-                drops[i] = Math.floor(Math.random() * canvas.height / fontSize);
-            }
-
-            function drawMatrix() {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#22c55e20"; // Light green with transparency
-                ctx.font = `${fontSize}px monospace`;
-
-                for (let i = 0; i < drops.length; i++) {
-                    const text = characters[Math.floor(Math.random() * characters.length)];
-                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-
-                    drops[i]++;
-                }
-            }
-
-            const matrixInterval = setInterval(drawMatrix, 100);
-            return () => clearInterval(matrixInterval);
-        };
-
-        // Animate text typing in terminal style
-        const typeText = () => {
-            anime({
-                targets: '.typing-text',
-                innerHTML: [
-                    '',
-                    'ACCESSING SECURE WAREHOUSE TERMINAL...',
-                    'WAREHOUSE MANAGEMENT SYSTEM • SECURE ACCESS TERMINAL'
-                ],
-                easing: 'steps(50)',
-                duration: 2000,
-                delay: 500
-            });
-        };
-
-        // Container animation
-        if (containerRef.current) {
-            anime({
-                targets: containerRef.current,
-                translateY: [50, 0],
-                opacity: [0, 1],
+                translateY: [30, 0],
+                scale: [0.95, 1],
                 easing: 'easeOutExpo',
                 duration: 1000
             });
         }
+    }, [loading]);
 
-        // Pulse animation for the face outline
-        const pulseFace = () => {
+    // Input field animations
+    useEffect(() => {
+        if (!loading && formRef.current) {
             anime({
-                targets: '.face-outline',
-                scale: [1, 1.02, 1],
-                opacity: [1, 0.8, 1],
-                easing: 'easeInOutSine',
-                duration: 2000,
-                loop: true
+                targets: '.animate-input',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                delay: anime.stagger(150, {start: 300}),
+                easing: 'easeOutExpo',
+                duration: 800
             });
-        };
-
-        // Start animations
-        scannerEffect();
-        animateGrid();
-        typeText();
-        pulseFace();
-        const cleanupMatrix = createMatrixEffect();
-
-        // Set interval for scanner
-        const scanInterval = setInterval(scannerEffect, 4000);
-
-        // Clean up
-        return () => {
-            clearInterval(scanInterval);
-            if (cleanupMatrix) cleanupMatrix();
-        };
-    }, []);
+        }
+    }, [loading]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-black relative overflow-hidden">
-            <Head title="Warehouse Login" />
+        <>
+            <Head title="Warehouse Login">
+                <style>{`
+                    @keyframes shimmer {
+                        0% {
+                            transform: translateX(-100%);
+                        }
+                        100% {
+                            transform: translateX(100%);
+                        }
+                    }
+                    .animate-shimmer {
+                        animation: shimmer 3s infinite;
+                    }
 
-            {/* Matrix background effect */}
-            <canvas id="matrix-canvas" className="absolute inset-0 z-0"></canvas>
+                    .bg-grid-pattern {
+                        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                        background-size: 14px 14px;
+                    }
 
-            {/* Background glow effect */}
-            <div className="absolute inset-0 bg-gradient-radial from-green-900/20 via-black to-black z-0"></div>
+                    .card-shine {
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 50%;
+                        height: 100%;
+                        background: linear-gradient(
+                            to right,
+                            rgba(255, 255, 255, 0) 0%,
+                            rgba(255, 255, 255, 0.3) 50%,
+                            rgba(255, 255, 255, 0) 100%
+                        );
+                    }
+                    
+                    .card-shine-slow {
+                        animation: shimmer 8s infinite;
+                    }
+                `}</style>
+            </Head>
 
-            {/* Grid lines */}
-            <div className="absolute inset-0 bg-grid-pattern opacity-10 z-0"></div>
+            <PageLoader isVisible={loading} />
 
-            {/* Login container */}
-            <div
-                id="login-container"
-                ref={containerRef}
-                className="relative w-full max-w-5xl mx-6 z-10"
-                style={{ opacity: 0 }}
-            >
-                {/* Tech frame */}
-                <div className="border-2 border-green-500/50 bg-black/80 p-px rounded-lg relative">
-                    {/* Corner accents */}
-                    <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-green-400"></div>
-                    <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-green-400"></div>
-                    <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-green-400"></div>
-                    <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-green-400"></div>
+            <div className="min-h-screen flex items-center justify-center bg-slate-950 relative overflow-hidden">
+                {/* Background elements */}
+                <div className="absolute inset-0 bg-grid-pattern opacity-[0.03] z-0"></div>
+                
+                {/* Animated background elements */}
+                <div className="absolute -left-40 -top-40 w-96 h-96 bg-emerald-900/10 rounded-full filter blur-3xl animate-pulse"></div>
+                <div className="absolute right-20 top-10 w-72 h-72 bg-teal-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '15s' }}></div>
+                <div className="absolute -right-40 -bottom-40 w-80 h-80 bg-green-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '20s', animationDelay: '2s' }}></div>
+                <div className="absolute left-1/3 bottom-0 w-64 h-64 bg-lime-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '18s', animationDelay: '1s' }}></div>
 
-                    {/* Header */}
-                    <div className="tech-header bg-gradient-to-r from-green-600 to-transparent p-2 flex items-center pl-8 relative">
-                        <h1 className="text-xl md:text-3xl font-bold text-black m-0 tracking-widest">LOG IN</h1>
-                        <div className="absolute top-0 right-0 w-20 h-full bg-gradient-to-l from-transparent to-green-600 skew-x-[-30deg] origin-top-right transform translate-x-6"></div>
-                    </div>
-
-                    <div className="p-4 md:p-8 flex flex-col md:flex-row">
-                        {/* Left panel - Face recognition mockup */}
-                        <div className="w-full md:w-1/3 flex flex-col items-center justify-center mb-8 md:mb-0 relative">
-                            <div className="w-48 h-48 border-2 border-green-500/50 flex items-center justify-center relative bg-black/50">
-                                {/* Animated face scan graphics */}
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-32 h-32 border-2 border-green-500/20 rounded-full animate-pulse"></div>
-                                    <div className="w-40 h-40 border border-green-500/10 rounded-full absolute animate-ping" style={{animationDuration: '3s'}}></div>
-                                </div>
-
-                                <div ref={faceScanRef} className="face-outline w-32 h-40 border-2 border-green-500/70 relative z-20">
-                                    <svg className="absolute inset-0 w-full h-full text-green-500/70" viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-                                        <path fill="none" stroke="currentColor" strokeWidth="1" d="M 50,10 C 30,10 20,30 20,50 C 20,70 25,90 50,110 C 75,90 80,70 80,50 C 80,30 70,10 50,10 Z" />
-                                        <path fill="none" stroke="currentColor" strokeWidth="0.5" d="M 30,40 L 45,50 L 55,50 L 70,40" />
-                                        <path fill="none" stroke="currentColor" strokeWidth="0.5" d="M 30,60 C 40,70 60,70 70,60" />
-                                        <path fill="none" stroke="currentColor" strokeWidth="0.5" d="M 40,30 L 40,40 L 30,40" />
-                                        <path fill="none" stroke="currentColor" strokeWidth="0.5" d="M 60,30 L 60,40 L 70,40" />
-                                        <path fill="none" stroke="currentColor" strokeWidth="0.5" d="M 50,50 L 50,70" />
-                                    </svg>
-
-                                    {/* Face grid overlay */}
-                                    <div className="face-grid absolute inset-0 opacity-0 transition-opacity duration-1000">
-                                        <div className="grid grid-cols-6 grid-rows-8 gap-px h-full w-full">
-                                            {[...Array(48)].map((_, i) => (
-                                                <div key={i} className="grid-cell border border-green-400/30 opacity-0"></div>
-                                            ))}
-                                        </div>
+                {/* Login Card */}
+                <motion.div 
+                    ref={cardRef}
+                    className="relative w-full max-w-lg mx-6 z-10 opacity-0"
+                    style={{ perspective: '1000px' }}
+                >
+                    <div className="bg-gradient-to-br from-slate-900/80 to-slate-950/90 backdrop-blur-lg rounded-2xl overflow-hidden shadow-2xl border border-slate-800/80 relative">
+                        <div className="card-shine card-shine-slow"></div>
+                        
+                        {/* Card Header */}
+                        <div className="p-6 border-b border-slate-800/50 flex flex-col items-start relative">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500"></div>
+                            
+                            <div className="flex items-center mb-3">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 p-0.5 mr-4 relative">
+                                    <div className="absolute inset-0 rounded-full border-2 border-white/10 animate-pulse"></div>
+                                    <div className="w-full h-full rounded-full bg-slate-900 flex items-center justify-center">
+                                        <Fingerprint className="h-6 w-6 text-emerald-400" />
                                     </div>
                                 </div>
-
-                                {/* Scanner line */}
-                                <div
-                                    ref={scannerRef}
-                                    className="scan-line absolute left-0 w-full h-0.5 bg-green-400 blur-sm transition-all duration-1500 opacity-0"
-                                    style={{ boxShadow: '0 0 10px 2px #22c55e' }}
-                                ></div>
-
-                                {/* Corner accents */}
-                                <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-green-400"></div>
-                                <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-green-400"></div>
-                                <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-green-400"></div>
-                                <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-green-400"></div>
-                            </div>
-
-                            <div className="mt-4 text-center">
-                                <div className="scan-status text-green-500 text-xs mb-1">SCANNING...</div>
-                                <div className="text-green-500/50 text-[10px]">WAREHOUSE ACCESS CLEARANCE</div>
-                            </div>
-
-                            {/* Lottie Animation for scanning process */}
-                            <div className="mt-4">
-                                <lottie-player
-                                    src="https://assets7.lottiefiles.com/packages/lf20_q8ND1K.json"
-                                    background="transparent"
-                                    speed="1"
-                                    style={{ width: '100px', height: '40px' }}
-                                    loop
-                                    autoplay
-                                ></lottie-player>
+                                <div>
+                                    <h1 className="text-xl font-bold text-white">Warehouse Management</h1>
+                                    <p className="text-slate-400 text-sm">Secure Access Terminal</p>
+                                </div>
                             </div>
                         </div>
-
-                        {/* Right panel - Login form */}
-                        <div className="w-full md:w-2/3 flex flex-col justify-center md:pl-6">
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div>
-                                    <div className="tech-input-header bg-gradient-to-r from-green-600 to-transparent p-1 flex justify-between items-center">
-                                        <span className="text-black font-bold tracking-wider text-sm">USERNAME</span>
-                                        <div className="w-12 h-full bg-gradient-to-l from-transparent to-green-600 skew-x-[-30deg] transform translate-x-4"></div>
+                        
+                        {/* Card Content */}
+                        <div className="p-6">
+                            <form ref={formRef} onSubmit={handleSubmit} className="space-y-5">
+                                {/* Email field */}
+                                <div className="animate-input">
+                                    <div className="mb-2 flex items-center">
+                                        <UserCircle className="h-4 w-4 text-emerald-400 mr-2" />
+                                        <label className="block text-sm font-medium text-slate-200">
+                                            Username
+                                        </label>
                                     </div>
-                                    <div className="relative mt-1 group">
+                                    <div className="relative group" dir='ltr'>
                                         <input
                                             id="email"
                                             type="email"
                                             value={data.email}
                                             onChange={(e) => setData('email', e.target.value)}
-                                            className="w-full bg-black/50 border-2 border-green-500/30 text-green-500 px-4 py-3 focus:outline-none focus:border-green-400 placeholder-green-700 transition-all duration-300 group-hover:border-green-400/50"
-                                            placeholder="Enter username"
+                                            className="w-full bg-slate-900/80 border border-slate-700 focus:border-emerald-500 text-slate-200 rounded-lg px-4 py-2.5 
+                                            placeholder-slate-500 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-all duration-200"
+                                            placeholder="Enter your username"
                                             required
                                         />
-                                        <div className="absolute top-0 right-0 h-full w-3 bg-green-500/20 flex flex-col justify-between py-1">
-                                            <div className="w-full h-1 bg-green-500/50"></div>
-                                            <div className="w-full h-1 bg-green-500/30"></div>
-                                            <div className="w-full h-1 bg-green-500/50"></div>
+                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                            <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 opacity-0 group-focus-within:opacity-100 transition-all duration-300"></div>
                                         </div>
                                     </div>
                                     {errors.email && (
-                                        <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+                                        <p className="text-rose-500 text-xs mt-1">{errors.email}</p>
                                     )}
                                 </div>
 
-                                <div>
-                                    <div className="tech-input-header bg-gradient-to-r from-green-600 to-transparent p-1 flex justify-between items-center">
-                                        <span className="text-black font-bold tracking-wider text-sm">PASSWORD</span>
-                                        <div className="w-12 h-full bg-gradient-to-l from-transparent to-green-600 skew-x-[-30deg] transform translate-x-4"></div>
+                                {/* Password field */}
+                                <div className="animate-input">
+                                    <div className="mb-2 flex items-center">
+                                        <Key className="h-4 w-4 text-emerald-400 mr-2" />
+                                        <label className="block text-sm font-medium text-slate-200">
+                                            Password
+                                        </label>
                                     </div>
-                                    <div className="relative mt-1 group">
+                                    <div className="relative group" dir='ltr'>
                                         <input
                                             id="password"
-                                            type="password"
+                                            type={showPassword ? "text" : "password"}
                                             value={data.password}
                                             onChange={(e) => setData('password', e.target.value)}
-                                            className="w-full bg-black/50 border-2 border-green-500/30 text-green-500 px-4 py-3 focus:outline-none focus:border-green-400 transition-all duration-300 group-hover:border-green-400/50"
+                                            className="w-full bg-slate-900/80 border border-slate-700 focus:border-emerald-500 text-slate-200 rounded-lg px-4 py-2.5 
+                                            placeholder-slate-500 focus:ring-1 focus:ring-emerald-500/50 focus:outline-none transition-all duration-200"
                                             placeholder="••••••••••••••"
                                             required
                                         />
-                                        <div className="absolute top-0 right-0 h-full w-3 bg-green-500/20 flex flex-col justify-between py-1">
-                                            <div className="w-full h-1 bg-green-500/50"></div>
-                                            <div className="w-full h-1 bg-green-500/30"></div>
-                                            <div className="w-full h-1 bg-green-500/50"></div>
-                                        </div>
+                                        <button 
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-emerald-400 transition-colors duration-200"
+                                        >
+                                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                        </button>
                                     </div>
                                     {errors.password && (
-                                        <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+                                        <p className="text-rose-500 text-xs mt-1">{errors.password}</p>
                                     )}
                                 </div>
 
-                                <div className="flex items-center justify-between">
+                                {/* Remember me toggle */}
+                                <div className="flex items-center justify-between animate-input">
                                     <label className="flex items-center cursor-pointer group">
-                                        <div className="relative mr-3 w-4 h-4 border border-green-500 flex items-center justify-center transition-all duration-300 group-hover:border-green-400">
+                                        <div className="relative flex items-center justify-center mr-3 w-5 h-5 border border-slate-600 rounded group-hover:border-emerald-400 transition-colors duration-200">
                                             {data.remember && (
-                                                <div className="absolute inset-0.5 bg-green-500"></div>
+                                                <div className="absolute inset-0 flex items-center justify-center bg-emerald-500 rounded">
+                                                    <svg className="w-3 h-3 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                        <polyline points="20 6 9 17 4 12"></polyline>
+                                                    </svg>
+                                                </div>
                                             )}
                                         </div>
                                         <input
@@ -361,72 +438,68 @@ export default function Login() {
                                             checked={data.remember}
                                             onChange={(e) => setData('remember', e.target.checked)}
                                         />
-                                        <span className="text-green-500 text-xs tracking-wider">REMAIN CONNECTED</span>
+                                        <span className="text-slate-300 text-sm">Remember me</span>
                                     </label>
+                                </div>
 
+                                {/* Verification status */}
+                                <div className="h-6 flex items-start">
+                                    <span className={`verification-status text-sm font-medium ${authorized ? 'text-emerald-400' : 'text-slate-500'} flex items-center transition-colors duration-300`}>
+                                        {authorized && <CheckCircle className="h-4 w-4 mr-1.5" />}
+                                    </span>
+                                </div>
+
+                                {/* Submit button */}
+                                <div className="animate-input">
                                     <button
                                         type="submit"
                                         disabled={processing || authorized}
-                                        className="auth-button tech-button relative bg-green-600 text-black px-10 py-2 font-bold tracking-widest text-sm hover:bg-green-500 focus:outline-none transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden"
+                                        className="auth-button w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 
+                                        text-white font-medium rounded-lg py-2.5 px-4 transition-all duration-300 shadow-lg shadow-emerald-500/20
+                                        flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-not-allowed"
                                     >
-                                        {/* Button accents */}
-                                        <div className="absolute inset-y-0 left-0 w-1 bg-green-700"></div>
-                                        <div className="absolute inset-y-0 right-0 w-1 bg-green-700"></div>
-                                        <div className="absolute inset-x-0 top-0 h-0.5 bg-green-300"></div>
-                                        <div className="absolute inset-x-0 bottom-0 h-0.5 bg-green-300"></div>
-                                        <div className="relative flex items-center">
-                                            {processing ? (
-                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        {processing ? (
+                                            <>
+                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                                 </svg>
-                                            ) : null}
-                                            {processing ? 'AUTHORIZING' : 'AUTHORIZE'}
-                                        </div>
+                                                <span>Authorizing...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Shield className="h-5 w-5" />
+                                                <span>Sign In</span>
+                                                <ArrowRight className="h-5 w-5 ml-1" />
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             </form>
                         </div>
+                        
+                        {/* Card Footer */}
+                        <div className="py-3 px-6 border-t border-slate-800/50 text-left">
+                            <p className="text-xs text-slate-500">
+                                Warehouse Management System • Secure Access
+                            </p>
+                        </div>
                     </div>
-                </div>
-
-                <div className="text-center mt-4 text-green-500/60 text-[10px] tracking-widest typing-text">
-                    ACCESSING SECURE WAREHOUSE TERMINAL...
-                </div>
+                    
+                    {/* System Status */}
+                    <div className="mt-4 text-center">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 2, duration: 1 }}
+                            className="inline-flex items-center px-2.5 py-1 bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-full"
+                        >
+                            <div className="h-1.5 w-1.5 bg-emerald-500 rounded-full mr-2 animate-pulse"></div>
+                            <span className="text-xs text-slate-400">System Active • Encrypted Connection</span>
+                        </motion.div>
+                    </div>
+                </motion.div>
             </div>
-
-            {/* Custom CSS */}
-            <style jsx>{`
-                .bg-gradient-radial {
-                    background-image: radial-gradient(var(--tw-gradient-stops));
-                }
-
-                .bg-grid-pattern {
-                    background-image:
-                        linear-gradient(to right, rgba(46, 204, 113, 0.1) 1px, transparent 1px),
-                        linear-gradient(to bottom, rgba(46, 204, 113, 0.1) 1px, transparent 1px);
-                    background-size: 20px 20px;
-                }
-
-                .grid-appear {
-                    opacity: 0.6;
-                }
-
-                .tech-button:hover::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(255, 255, 255, 0.1);
-                }
-
-                @keyframes typing {
-                    from { width: 0 }
-                    to { width: 100% }
-                }
-            `}</style>
-        </div>
+        </>
     );
 }
