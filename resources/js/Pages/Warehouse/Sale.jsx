@@ -89,7 +89,7 @@ const MiniBarChart = ({ data, height = 40, barWidth = 6, gapWidth = 6, animated 
 const PageLoader = ({ isVisible }) => {
     return (
         <motion.div
-            className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 z-50 flex flex-col items-center justify-center"
+            className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 z-50 flex flex-col items-center justify-center overflow-hidden"
             initial={{ opacity: 1 }}
             animate={{
                 opacity: isVisible ? 1 : 0,
@@ -97,78 +97,212 @@ const PageLoader = ({ isVisible }) => {
             }}
             transition={{ duration: 0.5, ease: 'easeInOut' }}
         >
-            <div className="relative flex flex-col items-center">
-                {/* Animated background elements */}
+            {/* Background patterns */}
+            <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
+
+            {/* Animated light beams */}
+            <div className="absolute w-full h-full overflow-hidden">
+                {[...Array(5)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute bg-gradient-to-r from-blue-400/10 via-indigo-500/10 to-transparent h-[30vh] w-[100vw]"
+                        style={{
+                            top: `${10 + i * 20}%`,
+                            left: '-100%',
+                            transformOrigin: 'left center',
+                            rotate: `${-20 + i * 10}deg`,
+                        }}
+                        animate={{
+                            left: ['100%', '-100%'],
+                        }}
+                        transition={{
+                            duration: 15 + i * 2,
+                            repeat: Infinity,
+                            ease: "linear",
+                            delay: i * 3,
+                        }}
+                    />
+                ))}
+            </div>
+
+            {/* Animated particles */}
+            <div className="absolute inset-0">
+                {[...Array(30)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute rounded-full bg-white"
+                        style={{
+                            width: Math.random() * 4 + 1,
+                            height: Math.random() * 4 + 1,
+                            x: `${Math.random() * 100}%`,
+                            y: `${Math.random() * 100}%`,
+                            opacity: Math.random() * 0.5 + 0.2,
+                        }}
+                        animate={{
+                            y: [null, `${-Math.random() * 100 - 50}%`],
+                            opacity: [null, 0],
+                        }}
+                        transition={{
+                            duration: Math.random() * 10 + 5,
+                            repeat: Infinity,
+                            ease: "linear",
+                        }}
+                    />
+                ))}
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center">
+                {/* Main animated container */}
                 <motion.div
-                    className="absolute w-96 h-96 rounded-full bg-blue-600/10 filter blur-3xl"
+                    className="relative"
                     animate={{
-                        scale: [1, 1.2, 1],
-                        opacity: [0.3, 0.5, 0.3]
-                    }}
-                    transition={{
-                        duration: 5,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                    }}
-                />
-                <motion.div
-                    className="absolute w-80 h-80 rounded-full bg-indigo-500/10 filter blur-2xl"
-                    animate={{
-                        scale: [1.2, 1, 1.2],
-                        opacity: [0.3, 0.5, 0.3]
+                        scale: [0.95, 1.05, 0.95],
                     }}
                     transition={{
                         duration: 4,
                         repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 1
+                        ease: "easeInOut"
                     }}
-                />
-
-                {/* Loader rings */}
-                <div className="relative">
+                >
+                    {/* Pulsing background circles */}
                     <motion.div
-                        className="h-32 w-32 rounded-full border-4 border-blue-300/20"
+                        className="absolute w-64 h-64 rounded-full bg-blue-600/5 filter blur-2xl"
                         animate={{
-                            rotate: 360,
-                            scale: [1, 1.05, 1]
+                            scale: [1, 1.2, 1],
+                            opacity: [0.3, 0.5, 0.3]
                         }}
                         transition={{
-                            rotate: { duration: 3, ease: "linear", repeat: Infinity },
-                            scale: { duration: 2, repeat: Infinity }
+                            duration: 5,
+                            repeat: Infinity,
+                            ease: "easeInOut"
                         }}
                     />
                     <motion.div
-                        className="h-32 w-32 rounded-full border-4 border-r-blue-400 border-t-transparent border-l-transparent border-b-transparent absolute top-0"
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
-                    />
-                    <motion.div
-                        className="h-32 w-32 rounded-full border-4 border-b-indigo-400 border-t-transparent border-l-transparent border-r-transparent absolute top-0"
-                        animate={{ rotate: -180 }}
-                        transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
-                    />
-                    <motion.div
-                        className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold text-xl"
+                        className="absolute w-72 h-72 rounded-full bg-indigo-500/5 filter blur-2xl transform -translate-x-4 translate-y-4"
                         animate={{
-                            opacity: [0.5, 1, 0.5],
-                            scale: [0.9, 1.1, 0.9]
+                            scale: [1.2, 1, 1.2],
+                            opacity: [0.3, 0.5, 0.3]
                         }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                    >
-                        <ShoppingCart className="h-12 w-12" />
-                    </motion.div>
-                </div>
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1
+                        }}
+                    />
 
+                    {/* Animated logo/icon container */}
+                    <div className="relative flex items-center justify-center h-40 w-40">
+                        {/* Spinning rings */}
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-blue-300/10"
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 20,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+                        <motion.div
+                            className="absolute h-[85%] w-[85%] rounded-full border-4 border-indigo-400/20"
+                            animate={{
+                                rotate: -360,
+                            }}
+                            transition={{
+                                duration: 15,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+                        <motion.div
+                            className="absolute h-[70%] w-[70%] rounded-full border-4 border-blue-400/30"
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 10,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+
+                        {/* Spinner arcs */}
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-r-blue-400 border-t-transparent border-l-transparent border-b-transparent"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
+                        />
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-b-indigo-400 border-t-transparent border-l-transparent border-r-transparent"
+                            animate={{ rotate: -180 }}
+                            transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
+                        />
+
+                        {/* Icon/logo in center */}
+                        <motion.div
+                            className="relative z-10 bg-gradient-to-br from-blue-500 to-indigo-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
+                            animate={{
+                                rotate: [0, 10, 0, -10, 0],
+                                scale: [1, 1.1, 1, 1.1, 1]
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        >
+                            <ShoppingCart className="h-10 w-10 text-white drop-shadow-lg" />
+                        </motion.div>
+
+                        {/* Orbiting dots */}
+                        {[...Array(8)].map((_, i) => {
+                            const angle = (i / 8) * Math.PI * 2;
+                            const radius = 22;
+                            return (
+                                <motion.div
+                                    key={i}
+                                    className="absolute h-2 w-2 rounded-full bg-blue-400"
+                                    initial={{
+                                        x: Math.cos(angle) * radius,
+                                        y: Math.sin(angle) * radius,
+                                    }}
+                                    animate={{
+                                        x: [
+                                            Math.cos(angle) * radius,
+                                            Math.cos(angle + Math.PI) * radius,
+                                            Math.cos(angle + Math.PI * 2) * radius,
+                                        ],
+                                        y: [
+                                            Math.sin(angle) * radius,
+                                            Math.sin(angle + Math.PI) * radius,
+                                            Math.sin(angle + Math.PI * 2) * radius,
+                                        ],
+                                        scale: [1, 1.5, 1]
+                                    }}
+                                    transition={{
+                                        duration: 5,
+                                        repeat: Infinity,
+                                        ease: "easeInOut",
+                                        delay: i * 0.2,
+                                    }}
+                                />
+                            );
+                        })}
+                    </div>
+                </motion.div>
+
+                {/* Progress indicator */}
                 <motion.div
-                    className="mt-10 text-center text-white text-xl font-medium"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, duration: 0.5 }}
+                    className="mt-8 relative h-1.5 w-56 bg-blue-900/50 rounded-full overflow-hidden"
                 >
-                    <span className="bg-gradient-to-r from-blue-200 to-indigo-200 text-transparent bg-clip-text">
-                        Loading Dashboard...
-                    </span>
+                    <motion.div
+                        className="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-blue-400 to-indigo-500"
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 2.5, ease: "easeInOut" }}
+                    />
                 </motion.div>
 
                 {/* Progress dots */}
