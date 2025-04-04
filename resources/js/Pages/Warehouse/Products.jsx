@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import anime from 'animejs';
 import Navigation from '@/Components/Warehouse/Navigation';
+import { motion } from 'framer-motion';
 
 // Safe querySelector utility function that checks if element exists
 const safeQuerySelector = (element, selector) => {
@@ -25,29 +26,206 @@ const safeQuerySelector = (element, selector) => {
     }
 };
 
+// AnimatedCounter component
+const AnimatedCounter = ({ value, prefix = '', suffix = '', duration = 1500 }) => {
+    const nodeRef = useRef(null);
+    const [counted, setCounted] = useState(false);
+
+    useEffect(() => {
+        if (!counted && nodeRef.current) {
+            anime({
+                targets: nodeRef.current,
+                innerHTML: [0, value],
+                easing: 'easeInOutExpo',
+                duration: duration,
+                round: 1, // Rounds the values to 1 decimal
+                delay: 300,
+                begin: () => setCounted(true)
+            });
+        }
+    }, [value, counted, duration]);
+
+    return (
+        <span className="inline-block" ref={nodeRef}>
+            {prefix}0{suffix}
+        </span>
+    );
+};
+
 // Add PageLoader component
 const PageLoader = ({ isVisible }) => {
-    if (!isVisible) return null;
-    
     return (
-        <div
+        <motion.div
             className="fixed inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 z-50 flex flex-col items-center justify-center overflow-hidden"
+            initial={{ opacity: 1 }}
+            animate={{
+                opacity: isVisible ? 1 : 0,
+                pointerEvents: isVisible ? 'all' : 'none'
+            }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
         >
             {/* Background patterns */}
             <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
 
-            <div className="relative z-10 flex flex-col items-center">
-                {/* Main container */}
-                <div className="relative">
-                    {/* Logo/icon in center */}
-                    <div
-                        className="relative z-10 bg-gradient-to-br from-emerald-500 to-teal-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
-                    >
-                        <Package className="h-10 w-10 text-white drop-shadow-lg" />
-                    </div>
-                </div>
+            {/* Animated light beams */}
+            <div className="absolute w-full h-full overflow-hidden">
+                {[...Array(5)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute bg-gradient-to-r from-emerald-400/10 via-teal-500/10 to-transparent h-[30vh] w-[100vw]"
+                        style={{
+                            top: `${10 + i * 20}%`,
+                            left: '-100%',
+                            transformOrigin: 'left center',
+                            rotate: `${-20 + i * 10}deg`,
+                        }}
+                        animate={{
+                            left: ['100%', '-100%'],
+                        }}
+                        transition={{
+                            duration: 15 + i * 2,
+                            repeat: Infinity,
+                            ease: "linear",
+                            delay: i * 3,
+                        }}
+                    />
+                ))}
             </div>
-        </div>
+
+            {/* Animated particles */}
+            <div className="absolute inset-0">
+                {[...Array(30)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute rounded-full bg-white"
+                        style={{
+                            width: Math.random() * 4 + 1,
+                            height: Math.random() * 4 + 1,
+                            x: `${Math.random() * 100}%`,
+                            y: `${Math.random() * 100}%`,
+                            opacity: Math.random() * 0.5 + 0.2,
+                        }}
+                        animate={{
+                            y: [null, `${-Math.random() * 100 - 50}%`],
+                            opacity: [null, 0],
+                        }}
+                        transition={{
+                            duration: Math.random() * 10 + 5,
+                            repeat: Infinity,
+                            ease: "linear",
+                        }}
+                    />
+                ))}
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center">
+                {/* Main animated container */}
+                <motion.div
+                    className="relative"
+                    animate={{
+                        scale: [0.95, 1.05, 0.95],
+                    }}
+                    transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                >
+                    {/* Pulsing background circles */}
+                    <motion.div
+                        className="absolute w-64 h-64 rounded-full bg-emerald-600/5 filter blur-2xl"
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.3, 0.5, 0.3]
+                        }}
+                        transition={{
+                            duration: 5,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    />
+                    <motion.div
+                        className="absolute w-72 h-72 rounded-full bg-teal-500/5 filter blur-2xl transform -translate-x-4 translate-y-4"
+                        animate={{
+                            scale: [1.2, 1, 1.2],
+                            opacity: [0.3, 0.5, 0.3]
+                        }}
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1
+                        }}
+                    />
+
+                    {/* Animated logo/icon container */}
+                    <div className="relative flex items-center justify-center h-40 w-40">
+                        {/* Spinning rings */}
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-emerald-300/10"
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 20,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+                        <motion.div
+                            className="absolute h-[85%] w-[85%] rounded-full border-4 border-teal-400/20"
+                            animate={{
+                                rotate: -360,
+                            }}
+                            transition={{
+                                duration: 15,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+                        <motion.div
+                            className="absolute h-[70%] w-[70%] rounded-full border-4 border-emerald-400/30"
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 10,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+
+                        {/* Spinner arcs */}
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-r-emerald-400 border-t-transparent border-l-transparent border-b-transparent"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
+                        />
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-b-teal-400 border-t-transparent border-l-transparent border-r-transparent"
+                            animate={{ rotate: -180 }}
+                            transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
+                        />
+
+                        {/* Icon/logo in center */}
+                        <motion.div
+                            className="relative z-10 bg-gradient-to-br from-emerald-500 to-teal-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
+                            animate={{
+                                rotate: [0, 10, 0, -10, 0],
+                                scale: [1, 1.1, 1, 1.1, 1]
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        >
+                            <Package className="h-10 w-10 text-white drop-shadow-lg" />
+                        </motion.div>
+                    </div>
+                </motion.div>
+            </div>
+        </motion.div>
     );
 };
 
@@ -434,58 +612,217 @@ export default function Products({ auth, products }) {
                                             value: "$" + totalValue.toFixed(2),
                                             icon: <DollarSign className="h-6 w-6" />,
                                             bgClass: "from-emerald-500 to-teal-600",
+                                            secondaryIcon: <motion.div
+                                                initial={{ opacity: 0.1, scale: 0.8 }}
+                                                animate={{ opacity: [0.1, 0.15, 0.1], scale: [0.8, 0.9, 0.8] }}
+                                                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                                                className="absolute right-4 bottom-4"
+                                            >
+                                                <CreditCard className="h-16 w-16" />
+                                            </motion.div>,
                                             trend: "Total inventory value",
-                                            trendIcon: <ArrowUpRight className="h-3.5 w-3.5 mr-1" />
+                                            trendIcon: <ArrowUpRight className="h-3.5 w-3.5 mr-1" />,
+                                            decorator: <motion.div
+                                                className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full"
+                                                animate={{
+                                                    scale: [1, 1.2, 1],
+                                                    opacity: [0.3, 0.2, 0.3]
+                                                }}
+                                                transition={{
+                                                    duration: 8,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                            />
                                         },
                                         {
                                             title: "Products Count",
                                             value: products?.length || 0,
                                             icon: <Layers className="h-6 w-6" />,
                                             bgClass: "from-teal-500 to-emerald-600",
+                                            secondaryIcon: <motion.div
+                                                initial={{ opacity: 0.1, rotate: 0 }}
+                                                animate={{ opacity: [0.1, 0.15, 0.1], rotate: [0, 5, 0] }}
+                                                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                                                className="absolute right-4 bottom-4"
+                                            >
+                                                <Package className="h-16 w-16" />
+                                            </motion.div>,
                                             trend: "Total product variants",
-                                            trendIcon: <ArrowUpRight className="h-3.5 w-3.5 mr-1" />
+                                            trendIcon: <ArrowUpRight className="h-3.5 w-3.5 mr-1" />,
+                                            decorator: <motion.div
+                                                className="absolute -left-6 -bottom-6 w-24 h-24 bg-teal-500/10 rounded-full"
+                                                animate={{
+                                                    scale: [1, 1.2, 1],
+                                                    opacity: [0.3, 0.2, 0.3]
+                                                }}
+                                                transition={{
+                                                    duration: 7,
+                                                    delay: 1,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                            />
                                         },
                                         {
                                             title: "Low Stock",
                                             value: lowStockCount,
                                             icon: <ArrowDownRight className="h-6 w-6" />,
                                             bgClass: "from-green-500 to-emerald-600",
+                                            secondaryIcon: <motion.div
+                                                initial={{ opacity: 0.1, y: 0 }}
+                                                animate={{ opacity: [0.1, 0.15, 0.1], y: [0, -5, 0] }}
+                                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                                className="absolute right-4 bottom-4"
+                                            >
+                                                <ShoppingCart className="h-16 w-16" />
+                                            </motion.div>,
                                             trend: "Items needing restock",
-                                            trendIcon: lowStockCount > 0 ? <ArrowDownRight className="h-3.5 w-3.5 mr-1" /> : null
+                                            trendIcon: lowStockCount > 0 ? <ArrowDownRight className="h-3.5 w-3.5 mr-1" /> : null,
+                                            decorator: <motion.div
+                                                className="absolute right-10 top-10 w-16 h-16 bg-green-500/10 rounded-full"
+                                                animate={{
+                                                    scale: [1, 1.3, 1],
+                                                    opacity: [0.3, 0.2, 0.3]
+                                                }}
+                                                transition={{
+                                                    duration: 5,
+                                                    delay: 2,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                            />
                                         },
                                         {
                                             title: "Categories",
                                             value: categories.length,
                                             icon: <PieChart className="h-6 w-6" />,
                                             bgClass: "from-lime-500 to-green-600",
+                                            secondaryIcon: <motion.div
+                                                initial={{ opacity: 0.1, scale: 1 }}
+                                                animate={{ opacity: [0.1, 0.15, 0.1], scale: [1, 1.05, 1] }}
+                                                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                                                className="absolute right-4 bottom-4"
+                                            >
+                                                <Grid className="h-16 w-16" />
+                                            </motion.div>,
                                             trend: "Product classifications",
-                                            trendIcon: null
+                                            trendIcon: null,
+                                            decorator: <motion.div
+                                                className="absolute left-10 bottom-10 w-20 h-20 bg-lime-500/10 rounded-full"
+                                                animate={{
+                                                    scale: [1, 1.2, 1],
+                                                    opacity: [0.3, 0.15, 0.3]
+                                                }}
+                                                transition={{
+                                                    duration: 6,
+                                                    delay: 3,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                            />
                                         }
                                     ].map((card, index) => (
-                                        <div
+                                        <motion.div
                                             key={index}
-                                            ref={el => dashboardCardsRef.current[index] = el}
                                             className={`bg-gradient-to-br ${card.bgClass} text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group`}
+                                            style={{ perspective: '1000px' }}
+                                            initial={{ opacity: 0, y: 20 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            transition={{
+                                                duration: 0.5,
+                                                delay: index * 0.1,
+                                                ease: "easeOut"
+                                            }}
+                                            whileHover={{
+                                                translateY: -8,
+                                                transition: { duration: 0.3 }
+                                            }}
+                                            onHoverStart={(e) => {
+                                                try {
+                                                    anime({
+                                                        targets: e.currentTarget,
+                                                        boxShadow: ['0 4px 12px rgba(0,0,0,0.1)', '0 20px 40px rgba(0,0,0,0.2)'],
+                                                        translateZ: ['0px', '30px'],
+                                                        rotateX: [-2, 0],
+                                                        rotateY: [0, -3],
+                                                        duration: 500,
+                                                        easing: 'easeOutQuint'
+                                                    });
+
+                                                    // Animate the card shine - use safe querySelector
+                                                    const shineElement = safeQuerySelector(e.currentTarget, '.card-shine');
+                                                    if (shineElement) {
+                                                        anime({
+                                                            targets: shineElement,
+                                                            translateX: ['0%', '100%'],
+                                                            duration: 1200,
+                                                            easing: 'easeInOutQuart'
+                                                        });
+                                                    }
+                                                } catch (error) {
+                                                    console.error("Error in onHoverStart:", error);
+                                                }
+                                            }}
+                                            onHoverEnd={(e) => {
+                                                try {
+                                                    anime({
+                                                        targets: e.currentTarget,
+                                                        boxShadow: ['0 20px 40px rgba(0,0,0,0.2)', '0 4px 12px rgba(0,0,0,0.1)'],
+                                                        translateZ: ['30px', '0px'],
+                                                        rotateX: [0, 0],
+                                                        rotateY: [-3, 0],
+                                                        duration: 500,
+                                                        easing: 'easeOutQuint'
+                                                    });
+                                                } catch (error) {
+                                                    console.error("Error in onHoverEnd:", error);
+                                                }
+                                            }}
                                         >
-                                            <div className="p-6 relative z-10">
-                                                <div className="flex justify-between items-center mb-4">
-                                                    <span className="font-medium text-lg">{card.title}</span>
-                                                    <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm border border-white/10">
-                                                        {card.icon}
+                                            <div
+                                                ref={el => dashboardCardsRef.current[index] = el}
+                                                className="w-full h-full"
+                                            >
+                                                {/* Card shine effect */}
+                                                <div className="card-shine absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full pointer-events-none"></div>
+
+                                                {/* Glass overlay effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-[1px] opacity-50"></div>
+
+                                                {/* Background decorations */}
+                                                <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-bl-full transform rotate-12 -translate-y-8 translate-x-8"></div>
+                                                <div className="absolute left-10 bottom-10 w-16 h-16 bg-white/5 rounded-full"></div>
+                                                <div className="absolute right-10 bottom-0 w-20 h-20 bg-white/5 rounded-tl-full"></div>
+
+                                                {/* Extra decorative elements */}
+                                                {card.decorator}
+
+                                                {card.secondaryIcon}
+
+                                                <div className="p-6 relative z-10">
+                                                    <div className="flex justify-between items-center mb-4">
+                                                        <span className="font-medium text-lg">{card.title}</span>
+                                                        <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
+                                                            {card.icon}
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-3xl font-bold mt-2 flex items-end transform group-hover:scale-105 transition-transform origin-left duration-300">
+                                                        <AnimatedCounter
+                                                            value={typeof card.value === 'string' ?
+                                                                parseInt(card.value.replace(/[^0-9.-]+/g, '')) :
+                                                                card.value}
+                                                            prefix={typeof card.value === 'string' && card.value.startsWith('$') ? '$' : ''}
+                                                            duration={2000}
+                                                        />
+                                                    </div>
+                                                    <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
+                                                        {card.trendIcon}
+                                                        <span>{card.trend}</span>
                                                     </div>
                                                 </div>
-                                                <div className="text-3xl font-bold mt-2">
-                                                    {typeof card.value === 'string' && card.value.startsWith('$') ? 
-                                                        card.value : 
-                                                        card.value
-                                                    }
-                                                </div>
-                                                <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit border border-white/10">
-                                                    {card.trendIcon}
-                                                    <span>{card.trend}</span>
-                                                </div>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     ))}
                                 </div>
                             </div>
@@ -566,12 +903,14 @@ export default function Products({ auth, products }) {
                                     {filteredProducts && filteredProducts.length > 0 ? (
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {filteredProducts.map((product, index) => (
-                                                <div
+                                                <motion.div
                                                     key={product.product_id}
-                                                    ref={el => gridItemsRef.current[index] = el}
-                                                    className="mb-4"
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 0.3, delay: index * 0.05 }}
                                                 >
                                                     <Card
+                                                        ref={el => gridItemsRef.current[index] = el}
                                                         className="bg-white dark:bg-slate-900 border-0 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden h-full"
                                                         onMouseEnter={(e) => animateHover(e.currentTarget, true)}
                                                         onMouseLeave={(e) => animateHover(e.currentTarget, false)}
@@ -653,11 +992,16 @@ export default function Products({ auth, products }) {
                                                             </div>
                                                         </CardFooter>
                                                     </Card>
-                                                </div>
+                                                </motion.div>
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 text-center">
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 text-center"
+                                        >
                                             <div className="inline-flex h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-5">
                                                 <Package className="h-8 w-8 text-slate-400" />
                                             </div>
@@ -669,7 +1013,7 @@ export default function Products({ auth, products }) {
                                                 <Plus className="h-4 w-4 mr-2" />
                                                 Add First Product
                                             </Button>
-                                        </div>
+                                        </motion.div>
                                     )}
                                 </TabsContent>
 
@@ -695,8 +1039,11 @@ export default function Products({ auth, products }) {
                                             </div>
                                             <div>
                                                 {filteredProducts.map((product, index) => (
-                                                    <div
+                                                    <motion.div
                                                         key={product.product_id}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ duration: 0.2, delay: index * 0.03 }}
                                                         ref={el => listItemsRef.current[index] = el}
                                                         className="px-5 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 last:border-0 grid grid-cols-12 items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors duration-150 group"
                                                     >
@@ -749,12 +1096,17 @@ export default function Products({ auth, products }) {
                                                                 <ChevronRight className="h-3.5 w-3.5 ml-1" />
                                                             </Button>
                                                         </div>
-                                                    </div>
+                                                    </motion.div>
                                                 ))}
                                             </div>
                                         </Card>
                                     ) : (
-                                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 text-center">
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 text-center"
+                                        >
                                             <div className="inline-flex h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-5">
                                                 <Package className="h-8 w-8 text-slate-400" />
                                             </div>
@@ -766,7 +1118,7 @@ export default function Products({ auth, products }) {
                                                 <Plus className="h-4 w-4 mr-2" />
                                                 Add First Product
                                             </Button>
-                                        </div>
+                                        </motion.div>
                                     )}
                                 </TabsContent>
                             </div>
