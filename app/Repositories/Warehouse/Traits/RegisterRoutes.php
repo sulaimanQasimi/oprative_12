@@ -39,21 +39,11 @@ trait RegisterRoutes
 
                 // Income management
                 Route::get('income', [IncomeController::class, 'index'])->name('income');
-                Route::get('income/create', [IncomeController::class, 'create'])->name('income.create');
-                Route::post('income', [IncomeController::class, 'store'])->name('income.store');
                 Route::get('income/{income}', [IncomeController::class, 'show'])->name('income.show');
-                Route::get('income/{income}/edit', [IncomeController::class, 'edit'])->name('income.edit');
-                Route::put('income/{income}', [IncomeController::class, 'update'])->name('income.update');
-                Route::delete('income/{income}', [IncomeController::class, 'destroy'])->name('income.destroy');
 
                 // Outcome management
                 Route::get('outcome', [OutcomeController::class, 'index'])->name('outcome');
-                Route::get('outcome/create', [OutcomeController::class, 'create'])->name('outcome.create');
-                Route::post('outcome', [OutcomeController::class, 'store'])->name('outcome.store');
                 Route::get('outcome/{outcome}', [OutcomeController::class, 'show'])->name('outcome.show');
-                Route::get('outcome/{outcome}/edit', [OutcomeController::class, 'edit'])->name('outcome.edit');
-                Route::put('outcome/{outcome}', [OutcomeController::class, 'update'])->name('outcome.update');
-                Route::delete('outcome/{outcome}', [OutcomeController::class, 'destroy'])->name('outcome.destroy');
 
                 // Sales management
                 Route::get('sales', [SaleController::class, 'index'])->name('sales');
