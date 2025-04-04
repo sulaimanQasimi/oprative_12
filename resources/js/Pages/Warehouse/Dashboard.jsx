@@ -346,17 +346,28 @@ export default function Dashboard({ auth, stats }) {
                             rgba(255, 255, 255, 0) 100%
                         );
                     }
+                    
+                    /* Fix for horizontal scroll */
+                    html, body {
+                        overflow-x: hidden;
+                        max-width: 100%;
+                    }
+                    
+                    .responsive-chart-container {
+                        max-width: 100%;
+                        overflow-x: hidden;
+                    }
                 `}</style>
             </Head>
 
             <PageLoader isVisible={loading} />
 
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
+            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="warehouse.dashboard" />
 
                 {/* Main Content */}
-                <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-1 flex flex-col overflow-hidden max-w-full">
                     {/* Header */}
                     <header ref={headerRef} className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
                         <div className="flex items-center space-x-4">
@@ -395,7 +406,7 @@ export default function Dashboard({ auth, stats }) {
                             <div className="absolute left-1/3 bottom-0 w-64 h-64 bg-lime-200/20 dark:bg-lime-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '18s', animationDelay: '1s' }}></div>
 
                             <div className="relative z-10 max-w-7xl mx-auto">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6" ref={statsCardsRef}>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 lg:gap-6" ref={statsCardsRef}>
                                     <motion.div
                                         className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
                                         style={{ perspective: '1000px' }}
@@ -634,9 +645,9 @@ export default function Dashboard({ auth, stats }) {
 
                         {/* Charts and Data Section */}
                         <div className="p-6">
-                            <div className="max-w-7xl mx-auto space-y-6" ref={chartsRef}>
+                            <div className="max-w-full mx-auto space-y-6" ref={chartsRef}>
                                 {/* Charts Row */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                                     {/* Monthly Sales Chart */}
                                     <motion.div
                                         initial={{ opacity: 0, y: 20 }}
@@ -651,8 +662,8 @@ export default function Dashboard({ auth, stats }) {
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6">
-                                                <div className="h-80">
-                                                    <ResponsiveContainer width="100%" height="100%">
+                                                <div className="h-80 responsive-chart-container">
+                                                    <ResponsiveContainer width="99%" height="100%">
                                                         <BarChart data={stats?.monthly_sales || []}>
                                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
@@ -701,8 +712,8 @@ export default function Dashboard({ auth, stats }) {
                                             </CardHeader>
                                             <CardContent className="p-6">
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    <div className="h-80 flex items-center justify-center">
-                                                        <ResponsiveContainer width="100%" height="100%">
+                                                    <div className="h-80 flex items-center justify-center responsive-chart-container">
+                                                        <ResponsiveContainer width="99%" height="100%">
                                                             <PieChart>
                                                                 <Pie
                                                                     data={pieData}
@@ -732,14 +743,14 @@ export default function Dashboard({ auth, stats }) {
                                                                         style={{ backgroundColor: COLORS[index % COLORS.length] }}
                                                                     ></div>
                                                                     <div className="flex-1">
-                                                                        <div className="font-medium text-slate-900 dark:text-white truncate">{product.name}</div>
-                                                                        <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
-                                                                            <span className="flex items-center">
-                                                                                <Package className="h-3 w-3 mr-1" />
+                                                                        <div className="font-medium text-slate-900 dark:text-white break-words line-clamp-1">{product.name}</div>
+                                                                        <div className="flex items-center flex-wrap gap-2 mt-1">
+                                                                            <span className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 py-1 px-2 rounded-full">
+                                                                                <ArrowUp className="inline h-3 w-3 mr-0.5" />
                                                                                 {product.qty_sold} units
                                                                             </span>
-                                                                            <span className="flex items-center">
-                                                                                <DollarSign className="h-3 w-3 mr-1" />
+                                                                            <span className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 py-1 px-2 rounded-full">
+                                                                                <ArrowDown className="inline h-3 w-3 mr-0.5" />
                                                                                 {formatCurrency(product.revenue)}
                                                                             </span>
                                                                         </div>
@@ -770,8 +781,8 @@ export default function Dashboard({ auth, stats }) {
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6">
-                                                <div className="h-60">
-                                                    <ResponsiveContainer width="100%" height="100%">
+                                                <div className="h-60 responsive-chart-container">
+                                                    <ResponsiveContainer width="99%" height="100%">
                                                         <BarChart data={stats?.daily_activity}>
                                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
