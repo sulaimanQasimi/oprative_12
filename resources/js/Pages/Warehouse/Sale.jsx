@@ -698,13 +698,16 @@ export default function Sale({ auth, sales }) {
                                                 easing: 'easeOutQuint'
                                             });
 
-                                            // Animate the card shine
-                                            anime({
-                                                targets: e.currentTarget.querySelector('.card-shine'),
-                                                translateX: ['0%', '100%'],
-                                                duration: 1200,
-                                                easing: 'easeInOutQuart'
-                                            });
+                                            // Animate the card shine - add null checking
+                                            const shineElement = e.currentTarget.querySelector('.card-shine');
+                                            if (shineElement) {
+                                                anime({
+                                                    targets: shineElement,
+                                                    translateX: ['0%', '100%'],
+                                                    duration: 1200,
+                                                    easing: 'easeInOutQuart'
+                                                });
+                                            }
                                         }}
                                         onHoverEnd={(e) => {
                                             anime({
