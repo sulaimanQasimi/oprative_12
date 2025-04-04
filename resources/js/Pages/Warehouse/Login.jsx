@@ -13,7 +13,12 @@ import {
     EyeOff,
     CheckCircle,
     BarChart3,
-    Fingerprint
+    Fingerprint,
+    Loader2,
+    ShieldCheck,
+    CircleCheck,
+    CircleAlert,
+    AlertTriangle
 } from 'lucide-react';
 
 // PageLoader component
@@ -203,6 +208,8 @@ export default function Login() {
     const [loading, setLoading] = useState(true);
     const [showPassword, setShowPassword] = useState(false);
     const [authorized, setAuthorized] = useState(false);
+    const [verificationStep, setVerificationStep] = useState(0); // 0: initial, 1: scanning, 2: verifying, 3: success/error
+    const [verificationStatus, setVerificationStatus] = useState(''); // Message to display
     const formRef = useRef(null);
     const cardRef = useRef(null);
     
@@ -210,33 +217,62 @@ export default function Login() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Create authorization animation
-        setAuthorized(true);
+        // Validate fields before proceeding
+        const hasErrors = Object.keys(errors).length > 0 || !data.email || !data.password;
 
-        // Simulate verification process with animation
-        const timeline = anime.timeline({
-            easing: 'easeOutExpo',
+        // Create authorization animation - show verification process
+        setVerificationStatus('Scanning credentials...');
+        setVerificationStep(1);
+        
+        const verificationSteps = hasErrors
+            ? [
+                { step: 1, status: 'Scanning credentials...', delay: 0 },
+                { step: 2, status: 'Verifying identity...', delay: 1200 },
+                { step: 4, status: 'Access denied', delay: 2400 } // Step 4 for error state
+              ]
+            : [
+                { step: 1, status: 'Scanning credentials...', delay: 0 },
+                { step: 2, status: 'Verifying identity...', delay: 1200 },
+                { step: 3, status: 'Access granted', delay: 2400 }
+              ];
+        
+        // Animate through verification steps
+        verificationSteps.forEach(item => {
+            setTimeout(() => {
+                setVerificationStep(item.step);
+                setVerificationStatus(item.status);
+                
+                // Only set authorized if access is granted
+                if (item.step === 3) {
+                    setAuthorized(true);
+                    
+                    // Animate the button
+                    anime({
+                        targets: '.auth-button',
+                        backgroundColor: '#10b981',
+                        scale: [1, 1.05, 1],
+                        duration: 600
+                    });
+                }
+            }, item.delay);
         });
 
-        timeline
-            .add({
-                targets: '.verification-status',
-                innerHTML: ['Verifying...', 'Authenticating...', 'Identity Confirmed'],
-                duration: 1500,
-                delay: 300,
-                easing: 'steps(15)'
-            })
-            .add({
-                targets: '.auth-button',
-                backgroundColor: '#10b981',
-                scale: [1, 1.05, 1],
-                duration: 600
-            }, '-=800');
-
-        // Add slight delay before actual submission
-        setTimeout(() => {
-            post(route('warehouse.login'));
-        }, 2000);
+        // Add slight delay before actual submission - only submit if no errors
+        if (!hasErrors) {
+            setTimeout(() => {
+                post(route('warehouse.login'));
+            }, 3000);
+        } else {
+            // Shake the form to indicate error
+            setTimeout(() => {
+                anime({
+                    targets: formRef.current,
+                    translateX: [0, -10, 10, -10, 10, 0],
+                    duration: 400,
+                    easing: 'easeInOutQuad'
+                });
+            }, 2600);
+        }
     };
 
     // Simulate loading state
@@ -457,10 +493,49 @@ export default function Login() {
                                 </div>
 
                                 {/* Verification status */}
-                                <div className="h-6 flex items-start">
-                                    <span className={`verification-status text-sm font-medium ${authorized ? 'text-emerald-400' : 'text-slate-500'} flex items-center transition-colors duration-300`}>
-                                        {authorized && <CheckCircle className="h-4 w-4 mr-1.5" />}
-                                    </span>
+                                <div className="animate-input mt-2">
+                                    <div className={`h-12 flex items-center ${verificationStep > 0 ? 'justify-center' : 'justify-start'} p-2 rounded-lg border ${verificationStep === 0 ? 'border-transparent' : 'border-slate-700/50 bg-slate-800/30'} transition-all duration-300`}>
+                                        {verificationStep === 0 && (
+                                            <span className="text-sm font-medium text-slate-500">Ready to authenticate</span>
+                                        )}
+                                        
+                                        {verificationStep === 1 && (
+                                            <div className="flex items-center space-x-3">
+                                                <div className="relative flex items-center justify-center w-6 h-6">
+                                                    <Loader2 className="h-6 w-6 text-emerald-500 animate-spin" />
+                                                </div>
+                                                <span className="text-sm font-medium text-emerald-400">{verificationStatus}</span>
+                                            </div>
+                                        )}
+                                        
+                                        {verificationStep === 2 && (
+                                            <div className="flex items-center space-x-3">
+                                                <div className="relative flex items-center justify-center w-6 h-6">
+                                                    <div className="h-6 w-6 border-2 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin"></div>
+                                                    <ShieldCheck className="h-3 w-3 text-emerald-400 absolute" />
+                                                </div>
+                                                <span className="text-sm font-medium text-emerald-400">{verificationStatus}</span>
+                                            </div>
+                                        )}
+                                        
+                                        {verificationStep === 3 && (
+                                            <div className="flex items-center space-x-3">
+                                                <div className="relative flex items-center justify-center w-6 h-6">
+                                                    <CircleCheck className="h-6 w-6 text-emerald-500" />
+                                                </div>
+                                                <span className="text-sm font-medium text-emerald-400">{verificationStatus}</span>
+                                            </div>
+                                        )}
+                                        
+                                        {verificationStep === 4 && (
+                                            <div className="flex items-center space-x-3">
+                                                <div className="relative flex items-center justify-center w-6 h-6">
+                                                    <CircleAlert className="h-6 w-6 text-rose-500" />
+                                                </div>
+                                                <span className="text-sm font-medium text-rose-500">{verificationStatus}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 {/* Submit button */}
