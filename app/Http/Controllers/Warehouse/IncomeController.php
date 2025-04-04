@@ -56,7 +56,62 @@ class IncomeController extends Controller
      */
     public function show($id)
     {
-        // Implementation for showing an income record
+        $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
+
+        $incomeRecord = $warehouse->warehouseIncome()->findOrFail($id);
+
+        $income = [
+            'id' => $incomeRecord->id,
+            'reference' => $incomeRecord->reference_number,
+            'amount' => (float) $incomeRecord->total,
+            'quantity' => (float) $incomeRecord->quantity,
+            'price' => (float) $incomeRecord->price,
+            'date' => $incomeRecord->created_at->format('Y-m-d'),
+            'created_at' => $incomeRecord->created_at->format('Y-m-d H:i:s'),
+            'formatted_date' => $incomeRecord->created_at->diffForHumans(),
+            'source' => $incomeRecord->product ? $incomeRecord->product->name : 'Unknown',
+            'product_id' => $incomeRecord->product ? $incomeRecord->product->id : null,
+            'product_details' => $incomeRecord->product ? [
+                'id' => $incomeRecord->product->id,
+                'name' => $incomeRecord->product->name,
+                'sku' => $incomeRecord->product->sku,
+                'category' => $incomeRecord->product->category ? $incomeRecord->product->category->name : null,
+                'current_stock' => $incomeRecord->product->stock,
+                'unit_price' => $incomeRecord->product->price,
+            ] : null,
+            'notes' => $incomeRecord->notes ?? null,
+            'created_by' => $incomeRecord->user ? [
+                'id' => $incomeRecord->user->id,
+                'name' => $incomeRecord->user->name,
+            ] : null,
+            'updated_at' => $incomeRecord->updated_at->diffForHumans(),
+        ];
+
+        // Get related income records for the same product
+        $relatedIncome = [];
+        if ($incomeRecord->product) {
+            $relatedIncome = $warehouse->warehouseIncome()
+                ->where('product_id', $incomeRecord->product_id)
+                ->where('id', '!=', $incomeRecord->id)
+                ->latest()
+                ->take(5)
+                ->get()
+                ->map(function ($record) {
+                    return [
+                        'id' => $record->id,
+                        'reference' => $record->reference_number,
+                        'amount' => (float) $record->total,
+                        'quantity' => (float) $record->quantity,
+                        'date' => $record->created_at->format('Y-m-d'),
+                        'created_at' => $record->created_at->diffForHumans(),
+                    ];
+                });
+        }
+
+        return Inertia::render('Warehouse/IncomeDetails', [
+            'income' => $income,
+            'relatedIncome' => $relatedIncome,
+        ]);
     }
 
     /**
