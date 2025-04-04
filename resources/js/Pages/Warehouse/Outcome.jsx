@@ -8,22 +8,199 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
 import {
     Search, TrendingUp, ChevronRight, Plus, Filter, ArrowUpRight, ArrowDownRight,
     BarChart3, Calendar, Clock, Download, MoreHorizontal, ExternalLink, Tag, User,
-    CreditCard, DollarSign, Mail, Settings, Inbox, ChevronDown, Eye, RefreshCw, Sliders
+    CreditCard, DollarSign, Mail, Settings, Inbox, ChevronDown, Eye, RefreshCw, Sliders,
+    ShoppingCart
 } from 'lucide-react';
 import anime from 'animejs';
 import Navigation from '@/Components/Warehouse/Navigation';
 import { motion } from 'framer-motion';
 
-export default function Outcome({ auth, outcome }) {
-    // Add debugging to check outcome data
-    console.log("Outcome data received:", outcome);
+// Add PageLoader component
+const PageLoader = ({ isVisible }) => {
+    return (
+        <motion.div
+            className="fixed inset-0 bg-gradient-to-br from-rose-900 via-red-900 to-rose-950 z-50 flex flex-col items-center justify-center overflow-hidden"
+            initial={{ opacity: 1 }}
+            animate={{
+                opacity: isVisible ? 1 : 0,
+                pointerEvents: isVisible ? 'all' : 'none'
+            }}
+            transition={{ duration: 0.5, ease: 'easeInOut' }}
+        >
+            {/* Background patterns */}
+            <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
 
+            {/* Animated light beams */}
+            <div className="absolute w-full h-full overflow-hidden">
+                {[...Array(5)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute bg-gradient-to-r from-rose-400/10 via-red-500/10 to-transparent h-[30vh] w-[100vw]"
+                        style={{
+                            top: `${10 + i * 20}%`,
+                            left: '-100%',
+                            transformOrigin: 'left center',
+                            rotate: `${-20 + i * 10}deg`,
+                        }}
+                        animate={{
+                            left: ['100%', '-100%'],
+                        }}
+                        transition={{
+                            duration: 15 + i * 2,
+                            repeat: Infinity,
+                            ease: "linear",
+                            delay: i * 3,
+                        }}
+                    />
+                ))}
+            </div>
+
+            {/* Animated particles */}
+            <div className="absolute inset-0">
+                {[...Array(30)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute rounded-full bg-white"
+                        style={{
+                            width: Math.random() * 4 + 1,
+                            height: Math.random() * 4 + 1,
+                            x: `${Math.random() * 100}%`,
+                            y: `${Math.random() * 100}%`,
+                            opacity: Math.random() * 0.5 + 0.2,
+                        }}
+                        animate={{
+                            y: [null, `${-Math.random() * 100 - 50}%`],
+                            opacity: [null, 0],
+                        }}
+                        transition={{
+                            duration: Math.random() * 10 + 5,
+                            repeat: Infinity,
+                            ease: "linear",
+                        }}
+                    />
+                ))}
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center">
+                {/* Main animated container */}
+                <motion.div
+                    className="relative"
+                    animate={{
+                        scale: [0.95, 1.05, 0.95],
+                    }}
+                    transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                >
+                    {/* Pulsing background circles */}
+                    <motion.div
+                        className="absolute w-64 h-64 rounded-full bg-rose-600/5 filter blur-2xl"
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.3, 0.5, 0.3]
+                        }}
+                        transition={{
+                            duration: 5,
+                            repeat: Infinity,
+                            ease: "easeInOut"
+                        }}
+                    />
+                    <motion.div
+                        className="absolute w-72 h-72 rounded-full bg-red-500/5 filter blur-2xl transform -translate-x-4 translate-y-4"
+                        animate={{
+                            scale: [1.2, 1, 1.2],
+                            opacity: [0.3, 0.5, 0.3]
+                        }}
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                            delay: 1
+                        }}
+                    />
+
+                    {/* Animated logo/icon container */}
+                    <div className="relative flex items-center justify-center h-40 w-40">
+                        {/* Spinning rings */}
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-rose-300/10"
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 20,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+                        <motion.div
+                            className="absolute h-[85%] w-[85%] rounded-full border-4 border-red-400/20"
+                            animate={{
+                                rotate: -360,
+                            }}
+                            transition={{
+                                duration: 15,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+                        <motion.div
+                            className="absolute h-[70%] w-[70%] rounded-full border-4 border-rose-400/30"
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 10,
+                                ease: "linear",
+                                repeat: Infinity
+                            }}
+                        />
+
+                        {/* Spinner arcs */}
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-r-rose-400 border-t-transparent border-l-transparent border-b-transparent"
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
+                        />
+                        <motion.div
+                            className="absolute h-full w-full rounded-full border-4 border-b-red-400 border-t-transparent border-l-transparent border-r-transparent"
+                            animate={{ rotate: -180 }}
+                            transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
+                        />
+
+                        {/* Icon/logo in center */}
+                        <motion.div
+                            className="relative z-10 bg-gradient-to-br from-rose-500 to-red-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
+                            animate={{
+                                rotate: [0, 10, 0, -10, 0],
+                                scale: [1, 1.1, 1, 1.1, 1]
+                            }}
+                            transition={{
+                                duration: 5,
+                                repeat: Infinity,
+                                ease: "easeInOut"
+                            }}
+                        >
+                            <TrendingUp className="h-10 w-10 text-white drop-shadow-lg rotate-180" />
+                        </motion.div>
+                    </div>
+                </motion.div>
+            </div>
+        </motion.div>
+    );
+};
+
+export default function Outcome({ auth, outcome }) {
     const [searchTerm, setSearchTerm] = useState('');
     const [view, setView] = useState('grid');
     const [isAnimated, setIsAnimated] = useState(false);
     const [dateFilter, setDateFilter] = useState('all');
     const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
     const [showCharts, setShowCharts] = useState(true);
+    // Add a new state for loading
+    const [loading, setLoading] = useState(true);
 
     // Refs for animation targets
     const headerRef = useRef(null);
@@ -282,9 +459,46 @@ export default function Outcome({ auth, outcome }) {
         });
     };
 
+    // Add useEffect to handle page loading
+    useEffect(() => {
+        // Simulate loading delay
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, []);
+
     return (
         <>
-            <Head title="Warehouse Outcome" />
+            <Head title="Warehouse Outcome">
+                <style>{`
+                    @keyframes shimmer {
+                        0% {
+                            transform: translateX(-100%);
+                        }
+                        100% {
+                            transform: translateX(100%);
+                        }
+                    }
+                    .animate-shimmer {
+                        animation: shimmer 3s infinite;
+                    }
+
+                    .bg-grid-pattern {
+                        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+                        background-size: 14px 14px;
+                    }
+
+                    .dark .bg-grid-pattern {
+                        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                    }
+                `}</style>
+            </Head>
+
+            <PageLoader isVisible={loading} />
 
             <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
                 {/* Sidebar */}
@@ -575,7 +789,7 @@ export default function Outcome({ auth, outcome }) {
                                                         </CardContent>
 
                                                         <CardFooter className="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-between">
-                                                            <Link href={route('warehouse.outcome.show',record.id)}>
+                                                            <Link href={route('warehouse.outcome.show', { outcome: record.id })}>
                                                                 <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center gap-1 px-2 h-8">
                                                                     <Eye className="h-3.5 w-3.5" />
                                                                     <span>View</span>
@@ -585,7 +799,7 @@ export default function Outcome({ auth, outcome }) {
                                                                 <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 w-8 h-8 p-0">
                                                                     <MoreHorizontal className="h-4 w-4" />
                                                                 </Button>
-                                                                <Link href={route('warehouse.outcome.show',record.id)}>
+                                                                <Link href={route('warehouse.outcome.show', { outcome: record.id })}>
                                                                     <Button variant="default" size="sm" className="bg-rose-500 hover:bg-rose-600 text-white rounded-lg h-8">
                                                                         Details
                                                                     </Button>
@@ -676,7 +890,7 @@ export default function Outcome({ auth, outcome }) {
                                                             ${record.amount.toFixed(2)}
                                                         </div>
                                                         <div className="col-span-2 md:col-span-1 lg:col-span-2 flex justify-end gap-1">
-                                                            <Link href={route('warehouse.outcome.show', record.id)}>
+                                                            <Link href={route('warehouse.outcome.show', { outcome: record.id })}>
                                                                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                     <Eye className="h-4 w-4" />
                                                                 </Button>
@@ -684,7 +898,7 @@ export default function Outcome({ auth, outcome }) {
                                                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
-                                                            <Link href={route('warehouse.outcome.show', record.id)}>
+                                                            <Link href={route('warehouse.outcome.show', { outcome: record.id })}>
                                                                 <Button variant="outline" size="sm" className="h-8 bg-white dark:bg-transparent dark:text-slate-400 dark:border-slate-700 text-slate-700 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
                                                                     <span>Details</span>
                                                                     <ChevronRight className="h-3.5 w-3.5 ml-1" />

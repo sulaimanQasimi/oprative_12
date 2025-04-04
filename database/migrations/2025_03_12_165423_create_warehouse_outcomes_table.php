@@ -14,6 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('warehouse_outcomes', function (Blueprint $table) {
+            $table->id();
             $table->string('reference_number');
             $table->foreignIdFor(Warehouse::class);
             $table->foreignIdFor(Product::class);
