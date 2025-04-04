@@ -1424,115 +1424,191 @@ export default function Sale({ auth, sales }) {
                                     <>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {paginatedSales.map((record, index) => (
-                                                <Card
+                                                <motion.div
                                                     key={record.id}
-                                                    className="overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 relative group hover:translate-y-[-3px]"
-                                                    onMouseEnter={(e) => {
-                                                        try {
-                                                            animateHover(e.currentTarget, true);
-                                                        } catch (error) {
-                                                            console.error("Error in animateHover:", error);
-                                                        }
-                                                    }}
-                                                    onMouseLeave={(e) => {
-                                                        try {
-                                                            animateHover(e.currentTarget, false);
-                                                        } catch (error) {
-                                                            console.error("Error in animateHover:", error);
-                                                        }
+                                                    ref={el => gridItemsRef.current[index] = el}
+                                                    className="relative group"
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                                                    whileHover={{
+                                                        y: -8,
+                                                        transition: { duration: 0.2, ease: "easeOut" }
                                                     }}
                                                 >
-                                                    <div
-                                                        ref={el => gridItemsRef.current[index] = el}
-                                                        className="w-full h-full"
-                                                    >
-                                                        <div className="h-2 bg-gradient-to-r from-blue-400 via-blue-500 to-indigo-600" />
+                                                    <Card className="overflow-hidden border-0 h-full bg-white dark:bg-gray-800/90 backdrop-blur-sm shadow-md group-hover:shadow-xl transition-all duration-300 relative group-hover:z-10">
+                                                        {/* Glass effect overlay */}
+                                                        <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-blue-50/30 dark:from-gray-800/40 dark:to-blue-900/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
 
-                                                        {/* Add subtle shimmer effect */}
-                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-shimmer pointer-events-none"></div>
+                                                        {/* Status indicator stripe */}
+                                                        <div className={`absolute top-0 left-0 w-full h-1.5 ${
+                                                            record.status === 'completed'
+                                                                ? 'bg-gradient-to-r from-green-400 to-emerald-500'
+                                                                : record.status === 'pending'
+                                                                    ? 'bg-gradient-to-r from-amber-400 to-yellow-500'
+                                                                    : 'bg-gradient-to-r from-red-400 to-rose-500'
+                                                        }`}></div>
 
-                                                        <div className="absolute top-4 right-4 z-10">
-                                                            <Badge className={`${
-                                                                record.status === 'completed'
-                                                                    ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/30'
-                                                                    : record.status === 'pending'
-                                                                        ? 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800/30'
-                                                                        : 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/30'
-                                                            } hover:bg-opacity-90 shadow-sm font-medium transition-all duration-200 px-2.5 py-1`}>
-                                                                {record.status}
-                                                            </Badge>
+                                                        {/* Shine effect */}
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none"></div>
+
+                                                        {/* Header section - Redesigned for better handling of long references */}
+                                                        <div className="px-5 pt-5 pb-3">
+                                                            <div className="flex items-center justify-between mb-3">
+                                                                <div className="relative">
+                                                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full opacity-70 blur-sm group-hover:opacity-100 transition-opacity"></div>
+                                                                    <div className="relative h-12 w-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white shadow-md transform group-hover:scale-110 transition-transform">
+                                                                        <ShoppingCart className="h-5 w-5" />
+                                                                    </div>
+                                                                </div>
+
+                                                                <Badge className={`
+                                                                    ${record.status === 'completed'
+                                                                        ? 'bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800/30'
+                                                                        : record.status === 'pending'
+                                                                            ? 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800/30'
+                                                                            : 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800/30'
+                                                                } hover:bg-opacity-90 shadow-sm font-medium transition-all duration-200 px-2.5 py-1 flex items-center gap-1.5 whitespace-nowrap flex-shrink-0`}>
+                                                                    <span className={`h-1.5 w-1.5 rounded-full ${
+                                                                        record.status === 'completed' ? 'bg-green-500' :
+                                                                        record.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
+                                                                    } animate-pulse`}></span>
+                                                                    {record.status}
+                                                                </Badge>
+                                                            </div>
+
+                                                            {/* Reference and ID info as a separate section */}
+                                                            <div>
+                                                                <h3 className="font-semibold text-lg text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate" title={record.reference}>
+                                                                    {record.reference}
+                                                                </h3>
+                                                                <div className="flex justify-between items-center text-xs mt-0.5">
+                                                                    <span className="text-gray-500 dark:text-gray-400">
+                                                                        ID: <span className="font-medium text-gray-700 dark:text-gray-300">{record.id}</span>
+                                                                    </span>
+                                                                    <span className="font-medium text-blue-600 dark:text-blue-400">
+                                                                        ${record.amount.toFixed(2)}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-white/20 to-indigo-50/20 dark:from-blue-900/10 dark:via-gray-900/0 dark:to-indigo-900/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                                                        <CardContent className="p-6 pt-8 relative z-0">
-                                                            <div className="flex items-start">
-                                                                <div className="h-14 w-14 bg-gradient-to-br from-blue-400 to-indigo-600 rounded-xl flex items-center justify-center text-white mr-4 shadow-lg group-hover:shadow-blue-500/20 transition-all">
-                                                                    <ShoppingCart className="h-7 w-7" />
-                                                                </div>
+
+                                                        {/* Main content */}
+                                                        <CardContent className="px-5 pt-2 pb-5">
+                                                            {/* Customer info */}
+                                                            <div className="flex items-center gap-2 bg-gray-50/80 dark:bg-gray-700/30 p-2.5 rounded-lg mb-5 border border-gray-100 dark:border-gray-700 group-hover:border-blue-200/50 dark:group-hover:border-blue-800/30 transition-colors">
+                                                                <Avatar className="h-8 w-8 border-2 border-white shadow-sm dark:border-gray-700">
+                                                                    <AvatarFallback className="bg-gradient-to-br from-blue-400 to-indigo-500 text-white text-xs font-semibold">
+                                                                        {record.customer.charAt(0)}
+                                                                    </AvatarFallback>
+                                                                </Avatar>
                                                                 <div>
-                                                                    <h3 className="font-medium text-lg text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{record.reference}</h3>
-                                                                    <div className="mt-1 flex flex-wrap gap-2">
-                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1 text-xs px-2 py-0.5">
-                                                                            <Tag className="h-3 w-3" />
-                                                                            ID: {record.id}
-                                                                        </Badge>
-                                                                        <Badge variant="secondary" className="bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300 flex items-center gap-1 text-xs px-2 py-0.5">
-                                                                            <User className="h-3 w-3" />
-                                                                            {record.customer}
-                                                                        </Badge>
-                                                                    </div>
+                                                                    <div className="text-xs text-gray-500 dark:text-gray-400">Customer</div>
+                                                                    <div className="text-sm font-medium text-gray-800 dark:text-white">{record.customer}</div>
                                                                 </div>
                                                             </div>
 
-                                                            <div className="mt-6 grid grid-cols-2 gap-4">
-                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 group-hover:border-blue-200 dark:group-hover:border-blue-900/30 transition-colors">
-                                                                    <div className="flex items-center gap-1.5 mb-1">
-                                                                        <Calendar className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Date</p>
+                                                            <div className="grid grid-cols-2 gap-3">
+                                                                {/* Date info */}
+                                                                <div className="bg-gradient-to-br from-gray-50/80 to-white dark:from-gray-800/50 dark:to-gray-800/80 rounded-xl p-3 border border-gray-100 dark:border-gray-700 group-hover:border-blue-200/50 dark:group-hover:border-blue-800/30 transition-colors shadow-sm">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                                                            <Calendar className="h-3.5 w-3.5 text-blue-500" />
+                                                                            Date
+                                                                        </div>
+                                                                        <div className="h-6 w-6 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
+                                                                            <Calendar className="h-3 w-3 text-blue-500 dark:text-blue-400" />
+                                                                        </div>
                                                                     </div>
-                                                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.date}</p>
+                                                                    <div className="mt-1 text-sm font-semibold text-gray-800 dark:text-white">{record.date}</div>
                                                                 </div>
-                                                                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-3 rounded-lg border border-gray-200 dark:border-gray-700 group-hover:border-blue-200 dark:group-hover:border-blue-900/30 transition-colors">
-                                                                    <div className="flex items-center gap-1.5 mb-1">
-                                                                        <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
-                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">Created</p>
+
+                                                                {/* Time info */}
+                                                                <div className="bg-gradient-to-br from-gray-50/80 to-white dark:from-gray-800/50 dark:to-gray-800/80 rounded-xl p-3 border border-gray-100 dark:border-gray-700 group-hover:border-blue-200/50 dark:group-hover:border-blue-800/30 transition-colors shadow-sm">
+                                                                    <div className="flex items-center justify-between">
+                                                                        <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                                                                            <Clock className="h-3.5 w-3.5 text-amber-500" />
+                                                                            Created
+                                                                        </div>
+                                                                        <div className="h-6 w-6 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
+                                                                            <Clock className="h-3 w-3 text-amber-500 dark:text-amber-400" />
+                                                                        </div>
                                                                     </div>
-                                                                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{record.created_at}</p>
-                                                                </div>
-                                                                <div className="col-span-2 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-900/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800 shadow-sm group-hover:shadow-md transition-shadow">
-                                                                    <div className="flex items-center gap-1.5 mb-1">
-                                                                        <ArrowUpRight className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                                                                        <p className="text-xs text-gray-600 dark:text-gray-400">Amount</p>
-                                                                    </div>
-                                                                    <p className="text-xl font-semibold text-blue-600 dark:text-blue-400 group-hover:scale-105 transform transition-transform origin-left">${record.amount.toFixed(2)}</p>
+                                                                    <div className="mt-1 text-sm font-semibold text-gray-800 dark:text-white">{record.created_at}</div>
                                                                 </div>
                                                             </div>
 
+                                                            {/* Amount */}
+                                                            <div className="mt-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/30 rounded-xl p-4 border border-blue-100 dark:border-blue-900/30 shadow-sm group-hover:shadow transform group-hover:scale-[1.02] transition-all duration-300 origin-center">
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="text-xs text-blue-700/70 dark:text-blue-300/70 font-medium">Total Amount</div>
+                                                                    <motion.div
+                                                                        className="h-7 w-7 rounded-full bg-blue-500/10 flex items-center justify-center"
+                                                                        animate={{ rotate: [0, 5, 0, -5, 0] }}
+                                                                        transition={{ repeat: Infinity, duration: 5, ease: "easeInOut" }}
+                                                                    >
+                                                                        <CreditCard className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                                                                    </motion.div>
+                                                                </div>
+                                                                <div className="mt-1 flex items-baseline">
+                                                                    <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">
+                                                                        ${record.amount.toFixed(2)}
+                                                                    </div>
+                                                                    <div className="ml-2 text-xs text-blue-600/70 dark:text-blue-300/70 flex items-center">
+                                                                        <BarChart3 className="h-3 w-3 mr-0.5" />
+                                                                        {record.items_count || 0} items
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Progress indicator for amount */}
+                                                                <div className="mt-2 h-1.5 bg-blue-200/50 dark:bg-blue-800/30 rounded-full overflow-hidden">
+                                                                    <motion.div
+                                                                        className="h-full bg-gradient-to-r from-blue-500 to-indigo-500"
+                                                                        initial={{ width: 0 }}
+                                                                        animate={{ width: `${Math.min(100, (record.amount / 2000) * 100)}%` }}
+                                                                        transition={{ duration: 1, delay: 0.2 }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Notes section (conditionally rendered) */}
                                                             {record.notes && (
-                                                                <div className="mt-4 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                    <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">Notes</p>
-                                                                    <p className="text-sm text-gray-700 dark:text-gray-300">{record.notes}</p>
+                                                                <div className="mt-3 bg-gradient-to-br from-gray-50/80 to-white dark:from-gray-800/50 dark:to-gray-800/80 rounded-xl p-3 border border-gray-100 dark:border-gray-700">
+                                                                    <div className="flex items-center gap-1 mb-1">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"></path><path d="M9 9h1"></path><path d="M9 13h6"></path><path d="M9 17h6"></path></svg>
+                                                                        <span className="text-xs text-gray-600 dark:text-gray-400">Notes</span>
+                                                                    </div>
+                                                                    <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{record.notes}</p>
                                                                 </div>
                                                             )}
                                                         </CardContent>
-                                                        <CardFooter className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-4 flex justify-between border-t border-gray-200 dark:border-gray-700 relative z-0">
-                                                            <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
-                                                                <BarChart3 className="h-4 w-4 text-blue-500" />
-                                                                Items: {record.items_count || 0}
-                                                            </span>
-                                                            <div className="flex gap-2">
-                                                                <Button variant="outline" size="sm" className="h-8 w-8 p-0 text-gray-500 rounded-full hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors duration-200">
-                                                                    <MoreHorizontal className="h-4 w-4" />
+
+                                                        {/* Footer with actions */}
+                                                        <div className="px-5 py-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between bg-gray-50/70 dark:bg-gray-800/50">
+                                                            <div className="flex items-center space-x-1">
+                                                                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-full text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                                                                 </Button>
-                                                                <Link href={record.detail_url}>
-                                                                    <Button variant="default" size="sm" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-sm hover:shadow-md transition-all duration-200">
-                                                                        Details
-                                                                        <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
-                                                                    </Button>
-                                                                </Link>
+                                                                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-full text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400">
+                                                                    <MoreHorizontal className="h-3.5 w-3.5" />
+                                                                </Button>
                                                             </div>
-                                                        </CardFooter>
-                                                    </div>
-                                                </Card>
+
+                                                            <Link href={record.detail_url} className="group/btn">
+                                                                <Button
+                                                                    variant="default"
+                                                                    size="sm"
+                                                                    className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white shadow-sm hover:shadow-md transition-all duration-200 h-8"
+                                                                >
+                                                                    <span className="pr-1">View Details</span>
+                                                                    <span className="group-hover/btn:translate-x-0.5 transition-transform">
+                                                                        <ExternalLink className="h-3 w-3" />
+                                                                    </span>
+                                                                </Button>
+                                                            </Link>
+                                                        </div>
+                                                    </Card>
+                                                </motion.div>
                                             ))}
                                         </div>
 

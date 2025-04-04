@@ -25,7 +25,7 @@ class SaleController extends Controller
                 return [
                     'id' => $sale->id,
                     'reference' => $sale->reference,
-                    'amount' => (float) $sale->total_amount,
+                    'amount' => (float) $sale->total,
                     'date' => $sale->date->format('Y-m-d'),
                     'status' => $sale->status,
                     'customer' => $sale->customer ? $sale->customer->name : 'Unknown',
@@ -41,40 +41,9 @@ class SaleController extends Controller
                     'invoice_url' => route('warehouse.sales.invoice', $sale->id),
                 ];
             });
-
         return Inertia::render('Warehouse/Sale', [
             'sales' => $sales,
         ]);
-    }
-
-    /**
-     * Show the form for creating a new sale.
-     */
-    public function create()
-    {
-        // Implementation for create form
-        return Inertia::render('Warehouse/CreateSale');
-    }
-
-    /**
-     * Store a newly created sale in storage.
-     */
-    public function store(Request $request)
-    {
-        // Implementation for storing a sale
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'reference' => 'required|string|max:255',
-            'date' => 'required|date',
-            'notes' => 'nullable|string',
-            'items' => 'required|array|min:1',
-            'items.*.product_id' => 'required|exists:products,id',
-            'items.*.quantity' => 'required|numeric|min:0.01',
-            'items.*.price' => 'required|numeric|min:0.01',
-        ]);
-
-        // Implementation for creating a sale record
-        return redirect()->route('warehouse.sales')->with('success', 'Sale created successfully.');
     }
 
     /**
@@ -112,17 +81,18 @@ class SaleController extends Controller
         });
 
         // Transform payments
-        $payments = $sale->payments->map(function ($payment) {
-            return [
-                'id' => $payment->id,
-                'payment_date' => $payment->payment_date->format('Y-m-d'),
-                'amount' => (float) $payment->amount,
-                'payment_method' => $payment->payment_method,
-                'reference' => $payment->reference,
-                'notes' => $payment->notes,
-                'currency' => $payment->currency ? $payment->currency->code : null
-            ];
-        });
+        $payments = $sale->payments
+            ->map(function ($payment) {
+                return [
+                    'id' => $payment->id,
+                    'payment_date' => $payment->payment_date->format('Y-m-d'),
+                    'amount' => (float) $payment->amount,
+                    'payment_method' => $payment->payment_method,
+                    'reference' => $payment->reference,
+                    'notes' => $payment->notes,
+                    'currency' => $payment->currency ? $payment->currency->code : null
+                ];
+            });
 
         // Transform customer data
         $customer = [
