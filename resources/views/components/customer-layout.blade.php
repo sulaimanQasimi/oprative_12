@@ -7,9 +7,7 @@
 
         <title>{{ config('app.name', 'Laravel') }} - @lang('Customer Portal')</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-     
+       
         <!-- Jalali Date Picker -->
         <script>
             // Global jalaliDatepicker object
