@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, Component } from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/Components/ui/card';
@@ -9,7 +10,7 @@ import {
     Search, TrendingUp, ChevronRight, Plus, Filter, ArrowUpRight, ArrowDownRight,
     BarChart3, Calendar, Clock, Download, MoreHorizontal, ExternalLink, Tag, User,
     CreditCard, DollarSign, Mail, Settings, Inbox, ChevronDown, Eye, RefreshCw, Sliders,
-    ShoppingCart, Package, UserCheck, Layers, PieChart, Grid, List, LayoutGrid
+    ShoppingCart, Package, UserCheck, Layers, PieChart, Grid, List, LayoutGrid, AlertTriangle
 } from 'lucide-react';
 import anime from 'animejs';
 import Navigation from '@/Components/Warehouse/Navigation';
@@ -274,10 +275,14 @@ const ProductsWithErrorBoundary = ({ auth, products }) => (
 );
 
 export default function Products({ auth, products }) {
+    const { t } = useLaravelReactI18n();
+    
     const [searchTerm, setSearchTerm] = useState('');
     const [view, setView] = useState('grid');
     const [isAnimated, setIsAnimated] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [isFiltersVisible, setIsFiltersVisible] = useState(false);
+    const [viewMode, setViewMode] = useState('grid'); // grid, table
 
     // Refs for animation targets
     const headerRef = useRef(null);

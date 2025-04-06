@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { Card, CardContent, CardFooter, CardHeader } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -23,6 +24,8 @@ import {
 import Navigation from '@/Components/Warehouse/Navigation';
 
 export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
+    const { t } = useLaravelReactI18n();
+    
     // Debugging
     console.log("Outcome details:", outcome);
     console.log("Related outcome:", relatedOutcome);
@@ -32,7 +35,7 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
 
     return (
         <>
-            <Head title={`Transaction: ${outcome.reference}`} />
+            <Head title={t(`Transaction: ${outcome.reference}`)} />
 
             <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
                 {/* Sidebar */}
@@ -50,7 +53,7 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                 <ArrowLeft className="h-5 w-5" />
                             </Link>
                             <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400 mb-0.5">Outcome Transaction Details</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400 mb-0.5">{t('Outcome Transaction Details')}</span>
                                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
                                     {outcome.reference}
                                 </h1>
@@ -59,11 +62,11 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                         <div className="flex items-center gap-3">
                             <Button variant="outline" size="sm" className="rounded-full border-slate-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20">
                                 <Trash2 className="h-4 w-4 mr-1.5" />
-                                <span>Delete</span>
+                                <span>{t('Delete')}</span>
                             </Button>
                             <Button variant="outline" size="sm" className="rounded-full border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
                                 <Edit className="h-4 w-4 mr-1.5" />
-                                <span>Edit</span>
+                                <span>{t('Edit')}</span>
                             </Button>
                         </div>
                     </header>
@@ -90,17 +93,17 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                                 </div>
                                                 <div>
                                                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                                                        Outcome Transaction
+                                                        {t('Outcome Transaction')}
                                                     </h2>
                                                     <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center mt-1">
                                                         <Tag className="h-3.5 w-3.5 mr-1" />
-                                                        Reference: {outcome.reference}
+                                                        {t('Reference')}: {outcome.reference}
                                                     </p>
                                                 </div>
                                             </div>
                                             <Badge className="bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 rounded-full text-sm px-3 py-1 border-0">
                                                 <ArrowDownRight className="h-3.5 w-3.5 mr-1.5" />
-                                                Outcome
+                                                {t('Outcome')}
                                             </Badge>
                                         </CardHeader>
                                         <CardContent className="p-6">
@@ -109,7 +112,7 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <DollarSign className="h-4 w-4 text-rose-600 dark:text-rose-400" />
-                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Amount</span>
+                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('Amount')}</span>
                                                     </div>
                                                     <p className="text-2xl font-bold text-rose-600 dark:text-rose-400">${outcome.amount.toFixed(2)}</p>
                                                 </div>
@@ -118,7 +121,7 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <Calendar className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Date & Time</span>
+                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('Date & Time')}</span>
                                                     </div>
                                                     <p className="text-lg font-semibold text-slate-800 dark:text-white">{outcome.date}</p>
                                                     <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
@@ -131,17 +134,17 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <Package className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Product Destination</span>
+                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('Product Destination')}</span>
                                                     </div>
                                                     <p className="text-lg font-semibold text-slate-800 dark:text-white">{outcome.destination}</p>
                                                     {outcome.product_details && (
                                                         <div className="mt-2 text-sm">
                                                             <p className="text-slate-500 dark:text-slate-400">
-                                                                SKU: {outcome.product_details.sku}
+                                                                {t('SKU')}: {outcome.product_details.sku}
                                                             </p>
                                                             {outcome.product_details.category && (
                                                                 <p className="text-slate-500 dark:text-slate-400 mt-0.5">
-                                                                    Category: {outcome.product_details.category}
+                                                                    {t('Category')}: {outcome.product_details.category}
                                                                 </p>
                                                             )}
                                                         </div>
@@ -152,17 +155,17 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                                 <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-200 dark:border-slate-700">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <ShoppingCart className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Quantity & Price</span>
+                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{t('Quantity & Price')}</span>
                                                     </div>
                                                     <div className="flex justify-between items-center">
                                                         <div>
-                                                            <p className="text-lg font-semibold text-slate-800 dark:text-white">{outcome.quantity} units</p>
+                                                            <p className="text-lg font-semibold text-slate-800 dark:text-white">{outcome.quantity} {t('units')}</p>
                                                             <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                                                                Unit Price: ${outcome.price ? outcome.price.toFixed(2) : (outcome.amount / outcome.quantity).toFixed(2)}
+                                                                {t('Unit Price')}: ${outcome.price ? outcome.price.toFixed(2) : (outcome.amount / outcome.quantity).toFixed(2)}
                                                             </p>
                                                         </div>
                                                         <div className="text-right">
-                                                            <p className="text-xs text-slate-500 dark:text-slate-400">Total Value</p>
+                                                            <p className="text-xs text-slate-500 dark:text-slate-400">{t('Total Value')}</p>
                                                             <p className="text-lg font-semibold text-rose-600 dark:text-rose-400">${outcome.amount.toFixed(2)}</p>
                                                         </div>
                                                     </div>
@@ -174,7 +177,7 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                                 <div className="mt-6 bg-amber-50 dark:bg-amber-900/10 rounded-lg p-4 border border-amber-200 dark:border-amber-900/50">
                                                     <div className="flex items-center gap-2 mb-2">
                                                         <FileText className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                                                        <span className="text-sm font-medium text-amber-800 dark:text-amber-300">Notes</span>
+                                                        <span className="text-sm font-medium text-amber-800 dark:text-amber-300">{t('Notes')}</span>
                                                     </div>
                                                     <p className="text-sm text-amber-700 dark:text-amber-300/80">{outcome.notes}</p>
                                                 </div>
@@ -185,11 +188,11 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                                 <div className="mt-6 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800 pt-4">
                                                     <div className="flex items-center gap-2">
                                                         <User className="h-4 w-4" />
-                                                        <span>Created by {outcome.created_by.name}</span>
+                                                        <span>{t('Created by')} {outcome.created_by.name}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <Clock className="h-4 w-4" />
-                                                        <span>Last updated {outcome.updated_at || outcome.created_at}</span>
+                                                        <span>{t('Last updated')} {outcome.updated_at || outcome.created_at}</span>
                                                     </div>
                                                 </div>
                                             )}
@@ -198,17 +201,17 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                             <Link href={route('warehouse.outcome')}>
                                                 <Button variant="outline" size="sm" className="text-slate-700 border-slate-300 dark:text-slate-300 dark:border-slate-600">
                                                     <ArrowLeft className="h-4 w-4 mr-1.5" />
-                                                    Back to Outcome
+                                                    {t('Back to Outcome')}
                                                 </Button>
                                             </Link>
                                             <div className="flex gap-2">
                                                 <Button variant="outline" size="sm" className="text-slate-700 border-slate-300 dark:text-slate-300 dark:border-slate-600">
                                                     <Clipboard className="h-4 w-4 mr-1.5" />
-                                                    Export
+                                                    {t('Export')}
                                                 </Button>
                                                 <Button size="sm" className="bg-rose-500 hover:bg-rose-600 text-white">
                                                     <Edit className="h-4 w-4 mr-1.5" />
-                                                    Edit Details
+                                                    {t('Edit Details')}
                                                 </Button>
                                             </div>
                                         </CardFooter>
@@ -232,10 +235,10 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                                     </div>
                                                     <div>
                                                         <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                                                            Product Information
+                                                            {t('Product Information')}
                                                         </h3>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                            Current stock and pricing
+                                                            {t('Current stock and pricing')}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -243,16 +246,16 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                             <CardContent className="p-4">
                                                 <div className="space-y-3">
                                                     <div>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400">Product Name</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">{t('Product Name')}</p>
                                                         <p className="text-sm font-medium text-slate-900 dark:text-white">{outcome.product_details.name}</p>
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-3">
                                                         <div>
-                                                            <p className="text-xs text-slate-500 dark:text-slate-400">Current Stock</p>
-                                                            <p className="text-sm font-medium text-slate-900 dark:text-white">{outcome.product_details.current_stock} units</p>
+                                                            <p className="text-xs text-slate-500 dark:text-slate-400">{t('Current Stock')}</p>
+                                                            <p className="text-sm font-medium text-slate-900 dark:text-white">{outcome.product_details.current_stock} {t('units')}</p>
                                                         </div>
                                                         <div>
-                                                            <p className="text-xs text-slate-500 dark:text-slate-400">Unit Price</p>
+                                                            <p className="text-xs text-slate-500 dark:text-slate-400">{t('Unit Price')}</p>
                                                             <p className="text-sm font-medium text-slate-900 dark:text-white">${outcome.product_details.unit_price}</p>
                                                         </div>
                                                     </div>
@@ -260,7 +263,7 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                             </CardContent>
                                             <CardFooter className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 p-3">
                                                 <Button variant="outline" size="sm" className="w-full text-purple-600 border-purple-200 hover:bg-purple-50 dark:text-purple-400 dark:border-purple-900/50 dark:hover:bg-purple-900/20">
-                                                    View Product Details
+                                                    {t('View Product Details')}
                                                 </Button>
                                             </CardFooter>
                                         </Card>
@@ -276,10 +279,10 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                                     </div>
                                                     <div>
                                                         <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                                                            Related Outcome
+                                                            {t('Related Outcome')}
                                                         </h3>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                            For same product
+                                                            {t('For same product')}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -307,7 +310,7 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                             </CardContent>
                                             <CardFooter className="bg-slate-50 dark:bg-slate-800/50 border-t border-slate-200 dark:border-slate-800 p-3">
                                                 <Button variant="outline" size="sm" className="w-full text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-900/50 dark:hover:bg-blue-900/20">
-                                                    View All Related Transactions
+                                                    {t('View All Related Transactions')}
                                                 </Button>
                                             </CardFooter>
                                         </Card>
@@ -317,21 +320,21 @@ export default function OutcomeDetails({ auth, outcome, relatedOutcome }) {
                                     <Card className="border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
                                         <CardHeader className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 p-4">
                                             <h3 className="text-base font-bold text-slate-900 dark:text-white">
-                                                Actions
+                                                {t('Actions')}
                                             </h3>
                                         </CardHeader>
                                         <CardContent className="p-4 space-y-3">
                                             <Button variant="outline" className="w-full justify-start text-slate-700 dark:text-slate-300">
                                                 <Edit className="h-4 w-4 mr-2" />
-                                                Edit Transaction
+                                                {t('Edit Transaction')}
                                             </Button>
                                             <Button variant="outline" className="w-full justify-start text-slate-700 dark:text-slate-300">
                                                 <Clipboard className="h-4 w-4 mr-2" />
-                                                Export Details
+                                                {t('Export Details')}
                                             </Button>
                                             <Button variant="outline" className="w-full justify-start text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 border-rose-200 dark:border-rose-900/50">
                                                 <Trash2 className="h-4 w-4 mr-2" />
-                                                Delete Transaction
+                                                {t('Delete Transaction')}
                                             </Button>
                                         </CardContent>
                                     </Card>

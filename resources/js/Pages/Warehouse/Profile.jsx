@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Head, useForm } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import Navigation from '@/Components/Warehouse/Navigation';
 import { toast } from 'react-hot-toast';
 import InputError from '@/Components/InputError';
@@ -191,6 +192,7 @@ const PageLoader = ({ isVisible }) => {
 };
 
 export default function Profile({ auth }) {
+    const { t } = useLaravelReactI18n();
     const { data, setData, patch, errors, processing } = useForm({
         name: auth.user.name,
         email: auth.user.email,
@@ -199,6 +201,7 @@ export default function Profile({ auth }) {
         password_confirmation: '',
     });
 
+    const [activeTab, setActiveTab] = useState('personal');
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     

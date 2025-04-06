@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/Components/ui/card';
@@ -230,11 +231,11 @@ const PageLoader = ({ isVisible }) => {
 };
 
 export default function Sale({ auth, sales }) {
+    const { t } = useLaravelReactI18n();
 
     const [searchTerm, setSearchTerm] = useState('');
     const [view, setView] = useState('grid');
     const [isAnimated, setIsAnimated] = useState(false);
-    // Add a new state for loading
     const [loading, setLoading] = useState(true);
 
     // Refs for animation targets

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { Card, CardContent, CardFooter, CardHeader } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Button } from '@/Components/ui/button';
@@ -23,6 +24,8 @@ import {
 import Navigation from '@/Components/Warehouse/Navigation';
 
 export default function IncomeDetails({ auth, income, relatedIncome }) {
+    const { t } = useLaravelReactI18n();
+    
     // Debugging
     console.log("Income details:", income);
     console.log("Related income:", relatedIncome);

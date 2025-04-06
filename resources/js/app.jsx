@@ -22,7 +22,7 @@ createInertiaApp({
                 el, 
                 <LaravelReactI18nProvider
                     locale={'fa'}
-                    fallbackLocale={'en'}
+                    fallbackLocale={'fa'}
                     files={import.meta.glob('/lang/*.json', { eager: true })}
                 >
                     <App {...props} />
@@ -34,7 +34,7 @@ createInertiaApp({
         createRoot(el).render(
             <LaravelReactI18nProvider
                 locale={'fa'} 
-                fallbackLocale={'en'}
+                fallbackLocale={'fa'}
                 files={import.meta.glob('/lang/*.json')}
             >
                 <App {...props} />

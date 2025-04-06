@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/Components/ui/card';
@@ -221,6 +222,8 @@ const PageLoader = ({ isVisible }) => {
 };
 
 export default function Dashboard({ auth, stats }) {
+    const { t } = useLaravelReactI18n();
+    
     // State for loading and animations
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
