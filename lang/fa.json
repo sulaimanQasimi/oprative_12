@@ -2371,5 +2371,49 @@
     "Year to Date": "از ابتدای سال تاکنون",
     "Quarter to Date": "از ابتدای فصل تاکنون",
     "Month to Date": "از ابتدای ماه تاکنون",
-    "Unknown Product": "محصول ناشناخته"
+    "Unknown Product": "محصول ناشناخته",
+
+    "Warehouse Management": "مدیریت انبار",
+    "Dashboard Overview": "نمای کلی داشبورد",
+    "Total Stock": "موجودی کل",
+    "products low on stock": "محصولات با موجودی کم",
+    "Inventory levels good": "سطح موجودی مناسب است",
+    "Inventory Value": "ارزش موجودی",
+    "from last month": "از ماه گذشته",
+    "Total Sales": "فروش کل",
+    "units sold": "واحد فروخته شده",
+    "Total Profit": "سود کل",
+    "Margin": "حاشیه سود",
+    "Turnover Rate": "نرخ گردش",
+    "Higher is better": "بالاتر بهتر است",
+    "Monthly Sales (Current Year)": "فروش ماهانه (سال جاری)",
+    "Top Selling Products": "پرفروش ترین محصولات",
+    "Top 5 Products": "5 محصول برتر",
+    "In": "ورودی",
+    "Out": "خروجی",
+    "Stock": "موجودی",
+    "Daily Activity (Last 7 Days)": "فعالیت روزانه (7 روز گذشته)",
+    "Recent Product Movement": "حرکت اخیر محصولات",
+    "View All": "مشاهده همه",
+    "No recent product activity": "هیچ فعالیت محصولی اخیراً ثبت نشده",
+    "Recent Transactions": "تراکنش های اخیر",
+    "View Income": "مشاهده ورودی ها",
+    "View Outcome": "مشاهده خروجی ها",
+    "Ref": "مرجع",
+    "Items": "آیتم ها",
+    "No recent transactions": "هیچ تراکنش اخیراً ثبت نشده",
+    "Start tracking your warehouse income and expenses": "ردیابی درآمد و هزینه های انبار خود را شروع کنید",
+    "Add Transaction": "افزودن تراکنش",
+    "Details": "جزئیات",
+    "Sales": "فروش",
+    "Month": "ماه",
+    "Quantity Sold": "تعداد فروخته شده",
+    "transactions": "تراکنش ها"
+
+
+
+
+
+
+    
 }

@@ -318,7 +318,7 @@ export default function Dashboard({ auth, stats }) {
 
     return (
         <>
-            <Head title="Warehouse Dashboard">
+            <Head title={t('Warehouse Dashboard')}>
                 <style>{`
                     @keyframes shimmer {
                         0% {
@@ -675,8 +675,8 @@ export default function Dashboard({ auth, stats }) {
                                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
                                                             <YAxis axisLine={false} tickLine={false} tickFormatter={(value) => `$${value}`} tick={{ fill: '#64748b' }} />
                                                             <Tooltip
-                                                                formatter={(value) => [`$${value.toFixed(2)}`, 'Sales']}
-                                                                labelFormatter={(label) => `Month: ${label}`}
+                                                                formatter={(value) => [`$${value.toFixed(2)}`, t('Sales')]}
+                                                                labelFormatter={(label) => `${t('Month')}: ${label}`}
                                                                 contentStyle={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
                                                             />
                                                             <Bar dataKey="value" fill="#10b981" radius={[4, 4, 0, 0]}>
@@ -736,12 +736,12 @@ export default function Dashboard({ auth, stats }) {
                                                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                                                     ))}
                                                                 </Pie>
-                                                                <Tooltip formatter={(value) => [`${value} units`, 'Quantity Sold']} contentStyle={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+                                                                <Tooltip formatter={(value) => [`${value} ${t('units')}`, t('Quantity Sold')]} contentStyle={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
                                                             </PieChart>
                                                         </ResponsiveContainer>
                                                     </div>
                                                     <div>
-                                                        <h3 className="text-sm font-medium mb-4 text-slate-900 dark:text-white">Top 5 Products</h3>
+                                                        <h3 className="text-sm font-medium mb-4 text-slate-900 dark:text-white">{t('Top 5 Products')}</h3>
                                                         <div className="space-y-4">
                                                             {stats?.top_selling_products?.map((product, index) => (
                                                                 <div key={product.product_id} className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">

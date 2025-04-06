@@ -55,6 +55,8 @@ const AnimatedCounter = ({ value, prefix = '', suffix = '', duration = 1500 }) =
 
 // Add PageLoader component
 const PageLoader = ({ isVisible }) => {
+    const { t } = useLaravelReactI18n();
+    
     return (
         <motion.div
             className="fixed inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 z-50 flex flex-col items-center justify-center overflow-hidden"
@@ -247,18 +249,20 @@ class ErrorBoundary extends Component {
     }
     
     render() {
+        const { t } = this.props.i18n;
+        
         if (this.state.hasError) {
             return (
                 <div className="p-8 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-100 dark:border-red-900/50 my-4">
-                    <h2 className="text-xl font-semibold text-red-700 dark:text-red-400 mb-2">Something went wrong.</h2>
+                    <h2 className="text-xl font-semibold text-red-700 dark:text-red-400 mb-2">{t('Something went wrong.')}</h2>
                     <p className="text-red-600 dark:text-red-300">
-                        There was an error loading the products. Please try refreshing the page.
+                        {t('There was an error loading the products. Please try refreshing the page.')}
                     </p>
                     <button 
                         onClick={() => window.location.reload()}
                         className="mt-4 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
                     >
-                        Refresh Page
+                        {t('Refresh Page')}
                     </button>
                 </div>
             );
@@ -268,11 +272,15 @@ class ErrorBoundary extends Component {
 }
 
 // Wrap the default export with the ErrorBoundary
-const ProductsWithErrorBoundary = ({ auth, products }) => (
-    <ErrorBoundary>
-        <Products auth={auth} products={products} />
-    </ErrorBoundary>
-);
+const ProductsWithErrorBoundary = ({ auth, products }) => {
+    const i18n = useLaravelReactI18n();
+    
+    return (
+        <ErrorBoundary i18n={i18n}>
+            <Products auth={auth} products={products} />
+        </ErrorBoundary>
+    );
+};
 
 export default function Products({ auth, products }) {
     const { t } = useLaravelReactI18n();
@@ -531,7 +539,7 @@ export default function Products({ auth, products }) {
 
     return (
         <>
-            <Head title="Warehouse Products">
+            <Head title={t('Warehouse Products')}>
                 <style>{`
                     @keyframes shimmer {
                         0% {
@@ -570,9 +578,9 @@ export default function Products({ auth, products }) {
                     <header ref={headerRef} className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
                         <div className="flex items-center space-x-4">
                             <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">Warehouse Management</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">{t('Warehouse Management')}</span>
                                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    Products Inventory
+                                    {t('Products Inventory')}
                                     <Badge variant="outline" className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800 rounded-full">
                                         {products?.length || 0}
                                     </Badge>
@@ -597,7 +605,7 @@ export default function Products({ auth, products }) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                     {[
                                         {
-                                            title: "Total Value",
+                                            title: t("Total Value"),
                                             value: "$" + totalValue.toFixed(2),
                                             icon: <DollarSign className="h-6 w-6" />,
                                             bgClass: "from-emerald-500 to-teal-600",
@@ -609,7 +617,7 @@ export default function Products({ auth, products }) {
                                             >
                                                 <CreditCard className="h-16 w-16" />
                                             </motion.div>,
-                                            trend: "Total inventory value",
+                                            trend: t("Total inventory value"),
                                             trendIcon: <ArrowUpRight className="h-3.5 w-3.5 mr-1" />,
                                             decorator: <motion.div
                                                 className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full"
@@ -625,7 +633,7 @@ export default function Products({ auth, products }) {
                                             />
                                         },
                                         {
-                                            title: "Products Count",
+                                            title: t("Products Count"),
                                             value: products?.length || 0,
                                             icon: <Layers className="h-6 w-6" />,
                                             bgClass: "from-teal-500 to-emerald-600",
@@ -637,7 +645,7 @@ export default function Products({ auth, products }) {
                                             >
                                                 <Package className="h-16 w-16" />
                                             </motion.div>,
-                                            trend: "Total product variants",
+                                            trend: t("Total product variants"),
                                             trendIcon: <ArrowUpRight className="h-3.5 w-3.5 mr-1" />,
                                             decorator: <motion.div
                                                 className="absolute -left-6 -bottom-6 w-24 h-24 bg-teal-500/10 rounded-full"
@@ -654,7 +662,7 @@ export default function Products({ auth, products }) {
                                             />
                                         },
                                         {
-                                            title: "Low Stock",
+                                            title: t("Low Stock"),
                                             value: lowStockCount,
                                             icon: <ArrowDownRight className="h-6 w-6" />,
                                             bgClass: "from-green-500 to-emerald-600",
@@ -666,7 +674,7 @@ export default function Products({ auth, products }) {
                                             >
                                                 <ShoppingCart className="h-16 w-16" />
                                             </motion.div>,
-                                            trend: "Items needing restock",
+                                            trend: t("Items needing restock"),
                                             trendIcon: lowStockCount > 0 ? <ArrowDownRight className="h-3.5 w-3.5 mr-1" /> : null,
                                             decorator: <motion.div
                                                 className="absolute right-10 top-10 w-16 h-16 bg-green-500/10 rounded-full"
@@ -683,7 +691,7 @@ export default function Products({ auth, products }) {
                                             />
                                         },
                                         {
-                                            title: "Categories",
+                                            title: t("Categories"),
                                             value: categories.length,
                                             icon: <PieChart className="h-6 w-6" />,
                                             bgClass: "from-lime-500 to-green-600",
@@ -695,7 +703,7 @@ export default function Products({ auth, products }) {
                                             >
                                                 <Grid className="h-16 w-16" />
                                             </motion.div>,
-                                            trend: "Product classifications",
+                                            trend: t("Product classifications"),
                                             trendIcon: null,
                                             decorator: <motion.div
                                                 className="absolute left-10 bottom-10 w-20 h-20 bg-lime-500/10 rounded-full"
@@ -828,7 +836,7 @@ export default function Products({ auth, products }) {
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="Search products..."
+                                        placeholder={t("Search products...")}
                                         className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -850,7 +858,7 @@ export default function Products({ auth, products }) {
                                         className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
                                     >
                                         <RefreshCw className="h-3.5 w-3.5" />
-                                        <span>Refresh</span>
+                                        <span>{t('Refresh')}</span>
                                     </Button>
                                     <Tabs defaultValue="grid" className="w-auto">
                                         <TabsList className="p-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
@@ -878,12 +886,12 @@ export default function Products({ auth, products }) {
                             {searchTerm && (
                                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 animate-pulse">
                                     <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
-                                    <p>Showing results for: <span className="font-medium text-slate-700 dark:text-slate-300">{searchTerm}</span></p>
+                                    <p>{t('Showing results for:')} <span className="font-medium text-slate-700 dark:text-slate-300">{searchTerm}</span></p>
                                 </div>
                             )}
 
                             <h2 className="text-xl font-semibold text-slate-900 dark:text-white flex items-center mb-6">
-                                {searchTerm ? 'Search Results' : 'Products Inventory'}
+                                {searchTerm ? t('Search Results') : t('Products Inventory')}
                             </h2>
 
                             {/* Grid and List Views */}
@@ -912,40 +920,40 @@ export default function Products({ auth, products }) {
                                                                 <div>
                                                                     <h3 className="font-semibold text-slate-900 dark:text-white line-clamp-1">
                                                                         {product.product && Array.isArray(product.product) && product.product.length > 0 ? 
-                                                                            product.product[0].name || 'Unnamed Product' : 
-                                                                            'Unnamed Product'}
+                                                                            product.product[0].name || t('Unnamed Product') : 
+                                                                            t('Unnamed Product')}
                                                                     </h3>
-                                                                    <p className="text-sm text-slate-500 dark:text-slate-400">ID: {product.product_id}</p>
+                                                                    <p className="text-sm text-slate-500 dark:text-slate-400">{t('ID')}: {product.product_id}</p>
                                                                 </div>
                                                             </div>
                                                             <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full font-medium border-0">
                                                                 {product.product && Array.isArray(product.product) && product.product.length > 0 ? 
-                                                                    product.product[0].type || 'Item' : 
-                                                                    'Item'}
+                                                                    product.product[0].type || t('Item') : 
+                                                                    t('Item')}
                                                             </Badge>
                                                         </div>
 
                                                         <CardContent className="px-5 pt-0 pb-3">
                                                             <div className="mt-3 flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                                                                 <div>
-                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Stock</p>
+                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('Stock')}</p>
                                                                     <p className={`text-xl font-bold ${product.net_quantity < 10 ? 'text-amber-600 dark:text-amber-500' : 'text-emerald-600 dark:text-emerald-400'}`}>
                                                                         {product.net_quantity}
                                                                     </p>
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Price</p>
+                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('Price')}</p>
                                                                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300">${product.income_price}</p>
                                                                 </div>
                                                             </div>
 
                                                             <div className="mt-3 grid grid-cols-2 gap-2">
                                                                 <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Incoming</p>
+                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('Incoming')}</p>
                                                                     <p className="text-sm font-medium text-emerald-600">{product.income_quantity}</p>
                                                                 </div>
                                                                 <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Outgoing</p>
+                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('Outgoing')}</p>
                                                                     <p className="text-sm font-medium text-rose-600">{product.outcome_quantity}</p>
                                                                 </div>
                                                             </div>
@@ -953,10 +961,10 @@ export default function Products({ auth, products }) {
                                                             <div className="mt-3 grid grid-cols-2 gap-2">
                                                                 <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                                                                     <Tag className="h-3 w-3" />
-                                                                    Barcode: {
+                                                                    {t('Barcode')}: {
                                                                     product.product && Array.isArray(product.product) && product.product.length > 0 ? 
-                                                                    product.product[0].barcode || 'N/A' : 
-                                                                    'N/A'
+                                                                    product.product[0].barcode || t('N/A') : 
+                                                                    t('N/A')
                                                                     }
                                                                 </div>
                                                                 <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 justify-end">
@@ -969,14 +977,14 @@ export default function Products({ auth, products }) {
                                                         <CardFooter className="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-between">
                                                             <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center gap-1 px-2 h-8">
                                                                 <Eye className="h-3.5 w-3.5" />
-                                                                <span>View</span>
+                                                                <span>{t('View')}</span>
                                                             </Button>
                                                             <div className="flex gap-1">
                                                                 <Button variant="ghost" size="sm" className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 w-8 h-8 p-0">
                                                                     <MoreHorizontal className="h-4 w-4" />
                                                                 </Button>
                                                                 <Button variant="default" size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg h-8">
-                                                                    Details
+                                                                    {t('Details')}
                                                                 </Button>
                                                             </div>
                                                         </CardFooter>
@@ -994,13 +1002,13 @@ export default function Products({ auth, products }) {
                                             <div className="inline-flex h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-5">
                                                 <Package className="h-8 w-8 text-slate-400" />
                                             </div>
-                                            <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No products found</h3>
+                                            <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">{t('No products found')}</h3>
                                             <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
-                                                {searchTerm ? 'Try adjusting your search criteria or check for typos.' : 'No products have been added yet. Add your first product to get started.'}
+                                                {searchTerm ? t('Try adjusting your search criteria or check for typos.') : t('No products have been added yet. Add your first product to get started.')}
                                             </p>
                                             <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
                                                 <Plus className="h-4 w-4 mr-2" />
-                                                Add First Product
+                                                {t('Add First Product')}
                                             </Button>
                                         </motion.div>
                                     )}
@@ -1011,19 +1019,19 @@ export default function Products({ auth, products }) {
                                         <Card className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden">
                                             <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 px-5 py-3 grid grid-cols-12 text-sm font-medium text-slate-500 dark:text-slate-400">
                                                 <div className="col-span-4 md:col-span-5 lg:col-span-4 flex items-center gap-2">
-                                                    <span>Product Name</span>
+                                                    <span>{t('Product Name')}</span>
                                                 </div>
                                                 <div className="col-span-2 md:col-span-2 lg:col-span-2 text-center hidden md:flex items-center justify-center">
-                                                    <span>Type</span>
+                                                    <span>{t('Type')}</span>
                                                 </div>
                                                 <div className="col-span-3 md:col-span-2 lg:col-span-2 text-center hidden md:flex items-center justify-center">
-                                                    <span>Stock</span>
+                                                    <span>{t('Stock')}</span>
                                                 </div>
                                                 <div className="col-span-6 md:col-span-2 lg:col-span-2 text-center flex items-center justify-center">
-                                                    <span>Price</span>
+                                                    <span>{t('Price')}</span>
                                                 </div>
                                                 <div className="col-span-2 md:col-span-1 lg:col-span-2 text-right">
-                                                    <span>Actions</span>
+                                                    <span>{t('Actions')}</span>
                                                 </div>
                                             </div>
                                             <div>
@@ -1043,27 +1051,27 @@ export default function Products({ auth, products }) {
                                                             <div className="min-w-0">
                                                                 <h3 className="font-medium text-slate-900 dark:text-white truncate">
                                                                     {product.product && Array.isArray(product.product) && product.product.length > 0 ? 
-                                                                        product.product[0].name || 'Unnamed Product' : 
-                                                                        'Unnamed Product'}
+                                                                        product.product[0].name || t('Unnamed Product') : 
+                                                                        t('Unnamed Product')}
                                                                 </h3>
                                                                 <div className="mt-0.5 md:hidden">
                                                                     <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
                                                                         <Tag className="h-3 w-3 mr-1" />
                                                                         {product.product && Array.isArray(product.product) && product.product.length > 0 ? 
-                                                                            product.product[0].type || 'Item' : 
-                                                                            'Item'}
+                                                                            product.product[0].type || t('Item') : 
+                                                                            t('Item')}
                                                                     </div>
                                                                     <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                                                                         <Layers className="h-3 w-3 mr-1" />
-                                                                        Stock: {product.net_quantity || 0}
+                                                                        {t('Stock')}: {product.net_quantity || 0}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                         <div className="col-span-2 md:col-span-2 lg:col-span-2 text-center hidden md:block text-sm text-slate-700 dark:text-slate-300">
                                                             {product.product && Array.isArray(product.product) && product.product.length > 0 ? 
-                                                                product.product[0].type || 'Item' : 
-                                                                'Item'}
+                                                                product.product[0].type || t('Item') : 
+                                                                t('Item')}
                                                         </div>
                                                         <div className="col-span-3 md:col-span-2 lg:col-span-2 text-center hidden md:block">
                                                             <Badge className={`${product.net_quantity < 10 ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'}`}>
@@ -1081,7 +1089,7 @@ export default function Products({ auth, products }) {
                                                                 <MoreHorizontal className="h-4 w-4" />
                                                             </Button>
                                                             <Button variant="outline" size="sm" className="h-8 bg-white dark:bg-transparent dark:text-slate-400 dark:border-slate-700 text-slate-700 flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                                <span>Details</span>
+                                                                <span>{t('Details')}</span>
                                                                 <ChevronRight className="h-3.5 w-3.5 ml-1" />
                                                             </Button>
                                                         </div>
@@ -1099,13 +1107,13 @@ export default function Products({ auth, products }) {
                                             <div className="inline-flex h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-5">
                                                 <Package className="h-8 w-8 text-slate-400" />
                                             </div>
-                                            <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">No products found</h3>
+                                            <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">{t('No products found')}</h3>
                                             <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
-                                                {searchTerm ? 'Try adjusting your search criteria or check for typos.' : 'No products have been added yet. Add your first product to get started.'}
+                                                {searchTerm ? t('Try adjusting your search criteria or check for typos.') : t('No products have been added yet. Add your first product to get started.')}
                                             </p>
                                             <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
                                                 <Plus className="h-4 w-4 mr-2" />
-                                                Add First Product
+                                                {t('Add First Product')}
                                             </Button>
                                         </motion.div>
                                     )}
