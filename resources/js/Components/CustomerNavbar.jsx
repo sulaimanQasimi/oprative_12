@@ -248,36 +248,37 @@ export default function CustomerNavbar() {
 
         return (
             <ErrorBoundary>
-                <nav className={`sticky top-0 z-50 backdrop-blur-md transition-all duration-300 ${darkMode ? 'bg-gray-900/95 text-white' : 'bg-white/95 text-gray-800 shadow-sm border-b border-gray-200/70'}`}>
+                <nav className={`sticky top-0 z-50 backdrop-blur-xl transition-all duration-300 ${darkMode ? 'bg-gray-900/80 text-white border-b border-gray-800/50' : 'bg-white/80 text-gray-800 shadow-sm border-b border-gray-200/50'}`}>
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between h-16">
                             <div className="flex items-center">
                                 {/* Logo */}
                                 <div className="flex-shrink-0 flex items-center">
-                                    <div className={`flex items-center gap-3 transition-opacity duration-200 ${isOpen ? 'opacity-50 md:opacity-100' : 'opacity-100'}`}>
-                                        <div className={`p-2 rounded-lg flex items-center justify-center ${darkMode ? 'bg-indigo-500/20 border border-indigo-500/30' : 'bg-indigo-50 border border-indigo-100'}`}>
+                                    <div className={`flex items-center gap-3 transition-all duration-300 ${isOpen ? 'opacity-50 md:opacity-100' : 'opacity-100'}`}>
+                                        <div className={`p-2.5 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105
+                                        ${darkMode ? 'bg-indigo-600/20 border border-indigo-500/30 shadow-lg shadow-indigo-500/10' : 'bg-indigo-50 border border-indigo-100 shadow-md'}`}>
                                             <Package className={`h-5 w-5 ${darkMode ? 'text-indigo-400' : 'text-indigo-600'}`} />
                                         </div>
-                                        <span className={`text-base font-semibold hidden sm:block ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                        <span className={`text-base font-semibold hidden sm:block ${darkMode ? 'text-white' : 'text-gray-900'} transition-all duration-200`}>
                                             Customer Portal
                                         </span>
                                     </div>
                                 </div>
 
                                 {/* Desktop Navigation */}
-                                <div className="hidden md:ml-8 md:flex md:items-center md:space-x-1">
+                                <div className="hidden md:ml-8 md:flex md:items-center md:space-x-2">
                                     {filteredMenuItems.map((item) => (
                                         <Link
                                             key={item.route}
                                             href={route(item.route)}
-                                            className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-150 group
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 hover:scale-105
                                                 ${route().current(item.route)
                                                 ? (darkMode
-                                                    ? 'bg-indigo-900/50 text-indigo-300 border border-indigo-800'
-                                                    : 'bg-indigo-50 text-indigo-700 border border-indigo-100')
+                                                    ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-lg shadow-indigo-500/10'
+                                                    : 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm')
                                                 : (darkMode
-                                                    ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                                                    : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600')}`}
+                                                    ? 'text-gray-300 hover:bg-gray-800/70 hover:text-white hover:shadow-md'
+                                                    : 'text-gray-700 hover:bg-gray-50/90 hover:text-indigo-600 hover:shadow-sm')}`}
                                         >
                                             <item.icon className={`h-4 w-4 mr-2 transition-transform duration-150 group-hover:scale-110 ${route().current(item.route) ? (darkMode ? 'text-indigo-300' : 'text-indigo-600') : ''}`} />
                                             <span>{item.name}</span>
@@ -287,28 +288,28 @@ export default function CustomerNavbar() {
                                     {/* Additional nav links */}
                                     <Link
                                         href={route('customer.profile.show')}
-                                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-150 group
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 hover:scale-105
                                             ${route().current('customer.profile.show')
                                             ? (darkMode
-                                                ? 'bg-indigo-900/50 text-indigo-300 border border-indigo-800'
-                                                : 'bg-indigo-50 text-indigo-700 border border-indigo-100')
+                                                ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-lg shadow-indigo-500/10'
+                                                : 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm')
                                             : (darkMode
-                                                ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                                                : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600')}`}
+                                                ? 'text-gray-300 hover:bg-gray-800/70 hover:text-white hover:shadow-md'
+                                                : 'text-gray-700 hover:bg-gray-50/90 hover:text-indigo-600 hover:shadow-sm')}`}
                                     >
                                         <User className={`h-4 w-4 mr-2 transition-transform duration-150 group-hover:scale-110 ${route().current('customer.profile.show') ? (darkMode ? 'text-indigo-300' : 'text-indigo-600') : ''}`} />
                                         <span>Your Profile</span>
                                     </Link>
                                     <Link
                                         href={route('customer.settings')}
-                                        className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-150 group
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 hover:scale-105
                                             ${route().current('customer.settings')
                                             ? (darkMode
-                                                ? 'bg-indigo-900/50 text-indigo-300 border border-indigo-800'
-                                                : 'bg-indigo-50 text-indigo-700 border border-indigo-100')
+                                                ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-lg shadow-indigo-500/10'
+                                                : 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm')
                                             : (darkMode
-                                                ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                                                : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600')}`}
+                                                ? 'text-gray-300 hover:bg-gray-800/70 hover:text-white hover:shadow-md'
+                                                : 'text-gray-700 hover:bg-gray-50/90 hover:text-indigo-600 hover:shadow-sm')}`}
                                     >
                                         <Settings className={`h-4 w-4 mr-2 transition-transform duration-150 group-hover:scale-110 ${route().current('customer.settings') ? (darkMode ? 'text-indigo-300' : 'text-indigo-600') : ''}`} />
                                         <span>Settings</span>
@@ -316,10 +317,10 @@ export default function CustomerNavbar() {
                                     <form method="POST" action={route('customer.logout')} className="inline">
                                         <button
                                             type="submit"
-                                            className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-all duration-150 group
+                                            className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center transition-all duration-200 hover:scale-105
                                                 ${darkMode
-                                                    ? 'text-gray-300 hover:bg-red-900/30 hover:text-red-300'
-                                                    : 'text-gray-700 hover:bg-red-50 hover:text-red-600'}`}
+                                                    ? 'text-gray-300 hover:bg-red-900/30 hover:text-red-300 hover:shadow-md'
+                                                    : 'text-gray-700 hover:bg-red-50 hover:text-red-600 hover:shadow-sm'}`}
                                         >
                                             <LogOut className={`h-4 w-4 mr-2 transition-transform duration-150 group-hover:scale-110 ${darkMode ? 'text-gray-400 group-hover:text-red-400' : 'text-gray-500 group-hover:text-red-500'}`} />
                                             <span>Sign out</span>
@@ -328,115 +329,15 @@ export default function CustomerNavbar() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center space-x-2">
-                                {/* Search Button/Bar */}
-                                <div className="relative">
-                                    {searchOpen ? (
-                                        <div className={`absolute right-0 top-0 h-full flex items-center ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'} rounded-md shadow-md p-1 z-10`} style={{width: '280px'}}>
-                                            <input
-                                                ref={searchInputRef}
-                                                type="text"
-                                                placeholder="Search..."
-                                                className={`w-full px-3 py-1.5 text-sm border-none focus:ring-0 outline-none ${darkMode ? 'bg-gray-800 text-white placeholder-gray-400' : 'bg-white text-gray-800 placeholder-gray-400'}`}
-                                            />
-                                            <button
-                                                onClick={() => setSearchOpen(false)}
-                                                className={`p-1.5 rounded-md ${darkMode ? 'hover:bg-gray-700 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'}`}
-                                            >
-                                                <X className="h-4 w-4" />
-                                            </button>
-                                        </div>
-                                    ) : (
-                                        <button
-                                            onClick={() => setSearchOpen(true)}
-                                            className={`p-2 rounded-md flex items-center justify-center transition-colors ${darkMode ? 'hover:bg-gray-800 text-gray-400 hover:text-white' : 'hover:bg-gray-100 text-gray-500 hover:text-gray-700'}`}
-                                            aria-label="Search"
-                                        >
-                                            <Search className="h-5 w-5" />
-                                        </button>
-                                    )}
-                                </div>
-
-                                {/* Dark Mode Toggle */}
-                                <button
-                                    onClick={toggleDarkMode}
-                                    className={`p-2 rounded-md flex items-center justify-center transition-colors ${darkMode ? 'hover:bg-gray-800 text-yellow-400 hover:text-yellow-300' : 'hover:bg-gray-100 text-gray-700 hover:text-indigo-600'}`}
-                                    aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-                                >
-                                    {darkMode ? (
-                                        <Sun className="h-5 w-5" />
-                                    ) : (
-                                        <Moon className="h-5 w-5" />
-                                    )}
-                                </button>
-
-                                {/* Profile Dropdown */}
-                                <div ref={profileDropdownRef} className="relative">
-                                    <button
-                                        onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                                        className={`flex items-center space-x-2 focus:outline-none ${darkMode ? 'hover:bg-gray-800' : 'hover:bg-gray-100'} p-1.5 rounded-md transition-colors duration-150`}
-                                    >
-                                        <div className="relative">
-                                            <div className={`h-8 w-8 rounded-full flex items-center justify-center overflow-hidden ${darkMode ? 'bg-indigo-600/30 border border-indigo-500/30' : 'bg-indigo-100 border border-indigo-200'}`}>
-                                                <span className={`font-medium text-sm ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>
-                                                    {auth && auth.user && auth.user.name ? auth.user.name.charAt(0).toUpperCase() : 'U'}
-                                                </span>
-                                            </div>
-                                            <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 bg-green-400 rounded-full border-2 border-gray-900 dark:border-gray-900"></div>
-                                        </div>
-                                        <div className="hidden md:flex items-center">
-                                            <ChevronDown className={`h-4 w-4 transition-transform ${profileDropdownOpen ? 'rotate-180' : ''} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                                        </div>
-                                    </button>
-
-                                    {profileDropdownOpen && (
-                                        <div className={`absolute right-0 mt-2 w-56 rounded-md shadow-lg overflow-hidden z-10 transform origin-top-right transition-all duration-150 animate-fade-in ${darkMode ? 'bg-gray-800 border border-gray-700 ring-1 ring-black ring-opacity-5' : 'bg-white border border-gray-200 ring-1 ring-black ring-opacity-5'}`}>
-                                            <div className={`px-4 py-3 border-b ${darkMode ? 'border-gray-700 bg-gray-850' : 'border-gray-100 bg-gray-50'}`}>
-                                                <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{auth && auth.user && auth.user.name ? auth.user.name : 'User'}</p>
-                                                <p className={`text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{auth && auth.user && auth.user.email ? auth.user.email : 'user@example.com'}</p>
-                                            </div>
-                                            <div className="py-1">
-                                                <Link
-                                                    href={route('customer.profile.show')}
-                                                    className={`flex px-4 py-2 text-sm items-center ${darkMode ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}`}
-                                                >
-                                                    <User className={`h-4 w-4 mr-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                                                    <span>Your Profile</span>
-                                                </Link>
-                                                <Link
-                                                    href={route('customer.settings')}
-                                                    className={`flex px-4 py-2 text-sm items-center ${darkMode ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}`}
-                                                >
-                                                    <Settings className={`h-4 w-4 mr-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                                                    <span>Settings</span>
-                                                </Link>
-                                                <Link
-                                                    href={route('customer.help')}
-                                                    className={`flex px-4 py-2 text-sm items-center ${darkMode ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}`}
-                                                >
-                                                    <HelpCircle className={`h-4 w-4 mr-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-                                                    <span>Help & Support</span>
-                                                </Link>
-                                                <div className={`border-t my-1 ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}></div>
-                                                <form method="POST" action={route('customer.logout')}>
-                                                    <button
-                                                        type="submit"
-                                                        className={`flex w-full px-4 py-2 text-sm items-center group ${darkMode ? 'text-gray-300 hover:bg-red-900/30 hover:text-red-300' : 'text-gray-700 hover:bg-red-50 hover:text-red-600'}`}
-                                                    >
-                                                        <LogOut className={`h-4 w-4 mr-2 transition-colors ${darkMode ? 'text-gray-400 group-hover:text-red-400' : 'text-gray-500 group-hover:text-red-500'}`} />
-                                                        <span>Sign out</span>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
+                            <div className="flex items-center">
                                 {/* Mobile menu button */}
                                 <button
                                     data-mobile-menu-button
                                     onClick={() => setIsOpen(!isOpen)}
-                                    className={`md:hidden p-2 rounded-md focus:outline-none transition-colors ${darkMode ? 'text-gray-300 hover:bg-gray-800 hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'}`}
+                                    className={`md:hidden p-2.5 rounded-lg focus:outline-none transition-all duration-200
+                                    ${darkMode
+                                        ? 'text-gray-300 hover:bg-gray-800 hover:text-white hover:scale-105 hover:shadow-md'
+                                        : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 hover:scale-105 hover:shadow-sm'}`}
                                     aria-expanded={isOpen}
                                 >
                                     <span className="sr-only">Open menu</span>
@@ -454,33 +355,34 @@ export default function CustomerNavbar() {
                     {isOpen && (
                         <div
                             ref={mobileMenuRef}
-                            className={`md:hidden fixed inset-0 pt-16 z-40 transition-opacity duration-200 ${darkMode ? 'bg-gray-900/95' : 'bg-white/95'} backdrop-blur-md animate-fade-in`}
+                            className={`md:hidden fixed inset-0 pt-16 z-40 transition-all duration-300 ${darkMode ? 'bg-gray-900/95' : 'bg-white/95'} backdrop-blur-xl animate-in fade-in slide-in-from-top-5`}
                         >
-                            <div className="px-4 pt-4 pb-6 space-y-2 h-full overflow-y-auto">
+                            <div className="px-5 pt-5 pb-6 space-y-3 h-full overflow-y-auto">
                                 {/* Search in mobile menu */}
-                                <div className={`mb-4 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-gray-50 border border-gray-200'} rounded-md p-2 flex items-center`}>
+                                <div className={`mb-4 ${darkMode ? 'bg-gray-800/70 border border-gray-700/70' : 'bg-gray-50/80 border border-gray-200/70'} rounded-xl p-2.5 flex items-center shadow-sm`}>
                                     <Search className={`h-5 w-5 mr-2 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                                     <input
                                         type="text"
                                         placeholder="Search..."
-                                        className={`w-full text-sm border-none focus:ring-0 outline-none ${darkMode ? 'bg-gray-800 text-white placeholder-gray-400' : 'bg-gray-50 text-gray-800 placeholder-gray-400'}`}
+                                        className={`w-full text-sm border-none focus:ring-0 outline-none ${darkMode ? 'bg-transparent text-white placeholder-gray-400' : 'bg-transparent text-gray-800 placeholder-gray-400'}`}
                                     />
                                 </div>
 
                                 {/* Mobile menu links */}
-                                {filteredMenuItems.map((item) => (
+                                {filteredMenuItems.map((item, index) => (
                                     <Link
                                         key={item.route}
                                         href={route(item.route)}
-                                        className={`block px-4 py-3 rounded-md text-base font-medium flex items-center transition-all duration-150
+                                        className={`block px-4 py-3.5 rounded-xl text-base font-medium flex items-center transition-all duration-200 animate-in fade-in slide-in-from-right-5
                                             ${route().current(item.route)
                                             ? (darkMode
-                                                ? 'bg-indigo-900/50 text-indigo-300 border border-indigo-800'
-                                                : 'bg-indigo-50 text-indigo-700 border border-indigo-100')
+                                                ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-lg shadow-indigo-500/10'
+                                                : 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm')
                                             : (darkMode
-                                                ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                                                : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600')}`}
+                                                ? 'text-gray-300 hover:bg-gray-800/70 hover:text-white hover:shadow-md'
+                                                : 'text-gray-700 hover:bg-gray-50/90 hover:text-indigo-600 hover:shadow-sm')}`}
                                         onClick={() => setIsOpen(false)}
+                                        style={{ animationDelay: `${index * 50}ms` }}
                                     >
                                         <item.icon className={`h-5 w-5 mr-3 ${route().current(item.route) ? (darkMode ? 'text-indigo-400' : 'text-indigo-600') : (darkMode ? 'text-gray-400' : 'text-gray-500')}`} />
                                         <span>{item.name}</span>
@@ -488,70 +390,72 @@ export default function CustomerNavbar() {
                                 ))}
 
                                 {/* Additional mobile menu links */}
-                                <Link
-                                    href={route('customer.profile.show')}
-                                    className={`block px-4 py-3 rounded-md text-base font-medium flex items-center transition-all duration-150
-                                        ${route().current('customer.profile.show')
-                                        ? (darkMode
-                                            ? 'bg-indigo-900/50 text-indigo-300 border border-indigo-800'
-                                            : 'bg-indigo-50 text-indigo-700 border border-indigo-100')
-                                        : (darkMode
-                                            ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                                            : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600')}`}
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    <User className={`h-5 w-5 mr-3 ${route().current('customer.profile.show') ? (darkMode ? 'text-indigo-400' : 'text-indigo-600') : (darkMode ? 'text-gray-400' : 'text-gray-500')}`} />
-                                    <span>Your Profile</span>
-                                </Link>
-                                <Link
-                                    href={route('customer.settings')}
-                                    className={`block px-4 py-3 rounded-md text-base font-medium flex items-center transition-all duration-150
-                                        ${route().current('customer.settings')
-                                        ? (darkMode
-                                            ? 'bg-indigo-900/50 text-indigo-300 border border-indigo-800'
-                                            : 'bg-indigo-50 text-indigo-700 border border-indigo-100')
-                                        : (darkMode
-                                            ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                                            : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600')}`}
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    <Settings className={`h-5 w-5 mr-3 ${route().current('customer.settings') ? (darkMode ? 'text-indigo-400' : 'text-indigo-600') : (darkMode ? 'text-gray-400' : 'text-gray-500')}`} />
-                                    <span>Settings</span>
-                                </Link>
-                                <Link
-                                    href={route('customer.help')}
-                                    className={`block px-4 py-3 rounded-md text-base font-medium flex items-center transition-all duration-150
-                                        ${route().current('customer.help')
-                                        ? (darkMode
-                                            ? 'bg-indigo-900/50 text-indigo-300 border border-indigo-800'
-                                            : 'bg-indigo-50 text-indigo-700 border border-indigo-100')
-                                        : (darkMode
-                                            ? 'text-gray-300 hover:bg-gray-800 hover:text-white'
-                                            : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600')}`}
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    <HelpCircle className={`h-5 w-5 mr-3 ${route().current('customer.help') ? (darkMode ? 'text-indigo-400' : 'text-indigo-600') : (darkMode ? 'text-gray-400' : 'text-gray-500')}`} />
-                                    <span>Help & Support</span>
-                                </Link>
-                                <form method="POST" action={route('customer.logout')} className="mt-2">
-                                    <button
-                                        type="submit"
-                                        className={`w-full text-left px-4 py-3 rounded-md text-base font-medium flex items-center
-                                            ${darkMode
-                                                ? 'text-gray-300 hover:bg-red-900/30 hover:text-red-300'
-                                                : 'text-gray-700 hover:bg-red-50 hover:text-red-600'}`}
+                                <div className="space-y-3 mt-4 pt-4 border-t border-gray-200/10">
+                                    <Link
+                                        href={route('customer.profile.show')}
+                                        className={`block px-4 py-3.5 rounded-xl text-base font-medium flex items-center transition-all duration-200
+                                            ${route().current('customer.profile.show')
+                                            ? (darkMode
+                                                ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-lg shadow-indigo-500/10'
+                                                : 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm')
+                                            : (darkMode
+                                                ? 'text-gray-300 hover:bg-gray-800/70 hover:text-white hover:shadow-md'
+                                                : 'text-gray-700 hover:bg-gray-50/90 hover:text-indigo-600 hover:shadow-sm')}`}
                                         onClick={() => setIsOpen(false)}
                                     >
-                                        <LogOut className={`h-5 w-5 mr-3 ${darkMode ? 'text-red-400' : 'text-red-500'}`} />
-                                        <span>Sign out</span>
-                                    </button>
-                                </form>
+                                        <User className={`h-5 w-5 mr-3 ${route().current('customer.profile.show') ? (darkMode ? 'text-indigo-400' : 'text-indigo-600') : (darkMode ? 'text-gray-400' : 'text-gray-500')}`} />
+                                        <span>Your Profile</span>
+                                    </Link>
+                                    <Link
+                                        href={route('customer.settings')}
+                                        className={`block px-4 py-3.5 rounded-xl text-base font-medium flex items-center transition-all duration-200
+                                            ${route().current('customer.settings')
+                                            ? (darkMode
+                                                ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-lg shadow-indigo-500/10'
+                                                : 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm')
+                                            : (darkMode
+                                                ? 'text-gray-300 hover:bg-gray-800/70 hover:text-white hover:shadow-md'
+                                                : 'text-gray-700 hover:bg-gray-50/90 hover:text-indigo-600 hover:shadow-sm')}`}
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        <Settings className={`h-5 w-5 mr-3 ${route().current('customer.settings') ? (darkMode ? 'text-indigo-400' : 'text-indigo-600') : (darkMode ? 'text-gray-400' : 'text-gray-500')}`} />
+                                        <span>Settings</span>
+                                    </Link>
+                                    <Link
+                                        href={route('customer.help')}
+                                        className={`block px-4 py-3.5 rounded-xl text-base font-medium flex items-center transition-all duration-200
+                                            ${route().current('customer.help')
+                                            ? (darkMode
+                                                ? 'bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 shadow-lg shadow-indigo-500/10'
+                                                : 'bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm')
+                                            : (darkMode
+                                                ? 'text-gray-300 hover:bg-gray-800/70 hover:text-white hover:shadow-md'
+                                                : 'text-gray-700 hover:bg-gray-50/90 hover:text-indigo-600 hover:shadow-sm')}`}
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        <HelpCircle className={`h-5 w-5 mr-3 ${route().current('customer.help') ? (darkMode ? 'text-indigo-400' : 'text-indigo-600') : (darkMode ? 'text-gray-400' : 'text-gray-500')}`} />
+                                        <span>Help & Support</span>
+                                    </Link>
+                                    <form method="POST" action={route('customer.logout')} className="mt-2">
+                                        <button
+                                            type="submit"
+                                            className={`w-full text-left px-4 py-3.5 rounded-xl text-base font-medium flex items-center transition-all duration-200
+                                                ${darkMode
+                                                    ? 'text-red-300 hover:bg-red-900/30 hover:shadow-md'
+                                                    : 'text-red-600 hover:bg-red-50 hover:shadow-sm'}`}
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            <LogOut className={`h-5 w-5 mr-3 ${darkMode ? 'text-red-400' : 'text-red-500'}`} />
+                                            <span>Sign out</span>
+                                        </button>
+                                    </form>
+                                </div>
 
-                                <div className={`border-t pt-4 mt-4 ${darkMode ? 'border-gray-800' : 'border-gray-100'}`}>
-                                    <div className="px-3 py-3">
-                                        <div className="flex items-center mb-3">
-                                            <div className={`h-10 w-10 rounded-full flex items-center justify-center mr-3 overflow-hidden ${darkMode ? 'bg-indigo-600/30 border border-indigo-500/30' : 'bg-indigo-100 border border-indigo-200'}`}>
-                                                <span className={`font-medium ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>
+                                <div className={`mt-6 rounded-xl overflow-hidden ${darkMode ? 'bg-gray-800/70 border border-gray-700/50' : 'bg-white/80 border border-gray-200/50'} shadow-lg`}>
+                                    <div className="px-5 py-4">
+                                        <div className="flex items-center">
+                                            <div className={`h-12 w-12 rounded-xl flex items-center justify-center mr-4 overflow-hidden ${darkMode ? 'bg-indigo-600/30 border border-indigo-500/30' : 'bg-indigo-100 border border-indigo-200'}`}>
+                                                <span className={`font-medium text-lg ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>
                                                     {auth && auth.user && auth.user.name ? auth.user.name.charAt(0).toUpperCase() : 'U'}
                                                 </span>
                                             </div>
@@ -564,55 +468,20 @@ export default function CustomerNavbar() {
                                             </div>
                                         </div>
 
-                                        <Link
-                                            href={route('customer.profile.show')}
-                                            className={`block px-3 py-2.5 rounded-md text-base font-medium flex items-center ${darkMode ? 'text-gray-300 hover:bg-gray-800 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}`}
-                                            onClick={() => setIsOpen(false)}
-                                        >
-                                            <User className={`h-5 w-5 mr-3 ${darkMode ? 'text-indigo-400' : 'text-indigo-500'}`} />
-                                            <span>Your Profile</span>
-                                        </Link>
-                                        <Link
-                                            href={route('customer.settings')}
-                                            className={`block px-3 py-2.5 rounded-md text-base font-medium flex items-center ${darkMode ? 'text-gray-300 hover:bg-gray-800 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}`}
-                                            onClick={() => setIsOpen(false)}
-                                        >
-                                            <Settings className={`h-5 w-5 mr-3 ${darkMode ? 'text-indigo-400' : 'text-indigo-500'}`} />
-                                            <span>Settings</span>
-                                        </Link>
-                                        <Link
-                                            href={route('customer.help')}
-                                            className={`block px-3 py-2.5 rounded-md text-base font-medium flex items-center ${darkMode ? 'text-gray-300 hover:bg-gray-800 hover:text-white' : 'text-gray-700 hover:bg-gray-50 hover:text-indigo-600'}`}
-                                            onClick={() => setIsOpen(false)}
-                                        >
-                                            <HelpCircle className={`h-5 w-5 mr-3 ${darkMode ? 'text-indigo-400' : 'text-indigo-500'}`} />
-                                            <span>Help & Support</span>
-                                        </Link>
-
-                                        <form method="POST" action={route('customer.logout')} className="mt-3">
-                                            <button
-                                                type="submit"
-                                                className={`flex w-full px-4 py-2 text-sm items-center group ${darkMode ? 'text-gray-300 hover:bg-red-900/30 hover:text-red-300' : 'text-gray-700 hover:bg-red-50 hover:text-red-600'}`}
-                                            >
-                                                <LogOut className={`h-4 w-4 mr-2 transition-colors ${darkMode ? 'text-gray-400 group-hover:text-red-400' : 'text-gray-500 group-hover:text-red-500'}`} />
-                                                <span>Sign out</span>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-
-                                {/* Dark/Light mode toggle in mobile menu */}
-                                <div className={`mt-6 px-4 py-3 rounded-md ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-gray-50 border border-gray-200'}`}>
-                                    <div className="flex items-center justify-between">
-                                        <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                                            {darkMode ? 'Dark Mode' : 'Light Mode'}
-                                        </span>
-                                        <button
-                                            onClick={toggleDarkMode}
-                                            className={`p-2 rounded-md ${darkMode ? 'bg-gray-700 text-yellow-400' : 'bg-white shadow-sm border border-gray-200 text-gray-700'}`}
-                                        >
-                                            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-                                        </button>
+                                        {/* Dark/Light mode toggle in mobile menu */}
+                                        <div className={`mt-5 rounded-lg p-3 ${darkMode ? 'bg-gray-900/70 border border-gray-800/70' : 'bg-gray-50/90 border border-gray-200/70'}`}>
+                                            <div className="flex items-center justify-between">
+                                                <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                                    {darkMode ? 'Dark Mode' : 'Light Mode'}
+                                                </span>
+                                                <button
+                                                    onClick={toggleDarkMode}
+                                                    className={`p-2 rounded-lg transition-all duration-200 ${darkMode ? 'bg-indigo-600/20 text-yellow-400 border border-indigo-500/30' : 'bg-white shadow-sm border border-gray-200 text-indigo-600'}`}
+                                                >
+                                                    {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                                                </button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
