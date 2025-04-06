@@ -27,19 +27,25 @@ import {
 class ErrorBoundary extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { hasError: false };
+        this.state = {
+            hasError: false,
+            error: null,
+            errorInfo: null
+        };
     }
 
     static getDerivedStateFromError(error) {
-        return { hasError: true };
+        return { hasError: true, error };
     }
 
     componentDidCatch(error, errorInfo) {
+        this.setState({ errorInfo });
         console.error("CustomerNavbar error:", error, errorInfo);
     }
 
     render() {
         if (this.state.hasError) {
+            // Fallback UI when an error occurs
             return (
                 <nav className="sticky top-0 z-50 bg-white/95 text-gray-800 shadow-sm border-b border-gray-200/70">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,6 +62,12 @@ class ErrorBoundary extends React.Component {
                                     </div>
                                 </div>
                             </div>
+
+                            {process.env.NODE_ENV === 'development' && (
+                                <div className="flex items-center text-xs text-red-600">
+                                    <span>Error in navbar. Check console for details.</span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </nav>
@@ -73,7 +85,11 @@ export default function CustomerNavbar() {
         const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
         const [searchOpen, setSearchOpen] = useState(false);
         const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') === 'true');
-        const { auth, permissions = [] } = usePage().props;
+
+        // Safer way to access props with fallbacks
+        const pageProps = usePage().props || {};
+        const auth = pageProps.auth || {};
+        const permissions = pageProps.permissions || [];
 
         const profileDropdownRef = useRef(null);
         const mobileMenuRef = useRef(null);
@@ -126,14 +142,38 @@ export default function CustomerNavbar() {
 
         const hasPermission = (permission) => {
             try {
-                if (permissions && permissions.includes(permission)) return true;
-                if (auth.user?.permissions?.includes(permission)) return true;
-                if (auth.user?.roles?.some(role => role.permissions?.includes(permission))) return true;
-                if (permission === undefined || process.env.NODE_ENV === 'development') return true;
+                if (!permission) return true;
+
+                // Check permissions array
+                if (permissions && Array.isArray(permissions) && permissions.includes(permission)) {
+                    return true;
+                }
+
+                // Check user permissions
+                if (auth && auth.user && Array.isArray(auth.user.permissions) && auth.user.permissions.includes(permission)) {
+                    return true;
+                }
+
+                // Check role permissions
+                if (auth && auth.user && auth.user.roles && Array.isArray(auth.user.roles)) {
+                    // Check each role's permissions
+                    for (const role of auth.user.roles) {
+                        if (role && Array.isArray(role.permissions) && role.permissions.includes(permission)) {
+                            return true;
+                        }
+                    }
+                }
+
+                // Development environment bypass
+                if (process.env.NODE_ENV === 'development') {
+                    return true;
+                }
+
                 return false;
             } catch (error) {
                 console.error("Permission check error:", error);
-                return true; // Default to showing items if permission check fails
+                // Default to showing items in development or if permission check fails
+                return process.env.NODE_ENV === 'development';
             }
         };
 
@@ -297,7 +337,7 @@ export default function CustomerNavbar() {
                                         <div className="relative">
                                             <div className={`h-8 w-8 rounded-full flex items-center justify-center overflow-hidden ${darkMode ? 'bg-indigo-600/30 border border-indigo-500/30' : 'bg-indigo-100 border border-indigo-200'}`}>
                                                 <span className={`font-medium text-sm ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>
-                                                    {auth?.user?.name?.charAt(0).toUpperCase() || 'U'}
+                                                    {auth && auth.user && auth.user.name ? auth.user.name.charAt(0).toUpperCase() : 'U'}
                                                 </span>
                                             </div>
                                             <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 bg-green-400 rounded-full border-2 border-gray-900 dark:border-gray-900"></div>
@@ -310,8 +350,8 @@ export default function CustomerNavbar() {
                                     {profileDropdownOpen && (
                                         <div className={`absolute right-0 mt-2 w-56 rounded-md shadow-lg overflow-hidden z-10 transform origin-top-right transition-all duration-150 animate-fade-in ${darkMode ? 'bg-gray-800 border border-gray-700 ring-1 ring-black ring-opacity-5' : 'bg-white border border-gray-200 ring-1 ring-black ring-opacity-5'}`}>
                                             <div className={`px-4 py-3 border-b ${darkMode ? 'border-gray-700 bg-gray-850' : 'border-gray-100 bg-gray-50'}`}>
-                                                <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{auth?.user?.name || 'User'}</p>
-                                                <p className={`text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{auth?.user?.email || 'user@example.com'}</p>
+                                                <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{auth && auth.user && auth.user.name ? auth.user.name : 'User'}</p>
+                                                <p className={`text-xs truncate ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{auth && auth.user && auth.user.email ? auth.user.email : 'user@example.com'}</p>
                                             </div>
                                             <div className="py-1">
                                                 <Link
@@ -409,14 +449,14 @@ export default function CustomerNavbar() {
                                         <div className="flex items-center mb-3">
                                             <div className={`h-10 w-10 rounded-full flex items-center justify-center mr-3 overflow-hidden ${darkMode ? 'bg-indigo-600/30 border border-indigo-500/30' : 'bg-indigo-100 border border-indigo-200'}`}>
                                                 <span className={`font-medium ${darkMode ? 'text-indigo-300' : 'text-indigo-700'}`}>
-                                                    {auth?.user?.name?.charAt(0).toUpperCase() || 'U'}
+                                                    {auth && auth.user && auth.user.name ? auth.user.name.charAt(0).toUpperCase() : 'U'}
                                                 </span>
                                             </div>
                                             <div>
-                                                <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{auth?.user?.name || 'User'}</p>
+                                                <p className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{auth && auth.user && auth.user.name ? auth.user.name : 'User'}</p>
                                                 <p className={`text-xs flex items-center ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                                     <Mail className="h-3 w-3 mr-1" />
-                                                    <span className="truncate max-w-[200px]">{auth?.user?.email || 'user@example.com'}</span>
+                                                    <span className="truncate max-w-[200px]">{auth && auth.user && auth.user.email ? auth.user.email : 'user@example.com'}</span>
                                                 </p>
                                             </div>
                                         </div>
