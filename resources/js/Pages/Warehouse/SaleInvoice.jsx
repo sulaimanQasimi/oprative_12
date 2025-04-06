@@ -1,7 +1,10 @@
 import React, { useEffect } from 'react';
 import { Head } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 
 export default function SaleInvoice({ sale, company }) {
+    const { t } = useLaravelReactI18n();
+
     // Auto-print when the component loads
     useEffect(() => {
         window.print();
@@ -9,7 +12,7 @@ export default function SaleInvoice({ sale, company }) {
 
     return (
         <>
-            <Head title={`Invoice: ${sale.reference}`} />
+            <Head title={t(`Invoice: ${sale.reference}`)} />
 
             <div className="invoice-wrapper">
                 {/* Company Info and Invoice Header */}
@@ -25,23 +28,23 @@ export default function SaleInvoice({ sale, company }) {
                             )}
                         </div>
                         <div className="company-details">
-                            <h1 className="company-name">{company.name || 'Company Name'}</h1>
+                            <h1 className="company-name">{company.name || t('Company Name')}</h1>
                             <div className="company-address">
                                 {company.address && <p>{company.address}</p>}
-                                {company.phone && <p>Phone: {company.phone}</p>}
-                                {company.email && <p>Email: {company.email}</p>}
-                                {company.website && <p>Web: {company.website}</p>}
-                                {company.tax_number && <p>Tax Number: {company.tax_number}</p>}
+                                {company.phone && <p>{t('Phone')}: {company.phone}</p>}
+                                {company.email && <p>{t('Email')}: {company.email}</p>}
+                                {company.website && <p>{t('Web')}: {company.website}</p>}
+                                {company.tax_number && <p>{t('Tax Number')}: {company.tax_number}</p>}
                             </div>
                         </div>
                     </div>
                     <div className="invoice-header">
-                        <div className="invoice-title">INVOICE</div>
+                        <div className="invoice-title">{t('INVOICE')}</div>
                         <div className="invoice-number"># {sale.reference}</div>
-                        <div className="invoice-date">Date: {sale.date}</div>
+                        <div className="invoice-date">{t('Date')}: {sale.date}</div>
                         <div className="invoice-status">
                             <span className={`status-badge status-${sale.status}`}>
-                                {sale.status}
+                                {t(sale.status)}
                             </span>
                         </div>
                     </div>
@@ -50,19 +53,19 @@ export default function SaleInvoice({ sale, company }) {
                 {/* Customer & Warehouse Info */}
                 <div className="info-section">
                     <div className="customer-info">
-                        <h3>Bill To:</h3>
+                        <h3>{t('Bill To')}:</h3>
                         <div className="customer-name">{sale.customer.name}</div>
                         {sale.customer.address && <div>{sale.customer.address}</div>}
-                        {sale.customer.phone && <div>Phone: {sale.customer.phone}</div>}
-                        {sale.customer.email && <div>Email: {sale.customer.email}</div>}
-                        {sale.customer.tax_number && <div>Tax No: {sale.customer.tax_number}</div>}
+                        {sale.customer.phone && <div>{t('Phone')}: {sale.customer.phone}</div>}
+                        {sale.customer.email && <div>{t('Email')}: {sale.customer.email}</div>}
+                        {sale.customer.tax_number && <div>{t('Tax No')}: {sale.customer.tax_number}</div>}
                     </div>
                     <div className="warehouse-info">
-                        <h3>Shipped From:</h3>
+                        <h3>{t('Shipped From')}:</h3>
                         <div className="warehouse-name">{sale.warehouse.name}</div>
                         {sale.warehouse.address && <div>{sale.warehouse.address}</div>}
-                        {sale.warehouse.phone && <div>Phone: {sale.warehouse.phone}</div>}
-                        {sale.warehouse.email && <div>Email: {sale.warehouse.email}</div>}
+                        {sale.warehouse.phone && <div>{t('Phone')}: {sale.warehouse.phone}</div>}
+                        {sale.warehouse.email && <div>{t('Email')}: {sale.warehouse.email}</div>}
                     </div>
                 </div>
 
@@ -72,10 +75,10 @@ export default function SaleInvoice({ sale, company }) {
                         <thead>
                             <tr>
                                 <th className="item-no">#</th>
-                                <th className="item-description">Product</th>
-                                <th className="item-quantity">Quantity</th>
-                                <th className="item-price">Unit Price</th>
-                                <th className="item-total">Total</th>
+                                <th className="item-description">{t('Product')}</th>
+                                <th className="item-quantity">{t('Quantity')}</th>
+                                <th className="item-price">{t('Unit Price')}</th>
+                                <th className="item-total">{t('Total')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -108,58 +111,58 @@ export default function SaleInvoice({ sale, company }) {
                     <div className="summary-info">
                         {sale.notes && (
                             <div className="invoice-notes">
-                                <h3>Notes:</h3>
+                                <h3>{t('Notes')}:</h3>
                                 <p>{sale.notes}</p>
                             </div>
                         )}
                         <div className="payment-info">
-                            <h3>Payment Info:</h3>
-                            <div>Payment Status: {parseFloat(sale.due_amount) <= 0 ? 'Paid' : 'Partially Paid'}</div>
-                            <div>Payment Method: {sale.payments && sale.payments.length > 0
+                            <h3>{t('Payment Info')}:</h3>
+                            <div>{t('Payment Status')}: {parseFloat(sale.due_amount) <= 0 ? t('Paid') : t('Partially Paid')}</div>
+                            <div>{t('Payment Method')}: {sale.payments && sale.payments.length > 0
                                 ? sale.payments.map(p => p.payment_method).join(', ')
-                                : 'Not specified'}
+                                : t('Not specified')}
                             </div>
                         </div>
                     </div>
                     <div className="totals">
                         <div className="total-row">
-                            <div className="total-label">Subtotal:</div>
+                            <div className="total-label">{t('Subtotal')}:</div>
                             <div className="total-value">{sale.currency} {parseFloat(sale.total_amount).toFixed(2)}</div>
                         </div>
 
                         {sale.tax_percentage > 0 && (
                             <div className="total-row">
-                                <div className="total-label">Tax ({sale.tax_percentage}%):</div>
+                                <div className="total-label">{t('Tax')} ({sale.tax_percentage}%):</div>
                                 <div className="total-value">{sale.currency} {parseFloat(sale.tax_amount).toFixed(2)}</div>
                             </div>
                         )}
 
                         {sale.discount_percentage > 0 && (
                             <div className="total-row">
-                                <div className="total-label">Discount ({sale.discount_percentage}%):</div>
+                                <div className="total-label">{t('Discount')} ({sale.discount_percentage}%):</div>
                                 <div className="total-value">-{sale.currency} {parseFloat(sale.discount_amount).toFixed(2)}</div>
                             </div>
                         )}
 
                         {sale.shipping_cost > 0 && (
                             <div className="total-row">
-                                <div className="total-label">Shipping:</div>
+                                <div className="total-label">{t('Shipping')}:</div>
                                 <div className="total-value">{sale.currency} {parseFloat(sale.shipping_cost).toFixed(2)}</div>
                             </div>
                         )}
 
                         <div className="total-row grand-total">
-                            <div className="total-label">Grand Total:</div>
+                            <div className="total-label">{t('Grand Total')}:</div>
                             <div className="total-value">{sale.currency} {parseFloat(sale.total_amount).toFixed(2)}</div>
                         </div>
 
                         <div className="total-row">
-                            <div className="total-label">Paid Amount:</div>
+                            <div className="total-label">{t('Paid Amount')}:</div>
                             <div className="total-value">{sale.currency} {parseFloat(sale.paid_amount).toFixed(2)}</div>
                         </div>
 
                         <div className="total-row">
-                            <div className="total-label">Due Amount:</div>
+                            <div className="total-label">{t('Due Amount')}:</div>
                             <div className="total-value">{sale.currency} {parseFloat(sale.due_amount).toFixed(2)}</div>
                         </div>
                     </div>
@@ -170,15 +173,15 @@ export default function SaleInvoice({ sale, company }) {
                     <div className="signature-section">
                         <div className="signature">
                             <div className="signature-line"></div>
-                            <div className="signature-label">Customer Signature</div>
+                            <div className="signature-label">{t('Customer Signature')}</div>
                         </div>
                         <div className="signature">
                             <div className="signature-line"></div>
-                            <div className="signature-label">Authorized Signature</div>
+                            <div className="signature-label">{t('Authorized Signature')}</div>
                         </div>
                     </div>
                     <div className="footer-text">
-                        <p>Thank you for your business!</p>
+                        <p>{t('Thank you for your business!')}</p>
                         {company.footer_text && <p>{company.footer_text}</p>}
                     </div>
                 </div>

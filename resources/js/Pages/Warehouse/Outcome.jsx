@@ -511,7 +511,7 @@ export default function Outcome({ auth, outcome }) {
 
     return (
         <>
-            <Head title="Warehouse Outcome">
+            <Head title={t("Warehouse Outcome")}>
                 <style>{`
                     @keyframes shimmer {
                         0% {
@@ -550,9 +550,9 @@ export default function Outcome({ auth, outcome }) {
                     <header ref={headerRef} className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
                         <div className="flex items-center space-x-4">
                             <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400 mb-0.5">Warehouse Management</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-rose-600 dark:text-rose-400 mb-0.5">{t('Warehouse Management')}</span>
                                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    Outcome Transactions
+                                    {t('Outcome Transactions')}
                                     <Badge variant="outline" className="ml-2 bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-900/30 dark:text-rose-400 dark:border-rose-800 rounded-full">
                                         {outcome?.length || 0}
                                     </Badge>
@@ -563,7 +563,7 @@ export default function Outcome({ auth, outcome }) {
                             <div className="relative">
                                 <Button size="sm" variant="outline" className="flex items-center gap-1.5 rounded-full border-slate-200 dark:border-slate-700 px-4">
                                     <Filter className="h-4 w-4 text-slate-500" />
-                                    <span className="text-slate-600 dark:text-slate-400">Filters</span>
+                                    <span className="text-slate-600 dark:text-slate-400">{t('Filters')}</span>
                                     <ChevronDown className="h-3.5 w-3.5 text-slate-500 ml-1" />
                                 </Button>
                             </div>
@@ -572,7 +572,7 @@ export default function Outcome({ auth, outcome }) {
                             </Button>
                             <Button size="sm" className="bg-gradient-to-br from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white shadow-md rounded-full px-4">
                                 <Plus className="h-4 w-4 mr-1.5" />
-                                <span>New Transaction</span>
+                                <span>{t('New Transaction')}</span>
                             </Button>
                         </div>
                     </header>
@@ -593,7 +593,7 @@ export default function Outcome({ auth, outcome }) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                     {[
                                         {
-                                            title: "Total Outcome",
+                                            title: t("Total Outcome"),
                                             value: "$" + totalOutcomeValue.toFixed(2),
                                             icon: <DollarSign className="h-6 w-6" />,
                                             bgClass: "from-rose-500 to-red-600",
@@ -622,7 +622,7 @@ export default function Outcome({ auth, outcome }) {
                                             />
                                         },
                                         {
-                                            title: "This Month",
+                                            title: t("This Month"),
                                             value: "$" + thisMonthOutcome.toFixed(2),
                                             icon: <Calendar className="h-6 w-6" />,
                                             bgClass: "from-red-500 to-rose-600",
@@ -635,8 +635,8 @@ export default function Outcome({ auth, outcome }) {
                                                 <TrendingUp className="h-16 w-16 rotate-180" />
                                             </motion.div>,
                                             trend: outcomeChangePercent > 0
-                                                ? `Up ${Math.abs(outcomeChangePercent).toFixed(1)}% from last month`
-                                                : `Down ${Math.abs(outcomeChangePercent).toFixed(1)}% from last month`,
+                                                ? t(`Up ${Math.abs(outcomeChangePercent).toFixed(1)}% from last month`)
+                                                : t(`Down ${Math.abs(outcomeChangePercent).toFixed(1)}% from last month`),
                                             trendIcon: outcomeChangePercent >= 0
                                                 ? <ArrowUpRight className="h-3.5 w-3.5 mr-1" />
                                                 : <ArrowDownRight className="h-3.5 w-3.5 mr-1" />,
@@ -655,7 +655,7 @@ export default function Outcome({ auth, outcome }) {
                                             />
                                         },
                                         {
-                                            title: "Transactions",
+                                            title: t("Transactions"),
                                             value: outcome?.length || 0,
                                             icon: <CreditCard className="h-6 w-6" />,
                                             bgClass: "from-pink-500 to-rose-600",
@@ -667,7 +667,7 @@ export default function Outcome({ auth, outcome }) {
                                             >
                                                 <Package className="h-16 w-16" />
                                             </motion.div>,
-                                            trend: "Total recorded transactions",
+                                            trend: t("Total recorded transactions"),
                                             trendIcon: null,
                                             trendValue: "",
                                             decorator: <motion.div
@@ -685,7 +685,7 @@ export default function Outcome({ auth, outcome }) {
                                             />
                                         },
                                         {
-                                            title: "Avg. Transaction",
+                                            title: t("Avg. Transaction"),
                                             value: "$" + (outcome && outcome.length ? (totalOutcomeValue / outcome.length).toFixed(2) : "0.00"),
                                             icon: <BarChart3 className="h-6 w-6" />,
                                             bgClass: "from-red-600 to-rose-500",
@@ -697,7 +697,7 @@ export default function Outcome({ auth, outcome }) {
                                             >
                                                 <UserCheck className="h-16 w-16" />
                                             </motion.div>,
-                                            trend: "Average per transaction",
+                                            trend: t("Average per transaction"),
                                             trendIcon: null,
                                             trendValue: "",
                                             decorator: <motion.div
@@ -835,7 +835,7 @@ export default function Outcome({ auth, outcome }) {
                                     </div>
                                     <input
                                         type="text"
-                                        placeholder="Search transactions..."
+                                        placeholder={t("Search transactions...")}
                                         className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-all duration-200"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -862,7 +862,7 @@ export default function Outcome({ auth, outcome }) {
                                             className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
                                         >
                                             <RefreshCw className="h-3.5 w-3.5" />
-                                            <span>Refresh</span>
+                                            <span>{t('Refresh')}</span>
                                         </Button>
                                         <Tabs defaultValue="grid" className="w-auto">
                                             <TabsList className="p-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
@@ -896,7 +896,7 @@ export default function Outcome({ auth, outcome }) {
                             )}
 
                             <h2 className="text-xl font-semibold text-slate-900 dark:text-white flex items-center mb-6">
-                                {searchTerm ? 'Search Results' : 'Recent Transactions'}
+                                {searchTerm ? t('Search Results') : t('Recent Transactions')}
                             </h2>
 
                             {/* Grid and List Views */}
@@ -928,25 +928,25 @@ export default function Outcome({ auth, outcome }) {
                                                                 </div>
                                                             </div>
                                                             <Badge className="bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 rounded-full font-medium border-0">
-                                                                Outcome
+                                                                {t('Outcome')}
                                                             </Badge>
                                                         </div>
 
                                                         <CardContent className="px-5 pt-0 pb-3">
                                                             <div className="mt-3 flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
                                                                 <div>
-                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Amount</p>
+                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('Amount')}</p>
                                                                     <p className="text-xl font-bold text-rose-600 dark:text-rose-400">${record.amount.toFixed(2)}</p>
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Date</p>
+                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('Date')}</p>
                                                                     <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{record.date}</p>
                                                                 </div>
                                                             </div>
 
                                                             {record.notes && (
                                                                 <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Notes</p>
+                                                                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('Notes')}</p>
                                                                     <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">{record.notes}</p>
                                                                 </div>
                                                             )}

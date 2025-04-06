@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/Components/ui/card';
@@ -49,6 +50,7 @@ const staggerChildren = {
 };
 
 export default function ShowSale({ auth, sale }) {
+    const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(false);
     const [isPrintMode, setIsPrintMode] = useState(false);
 
@@ -90,7 +92,7 @@ export default function ShowSale({ auth, sale }) {
 
     return (
         <>
-            <Head title={`Sale #${sale.reference}`} />
+            <Head title={t(`Sale #${sale.reference}`)} />
 
             <div className={`flex h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 dark:from-gray-900 dark:via-indigo-950 dark:to-blue-950 ${isPrintMode ? 'print-mode' : ''}`}>
                 {/* Sidebar - Hidden in print mode */}
@@ -115,13 +117,13 @@ export default function ShowSale({ auth, sale }) {
                             >
                                 <Link href={route('warehouse.sales')} className="flex items-center text-violet-600 hover:text-violet-800 transition-colors hover:scale-105 transform duration-200">
                                     <ArrowLeft className="h-4 w-4 mr-1" />
-                                    <span>Back to Sales</span>
+                                    <span>{t('Back to Sales')}</span>
                                 </Link>
                                 <div className="h-4 w-px bg-violet-200 dark:bg-violet-700"></div>
                                 <div className="relative">
                                     <h1 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
                                         <ShoppingCart className="h-5 w-5 mr-2 text-violet-600" />
-                                        Sale Detail: <span className="text-violet-600 ml-1">{sale.reference}</span>
+                                        {t('Sale Detail')}: <span className="text-violet-600 ml-1">{sale.reference}</span>
                                     </h1>
                                 </div>
                             </motion.div>
@@ -136,7 +138,7 @@ export default function ShowSale({ auth, sale }) {
                                     onClick={handlePrint}
                                 >
                                     <Printer className="h-4 w-4" />
-                                    <span>Print Invoice</span>
+                                    <span>{t('Print Invoice')}</span>
                                 </Button>
                                 <Button
                                     size="sm"
@@ -144,7 +146,7 @@ export default function ShowSale({ auth, sale }) {
                                     className="flex items-center gap-1.5 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400 transition-all duration-200 shadow-sm hover:scale-105 transform"
                                 >
                                     <Download className="h-4 w-4" />
-                                    <span>Download PDF</span>
+                                    <span>{t('Download PDF')}</span>
                                 </Button>
                                 {!sale.confirmed_by_warehouse && (
                                     <Button
@@ -154,7 +156,7 @@ export default function ShowSale({ auth, sale }) {
                                         disabled={processing || loading}
                                     >
                                         <CheckCircle className="h-4 w-4 mr-1.5" />
-                                        <span>Confirm Sale</span>
+                                        <span>{t('Confirm Sale')}</span>
                                     </Button>
                                 )}
                             </motion.div>
@@ -166,10 +168,10 @@ export default function ShowSale({ auth, sale }) {
                         <div className="print-header p-4 border-b">
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center">
-                                    <div className="text-3xl font-bold text-gray-900">Company Name</div>
+                                    <div className="text-3xl font-bold text-gray-900">{t('Company Name')}</div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-2xl font-bold text-gray-900">INVOICE</div>
+                                    <div className="text-2xl font-bold text-gray-900">{t('INVOICE')}</div>
                                     <div className="text-gray-600">{sale.reference}</div>
                                 </div>
                             </div>
@@ -196,7 +198,7 @@ export default function ShowSale({ auth, sale }) {
                                         <div className="flex items-center justify-between">
                                             <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center">
                                                 <Sparkles className="h-4 w-4 mr-2 text-violet-500" />
-                                                Sale Information
+                                                {t('Sale Information')}
                                             </CardTitle>
                                             <Badge
                                                 className={`
@@ -219,7 +221,7 @@ export default function ShowSale({ auth, sale }) {
                                                 >
                                                     <Calendar className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
                                                     <div>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Date</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Date')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.date}</p>
                                                     </div>
                                                 </motion.div>
@@ -229,7 +231,7 @@ export default function ShowSale({ auth, sale }) {
                                                 >
                                                     <ShoppingCart className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
                                                     <div>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Reference</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Reference')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.reference}</p>
                                                     </div>
                                                 </motion.div>
@@ -239,7 +241,7 @@ export default function ShowSale({ auth, sale }) {
                                                 >
                                                     <CreditCard className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
                                                     <div>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Currency</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Currency')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.currency}</p>
                                                     </div>
                                                 </motion.div>
@@ -251,7 +253,7 @@ export default function ShowSale({ auth, sale }) {
                                                 >
                                                     <Clock className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
                                                     <div>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Created</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Created')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.created_at}</p>
                                                     </div>
                                                 </motion.div>
@@ -261,7 +263,7 @@ export default function ShowSale({ auth, sale }) {
                                                 >
                                                     <Truck className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
                                                     <div>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Warehouse Confirmation</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Warehouse Confirmation')}</p>
                                                         <div className="font-medium text-gray-900 dark:text-white">
                                                             {sale.confirmed_by_warehouse ? (
                                                                 <motion.span
@@ -270,7 +272,7 @@ export default function ShowSale({ auth, sale }) {
                                                                     animate={{ scale: 1 }}
                                                                     transition={{ yoyo: 1, duration: 0.3 }}
                                                                 >
-                                                                    <CheckCircle className="h-4 w-4 mr-1" /> Confirmed
+                                                                    <CheckCircle className="h-4 w-4 mr-1" /> {t('Confirmed')}
                                                                 </motion.span>
                                                             ) : (
                                                                 <motion.span
@@ -278,7 +280,7 @@ export default function ShowSale({ auth, sale }) {
                                                                     animate={{ opacity: [0.6, 1, 0.6] }}
                                                                     transition={{ repeat: Infinity, duration: 2 }}
                                                                 >
-                                                                    <XCircle className="h-4 w-4 mr-1" /> Pending
+                                                                    <XCircle className="h-4 w-4 mr-1" /> {t('Pending')}
                                                                 </motion.span>
                                                             )}
                                                         </div>
@@ -291,7 +293,7 @@ export default function ShowSale({ auth, sale }) {
                                                     <Package className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
                                                     <div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">Items Count</p>
-                                                        <p className="font-medium text-gray-900 dark:text-white">{sale.items_count} items</p>
+                                                        <p className="font-medium text-gray-900 dark:text-white">{sale.items_count} {t('items')}</p>
                                                     </div>
                                                 </motion.div>
                                             </div>
@@ -302,7 +304,7 @@ export default function ShowSale({ auth, sale }) {
                                                 whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                                                 className="mt-4 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-100 dark:border-violet-800"
                                             >
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Notes</p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('Notes')}</p>
                                                 <p className="text-gray-700 dark:text-gray-300">{sale.notes}</p>
                                             </motion.div>
                                         )}
@@ -319,7 +321,7 @@ export default function ShowSale({ auth, sale }) {
                                     <CardHeader className="pb-2 border-b border-purple-100 dark:border-purple-900/30">
                                         <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center">
                                             <User className="h-4 w-4 mr-2 text-purple-500" />
-                                            Customer Information
+                                            {t('Customer Information')}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="pt-4">
@@ -334,7 +336,7 @@ export default function ShowSale({ auth, sale }) {
                                             </Avatar>
                                             <div>
                                                 <h3 className="font-medium text-gray-900 dark:text-white">{sale.customer.name}</h3>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">Customer ID: {sale.customer.id}</p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">{t('Customer ID')}: {sale.customer.id}</p>
                                             </div>
                                         </motion.div>
 
@@ -346,7 +348,7 @@ export default function ShowSale({ auth, sale }) {
                                                 >
                                                     <Mail className="h-4 w-4 text-purple-500 mt-0.5 mr-2" />
                                                     <div>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Email</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Email')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.customer.email}</p>
                                                     </div>
                                                 </motion.div>
@@ -359,7 +361,7 @@ export default function ShowSale({ auth, sale }) {
                                                 >
                                                     <Phone className="h-4 w-4 text-purple-500 mt-0.5 mr-2" />
                                                     <div>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Phone</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Phone')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.customer.phone}</p>
                                                     </div>
                                                 </motion.div>
@@ -372,7 +374,7 @@ export default function ShowSale({ auth, sale }) {
                                                 >
                                                     <MapPin className="h-4 w-4 text-purple-500 mt-0.5 mr-2" />
                                                     <div>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Address')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.customer.address}</p>
                                                     </div>
                                                 </motion.div>
@@ -385,7 +387,7 @@ export default function ShowSale({ auth, sale }) {
                                                 >
                                                     <Building className="h-4 w-4 text-purple-500 mt-0.5 mr-2" />
                                                     <div>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">Tax Number</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Tax Number')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.customer.tax_number}</p>
                                                     </div>
                                                 </motion.div>
@@ -407,7 +409,7 @@ export default function ShowSale({ auth, sale }) {
                                 <CardHeader className="pb-2 border-b border-teal-100 dark:border-teal-900/30">
                                     <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center">
                                         <Package className="h-4 w-4 mr-2 text-teal-500" />
-                                        Sale Items
+                                        {t('Sale Items')}
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="pt-4">
@@ -416,11 +418,11 @@ export default function ShowSale({ auth, sale }) {
                                             <thead className="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/40 dark:to-cyan-900/40">
                                                 <tr>
                                                     <th scope="col" className="px-4 py-3 w-16 rounded-tl-lg">#</th>
-                                                    <th scope="col" className="px-4 py-3">Product</th>
-                                                    <th scope="col" className="px-4 py-3 text-center">Unit</th>
-                                                    <th scope="col" className="px-4 py-3 text-center">Quantity</th>
-                                                    <th scope="col" className="px-4 py-3 text-center">Unit Price</th>
-                                                    <th scope="col" className="px-4 py-3 text-right rounded-tr-lg">Total</th>
+                                                    <th scope="col" className="px-4 py-3">{t('Product')}</th>
+                                                    <th scope="col" className="px-4 py-3 text-center">{t('Unit')}</th>
+                                                    <th scope="col" className="px-4 py-3 text-center">{t('Quantity')}</th>
+                                                    <th scope="col" className="px-4 py-3 text-center">{t('Unit Price')}</th>
+                                                    <th scope="col" className="px-4 py-3 text-right rounded-tr-lg">{t('Total')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -466,24 +468,24 @@ export default function ShowSale({ auth, sale }) {
                                             </tbody>
                                             <tfoot>
                                                 <tr className="font-semibold text-gray-900 dark:text-white border-t-2 border-teal-200 dark:border-teal-800">
-                                                    <td colSpan="5" className="px-4 py-3 text-right">Subtotal:</td>
+                                                    <td colSpan="5" className="px-4 py-3 text-right">{t('Subtotal')}:</td>
                                                     <td className="px-4 py-3 text-right">{sale.currency} {parseFloat(sale.total_amount).toFixed(2)}</td>
                                                 </tr>
                                                 {sale.tax_percentage > 0 && (
                                                     <tr className="text-gray-900 dark:text-white">
-                                                        <td colSpan="5" className="px-4 py-3 text-right">Tax ({sale.tax_percentage}%):</td>
+                                                        <td colSpan="5" className="px-4 py-3 text-right">{t('Tax')} ({sale.tax_percentage}%):</td>
                                                         <td className="px-4 py-3 text-right">{sale.currency} {parseFloat(sale.tax_amount).toFixed(2)}</td>
                                                     </tr>
                                                 )}
                                                 {sale.discount_percentage > 0 && (
                                                     <tr className="text-gray-900 dark:text-white">
-                                                        <td colSpan="5" className="px-4 py-3 text-right">Discount ({sale.discount_percentage}%):</td>
+                                                        <td colSpan="5" className="px-4 py-3 text-right">{t('Discount')} ({sale.discount_percentage}%):</td>
                                                         <td className="px-4 py-3 text-right text-pink-600 dark:text-pink-400">-{sale.currency} {parseFloat(sale.discount_amount).toFixed(2)}</td>
                                                     </tr>
                                                 )}
                                                 {sale.shipping_cost > 0 && (
                                                     <tr className="text-gray-900 dark:text-white">
-                                                        <td colSpan="5" className="px-4 py-3 text-right">Shipping:</td>
+                                                        <td colSpan="5" className="px-4 py-3 text-right">{t('Shipping')}:</td>
                                                         <td className="px-4 py-3 text-right">{sale.currency} {parseFloat(sale.shipping_cost).toFixed(2)}</td>
                                                     </tr>
                                                 )}
@@ -491,7 +493,7 @@ export default function ShowSale({ auth, sale }) {
                                                     className="font-bold text-gray-900 dark:text-white text-lg border-t-2 border-teal-200 dark:border-teal-800"
                                                     whileHover={{ scale: 1.01 }}
                                                 >
-                                                    <td colSpan="5" className="px-4 py-3 text-right">Total:</td>
+                                                    <td colSpan="5" className="px-4 py-3 text-right">{t('Total')}:</td>
                                                     <td className="px-4 py-3 text-right bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/30 dark:to-cyan-900/30 rounded-r">
                                                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-cyan-500 dark:from-teal-400 dark:to-cyan-300">
                                                             {sale.currency} {parseFloat(sale.total_amount).toFixed(2)}
@@ -499,7 +501,7 @@ export default function ShowSale({ auth, sale }) {
                                                     </td>
                                                 </motion.tr>
                                                 <tr className="text-gray-900 dark:text-white">
-                                                    <td colSpan="5" className="px-4 py-3 text-right">Paid Amount:</td>
+                                                    <td colSpan="5" className="px-4 py-3 text-right">{t('Paid Amount')}:</td>
                                                     <td className="px-4 py-3 text-right text-emerald-600 dark:text-emerald-400">{sale.currency} {parseFloat(sale.paid_amount).toFixed(2)}</td>
                                                 </tr>
                                                 <motion.tr
@@ -507,7 +509,7 @@ export default function ShowSale({ auth, sale }) {
                                                     animate={{ backgroundColor: ['rgba(20, 184, 166, 0.05)', 'rgba(20, 184, 166, 0.1)', 'rgba(20, 184, 166, 0.05)'] }}
                                                     transition={{ repeat: Infinity, duration: 3 }}
                                                 >
-                                                    <td colSpan="5" className="px-4 py-3 text-right">Due Amount:</td>
+                                                    <td colSpan="5" className="px-4 py-3 text-right">{t('Due Amount')}:</td>
                                                     <td className="px-4 py-3 text-right text-amber-600 dark:text-amber-400">{sale.currency} {parseFloat(sale.due_amount).toFixed(2)}</td>
                                                 </motion.tr>
                                             </tfoot>
@@ -528,7 +530,7 @@ export default function ShowSale({ auth, sale }) {
                                     <CardHeader className="pb-2 border-b border-emerald-100 dark:border-emerald-900/30">
                                         <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center">
                                             <CreditCard className="h-4 w-4 mr-2 text-emerald-500" />
-                                            Payment History
+                                            {t('Payment History')}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="pt-4">
@@ -536,10 +538,10 @@ export default function ShowSale({ auth, sale }) {
                                             <table className="w-full text-sm text-left">
                                                 <thead className="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/40 dark:to-emerald-900/40">
                                                     <tr>
-                                                        <th scope="col" className="px-4 py-3 rounded-tl-lg">Date</th>
-                                                        <th scope="col" className="px-4 py-3">Reference</th>
-                                                        <th scope="col" className="px-4 py-3">Payment Method</th>
-                                                        <th scope="col" className="px-4 py-3 text-right rounded-tr-lg">Amount</th>
+                                                        <th scope="col" className="px-4 py-3 rounded-tl-lg">{t('Date')}</th>
+                                                        <th scope="col" className="px-4 py-3">{t('Reference')}</th>
+                                                        <th scope="col" className="px-4 py-3">{t('Payment Method')}</th>
+                                                        <th scope="col" className="px-4 py-3 text-right rounded-tr-lg">{t('Amount')}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-emerald-100 dark:divide-emerald-900/30">
@@ -567,7 +569,7 @@ export default function ShowSale({ auth, sale }) {
                                                 </tbody>
                                                 <tfoot>
                                                     <tr className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 font-semibold">
-                                                        <td colSpan="3" className="px-4 py-3 text-right">Total Payments:</td>
+                                                        <td colSpan="3" className="px-4 py-3 text-right">{t('Total Payments')}:</td>
                                                         <td className="px-4 py-3 text-right text-emerald-700 dark:text-emerald-300">
                                                             {sale.currency} {parseFloat(sale.paid_amount).toFixed(2)}
                                                         </td>
