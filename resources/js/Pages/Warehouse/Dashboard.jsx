@@ -382,9 +382,9 @@ export default function Dashboard({ auth, stats }) {
                     <header ref={headerRef} className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
                         <div className="flex items-center space-x-4">
                             <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">Warehouse Management</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">{t('Warehouse Management')}</span>
                                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    Dashboard Overview
+                                    {t('Dashboard Overview')}
                                     <Badge variant="outline" className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800 rounded-full">
                                         {auth.user.warehouse.name}
                                     </Badge>
@@ -394,11 +394,11 @@ export default function Dashboard({ auth, stats }) {
                         <div className="flex items-center gap-3">
                             <Button size="sm" variant="outline" className="rounded-full border-slate-200 dark:border-slate-700 flex items-center gap-1.5">
                                 <RefreshCw className="h-3.5 w-3.5 text-slate-500" />
-                                <span className="text-slate-600 dark:text-slate-400">Refresh</span>
+                                <span className="text-slate-600 dark:text-slate-400">{t('Refresh')}</span>
                             </Button>
                             <Button size="sm" className="bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md rounded-full px-4">
                                 <Plus className="h-4 w-4 mr-1.5" />
-                                <span>New Product</span>
+                                <span>{t('New Product')}</span>
                             </Button>
                         </div>
                     </header>
@@ -435,7 +435,7 @@ export default function Dashboard({ auth, stats }) {
                                     >
                                         <div className="p-6 relative z-10">
                                             <div className="flex justify-between items-center mb-4">
-                                                <span className="font-medium text-lg">Total Stock</span>
+                                                <span className="font-medium text-lg">{t('Total Stock')}</span>
                                                 <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
                                                     <Layers className="h-6 w-6" />
                                                 </div>
@@ -450,10 +450,10 @@ export default function Dashboard({ auth, stats }) {
                                                 {stats?.low_stock_count > 0 ? (
                                                     <div className="flex items-center">
                                                         <AlertTriangle className="h-3.5 w-3.5 mr-1" />
-                                                        <span>{stats.low_stock_count} products low on stock</span>
+                                                        <span>{stats.low_stock_count} {t('products low on stock')}</span>
                                                     </div>
                                                 ) : (
-                                                    <span>Inventory levels good</span>
+                                                    <span>{t('Inventory levels good')}</span>
                                                 )}
                                             </div>
                                         </div>
@@ -487,7 +487,7 @@ export default function Dashboard({ auth, stats }) {
                                     >
                                         <div className="p-6 relative z-10">
                                             <div className="flex justify-between items-center mb-4">
-                                                <span className="font-medium text-lg">Inventory Value</span>
+                                                <span className="font-medium text-lg">{t('Inventory Value')}</span>
                                                 <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
                                                     <DollarSign className="h-6 w-6" />
                                                 </div>
@@ -501,7 +501,7 @@ export default function Dashboard({ auth, stats }) {
                                             </div>
                                             <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
                                                 <ArrowUp className="h-3.5 w-3.5 mr-1" />
-                                                <span>+5% from last month</span>
+                                                <span>+5% {t('from last month')}</span>
                                             </div>
                                         </div>
                                         <div className="card-shine"></div>
@@ -534,7 +534,7 @@ export default function Dashboard({ auth, stats }) {
                                     >
                                         <div className="p-6 relative z-10">
                                             <div className="flex justify-between items-center mb-4">
-                                                <span className="font-medium text-lg">Total Sales</span>
+                                                <span className="font-medium text-lg">{t('Total Sales')}</span>
                                                 <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
                                                     <TrendingUp className="h-6 w-6" />
                                                 </div>
@@ -547,7 +547,7 @@ export default function Dashboard({ auth, stats }) {
                                                 />
                                             </div>
                                             <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
-                                                <span>{stats?.total_outcome_quantity || 0} units sold</span>
+                                                <span>{stats?.total_outcome_quantity || 0} {t('units sold')}</span>
                                             </div>
                                         </div>
                                         <div className="card-shine"></div>
@@ -580,7 +580,7 @@ export default function Dashboard({ auth, stats }) {
                                     >
                                         <div className="p-6 relative z-10">
                                             <div className="flex justify-between items-center mb-4">
-                                                <span className="font-medium text-lg">Total Profit</span>
+                                                <span className="font-medium text-lg">{t('Total Profit')}</span>
                                                 <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
                                                     <TrendingUp className="h-6 w-6" />
                                                 </div>
@@ -594,7 +594,7 @@ export default function Dashboard({ auth, stats }) {
                                             </div>
                                             <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
                                                 <Percent className="h-3.5 w-3.5 mr-1" />
-                                                <span>Margin: {stats?.profit_margin?.toFixed(1) || 0}%</span>
+                                                <span>{t('Margin')}: {stats?.profit_margin?.toFixed(1) || 0}%</span>
                                             </div>
                                         </div>
                                         <div className="card-shine"></div>
@@ -627,7 +627,7 @@ export default function Dashboard({ auth, stats }) {
                                     >
                                         <div className="p-6 relative z-10">
                                             <div className="flex justify-between items-center mb-4">
-                                                <span className="font-medium text-lg">Turnover Rate</span>
+                                                <span className="font-medium text-lg">{t('Turnover Rate')}</span>
                                                 <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
                                                     <RefreshCcw className="h-6 w-6" />
                                                 </div>
@@ -640,7 +640,7 @@ export default function Dashboard({ auth, stats }) {
                                             </div>
                                             <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
                                                 <ArrowUp className="h-3.5 w-3.5 mr-1" />
-                                                <span>Higher is better</span>
+                                                <span>{t('Higher is better')}</span>
                                             </div>
                                         </div>
                                         <div className="card-shine"></div>
@@ -674,7 +674,7 @@ export default function Dashboard({ auth, stats }) {
                                             <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 px-6 py-4">
                                                 <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                                     <BarChart3 className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                                                    Monthly Sales (Current Year)
+                                                    {t('Monthly Sales (Current Year)')}
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6">
@@ -724,7 +724,7 @@ export default function Dashboard({ auth, stats }) {
                                             <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 px-6 py-4">
                                                 <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                                     <Package className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                                                    Top Selling Products
+                                                    {t('Top Selling Products')}
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6">
@@ -795,7 +795,7 @@ export default function Dashboard({ auth, stats }) {
                                             <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 px-6 py-4">
                                                 <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                                     <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                                                    Daily Activity (Last 7 Days)
+                                                    {t('Daily Activity (Last 7 Days)')}
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6">
@@ -835,11 +835,11 @@ export default function Dashboard({ auth, stats }) {
                                                 <div className="flex items-center justify-between">
                                                     <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                                         <Package className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                                                        Recent Product Movement
+                                                        {t('Recent Product Movement')}
                                                     </CardTitle>
                                                     <Button variant="outline" size="sm" className="text-emerald-600 dark:text-emerald-400 border-slate-200 dark:border-slate-700 rounded-lg">
                                                         <Link href={route('warehouse.products')}>
-                                                            View All
+                                                            {t('View All')}
                                                         </Link>
                                                     </Button>
                                                 </div>
@@ -898,17 +898,17 @@ export default function Dashboard({ auth, stats }) {
                                             <div className="flex items-center justify-between">
                                                 <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
                                                     <TrendingUp className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />
-                                                    Recent Transactions
+                                                    {t('Recent Transactions')}
                                                 </CardTitle>
                                                 <div className="flex gap-2">
                                                     <Button variant="outline" size="sm" className="text-emerald-600 dark:text-emerald-400 border-slate-200 dark:border-slate-700 rounded-lg">
                                                         <Link href={route('warehouse.income')}>
-                                                            View Income
+                                                            {t('View Income')}
                                                         </Link>
                                                     </Button>
                                                     <Button variant="outline" size="sm" className="text-emerald-600 dark:text-emerald-400 border-slate-200 dark:border-slate-700 rounded-lg">
                                                         <Link href={route('warehouse.outcome')}>
-                                                            View Outcome
+                                                            {t('View Outcome')}
                                                         </Link>
                                                     </Button>
                                                 </div>
