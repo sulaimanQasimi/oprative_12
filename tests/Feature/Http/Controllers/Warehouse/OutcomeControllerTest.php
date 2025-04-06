@@ -3,6 +3,7 @@
 use function Pest\Laravel\get;
 use function Pest\Laravel\post;
 use App\Models\Outcome;
+use App\Models\WarehouseOutcome;
 
 test('it can display outcomes list', function () {
     // Act & Assert
@@ -31,7 +32,7 @@ test('it can store a new outcome', function () {
 
 test('it can show outcome details', function () {
     // Arrange
-    $outcome = Outcome::factory()->create();
+    $outcome = WarehouseOutcome::factory()->create();
 
     // Act & Assert
     get(route('outcomes.show', $outcome->id))
