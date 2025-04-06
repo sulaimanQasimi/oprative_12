@@ -59,16 +59,6 @@ export default function IncomeDetails({ auth, income, relatedIncome }) {
                                 </h1>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <Button variant="outline" size="sm" className="rounded-full border-slate-200 dark:border-slate-700 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20">
-                                <Trash2 className="h-4 w-4 mr-1.5" />
-                                <span>Delete</span>
-                            </Button>
-                            <Button variant="outline" size="sm" className="rounded-full border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-                                <Edit className="h-4 w-4 mr-1.5" />
-                                <span>Edit</span>
-                            </Button>
-                        </div>
                     </header>
 
                     {/* Main Content */}

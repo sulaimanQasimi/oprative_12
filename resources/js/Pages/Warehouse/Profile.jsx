@@ -326,16 +326,6 @@ export default function Profile({ auth }) {
                                 </h1>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <Button size="sm" variant="outline" className="rounded-full border-slate-200 dark:border-slate-700 flex items-center gap-1.5">
-                                <RefreshCw className="h-3.5 w-3.5 text-slate-500" />
-                                <span className="text-slate-600 dark:text-slate-400">Refresh</span>
-                            </Button>
-                            <Button size="sm" className="bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md rounded-full px-4">
-                                <Save className="h-4 w-4 mr-1.5" />
-                                <span>Save Changes</span>
-                            </Button>
-                        </div>
                     </header>
 
                     {/* Main Content Container */}

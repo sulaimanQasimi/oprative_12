@@ -140,14 +140,6 @@ export default function ShowSale({ auth, sale }) {
                                     <Printer className="h-4 w-4" />
                                     <span>{t('Print Invoice')}</span>
                                 </Button>
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="flex items-center gap-1.5 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400 transition-all duration-200 shadow-sm hover:scale-105 transform"
-                                >
-                                    <Download className="h-4 w-4" />
-                                    <span>{t('Download PDF')}</span>
-                                </Button>
                                 {!sale.confirmed_by_warehouse && (
                                     <Button
                                         size="sm"

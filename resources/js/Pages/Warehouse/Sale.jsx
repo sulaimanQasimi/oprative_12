@@ -475,22 +475,6 @@ export default function Sale({ auth, sales }) {
                                 </h1>
                             </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="relative">
-                                <Button size="sm" variant="outline" className="flex items-center gap-1.5 rounded-full border-slate-200 dark:border-slate-700 px-4">
-                                    <Filter className="h-4 w-4 text-slate-500" />
-                                    <span className="text-slate-600 dark:text-slate-400">Filters</span>
-                                    <ChevronDown className="h-3.5 w-3.5 text-slate-500 ml-1" />
-                                </Button>
-                            </div>
-                            <Button size="sm" variant="outline" className="rounded-full border-slate-200 dark:border-slate-700">
-                                <Download className="h-4 w-4 text-slate-500" />
-                            </Button>
-                            <Button size="sm" className="bg-gradient-to-br from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-md rounded-full px-4">
-                                <Plus className="h-4 w-4 mr-1.5" />
-                                <span>New Transaction</span>
-                            </Button>
-                        </div>
                     </header>
 
                     {/* Main Content Container - will modify dashboard cards next */}
