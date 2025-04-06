@@ -11,6 +11,22 @@ class WarehouseProduct extends Model
 {
     // use SoftDeletes;
     protected $table = 'warehouse_product_movements';
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'id',
+        'warehouse_id',
+        'product_id',
+        'quantity',
+        'net_quantity',
+        'price',
+        'total_price'
+    ];
+
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);

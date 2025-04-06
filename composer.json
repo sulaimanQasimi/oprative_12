@@ -93,7 +93,9 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require-dev": {
+        "fakerphp/faker": "^1.24",
         "laravel/breeze": "^2.3",
+        "mockery/mockery": "^1.6",
         "pestphp/pest": "^3.7",
         "pestphp/pest-plugin-laravel": "^3.0"
     }
