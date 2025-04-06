@@ -36,66 +36,10 @@ class WarehouseProductController extends Controller
      */
     public function index(Request $request)
     {
-        try {
-            // Validate request parameters if needed
-            $perPage = $request->input('per_page', 9);
-            $sortBy = $request->input('sort_by', 'net_quantity');
-            $sortDirection = $request->input('sort_direction', 'desc');
-            $searchTerm = $request->input('search');
-
-            // Get products with filters applied
-            $products = $this->productService->getFilteredProducts(
-                $perPage,
-                $sortBy,
-                $sortDirection,
-                $searchTerm
-            );
-
-            // Handle AJAX request
-            if ($request->ajax()) {
-                $view = view('partials.warehouse-products', compact('products'))->render();
-                return response()->json([
-                    'success' => true,
-                    'html' => $view,
-                    'hasMorePages' => $products->hasMorePages(),
-                    'currentPage' => $products->currentPage(),
-                    'lastPage' => $products->lastPage(),
-                    'totalItems' => $products->total(),
-                ]);
-            }
-
-            // Return view for normal page load
-            return view('landing', compact('products'));
-        } catch (ValidationException $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Invalid request parameters',
-                    'errors' => $e->errors()
-                ], 422);
-            }
-
-            Log::error('Validation error in WarehouseProductController', [
-                'errors' => $e->errors()
-            ]);
-
-            return view('landing', ['products' => collect([])]);
-        } catch (\Exception $e) {
-            Log::error('Error in WarehouseProductController', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'An error occurred while fetching products'
-                ], 500);
-            }
-
-            return view('landing', ['products' => collect([])]);
-        }
-    }
+        return inertia('Warehouse3D/LandingPage', [
+            'products' => collect([])
+        ]);
+     }
 
     /**
      * Display a specific warehouse product.
