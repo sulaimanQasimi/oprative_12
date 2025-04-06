@@ -26,40 +26,107 @@ trait RegisterRoutes
 
             // Authenticated routes
             Route::middleware('auth:warehouse_user')->group(function () {
-                Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+                // Dashboard
+                Route::get('dashboard', [DashboardController::class, 'index'])
+                    ->middleware('permission:warehouse.view_dashboard')
+                    ->name('dashboard');
 
                 // Products management
-                Route::get('products', [ProductController::class, 'index'])->name('products');
-                Route::get('products/create', [ProductController::class, 'create'])->name('products.create');
-                Route::post('products', [ProductController::class, 'store'])->name('products.store');
-                Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
-                Route::get('products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
-                Route::put('products/{product}', [ProductController::class, 'update'])->name('products.update');
-                Route::delete('products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
+                Route::get('products', [ProductController::class, 'index'])
+                    ->middleware('permission:warehouse.view_products')
+                    ->name('products');
+                    
+                Route::get('products/create', [ProductController::class, 'create'])
+                    ->middleware('permission:warehouse.create_products')
+                    ->name('products.create');
+                    
+                Route::post('products', [ProductController::class, 'store'])
+                    ->middleware('permission:warehouse.create_products')
+                    ->name('products.store');
+                    
+                Route::get('products/{product}', [ProductController::class, 'show'])
+                    ->middleware('permission:warehouse.view_products')
+                    ->name('products.show');
+                    
+                Route::get('products/{product}/edit', [ProductController::class, 'edit'])
+                    ->middleware('permission:warehouse.edit_products')
+                    ->name('products.edit');
+                    
+                Route::put('products/{product}', [ProductController::class, 'update'])
+                    ->middleware('permission:warehouse.edit_products')
+                    ->name('products.update');
+                    
+                Route::delete('products/{product}', [ProductController::class, 'destroy'])
+                    ->middleware('permission:warehouse.delete_products')
+                    ->name('products.destroy');
 
                 // Income management
-                Route::get('income', [IncomeController::class, 'index'])->name('income');
-                Route::get('income/{income}', [IncomeController::class, 'show'])->name('income.show');
+                Route::get('income', [IncomeController::class, 'index'])
+                    ->middleware('permission:warehouse.view_income')
+                    ->name('income');
+                    
+                Route::get('income/{income}', [IncomeController::class, 'show'])
+                    ->middleware('permission:warehouse.view_income_details')
+                    ->name('income.show');
 
                 // Outcome management
-                Route::get('outcome', [OutcomeController::class, 'index'])->name('outcome');
-                Route::get('outcome/{outcome}', [OutcomeController::class, 'show'])->name('outcome.show');
+                Route::get('outcome', [OutcomeController::class, 'index'])
+                    ->middleware('permission:warehouse.view_outcome')
+                    ->name('outcome');
+                    
+                Route::get('outcome/{outcome}', [OutcomeController::class, 'show'])
+                    ->middleware('permission:warehouse.view_outcome_details')
+                    ->name('outcome.show');
 
                 // Sales management
-                Route::get('sales', [SaleController::class, 'index'])->name('sales');
-                Route::get('sales/create', [SaleController::class, 'create'])->name('sales.create');
-                Route::post('sales', [SaleController::class, 'store'])->name('sales.store');
-                Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
-                Route::get('sales/{sale}/edit', [SaleController::class, 'edit'])->name('sales.edit');
-                Route::get('sales/{sale}/invoice', [SaleController::class, 'invoice'])->name('sales.invoice');
-                Route::post('sales/{sale}/confirm', [SaleController::class, 'confirm'])->name('sales.confirm');
-                Route::put('sales/{sale}', [SaleController::class, 'update'])->name('sales.update');
-                Route::delete('sales/{sale}', [SaleController::class, 'destroy'])->name('sales.destroy');
+                Route::get('sales', [SaleController::class, 'index'])
+                    ->middleware('permission:warehouse.view_sales')
+                    ->name('sales');
+                    
+                Route::get('sales/create', [SaleController::class, 'create'])
+                    ->middleware('permission:warehouse.create_sales')
+                    ->name('sales.create');
+                    
+                Route::post('sales', [SaleController::class, 'store'])
+                    ->middleware('permission:warehouse.create_sales')
+                    ->name('sales.store');
+                    
+                Route::get('sales/{sale}', [SaleController::class, 'show'])
+                    ->middleware('permission:warehouse.view_sale_details')
+                    ->name('sales.show');
+                    
+                Route::get('sales/{sale}/edit', [SaleController::class, 'edit'])
+                    ->middleware('permission:warehouse.edit_sales')
+                    ->name('sales.edit');
+                    
+                Route::get('sales/{sale}/invoice', [SaleController::class, 'invoice'])
+                    ->middleware('permission:warehouse.generate_invoice')
+                    ->name('sales.invoice');
+                    
+                Route::post('sales/{sale}/confirm', [SaleController::class, 'confirm'])
+                    ->middleware('permission:warehouse.confirm_sales')
+                    ->name('sales.confirm');
+                    
+                Route::put('sales/{sale}', [SaleController::class, 'update'])
+                    ->middleware('permission:warehouse.edit_sales')
+                    ->name('sales.update');
+                    
+                Route::delete('sales/{sale}', [SaleController::class, 'destroy'])
+                    ->middleware('permission:warehouse.delete_sales')
+                    ->name('sales.destroy');
 
                 // Profile routes
-                Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
-                Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
-                Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+                Route::get('profile', [ProfileController::class, 'edit'])
+                    ->middleware('permission:warehouse.view_profile')
+                    ->name('profile.edit');
+                    
+                Route::patch('profile', [ProfileController::class, 'update'])
+                    ->middleware('permission:warehouse.edit_profile')
+                    ->name('profile.update');
+                    
+                Route::post('logout', [AuthController::class, 'logout'])
+                    ->middleware('permission:warehouse.logout')
+                    ->name('logout');
             });
 
             // Redirect root warehouse path to dashboard if authenticated, otherwise to login

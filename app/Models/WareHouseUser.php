@@ -12,6 +12,13 @@ class WareHouseUser extends Authenticatable
 {
     use HasApiTokens, Notifiable, HasRoles;
 
+    /**
+     * The guard name used by the model.
+     *
+     * @var string
+     */
+    protected $guard_name = 'warehouse_user';
+
     protected $fillable = [
         'warehouse_id',
         'name',
