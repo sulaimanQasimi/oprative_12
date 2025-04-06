@@ -7,8 +7,24 @@ use Illuminate\Http\Request;
 
 class Authenticate extends Middleware
 {
-    protected function redirectTo(Request $request): ?string
+    public function __construct($auth)
     {
-        return $request->expectsJson() ? null : route('login');
+        parent::__construct($auth);
+
+        static::redirectUsing(function (Request $request) {
+            if ($request->expectsJson()) {
+                return null;
+            }
+
+            if (str_starts_with($request->path(), 'customer/')) {
+                return route('customer.login');
+            }
+
+            if (str_starts_with($request->path(), 'warehouse/')) {
+                return route('warehouse.login');
+            }
+
+            return route('landing');
+        });
     }
 }
