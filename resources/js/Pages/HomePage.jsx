@@ -10,8 +10,8 @@ export default function HomePage() {
                     <div className="flex justify-between h-20">
                         <div className="flex items-center">
                             <div className="flex items-center space-x-2">
-                                <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
-                                    <span className="text-xl font-bold text-white">YB</span>
+                                <div className="w-10 h-10 overflow-hidden rounded-lg">
+                                    <img src="/images/logo.jpg" alt="YourBrand Logo" className="w-full h-full object-cover" />
                                 </div>
                                 <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">YourBrand</span>
                             </div>
@@ -23,6 +23,26 @@ export default function HomePage() {
                             <Link href="/contact" className="text-gray-600 hover:text-indigo-600 transition-colors">Contact</Link>
                         </div>
                         <div className="flex items-center space-x-4">
+                            <div className="border-r border-gray-200 pr-4 flex items-center space-x-4">
+                                <Link href="/admin/login" className="text-gray-600 hover:text-indigo-600 transition-colors flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                                    </svg>
+                                    Admin
+                                </Link>
+                                <Link href="/warehouse/login" className="text-gray-600 hover:text-indigo-600 transition-colors flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                                    </svg>
+                                    Warehouse
+                                </Link>
+                                <Link href="/store/login" className="text-gray-600 hover:text-indigo-600 transition-colors flex items-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                    </svg>
+                                    Store
+                                </Link>
+                            </div>
                             <Link href="/login" className="text-gray-600 hover:text-indigo-600 transition-colors">Login</Link>
                             <Link href="/register" className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-6 py-2.5 rounded-lg hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-0.5">
                                 Get Started
@@ -38,24 +58,28 @@ export default function HomePage() {
                 <div className="absolute -right-80 -top-80 w-[40rem] h-[40rem] rounded-full bg-gradient-to-br from-indigo-100/40 to-purple-100/40 blur-3xl -z-10"></div>
                 <div className="absolute -left-80 top-40 w-[30rem] h-[30rem] rounded-full bg-gradient-to-tr from-indigo-100/40 to-blue-100/40 blur-3xl -z-10"></div>
                 <div className="max-w-7xl mx-auto">
-                    <div className="text-center">
-                        <h1 className="text-5xl tracking-tight font-extrabold text-gray-900 sm:text-6xl md:text-7xl">
-                            <span className="block">Transform Your Business</span>
-                            <span className="block bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">With Our Solutions</span>
-                        </h1>
-                        <p className="mt-6 max-w-md mx-auto text-xl text-gray-600 sm:max-w-3xl">
-                            Streamline your operations, boost productivity, and drive growth with our innovative platform.
-                        </p>
-                        <div className="mt-8 max-w-md mx-auto sm:flex sm:justify-center md:mt-10">
-                            <div className="rounded-md shadow">
-                                <Link href="/register" className="w-full flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-0.5 md:text-lg md:px-10">
+                    <div className="lg:flex items-center gap-12">
+                        <div className="text-center lg:text-left lg:w-1/2">
+                            <h1 className="text-5xl tracking-tight font-extrabold text-gray-900 sm:text-6xl md:text-7xl">
+                                <span className="block">Transform Your Business</span>
+                                <span className="block bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">With Our Solutions</span>
+                            </h1>
+                            <p className="mt-6 text-xl text-gray-600 max-w-md mx-auto lg:mx-0">
+                                Streamline your operations, boost productivity, and drive growth with our innovative platform.
+                            </p>
+                            <div className="mt-8 flex flex-col sm:flex-row justify-center lg:justify-start space-y-4 sm:space-y-0 sm:space-x-4">
+                                <Link href="/register" className="flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:shadow-lg hover:shadow-indigo-500/30 transition-all duration-300 transform hover:-translate-y-0.5 md:text-lg">
                                     Get Started
                                 </Link>
-                            </div>
-                            <div className="mt-3 sm:mt-0 sm:ml-3">
-                                <Link href="/contact" className="w-full flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-xl text-indigo-700 bg-indigo-100 hover:bg-indigo-200 transition-colors md:text-lg md:px-10">
+                                <Link href="/contact" className="flex items-center justify-center px-8 py-4 border border-transparent text-base font-medium rounded-xl text-indigo-700 bg-indigo-100 hover:bg-indigo-200 transition-colors md:text-lg">
                                     Contact Sales
                                 </Link>
+                            </div>
+                        </div>
+                        <div className="hidden lg:block lg:w-1/2 mt-10 lg:mt-0">
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 rounded-xl transform rotate-3"></div>
+                                <img src="/images/hero-image.jpg" alt="Hero" className="relative rounded-xl shadow-xl z-10 object-cover w-full" />
                             </div>
                         </div>
                     </div>
@@ -76,42 +100,57 @@ export default function HomePage() {
 
                     <div className="mt-20 grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-3">
                         {/* Feature 1 */}
-                        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                                </svg>
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+                            <div className="h-48 overflow-hidden">
+                                <img src="/images/feature1.jpg" alt="Lightning Fast" className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500" />
                             </div>
-                            <h3 className="mt-5 text-xl font-semibold text-gray-900">Lightning Fast</h3>
-                            <p className="mt-3 text-gray-600 leading-relaxed">
-                                Experience blazing fast performance with our optimized platform designed for speed and efficiency.
-                            </p>
+                            <div className="p-8">
+                                <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20 -mt-16 mb-6 ml-4 ring-4 ring-white">
+                                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-semibold text-gray-900">Lightning Fast</h3>
+                                <p className="mt-3 text-gray-600 leading-relaxed">
+                                    Experience blazing fast performance with our optimized platform designed for speed and efficiency.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Feature 2 */}
-                        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                                </svg>
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+                            <div className="h-48 overflow-hidden">
+                                <img src="/images/feature2.jpg" alt="Secure & Reliable" className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500" />
                             </div>
-                            <h3 className="mt-5 text-xl font-semibold text-gray-900">Secure & Reliable</h3>
-                            <p className="mt-3 text-gray-600 leading-relaxed">
-                                Your data is protected with enterprise-grade security measures and our reliable infrastructure.
-                            </p>
+                            <div className="p-8">
+                                <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20 -mt-16 mb-6 ml-4 ring-4 ring-white">
+                                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-semibold text-gray-900">Secure & Reliable</h3>
+                                <p className="mt-3 text-gray-600 leading-relaxed">
+                                    Your data is protected with enterprise-grade security measures and our reliable infrastructure.
+                                </p>
+                            </div>
                         </div>
 
                         {/* Feature 3 */}
-                        <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                                </svg>
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-lg hover:shadow-indigo-500/10 transition-all duration-300 transform hover:-translate-y-1 overflow-hidden">
+                            <div className="h-48 overflow-hidden">
+                                <img src="/images/feature3.jpg" alt="Analytics & Insights" className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500" />
                             </div>
-                            <h3 className="mt-5 text-xl font-semibold text-gray-900">Analytics & Insights</h3>
-                            <p className="mt-3 text-gray-600 leading-relaxed">
-                                Make data-driven decisions with powerful analytics tools that provide actionable insights.
-                            </p>
+                            <div className="p-8">
+                                <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/20 -mt-16 mb-6 ml-4 ring-4 ring-white">
+                                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-semibold text-gray-900">Analytics & Insights</h3>
+                                <p className="mt-3 text-gray-600 leading-relaxed">
+                                    Make data-driven decisions with powerful analytics tools that provide actionable insights.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -119,9 +158,10 @@ export default function HomePage() {
 
             {/* CTA Section */}
             <section className="relative py-20 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-700 to-purple-700 -z-10"></div>
-                <div className="absolute -right-40 -bottom-40 w-80 h-80 rounded-full bg-indigo-500 opacity-20 blur-3xl -z-10"></div>
-                <div className="absolute -left-40 top-10 w-80 h-80 rounded-full bg-purple-500 opacity-20 blur-3xl -z-10"></div>
+                <div className="absolute inset-0 -z-10">
+                    <img src="/images/cta-bg.jpg" alt="CTA Background" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-700/90 to-purple-700/90"></div>
+                </div>
                 <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between relative z-10">
                     <div>
                         <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl lg:text-5xl">
@@ -139,7 +179,7 @@ export default function HomePage() {
                             </Link>
                         </div>
                         <div className="inline-flex">
-                            <Link href="/demo" className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-800/30 hover:bg-indigo-800/40 transition-colors">
+                            <Link href="/demo" className="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-indigo-800/30 hover:bg-indigo-800/40 transition-colors backdrop-blur-sm">
                                 Request a demo
                             </Link>
                         </div>
@@ -153,8 +193,8 @@ export default function HomePage() {
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                         <div>
                             <div className="flex items-center space-x-2 mb-4">
-                                <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-lg flex items-center justify-center">
-                                    <span className="text-sm font-bold text-white">YB</span>
+                                <div className="w-8 h-8 overflow-hidden rounded-lg">
+                                    <img src="/images/logo.jpg" alt="YourBrand Logo" className="w-full h-full object-cover" />
                                 </div>
                                 <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-purple-600">YourBrand</span>
                             </div>
