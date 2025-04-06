@@ -1,12 +1,12 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\WarehouseProductController;
+use App\Http\Controllers\HomeController;
 use App\Repositories\Customer\CustomerRepository;
 use App\Repositories\Warehouse\WarehouseRepository;
 
 // Landing page route
-Route::get('/', [WarehouseProductController::class, 'index'])->name('landing');
+Route::get('/', HomeController::class)->name('landing');
 
 // Inventory Routes
 Route::middleware(['auth'])->group(function () {
