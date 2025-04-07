@@ -638,7 +638,7 @@
     "Remaining balance for order": "مانده باقیمانده برای سفارش",
     "Insufficient stock for product": "موجودی ناکافی برای محصول",
     "Search": "جستجو",
-    
+
     "ORDER RECEIPT": "رسید سفارش",
     "Order": "سفارش",
     "Print": "چاپ",
@@ -1286,7 +1286,7 @@
     "Remaining balance for order": "مانده باقیمانده برای سفارش",
     "Insufficient stock for product": "موجودی ناکافی برای محصول",
     "Search": "جستجو",
-    
+
     "ORDER RECEIPT": "رسید سفارش",
     "Order": "سفارش",
     "Print": "چاپ",
@@ -2408,12 +2408,44 @@
     "Sales": "فروش",
     "Month": "ماه",
     "Quantity Sold": "تعداد فروخته شده",
-    "transactions": "تراکنش ها"
-
-
-
-
-
-
-    
+    "transactions": "تراکنش ها",
+    "Income Transactions": "محصولات وارد شده",
+    "Warehouse Management": "مدیریت انبار",
+    "Income Transactions": "معاملات درآمد",
+    "Total Income": "کل درآمد",
+    "All time transactions": "تمام معاملات تاکنون",
+    "This Month": "این ماه",
+    "Up %s% from last month": "افزایش %s٪ نسبت به ماه گذشته",
+    "Down %s% from last month": "کاهش %s٪ نسبت به ماه گذشته",
+    "Transactions": "معاملات",
+    "Total recorded transactions": "مجموع معاملات ثبت شده",
+    "Avg. Transaction": "میانگین معامله",
+    "Average per transaction": "میانگین در هر معامله",
+    "Search transactions...": "جستجوی معاملات...",
+    "Refresh": "تازه کردن",
+    "Showing results for:": "نمایش نتایج برای:",
+    "Search Results": "نتایج جستجو",
+    "Recent Transactions": "معاملات اخیر",
+    "Amount": "مقدار",
+    "Date": "تاریخ",
+    "Notes": "یادداشت‌ها",
+    "ID:": "شناسه:",
+    "View": "مشاهده",
+    "Details": "جزئیات",
+    "No transactions found": "هیچ معامله‌ای یافت نشد",
+    "Try adjusting your search criteria or check for typos.": "معیارهای جستجوی خود را تنظیم کنید یا اشتباهات تایپی را بررسی کنید.",
+    "No income transactions have been recorded yet. Add your first transaction to get started.": "هنوز هیچ معامله درآمدی ثبت نشده است. اولین معامله خود را اضافه کنید تا شروع کنید.",
+    "Add First Transaction": "اضافه کردن اولین معامله",
+    "Reference": "مرجع",
+    "Source": "منبع",
+    "Actions": "اقدامات",
+    "Income": "درآمد",
+    "Sales Transactions": "معاملات فروش",
+    "Products Inventory": "محصولات موجودی",
+    "Total Value": "کل ارزش",
+    "Products Count": "تعداد محصولات",
+    "Categories": "دسته‌بندی",
+    "Outcome Transactions": "معاملات خروجی",
+    "Total Outcome": "کل خروج",
+    "Recent Transactions": "تراکنش های اخیر"
 }
