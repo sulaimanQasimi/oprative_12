@@ -6,12 +6,12 @@ import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/Components/ui/card';
 import { Badge } from '@/Components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, Legend } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import {
-    User, Package, TrendingUp, ChevronRight, DollarSign, Layers, AlertTriangle, 
-    TrendingDown, BarChart3, ArrowUp, ArrowDown, Percent, RefreshCcw, 
-    Search, Plus, Filter, ArrowUpRight, ArrowDownRight, Calendar, Clock, 
-    Download, MoreHorizontal, ExternalLink, Tag, CreditCard, Mail, Settings, 
+    User, Package, TrendingUp, ChevronRight, DollarSign, Layers, AlertTriangle,
+    TrendingDown, BarChart3, ArrowUp, ArrowDown, Percent, RefreshCcw,
+    Search, Plus, Filter, ArrowUpRight, ArrowDownRight, Calendar, Clock,
+    Download, MoreHorizontal, ExternalLink, Tag, CreditCard, Mail, Settings,
     Inbox, ChevronDown, Eye, RefreshCw, Sliders, ShoppingCart, UserCheck
 } from 'lucide-react';
 import anime from 'animejs';
@@ -223,17 +223,17 @@ const PageLoader = ({ isVisible }) => {
 
 export default function Dashboard({ auth, stats }) {
     const { t } = useLaravelReactI18n();
-    
+
     // State for loading and animations
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    
+
     // Refs for animation targets
     const headerRef = useRef(null);
     const statsCardsRef = useRef([]);
     const chartsRef = useRef([]);
     const timelineRef = useRef(null);
-    
+
     // Format currency values
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('en-US', {
@@ -259,7 +259,7 @@ export default function Dashboard({ auth, stats }) {
         name: product.name,
         value: product.qty_sold
     })) || [];
-    
+
     // Reset refs when items change
     useEffect(() => {
         // Clear ref arrays when needed
@@ -356,13 +356,13 @@ export default function Dashboard({ auth, stats }) {
                             rgba(255, 255, 255, 0) 100%
                         );
                     }
-                    
+
                     /* Fix for horizontal scroll */
                     html, body {
                         overflow-x: hidden;
                         max-width: 100%;
                     }
-                    
+
                     .responsive-chart-container {
                         max-width: 100%;
                         overflow-x: hidden;
@@ -795,8 +795,8 @@ export default function Dashboard({ auth, stats }) {
                                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                                             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
                                                             <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
-                                                            <Tooltip 
-                                                                formatter={(value) => [`${value} transactions`]} 
+                                                            <Tooltip
+                                                                formatter={(value) => [`${value} transactions`]}
                                                                 contentStyle={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: '0.5rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
                                                             />
                                                             <Bar dataKey="value" radius={[4, 4, 0, 0]}>
@@ -945,8 +945,8 @@ export default function Dashboard({ auth, stats }) {
                                                                     {activity.type === 'income' ? '+' : '-'}{formatCurrency(activity.amount)}
                                                                 </div>
                                                                 {activity.id && (
-                                                                    <Link 
-                                                                        href={route(`warehouse.${activity.type}.show`, activity.id)} 
+                                                                    <Link
+                                                                        href={route(`warehouse.${activity.type}.show`, activity.id)}
                                                                         className="opacity-0 group-hover:opacity-100 transition-opacity"
                                                                     >
                                                                         <Button variant="outline" size="sm" className="bg-white dark:bg-transparent dark:text-slate-400 dark:border-slate-700 text-slate-700 flex items-center h-8">
