@@ -77,6 +77,7 @@ class AdminPanelProvider extends PanelProvider
 
             // ->plugin(\App\Pos\Account\AccountsPlugin::make())
             ->viteTheme('resources/css/filament/admin/theme.css')
+            ->spa()
             ;
     }
 }
