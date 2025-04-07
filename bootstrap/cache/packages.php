@@ -165,13 +165,13 @@
   ),
   'hekmatinasser/verta' => 
   array (
-    'providers' => 
-    array (
-      0 => 'Hekmatinasser\\Verta\\Laravel\\VertaServiceProvider',
-    ),
     'aliases' => 
     array (
       'Verta' => 'Hekmatinasser\\Verta\\Verta',
+    ),
+    'providers' => 
+    array (
+      0 => 'Hekmatinasser\\Verta\\Laravel\\VertaServiceProvider',
     ),
   ),
   'inertiajs/inertia-laravel' => 
@@ -244,13 +244,13 @@
   ),
   'livewire/livewire' => 
   array (
-    'providers' => 
-    array (
-      0 => 'Livewire\\LivewireServiceProvider',
-    ),
     'aliases' => 
     array (
       'Livewire' => 'Livewire\\Livewire',
+    ),
+    'providers' => 
+    array (
+      0 => 'Livewire\\LivewireServiceProvider',
     ),
   ),
   'maatwebsite/excel' => 
@@ -329,13 +329,13 @@
   ),
   'ryangjchandler/blade-capture-directive' => 
   array (
-    'providers' => 
-    array (
-      0 => 'RyanChandler\\BladeCaptureDirective\\BladeCaptureDirectiveServiceProvider',
-    ),
     'aliases' => 
     array (
       'BladeCaptureDirective' => 'RyanChandler\\BladeCaptureDirective\\Facades\\BladeCaptureDirective',
+    ),
+    'providers' => 
+    array (
+      0 => 'RyanChandler\\BladeCaptureDirective\\BladeCaptureDirectiveServiceProvider',
     ),
   ),
   'shuvroroy/filament-spatie-laravel-backup' => 
@@ -368,13 +368,13 @@
   ),
   'spatie/laravel-signal-aware-command' => 
   array (
-    'providers' => 
-    array (
-      0 => 'Spatie\\SignalAwareCommand\\SignalAwareCommandServiceProvider',
-    ),
     'aliases' => 
     array (
       'Signal' => 'Spatie\\SignalAwareCommand\\Facades\\Signal',
+    ),
+    'providers' => 
+    array (
+      0 => 'Spatie\\SignalAwareCommand\\SignalAwareCommandServiceProvider',
     ),
   ),
   'stechstudio/filament-impersonate' => 

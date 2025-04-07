@@ -19,8 +19,7 @@ class SuperAdmin extends Seeder
         $superAdminRole = Role::firstOrCreate(['name' => 'Super Admin']);
 
         // Give all permissions to the Super Admin role
-        $superAdminRole->givePermissionTo(Permission::all());
-        $adminUser = User::find(1);
+        //  $adminUser = User::find(1);
         // Assign Super Admin role to the admin user
         $adminUser->assignRole('Super Admin');
     }
