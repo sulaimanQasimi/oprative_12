@@ -1,0 +1,243 @@
+@import '/vendor/filament/filament/resources/css/theme.css';
+
+@config 'tailwind.config.js';
+
+@layer base {
+    :root {
+        /* Vibrant primary color palette (sky blue) */
+        --color-primary-50: 240 249 255;
+        --color-primary-100: 224 242 254;
+        --color-primary-200: 186 230 253;
+        --color-primary-300: 125 211 252;
+        --color-primary-400: 56 189 248;
+        --color-primary-500: 14 165 233;
+        --color-primary-600: 2 132 199;
+        --color-primary-700: 3 105 161;
+        --color-primary-800: 7 89 133;
+        --color-primary-900: 12 74 110;
+        --color-primary-950: 8 47 73;
+    }
+
+    .dark {
+        --color-primary-50: 8 47 73;
+        --color-primary-100: 12 74 110;
+        --color-primary-200: 7 89 133;
+        --color-primary-300: 3 105 161;
+        --color-primary-400: 2 132 199;
+        --color-primary-500: 14 165 233;
+        --color-primary-600: 56 189 248;
+        --color-primary-700: 125 211 252;
+        --color-primary-800: 186 230 253;
+        --color-primary-900: 224 242 254;
+        --color-primary-950: 240 249 255;
+    }
+}
+
+/* Enhanced UI elements with vibrant design */
+.fi-sidebar {
+    @apply bg-gradient-to-b from-blue-50 to-white dark:from-gray-900 dark:to-gray-800;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.05);
+}
+
+.fi-sidebar-header {
+    @apply bg-gradient-to-r from-primary-600 to-blue-500 shadow-md;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fi-sidebar-header .fi-logo {
+    @apply text-white font-bold tracking-wider;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.fi-topbar {
+    @apply backdrop-blur-sm bg-white/90 dark:bg-gray-900/90;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.fi-main-ctn {
+    @apply bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-900 dark:to-gray-950;
+}
+
+.fi-section {
+    @apply shadow-md transition-all duration-300 hover:shadow-lg rounded-xl overflow-hidden;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.fi-section-header {
+    @apply border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30;
+}
+
+.fi-dropdown-panel {
+    @apply shadow-lg;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.fi-theme-switcher-btn.fi-active {
+    @apply bg-gradient-to-r from-primary-500 to-primary-600 text-white dark:from-primary-600 dark:to-primary-700;
+}
+
+/* RTL Support improvements for Persian language */
+[dir="rtl"] .fi-sidebar {
+    @apply border-l border-gray-200 dark:border-gray-700;
+}
+
+/* Custom buttons and interactive elements */
+.fi-btn, .fi-btn-primary {
+    @apply bg-gradient-to-r from-primary-600 to-blue-600 hover:from-primary-700 hover:to-blue-700 text-white transition-all duration-300 shadow-md hover:shadow-lg;
+    transform: translateY(0);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fi-btn:hover, .fi-btn-primary:hover {
+    transform: translateY(-1px);
+}
+
+.fi-btn:active, .fi-btn-primary:active {
+    transform: translateY(1px);
+}
+
+.fi-badge {
+    @apply rounded-full transition-all duration-200;
+}
+
+.fi-sidebar-item-active .fi-sidebar-item-button {
+    @apply bg-gradient-to-r from-primary-500/10 to-primary-600/10 border-r-4 border-primary-500 dark:from-primary-500/20 dark:to-primary-600/20;
+}
+
+/* Tables and data display */
+.fi-ta-header-cell {
+    @apply bg-gray-50 dark:bg-gray-800 uppercase text-xs font-bold;
+}
+
+.fi-ta-row {
+    @apply transition-colors hover:bg-blue-50/30 dark:hover:bg-blue-900/10;
+}
+
+/* Form elements */
+.fi-input {
+    @apply focus:ring-2 focus:ring-primary-500/50 transition-shadow duration-200;
+}
+
+.fi-select {
+    @apply focus:ring-2 focus:ring-primary-500/50 transition-shadow duration-200;
+}
+
+.fi-checkbox, .fi-radio {
+    @apply text-primary-500 focus:ring-primary-500/30;
+}
+
+/* Cards and widgets */
+.fi-widget {
+    @apply rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.fi-widget-header {
+    @apply bg-gradient-to-r from-blue-50 to-white dark:from-gray-800 dark:to-gray-900;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Custom animations */
+.fi-sidebar-item-button, .fi-dropdown-list-item {
+    @apply transition-all duration-200;
+}
+
+.fi-sidebar-item-button:hover, .fi-dropdown-list-item:hover {
+    @apply transform scale-105;
+}
+
+/* Custom secondary color buttons */
+.fi-btn-secondary {
+    @apply bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white;
+}
+
+/* Stats and dashboard elements */
+.fi-stat {
+    @apply bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md p-6 transition-transform duration-300 hover:scale-[1.02];
+    border: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.fi-stat-value {
+    @apply text-2xl font-bold text-primary-600 dark:text-primary-400;
+}
+
+.fi-stat-description {
+    @apply text-sm text-gray-500 dark:text-gray-400;
+}
+
+/* Page header */
+.fi-header {
+    @apply pb-4 mb-6 border-b border-gray-200 dark:border-gray-800;
+}
+
+.fi-header-heading {
+    @apply text-gradient bg-gradient-to-r from-primary-600 to-blue-600 dark:from-primary-400 dark:to-blue-500;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Progress indicators */
+.fi-progress {
+    @apply h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden;
+}
+
+.fi-progress-bar {
+    @apply bg-gradient-to-r from-primary-500 to-blue-500 h-full rounded-full;
+}
+
+/* Fonts */
+html, body {
+    font-feature-settings: "ss01", "ss03", "cv01", "cv02";
+    @apply tracking-wide;
+}
+
+/* Helper classes */
+.text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-blue-600 dark:from-primary-400 dark:to-blue-500;
+}
+
+.shadow-soft {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Loading states */
+.fi-loading-indicator {
+    @apply bg-gradient-to-r from-primary-500 to-blue-500;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.dark ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Focus outlines */
+*:focus-visible {
+    @apply outline-none ring-2 ring-primary-500/60 ring-offset-1 ring-offset-white dark:ring-offset-gray-900;
+}

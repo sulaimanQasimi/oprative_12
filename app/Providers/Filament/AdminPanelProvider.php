@@ -75,7 +75,8 @@ class AdminPanelProvider extends PanelProvider
             ])
             // ->plugin(\TomatoPHP\FilamentAccounts\FilamentAccountsPlugin::make())
 
-            // ->plugin(\App\Pos\Account\AccountsPlugin::make());
+            // ->plugin(\App\Pos\Account\AccountsPlugin::make())
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ;
     }
 }
