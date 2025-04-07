@@ -4,13 +4,13 @@ import { useLaravelReactI18n } from 'laravel-react-i18n';
 import anime from 'animejs';
 import '@lottiefiles/lottie-player';
 import { motion } from 'framer-motion';
-import { 
-    Lock, 
-    UserCircle, 
-    Key, 
-    Shield, 
-    ArrowRight, 
-    Eye, 
+import {
+    Lock,
+    UserCircle,
+    Key,
+    Shield,
+    ArrowRight,
+    Eye,
     EyeOff,
     CheckCircle,
     BarChart3,
@@ -214,7 +214,7 @@ export default function Login() {
     const [verificationStatus, setVerificationStatus] = useState(''); // Message to display
     const formRef = useRef(null);
     const cardRef = useRef(null);
-    
+
     // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -225,7 +225,7 @@ export default function Login() {
         // Create authorization animation - show verification process
         setVerificationStatus(t('Scanning credentials...'));
         setVerificationStep(1);
-        
+
         const verificationSteps = hasErrors
             ? [
                 { step: 1, status: t('Scanning credentials...'), delay: 0 },
@@ -237,17 +237,17 @@ export default function Login() {
                 { step: 2, status: t('Verifying identity...'), delay: 1200 },
                 { step: 3, status: t('Access granted'), delay: 2400 }
               ];
-        
+
         // Animate through verification steps
         verificationSteps.forEach(item => {
             setTimeout(() => {
                 setVerificationStep(item.step);
                 setVerificationStatus(item.status);
-                
+
                 // Only set authorized if access is granted
                 if (item.step === 3) {
                     setAuthorized(true);
-                    
+
                     // Animate the button
                     anime({
                         targets: '.auth-button',
@@ -344,7 +344,7 @@ export default function Login() {
                                 <div className="flex flex-col items-center justify-center space-y-8">
                                     <div className="relative w-32 h-32">
                                         {verificationStep === 1 && (
-                                            <motion.div 
+                                            <motion.div
                                                 className="absolute inset-0 flex items-center justify-center"
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -353,9 +353,9 @@ export default function Login() {
                                                 <div className="p-3 bg-blue-100 rounded-full">
                                                     <Fingerprint className="w-24 h-24 text-blue-500" />
                                                 </div>
-                                                <motion.div 
+                                                <motion.div
                                                     className="absolute top-0 left-0 w-full h-full border-4 border-blue-400 rounded-full"
-                                                    animate={{ 
+                                                    animate={{
                                                         opacity: [0.1, 0.5, 0.1],
                                                         scale: [1, 1.2, 1],
                                                     }}
@@ -367,9 +367,9 @@ export default function Login() {
                                                 />
                                             </motion.div>
                                         )}
-                                        
+
                                         {verificationStep === 2 && (
-                                            <motion.div 
+                                            <motion.div
                                                 className="absolute inset-0 flex items-center justify-center"
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -378,9 +378,9 @@ export default function Login() {
                                                 <div className="p-3 bg-yellow-100 rounded-full">
                                                     <ShieldCheck className="w-24 h-24 text-yellow-500" />
                                                 </div>
-                                                <motion.div 
+                                                <motion.div
                                                     className="absolute inset-0 border-4 border-yellow-400 rounded-full border-t-transparent"
-                                                    animate={{ 
+                                                    animate={{
                                                         rotate: 360
                                                     }}
                                                     transition={{
@@ -391,9 +391,9 @@ export default function Login() {
                                                 />
                                             </motion.div>
                                         )}
-                                        
+
                                         {verificationStep === 3 && (
-                                            <motion.div 
+                                            <motion.div
                                                 className="absolute inset-0 flex items-center justify-center"
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -402,9 +402,9 @@ export default function Login() {
                                                 <div className="p-3 bg-green-100 rounded-full">
                                                     <CircleCheck className="w-24 h-24 text-green-500" />
                                                 </div>
-                                                <motion.div 
+                                                <motion.div
                                                     className="absolute inset-0 border-4 border-green-400 rounded-full"
-                                                    animate={{ 
+                                                    animate={{
                                                         scale: [1, 1.1, 1],
                                                         opacity: [1, 0.8, 1],
                                                     }}
@@ -416,9 +416,9 @@ export default function Login() {
                                                 />
                                             </motion.div>
                                         )}
-                                        
+
                                         {verificationStep === 4 && (
-                                            <motion.div 
+                                            <motion.div
                                                 className="absolute inset-0 flex items-center justify-center"
                                                 initial={{ opacity: 0, scale: 0.8 }}
                                                 animate={{ opacity: 1, scale: 1 }}
@@ -427,9 +427,9 @@ export default function Login() {
                                                 <div className="p-3 bg-red-100 rounded-full">
                                                     <AlertTriangle className="w-24 h-24 text-red-500" />
                                                 </div>
-                                                <motion.div 
+                                                <motion.div
                                                     className="absolute inset-0 border-4 border-red-400 rounded-full"
-                                                    animate={{ 
+                                                    animate={{
                                                         scale: [1, 1.1, 1],
                                                         opacity: [1, 0.6, 1],
                                                     }}
@@ -443,7 +443,7 @@ export default function Login() {
                                             </motion.div>
                                         )}
                                     </div>
-                                    
+
                                     <div className="text-center">
                                         <h3 className="text-xl font-semibold mb-2">
                                             {verificationStatus}
@@ -518,8 +518,8 @@ export default function Login() {
                                                 onClick={() => setShowPassword(!showPassword)}
                                                 className="text-gray-400 hover:text-gray-500 focus:outline-none"
                                             >
-                                                {showPassword ? 
-                                                    <EyeOff className="h-5 w-5" /> : 
+                                                {showPassword ?
+                                                    <EyeOff className="h-5 w-5" /> :
                                                     <Eye className="h-5 w-5" />
                                                 }
                                             </button>
@@ -568,7 +568,7 @@ export default function Login() {
                             </form>
                         )}
                     </div>
-                    
+
                     {/* Footer */}
                     <div className="mt-8 text-center text-gray-500 text-sm">
                         <div className="flex items-center justify-center gap-2 mb-2">
