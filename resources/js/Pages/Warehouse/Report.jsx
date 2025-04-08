@@ -29,21 +29,29 @@ const formatPersianDate = (date) => {
     "میزان", "عقرب", "قوس", "جدی", "دلو", "حوت"
   ];
 
-  const persianWeekdays = [
-    "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه", "شنبه"
-  ];
+  // Simple direct approach to avoid complexities
+  try {
+    let day = 1;
+    let month = 0;
+    let year = 1400;
 
-  const day = date.getDate();
-  const month = date.getMonth();
-  const year = date.getFullYear();
+    if (date instanceof Date) {
+      day = date.getDate();
+      month = date.getMonth();
+      year = date.getFullYear();
+    }
 
-  return `${day} ${persianMonths[month]} ${year}`;
+    return `${day} ${persianMonths[month]} ${year}`;
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return "";
+  }
 };
 
 // Custom input component for date picker
 const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => {
   // Format both the value and placeholder in Persian
-  const formattedValue = value ? formatPersianDate(new Date(value)) : '';
+  const formattedValue = value ? formatPersianDate(value) : '';
   const formattedPlaceholder = placeholder ? formatPersianDate(new Date()) : '';
 
   return (
