@@ -4,6 +4,7 @@ import { useLaravelReactI18n } from "laravel-react-i18n";
 import { motion } from "framer-motion";
 import anime from "animejs";
 import Navigation from "@/Components/Warehouse/Navigation";
+import * as XLSX from 'xlsx';
 
 // Helper functions
 const formatCurrency = (amount) => {
@@ -14,17 +15,15 @@ const formatCurrency = (amount) => {
 };
 
 const exportToExcel = (data, filename) => {
-  const headers = Object.keys(data[0] || {});
-  const csvContent = [
-    headers.join(','),
-    ...data.map(row => headers.map(header => row[header] || '').join(','))
-  ].join('\n');
+  // Convert data to worksheet
+  const ws = XLSX.utils.json_to_sheet(data);
 
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `${filename}.csv`;
-  link.click();
+  // Create workbook and add worksheet
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+  // Generate Excel file
+  XLSX.writeFile(wb, `${filename}.xlsx`);
 };
 
 // Add PageLoader component
@@ -517,6 +516,15 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                       </svg>
                     )}
                     {isLoading ? t("Generating...") : t("Generate Report")}
+                  </button>
+                  <button
+                    onClick={handleExport}
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-blue-500/20"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    {t("Export to Excel")}
                   </button>
                 </motion.div>
               </div>
