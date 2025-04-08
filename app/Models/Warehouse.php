@@ -66,17 +66,25 @@ class Warehouse extends Model
         $current = $this->getStock($product_id);
         $this->updateStock($product_id, $current + $adjustment);
     }
+
     public function items(): HasMany
     {
         return $this->hasMany(WarehouseProduct::class);
     }
+
     public function warehouseIncome(): HasMany
     {
         return $this->hasMany(WarehouseIncome::class);
     }
+
     public function warehouseOutcome(): HasMany
     {
         return $this->hasMany(WarehouseOutcome::class);
+    }
+
+    public function sales(): HasMany
+    {
+        return $this->hasMany(Sale::class);
     }
 
     /**
