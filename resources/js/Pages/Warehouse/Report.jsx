@@ -41,20 +41,26 @@ const formatPersianDate = (date) => {
 };
 
 // Custom input component for date picker
-const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
-  <button
-    ref={ref}
-    className="w-full px-4 py-2.5 text-right bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm hover:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 flex items-center justify-between"
-    onClick={onClick}
-  >
-    <span className="text-slate-500 dark:text-slate-400">
-      {value || placeholder}
-    </span>
-    <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-    </svg>
-  </button>
-));
+const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => {
+  // Format both the value and placeholder in Persian
+  const formattedValue = value ? formatPersianDate(new Date(value)) : '';
+  const formattedPlaceholder = placeholder ? formatPersianDate(new Date()) : '';
+
+  return (
+    <button
+      ref={ref}
+      className="w-full px-4 py-2.5 text-right bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm hover:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 flex items-center justify-between"
+      onClick={onClick}
+    >
+      <span className="text-slate-500 dark:text-slate-400">
+        {formattedValue || formattedPlaceholder}
+      </span>
+      <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+    </button>
+  );
+});
 
 // Add display name for better debugging
 CustomDateInput.displayName = 'CustomDateInput';
@@ -886,9 +892,8 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                         dateFormat="d MMMM yyyy"
                         locale="fa"
                         className="text-right"
-                        placeholderText={t("Select start date")}
                         calendarClassName="font-sans rtl"
-                        customInput={<CustomDateInput placeholder={t("Select start date")} />}
+                        customInput={<CustomDateInput placeholder={true} />}
                         renderCustomHeader={({
                           date,
                           decreaseMonth,
@@ -903,9 +908,8 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                               type="button"
                               className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200"
                             >
-
                               <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                               </svg>
                             </button>
                             <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -917,11 +921,9 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                               type="button"
                               className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200"
                             >
-
-<svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                              <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
-
                             </button>
                           </div>
                         )}
@@ -937,9 +939,8 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                         dateFormat="d MMMM yyyy"
                         locale="fa"
                         className="text-right"
-                        placeholderText={t("Select end date")}
                         calendarClassName="font-sans rtl"
-                        customInput={<CustomDateInput placeholder={t("Select end date")} />}
+                        customInput={<CustomDateInput placeholder={true} />}
                         renderCustomHeader={({
                           date,
                           decreaseMonth,
@@ -954,11 +955,9 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                               type="button"
                               className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200"
                             >
-
                               <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                               </svg>
-
                             </button>
                             <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
                               {formatPersianDate(date)}
@@ -969,10 +968,8 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                               type="button"
                               className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200"
                             >
-
-
                               <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                               </svg>
                             </button>
                           </div>
