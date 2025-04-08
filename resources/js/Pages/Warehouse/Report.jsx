@@ -54,12 +54,12 @@ const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) 
     <button
       ref={ref}
       onClick={onClick}
-      className="w-full px-4 py-2.5 text-right bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg shadow-sm hover:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 flex items-center justify-between group"
+      className="w-full px-4 py-2.5 text-right bg-gradient-to-r from-pink-50 via-purple-50 to-indigo-50 dark:from-pink-900/30 dark:via-purple-900/30 dark:to-indigo-900/30 border border-pink-200 dark:border-pink-800 rounded-lg shadow-sm hover:border-pink-500 focus:ring-2 focus:ring-pink-500/30 focus:border-pink-500 transition-all duration-200 flex items-center justify-between group"
     >
-      <span className="text-slate-500 dark:text-slate-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200">
+      <span className="text-slate-500 dark:text-slate-400 group-hover:text-pink-600 dark:group-hover:text-pink-400 transition-colors duration-200">
         {value ? formatPersianDate(value) : formatPersianDate(new Date())}
       </span>
-      <svg className="w-5 h-5 text-emerald-500 dark:text-emerald-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-5 h-5 text-pink-500 dark:text-pink-400 group-hover:text-pink-600 dark:group-hover:text-pink-300 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     </button>
@@ -686,28 +686,8 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
             z-index: 9999;
           }
 
-          .react-datepicker-popper {
-            z-index: 9999 !important;
-          }
-
-          .react-datepicker-popper[data-placement^="bottom"] {
-            padding-top: 8px;
-          }
-
-          .react-datepicker-popper[data-placement^="top"] {
-            padding-bottom: 8px;
-          }
-
-          .react-datepicker-popper[data-placement^="right"] {
-            padding-left: 8px;
-          }
-
-          .react-datepicker-popper[data-placement^="left"] {
-            padding-right: 8px;
-          }
-
           .react-datepicker__header {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #6366f1 100%);
             border-bottom: none;
             border-top-left-radius: 0.75rem;
             border-top-right-radius: 0.75rem;
@@ -721,7 +701,7 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
           }
 
           .react-datepicker__day-name {
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.9);
             font-size: 0.875rem;
           }
 
@@ -736,7 +716,7 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
           }
 
           .react-datepicker__day:hover {
-            background-color: #10b981;
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
             color: white;
             transform: scale(1.1);
           }
@@ -744,20 +724,20 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
           .react-datepicker__day--selected,
           .react-datepicker__day--in-selecting-range,
           .react-datepicker__day--in-range {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
             color: white;
             border-radius: 0.5rem;
             transform: scale(1.1);
           }
 
           .react-datepicker__day--keyboard-selected {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: #1f2937;
+            background: linear-gradient(135deg, #fce7f3 0%, #ede9fe 100%);
+            color: #ec4899;
           }
 
           .react-datepicker__day--today {
             font-weight: bold;
-            color: #10b981;
+            color: #ec4899;
             position: relative;
           }
 
@@ -769,14 +749,14 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
             transform: translateX(-50%);
             width: 0.5rem;
             height: 0.5rem;
-            background-color: #10b981;
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
             border-radius: 50%;
           }
 
           .react-datepicker__navigation {
             top: 1rem;
             border: none;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 0.375rem;
             width: 2rem;
             height: 2rem;
@@ -787,7 +767,8 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
           }
 
           .react-datepicker__navigation:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
           }
 
           .react-datepicker__navigation--previous {
@@ -806,6 +787,26 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
           .rtl {
             direction: rtl !important;
             text-align: right !important;
+          }
+
+          .react-datepicker-popper {
+            z-index: 9999 !important;
+          }
+
+          .react-datepicker-popper[data-placement^="bottom"] {
+            padding-top: 8px;
+          }
+
+          .react-datepicker-popper[data-placement^="top"] {
+            padding-bottom: 8px;
+          }
+
+          .react-datepicker-popper[data-placement^="right"] {
+            padding-left: 8px;
+          }
+
+          .react-datepicker-popper[data-placement^="left"] {
+            padding-right: 8px;
           }
         `}</style>
       </Head>
