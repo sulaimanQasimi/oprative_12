@@ -218,7 +218,7 @@ const PrintPreview = ({ data, type, dateRange, onClose }) => {
   const { t } = useLaravelReactI18n();
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 print-preview">
       <div className="bg-white w-full max-w-4xl rounded-lg shadow-2xl">
         <div className="p-6">
           {/* Header */}
@@ -333,7 +333,7 @@ const PrintPreview = ({ data, type, dateRange, onClose }) => {
         </div>
 
         {/* Actions */}
-        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-4">
+        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-4 no-print">
           <button
             onClick={onClose}
             className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
@@ -497,6 +497,10 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
             mask-composite: exclude;
           }
           @media print {
+            @page {
+              size: A4;
+              margin: 2cm;
+            }
             body * {
               visibility: hidden;
             }
@@ -507,11 +511,63 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
               position: absolute;
               left: 0;
               top: 0;
-              width: 100%;
-              height: 100%;
+              width: 210mm;
+              height: 297mm;
+              background: white;
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
             }
-            .no-print {
+            .print-preview > div {
+              box-shadow: none;
+              border-radius: 0;
+              width: 100%;
+              max-width: none;
+              height: 100%;
+              display: flex;
+              flex-direction: column;
+            }
+            .print-preview .no-print {
               display: none;
+            }
+            .print-preview table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 1rem;
+            }
+            .print-preview th,
+            .print-preview td {
+              border: 1px solid #e5e7eb;
+              padding: 0.5rem;
+              font-size: 10pt;
+            }
+            .print-preview th {
+              background-color: #f9fafb;
+              font-weight: 600;
+            }
+            .print-preview h1 {
+              font-size: 16pt;
+              margin-bottom: 0.5rem;
+            }
+            .print-preview h2 {
+              font-size: 14pt;
+              margin-bottom: 1rem;
+            }
+            .print-preview p {
+              font-size: 10pt;
+              margin-bottom: 0.25rem;
+            }
+            .print-preview .text-center {
+              text-align: center;
+            }
+            .print-preview .mb-8 {
+              margin-bottom: 2rem;
+            }
+            .print-preview .mt-8 {
+              margin-top: 2rem;
+            }
+            .print-preview .p-6 {
+              padding: 1.5rem;
             }
           }
         `}</style>
