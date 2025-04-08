@@ -214,6 +214,144 @@ const PageLoader = ({ isVisible }) => {
   );
 };
 
+const PrintPreview = ({ data, type, dateRange, onClose }) => {
+  const { t } = useLaravelReactI18n();
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white w-full max-w-4xl rounded-lg shadow-2xl">
+        <div className="p-6">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-800">{t("Warehouse Report")}</h1>
+            <p className="text-gray-600">{t("Generated on")} {new Date().toLocaleDateString()}</p>
+            <p className="text-gray-600">{t("Period")}: {dateRange.start} - {dateRange.end}</p>
+          </div>
+
+          {/* Report Type */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-gray-700 border-b pb-2">
+              {t(type.charAt(0).toUpperCase() + type.slice(1))} {t("Report")}
+            </h2>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  {type === 'sales' && (
+                    <>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Reference")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Date")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Customer")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Amount")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Status")}</th>
+                    </>
+                  )}
+                  {type === 'income' && (
+                    <>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Reference")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Date")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Source")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Amount")}</th>
+                    </>
+                  )}
+                  {type === 'outcome' && (
+                    <>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Reference")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Date")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Destination")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Amount")}</th>
+                    </>
+                  )}
+                  {type === 'products' && (
+                    <>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Name")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("SKU")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Category")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Stock")}</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{t("Price")}</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {data.map((item, index) => (
+                  <tr key={index}>
+                    {type === 'sales' && (
+                      <>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.reference}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.date}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.customer}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(item.amount)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.status}</td>
+                      </>
+                    )}
+                    {type === 'income' && (
+                      <>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.reference}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.date}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.source}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(item.amount)}</td>
+                      </>
+                    )}
+                    {type === 'outcome' && (
+                      <>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.reference}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.date}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.destination}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(item.amount)}</td>
+                      </>
+                    )}
+                    {type === 'products' && (
+                      <>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.sku}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.category}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.stock}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(item.price || 0)}</td>
+                      </>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Footer */}
+          <div className="mt-8 pt-4 border-t">
+            <div className="flex justify-between items-center">
+              <div className="text-sm text-gray-500">
+                {t("Page")} 1 {t("of")} 1
+              </div>
+              <div className="text-sm text-gray-500">
+                {t("Generated by Warehouse Management System")}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="bg-gray-50 px-6 py-4 rounded-b-lg flex justify-end gap-4">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+          >
+            {t("Close")}
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+          >
+            {t("Print")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Report({ auth, sales, income, outcome, products, dateRange }) {
   const { t } = useLaravelReactI18n();
   const [activeTab, setActiveTab] = useState('sales');
@@ -223,6 +361,7 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
   const [isLoading, setIsLoading] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPrintPreview, setShowPrintPreview] = useState(false);
 
   // Refs for animation
   const headerRef = useRef(null);
@@ -269,6 +408,10 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
     }[activeTab];
 
     exportToExcel(data, `${activeTab}-report-${new Date().toISOString().split('T')[0]}`);
+  };
+
+  const handlePrint = () => {
+    setShowPrintPreview(true);
   };
 
   const filteredData = (data) => {
@@ -353,10 +496,42 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
             -webkit-mask-composite: xor;
             mask-composite: exclude;
           }
+          @media print {
+            body * {
+              visibility: hidden;
+            }
+            .print-preview, .print-preview * {
+              visibility: visible;
+            }
+            .print-preview {
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 100%;
+              height: 100%;
+            }
+            .no-print {
+              display: none;
+            }
+          }
         `}</style>
       </Head>
 
       <PageLoader isVisible={loading} />
+
+      {showPrintPreview && (
+        <PrintPreview
+          data={filteredData({
+            sales,
+            income,
+            outcome,
+            products,
+          }[activeTab])}
+          type={activeTab}
+          dateRange={{ start: startDate, end: endDate }}
+          onClose={() => setShowPrintPreview(false)}
+        />
+      )}
 
       <div className="flex h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-emerald-950/50 overflow-hidden">
         <Navigation auth={auth} currentRoute="warehouse.reports" />
@@ -525,6 +700,15 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                     {t("Export to Excel")}
+                  </button>
+                  <button
+                    onClick={handlePrint}
+                    className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white rounded-lg transition-all duration-200 flex items-center gap-2 shadow-lg hover:shadow-purple-500/20"
+                  >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    {t("Print Preview")}
                   </button>
                 </motion.div>
               </div>
