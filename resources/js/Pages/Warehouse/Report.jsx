@@ -5,6 +5,59 @@ import { motion } from "framer-motion";
 import anime from "animejs";
 import Navigation from "@/Components/Warehouse/Navigation";
 import * as XLSX from 'xlsx';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { registerLocale, setDefaultLocale } from "react-datepicker";
+import faIR from "date-fns/locale/fa-IR";
+import * as jalali from "date-fns-jalali";
+
+// Register the Persian locale
+registerLocale("fa", faIR);
+setDefaultLocale("fa");
+
+// Helper function for date conversion
+const toGregorian = (year, month, day) => {
+  return jalali.toGregorian(year, month, day);
+};
+
+// Persian date formatter
+const formatPersianDate = (date) => {
+  if (!date) return "";
+
+  const persianMonths = [
+    "حمل", "ثور", "جوزا", "سرطان", "اسد", "سنبله",
+    "میزان", "عقرب", "قوس", "جدی", "دلو", "حوت"
+  ];
+
+  const persianWeekdays = [
+    "یکشنبه", "دوشنبه", "سه‌شنبه", "چهارشنبه", "پنج‌شنبه", "جمعه", "شنبه"
+  ];
+
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+
+  return `${day} ${persianMonths[month]} ${year}`;
+};
+
+// Custom input component for date picker
+const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => (
+  <button
+    ref={ref}
+    className="w-full px-4 py-2.5 text-right bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm hover:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 flex items-center justify-between"
+    onClick={onClick}
+  >
+    <span className="text-slate-500 dark:text-slate-400">
+      {value || placeholder}
+    </span>
+    <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+  </button>
+));
+
+// Add display name for better debugging
+CustomDateInput.displayName = 'CustomDateInput';
 
 // Helper functions
 const formatCurrency = (amount) => {
@@ -217,6 +270,12 @@ const PageLoader = ({ isVisible }) => {
 const PrintPreview = ({ data, type, dateRange, onClose }) => {
   const { t } = useLaravelReactI18n();
 
+  // Format the date range for display
+  const formattedDateRange = {
+    start: formatPersianDate(dateRange.start),
+    end: formatPersianDate(dateRange.end)
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 print-preview">
       <div className="bg-white w-full max-w-4xl rounded-lg shadow-2xl">
@@ -233,8 +292,8 @@ const PrintPreview = ({ data, type, dateRange, onClose }) => {
             <h1 className="text-3xl font-bold text-gray-800 mb-2">{t("Warehouse Management System")}</h1>
             <h2 className="text-xl font-semibold text-gray-600 mb-4">{t("Official Report")}</h2>
             <div className="flex justify-center gap-8 text-sm text-gray-500">
-              <p>{t("Generated on")} {new Date().toLocaleDateString()}</p>
-              <p>{t("Period")}: {dateRange.start} - {dateRange.end}</p>
+              <p>{t("Generated on")} {formatPersianDate(new Date())}</p>
+              <p>{t("Period")}: {formattedDateRange.start} - {formattedDateRange.end}</p>
             </div>
           </div>
 
@@ -373,8 +432,8 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
   const { t } = useLaravelReactI18n();
   const [activeTab, setActiveTab] = useState('sales');
   const [searchTerm, setSearchTerm] = useState('');
-  const [startDate, setStartDate] = useState(dateRange.start);
-  const [endDate, setEndDate] = useState(dateRange.end);
+  const [startDate, setStartDate] = useState(new Date(dateRange.start));
+  const [endDate, setEndDate] = useState(new Date(dateRange.end));
   const [isLoading, setIsLoading] = useState(false);
   const [isAnimated, setIsAnimated] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -398,6 +457,21 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
       setIsLoading(true);
       setLoading(true);
 
+      // Convert Jalali dates to Gregorian
+      const gregorianStartDate = toGregorian(
+        startDate.getFullYear(),
+        startDate.getMonth() + 1,
+        startDate.getDate()
+      );
+      const gregorianEndDate = toGregorian(
+        endDate.getFullYear(),
+        endDate.getMonth() + 1,
+        endDate.getDate()
+      );
+
+      const formattedStartDate = `${gregorianStartDate.gy}-${String(gregorianStartDate.gm).padStart(2, '0')}-${String(gregorianStartDate.gd).padStart(2, '0')}`;
+      const formattedEndDate = `${gregorianEndDate.gy}-${String(gregorianEndDate.gm).padStart(2, '0')}-${String(gregorianEndDate.gd).padStart(2, '0')}`;
+
       const response = await fetch('/warehouse/reports/generate', {
         method: 'POST',
         headers: {
@@ -409,8 +483,8 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
         credentials: 'same-origin',
         body: JSON.stringify({
           type: activeTab,
-          start_date: startDate,
-          end_date: endDate,
+          start_date: formattedStartDate,
+          end_date: formattedEndDate,
         }),
       });
 
@@ -421,7 +495,6 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
 
       const data = await response.json();
 
-      // Update the state with the new data
       if (data.data) {
         setReportData(prev => ({
           ...prev,
@@ -589,6 +662,77 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
               box-shadow: none;
             }
           }
+
+          /* Persian Calendar Styles */
+          .react-datepicker {
+            font-family: 'Tahoma', 'Arial', sans-serif !important;
+            direction: rtl;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          }
+
+          .react-datepicker__header {
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            border-top-left-radius: 0.75rem;
+            border-top-right-radius: 0.75rem;
+            padding: 0.5rem;
+          }
+
+          .react-datepicker__day-name,
+          .react-datepicker__day,
+          .react-datepicker__time-name {
+            color: #1f2937;
+            font-size: 0.875rem;
+            width: 2.5rem;
+            line-height: 2.5rem;
+            margin: 0.166rem;
+          }
+
+          .react-datepicker__day--selected,
+          .react-datepicker__day--in-selecting-range,
+          .react-datepicker__day--in-range {
+            background-color: #10b981;
+            color: white;
+            border-radius: 0.375rem;
+          }
+
+          .react-datepicker__day--keyboard-selected {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: #1f2937;
+          }
+
+          .react-datepicker__day--today {
+            font-weight: bold;
+            color: #10b981;
+          }
+
+          .react-datepicker__day:hover {
+            background-color: rgba(16, 185, 129, 0.1);
+            border-radius: 0.375rem;
+          }
+
+          .react-datepicker__navigation {
+            top: 0.5rem;
+          }
+
+          .react-datepicker__navigation--previous {
+            left: 0.5rem;
+          }
+
+          .react-datepicker__navigation--next {
+            right: 0.5rem;
+          }
+
+          .rtl {
+            direction: rtl !important;
+            text-align: right !important;
+          }
+
+          .react-datepicker-popper {
+            z-index: 50;
+          }
         `}</style>
       </Head>
 
@@ -731,19 +875,110 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                   transition={{ duration: 0.4 }}
                   className="flex items-center gap-4"
                 >
-                  <div className="flex gap-2">
-                    <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 shadow-sm"
-                    />
-                    <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="px-3 py-2 border border-slate-200 dark:border-slate-800 rounded-lg bg-white dark:bg-slate-900 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 shadow-sm"
-                    />
+                  <div className="flex flex-col md:flex-row gap-4 mb-6">
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        {t("Start Date")}
+                      </label>
+                      <DatePicker
+                        selected={startDate}
+                        onChange={(date) => setStartDate(date)}
+                        dateFormat="d MMMM yyyy"
+                        locale="fa"
+                        className="text-right"
+                        placeholderText={t("Select start date")}
+                        calendarClassName="font-sans rtl"
+                        customInput={<CustomDateInput placeholder={t("Select start date")} />}
+                        renderCustomHeader={({
+                          date,
+                          decreaseMonth,
+                          increaseMonth,
+                          prevMonthButtonDisabled,
+                          nextMonthButtonDisabled,
+                        }) => (
+                          <div className="flex justify-between items-center px-2 py-2">
+                            <button
+                              onClick={decreaseMonth}
+                              disabled={prevMonthButtonDisabled}
+                              type="button"
+                              className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200"
+                            >
+
+                              <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+                            </button>
+                            <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                              {formatPersianDate(date)}
+                            </div>
+                            <button
+                              onClick={increaseMonth}
+                              disabled={nextMonthButtonDisabled}
+                              type="button"
+                              className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200"
+                            >
+
+<svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                              </svg>
+
+                            </button>
+                          </div>
+                        )}
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                        {t("End Date")}
+                      </label>
+                      <DatePicker
+                        selected={endDate}
+                        onChange={(date) => setEndDate(date)}
+                        dateFormat="d MMMM yyyy"
+                        locale="fa"
+                        className="text-right"
+                        placeholderText={t("Select end date")}
+                        calendarClassName="font-sans rtl"
+                        customInput={<CustomDateInput placeholder={t("Select end date")} />}
+                        renderCustomHeader={({
+                          date,
+                          decreaseMonth,
+                          increaseMonth,
+                          prevMonthButtonDisabled,
+                          nextMonthButtonDisabled,
+                        }) => (
+                          <div className="flex justify-between items-center px-2 py-2">
+                            <button
+                              onClick={decreaseMonth}
+                              disabled={prevMonthButtonDisabled}
+                              type="button"
+                              className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200"
+                            >
+
+                              <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                              </svg>
+
+                            </button>
+                            <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                              {formatPersianDate(date)}
+                            </div>
+                            <button
+                              onClick={increaseMonth}
+                              disabled={nextMonthButtonDisabled}
+                              type="button"
+                              className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors duration-200"
+                            >
+
+
+                              <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                              </svg>
+                            </button>
+                          </div>
+                        )}
+                      />
+                    </div>
                   </div>
                   <button
                     onClick={handleGenerateReport}
@@ -831,7 +1066,7 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                               <div className="flex items-center gap-2">
                                 <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
                                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2H9a2 2 0 00-2 2" />
                                   </svg>
                                 </div>
                                 {t("Reference")}
