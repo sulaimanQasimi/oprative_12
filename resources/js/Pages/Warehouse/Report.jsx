@@ -679,9 +679,31 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
             direction: rtl;
             border: 1px solid #e5e7eb;
             border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             background: white;
             overflow: hidden;
+            position: relative;
+            z-index: 9999;
+          }
+
+          .react-datepicker-popper {
+            z-index: 9999 !important;
+          }
+
+          .react-datepicker-popper[data-placement^="bottom"] {
+            padding-top: 8px;
+          }
+
+          .react-datepicker-popper[data-placement^="top"] {
+            padding-bottom: 8px;
+          }
+
+          .react-datepicker-popper[data-placement^="right"] {
+            padding-left: 8px;
+          }
+
+          .react-datepicker-popper[data-placement^="left"] {
+            padding-right: 8px;
           }
 
           .react-datepicker__header {
@@ -784,29 +806,6 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
           .rtl {
             direction: rtl !important;
             text-align: right !important;
-          }
-
-          .react-datepicker-popper {
-            z-index: 50;
-          }
-
-          .react-datepicker__triangle {
-            display: none;
-          }
-
-          .react-datepicker__month-container {
-            float: right;
-          }
-
-          .react-datepicker__month {
-            margin: 0.5rem;
-            padding: 0.5rem;
-          }
-
-          .react-datepicker__week {
-            display: flex;
-            justify-content: space-between;
-            margin: 0.25rem 0;
           }
         `}</style>
       </Head>
