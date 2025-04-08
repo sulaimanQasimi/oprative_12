@@ -50,20 +50,16 @@ const formatPersianDate = (date) => {
 
 // Custom input component for date picker
 const CustomDateInput = React.forwardRef(({ value, onClick, placeholder }, ref) => {
-  // Format both the value and placeholder in Persian
-  const formattedValue = value ? formatPersianDate(value) : '';
-  const formattedPlaceholder = placeholder ? formatPersianDate(new Date()) : '';
-
   return (
     <button
       ref={ref}
-      className="w-full px-4 py-2.5 text-right bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm hover:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 flex items-center justify-between"
       onClick={onClick}
+      className="w-full px-4 py-2.5 text-right bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border border-emerald-200 dark:border-emerald-800 rounded-lg shadow-sm hover:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 flex items-center justify-between group"
     >
-      <span className="text-slate-500 dark:text-slate-400">
-        {formattedValue || formattedPlaceholder}
+      <span className="text-slate-500 dark:text-slate-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-200">
+        {value ? formatPersianDate(value) : formatPersianDate(new Date())}
       </span>
-      <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="w-5 h-5 text-emerald-500 dark:text-emerald-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
       </svg>
     </button>
@@ -684,32 +680,52 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
             border: 1px solid #e5e7eb;
             border-radius: 0.75rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            background: white;
+            overflow: hidden;
           }
 
           .react-datepicker__header {
-            background-color: #f9fafb;
-            border-bottom: 1px solid #e5e7eb;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-bottom: none;
             border-top-left-radius: 0.75rem;
             border-top-right-radius: 0.75rem;
-            padding: 0.5rem;
+            padding: 1rem;
           }
 
-          .react-datepicker__day-name,
-          .react-datepicker__day,
-          .react-datepicker__time-name {
+          .react-datepicker__current-month,
+          .react-datepicker__day-name {
+            color: white;
+            font-weight: 600;
+          }
+
+          .react-datepicker__day-name {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+          }
+
+          .react-datepicker__day {
             color: #1f2937;
             font-size: 0.875rem;
             width: 2.5rem;
             line-height: 2.5rem;
             margin: 0.166rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease-in-out;
+          }
+
+          .react-datepicker__day:hover {
+            background-color: #10b981;
+            color: white;
+            transform: scale(1.1);
           }
 
           .react-datepicker__day--selected,
           .react-datepicker__day--in-selecting-range,
           .react-datepicker__day--in-range {
-            background-color: #10b981;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
-            border-radius: 0.375rem;
+            border-radius: 0.5rem;
+            transform: scale(1.1);
           }
 
           .react-datepicker__day--keyboard-selected {
@@ -720,23 +736,49 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
           .react-datepicker__day--today {
             font-weight: bold;
             color: #10b981;
+            position: relative;
           }
 
-          .react-datepicker__day:hover {
-            background-color: rgba(16, 185, 129, 0.1);
-            border-radius: 0.375rem;
+          .react-datepicker__day--today::after {
+            content: '';
+            position: absolute;
+            bottom: 0.25rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0.5rem;
+            height: 0.5rem;
+            background-color: #10b981;
+            border-radius: 50%;
           }
 
           .react-datepicker__navigation {
-            top: 0.5rem;
+            top: 1rem;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 0.375rem;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease-in-out;
+          }
+
+          .react-datepicker__navigation:hover {
+            background: rgba(255, 255, 255, 0.2);
           }
 
           .react-datepicker__navigation--previous {
-            left: 0.5rem;
+            left: 1rem;
           }
 
           .react-datepicker__navigation--next {
-            right: 0.5rem;
+            right: 1rem;
+          }
+
+          .react-datepicker__navigation-icon::before {
+            border-color: white;
+            border-width: 2px;
           }
 
           .rtl {
@@ -746,6 +788,25 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
 
           .react-datepicker-popper {
             z-index: 50;
+          }
+
+          .react-datepicker__triangle {
+            display: none;
+          }
+
+          .react-datepicker__month-container {
+            float: right;
+          }
+
+          .react-datepicker__month {
+            margin: 0.5rem;
+            padding: 0.5rem;
+          }
+
+          .react-datepicker__week {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.25rem 0;
           }
         `}</style>
       </Head>
