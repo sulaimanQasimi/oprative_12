@@ -1,13 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 import OrderList from './Components/OrderList';
 import OrderDetails from './Components/OrderDetails';
 import OrderFilters from './Components/OrderFilters';
 import OrderStats from './Components/OrderStats';
 import CustomerNavbar from '@/Components/CustomerNavbar';
+import { motion } from 'framer-motion';
+import {
+    ShoppingCart, Calendar, Package, Clock, RefreshCw,
+    Plus, ChevronRight, Check, Filter, BarChart3
+} from 'lucide-react';
 
-export default function Index() {
+export default function Index({ auth }) {
+    const { t } = useLaravelReactI18n();
+
     // State management
     const [orders, setOrders] = useState([]);
     const [pagination, setPagination] = useState({
@@ -33,7 +41,7 @@ export default function Index() {
         page: 1
     });
     const [activeTab, setActiveTab] = useState('all');
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     // Fetch orders data based on current filters
     const fetchOrders = async () => {
@@ -125,128 +133,173 @@ export default function Index() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/20 to-purple-50/30">
-            <Head title="Customer Orders" />
-            
-            {/* Navbar */}
-            <CustomerNavbar />
-            
-            {/* Page Background Effects */}
-            <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-300/20 rounded-full filter blur-3xl"></div>
-                <div className="absolute top-1/3 -left-24 w-80 h-80 bg-indigo-300/20 rounded-full filter blur-3xl"></div>
-                <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-blue-300/20 rounded-full filter blur-3xl"></div>
-            </div>
-            
-            {/* Main Content */}
-            <div dir="rtl" className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-10">
-                {/* Page Header */}
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
-                    <div className="mb-4 sm:mb-0">
-                        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                            <span className="inline-flex items-center justify-center p-2 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-xl">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                </svg>
-                            </span>
-                            سفارشات مشتری
-                        </h1>
-                        <p className="text-gray-600 mt-1">مدیریت و پیگیری تمام سفارشات در یک مکان</p>
-                    </div>
-                    
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => fetchOrders()}
-                            className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-gray-50 text-indigo-600 rounded-lg shadow-sm border border-gray-200 transition-all duration-200 transform hover:scale-[1.02]"
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            تازه‌سازی
-                        </button>
-                    </div>
-                </div>
-                
-                {/* Stats Section */}
-                <OrderStats stats={stats} />
-                
-                {/* Filters Section */}
-                <OrderFilters 
-                    filters={filters}
-                    onFilterChange={handleFilterChange}
-                    onSortChange={handleSortChange}
-                />
-                
-                {/* Orders Table */}
-                <div className="bg-white backdrop-blur-sm bg-opacity-80 rounded-2xl shadow-sm border border-gray-100 p-4 mb-6">
-                    <OrderList 
-                        orders={orders}
-                        activeTab={activeTab}
-                        setActiveTab={handleTabChange}
-                        onOrderSelect={handleOrderSelect}
-                        loading={loading}
-                        pagination={pagination}
-                        onPageChange={handlePageChange}
-                    />
-                </div>
-                
-                {/* Order Details Modal */}
-                {showOrderDetails && selectedOrder && (
-                    <div className="fixed inset-0 z-50 overflow-y-auto">
-                        <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                            {/* Backdrop with improved blur effect */}
-                            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/70 via-purple-900/70 to-indigo-900/70 backdrop-blur-sm"></div>
-                            </div>
-                            
-                            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-                            
-                            {/* Modal container with animation */}
-                            <div 
-                                className="inline-block align-bottom bg-gradient-to-br from-white to-indigo-50/30 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-indigo-100"
-                                style={{
-                                    animation: 'modalFadeIn 0.3s ease-out forwards'
-                                }}
-                            >
-                                {/* Close button - enhanced */}
-                                <div className="absolute top-4 right-4 z-10">
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowOrderDetails(false)}
-                                        className="bg-white/80 backdrop-blur-sm rounded-full text-gray-500 hover:text-indigo-700 p-2 hover:bg-indigo-50 transition-all duration-200 transform hover:scale-110 focus:outline-none shadow-md hover:shadow-lg"
-                                    >
-                                        <span className="sr-only">Close</span>
-                                        <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
-                                    </button>
-                                </div>
-                                
-                                <div className="p-6 sm:p-8">
-                                    <OrderDetails 
-                                        order={selectedOrder}
-                                        visible={showOrderDetails}
-                                        onClose={() => setShowOrderDetails(false)}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                )}
-                
-                {/* Add animation keyframes */}
-                <style dangerouslySetInnerHTML={{ __html: `
+        <>
+            <Head title={t('Customer Orders')}>
+                <style>{`
+                    @keyframes shimmer {
+                        0% {
+                            transform: translateX(-100%);
+                        }
+                        100% {
+                            transform: translateX(100%);
+                        }
+                    }
+                    .animate-shimmer {
+                        animation: shimmer 3s infinite;
+                    }
+
+                    .bg-grid-pattern {
+                        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+                        background-size: 14px 14px;
+                    }
+
+                    .dark .bg-grid-pattern {
+                        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                    }
+
+                    .card-shine {
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 50%;
+                        height: 100%;
+                        background: linear-gradient(
+                            to right,
+                            rgba(255, 255, 255, 0) 0%,
+                            rgba(255, 255, 255, 0.3) 50%,
+                            rgba(255, 255, 255, 0) 100%
+                        );
+                    }
+
+                    /* Fix for horizontal scroll */
+                    html, body {
+                        overflow-x: hidden;
+                        max-width: 100%;
+                    }
+
+                    .responsive-chart-container {
+                        max-width: 100%;
+                        overflow-x: hidden;
+                    }
+
                     @keyframes modalFadeIn {
                         from { opacity: 0; transform: scale(0.95) translateY(10px); }
                         to { opacity: 1; transform: scale(1) translateY(0); }
                     }
-                `}} />
-                
-                {/* Footer */}
-                <div className="mt-12 text-center text-gray-500 text-sm py-6 border-t border-gray-200">
-                    <p>© {new Date().getFullYear()} سیستم مدیریت سفارشات مشتری</p>
+                `}</style>
+            </Head>
+
+            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
+                {/* Sidebar */}
+                <CustomerNavbar
+                    auth={auth || {user: {name: 'Customer'}}}
+                    currentRoute="customer.orders"
+                />
+
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col overflow-hidden max-w-full">
+                    {/* Header */}
+                    <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
+                        <div className="flex items-center space-x-4">
+                            <div className="relative flex flex-col">
+                                <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">{t('Customer Portal')}</span>
+                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    {t('Orders Management')}
+                                </h1>
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                            <button
+                                onClick={() => fetchOrders()}
+                                className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-indigo-600 dark:text-indigo-400 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 transition-all duration-200"
+                            >
+                                <RefreshCw className="h-4 w-4" />
+                                {t('Refresh')}
+                            </button>
+                        </div>
+                    </header>
+
+                    {/* Main Content Container */}
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                        <div className="p-6">
+                            <div className="max-w-7xl mx-auto space-y-6">
+                                {/* Stats Section */}
+                                <OrderStats stats={stats} />
+
+                                {/* Filters Section */}
+                                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl p-5">
+                                    <OrderFilters
+                                        filters={filters}
+                                        onFilterChange={handleFilterChange}
+                                        onSortChange={handleSortChange}
+                                    />
+                                </div>
+
+                                {/* Orders Table */}
+                                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden">
+                                    <div className="p-5">
+                                        <OrderList
+                                            orders={orders}
+                                            activeTab={activeTab}
+                                            setActiveTab={handleTabChange}
+                                            onOrderSelect={handleOrderSelect}
+                                            loading={loading}
+                                            pagination={pagination}
+                                            onPageChange={handlePageChange}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
                 </div>
             </div>
-        </div>
+
+            {/* Order Details Modal */}
+            {showOrderDetails && selectedOrder && (
+                <div className="fixed inset-0 z-50 overflow-y-auto">
+                    <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                        {/* Backdrop with improved blur effect */}
+                        <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/70 via-purple-900/70 to-indigo-900/70 backdrop-blur-sm"></div>
+                        </div>
+
+                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+                        {/* Modal container with animation */}
+                        <div
+                            className="inline-block align-bottom bg-gradient-to-br from-white to-indigo-50/30 dark:from-slate-900 dark:to-slate-800/30 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-indigo-100 dark:border-indigo-900/50"
+                            style={{
+                                animation: 'modalFadeIn 0.3s ease-out forwards'
+                            }}
+                        >
+                            {/* Close button - enhanced */}
+                            <div className="absolute top-4 right-4 z-10">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowOrderDetails(false)}
+                                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full text-gray-500 dark:text-gray-400 hover:text-indigo-700 dark:hover:text-indigo-400 p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200 transform hover:scale-110 focus:outline-none shadow-md hover:shadow-lg"
+                                >
+                                    <span className="sr-only">Close</span>
+                                    <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="p-6 sm:p-8">
+                                <OrderDetails
+                                    order={selectedOrder}
+                                    visible={showOrderDetails}
+                                    onClose={() => setShowOrderDetails(false)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
-} 
+}
