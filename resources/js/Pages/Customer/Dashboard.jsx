@@ -1,19 +1,53 @@
-import React, { useState, useEffect } from 'react';
-import { Head } from '@inertiajs/react';
-import CustomerNavbar from '@/Components/CustomerNavbar';
+import React, { useState, useEffect, useRef } from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
+import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/Components/ui/card';
+import { Badge } from '@/Components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/Components/ui/tabs';
+import { BarChart, Bar, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import {
-    ShoppingCart,
-    Package,
-    FileText,
-    DollarSign,
-    BarChart,
-    CreditCard,
-    Calendar
+    User, Package, TrendingUp, ChevronRight, DollarSign, Layers, AlertTriangle,
+    TrendingDown, BarChart3, ArrowUp, ArrowDown, Percent, RefreshCcw,
+    Search, Plus, Filter, ArrowUpRight, ArrowDownRight, Calendar, Clock,
+    Download, MoreHorizontal, ExternalLink, Tag, CreditCard, Mail, Settings,
+    Inbox, ChevronDown, Eye, RefreshCw, Sliders, ShoppingCart, UserCheck, Star, Check
 } from 'lucide-react';
-import axios from 'axios';
+import anime from 'animejs';
+import CustomerNavbar from '@/Components/CustomerNavbar';
 import { motion } from 'framer-motion';
 
-// PageLoader component copied from Income.jsx
+// AnimatedCounter component
+const AnimatedCounter = ({ value, prefix = '', suffix = '', duration = 1500 }) => {
+    const nodeRef = useRef(null);
+    const [counted, setCounted] = useState(false);
+
+    // Ensure value is a valid number
+    const safeValue = Number.isFinite(Number(value)) ? Number(value) : 0;
+
+    useEffect(() => {
+        if (!counted && nodeRef.current) {
+            anime({
+                targets: nodeRef.current,
+                innerHTML: [0, safeValue],
+                easing: 'easeInOutExpo',
+                duration: duration,
+                round: 1,
+                delay: 300,
+                begin: () => setCounted(true)
+            });
+        }
+    }, [safeValue, counted, duration]);
+
+    return (
+        <span className="inline-block" ref={nodeRef}>
+            {prefix}0{suffix}
+        </span>
+    );
+};
+
+// PageLoader component
 const PageLoader = ({ isVisible }) => {
     return (
         <motion.div
@@ -199,125 +233,119 @@ const PageLoader = ({ isVisible }) => {
     );
 };
 
-export default function CustomerDashboard({ auth }) {
-    const [stats, setStats] = useState({
-        totalOrders: 42,
-        pendingOrders: 7,
-        totalSales: 15000,
-        totalAccounts: 12,
-        stockItems: 156,
-    });
+export default function CustomerDashboard({ auth, stats = {} }) {
+    const { t } = useLaravelReactI18n();
 
-    const [isLoading, setIsLoading] = useState(true);
+    // State for loading and animations
+    const [loading, setLoading] = useState(true);
+    const [isAnimated, setIsAnimated] = useState(false);
 
-    // Data for charts
-    const salesData = [
-        { month: 'Jan', value: 2400 },
-        { month: 'Feb', value: 1398 },
-        { month: 'Mar', value: 9800 },
-        { month: 'Apr', value: 3908 },
-        { month: 'May', value: 4800 },
-        { month: 'Jun', value: 3800 },
-    ];
+    // Refs for animation targets
+    const headerRef = useRef(null);
+    const statsCardsRef = useRef([]);
+    const chartsRef = useRef([]);
+    const timelineRef = useRef(null);
 
-    const orderStatusData = [
-        { name: 'Pending', value: 7, color: '#FFBB28' },
-        { name: 'Processing', value: 15, color: '#00C49F' },
-        { name: 'Completed', value: 20, color: '#0088FE' },
-    ];
+    // Default stats if not provided
+    const defaultStats = {
+        total_orders: 0,
+        pending_orders: 0,
+        total_spent: 0,
+        active_subscriptions: 0,
+        reward_points: 0,
+        monthly_orders: [],
+        order_status_distribution: [],
+        recent_orders: []
+    };
 
+    // Make sure stats is an object
+    const safeStats = typeof stats === 'object' && stats !== null ? stats : {};
+
+    // Merge provided stats with defaults
+    const mergedStats = {
+        ...defaultStats,
+        ...safeStats
+    };
+
+    // Format currency values
+    const formatCurrency = (value) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2
+        }).format(value);
+    };
+
+    // Format percent values
+    const formatPercent = (value) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'percent',
+            minimumFractionDigits: 1
+        }).format(value/100);
+    };
+
+    // Colors for pie chart
+    const COLORS = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b'];
+
+    // Reset refs when items change
     useEffect(() => {
-        // Simulate API loading
-        setTimeout(() => {
-            setIsLoading(false);
-        }, 1500);
-
-        // You can uncomment this when your API endpoints are ready
-        /*
-        const fetchDashboardData = async () => {
-            try {
-                // API calls go here
-            } catch (error) {
-                console.error('Error loading dashboard data:', error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchDashboardData();
-        */
+        // Clear ref arrays when needed
+        statsCardsRef.current = [];
+        chartsRef.current = [];
     }, []);
 
-    // Stat Card component
-    const StatCard = ({ icon, title, value, bgColor }) => (
-        <div className={`p-6 rounded-lg shadow-md ${bgColor} text-white`}>
-            <div className="flex items-center justify-between">
-                <div>
-                    <p className="text-sm font-medium opacity-75">{title}</p>
-                    <p className="text-2xl font-bold mt-1">{value}</p>
-                </div>
-                <div className="rounded-full bg-white/20 p-3">
-                    {icon}
-                </div>
-            </div>
-        </div>
-    );
+    // Initialize animations
+    useEffect(() => {
+        if (!isAnimated) {
+            // Initialize the timeline
+            timelineRef.current = anime.timeline({
+                easing: 'easeOutExpo',
+                duration: 800
+            });
 
-    // Simple bar chart component
-    const SimpleBarChart = ({ data }) => {
-        const maxValue = Math.max(...data.map(item => item.value));
+            // Animate header
+            timelineRef.current.add({
+                targets: headerRef.current,
+                opacity: [0, 1],
+                translateY: [-20, 0],
+                duration: 600
+            });
 
-        return (
-            <div className="flex h-64 items-end justify-around px-4">
-                {data.map((item, index) => (
-                    <div key={index} className="flex flex-col items-center">
-                        <div className="flex flex-col items-center justify-end h-[200px]">
-                            <div
-                                className="bg-blue-500 w-12 rounded-t-md transition-all duration-500 flex items-end justify-center pb-1 text-white text-xs font-bold"
-                                style={{
-                                    height: `${(item.value / maxValue) * 180}px`
-                                }}
-                            >
-                                ${item.value.toLocaleString()}
-                            </div>
-                        </div>
-                        <span className="text-xs mt-2 font-medium text-gray-600">{item.month}</span>
-                    </div>
-                ))}
-            </div>
-        );
-    };
+            // Animate stats cards
+            timelineRef.current.add({
+                targets: statsCardsRef.current,
+                opacity: [0, 1],
+                translateY: [20, 0],
+                scale: [0.98, 1],
+                delay: anime.stagger(100),
+                duration: 700
+            }, '-=400');
 
-    // Simple status breakdown component
-    const StatusBreakdown = ({ data }) => {
-        const total = data.reduce((sum, item) => sum + item.value, 0);
+            // Animate charts
+            timelineRef.current.add({
+                targets: chartsRef.current,
+                opacity: [0, 1],
+                translateY: [30, 0],
+                delay: anime.stagger(150),
+                duration: 800
+            }, '-=600');
 
-        return (
-            <div className="space-y-6 pt-4">
-                {data.map((item, index) => (
-                    <div key={index} className="space-y-2">
-                        <div className="flex justify-between">
-                            <span className="font-medium text-gray-700">{item.name}</span>
-                            <span className="font-medium text-gray-900">{item.value} orders ({Math.round(item.value / total * 100)}%)</span>
-                        </div>
-                        <div className="h-2.5 w-full bg-gray-200 rounded-full">
-                            <div
-                                className="h-2.5 rounded-full"
-                                style={{
-                                    width: `${(item.value / total) * 100}%`,
-                                    backgroundColor: item.color
-                                }}
-                            ></div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-        );
-    };
+            setIsAnimated(true);
+        }
+    }, [isAnimated]);
+
+    // Simulate loading delay
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <>
-            <Head title="Customer Dashboard">
+            <Head title={t('Customer Dashboard')}>
                 <style>{`
                     @keyframes shimmer {
                         0% {
@@ -341,126 +369,446 @@ export default function CustomerDashboard({ auth }) {
                         background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
                                         linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
                     }
+
+                    .card-shine {
+                        position: absolute;
+                        top: 0;
+                        left: -100%;
+                        width: 50%;
+                        height: 100%;
+                        background: linear-gradient(
+                            to right,
+                            rgba(255, 255, 255, 0) 0%,
+                            rgba(255, 255, 255, 0.3) 50%,
+                            rgba(255, 255, 255, 0) 100%
+                        );
+                    }
+
+                    /* Fix for horizontal scroll */
+                    html, body {
+                        overflow-x: hidden;
+                        max-width: 100%;
+                    }
+
+                    .responsive-chart-container {
+                        max-width: 100%;
+                        overflow-x: hidden;
+                    }
                 `}</style>
             </Head>
 
-            {/* Page Loader */}
-            <PageLoader isVisible={isLoading} />
+            <PageLoader isVisible={loading} />
 
-            <CustomerNavbar />
+            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
+                {/* Sidebar */}
+                <CustomerNavbar
+                    auth={auth || {user: {name: 'Customer'}}}
+                    currentRoute="customer.dashboard"
+                />
 
-            <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-                <h1 className="text-2xl font-semibold text-gray-900 mb-6">Dashboard</h1>
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col overflow-hidden max-w-full">
+                    {/* Header */}
+                    <header ref={headerRef} className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
+                        <div className="flex items-center space-x-4">
+                            <div className="relative flex flex-col">
+                                <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">{t('Customer Portal')}</span>
+                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    {t('Dashboard Overview')}
+                                    <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 rounded-full">
+                                        {auth.user.name}
+                                    </Badge>
+                                </h1>
+                            </div>
+                        </div>
+                    </header>
 
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <StatCard
-                        icon={<ShoppingCart className="h-6 w-6 text-white" />}
-                        title="Total Orders"
-                        value={stats.totalOrders}
-                        bgColor="bg-blue-500"
-                    />
+                    {/* Main Content Container */}
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                        {/* Dashboard Stats Section */}
+                        <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-6 relative flex-shrink-0">
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-50/30 to-white/30 dark:from-slate-900/30 dark:to-slate-950/30 opacity-80"></div>
 
-                    <StatCard
-                        icon={<DollarSign className="h-6 w-6 text-white" />}
-                        title="Total Sales"
-                        value={`$${stats.totalSales.toLocaleString()}`}
-                        bgColor="bg-green-500"
-                    />
+                            {/* Animated background elements */}
+                            <div className="absolute -left-40 -top-40 w-96 h-96 bg-blue-200/20 dark:bg-blue-900/10 rounded-full filter blur-3xl animate-pulse"></div>
+                            <div className="absolute right-20 top-10 w-72 h-72 bg-indigo-200/20 dark:bg-indigo-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '15s' }}></div>
+                            <div className="absolute -right-40 -bottom-40 w-80 h-80 bg-blue-200/20 dark:bg-blue-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '20s', animationDelay: '2s' }}></div>
+                            <div className="absolute left-1/3 bottom-0 w-64 h-64 bg-indigo-200/20 dark:bg-indigo-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: '18s', animationDelay: '1s' }}></div>
 
-                    <StatCard
-                        icon={<Package className="h-6 w-6 text-white" />}
-                        title="Stock Items"
-                        value={stats.stockItems}
-                        bgColor="bg-purple-500"
-                    />
+                            <div className="relative z-10 max-w-7xl mx-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                                    <motion.div
+                                        ref={el => statsCardsRef.current.push(el)}
+                                        className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
+                                        style={{ perspective: '1000px' }}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{
+                                            duration: 0.5,
+                                            delay: 0 * 0.1,
+                                            ease: "easeOut"
+                                        }}
+                                        whileHover={{
+                                            translateY: -8,
+                                            transition: { duration: 0.3 }
+                                        }}
+                                    >
+                                        <div className="p-6 relative z-10">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <span className="font-medium text-lg">{t('Total Orders')}</span>
+                                                <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
+                                                    <ShoppingCart className="h-6 w-6" />
+                                                </div>
+                                            </div>
+                                            <div className="text-3xl font-bold mt-2 flex items-end transform group-hover:scale-105 transition-transform origin-left duration-300">
+                                                <AnimatedCounter
+                                                    value={mergedStats.total_orders}
+                                                    duration={2000}
+                                                />
+                                            </div>
+                                            <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
+                                                <span>{mergedStats.pending_orders} {t('pending orders')}</span>
+                                            </div>
+                                        </div>
+                                        <div className="card-shine"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-[1px] opacity-50"></div>
+                                        <motion.div
+                                            className="absolute right-4 bottom-4 opacity-10"
+                                            initial={{ opacity: 0.1, scale: 0.8 }}
+                                            animate={{ opacity: [0.1, 0.15, 0.1], scale: [0.8, 0.9, 0.8] }}
+                                            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                                        >
+                                            <ShoppingCart className="h-16 w-16" />
+                                        </motion.div>
+                                    </motion.div>
 
-                    <StatCard
-                        icon={<CreditCard className="h-6 w-6 text-white" />}
-                        title="Accounts"
-                        value={stats.totalAccounts}
-                        bgColor="bg-orange-500"
-                    />
-                </div>
+                                    <motion.div
+                                        ref={el => statsCardsRef.current.push(el)}
+                                        className="bg-gradient-to-br from-green-500 to-emerald-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
+                                        style={{ perspective: '1000px' }}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{
+                                            duration: 0.5,
+                                            delay: 1 * 0.1,
+                                            ease: "easeOut"
+                                        }}
+                                        whileHover={{
+                                            translateY: -8,
+                                            transition: { duration: 0.3 }
+                                        }}
+                                    >
+                                        <div className="p-6 relative z-10">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <span className="font-medium text-lg">{t('Total Spent')}</span>
+                                                <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
+                                                    <DollarSign className="h-6 w-6" />
+                                                </div>
+                                            </div>
+                                            <div className="text-3xl font-bold mt-2 flex items-end transform group-hover:scale-105 transition-transform origin-left duration-300">
+                                                <AnimatedCounter
+                                                    value={parseFloat(mergedStats.total_spent)}
+                                                    prefix="$"
+                                                    duration={2000}
+                                                />
+                                            </div>
+                                            <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
+                                                <ArrowUp className="h-3.5 w-3.5 mr-1" />
+                                                <span>+5% {t('from last month')}</span>
+                                            </div>
+                                        </div>
+                                        <div className="card-shine"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-[1px] opacity-50"></div>
+                                        <motion.div
+                                            className="absolute right-4 bottom-4 opacity-10"
+                                            initial={{ opacity: 0.1, rotate: 0 }}
+                                            animate={{ opacity: [0.1, 0.15, 0.1], rotate: [0, 5, 0] }}
+                                            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                                        >
+                                            <DollarSign className="h-16 w-16" />
+                                        </motion.div>
+                                    </motion.div>
 
-                {/* Charts Section */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    {/* Sales Chart */}
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h2 className="text-lg font-medium text-gray-900 mb-4">Sales Overview</h2>
-                        <SimpleBarChart data={salesData} />
-                    </div>
+                                    <motion.div
+                                        ref={el => statsCardsRef.current.push(el)}
+                                        className="bg-gradient-to-br from-purple-500 to-pink-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
+                                        style={{ perspective: '1000px' }}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{
+                                            duration: 0.5,
+                                            delay: 2 * 0.1,
+                                            ease: "easeOut"
+                                        }}
+                                        whileHover={{
+                                            translateY: -8,
+                                            transition: { duration: 0.3 }
+                                        }}
+                                    >
+                                        <div className="p-6 relative z-10">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <span className="font-medium text-lg">{t('Active Subscriptions')}</span>
+                                                <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
+                                                    <CreditCard className="h-6 w-6" />
+                                                </div>
+                                            </div>
+                                            <div className="text-3xl font-bold mt-2 flex items-end transform group-hover:scale-105 transition-transform origin-left duration-300">
+                                                <AnimatedCounter
+                                                    value={mergedStats.active_subscriptions}
+                                                    duration={2000}
+                                                />
+                                            </div>
+                                            <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
+                                                <span>{t('Manage subscriptions')}</span>
+                                            </div>
+                                        </div>
+                                        <div className="card-shine"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-[1px] opacity-50"></div>
+                                        <motion.div
+                                            className="absolute right-4 bottom-4 opacity-10"
+                                            initial={{ opacity: 0.1, y: 0 }}
+                                            animate={{ opacity: [0.1, 0.15, 0.1], y: [0, -5, 0] }}
+                                            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                                        >
+                                            <CreditCard className="h-16 w-16" />
+                                        </motion.div>
+                                    </motion.div>
 
-                    {/* Order Status Chart */}
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h2 className="text-lg font-medium text-gray-900 mb-4">Order Status</h2>
-                        <StatusBreakdown data={orderStatusData} />
-                    </div>
-                </div>
+                                    <motion.div
+                                        ref={el => statsCardsRef.current.push(el)}
+                                        className="bg-gradient-to-br from-amber-500 to-orange-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group"
+                                        style={{ perspective: '1000px' }}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{
+                                            duration: 0.5,
+                                            delay: 3 * 0.1,
+                                            ease: "easeOut"
+                                        }}
+                                        whileHover={{
+                                            translateY: -8,
+                                            transition: { duration: 0.3 }
+                                        }}
+                                    >
+                                        <div className="p-6 relative z-10">
+                                            <div className="flex justify-between items-center mb-4">
+                                                <span className="font-medium text-lg">{t('Reward Points')}</span>
+                                                <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm transform group-hover:rotate-3 transition-transform duration-300 border border-white/10">
+                                                    <Star className="h-6 w-6" />
+                                                </div>
+                                            </div>
+                                            <div className="text-3xl font-bold mt-2 flex items-end transform group-hover:scale-105 transition-transform origin-left duration-300">
+                                                <AnimatedCounter
+                                                    value={mergedStats.reward_points}
+                                                    duration={2000}
+                                                />
+                                            </div>
+                                            <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit group-hover:bg-white/20 transition-colors duration-300 border border-white/10">
+                                                <span>{t('Available for redemption')}</span>
+                                            </div>
+                                        </div>
+                                        <div className="card-shine"></div>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-[1px] opacity-50"></div>
+                                        <motion.div
+                                            className="absolute right-4 bottom-4 opacity-10"
+                                            initial={{ opacity: 0.1, scale: 1 }}
+                                            animate={{ opacity: [0.1, 0.15, 0.1], scale: [1, 1.05, 1] }}
+                                            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                                        >
+                                            <Star className="h-16 w-16" />
+                                        </motion.div>
+                                    </motion.div>
+                                </div>
+                            </div>
+                        </div>
 
-                {/* Recent Orders */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <div className="flex items-center justify-between mb-4">
-                        <h2 className="text-lg font-medium text-gray-900">Recent Orders</h2>
-                        <a href={route('customer.orders')} className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                            View All
-                        </a>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Order ID
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Date
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Status
-                                    </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Total
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {/* This would be populated with your actual data */}
-                                <tr>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #ORD-123456
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        Jun 15, 2023
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Completed
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        $120.00
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        #ORD-123457
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        Jun 12, 2023
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            Processing
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        $85.50
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                        {/* Charts and Data Section */}
+                        <div className="p-6">
+                            <div className="max-w-full mx-auto space-y-6">
+                                {/* Charts Row */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+                                    {/* Monthly Orders Chart */}
+                                    <motion.div
+                                        ref={el => chartsRef.current.push(el)}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.5, delay: 0.1 }}
+                                    >
+                                        <Card className="shadow-md bg-white dark:bg-slate-900 border-0 rounded-xl overflow-hidden h-full">
+                                            <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 px-6 py-4">
+                                                <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                    <BarChart3 className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                                                    {t('Monthly Orders (Current Year)')}
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-6">
+                                                <div className="h-80 responsive-chart-container">
+                                                    <ResponsiveContainer width="99%" height="100%">
+                                                        <BarChart data={mergedStats.monthly_orders || []}>
+                                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
+                                                            <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b' }} />
+                                                            <Tooltip
+                                                                cursor={{ fill: 'rgba(59, 130, 246, 0.1)' }}
+                                                                contentStyle={{
+                                                                    backgroundColor: '#fff',
+                                                                    borderColor: '#e2e8f0',
+                                                                    borderRadius: '0.5rem',
+                                                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                                                                }}
+                                                            />
+                                                            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                                                                {
+                                                                    (mergedStats.monthly_orders || []).map((entry, index) => (
+                                                                        <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#3b82f6' : '#2563eb'} />
+                                                                    ))
+                                                                }
+                                                            </Bar>
+                                                        </BarChart>
+                                                    </ResponsiveContainer>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    {/* Order Status Chart */}
+                                    <motion.div
+                                        ref={el => chartsRef.current.push(el)}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ duration: 0.5, delay: 0.2 }}
+                                    >
+                                        <Card className="shadow-md bg-white dark:bg-slate-900 border-0 rounded-xl overflow-hidden h-full">
+                                            <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 px-6 py-4">
+                                                <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                    <Package className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                                                    {t('Order Status Distribution')}
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-6">
+                                                <div className="h-80 responsive-chart-container">
+                                                    <ResponsiveContainer width="99%" height="100%">
+                                                        <PieChart>
+                                                            <Pie
+                                                                data={mergedStats.order_status_distribution || []}
+                                                                cx="50%"
+                                                                cy="50%"
+                                                                innerRadius={60}
+                                                                outerRadius={100}
+                                                                paddingAngle={2}
+                                                                dataKey="value"
+                                                                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                                            >
+                                                                {(mergedStats.order_status_distribution || []).map((entry, index) => (
+                                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                                ))}
+                                                            </Pie>
+                                                            <Tooltip
+                                                                contentStyle={{
+                                                                    backgroundColor: '#fff',
+                                                                    borderColor: '#e2e8f0',
+                                                                    borderRadius: '0.5rem',
+                                                                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                                                                }}
+                                                            />
+                                                        </PieChart>
+                                                    </ResponsiveContainer>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                </div>
+
+                                {/* Recent Orders */}
+                                <motion.div
+                                    ref={el => chartsRef.current.push(el)}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.3 }}
+                                >
+                                    <Card className="shadow-md bg-white dark:bg-slate-900 border-0 rounded-xl overflow-hidden">
+                                        <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20 px-6 py-4">
+                                            <div className="flex items-center justify-between">
+                                                <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                                    <ShoppingCart className="h-5 w-5 text-blue-500 dark:text-blue-400" />
+                                                    {t('Recent Orders')}
+                                                </CardTitle>
+                                                <Button variant="outline" size="sm" className="text-blue-600 dark:text-blue-400 border-slate-200 dark:border-slate-700 rounded-lg">
+                                                    <Link href={route('customer.orders')}>
+                                                        {t('View All Orders')}
+                                                    </Link>
+                                                </Button>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="p-6">
+                                            <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                                                {mergedStats.recent_orders && mergedStats.recent_orders.length > 0 ? (
+                                                    <div className="divide-y divide-slate-200 dark:divide-slate-700">
+                                                        {mergedStats.recent_orders.map((order, index) => (
+                                                            <div key={index} className="flex items-center gap-4 p-4 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors duration-150 group">
+                                                                <div className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                                                    order.status === 'completed'
+                                                                        ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
+                                                                        : order.status === 'processing'
+                                                                        ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                                                        : 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
+                                                                }`}>
+                                                                    {order.status === 'completed' ? (
+                                                                        <Check className="h-5 w-5" />
+                                                                    ) : order.status === 'processing' ? (
+                                                                        <RefreshCw className="h-5 w-5" />
+                                                                    ) : (
+                                                                        <Clock className="h-5 w-5" />
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="font-medium text-slate-900 dark:text-white truncate">Order #{order.id}</p>
+                                                                    <div className="flex items-center flex-wrap gap-3 mt-1 text-xs">
+                                                                        <span className="flex items-center text-slate-500 dark:text-slate-400">
+                                                                            <Calendar className="h-3 w-3 mr-1" />
+                                                                            {order.date}
+                                                                        </span>
+                                                                        <span className="flex items-center text-slate-500 dark:text-slate-400">
+                                                                            <Package className="h-3 w-3 mr-1" />
+                                                                            {order.items} items
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-sm font-semibold text-slate-900 dark:text-white">
+                                                                    {formatCurrency(order.total)}
+                                                                </div>
+                                                                {order.id && (
+                                                                    <Link
+                                                                        href={route('customer.orders.show', order.id)}
+                                                                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                    >
+                                                                        <Button variant="outline" size="sm" className="bg-white dark:bg-transparent dark:text-slate-400 dark:border-slate-700 text-slate-700 flex items-center h-8">
+                                                                            <span>Details</span>
+                                                                            <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                                                                        </Button>
+                                                                    </Link>
+                                                                )}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center py-12 text-slate-500 dark:text-slate-400">
+                                                        <ShoppingCart className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                                                        <p className="text-lg font-medium text-slate-900 dark:text-white mb-1">No recent orders</p>
+                                                        <p>Start shopping to see your orders here</p>
+                                                        <Button className="mt-4 bg-blue-500 hover:bg-blue-600 text-white">
+                                                            <Plus className="h-4 w-4 mr-2" />
+                                                            Start Shopping
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            </div>
+                        </div>
+                    </main>
                 </div>
             </div>
         </>
