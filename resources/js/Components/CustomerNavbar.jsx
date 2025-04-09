@@ -51,11 +51,7 @@ export default function CustomerNavbar({ auth, currentRoute }) {
     };
 
     const handleLogout = () => {
-        try {
-            post(route('customer.logout'));
-        } catch (error) {
-            console.error('Error during logout:', error);
-        }
+        post(route('customer.logout'));
     };
 
     // Helper function to safely access routes
