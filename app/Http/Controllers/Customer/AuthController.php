@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class AuthController extends Controller
 {
@@ -34,7 +35,7 @@ class AuthController extends Controller
      */
     public function showLoginForm()
     {
-        return view('customer.auth.login');
+        return Inertia::render('Customer/Login');
     }
 
     /**
@@ -87,50 +88,6 @@ class AuthController extends Controller
             throw $e;
         }
     }
-
-    /**
-     * Show the customer registration form.
-     */
-    public function showRegistrationForm()
-    {
-        return view('customer.auth.register');
-    }
-
-    /**
-     * Handle a registration request for a new customer.
-     */
-    public function register(Request $request)
-    {
-        // Validate registration data
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:customer_users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'phone' => ['nullable', 'string', 'max:255'],
-            'address' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        try {
-            $customerUser = $this->authService->registerCustomer($validated);
-
-            Auth::guard('customer_user')->login($customerUser);
-
-            Log::info('New customer registered', ['customer_id' => $customerUser->id]);
-
-            return redirect()->route('customer.dashboard')
-                ->with('success', 'Account created successfully! Welcome to our platform.');
-
-        } catch (\Exception $e) {
-            Log::error('Customer registration error', [
-                'data' => $request->except('password', 'password_confirmation'),
-                'error' => $e->getMessage()
-            ]);
-
-            return back()->withInput($request->except('password', 'password_confirmation'))
-                ->withErrors(['general' => 'Registration failed. Please try again later.']);
-        }
-    }
-
     /**
      * Log the customer out of the application.
      */
