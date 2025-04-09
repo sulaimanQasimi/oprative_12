@@ -523,6 +523,7 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
         type: activeTab,
         start_date: formattedStartDate,
         end_date: formattedEndDate,
+        search: searchTerm
       }, {
         preserveState: true,
         preserveScroll: true,
@@ -535,7 +536,13 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
               ...prev,
               [activeTab]: data.data
             }));
-            alert('Report generated successfully');
+
+            // Show different message based on whether it's a search or a full report
+            if (searchTerm.trim().length > 0) {
+              alert(`Found ${data.data.length} results matching "${searchTerm}"`);
+            } else {
+              alert('Report generated successfully');
+            }
           }
 
           setIsLoading(false);
@@ -614,6 +621,19 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
       setIsAnimated(true);
     }
   }, [isAnimated]);
+
+  // Add debounced search effect
+  useEffect(() => {
+    const debounceTimeout = setTimeout(() => {
+      if (searchTerm.trim().length >= 2) {
+        handleGenerateReport();
+      }
+    }, 500);
+
+    return () => {
+      clearTimeout(debounceTimeout);
+    };
+  }, [searchTerm]);
 
   return (
     <>
@@ -980,7 +1000,7 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
                   </div>
                   <input
                     type="text"
-                    placeholder={t("Search reports...")}
+                    placeholder={t("Search by reference, name, or category...")}
                     className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200 shadow-sm"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}

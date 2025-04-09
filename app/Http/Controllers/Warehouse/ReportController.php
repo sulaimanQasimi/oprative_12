@@ -24,9 +24,9 @@ class ReportController extends Controller
         $endDate = Carbon::now();
         $startDate = Carbon::now()->subDays(30);
 
-        // Convert to Shamsi for display
-        $shamsiStartDate = Verta::instance($startDate)->format('Y-m-d');
-        $shamsiEndDate = Verta::instance($endDate)->format('Y-m-d');
+        // Use Carbon formatting instead of Shamsi/Verta
+        $startDateFormatted = $startDate->format('Y-m-d');
+        $endDateFormatted = $endDate->format('Y-m-d');
 
         $sales = $warehouse->sales()
             ->with(['customer'])
@@ -37,7 +37,7 @@ class ReportController extends Controller
                     'id' => $sale->id,
                     'reference' => $sale->reference_number,
                     'amount' => (float) $sale->total,
-                    'date' => Verta::instance($sale->created_at)->format('Y-m-d'),
+                    'date' => Carbon::parse($sale->created_at)->format('Y-m-d'),
                     'customer' => $sale->customer ? $sale->customer->name : 'Unknown',
                     'status' => $sale->status,
                 ];
@@ -52,7 +52,7 @@ class ReportController extends Controller
                     'id' => $income->id,
                     'reference' => $income->reference_number,
                     'amount' => (float) $income->total,
-                    'date' => Verta::instance($income->created_at)->format('Y-m-d'),
+                    'date' => Carbon::parse($income->created_at)->format('Y-m-d'),
                     'source' => $income->product ? $income->product->name : 'Unknown',
                 ];
             });
@@ -66,7 +66,7 @@ class ReportController extends Controller
                     'id' => $outcome->id,
                     'reference' => $outcome->reference_number,
                     'amount' => (float) $outcome->total,
-                    'date' => Verta::instance($outcome->created_at)->format('Y-m-d'),
+                    'date' => Carbon::parse($outcome->created_at)->format('Y-m-d'),
                     'destination' => $outcome->product ? $outcome->product->name : 'Unknown',
                 ];
             });
@@ -91,8 +91,8 @@ class ReportController extends Controller
             'outcome' => $outcome,
             'products' => $products,
             'dateRange' => [
-                'start' => $shamsiStartDate,
-                'end' => $shamsiEndDate,
+                'start' => $startDateFormatted,
+                'end' => $endDateFormatted,
             ],
         ]);
     }
@@ -107,9 +107,11 @@ class ReportController extends Controller
                 'type' => 'required|in:sales,income,outcome,products',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after_or_equal:start_date',
+                'search' => 'nullable|string',
             ]);
 
             $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
+            $searchTerm = $request->search;
 
             // Convert Gregorian dates to Carbon instances
             $startDate = Carbon::parse($request->start_date);
@@ -119,6 +121,7 @@ class ReportController extends Controller
                 'type' => $request->type,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'search' => $searchTerm,
                 'warehouse_id' => $warehouse->id
             ]);
 
@@ -126,43 +129,76 @@ class ReportController extends Controller
                 'sales' => $warehouse->sales()
                     ->with(['customer'])
                     ->whereBetween('created_at', [$startDate, $endDate])
+                    ->when($searchTerm, function($query) use ($searchTerm) {
+                        return $query->where(function($q) use ($searchTerm) {
+                            $q->where('reference_number', 'like', "%{$searchTerm}%")
+                              ->orWhereHas('customer', function($cq) use ($searchTerm) {
+                                  $cq->where('name', 'like', "%{$searchTerm}%");
+                              });
+                        });
+                    })
                     ->get()
                     ->map(function ($sale) {
                         return [
                             'id' => $sale->id,
                             'reference' => $sale->reference_number,
                             'amount' => (float) $sale->total,
-                            'date' => Verta::instance($sale->created_at)->format('Y-m-d'),
+                            'date' => Carbon::parse($sale->created_at)->format('Y-m-d'),
                             'customer' => $sale->customer ? $sale->customer->name : 'Unknown',
                             'status' => $sale->status,
                         ];
                     }),
                 'income' => $warehouse->warehouseIncome()
                     ->whereBetween('created_at', [$startDate, $endDate])
+                    ->when($searchTerm, function($query) use ($searchTerm) {
+                        return $query->where(function($q) use ($searchTerm) {
+                            $q->where('reference_number', 'like', "%{$searchTerm}%")
+                              ->orWhereHas('product', function($pq) use ($searchTerm) {
+                                  $pq->where('name', 'like', "%{$searchTerm}%");
+                              });
+                        });
+                    })
                     ->get()
                     ->map(function ($income) {
                         return [
                             'id' => $income->id,
                             'reference' => $income->reference_number,
                             'amount' => (float) $income->total,
-                            'date' => Verta::instance($income->created_at)->format('Y-m-d'),
+                            'date' => Carbon::parse($income->created_at)->format('Y-m-d'),
                             'source' => $income->product ? $income->product->name : 'Unknown',
                         ];
                     }),
                 'outcome' => $warehouse->warehouseOutcome()
                     ->whereBetween('created_at', [$startDate, $endDate])
+                    ->when($searchTerm, function($query) use ($searchTerm) {
+                        return $query->where(function($q) use ($searchTerm) {
+                            $q->where('reference_number', 'like', "%{$searchTerm}%")
+                              ->orWhereHas('product', function($pq) use ($searchTerm) {
+                                  $pq->where('name', 'like', "%{$searchTerm}%");
+                              });
+                        });
+                    })
                     ->get()
                     ->map(function ($outcome) {
                         return [
                             'id' => $outcome->id,
                             'reference' => $outcome->reference_number,
                             'amount' => (float) $outcome->total,
-                            'date' => Verta::instance($outcome->created_at)->format('Y-m-d'),
+                            'date' => Carbon::parse($outcome->created_at)->format('Y-m-d'),
                             'destination' => $outcome->product ? $outcome->product->name : 'Unknown',
                         ];
                     }),
                 'products' => $warehouse->products()
                     ->with('category')
+                    ->when($searchTerm, function($query) use ($searchTerm) {
+                        return $query->where(function($q) use ($searchTerm) {
+                            $q->where('name', 'like', "%{$searchTerm}%")
+                              ->orWhere('sku', 'like', "%{$searchTerm}%")
+                              ->orWhereHas('category', function($cq) use ($searchTerm) {
+                                  $cq->where('name', 'like', "%{$searchTerm}%");
+                              });
+                        });
+                    })
                     ->get()
                     ->map(function ($product) {
                         return [
@@ -179,14 +215,15 @@ class ReportController extends Controller
 
             Log::info('Report generated successfully', [
                 'type' => $request->type,
-                'data_count' => count($data)
+                'data_count' => count($data),
+                'search' => $searchTerm
             ]);
 
             return response()->json([
                 'data' => $data,
                 'date_range' => [
-                    'start' => Verta::instance($startDate)->format('Y-m-d'),
-                    'end' => Verta::instance($endDate)->format('Y-m-d'),
+                    'start' => $startDate->format('Y-m-d'),
+                    'end' => $endDate->format('Y-m-d'),
                 ],
             ]);
         } catch (\Exception $e) {
