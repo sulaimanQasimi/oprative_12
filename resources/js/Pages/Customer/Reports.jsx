@@ -10,6 +10,7 @@ import { registerLocale, setDefaultLocale } from "react-datepicker";
 import faIR from "date-fns/locale/fa-IR";
 import { getYear, getMonth, getDate } from "date-fns-jalali";
 import { format as formatJalali } from "date-fns-jalali";
+import CustomerNavbar from "@/Components/CustomerNavbar";
 
 // Register the Persian locale
 registerLocale("fa", faIR);
@@ -121,7 +122,7 @@ const exportToExcel = (data, filename) => {
 const PageLoader = ({ isVisible }) => {
   return (
     <motion.div
-      className="fixed inset-0 bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 z-50 flex flex-col items-center justify-center overflow-hidden"
+      className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 z-50 flex flex-col items-center justify-center overflow-hidden"
       initial={{ opacity: 1 }}
       animate={{
         opacity: isVisible ? 1 : 0,
@@ -137,7 +138,7 @@ const PageLoader = ({ isVisible }) => {
         {[...Array(5)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute bg-gradient-to-r from-emerald-400/10 via-teal-500/10 to-transparent h-[30vh] w-[100vw]"
+            className="absolute bg-gradient-to-r from-blue-400/10 via-indigo-500/10 to-transparent h-[30vh] w-[100vw]"
             style={{
               top: `${10 + i * 20}%`,
               left: "-100%",
@@ -198,7 +199,7 @@ const PageLoader = ({ isVisible }) => {
         >
           {/* Pulsing background circles */}
           <motion.div
-            className="absolute w-64 h-64 rounded-full bg-emerald-600/5 filter blur-2xl"
+            className="absolute w-64 h-64 rounded-full bg-blue-600/5 filter blur-2xl"
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.3, 0.5, 0.3],
@@ -210,7 +211,7 @@ const PageLoader = ({ isVisible }) => {
             }}
           />
           <motion.div
-            className="absolute w-72 h-72 rounded-full bg-teal-500/5 filter blur-2xl transform -translate-x-4 translate-y-4"
+            className="absolute w-72 h-72 rounded-full bg-indigo-500/5 filter blur-2xl transform -translate-x-4 translate-y-4"
             animate={{
               scale: [1.2, 1, 1.2],
               opacity: [0.3, 0.5, 0.3],
@@ -227,7 +228,7 @@ const PageLoader = ({ isVisible }) => {
           <div className="relative flex items-center justify-center h-40 w-40">
             {/* Spinning rings */}
             <motion.div
-              className="absolute h-full w-full rounded-full border-4 border-emerald-300/10"
+              className="absolute h-full w-full rounded-full border-4 border-blue-300/10"
               animate={{
                 rotate: 360,
               }}
@@ -238,7 +239,7 @@ const PageLoader = ({ isVisible }) => {
               }}
             />
             <motion.div
-              className="absolute h-[85%] w-[85%] rounded-full border-4 border-teal-400/20"
+              className="absolute h-[85%] w-[85%] rounded-full border-4 border-indigo-400/20"
               animate={{
                 rotate: -360,
               }}
@@ -249,7 +250,7 @@ const PageLoader = ({ isVisible }) => {
               }}
             />
             <motion.div
-              className="absolute h-[70%] w-[70%] rounded-full border-4 border-emerald-400/30"
+              className="absolute h-[70%] w-[70%] rounded-full border-4 border-blue-400/30"
               animate={{
                 rotate: 360,
               }}
@@ -262,7 +263,7 @@ const PageLoader = ({ isVisible }) => {
 
             {/* Spinner arcs */}
             <motion.div
-              className="absolute h-full w-full rounded-full border-4 border-r-emerald-400 border-t-transparent border-l-transparent border-b-transparent"
+              className="absolute h-full w-full rounded-full border-4 border-r-blue-400 border-t-transparent border-l-transparent border-b-transparent"
               animate={{ rotate: 360 }}
               transition={{
                 duration: 1.5,
@@ -271,7 +272,7 @@ const PageLoader = ({ isVisible }) => {
               }}
             />
             <motion.div
-              className="absolute h-full w-full rounded-full border-4 border-b-teal-400 border-t-transparent border-l-transparent border-r-transparent"
+              className="absolute h-full w-full rounded-full border-4 border-b-indigo-400 border-t-transparent border-l-transparent border-r-transparent"
               animate={{ rotate: -180 }}
               transition={{
                 duration: 2,
@@ -283,7 +284,7 @@ const PageLoader = ({ isVisible }) => {
 
             {/* Icon/logo in center */}
             <motion.div
-              className="relative z-10 bg-gradient-to-br from-emerald-500 to-teal-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
+              className="relative z-10 bg-gradient-to-br from-blue-500 to-indigo-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
               animate={{
                 rotate: [0, 10, 0, -10, 0],
                 scale: [1, 1.1, 1, 1.1, 1],
@@ -654,6 +655,59 @@ export default function Reports({ auth, sales, marketOrders, accounts, incomes, 
     <>
       <Head title="Customer Reports">
         <style>{`
+          @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+          }
+          .animate-shimmer {
+            animation: shimmer 3s infinite;
+          }
+
+          .bg-grid-pattern {
+            background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+            background-size: 14px 14px;
+          }
+
+          .dark .bg-grid-pattern {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+          }
+
+          .card-shine {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(
+                to right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0.3) 50%,
+                rgba(255, 255, 255, 0) 100%
+            );
+          }
+
+          /* Fix for horizontal scroll */
+          html, body {
+            overflow-x: hidden;
+            max-width: 100%;
+          }
+
+          .responsive-chart-container {
+            max-width: 100%;
+            overflow-x: hidden;
+          }
+
+          @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+          }
+
           @media print {
             @page {
               size: A4;
@@ -733,238 +787,242 @@ export default function Reports({ auth, sales, marketOrders, accounts, incomes, 
         />
       )}
 
-      <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-pink-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-pink-950/50">
-        <header
-          ref={headerRef}
-          className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30"
-        >
-          <div className="flex items-center space-x-4">
-            <div className="relative flex flex-col">
-              <span className="text-xs font-semibold uppercase tracking-wider text-pink-600 dark:text-pink-400 mb-0.5">
-                {t("Customer Management")}
-              </span>
-              <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
-                {t("Reports")}
-              </h1>
+      <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-white to-pink-50/50 dark:from-slate-950 dark:via-slate-900 dark:to-pink-950/50">
+        <CustomerNavbar auth={auth} currentRoute="customer.reports" />
+
+        <div className="flex-1 flex flex-col">
+          <header
+            ref={headerRef}
+            className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30"
+          >
+            <div className="flex items-center space-x-4">
+              <div className="relative flex flex-col">
+                <span className="text-xs font-semibold uppercase tracking-wider text-pink-600 dark:text-pink-400 mb-0.5">
+                  {t("Customer Management")}
+                </span>
+                <h1 className="text-2xl font-bold text-slate-800 dark:text-white">
+                  {t("Reports")}
+                </h1>
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <main className="flex-1 overflow-auto p-6">
-          {/* Tabs */}
-          <div className="border-b border-slate-200 dark:border-slate-800 mb-6">
-            <nav className="-mb-px flex space-x-8">
-              {[
-                { id: 'sales', label: t('sales'), icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', gradient: 'from-pink-500 to-purple-500' },
-                { id: 'marketOrders', label: t('market orders'), icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z', gradient: 'from-purple-500 to-indigo-500' },
-                { id: 'accounts', label: t('accounts'), icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', gradient: 'from-blue-500 to-cyan-500' },
-                { id: 'incomes', label: t('incomes'), icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', gradient: 'from-emerald-500 to-teal-500' },
-                { id: 'outcomes', label: t('outcomes'), icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z', gradient: 'from-amber-500 to-orange-500' }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`relative group px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                    activeTab === tab.id
-                      ? 'text-white'
-                      : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <div className={`p-1.5 rounded-lg ${
+          <main className="flex-1 overflow-auto p-6">
+            {/* Tabs */}
+            <div className="border-b border-slate-200 dark:border-slate-800 mb-6">
+              <nav className="-mb-px flex space-x-8">
+                {[
+                  { id: 'sales', label: t('sales'), icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', gradient: 'from-pink-500 to-purple-500' },
+                  { id: 'marketOrders', label: t('market orders'), icon: 'M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z', gradient: 'from-purple-500 to-indigo-500' },
+                  { id: 'accounts', label: t('accounts'), icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', gradient: 'from-blue-500 to-cyan-500' },
+                  { id: 'incomes', label: t('incomes'), icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z', gradient: 'from-emerald-500 to-teal-500' },
+                  { id: 'outcomes', label: t('outcomes'), icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z', gradient: 'from-amber-500 to-orange-500' }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`relative group px-4 py-3 text-sm font-medium transition-all duration-200 ${
                       activeTab === tab.id
-                        ? `bg-gradient-to-br ${tab.gradient}`
-                        : 'bg-slate-100 dark:bg-slate-800 group-hover:bg-slate-200 dark:group-hover:bg-slate-700'
-                    }`}>
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
-                      </svg>
+                        ? 'text-white'
+                        : 'text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`p-1.5 rounded-lg ${
+                        activeTab === tab.id
+                          ? `bg-gradient-to-br ${tab.gradient}`
+                          : 'bg-slate-100 dark:bg-slate-800 group-hover:bg-slate-200 dark:group-hover:bg-slate-700'
+                      }`}>
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={tab.icon} />
+                        </svg>
+                      </div>
+                      <span className="capitalize">{tab.label}</span>
                     </div>
-                    <span className="capitalize">{tab.label}</span>
-                  </div>
-                  {activeTab === tab.id && (
-                    <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${tab.gradient} rounded-full`} />
-                  )}
-                </button>
-              ))}
-            </nav>
-          </div>
+                    {activeTab === tab.id && (
+                      <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${tab.gradient} rounded-full`} />
+                    )}
+                  </button>
+                ))}
+              </nav>
+            </div>
 
-          {/* Data Table */}
-          <div ref={tableRef} className="gradient-border bg-white dark:bg-slate-900 rounded-xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
-                <thead className="bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 dark:from-pink-900/30 dark:via-purple-900/30 dark:to-blue-900/30">
-                  <tr>
-                    {activeTab === 'sales' && (
-                      <>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                          <div className="flex items-center gap-2">
-                            <div className="p-1.5 rounded-lg bg-gradient-to-br from-pink-500 to-purple-500 text-white">
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                              </svg>
-                            </div>
-                            {t("Reference")}
-                          </div>
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                          <div className="flex items-center gap-2">
-                            <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 text-white">
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            </div>
-                            {t("Date")}
-                          </div>
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                          <div className="flex items-center gap-2">
-                            <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white">
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                              </svg>
-                            </div>
-                            {t("Product")}
-                          </div>
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                          <div className="flex items-center gap-2">
-                            <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
-                              </svg>
-                            </div>
-                            {t("Quantity")}
-                          </div>
-                        </th>
-                        <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                          <div className="flex items-center gap-2">
-                            <div className="p-1.5 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 text-white">
-                              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                            </div>
-                            {t("Amount")}
-                          </div>
-                        </th>
-                      </>
-                    )}
-                    {activeTab === 'marketOrders' && (
-                      <>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Reference")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Date")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Amount")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Status")}</th>
-                      </>
-                    )}
-                    {activeTab === 'incomes' && (
-                      <>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Reference")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Date")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Source")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Description")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Amount")}</th>
-                      </>
-                    )}
-                    {activeTab === 'outcomes' && (
-                      <>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Reference")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Date")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Destination")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Description")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Amount")}</th>
-                      </>
-                    )}
-                    {activeTab === 'accounts' && (
-                      <>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Reference")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Name")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Balance")}</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Created Date")}</th>
-                      </>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-800">
-                  {filteredData(reportData[activeTab])?.map((item, index) => (
-                    <tr
-                      key={item.id || index}
-                      className="group hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-800/50 dark:hover:to-slate-900/50 transition-all duration-150"
-                    >
+            {/* Data Table */}
+            <div ref={tableRef} className="gradient-border bg-white dark:bg-slate-900 rounded-xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+                  <thead className="bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10 dark:from-pink-900/30 dark:via-purple-900/30 dark:to-blue-900/30">
+                    <tr>
                       {activeTab === 'sales' && (
                         <>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-pink-500/10 to-purple-500/10 flex items-center justify-center group-hover:from-pink-500/20 group-hover:to-purple-500/20 transition-all duration-200">
-                                <span className="text-sm font-medium text-pink-600 dark:text-pink-400">{item.reference?.charAt(0) || 'R'}</span>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-pink-500 to-purple-500 text-white">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
                               </div>
-                              <div className="ml-4">
-                                <div className="text-sm font-medium text-slate-900 dark:text-white">{item.reference}</div>
-                              </div>
+                              {t("Reference")}
                             </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-slate-900 dark:text-white">{item.date}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-slate-900 dark:text-white">{item.product}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-slate-900 dark:text-white">{item.quantity}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-amber-600 dark:text-amber-400">{formatCurrency(item.amount)}</div>
-                          </td>
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 text-white">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </div>
+                              {t("Date")}
+                            </div>
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 text-white">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                              </div>
+                              {t("Product")}
+                            </div>
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 text-white">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                </svg>
+                              </div>
+                              {t("Quantity")}
+                            </div>
+                          </th>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1.5 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 text-white">
+                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              </div>
+                              {t("Amount")}
+                            </div>
+                          </th>
                         </>
                       )}
                       {activeTab === 'marketOrders' && (
                         <>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.reference}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.date}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{formatCurrency(item.amount)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              item.status === 'completed' ? 'bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-600 dark:text-amber-400'
-                            }`}>
-                              {item.status}
-                            </span>
-                          </td>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Reference")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Date")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Amount")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Status")}</th>
                         </>
                       )}
                       {activeTab === 'incomes' && (
                         <>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.reference}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.date}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.source}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.description}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{formatCurrency(item.amount)}</td>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Reference")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Date")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Source")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Description")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Amount")}</th>
                         </>
                       )}
                       {activeTab === 'outcomes' && (
                         <>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.reference}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.date}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.destination}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.description}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{formatCurrency(item.amount)}</td>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Reference")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Date")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Destination")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Description")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Amount")}</th>
                         </>
                       )}
                       {activeTab === 'accounts' && (
                         <>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.reference}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.name}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{formatCurrency(item.balance)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.date}</td>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Reference")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Name")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Balance")}</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Created Date")}</th>
                         </>
                       )}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-800">
+                    {filteredData(reportData[activeTab])?.map((item, index) => (
+                      <tr
+                        key={item.id || index}
+                        className="group hover:bg-gradient-to-r hover:from-slate-50 hover:to-slate-100 dark:hover:from-slate-800/50 dark:hover:to-slate-900/50 transition-all duration-150"
+                      >
+                        {activeTab === 'sales' && (
+                          <>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <div className="flex-shrink-0 h-8 w-8 rounded-lg bg-gradient-to-br from-pink-500/10 to-purple-500/10 flex items-center justify-center group-hover:from-pink-500/20 group-hover:to-purple-500/20 transition-all duration-200">
+                                  <span className="text-sm font-medium text-pink-600 dark:text-pink-400">{item.reference?.charAt(0) || 'R'}</span>
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-slate-900 dark:text-white">{item.reference}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-slate-900 dark:text-white">{item.date}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-slate-900 dark:text-white">{item.product}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-slate-900 dark:text-white">{item.quantity}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-amber-600 dark:text-amber-400">{formatCurrency(item.amount)}</div>
+                            </td>
+                          </>
+                        )}
+                        {activeTab === 'marketOrders' && (
+                          <>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.reference}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.date}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{formatCurrency(item.amount)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                item.status === 'completed' ? 'bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-600 dark:text-amber-400'
+                              }`}>
+                                {item.status}
+                              </span>
+                            </td>
+                          </>
+                        )}
+                        {activeTab === 'incomes' && (
+                          <>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.reference}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.date}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.source}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.description}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{formatCurrency(item.amount)}</td>
+                          </>
+                        )}
+                        {activeTab === 'outcomes' && (
+                          <>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.reference}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.date}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.destination}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.description}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{formatCurrency(item.amount)}</td>
+                          </>
+                        )}
+                        {activeTab === 'accounts' && (
+                          <>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.reference}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.name}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{formatCurrency(item.balance)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{item.date}</td>
+                          </>
+                        )}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     </>
   );
