@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Head } from "@inertiajs/react";
+import { Head, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import { motion } from "framer-motion";
 import anime from "animejs";
@@ -9,43 +9,78 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { registerLocale, setDefaultLocale } from "react-datepicker";
 import faIR from "date-fns/locale/fa-IR";
-import * as jalali from "date-fns-jalali";
+import { getYear, getMonth, getDate } from "date-fns-jalali";
+import { format as formatJalali } from "date-fns-jalali";
 
 // Register the Persian locale
 registerLocale("fa", faIR);
 setDefaultLocale("fa");
 
+
+// Add Persian day names at the top of the file
+const persianDays = [
+    "یکشنبه",
+    "دوشنبه",
+    "سه‌شنبه",
+    "چهارشنبه",
+    "پنج‌شنبه",
+    "جمعه",
+    "شنبه"
+];
+
 // Helper function for date conversion
-const toGregorian = (year, month, day) => {
-  return jalali.toGregorian(year, month, day);
+const toGregorian = (jalaliDate) => {
+  if (!jalaliDate || !(jalaliDate instanceof Date)) {
+    return new Date();
+  }
+
+  try {
+    // Extract year, month (0-based), and day from Jalali date
+    const year = getYear(jalaliDate);
+    const month = getMonth(jalaliDate);  // 0-based month
+    const day = getDate(jalaliDate);
+
+    // Convert to Gregorian using a standard library
+    // Since date-fns-jalali doesn't provide direct conversion to Gregorian,
+    // we need to create a JavaScript Date from the extracted components
+    // This is a simplified approach - for production, consider using a more robust library
+
+    // Create a gregorian date by using the JavaScript Date constructor
+    // The jalali date is already in the JavaScript Date format internally
+    return new Date(jalaliDate);
+  } catch (error) {
+    console.error("Error converting Jalali to Gregorian:", error);
+    return new Date();
+  }
 };
 
 // Persian date formatter
 const formatPersianDate = (date) => {
-  if (!date) return "";
+    if (!date) return "";
 
-  const persianMonths = [
-    "حمل", "ثور", "جوزا", "سرطان", "اسد", "سنبله",
-    "میزان", "عقرب", "قوس", "جدی", "دلو", "حوت"
-  ];
+    const persianMonths = [
+        "حمل", "ثور", "جوزا", "سرطان", "اسد", "سنبله",
+        "میزان", "عقرب", "قوس", "جدی", "دلو", "حوت"
+    ];
 
-  // Simple direct approach to avoid complexities
-  try {
-    let day = 1;
-    let month = 0;
-    let year = 1400;
+    try {
+        let day = 1;
+        let month = 0;
+        let year = 1400;
+        let dayOfWeek = 0;
 
-    if (date instanceof Date) {
-      day = date.getDate();
-      month = date.getMonth();
-      year = date.getFullYear();
+        if (date instanceof Date) {
+            day = date.getDate();
+            month = date.getMonth();
+            year = date.getFullYear();
+            dayOfWeek = date.getDay();
+        }
+
+        return `${persianDays[dayOfWeek]}، ${day} ${persianMonths[month]} ${year}`;
+    } catch (error) {
+        console.error("Error formatting date:", error);
+        return "";
     }
-
-    return `${day} ${persianMonths[month]} ${year}`;
-  } catch (error) {
-    console.error("Error formatting date:", error);
-    return "";
-  }
 };
 
 // Custom input component for date picker
@@ -467,55 +502,59 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
       setIsLoading(true);
       setLoading(true);
 
-      // Convert Jalali dates to Gregorian
-      const gregorianStartDate = toGregorian(
-        startDate.getFullYear(),
-        startDate.getMonth() + 1,
-        startDate.getDate()
-      );
-      const gregorianEndDate = toGregorian(
-        endDate.getFullYear(),
-        endDate.getMonth() + 1,
-        endDate.getDate()
-      );
+      // Use a different approach to format dates
+      const formatDateForAPI = (date) => {
+        if (!date || !(date instanceof Date)) {
+          return '';
+        }
 
-      const formattedStartDate = `${gregorianStartDate.gy}-${String(gregorianStartDate.gm).padStart(2, '0')}-${String(gregorianStartDate.gd).padStart(2, '0')}`;
-      const formattedEndDate = `${gregorianEndDate.gy}-${String(gregorianEndDate.gm).padStart(2, '0')}-${String(gregorianEndDate.gd).padStart(2, '0')}`;
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
 
-      const response = await fetch('/warehouse/reports/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': 'application/json',
+        return `${year}-${month}-${day}`;
+      };
+
+      const formattedStartDate = formatDateForAPI(startDate);
+      const formattedEndDate = formatDateForAPI(endDate);
+
+      // Use Inertia.js to make the request instead of fetch
+      router.post('/warehouse/reports/generate', {
+        type: activeTab,
+        start_date: formattedStartDate,
+        end_date: formattedEndDate,
+      }, {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: (response) => {
+          // Get the data from the response
+          const data = response?.props?.data || {};
+
+          if (data.data) {
+            setReportData(prev => ({
+              ...prev,
+              [activeTab]: data.data
+            }));
+            alert('Report generated successfully');
+          }
+
+          setIsLoading(false);
+          setLoading(false);
         },
-        credentials: 'same-origin',
-        body: JSON.stringify({
-          type: activeTab,
-          start_date: formattedStartDate,
-          end_date: formattedEndDate,
-        }),
+        onError: (errors) => {
+          console.error('Error generating report:', errors);
+          alert(errors.message || 'Failed to generate report');
+          setIsLoading(false);
+          setLoading(false);
+        },
+        onFinish: () => {
+          setIsLoading(false);
+          setLoading(false);
+        }
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to generate report');
-      }
-
-      const data = await response.json();
-
-      if (data.data) {
-        setReportData(prev => ({
-          ...prev,
-          [activeTab]: data.data
-        }));
-        alert('Report generated successfully');
-      }
     } catch (error) {
       console.error('Error generating report:', error);
       alert(error.message || 'Failed to generate report');
-    } finally {
       setIsLoading(false);
       setLoading(false);
     }
@@ -703,6 +742,10 @@ export default function Report({ auth, sales, income, outcome, products, dateRan
           .react-datepicker__day-name {
             color: rgba(255, 255, 255, 0.9);
             font-size: 0.875rem;
+            font-weight: 600;
+            width: 2.5rem;
+            line-height: 2.5rem;
+            margin: 0.166rem;
           }
 
           .react-datepicker__day {
