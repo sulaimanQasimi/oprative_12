@@ -7,9 +7,7 @@ use App\Repositories\Warehouse\WarehouseRepository;
 use App\Http\Controllers\Warehouse\ReportController;
 
 // Landing page route
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/',HomeController::class);
 
 // Inventory Routes
 Route::middleware(['auth'])->group(function () {
