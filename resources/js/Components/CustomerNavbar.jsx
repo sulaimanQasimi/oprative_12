@@ -71,7 +71,7 @@ export default function CustomerNavbar({ auth, currentRoute }) {
                     <div className="bg-purple-600 text-white p-2 rounded-xl">
                         <Package className="h-6 w-6" />
                     </div>
-                    <nav className="flex flex-col items-center space-y-8">
+                    <nav className="flex flex-col items-center space-y-4">
                         <Link href={safeRoute('customer.dashboard')}>
                             <Button
                                 variant="ghost"
@@ -162,20 +162,6 @@ export default function CustomerNavbar({ auth, currentRoute }) {
                                 <FileText className="h-5 w-5" />
                             </Button>
                         </Link>
-
-                        <Link href={safeRoute('customer.settings')}>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={`${currentRoute === 'customer.settings' ?
-                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
-                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
-                                type="button"
-                            >
-                                <Settings className="h-5 w-5" />
-                            </Button>
-                        </Link>
-
                         <Link href={safeRoute('customer.profile.show')}>
                             <Button
                                 variant="ghost"
@@ -188,22 +174,6 @@ export default function CustomerNavbar({ auth, currentRoute }) {
                                 <User className="h-5 w-5" />
                             </Button>
                         </Link>
-
-                        {/* Dark Mode Toggle */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={toggleDarkMode}
-                            className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-all duration-200"
-                            type="button"
-                            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                        >
-                            {isDarkMode ? (
-                                <Sun className="h-5 w-5 text-amber-400" />
-                            ) : (
-                                <Moon className="h-5 w-5 text-slate-700" />
-                            )}
-                        </Button>
 
                         {/* Logout Button */}
                         <Button
