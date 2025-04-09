@@ -181,9 +181,18 @@ trait RegisterRoutes
                         ->name('sales.confirm');
 
                     // Customer Reports route
-                    Route::get('/reports', Reports::class)
+                    Route::get('/reports', [\App\Http\Controllers\Customer\ReportsController::class, 'index'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_reports')
                         ->name('reports');
+                    Route::post('/reports/generate', [\App\Http\Controllers\Customer\ReportsController::class, 'generate'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_reports')
+                        ->name('reports.generate');
+                    Route::post('/reports/excel', [\App\Http\Controllers\Customer\ReportsController::class, 'exportExcel'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_reports')
+                        ->name('reports.excel');
+                    Route::post('/reports/pdf', [\App\Http\Controllers\Customer\ReportsController::class, 'exportPDF'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_reports')
+                        ->name('reports.pdf');
                 });
 
             // Catch-all route for unauthenticated access to protected routes
