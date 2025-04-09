@@ -24,9 +24,10 @@ class ReportController extends Controller
         $endDate = Carbon::now();
         $startDate = Carbon::now()->subDays(30);
 
-        // Use Carbon formatting instead of Shamsi/Verta
-        $startDateFormatted = $startDate->format('Y-m-d');
-        $endDateFormatted = $endDate->format('Y-m-d');
+        // Convert to Shamsi for display
+        $shamsiStartDate = Verta::instance($startDate)->format('Y-m-d');
+        $shamsiEndDate = Verta::instance($endDate)->format('Y-m-d');
+      
 
         $sales = $warehouse->sales()
             ->with(['customer'])
@@ -37,7 +38,7 @@ class ReportController extends Controller
                     'id' => $sale->id,
                     'reference' => $sale->reference_number,
                     'amount' => (float) $sale->total,
-                    'date' => Carbon::parse($sale->created_at)->format('Y-m-d'),
+                    'date' => Verta::instance($sale->created_at)->format('Y-m-d'),
                     'customer' => $sale->customer ? $sale->customer->name : 'Unknown',
                     'status' => $sale->status,
                 ];
@@ -52,7 +53,7 @@ class ReportController extends Controller
                     'id' => $income->id,
                     'reference' => $income->reference_number,
                     'amount' => (float) $income->total,
-                    'date' => Carbon::parse($income->created_at)->format('Y-m-d'),
+                    'date' => Verta::instance($income->created_at)->format('Y-m-d'),
                     'source' => $income->product ? $income->product->name : 'Unknown',
                 ];
             });
@@ -66,7 +67,7 @@ class ReportController extends Controller
                     'id' => $outcome->id,
                     'reference' => $outcome->reference_number,
                     'amount' => (float) $outcome->total,
-                    'date' => Carbon::parse($outcome->created_at)->format('Y-m-d'),
+                    'date' => Verta::instance($outcome->created_at)->format('Y-m-d'),
                     'destination' => $outcome->product ? $outcome->product->name : 'Unknown',
                 ];
             });
@@ -91,8 +92,8 @@ class ReportController extends Controller
             'outcome' => $outcome,
             'products' => $products,
             'dateRange' => [
-                'start' => $startDateFormatted,
-                'end' => $endDateFormatted,
+                'start' => $shamsiStartDate,
+                'end' => $shamsiEndDate,
             ],
         ]);
     }
@@ -114,8 +115,9 @@ class ReportController extends Controller
             $searchTerm = $request->search;
 
             // Convert Gregorian dates to Carbon instances
-            $startDate = Carbon::parse($request->start_date);
-            $endDate = Carbon::parse($request->end_date);
+            $startDate = Verta::parse($request->start_date)->toCarbon();
+            $endDate = Verta::parse($request->end_date)->toCarbon();
+
 
             Log::info('Generating report', [
                 'type' => $request->type,
@@ -143,7 +145,7 @@ class ReportController extends Controller
                             'id' => $sale->id,
                             'reference' => $sale->reference_number,
                             'amount' => (float) $sale->total,
-                            'date' => Carbon::parse($sale->created_at)->format('Y-m-d'),
+                            'date' => Verta::instance($sale->created_at)->format('Y-m-d'),
                             'customer' => $sale->customer ? $sale->customer->name : 'Unknown',
                             'status' => $sale->status,
                         ];
@@ -164,7 +166,7 @@ class ReportController extends Controller
                             'id' => $income->id,
                             'reference' => $income->reference_number,
                             'amount' => (float) $income->total,
-                            'date' => Carbon::parse($income->created_at)->format('Y-m-d'),
+                            'date' => Verta::instance($income->created_at)->format('Y-m-d'),
                             'source' => $income->product ? $income->product->name : 'Unknown',
                         ];
                     }),
@@ -184,7 +186,7 @@ class ReportController extends Controller
                             'id' => $outcome->id,
                             'reference' => $outcome->reference_number,
                             'amount' => (float) $outcome->total,
-                            'date' => Carbon::parse($outcome->created_at)->format('Y-m-d'),
+                            'date' => Verta::instance($outcome->created_at)->format('Y-m-d'),
                             'destination' => $outcome->product ? $outcome->product->name : 'Unknown',
                         ];
                     }),
@@ -222,8 +224,8 @@ class ReportController extends Controller
             return response()->json([
                 'data' => $data,
                 'date_range' => [
-                    'start' => $startDate->format('Y-m-d'),
-                    'end' => $endDate->format('Y-m-d'),
+                    'start' => Verta::instance($startDate)->format('Y-m-d'),
+                    'end' => Verta::instance($endDate)->format('Y-m-d'),
                 ],
             ]);
         } catch (\Exception $e) {
