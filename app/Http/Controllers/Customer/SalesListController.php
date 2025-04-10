@@ -77,9 +77,11 @@ class SalesListController extends Controller
         $sale = Sale::where('customer_id', $this->customer->id)
             ->findOrFail($saleId);
 
-        $sale->load(['saleItems.product', 'customer', 'currency']);
+        $sale->load(['saleItems.product', 'customer', 'currency', 'payments']);
 
-        return response()->json($sale);
+        return Inertia::render('Customer/Sales/Show', [
+            'sale' => $sale
+        ]);
     }
 
     public function addPayment(Request $request, $saleId)
