@@ -12,12 +12,17 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Tables\Enums\FiltersLayout;
 
 class CurrencyResource extends Resource
 {
     protected static ?string $model = Currency::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-currency-dollar';
+
+    protected static ?string $recordTitleAttribute = 'name';
+
+    protected static ?int $navigationSort = 3;
 
     public static function getPluralModelLabel(): string
     {
@@ -68,17 +73,56 @@ class CurrencyResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
-                    ->label(__('Name')),
+                    ->sortable()
+                    ->label(__('Name'))
+                    ->icon('heroicon-o-currency-dollar')
+                    ->weight('medium')
+                    ->copyable()
+                    ->tooltip('Currency name')
+                    ->extraAttributes(['class' => 'text-primary-600']),
+
                 Tables\Columns\TextColumn::make('code')
                     ->searchable()
-                    ->label(__('Code')),
+                    ->sortable()
+                    ->label(__('Code'))
+                    ->badge()
+                    ->color('success')
+                    ->alignCenter()
+                    ->copyable()
+                    ->tooltip('ISO currency code'),
+
+                Tables\Columns\TextColumn::make('created_at')
+                    ->sortable()
+                    ->label(__('Created At'))
+                    ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->sortable()
+                    ->label(__('Updated At'))
+                    ->dateTime()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('name', 'asc')
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
-            ])
+                Tables\Filters\SelectFilter::make('code')
+                    ->options(function() {
+                        return Currency::pluck('code', 'code')->toArray();
+                    })
+                    ->label(__('Currency Code')),
+            ], layout: FiltersLayout::AboveContent)
+            ->filtersFormColumns(3)
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make()
+                    ->icon('heroicon-o-eye')
+                    ->color('info'),
+                Tables\Actions\EditAction::make()
+                    ->icon('heroicon-o-pencil')
+                    ->color('warning'),
+                Tables\Actions\DeleteAction::make()
+                    ->icon('heroicon-o-trash')
+                    ->color('danger'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -86,7 +130,18 @@ class CurrencyResource extends Resource
                     Tables\Actions\ForceDeleteBulkAction::make(),
                     Tables\Actions\RestoreBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->emptyStateIcon('heroicon-o-currency-dollar')
+            ->emptyStateHeading('No currencies found')
+            ->emptyStateDescription('Create your first currency to get started.')
+            ->emptyStateActions([
+                Tables\Actions\CreateAction::make()
+                    ->label('Create currency')
+                    ->icon('heroicon-o-plus'),
+            ])
+            ->striped()
+            ->paginated([10, 25, 50, 100])
+            ->poll('60s');
     }
 
     public static function getRelations(): array
