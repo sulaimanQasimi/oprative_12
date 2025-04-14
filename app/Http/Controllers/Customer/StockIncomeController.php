@@ -82,12 +82,6 @@ class StockIncomeController extends Controller
         // Load relationships
         $stockIncome->load(['product', 'model']);
 
-        // Log view activity
-        activity()
-            ->causedBy(Auth::guard('customer_user')->user())
-            ->performedOn($stockIncome)
-            ->log('مشاهده ورود موجودی به شماره مرجع: ' . $stockIncome->reference_number);
-
         return Inertia::render('Customer/StockIncomes/Show', [
             'stockIncome' => $stockIncome
         ]);
