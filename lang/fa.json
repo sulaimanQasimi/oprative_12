@@ -2487,5 +2487,21 @@
     "New Account": "اکونت جدید",
     "No recent orders": "سفارش‌های اخیر وجود ندارد",
     "Start shopping to see your orders here": "برای مشاهده سفارش‌های خود اینجا خرید را آغاز کنید",
-    "Start Shopping": "خرید را آغاز کنید"
+    "Start Shopping": "خرید را آغاز کنید",
+    "No recent transactions": "معاملات اخیر وجود ندارد",
+    "Start tracking your warehouse income and expenses": "پیگیری درآمد و هزینه‌های انبار خود را آغاز کنید",
+    "Add Transaction": "اضافه کردن معامله",
+    "No products have been added yet. Add your first product to get started.": "هنوز هیچ محصولی اضافه نشده است. اولین محصول خود را اضافه کنید تا شروع کنید.",
+    "Add First Product": "افزودن اولین محصول",
+    "No sales transactions have been recorded yet. Add your first transaction to get started.": "هنوز هیچ معامله فروشی ثبت نشده است. اولین معامله خود را اضافه کنید تا شروع کنید.",
+    "No transactions found": "هیچ معامله‌ای یافت نشد",
+    "No outcome transactions have been recorded yet. Add your first transaction to get started.": "هنوز هیچ معامله خروجی ثبت نشده است. اولین معامله خود را اضافه کنید تا شروع کنید.",
+    "Recent Transactions": "معاملات اخیر",
+    "Outcome Statistics": "آمار خروجی‌ها",
+    "Recent Destinations": "مقصدهای اخیر",
+    "No destinations found": "هیچ مقصدی یافت نشد",
+    "Monthly Overview": "نمای کلی ماهانه",
+    "This Year": "امسال",
+    "Last Month": "ماه گذشته",
+    "This Month": "این ماه"
 }

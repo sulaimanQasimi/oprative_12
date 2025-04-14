@@ -1500,17 +1500,20 @@ export default function Dashboard({ auth, stats }) {
                                                     <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                                                         <TrendingUp className="h-12 w-12 mx-auto mb-4 opacity-20" />
                                                         <p className="text-lg font-medium text-slate-900 dark:text-white mb-1">
-                                                            No recent
-                                                            transactions
+                                                            {t(
+                                                                "No recent transactions"
+                                                            )}
                                                         </p>
                                                         <p>
-                                                            Start tracking your
-                                                            warehouse income and
-                                                            expenses
+                                                            {t(
+                                                                "Start tracking your warehouse income and expenses"
+                                                            )}
                                                         </p>
                                                         <Button className="mt-4 bg-emerald-500 hover:bg-emerald-600 text-white">
                                                             <Plus className="h-4 w-4 mr-2" />
-                                                            Add Transaction
+                                                            {t(
+                                                                "Add Transaction"
+                                                            )}
                                                         </Button>
                                                     </div>
                                                 )}

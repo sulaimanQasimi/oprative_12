@@ -1489,12 +1489,14 @@ export default function Outcome({ auth, outcome }) {
                                                 <TrendingUp className="h-8 w-8 text-slate-400 rotate-180" />
                                             </div>
                                             <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
-                                                No transactions found
+                                                {t("No transactions found")}
                                             </h3>
                                             <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
                                                 {searchTerm
                                                     ? "Try adjusting your search criteria or check for typos."
-                                                    : "No outcome transactions have been recorded yet. Add your first transaction to get started."}
+                                                    : t(
+                                                          "No outcome transactions have been recorded yet. Add your first transaction to get started."
+                                                      )}
                                             </p>
                                             <Button className="bg-rose-500 hover:bg-rose-600 text-white">
                                                 <Plus className="h-4 w-4 mr-2" />
@@ -1660,12 +1662,14 @@ export default function Outcome({ auth, outcome }) {
                                                 <TrendingUp className="h-8 w-8 text-slate-400 rotate-180" />
                                             </div>
                                             <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
-                                                No transactions found
+                                                {t("No transactions found")}
                                             </h3>
                                             <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
                                                 {searchTerm
                                                     ? "Try adjusting your search criteria or check for typos."
-                                                    : "No outcome transactions have been recorded yet. Add your first transaction to get started."}
+                                                    : t(
+                                                          "No outcome transactions have been recorded yet. Add your first transaction to get started."
+                                                      )}
                                             </p>
                                             <Button className="bg-rose-500 hover:bg-rose-600 text-white">
                                                 <Plus className="h-4 w-4 mr-2" />
@@ -1685,7 +1689,7 @@ export default function Outcome({ auth, outcome }) {
                                     <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                                         <div className="flex items-center justify-between">
                                             <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-rose-600 dark:from-red-400 dark:to-rose-400">
-                                                Recent Transactions
+                                                {t("Recent Transactions")}
                                             </h2>
                                             <Button
                                                 size="sm"
@@ -1865,8 +1869,9 @@ export default function Outcome({ auth, outcome }) {
                                                             colSpan={6}
                                                             className="px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-300"
                                                         >
-                                                            No transactions
-                                                            found
+                                                            {t(
+                                                                "No transactions found"
+                                                            )}
                                                         </td>
                                                     </tr>
                                                 )}
@@ -1891,7 +1896,7 @@ export default function Outcome({ auth, outcome }) {
                                 <div className="xl:col-span-1 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
                                     <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                                         <h2 className="font-semibold text-xl dark:text-white">
-                                            Outcome Statistics
+                                            {t("Outcome Statistics")}
                                         </h2>
                                     </div>
 
@@ -1921,7 +1926,7 @@ export default function Outcome({ auth, outcome }) {
                                         <Card className="mt-4 shadow-sm border-none">
                                             <CardContent className="p-4">
                                                 <h3 className="font-medium mb-3 dark:text-white">
-                                                    Recent Destinations
+                                                    {t("Recent Destinations")}
                                                 </h3>
                                                 {outcome &&
                                                 outcome.length > 0 ? (
@@ -1952,7 +1957,9 @@ export default function Outcome({ auth, outcome }) {
                                                     </div>
                                                 ) : (
                                                     <p className="text-sm text-gray-500 text-center py-2">
-                                                        No destinations found
+                                                        {t(
+                                                            "No destinations found"
+                                                        )}
                                                     </p>
                                                 )}
                                             </CardContent>
@@ -1961,12 +1968,12 @@ export default function Outcome({ auth, outcome }) {
                                         <Card className="mt-4 shadow-sm border-none">
                                             <CardContent className="p-4">
                                                 <h3 className="font-medium mb-3 dark:text-white">
-                                                    Monthly Overview
+                                                    {t("Monthly Overview")}
                                                 </h3>
                                                 <div className="grid grid-cols-3 gap-2 text-center">
                                                     <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                                         <p className="text-xs text-gray-500 dark:text-gray-300 mb-1">
-                                                            This Month
+                                                            {t("This Month")}
                                                         </p>
                                                         <p className="font-semibold text-red-600 dark:text-red-300">
                                                             $
@@ -1977,7 +1984,7 @@ export default function Outcome({ auth, outcome }) {
                                                     </div>
                                                     <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                                         <p className="text-xs text-gray-500 dark:text-gray-300 mb-1">
-                                                            Last Month
+                                                            {t("Last Month")}
                                                         </p>
                                                         <p className="font-semibold text-red-600 dark:text-red-300">
                                                             $
@@ -1988,7 +1995,7 @@ export default function Outcome({ auth, outcome }) {
                                                     </div>
                                                     <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
                                                         <p className="text-xs text-gray-500 dark:text-gray-300 mb-1">
-                                                            This Year
+                                                            {t("This Year")}
                                                         </p>
                                                         <p className="font-semibold text-red-600 dark:text-red-300">
                                                             $
