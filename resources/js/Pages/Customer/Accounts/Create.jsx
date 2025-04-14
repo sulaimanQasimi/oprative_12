@@ -38,7 +38,7 @@ const LottiePlayer = ({ src, background = "transparent", speed = "1", style, loo
     });
 };
 
-export default function CreateAccount() {
+export default function CreateAccount({ auth }) {
     const { t } = useLaravelReactI18n();
     const [formErrors, setFormErrors] = useState({});
     const [animeLoaded, setAnimeLoaded] = useState(false);
@@ -199,228 +199,261 @@ export default function CreateAccount() {
     return (
         <>
             <Head title={t('Create Account')} />
-            <CustomerNavbar />
 
-            <div className="container px-6 mx-auto">
-                {/* Header with gradient background */}
-                <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl shadow-xl p-8 mb-8 overflow-hidden">
-                    <div className="absolute inset-0 bg-pattern opacity-10"></div>
-                    <div className="relative z-10 flex justify-between items-center">
-                        <div>
-                            <h2 className="text-3xl font-bold text-white">{t('Create New Account')}</h2>
-                            <p className="mt-2 text-indigo-100 max-w-2xl">
-                                {t('Set up a new account with all the necessary details.')}
-                            </p>
-                        </div>
-                        <div className="hidden md:block animate-float">
-                            <LottiePlayer
-                                src="/js/lottie/account-animation.json"
-                                background="transparent"
-                                speed="1"
-                                style={{ width: '140px', height: '140px' }}
-                                loop
-                                autoplay
-                            />
-                        </div>
-                    </div>
-                </div>
+            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
+                {/* Sidebar */}
+                <CustomerNavbar
+                    auth={auth || {user: {name: 'Customer'}}}
+                    currentRoute="customer.accounts.create"
+                />
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                    <div className="md:col-span-2">
-                        <div className="bg-white rounded-xl shadow-lg overflow-hidden account-form">
-                            <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-indigo-50">
-                                <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                                    <FileText className="h-5 w-5 mr-2 text-indigo-600" />
-                                    {t('Account Information')}
-                                </h3>
-                            </div>
-                            <div className="p-8">
-                                <form onSubmit={handleSubmit} className="space-y-6">
-                                    {/* Account Name Field */}
-                                    <div className="form-group">
-                                        <div className="flex items-center mb-1">
-                                            <div className="icon-wrapper flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-indigo-100 mr-2">
-                                                <CreditCard className="h-5 w-5 text-indigo-600" />
-                                            </div>
-                                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 transition-all duration-200">
-                                                {t('Account Name')} <span className="text-red-500">*</span>
-                                            </label>
-                                        </div>
-                                        <div className="mt-1 form-field-wrapper">
-                                            <div className="relative rounded-md shadow-sm">
-                                                <input
-                                                    type="text"
-                                                    id="name"
-                                                    name="name"
-                                                    value={data.name}
-                                                    onChange={e => setData('name', e.target.value)}
-                                                    onFocus={handleFieldFocus}
-                                                    onBlur={handleFieldBlur}
-                                                    className="block w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base transition-all duration-200 form-input"
-                                                    placeholder={t('Enter your account name')}
-                                                    required
-                                                />
-                                            </div>
-                                            {errors.name && (
-                                                <p className="mt-1 text-sm text-red-600">{errors.name}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* ID Number Field */}
-                                    <div className="form-group">
-                                        <div className="flex items-center mb-1">
-                                            <div className="icon-wrapper flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-violet-100 mr-2">
-                                                <User className="h-5 w-5 text-violet-600" />
-                                            </div>
-                                            <label htmlFor="id_number" className="block text-sm font-medium text-gray-700 transition-all duration-200">
-                                                {t('ID Number')} <span className="text-red-500">*</span>
-                                            </label>
-                                        </div>
-                                        <div className="mt-1 form-field-wrapper">
-                                            <div className="relative rounded-md shadow-sm">
-                                                <input
-                                                    type="text"
-                                                    id="id_number"
-                                                    name="id_number"
-                                                    value={data.id_number}
-                                                    onChange={e => setData('id_number', e.target.value)}
-                                                    onFocus={handleFieldFocus}
-                                                    onBlur={handleFieldBlur}
-                                                    className="block w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base transition-all duration-200 form-input"
-                                                    placeholder={t('Enter your ID number')}
-                                                    required
-                                                />
-                                            </div>
-                                            {errors.id_number && (
-                                                <p className="mt-1 text-sm text-red-600">{errors.id_number}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Address Field */}
-                                    <div className="form-group">
-                                        <div className="flex items-center mb-1">
-                                            <div className="icon-wrapper flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-pink-100 mr-2">
-                                                <Home className="h-5 w-5 text-pink-600" />
-                                            </div>
-                                            <label htmlFor="address" className="block text-sm font-medium text-gray-700 transition-all duration-200">
-                                                {t('Address')} <span className="text-red-500">*</span>
-                                            </label>
-                                        </div>
-                                        <div className="mt-1 form-field-wrapper">
-                                            <div className="relative rounded-md shadow-sm">
-                                                <textarea
-                                                    id="address"
-                                                    name="address"
-                                                    rows="3"
-                                                    value={data.address}
-                                                    onChange={e => setData('address', e.target.value)}
-                                                    onFocus={handleFieldFocus}
-                                                    onBlur={handleFieldBlur}
-                                                    className="block w-full px-4 py-3 border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base transition-all duration-200 form-textarea"
-                                                    placeholder={t('Enter your address')}
-                                                    required
-                                                />
-                                            </div>
-                                            {errors.address && (
-                                                <p className="mt-1 text-sm text-red-600">{errors.address}</p>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Action Buttons */}
-                                    <div className="flex items-center justify-between pt-4">
-                                        <button
-                                            type="submit"
-                                            disabled={processing}
-                                            className="form-button-primary inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-lg text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
-                                        >
-                                            {processing ? t('Submitting...') : t('Create Account')}
-                                            <Check className="-ml-1 mr-2 h-5 w-5" />
-                                        </button>
-                                        <Link
-                                            href={route('customer.accounts.index')}
-                                            className="form-button-secondary inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300"
-                                        >
-                                            {t('Back')}
-                                            <ArrowLeft className="-ml-1 mr-2 h-5 w-5 text-gray-500" />
-
-                                        </Link>
-                                    </div>
-                                </form>
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col overflow-hidden max-w-full">
+                    {/* Header */}
+                    <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
+                        <div className="flex items-center space-x-4">
+                            <Link
+                                href={route('customer.accounts.index')}
+                                className="text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors duration-200"
+                            >
+                                <ArrowLeft className="h-6 w-6" />
+                            </Link>
+                            <div className="relative flex flex-col">
+                                <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">
+                                    {t("Customer Portal")}
+                                </span>
+                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <CreditCard className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                    {t("Create New Account")}
+                                </h1>
                             </div>
                         </div>
-                    </div>
+                    </header>
 
-                    <div className="md:col-span-1">
-                        <div className="bg-white rounded-xl shadow-md overflow-hidden sticky top-6 info-card">
-                            <div className="px-6 py-5 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-indigo-50">
-                                <h3 className="text-lg font-medium text-gray-800 flex items-center">
-                                    <Info className="h-5 w-5 mr-2 text-indigo-600" />
-                                    {t('Information')}
-                                </h3>
-                            </div>
-                            <div className="p-6 bg-gradient-to-br from-white to-indigo-50/30">
-                                <div className="space-y-6">
-                                    <div className="flex items-start info-item">
-                                        <div className="flex-shrink-0 w-16 h-16 mr-2">
-                                            <LottiePlayer
-                                                src="/js/lottie/approval-animation.json"
-                                                background="transparent"
-                                                speed="1"
-                                                style={{ width: '4rem', height: '4rem' }}
-                                                hover
-                                                loop
-                                            />
+                    {/* Main Content Container */}
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                        <div className="p-6">
+                            <div className="max-w-7xl mx-auto">
+                                {/* Hero Section with Gradient Background */}
+                                <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl shadow-xl p-8 mb-8 overflow-hidden">
+                                    <div className="absolute inset-0 bg-pattern opacity-10"></div>
+                                    <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-gradient-to-br from-pink-400 to-indigo-500 opacity-20 rounded-full blur-3xl"></div>
+                                    <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 h-64 bg-gradient-to-tr from-indigo-400 to-purple-500 opacity-20 rounded-full blur-3xl"></div>
+
+                                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                        <div>
+                                            <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
+                                                {t('Create New Bank Account')}
+                                            </h1>
+                                            <p className="text-indigo-100 text-lg max-w-2xl">
+                                                {t('Enter all required information to set up your new bank account.')}
+                                            </p>
                                         </div>
-                                        <div className="ml-2">
-                                            <h4 className="text-sm font-semibold text-gray-900">{t('Approval Required')}</h4>
-                                            <p className="mt-1 text-sm text-gray-600">{t('All new accounts require approval by an administrator before they become active.')}</p>
+                                        <div className="hidden md:flex items-center justify-center bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-2xl border border-white border-opacity-20 shadow-lg">
+                                            <CreditCard className="h-16 w-16 text-white opacity-80" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                                    <div className="md:col-span-2">
+                                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden account-form">
+                                            <div className="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900">
+                                                <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center">
+                                                    <FileText className="h-5 w-5 mr-2 text-indigo-600 dark:text-indigo-400" />
+                                                    {t('Account Information')}
+                                                </h3>
+                                            </div>
+                                            <div className="p-8">
+                                                <form onSubmit={handleSubmit} className="space-y-6">
+                                                    {/* Account Name Field */}
+                                                    <div className="form-group">
+                                                        <div className="flex items-center mb-1">
+                                                            <div className="icon-wrapper flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 mr-2">
+                                                                <CreditCard className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                                            </div>
+                                                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-200">
+                                                                {t('Account Name')} <span className="text-red-500">*</span>
+                                                            </label>
+                                                        </div>
+                                                        <div className="mt-1 form-field-wrapper">
+                                                            <div className="relative rounded-md shadow-sm">
+                                                                <input
+                                                                    type="text"
+                                                                    id="name"
+                                                                    name="name"
+                                                                    value={data.name}
+                                                                    onChange={e => setData('name', e.target.value)}
+                                                                    onFocus={handleFieldFocus}
+                                                                    onBlur={handleFieldBlur}
+                                                                    className="block w-full px-4 py-3 border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base transition-all duration-200 form-input"
+                                                                    placeholder={t('Enter your account name')}
+                                                                    required
+                                                                />
+                                                            </div>
+                                                            {errors.name && (
+                                                                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.name}</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* ID Number Field */}
+                                                    <div className="form-group">
+                                                        <div className="flex items-center mb-1">
+                                                            <div className="icon-wrapper flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-violet-100 dark:bg-violet-900/50 mr-2">
+                                                                <User className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                                                            </div>
+                                                            <label htmlFor="id_number" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-200">
+                                                                {t('ID Number')} <span className="text-red-500">*</span>
+                                                            </label>
+                                                        </div>
+                                                        <div className="mt-1 form-field-wrapper">
+                                                            <div className="relative rounded-md shadow-sm">
+                                                                <input
+                                                                    type="text"
+                                                                    id="id_number"
+                                                                    name="id_number"
+                                                                    value={data.id_number}
+                                                                    onChange={e => setData('id_number', e.target.value)}
+                                                                    onFocus={handleFieldFocus}
+                                                                    onBlur={handleFieldBlur}
+                                                                    className="block w-full px-4 py-3 border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base transition-all duration-200 form-input"
+                                                                    placeholder={t('Enter your ID number')}
+                                                                    required
+                                                                />
+                                                            </div>
+                                                            {errors.id_number && (
+                                                                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.id_number}</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Address Field */}
+                                                    <div className="form-group">
+                                                        <div className="flex items-center mb-1">
+                                                            <div className="icon-wrapper flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-full bg-pink-100 dark:bg-pink-900/50 mr-2">
+                                                                <Home className="h-5 w-5 text-pink-600 dark:text-pink-400" />
+                                                            </div>
+                                                            <label htmlFor="address" className="block text-sm font-medium text-gray-700 dark:text-gray-300 transition-all duration-200">
+                                                                {t('Address')} <span className="text-red-500">*</span>
+                                                            </label>
+                                                        </div>
+                                                        <div className="mt-1 form-field-wrapper">
+                                                            <div className="relative rounded-md shadow-sm">
+                                                                <textarea
+                                                                    id="address"
+                                                                    name="address"
+                                                                    rows="3"
+                                                                    value={data.address}
+                                                                    onChange={e => setData('address', e.target.value)}
+                                                                    onFocus={handleFieldFocus}
+                                                                    onBlur={handleFieldBlur}
+                                                                    className="block w-full px-4 py-3 border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white rounded-lg focus:ring-indigo-500 focus:border-indigo-500 text-sm md:text-base transition-all duration-200 form-textarea"
+                                                                    placeholder={t('Enter your address')}
+                                                                    required
+                                                                />
+                                                            </div>
+                                                            {errors.address && (
+                                                                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.address}</p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Action Buttons */}
+                                                    <div className="flex items-center justify-end pt-4 space-x-4">
+                                                        <Link
+                                                            href={route('customer.accounts.index')}
+                                                            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+                                                        >
+                                                            {t('Cancel')}
+                                                        </Link>
+
+                                                        <button
+                                                            type="submit"
+                                                            disabled={processing}
+                                                            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-md shadow-md hover:from-blue-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center space-x-2"
+                                                        >
+                                                            <Save className="h-5 w-5" />
+                                                            <span>{processing ? t('Submitting...') : t('Create Account')}</span>
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-start info-item">
-                                        <div className="flex-shrink-0 w-16 h-16 mr-2">
-                                            <LottiePlayer
-                                                src="/js/lottie/account-number-animation.json"
-                                                background="transparent"
-                                                speed="1"
-                                                style={{ width: '4rem', height: '4rem' }}
-                                                hover
-                                                loop
-                                            />
-                                        </div>
-                                        <div className="ml-2">
-                                            <h4 className="text-sm font-semibold text-gray-900">{t('Account Number')}</h4>
-                                            <p className="mt-1 text-sm text-gray-600">{t('A unique account number will be automatically generated for your account.')}</p>
-                                        </div>
-                                    </div>
+                                    <div className="md:col-span-1">
+                                        <div className="bg-white dark:bg-slate-900 rounded-xl shadow-md overflow-hidden sticky top-6 info-card">
+                                            <div className="px-6 py-5 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-gray-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900">
+                                                <h3 className="text-lg font-medium text-gray-800 dark:text-white flex items-center">
+                                                    <Info className="h-5 w-5 mr-2 text-indigo-600 dark:text-indigo-400" />
+                                                    {t('Information')}
+                                                </h3>
+                                            </div>
+                                            <div className="p-6 bg-gradient-to-br from-white to-indigo-50/30 dark:from-slate-900 dark:to-indigo-950/30">
+                                                <div className="space-y-6">
+                                                    <div className="flex items-start info-item">
+                                                        <div className="flex-shrink-0 w-16 h-16 mr-2">
+                                                            <LottiePlayer
+                                                                src="/js/lottie/approval-animation.json"
+                                                                background="transparent"
+                                                                speed="1"
+                                                                style={{ width: '4rem', height: '4rem' }}
+                                                                hover
+                                                                loop
+                                                            />
+                                                        </div>
+                                                        <div className="ml-2">
+                                                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{t('Approval Required')}</h4>
+                                                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t('All new accounts require approval by an administrator before they become active.')}</p>
+                                                        </div>
+                                                    </div>
 
-                                    <div className="flex items-start info-item">
-                                        <div className="flex-shrink-0 w-16 h-16 mr-2">
-                                            <LottiePlayer
-                                                src="/js/lottie/privacy-animation.json"
-                                                background="transparent"
-                                                speed="1"
-                                                style={{ width: '4rem', height: '4rem' }}
-                                                hover
-                                                loop
-                                            />
-                                        </div>
-                                        <div className="ml-2">
-                                            <h4 className="text-sm font-semibold text-gray-900">{t('Privacy')}</h4>
-                                            <p className="mt-1 text-sm text-gray-600">{t('Your account information is securely stored and only accessible by authorized personnel.')}</p>
+                                                    <div className="flex items-start info-item">
+                                                        <div className="flex-shrink-0 w-16 h-16 mr-2">
+                                                            <LottiePlayer
+                                                                src="/js/lottie/account-number-animation.json"
+                                                                background="transparent"
+                                                                speed="1"
+                                                                style={{ width: '4rem', height: '4rem' }}
+                                                                hover
+                                                                loop
+                                                            />
+                                                        </div>
+                                                        <div className="ml-2">
+                                                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{t('Account Number')}</h4>
+                                                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t('A unique account number will be automatically generated for your account.')}</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex items-start info-item">
+                                                        <div className="flex-shrink-0 w-16 h-16 mr-2">
+                                                            <LottiePlayer
+                                                                src="/js/lottie/privacy-animation.json"
+                                                                background="transparent"
+                                                                speed="1"
+                                                                style={{ width: '4rem', height: '4rem' }}
+                                                                hover
+                                                                loop
+                                                            />
+                                                        </div>
+                                                        <div className="ml-2">
+                                                            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{t('Privacy')}</h4>
+                                                            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t('Your account information is securely stored and only accessible by authorized personnel.')}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </main>
                 </div>
             </div>
 
-            <style jsx global>{`
+            <style jsx="true">{`
                 /* Enhanced animations */
                 @keyframes float {
                     0% { transform: translateY(0px); }
@@ -449,7 +482,7 @@ export default function CreateAccount() {
 
                 /* Improved background patterns */
                 .bg-pattern {
-                    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                    background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
                 }
 
                 /* Field wrapper and focus effects */
