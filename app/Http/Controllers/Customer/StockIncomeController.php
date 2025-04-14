@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Spatie\Activitylog\Facades\LogBatch;
+use Spatie\Activitylog\Models\Activity;
 
 class StockIncomeController extends Controller
 {
@@ -80,6 +82,12 @@ class StockIncomeController extends Controller
         // Load relationships
         $stockIncome->load(['product', 'model']);
 
+        // Log view activity
+        activity()
+            ->causedBy(Auth::guard('customer_user')->user())
+            ->performedOn($stockIncome)
+            ->log('مشاهده ورود موجودی به شماره مرجع: ' . $stockIncome->reference_number);
+
         return Inertia::render('Customer/StockIncomes/Show', [
             'stockIncome' => $stockIncome
         ]);
@@ -93,7 +101,7 @@ class StockIncomeController extends Controller
         $customer = Auth::guard('customer_user')->user()->customer;
 
         // Get available products with name and barcode for searching
-        $products = Product::select('id', 'name', 'barcode', 'purchase_price')
+        $products = Product::select('id', 'name', 'barcode', 'purchase_price', 'retail_price')
             ->where('is_activated', true)
             ->get();
 
@@ -110,7 +118,7 @@ class StockIncomeController extends Controller
     {
         $search = $request->input('search');
 
-        $products = Product::select('id', 'name', 'barcode', 'purchase_price')
+        $products = Product::select('id', 'name', 'barcode', 'purchase_price', 'retail_price')
             ->where('is_activated', true)
             ->where(function($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
@@ -137,9 +145,13 @@ class StockIncomeController extends Controller
 
         // Get the authenticated customer
         $customer = Auth::guard('customer_user')->user()->customer;
+        $user = Auth::guard('customer_user')->user();
 
         // Calculate total
         $total = $validated['quantity'] * $validated['price'];
+
+        // Start a log batch to group related activities
+        LogBatch::startBatch();
 
         // Create stock income
         $stockIncome = CustomerStockIncome::create([
@@ -150,6 +162,31 @@ class StockIncomeController extends Controller
             'price' => $validated['price'],
             'total' => $total,
         ]);
+
+        // Get product details for the log
+        $product = Product::find($validated['product_id']);
+
+        // Log the stock income creation with detailed information
+        activity()
+            ->causedBy($user)
+            ->performedOn($stockIncome)
+            ->withProperties([
+                'product_name' => $product->name,
+                'quantity' => $validated['quantity'],
+                'price' => $validated['price'],
+                'total' => $total,
+                'customer_name' => $customer->name,
+            ])
+            ->log('ثبت ورود موجودی جدید: ' . $validated['quantity'] . ' ' . $product->name . ' با مبلغ ' . $total);
+
+        // Log a separate customer activity
+        activity()
+            ->causedBy($user)
+            ->performedOn($customer)
+            ->log('افزودن موجودی ' . $product->name . ' به مقدار ' . $validated['quantity'] . ' واحد');
+
+        // Complete the batch
+        LogBatch::endBatch();
 
         return redirect()->route('customer.stock-incomes.index')
             ->with('success', 'Stock income created successfully!');
