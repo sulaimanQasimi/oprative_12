@@ -61,10 +61,12 @@ import {
     UserCheck,
     Star,
     Check,
+    X,
 } from "lucide-react";
 import anime from "animejs";
 import CustomerNavbar from "@/Components/CustomerNavbar";
 import { motion } from "framer-motion";
+import axios from "axios";
 
 // AnimatedCounter component
 const AnimatedCounter = ({
@@ -292,12 +294,21 @@ export default function CustomerDashboard({ auth, stats = {} }) {
     // State for loading and animations
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [showSearchResults, setShowSearchResults] = useState(false);
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
+    const [dateRange, setDateRange] = useState({ from: '', to: '' });
 
     // Refs for animation targets
     const headerRef = useRef(null);
     const statsCardsRef = useRef([]);
     const chartsRef = useRef([]);
     const timelineRef = useRef(null);
+    const searchInputRef = useRef(null);
+    const filterRef = useRef(null);
 
     // Default stats if not provided
     const defaultStats = {
@@ -402,6 +413,110 @@ export default function CustomerDashboard({ auth, stats = {} }) {
         return () => clearTimeout(timer);
     }, []);
 
+    // Handle search input change
+    const handleSearchChange = (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+        
+        if (value.length < 2) {
+            setShowSearchResults(false);
+            setSearchResults([]);
+            return;
+        }
+        
+        setIsSearching(true);
+        setShowSearchResults(true);
+        
+        // Use axios to fetch results from the backend using our new endpoint
+        const fetchSearchResults = async () => {
+            try {
+                const response = await axios.get(route('customer.dashboard.search-products', {
+                    search: value
+                }));
+                
+                setSearchResults(response.data);
+                setIsSearching(false);
+            } catch (error) {
+                console.error('Error searching:', error);
+                setSearchResults([]);
+                setIsSearching(false);
+            }
+        };
+        
+        // Debounce the search to avoid too many requests
+        const timeoutId = setTimeout(() => {
+            fetchSearchResults();
+        }, 300);
+        
+        return () => clearTimeout(timeoutId);
+    };
+    
+    // Handle clicking outside to close search results
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchInputRef.current && !searchInputRef.current.contains(event.target)) {
+                setShowSearchResults(false);
+            }
+        };
+        
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    // Handle clicking outside to close filter dropdown
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (filterRef.current && !filterRef.current.contains(event.target)) {
+                setShowFilters(false);
+            }
+        };
+        
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+    
+    // Handle date filter change
+    const handleDateChange = (e) => {
+        const { name, value } = e.target;
+        setDateRange(prev => ({ ...prev, [name]: value }));
+    };
+    
+    // Apply date filters
+    const applyFilters = () => {
+        setShowFilters(false);
+        setIsRefreshing(true);
+        
+        // Use Inertia to reload with filters
+        window.location.href = route('customer.dashboard', { 
+            date_from: dateRange.from, 
+            date_to: dateRange.to 
+        });
+    };
+    
+    // Clear filters
+    const clearFilters = () => {
+        setDateRange({ from: '', to: '' });
+    };
+
+    // Function to handle dashboard refresh
+    const handleRefresh = () => {
+        setIsRefreshing(true);
+        
+        // Reload the page to get fresh data
+        window.location.reload();
+        
+        // Alternative approach using Inertia (uncomment if using Inertia for page refreshes)
+        // Inertia.visit(route('customer.dashboard'), {
+        //     preserveScroll: true,
+        //     onSuccess: () => setIsRefreshing(false),
+        //     onError: () => setIsRefreshing(false),
+        // });
+    };
+
     return (
         <>
             <Head title={t("Customer Dashboard")}>
@@ -487,6 +602,198 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                     </Badge>
                                 </h1>
                             </div>
+                        </div>
+                        
+                        <div className="flex items-center space-x-3">
+                            {/* Search Component */}
+                            <div className="relative" ref={searchInputRef}>
+                                <div className="relative flex items-center">
+                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        placeholder={t("Search products...")}
+                                        value={searchTerm}
+                                        onChange={handleSearchChange}
+                                        className="pl-10 pr-4 py-2 w-64 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600 focus:border-transparent"
+                                    />
+                                    {searchTerm && (
+                                        <button
+                                            className="absolute right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                            onClick={() => setSearchTerm("")}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </button>
+                                    )}
+                                </div>
+                                
+                                {/* Search Results Dropdown */}
+                                {showSearchResults && (
+                                    <div className="absolute z-20 mt-2 w-full bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto">
+                                        {isSearching ? (
+                                            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                                                {t("Searching...")}
+                                            </div>
+                                        ) : searchResults.length > 0 ? (
+                                            <div className="py-2">
+                                                <div className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    {t("Products")}
+                                                </div>
+                                                {searchResults.map((product) => (
+                                                    <div 
+                                                        key={product.id}
+                                                        className="block px-4 py-3 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors duration-150"
+                                                    >
+                                                        <div className="flex items-center">
+                                                            <div className="mr-3 p-2 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
+                                                                <Package className="h-4 w-4" />
+                                                            </div>
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center justify-between">
+                                                                    <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                        {product.name}
+                                                                    </p>
+                                                                    {product.current_stock > 0 && (
+                                                                        <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 rounded-full">
+                                                                            Stock: {product.current_stock}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex items-center justify-between mt-1">
+                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                                        {product.barcode && `Barcode: ${product.barcode}`}
+                                                                    </p>
+                                                                    {product.retail_price && (
+                                                                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                                                                            ${product.retail_price}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex gap-1">
+                                                                <Link 
+                                                                    href={route("customer.stock-incomes.create", { product_id: product.id })}
+                                                                    className="p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md flex items-center transition-colors"
+                                                                    title="Add Stock"
+                                                                >
+                                                                    <Plus className="h-4 w-4" />
+                                                                </Link>
+                                                                {product.current_stock > 0 && (
+                                                                    <Link 
+                                                                        href={route("customer.stock-outcomes.create", { product_id: product.id })}
+                                                                        className="p-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-md flex items-center transition-colors"
+                                                                        title="Use Stock"
+                                                                    >
+                                                                        <ArrowDown className="h-4 w-4" />
+                                                                    </Link>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                
+                                                <div className="mt-2 px-4 py-3 border-t border-gray-100 dark:border-gray-700">
+                                                    <Link
+                                                        href={route("customer.stock-products")}
+                                                        className="flex items-center justify-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                                                    >
+                                                        <Eye className="h-4 w-4 mr-1" />
+                                                        {t("View All Products")}
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        ) : searchTerm.length > 1 ? (
+                                            <div className="p-4 text-center text-gray-500 dark:text-gray-400">
+                                                {t("No products found")}
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* Filter Button */}
+                            <div className="relative" ref={filterRef}>
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-10 w-10 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800"
+                                    onClick={() => setShowFilters(!showFilters)}
+                                >
+                                    <Filter className="h-4 w-4" />
+                                </Button>
+                                
+                                {showFilters && (
+                                    <div className="absolute right-0 mt-2 w-72 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-30">
+                                        <div className="p-4">
+                                            <h3 className="font-medium text-gray-900 dark:text-white mb-3">
+                                                {t("Filter Dashboard")}
+                                            </h3>
+                                            
+                                            <div className="space-y-3">
+                                                <div>
+                                                    <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
+                                                        {t("From Date")}
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        name="from"
+                                                        value={dateRange.from}
+                                                        onChange={handleDateChange}
+                                                        className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
+                                                    />
+                                                </div>
+                                                
+                                                <div>
+                                                    <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
+                                                        {t("To Date")}
+                                                    </label>
+                                                    <input
+                                                        type="date"
+                                                        name="to"
+                                                        value={dateRange.to}
+                                                        onChange={handleDateChange}
+                                                        className="w-full rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-900 text-gray-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-600"
+                                                    />
+                                                </div>
+                                            </div>
+                                            
+                                            <div className="mt-4 flex space-x-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="flex-1 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-700"
+                                                    onClick={clearFilters}
+                                                >
+                                                    {t("Clear")}
+                                                </Button>
+                                                
+                                                <Button
+                                                    size="sm"
+                                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                                                    onClick={applyFilters}
+                                                >
+                                                    {t("Apply")}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            
+                            {/* Refresh Button */}
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="h-10 w-10 border-gray-300 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 relative"
+                                onClick={handleRefresh}
+                                disabled={isRefreshing}
+                            >
+                                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                                {isRefreshing && (
+                                    <span className="absolute top-0 right-0 h-2.5 w-2.5 bg-blue-500 rounded-full"></span>
+                                )}
+                            </Button>
                         </div>
                     </header>
 

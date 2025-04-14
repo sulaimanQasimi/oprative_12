@@ -47,6 +47,11 @@ trait RegisterRoutes
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_dashboard')
                         ->name('dashboard');
 
+                    // Dashboard product search
+                    Route::get('dashboard/search-products', [DashboardController::class, 'searchProducts'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_dashboard')
+                        ->name('dashboard.search-products');
+
                     // Market Order routes (controller-based)
                     Route::get('create_orders', [MarketOrderController::class, 'create'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.create_orders')
