@@ -39,7 +39,7 @@ import {
 } from "recharts";
 
 // AnimatedCounter component for beautiful number animations
-const AnimatedCounter = ({ value, prefix = "", suffix = "", duration = 1500 }) => {
+const AnimatedCounter = ({ value, prefix = "", suffix = "", duration = 800 }) => {
     const [count, setCount] = useState(0);
     
     useEffect(() => {
@@ -47,12 +47,18 @@ const AnimatedCounter = ({ value, prefix = "", suffix = "", duration = 1500 }) =
         const end = parseInt(value);
         if (start === end) return;
         
+        // Use faster incrementTime for a quicker animation
         const incrementTime = (duration / end) * 1000;
+        // Set a minimum time between increments to ensure smooth animation
+        const minIncrementTime = Math.max(5, incrementTime);
+        // For very large numbers, use larger steps
+        const step = end > 1000 ? Math.ceil(end / 100) : 1;
+        
         let timer = setInterval(() => {
-            start += 1;
+            start = Math.min(start + step, end);
             setCount(start);
             if (start === end) clearInterval(timer);
-        }, incrementTime);
+        }, minIncrementTime);
         
         return () => {
             clearInterval(timer);
@@ -118,7 +124,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsLoading(false);
-        }, 800);
+        }, 300);
         
         return () => clearTimeout(timer);
     }, []);
@@ -225,7 +231,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                         ref={(el) => (statsCardsRef.current[0] = el)}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5, delay: 0.1 }}
+                                        transition={{ duration: 0.3, delay: 0.05 }}
                                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
                                         className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg relative overflow-hidden"
                                     >
@@ -256,7 +262,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                         ref={(el) => (statsCardsRef.current[1] = el)}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5, delay: 0.2 }}
+                                        transition={{ duration: 0.3, delay: 0.1 }}
                                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
                                         className="bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl shadow-lg relative overflow-hidden"
                                     >
@@ -287,7 +293,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                         ref={(el) => (statsCardsRef.current[2] = el)}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5, delay: 0.3 }}
+                                        transition={{ duration: 0.3, delay: 0.15 }}
                                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
                                         className="bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl shadow-lg relative overflow-hidden"
                                     >
@@ -322,7 +328,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                         ref={(el) => (statsCardsRef.current[3] = el)}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5, delay: 0.4 }}
+                                        transition={{ duration: 0.3, delay: 0.2 }}
                                         whileHover={{ y: -5, transition: { duration: 0.2 } }}
                                         className="bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg relative overflow-hidden"
                                     >
@@ -385,7 +391,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, delay: 0.8 }}
+                                    transition={{ duration: 0.3, delay: 0.4 }}
                                     className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800"
                                 >
                                     <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
@@ -434,7 +440,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                                                 className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
                                                                 initial={{ opacity: 0, y: 10 }}
                                                                 animate={{ opacity: 1, y: 0 }}
-                                                                transition={{ duration: 0.3, delay: index * 0.05 + 0.8 }}
+                                                                transition={{ duration: 0.3, delay: index * 0.05 + 0.4 }}
                                                             >
                                                                 <td className="px-4 py-3">
                                                                     <div className={`px-2.5 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 ${
@@ -521,7 +527,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                         ref={(el) => (chartsRef.current[0] = el)}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5, delay: 0.5 }}
+                                        transition={{ duration: 0.3, delay: 0.25 }}
                                         className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800"
                                     >
                                         <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
@@ -562,15 +568,15 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                                                 dataKey="income" 
                                                                 fill="#3b82f6" 
                                                                 radius={[4, 4, 0, 0]}
-                                                                animationDuration={1500}
+                                                                animationDuration={800}
                                                             />
                                                             <Bar 
                                                                 name={t("Stock Out")} 
                                                                 dataKey="outcome" 
                                                                 fill="#ec4899" 
                                                                 radius={[4, 4, 0, 0]}
-                                                                animationDuration={1500}
-                                                                animationBegin={300}
+                                                                animationDuration={800}
+                                                                animationBegin={100}
                                                             />
                                                         </BarChart>
                                                     </ResponsiveContainer>
@@ -589,7 +595,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                         ref={(el) => (chartsRef.current[1] = el)}
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        transition={{ duration: 0.5, delay: 0.6 }}
+                                        transition={{ duration: 0.3, delay: 0.3 }}
                                         className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800"
                                     >
                                         <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
@@ -612,7 +618,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                                                 paddingAngle={2}
                                                                 dataKey="value"
                                                                 nameKey="name"
-                                                                animationDuration={2000}
+                                                                animationDuration={1000}
                                                                 label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                                                                 labelLine={false}
                                                             >
@@ -651,7 +657,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.5, delay: 0.7 }}
+                                    transition={{ duration: 0.3, delay: 0.35 }}
                                     className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800 mb-8"
                                 >
                                     <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
@@ -680,7 +686,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                                                 className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
                                                                 initial={{ opacity: 0, y: 10 }}
                                                                 animate={{ opacity: 1, y: 0 }}
-                                                                transition={{ duration: 0.3, delay: index * 0.05 + 0.7 }}
+                                                                transition={{ duration: 0.3, delay: index * 0.05 + 0.35 }}
                                                             >
                                                                 <td className="px-4 py-3">
                                                                     <div className="flex items-center">
