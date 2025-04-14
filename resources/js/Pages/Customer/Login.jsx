@@ -4,6 +4,7 @@ import { useLaravelReactI18n } from 'laravel-react-i18n';
 import anime from 'animejs';
 import '@lottiefiles/lottie-player';
 import { motion } from 'framer-motion';
+import toast, { Toaster } from 'react-hot-toast';
 import {
     Lock,
     UserCircle,
@@ -202,7 +203,7 @@ const PageLoader = ({ isVisible }) => {
 
 export default function Login() {
     const { t } = useLaravelReactI18n();
-    const { data, setData, post, processing, errors } = useForm({
+    const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
         remember: false,
@@ -263,7 +264,34 @@ export default function Login() {
         // Add slight delay before actual submission - only submit if no errors
         if (!hasErrors) {
             setTimeout(() => {
-                post(route('customer.login'));
+                post(route('customer.login'), {
+                    onError: (errors) => {
+                        // Reset verification state
+                        setVerificationStep(0);
+                        setAuthorized(false);
+
+                        // Show error toast message
+                        toast.error(errors.email || errors.password || t('Login failed. Please check your credentials.'), {
+                            duration: 5000,
+                            style: {
+                                background: '#FEE2E2',
+                                color: '#B91C1C',
+                                fontWeight: 'bold',
+                                padding: '16px',
+                                borderRadius: '10px',
+                            },
+                            icon: '⚠️',
+                        });
+
+                        // Shake the form to indicate error
+                        anime({
+                            targets: formRef.current,
+                            translateX: [0, -10, 10, -10, 10, 0],
+                            duration: 400,
+                            easing: 'easeInOutQuad'
+                        });
+                    }
+                });
             }, 3000);
         } else {
             // Shake the form to indicate error
@@ -318,6 +346,7 @@ export default function Login() {
     return (
         <div className="flex min-h-screen overflow-hidden">
             <PageLoader isVisible={loading} />
+            <Toaster position="top-center" reverseOrder={false} />
             <div className="flex flex-col justify-center flex-1 w-full px-6 py-12 mx-auto lg:px-8" dir="rtl">
                 <Head title={t("Customer Login")} />
                 <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm md:max-w-md lg:max-w-lg flex flex-col items-center">
