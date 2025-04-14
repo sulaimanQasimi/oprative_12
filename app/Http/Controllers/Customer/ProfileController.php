@@ -6,48 +6,84 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rules;
+use Inertia\Inertia;
 
 class ProfileController extends Controller
 {
+    /**
+     * Show the profile page.
+     */
     public function show()
     {
-        return view('customer.profile.show', [
-            'customer' => Auth::guard('customer_user')->user()
-        ]);
+        return Inertia::render('Customer/Profile/Index');
     }
 
+    /**
+     * Update the user's profile information.
+     */
     public function update(Request $request)
     {
-        $customer = Auth::guard('customer_user')->user();
+        $user = Auth::guard('customer_user')->user();
 
-        $validated = $request->validate([
+        $validated = $request->validateWithBag('updateProfile', [
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:customer_users,email,' . $customer->id],
-            'phone' => ['nullable', 'string', 'max:255'],
-            'address' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:255'],
-            'state' => ['nullable', 'string', 'max:255'],
-            'country' => ['nullable', 'string', 'max:255'],
-            'postal_code' => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:customer_users,email,' . $user->id],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:500'],
         ]);
 
-        $customer->update($validated);
+        $user->fill($validated);
+        $user->save();
 
-        return back()->with('success', 'Profile updated successfully.');
+        return back()->with('status', 'profile-updated');
     }
 
+    /**
+     * Update the user's password.
+     */
     public function updatePassword(Request $request)
     {
-        $validated = $request->validate([
+        $validated = $request->validateWithBag('updatePassword', [
             'current_password' => ['required', 'current_password:customer_user'],
-            'password' => ['required', 'confirmed', 'min:8'],
+            'password' => ['required', Rules\Password::defaults(), 'confirmed'],
         ]);
 
-        Auth::guard('customer_user')->user()->update([
-            'password' => Hash::make($validated['password']),
-        ]);
+        $user = Auth::guard('customer_user')->user();
 
-        return back()->with('success', 'Password updated successfully.');
+        $user->password = Hash::make($validated['password']);
+        $user->save();
+
+        return back()->with('status', 'password-updated');
+    }
+
+    /**
+     * Search for profile information.
+     */
+    public function search(Request $request)
+    {
+        $search = $request->input('search');
+        $user = Auth::guard('customer_user')->user();
+        $customer = $user->customer;
+
+        // Default response with user/customer data
+        $data = [
+            'user' => $user,
+            'customer' => $customer
+        ];
+
+        // If search query is provided, filter additional data based on search term
+        if (!empty($search)) {
+            // Example: Add related orders or activities that match the search term
+            $data['related_orders'] = $customer->orders()
+                ->where('reference_number', 'like', "%{$search}%")
+                ->orWhere('notes', 'like', "%{$search}%")
+                ->limit(10)
+                ->get();
+
+            // You can add more searchable related data here as needed
+        }
+
+        return response()->json($data);
     }
 }
