@@ -129,13 +129,38 @@ class StockIncomeController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate request
+        // Enhanced validation with detailed rules and custom messages
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'reference_number' => 'required|string|max:255|unique:customer_stock_incomes',
-            'quantity' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
+            'product_id' => 'required|exists:products,id,is_activated,1',
+            'reference_number' => 'required|string|max:255|unique:customer_stock_incomes,reference_number',
+            'quantity' => 'required|integer|min:1|max:10000',
+            'price' => 'required|numeric|min:0|max:9999999.99',
+        ], [
+            'product_id.required' => 'لطفاً یک محصول را انتخاب کنید.',
+            'product_id.exists' => 'محصول انتخاب شده معتبر نیست یا فعال نمی باشد.',
+            'reference_number.required' => 'شماره مرجع الزامی است.',
+            'reference_number.unique' => 'این شماره مرجع قبلاً استفاده شده است.',
+            'quantity.required' => 'مقدار را وارد کنید.',
+            'quantity.min' => 'مقدار باید حداقل 1 باشد.',
+            'quantity.max' => 'مقدار وارد شده بیش از حد مجاز است.',
+            'price.required' => 'قیمت را وارد کنید.',
+            'price.min' => 'قیمت نمی‌تواند منفی باشد.',
+            'price.max' => 'قیمت وارد شده بیش از حد مجاز است.',
         ]);
+
+        // Validate product existence and activation status
+        $product = Product::find($validated['product_id']);
+        if (!$product) {
+            return redirect()->back()
+                ->withErrors(['product_id' => 'محصول انتخاب شده در سیستم موجود نیست.'])
+                ->withInput();
+        }
+
+        if (!$product->is_activated) {
+            return redirect()->back()
+                ->withErrors(['product_id' => 'محصول انتخاب شده غیرفعال است.'])
+                ->withInput();
+        }
 
         // Get the authenticated customer
         $customer = Auth::guard('customer_user')->user()->customer;
@@ -183,6 +208,6 @@ class StockIncomeController extends Controller
         LogBatch::endBatch();
 
         return redirect()->route('customer.stock-incomes.index')
-            ->with('success', 'Stock income created successfully!');
+            ->with('success', 'ورودی موجودی با موفقیت ثبت شد.');
     }
 }
