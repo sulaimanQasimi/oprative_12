@@ -1,18 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Head, useForm } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
-import CustomerNavbar from '@/Components/CustomerNavbar';
-import { toast } from 'react-hot-toast';
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/Components/ui/card';
-import { Button } from '@/Components/ui/button';
-import { Badge } from '@/Components/ui/badge';
-import { motion } from 'framer-motion';
-import anime from 'animejs';
-import { User, Key, Mail, Save, ChevronRight, RefreshCw, Shield, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { Head, useForm } from "@inertiajs/react";
+import { useLaravelReactI18n } from "laravel-react-i18n";
+import CustomerNavbar from "@/Components/CustomerNavbar";
+import { toast } from "react-hot-toast";
+import InputError from "@/Components/InputError";
+import InputLabel from "@/Components/InputLabel";
+import PrimaryButton from "@/Components/PrimaryButton";
+import TextInput from "@/Components/TextInput";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    CardFooter,
+} from "@/Components/ui/card";
+import { Button } from "@/Components/ui/button";
+import { Badge } from "@/Components/ui/badge";
+import { motion } from "framer-motion";
+import anime from "animejs";
+import {
+    User,
+    Key,
+    Mail,
+    Save,
+    ChevronRight,
+    RefreshCw,
+    Shield,
+    AlertCircle,
+} from "lucide-react";
 
 // PageLoader component
 const PageLoader = ({ isVisible }) => {
@@ -22,9 +37,9 @@ const PageLoader = ({ isVisible }) => {
             initial={{ opacity: 1 }}
             animate={{
                 opacity: isVisible ? 1 : 0,
-                pointerEvents: isVisible ? 'all' : 'none'
+                pointerEvents: isVisible ? "all" : "none",
             }}
-            transition={{ duration: 0.5, ease: 'easeInOut' }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
         >
             {/* Background patterns */}
             <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
@@ -37,12 +52,12 @@ const PageLoader = ({ isVisible }) => {
                         className="absolute bg-gradient-to-r from-blue-400/10 via-indigo-500/10 to-transparent h-[30vh] w-[100vw]"
                         style={{
                             top: `${10 + i * 20}%`,
-                            left: '-100%',
-                            transformOrigin: 'left center',
+                            left: "-100%",
+                            transformOrigin: "left center",
                             rotate: `${-20 + i * 10}deg`,
                         }}
                         animate={{
-                            left: ['100%', '-100%'],
+                            left: ["100%", "-100%"],
                         }}
                         transition={{
                             duration: 15 + i * 2,
@@ -90,7 +105,7 @@ const PageLoader = ({ isVisible }) => {
                     transition={{
                         duration: 4,
                         repeat: Infinity,
-                        ease: "easeInOut"
+                        ease: "easeInOut",
                     }}
                 >
                     {/* Pulsing background circles */}
@@ -98,25 +113,25 @@ const PageLoader = ({ isVisible }) => {
                         className="absolute w-64 h-64 rounded-full bg-blue-600/5 filter blur-2xl"
                         animate={{
                             scale: [1, 1.2, 1],
-                            opacity: [0.3, 0.5, 0.3]
+                            opacity: [0.3, 0.5, 0.3],
                         }}
                         transition={{
                             duration: 5,
                             repeat: Infinity,
-                            ease: "easeInOut"
+                            ease: "easeInOut",
                         }}
                     />
                     <motion.div
                         className="absolute w-72 h-72 rounded-full bg-indigo-500/5 filter blur-2xl transform -translate-x-4 translate-y-4"
                         animate={{
                             scale: [1.2, 1, 1.2],
-                            opacity: [0.3, 0.5, 0.3]
+                            opacity: [0.3, 0.5, 0.3],
                         }}
                         transition={{
                             duration: 4,
                             repeat: Infinity,
                             ease: "easeInOut",
-                            delay: 1
+                            delay: 1,
                         }}
                     />
 
@@ -131,7 +146,7 @@ const PageLoader = ({ isVisible }) => {
                             transition={{
                                 duration: 20,
                                 ease: "linear",
-                                repeat: Infinity
+                                repeat: Infinity,
                             }}
                         />
                         <motion.div
@@ -142,7 +157,7 @@ const PageLoader = ({ isVisible }) => {
                             transition={{
                                 duration: 15,
                                 ease: "linear",
-                                repeat: Infinity
+                                repeat: Infinity,
                             }}
                         />
                         <motion.div
@@ -153,7 +168,7 @@ const PageLoader = ({ isVisible }) => {
                             transition={{
                                 duration: 10,
                                 ease: "linear",
-                                repeat: Infinity
+                                repeat: Infinity,
                             }}
                         />
 
@@ -161,12 +176,21 @@ const PageLoader = ({ isVisible }) => {
                         <motion.div
                             className="absolute h-full w-full rounded-full border-4 border-r-blue-400 border-t-transparent border-l-transparent border-b-transparent"
                             animate={{ rotate: 360 }}
-                            transition={{ duration: 1.5, ease: "linear", repeat: Infinity }}
+                            transition={{
+                                duration: 1.5,
+                                ease: "linear",
+                                repeat: Infinity,
+                            }}
                         />
                         <motion.div
                             className="absolute h-full w-full rounded-full border-4 border-b-indigo-400 border-t-transparent border-l-transparent border-r-transparent"
                             animate={{ rotate: -180 }}
-                            transition={{ duration: 2, ease: "easeInOut", repeat: Infinity, repeatType: "reverse" }}
+                            transition={{
+                                duration: 2,
+                                ease: "easeInOut",
+                                repeat: Infinity,
+                                repeatType: "reverse",
+                            }}
                         />
 
                         {/* Icon/logo in center */}
@@ -174,12 +198,12 @@ const PageLoader = ({ isVisible }) => {
                             className="relative z-10 bg-gradient-to-br from-blue-500 to-indigo-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
                             animate={{
                                 rotate: [0, 10, 0, -10, 0],
-                                scale: [1, 1.1, 1, 1.1, 1]
+                                scale: [1, 1.1, 1, 1.1, 1],
                             }}
                             transition={{
                                 duration: 5,
                                 repeat: Infinity,
-                                ease: "easeInOut"
+                                ease: "easeInOut",
                             }}
                         >
                             <User className="h-10 w-10 text-white drop-shadow-lg" />
@@ -196,12 +220,12 @@ export default function Profile({ auth }) {
     const { data, setData, patch, errors, processing } = useForm({
         name: auth.user.name,
         email: auth.user.email,
-        current_password: '',
-        password: '',
-        password_confirmation: '',
+        current_password: "",
+        password: "",
+        password_confirmation: "",
     });
 
-    const [activeTab, setActiveTab] = useState('personal');
+    const [activeTab, setActiveTab] = useState("personal");
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
 
@@ -213,12 +237,12 @@ export default function Profile({ auth }) {
     const updateProfile = (e) => {
         e.preventDefault();
 
-        patch(route('customer.profile.update'), {
+        patch(route("customer.profile.update"), {
             onSuccess: () => {
-                toast.success('Profile updated successfully');
-                setData('current_password', '');
-                setData('password', '');
-                setData('password_confirmation', '');
+                toast.success("Profile updated successfully");
+                setData("current_password", "");
+                setData("password", "");
+                setData("password_confirmation", "");
             },
         });
     };
@@ -228,8 +252,8 @@ export default function Profile({ auth }) {
         if (!isAnimated) {
             // Initialize the timeline
             timelineRef.current = anime.timeline({
-                easing: 'easeOutExpo',
-                duration: 800
+                easing: "easeOutExpo",
+                duration: 800,
             });
 
             // Animate header
@@ -237,17 +261,20 @@ export default function Profile({ auth }) {
                 targets: headerRef.current,
                 opacity: [0, 1],
                 translateY: [-20, 0],
-                duration: 600
+                duration: 600,
             });
 
             // Animate form card
-            timelineRef.current.add({
-                targets: formCardRef.current,
-                opacity: [0, 1],
-                translateY: [20, 0],
-                scale: [0.98, 1],
-                duration: 800
-            }, '-=400');
+            timelineRef.current.add(
+                {
+                    targets: formCardRef.current,
+                    opacity: [0, 1],
+                    translateY: [20, 0],
+                    scale: [0.98, 1],
+                    duration: 800,
+                },
+                "-=400"
+            );
 
             setIsAnimated(true);
         }
@@ -262,7 +289,7 @@ export default function Profile({ auth }) {
 
     return (
         <>
-            <Head title={t('Profile')}>
+            <Head title={t("Profile")}>
                 <style>{`
                     @keyframes shimmer {
                         0% { transform: translateX(-100%); }
@@ -312,7 +339,7 @@ export default function Profile({ auth }) {
             <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
                 {/* Sidebar */}
                 <CustomerNavbar
-                    auth={auth || {user: {name: 'Customer'}}}
+                    auth={auth || { user: { name: "Customer" } }}
                     currentRoute="customer.profile.show"
                 />
 
@@ -346,10 +373,12 @@ export default function Profile({ auth }) {
                                     <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                         <div>
                                             <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
-                                                {t('Profile Settings')}
+                                                {t("Profile Settings")}
                                             </h1>
                                             <p className="text-indigo-100 text-lg max-w-2xl">
-                                                {t('Manage your account information and security settings securely in one place.')}
+                                                {t(
+                                                    "Manage your account information and security settings securely in one place."
+                                                )}
                                             </p>
                                         </div>
                                         <div className="hidden md:flex items-center justify-center bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-2xl border border-white border-opacity-20 shadow-lg">
@@ -363,219 +392,369 @@ export default function Profile({ auth }) {
                                     <div className="flex flex-col lg:flex-row gap-6">
                                         {/* Tabs */}
                                         <div className="lg:w-1/4">
-                                            <Card className="overflow-hidden border-0 shadow-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
-                                                <CardContent className="p-0">
-                                                    <div className="flex flex-col">
-                                                        <Button
-                                                            variant={activeTab === 'personal' ? 'default' : 'ghost'}
-                                                            className={`justify-start text-left px-6 py-5 rounded-none group relative overflow-hidden transition-all duration-300 ${
-                                                                activeTab === 'personal' 
-                                                                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium shadow-md' 
-                                                                    : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                                            <div className="rounded-lg overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+                                                <div className="divide-y divide-slate-200 dark:divide-slate-800">
+                                                    <button
+                                                        onClick={() =>
+                                                            setActiveTab(
+                                                                "personal"
+                                                            )
+                                                        }
+                                                        className={`w-full flex items-center p-4 transition ${
+                                                            activeTab ===
+                                                            "personal"
+                                                                ? "bg-indigo-600 text-white"
+                                                                : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                                        }`}
+                                                    >
+                                                        <div
+                                                            className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                                                                activeTab ===
+                                                                "personal"
+                                                                    ? "bg-indigo-500/20 text-white"
+                                                                    : "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
                                                             }`}
-                                                            onClick={() => setActiveTab('personal')}
                                                         >
-                                                            {activeTab === 'personal' && (
-                                                                <>
-                                                                    <span className="absolute inset-0 w-full h-full bg-white opacity-10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></span>
-                                                                    <span className="absolute -inset-x-3 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-300 to-transparent opacity-30"></span>
-                                                                </>
-                                                            )}
-                                                            <span className={`relative z-10 flex items-center ${activeTab === 'personal' ? 'text-white' : 'text-slate-700 dark:text-slate-300'}`}>
-                                                                <span className={`flex items-center justify-center w-10 h-10 rounded-full mr-4 ${
-                                                                    activeTab === 'personal'
-                                                                        ? 'bg-white/20 text-white shadow-inner'
-                                                                        : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                                                                }`}>
-                                                                    <User className="w-5 h-5" />
-                                                                </span>
-                                                                <div className="flex flex-col">
-                                                                    <span className="font-medium text-base">{t('Personal Information')}</span>
-                                                                    <span className={`text-xs ${activeTab === 'personal' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                                                                        {t('Update your name and email')}
-                                                                    </span>
-                                                                </div>
-                                                                <ChevronRight className={`w-5 h-5 ml-auto transform transition-transform duration-300 ${
-                                                                    activeTab === 'personal' ? 'translate-x-0 text-white opacity-90' : 'opacity-40 group-hover:translate-x-1 group-hover:opacity-70'
-                                                                }`} />
+                                                            <User className="w-5 h-5" />
+                                                        </div>
+                                                        <div className="ml-4 flex flex-col text-left">
+                                                            <span className="font-medium">
+                                                                {t(
+                                                                    "Personal Information"
+                                                                )}
                                                             </span>
-                                                        </Button>
-
-                                                        <Button
-                                                            variant={activeTab === 'security' ? 'default' : 'ghost'}
-                                                            className={`justify-start text-left px-6 py-5 rounded-none group relative overflow-hidden transition-all duration-300 ${
-                                                                activeTab === 'security' 
-                                                                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium shadow-md' 
-                                                                    : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                                                            <span
+                                                                className={`text-xs ${
+                                                                    activeTab ===
+                                                                    "personal"
+                                                                        ? "text-indigo-100"
+                                                                        : "text-slate-500 dark:text-slate-400"
+                                                                }`}
+                                                            >
+                                                                {t(
+                                                                    "Update your name and email"
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                        <ChevronRight
+                                                            className={`ml-auto w-5 h-5 ${
+                                                                activeTab ===
+                                                                "personal"
+                                                                    ? "text-white"
+                                                                    : "text-slate-400"
                                                             }`}
-                                                            onClick={() => setActiveTab('security')}
-                                                        >
-                                                            {activeTab === 'security' && (
-                                                                <>
-                                                                    <span className="absolute inset-0 w-full h-full bg-white opacity-10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></span>
-                                                                    <span className="absolute -inset-x-3 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-300 to-transparent opacity-30"></span>
-                                                                </>
-                                                            )}
-                                                            <span className={`relative z-10 flex items-center ${activeTab === 'security' ? 'text-white' : 'text-slate-700 dark:text-slate-300'}`}>
-                                                                <span className={`flex items-center justify-center w-10 h-10 rounded-full mr-4 ${
-                                                                    activeTab === 'security'
-                                                                        ? 'bg-white/20 text-white shadow-inner'
-                                                                        : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
-                                                                }`}>
-                                                                    <Shield className="w-5 h-5" />
-                                                                </span>
-                                                                <div className="flex flex-col">
-                                                                    <span className="font-medium text-base">{t('Security')}</span>
-                                                                    <span className={`text-xs ${activeTab === 'security' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'}`}>
-                                                                        {t('Update your password')}
-                                                                    </span>
-                                                                </div>
-                                                                <ChevronRight className={`w-5 h-5 ml-auto transform transition-transform duration-300 ${
-                                                                    activeTab === 'security' ? 'translate-x-0 text-white opacity-90' : 'opacity-40 group-hover:translate-x-1 group-hover:opacity-70'
-                                                                }`} />
-                                                            </span>
-                                                        </Button>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
+                                                        />
+                                                    </button>
 
-                                            {/* Add decorative element */}
-                                            <div className="mt-6 px-4 py-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl border border-indigo-100 dark:border-indigo-900/30 shadow-sm">
-                                                <div className="flex items-center">
-                                                    <div className="flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 p-3 rounded-lg shadow-md">
-                                                        <Shield className="h-6 w-6 text-white" />
-                                                    </div>
-                                                    <div className="ml-4">
-                                                        <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200">{t('Account Protection')}</h3>
-                                                        <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                                                            {t('Keep your account secure with a strong password and regular updates.')}
-                                                        </p>
-                                                    </div>
+                                                    <button
+                                                        onClick={() =>
+                                                            setActiveTab(
+                                                                "security"
+                                                            )
+                                                        }
+                                                        className={`w-full flex items-center p-4 transition ${
+                                                            activeTab ===
+                                                            "security"
+                                                                ? "bg-indigo-600 text-white"
+                                                                : "bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                                        }`}
+                                                    >
+                                                        <div
+                                                            className={`flex items-center justify-center w-10 h-10 rounded-full ${
+                                                                activeTab ===
+                                                                "security"
+                                                                    ? "bg-indigo-500/20 text-white"
+                                                                    : "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400"
+                                                            }`}
+                                                        >
+                                                            <Shield className="w-5 h-5" />
+                                                        </div>
+                                                        <div className="ml-4 flex flex-col text-left">
+                                                            <span className="font-medium">
+                                                                {t("Security")}
+                                                            </span>
+                                                            <span
+                                                                className={`text-xs ${
+                                                                    activeTab ===
+                                                                    "security"
+                                                                        ? "text-indigo-100"
+                                                                        : "text-slate-500 dark:text-slate-400"
+                                                                }`}
+                                                            >
+                                                                {t(
+                                                                    "Update your password"
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                        <ChevronRight
+                                                            className={`ml-auto w-5 h-5 ${
+                                                                activeTab ===
+                                                                "security"
+                                                                    ? "text-white"
+                                                                    : "text-slate-400"
+                                                            }`}
+                                                        />
+                                                    </button>
                                                 </div>
+                                                <div className="h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
                                             </div>
                                         </div>
 
                                         {/* Form */}
                                         <div className="lg:w-3/4">
-                                            <Card className="border border-gray-200 dark:border-gray-800">
-                                                <CardHeader>
-                                                    <CardTitle>
-                                                        {activeTab === 'personal' ? t('Personal Information') : t('Security Settings')}
-                                                    </CardTitle>
-                                                </CardHeader>
-                                                <CardContent>
-                                                    <form onSubmit={updateProfile} className="space-y-6">
-                                                        {activeTab === 'personal' && (
+                                            <div className="rounded-lg overflow-hidden shadow-lg border border-slate-200 dark:border-slate-800">
+                                                <div className="p-6 border-b border-slate-200 dark:border-slate-800 relative">
+                                                    <h3 className="text-lg font-medium flex items-center text-slate-900 dark:text-white">
+                                                        {activeTab ===
+                                                        "personal" ? (
+                                                            <User className="h-5 w-5 mr-2 text-indigo-600 dark:text-indigo-400" />
+                                                        ) : (
+                                                            <Shield className="h-5 w-5 mr-2 text-indigo-600 dark:text-indigo-400" />
+                                                        )}
+                                                        {activeTab ===
+                                                        "personal"
+                                                            ? t(
+                                                                  "Personal Information"
+                                                              )
+                                                            : t(
+                                                                  "Security Settings"
+                                                              )}
+                                                    </h3>
+                                                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500"></div>
+                                                </div>
+                                                <div className="p-6">
+                                                    <form
+                                                        onSubmit={updateProfile}
+                                                        className="space-y-6"
+                                                    >
+                                                        {activeTab ===
+                                                            "personal" && (
                                                             <>
                                                                 <div>
-                                                                    <InputLabel htmlFor="name" value={t('Name')} />
-                                                                    <div className="relative mt-1">
+                                                                    <InputLabel
+                                                                        htmlFor="name"
+                                                                        value={t(
+                                                                            "Name"
+                                                                        )}
+                                                                        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                                                                    />
+                                                                    <div className="relative mt-1 rounded-md shadow-sm">
                                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                                            <User className="h-5 w-5 text-gray-400" />
+                                                                            <User className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
                                                                         </div>
                                                                         <TextInput
                                                                             id="name"
-                                                                            className="mt-1 block w-full pl-10"
-                                                                            value={data.name}
-                                                                            onChange={(e) => setData('name', e.target.value)}
+                                                                            className="mt-1 block w-full pl-10 pr-3 py-2 bg-white dark:bg-slate-800 rounded-md border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
+                                                                            value={
+                                                                                data.name
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                setData(
+                                                                                    "name",
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
+                                                                            }
                                                                             required
                                                                             autoComplete="name"
                                                                         />
                                                                     </div>
-                                                                    <InputError className="mt-2" message={errors.name} />
+                                                                    <InputError
+                                                                        className="mt-2"
+                                                                        message={
+                                                                            errors.name
+                                                                        }
+                                                                    />
                                                                 </div>
 
                                                                 <div>
-                                                                    <InputLabel htmlFor="email" value={t('Email')} />
-                                                                    <div className="relative mt-1">
+                                                                    <InputLabel
+                                                                        htmlFor="email"
+                                                                        value={t(
+                                                                            "Email"
+                                                                        )}
+                                                                        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                                                                    />
+                                                                    <div className="relative mt-1 rounded-md shadow-sm">
                                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                                            <Mail className="h-5 w-5 text-gray-400" />
+                                                                            <Mail className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
                                                                         </div>
                                                                         <TextInput
                                                                             id="email"
                                                                             type="email"
-                                                                            className="mt-1 block w-full pl-10"
-                                                                            value={data.email}
-                                                                            onChange={(e) => setData('email', e.target.value)}
+                                                                            className="mt-1 block w-full pl-10 pr-3 py-2 bg-white dark:bg-slate-800 rounded-md border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
+                                                                            value={
+                                                                                data.email
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                setData(
+                                                                                    "email",
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
+                                                                            }
                                                                             required
                                                                             autoComplete="email"
                                                                         />
                                                                     </div>
-                                                                    <InputError className="mt-2" message={errors.email} />
+                                                                    <InputError
+                                                                        className="mt-2"
+                                                                        message={
+                                                                            errors.email
+                                                                        }
+                                                                    />
                                                                 </div>
                                                             </>
                                                         )}
 
-                                                        {activeTab === 'security' && (
+                                                        {activeTab ===
+                                                            "security" && (
                                                             <>
                                                                 <div>
-                                                                    <InputLabel htmlFor="current_password" value={t('Current Password')} />
-                                                                    <div className="relative mt-1">
+                                                                    <InputLabel
+                                                                        htmlFor="current_password"
+                                                                        value={t(
+                                                                            "Current Password"
+                                                                        )}
+                                                                        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                                                                    />
+                                                                    <div className="relative mt-1 rounded-md shadow-sm">
                                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                                            <Key className="h-5 w-5 text-gray-400" />
+                                                                            <Key className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
                                                                         </div>
                                                                         <TextInput
                                                                             id="current_password"
                                                                             type="password"
-                                                                            className="mt-1 block w-full pl-10"
-                                                                            value={data.current_password}
-                                                                            onChange={(e) => setData('current_password', e.target.value)}
+                                                                            className="mt-1 block w-full pl-10 pr-3 py-2 bg-white dark:bg-slate-800 rounded-md border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
+                                                                            value={
+                                                                                data.current_password
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                setData(
+                                                                                    "current_password",
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
+                                                                            }
                                                                             autoComplete="current-password"
                                                                         />
                                                                     </div>
-                                                                    <InputError className="mt-2" message={errors.current_password} />
+                                                                    <InputError
+                                                                        className="mt-2"
+                                                                        message={
+                                                                            errors.current_password
+                                                                        }
+                                                                    />
                                                                 </div>
 
                                                                 <div>
-                                                                    <InputLabel htmlFor="password" value={t('New Password')} />
-                                                                    <div className="relative mt-1">
+                                                                    <InputLabel
+                                                                        htmlFor="password"
+                                                                        value={t(
+                                                                            "New Password"
+                                                                        )}
+                                                                        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                                                                    />
+                                                                    <div className="relative mt-1 rounded-md shadow-sm">
                                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                                            <Key className="h-5 w-5 text-gray-400" />
+                                                                            <Key className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
                                                                         </div>
                                                                         <TextInput
                                                                             id="password"
                                                                             type="password"
-                                                                            className="mt-1 block w-full pl-10"
-                                                                            value={data.password}
-                                                                            onChange={(e) => setData('password', e.target.value)}
+                                                                            className="mt-1 block w-full pl-10 pr-3 py-2 bg-white dark:bg-slate-800 rounded-md border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
+                                                                            value={
+                                                                                data.password
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                setData(
+                                                                                    "password",
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
+                                                                            }
                                                                             autoComplete="new-password"
                                                                         />
                                                                     </div>
-                                                                    <InputError className="mt-2" message={errors.password} />
+                                                                    <InputError
+                                                                        className="mt-2"
+                                                                        message={
+                                                                            errors.password
+                                                                        }
+                                                                    />
                                                                 </div>
 
                                                                 <div>
-                                                                    <InputLabel htmlFor="password_confirmation" value={t('Confirm Password')} />
-                                                                    <div className="relative mt-1">
+                                                                    <InputLabel
+                                                                        htmlFor="password_confirmation"
+                                                                        value={t(
+                                                                            "Confirm Password"
+                                                                        )}
+                                                                        className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                                                                    />
+                                                                    <div className="relative mt-1 rounded-md shadow-sm">
                                                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                                            <Key className="h-5 w-5 text-gray-400" />
+                                                                            <Key className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
                                                                         </div>
                                                                         <TextInput
                                                                             id="password_confirmation"
                                                                             type="password"
-                                                                            className="mt-1 block w-full pl-10"
-                                                                            value={data.password_confirmation}
-                                                                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                                                                            className="mt-1 block w-full pl-10 pr-3 py-2 bg-white dark:bg-slate-800 rounded-md border border-slate-300 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-transparent transition-all duration-200"
+                                                                            value={
+                                                                                data.password_confirmation
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                setData(
+                                                                                    "password_confirmation",
+                                                                                    e
+                                                                                        .target
+                                                                                        .value
+                                                                                )
+                                                                            }
                                                                             autoComplete="new-password"
                                                                         />
                                                                     </div>
-                                                                    <InputError className="mt-2" message={errors.password_confirmation} />
+                                                                    <InputError
+                                                                        className="mt-2"
+                                                                        message={
+                                                                            errors.password_confirmation
+                                                                        }
+                                                                    />
                                                                 </div>
                                                             </>
                                                         )}
 
-                                                        <div className="flex items-center justify-end">
+                                                        <div className="flex items-center justify-end pt-4 border-t border-slate-200 dark:border-slate-800">
                                                             {processing && (
-                                                                <RefreshCw className="w-5 h-5 mr-2 animate-spin text-blue-600" />
+                                                                <RefreshCw className="w-5 h-5 mr-2 animate-spin text-indigo-600 dark:text-indigo-400" />
                                                             )}
-                                                            <PrimaryButton disabled={processing}>
+                                                            <PrimaryButton
+                                                                className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-md"
+                                                                disabled={
+                                                                    processing
+                                                                }
+                                                            >
                                                                 <Save className="w-4 h-4 mr-2" />
-                                                                {t('Save')}
+                                                                {t("Save")}
                                                             </PrimaryButton>
                                                         </div>
                                                     </form>
-                                                </CardContent>
-                                            </Card>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
