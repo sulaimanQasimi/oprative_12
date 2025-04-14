@@ -28,6 +28,7 @@
         "pxlrbt/filament-activity-log": "^1.1",
         "pxlrbt/filament-excel": "*",
         "shuvroroy/filament-spatie-laravel-backup": "^2.2",
+        "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-permission": "^6.16",
         "stephenjude/filament-debugger": "^3.1",
         "tapp/filament-authentication-log": "3.1",
@@ -36,7 +37,7 @@
         "tomatophp/filament-language-switcher": "^1.0",
         "tomatophp/filament-users": "*",
         "torgodly/html2media": "^1.1"
-         },
+    },
     "autoload": {
         "psr-4": {
             "App\\": "app/",
