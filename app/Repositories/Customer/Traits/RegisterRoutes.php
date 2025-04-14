@@ -87,6 +87,10 @@ trait RegisterRoutes
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
                         ->name('stock-incomes.create');
 
+                    Route::get('stock-incomes/search-products', [\App\Http\Controllers\Customer\StockIncomeController::class, 'searchProducts'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
+                        ->name('stock-incomes.search-products');
+
                     Route::post('stock-incomes', [\App\Http\Controllers\Customer\StockIncomeController::class, 'store'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
                         ->name('stock-incomes.store');

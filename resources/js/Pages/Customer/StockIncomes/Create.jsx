@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import CustomerNavbar from '@/Components/CustomerNavbar';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
+import axios from 'axios';
 import {
     Package,
     ArrowLeft,
@@ -10,19 +11,23 @@ import {
     Hash,
     ShoppingBag,
     FileText,
-    ClipboardList
+    ClipboardList,
+    Search
 } from 'lucide-react';
 
 export default function CreateStockIncome({ auth, products, reference }) {
     const { t } = useLaravelReactI18n();
     const [calculatedTotal, setCalculatedTotal] = useState(0);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showDropdown, setShowDropdown] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
         product_id: '',
         reference_number: reference || '',
         quantity: 1,
         price: '',
-        description: '',
     });
 
     // Handle input changes
@@ -38,6 +43,51 @@ export default function CreateStockIncome({ auth, products, reference }) {
         }
     };
 
+    // Handle product search
+    const handleProductSearch = async (e) => {
+        const value = e.target.value;
+        setSearchTerm(value);
+
+        if (value.length < 2) {
+            setSearchResults([]);
+            setShowDropdown(false);
+            return;
+        }
+
+        setIsSearching(true);
+        setShowDropdown(true);
+
+        try {
+            const response = await axios.get(route('customer.stock-incomes.search-products', {
+                search: value
+            }));
+
+            setSearchResults(response.data);
+        } catch (error) {
+            console.error('Error searching products:', error);
+            setSearchResults([]);
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    // Handle product selection from dropdown
+    const handleProductSelect = (product) => {
+        setData('product_id', product.id);
+        setSearchTerm(product.name);
+
+        if (product.retail_price) {
+            setData('price', product.retail_price);
+            setCalculatedTotal(product.retail_price * data.quantity);
+        } else if (product.purchase_price) {
+            // Fallback to purchase price if retail price is not available
+            setData('price', product.purchase_price);
+            setCalculatedTotal(product.purchase_price * data.quantity);
+        }
+
+        setShowDropdown(false);
+    };
+
     // Handle product selection
     const handleProductChange = (e) => {
         const productId = e.target.value;
@@ -46,7 +96,11 @@ export default function CreateStockIncome({ auth, products, reference }) {
         // Auto-fill price if available
         if (productId) {
             const selectedProduct = products.find(p => p.id == productId);
-            if (selectedProduct && selectedProduct.purchase_price) {
+            if (selectedProduct && selectedProduct.retail_price) {
+                setData('price', selectedProduct.retail_price);
+                setCalculatedTotal(selectedProduct.retail_price * data.quantity);
+            } else if (selectedProduct && selectedProduct.purchase_price) {
+                // Fallback to purchase price if retail price is not available
                 setData('price', selectedProduct.purchase_price);
                 setCalculatedTotal(selectedProduct.purchase_price * data.quantity);
             }
@@ -58,6 +112,18 @@ export default function CreateStockIncome({ auth, products, reference }) {
         e.preventDefault();
         post(route('customer.stock-incomes.store'));
     };
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = () => {
+            setShowDropdown(false);
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, []);
 
     return (
         <>
@@ -131,30 +197,84 @@ export default function CreateStockIncome({ auth, products, reference }) {
                                                 {errors.reference_number && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.reference_number}</p>}
                                             </div>
 
-                                            {/* Product Selection */}
+                                            {/* Product Search - NEW */}
                                             <div>
-                                                <label htmlFor="product_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {t('Product')} *
+                                                <label htmlFor="product_search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    {t('Search Product')} *
                                                 </label>
                                                 <div className="relative">
                                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                        <Package className="h-5 w-5 text-gray-400" />
+                                                        <Search className="h-5 w-5 text-gray-400" />
                                                     </div>
-                                                    <select
-                                                        id="product_id"
-                                                        name="product_id"
-                                                        value={data.product_id}
-                                                        onChange={handleProductChange}
+                                                    <input
+                                                        type="text"
+                                                        id="product_search"
+                                                        value={searchTerm}
+                                                        onChange={handleProductSearch}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (searchResults.length > 0) {
+                                                                setShowDropdown(true);
+                                                            }
+                                                        }}
                                                         className={`pl-10 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${errors.product_id ? 'border-red-500 dark:border-red-700' : ''}`}
-                                                    >
-                                                        <option value="">{t('Select a product')}</option>
-                                                        {products.map(product => (
-                                                            <option key={product.id} value={product.id}>
-                                                                {product.name}
-                                                            </option>
-                                                        ))}
-                                                    </select>
+                                                        placeholder={t('Search by product name or barcode')}
+                                                    />
+
+                                                    {showDropdown && (
+                                                        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-slate-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto">
+                                                            {isSearching ? (
+                                                                <div className="p-3 text-center text-gray-500 dark:text-gray-400">
+                                                                    {t('Searching...')}
+                                                                </div>
+                                                            ) : searchResults.length > 0 ? (
+                                                                <ul className="py-1">
+                                                                    {searchResults.map(product => (
+                                                                        <li
+                                                                            key={product.id}
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                handleProductSelect(product);
+                                                                            }}
+                                                                            className="px-4 py-2 hover:bg-blue-50 dark:hover:bg-slate-700 cursor-pointer"
+                                                                        >
+                                                                            <div className="flex justify-between">
+                                                                                <div>
+                                                                                    <span className="font-medium text-gray-800 dark:text-white">{product.name}</span>
+                                                                                    {product.barcode && (
+                                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                                                            {t('Barcode')}: {product.barcode}
+                                                                                        </p>
+                                                                                    )}
+                                                                                </div>
+                                                                                {product.retail_price ? (
+                                                                                    <span className="text-blue-600 dark:text-blue-400 font-medium">
+                                                                                        ${product.retail_price}
+                                                                                    </span>
+                                                                                ) : product.purchase_price && (
+                                                                                    <span className="text-blue-600 dark:text-blue-400 font-medium">
+                                                                                        ${product.purchase_price}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            ) : searchTerm.length >= 2 ? (
+                                                                <div className="p-3 text-center text-gray-500 dark:text-gray-400">
+                                                                    {t('No products found')}
+                                                                </div>
+                                                            ) : null}
+                                                        </div>
+                                                    )}
                                                 </div>
+
+                                                <input
+                                                    type="hidden"
+                                                    name="product_id"
+                                                    value={data.product_id}
+                                                />
+
                                                 {errors.product_id && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.product_id}</p>}
                                             </div>
 
@@ -198,10 +318,14 @@ export default function CreateStockIncome({ auth, products, reference }) {
                                                             min="0"
                                                             value={data.price}
                                                             onChange={handleChange}
-                                                            className={`pl-10 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${errors.price ? 'border-red-500 dark:border-red-700' : ''}`}
-                                                            placeholder={t('Enter unit price')}
+                                                            className={`pl-10 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${errors.price ? 'border-red-500 dark:border-red-700' : ''} bg-gray-100 dark:bg-slate-700`}
+                                                            placeholder={t('Product price')}
+                                                            readOnly
                                                         />
                                                     </div>
+                                                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                        {t('Price is automatically set based on the product\'s retail price')}
+                                                    </p>
                                                     {errors.price && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.price}</p>}
                                                 </div>
                                             </div>
@@ -214,27 +338,6 @@ export default function CreateStockIncome({ auth, products, reference }) {
                                                 </div>
                                             </div>
 
-                                            {/* Description */}
-                                            <div>
-                                                <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                                    {t('Description')}
-                                                </label>
-                                                <div className="relative">
-                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                        <FileText className="h-5 w-5 text-gray-400" />
-                                                    </div>
-                                                    <textarea
-                                                        id="description"
-                                                        name="description"
-                                                        rows="3"
-                                                        value={data.description}
-                                                        onChange={handleChange}
-                                                        className="pl-10 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                                                        placeholder={t('Additional notes or details (optional)')}
-                                                    ></textarea>
-                                                </div>
-                                                {errors.description && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.description}</p>}
-                                            </div>
 
                                             {/* Submit Button */}
                                             <div className="flex justify-end space-x-4 mt-8">

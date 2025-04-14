@@ -92,8 +92,8 @@ class StockIncomeController extends Controller
     {
         $customer = Auth::guard('customer_user')->user()->customer;
 
-        // Get available products
-        $products = Product::select('id', 'name', 'purchase_price')
+        // Get available products with name and barcode for searching
+        $products = Product::select('id', 'name', 'barcode', 'purchase_price')
             ->where('is_activated', true)
             ->get();
 
@@ -101,6 +101,25 @@ class StockIncomeController extends Controller
             'products' => $products,
             'reference' => 'INC-' . strtoupper(Str::random(8))
         ]);
+    }
+
+    /**
+     * Search for products by name or barcode
+     */
+    public function searchProducts(Request $request)
+    {
+        $search = $request->input('search');
+
+        $products = Product::select('id', 'name', 'barcode', 'purchase_price')
+            ->where('is_activated', true)
+            ->where(function($query) use ($search) {
+                $query->where('name', 'like', "%{$search}%")
+                      ->orWhere('barcode', 'like', "%{$search}%");
+            })
+            ->limit(10)
+            ->get();
+
+        return response()->json($products);
     }
 
     /**
@@ -114,7 +133,6 @@ class StockIncomeController extends Controller
             'reference_number' => 'required|string|max:255|unique:customer_stock_incomes',
             'quantity' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
-            'description' => 'nullable|string|max:500',
         ]);
 
         // Get the authenticated customer
@@ -131,8 +149,6 @@ class StockIncomeController extends Controller
             'quantity' => $validated['quantity'],
             'price' => $validated['price'],
             'total' => $total,
-            'description' => $validated['description'] ?? null,
-            'status' => 'received',
         ]);
 
         return redirect()->route('customer.stock-incomes.index')
