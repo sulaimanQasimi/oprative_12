@@ -202,15 +202,18 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                         </div>
                         
                         <div className="flex items-center space-x-2">
-                            <motion.button
+                            <motion.div
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2 transition-colors"
-                                onClick={() => window.location.reload()}
                             >
-                                <RefreshCcw className="h-4 w-4" />
-                                <span>{t("Refresh")}</span>
-                            </motion.button>
+                                <Link
+                                    href={route("customer.dashboard")}
+                                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center gap-2 transition-colors"
+                                >
+                                    <RefreshCcw className="h-4 w-4" />
+                                    <span>{t("Refresh")}</span>
+                                </Link>
+                            </motion.div>
                         </div>
                     </motion.header>
 
