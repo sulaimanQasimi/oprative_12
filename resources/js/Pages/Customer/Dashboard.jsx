@@ -22,7 +22,8 @@ import {
     Clock,
     Hash,
     Check,
-    ShoppingCart
+    ShoppingCart,
+    Eye
 } from "lucide-react";
 import {
     BarChart,
@@ -380,87 +381,138 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                     )}
                                 </div>
                                 
-                                {/* Recent Movements */}
-                                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-lg p-6">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <h2 className="text-xl font-bold">{t("Recent Stock Movements")}</h2>
-                                        <div className="flex gap-2">
-                                            <Link
-                                                href={route("customer.stock-incomes.index")}
-                                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                                            >
-                                                {t("View All Incoming")}
-                                            </Link>
-                                            <Link
-                                                href={route("customer.stock-outcomes.index")}
-                                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                                            >
-                                                {t("View All Outgoing")}
-                                            </Link>
+                                {/* Recent Stock Movements */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.8 }}
+                                    className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800"
+                                >
+                                    <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center">
+                                                <RefreshCcw className="h-5 w-5 text-blue-500 mr-2" />
+                                                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t("Recent Stock Movements")}</h2>
+                                            </div>
+                                            <div className="flex space-x-2">
+                                                <Link
+                                                    href={route("customer.stock-incomes.index")}
+                                                    className="px-3 py-1.5 text-sm bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 dark:text-blue-400 rounded-lg flex items-center gap-1.5 transition-colors"
+                                                >
+                                                    <ArrowUpRight className="h-3.5 w-3.5" />
+                                                    <span>{t("View All Incoming")}</span>
+                                                </Link>
+                                                <Link
+                                                    href={route("customer.stock-outcomes.index")}
+                                                    className="px-3 py-1.5 text-sm bg-pink-50 hover:bg-pink-100 text-pink-600 dark:bg-pink-900/30 dark:hover:bg-pink-900/50 dark:text-pink-400 rounded-lg flex items-center gap-1.5 transition-colors"
+                                                >
+                                                    <ArrowDownRight className="h-3.5 w-3.5" />
+                                                    <span>{t("View All Outgoing")}</span>
+                                                </Link>
+                                            </div>
                                         </div>
                                     </div>
-                                    
-                                    {mergedStats.recent_movements && mergedStats.recent_movements.length > 0 ? (
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full">
-                                                <thead>
-                                                    <tr className="border-b">
-                                                        <th className="text-left p-2">{t("Type")}</th>
-                                                        <th className="text-left p-2">{t("Product")}</th>
-                                                        <th className="text-center p-2">{t("Quantity")}</th>
-                                                        <th className="text-right p-2">{t("Total")}</th>
-                                                        <th className="text-right p-2">{t("Date")}</th>
-                                                        <th className="text-right p-2">{t("Reference")}</th>
-                                                        <th className="text-right p-2">{t("Actions")}</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {mergedStats.recent_movements.map((movement) => (
-                                                        <tr key={`${movement.type}-${movement.id}`} className="border-b hover:bg-slate-50">
-                                                            <td className="p-2">
-                                                                <span className={`px-2 py-1 rounded-full text-xs ${
-                                                                    movement.type === 'income' 
-                                                                        ? 'bg-green-100 text-green-800' 
-                                                                        : 'bg-red-100 text-red-800'
-                                                                }`}>
-                                                                    {movement.type === 'income' ? t('In') : t('Out')}
-                                                                </span>
-                                                            </td>
-                                                            <td className="p-2">{movement.product}</td>
-                                                            <td className="text-center p-2">{movement.quantity}</td>
-                                                            <td className="text-right p-2">{formatCurrency(movement.total)}</td>
-                                                            <td className="text-right p-2">{movement.date}</td>
-                                                            <td className="text-right p-2">{movement.reference}</td>
-                                                            <td className="text-right p-2">
-                                                                <Link
-                                                                    href={route(
-                                                                        movement.type === 'income' 
-                                                                            ? 'customer.stock-incomes.show' 
-                                                                            : 'customer.stock-outcomes.show',
-                                                                        movement.id
-                                                                    )}
-                                                                    className="text-blue-600 hover:underline"
-                                                                >
-                                                                    {t("View")}
-                                                                </Link>
-                                                            </td>
+                                    <div className="p-6">
+                                        {mergedStats.recent_movements && mergedStats.recent_movements.length > 0 ? (
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full">
+                                                    <thead>
+                                                        <tr>
+                                                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Type")}</th>
+                                                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Product")}</th>
+                                                            <th className="px-4 py-2 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Quantity")}</th>
+                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Total")}</th>
+                                                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Reference")}</th>
+                                                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Date")}</th>
+                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Actions")}</th>
                                                         </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    ) : (
-                                        <div className="text-center py-12">
-                                            <p className="text-gray-500 mb-4">{t("No recent stock movements")}</p>
-                                            <Link
-                                                href={route("customer.stock-incomes.create")}
-                                                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-                                            >
-                                                {t("Add Stock")}
-                                            </Link>
-                                        </div>
-                                    )}
-                                </div>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                        {mergedStats.recent_movements.map((movement, index) => (
+                                                            <motion.tr 
+                                                                key={`${movement.type}-${movement.id}`}
+                                                                className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
+                                                                initial={{ opacity: 0, y: 10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                transition={{ duration: 0.3, delay: index * 0.05 + 0.8 }}
+                                                            >
+                                                                <td className="px-4 py-3">
+                                                                    <div className={`px-2.5 py-1 rounded-full text-xs font-medium inline-flex items-center gap-1 ${
+                                                                        movement.type === 'income' 
+                                                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                                                                            : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+                                                                    }`}>
+                                                                        {movement.type === 'income' ? (
+                                                                            <ArrowUpRight className="h-3 w-3" />
+                                                                        ) : (
+                                                                            <ArrowDownRight className="h-3 w-3" />
+                                                                        )}
+                                                                        <span>{movement.type === 'income' ? t('In') : t('Out')}</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-4 py-3">
+                                                                    <div className="flex items-center">
+                                                                        <div className="h-7 w-7 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mr-2">
+                                                                            <Package className="h-3.5 w-3.5" />
+                                                                        </div>
+                                                                        <span className="font-medium text-slate-900 dark:text-white">{movement.product}</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-center">
+                                                                    <span className="font-medium text-slate-900 dark:text-white">{movement.quantity}</span>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-right">
+                                                                    <span className="font-medium text-slate-900 dark:text-white">{formatCurrency(movement.total)}</span>
+                                                                </td>
+                                                                <td className="px-4 py-3">
+                                                                    <div className="flex items-center">
+                                                                        <Hash className="h-3.5 w-3.5 text-slate-400 mr-1.5" />
+                                                                        <span className="text-slate-600 dark:text-slate-300">{movement.reference}</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-4 py-3">
+                                                                    <div className="flex items-center">
+                                                                        <Calendar className="h-3.5 w-3.5 text-slate-400 mr-1.5" />
+                                                                        <span className="text-slate-600 dark:text-slate-300">{movement.date}</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-right">
+                                                                    <Link
+                                                                        href={route(
+                                                                            movement.type === 'income' 
+                                                                                ? 'customer.stock-incomes.show' 
+                                                                                : 'customer.stock-outcomes.show',
+                                                                            movement.id
+                                                                        )}
+                                                                        className="inline-flex items-center px-2.5 py-1.5 text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                                                    >
+                                                                        <Eye className="h-3.5 w-3.5 mr-1" />
+                                                                        <span>{t("View")}</span>
+                                                                    </Link>
+                                                                </td>
+                                                            </motion.tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-12">
+                                                <div className="mx-auto h-16 w-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                                                    <RefreshCcw className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+                                                </div>
+                                                <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-1">{t("No recent stock movements")}</h3>
+                                                <p className="text-slate-500 dark:text-slate-400 mb-6">{t("Add your first stock entry to see movements here")}</p>
+                                                <Link
+                                                    href={route("customer.stock-incomes.create")}
+                                                    className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm transition-colors"
+                                                >
+                                                    <Plus className="h-4 w-4 mr-1.5" />
+                                                    <span>{t("Add Stock")}</span>
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.div>
 
                                 {/* Charts Section */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -594,6 +646,83 @@ export default function CustomerDashboard({ auth, stats = {} }) {
                                         </div>
                                     </motion.div>
                                 </div>
+                                
+                                {/* Top Products */}
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ duration: 0.5, delay: 0.7 }}
+                                    className="bg-white dark:bg-slate-900 rounded-xl shadow-lg overflow-hidden border border-slate-100 dark:border-slate-800 mb-8"
+                                >
+                                    <div className="border-b border-slate-100 dark:border-slate-800 px-6 py-4 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800/50 dark:to-slate-900">
+                                        <div className="flex items-center">
+                                            <TrendingUp className="h-5 w-5 text-emerald-500 mr-2" />
+                                            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{t("Top Products")}</h2>
+                                        </div>
+                                    </div>
+                                    <div className="p-4">
+                                        {mergedStats.top_products && mergedStats.top_products.length > 0 ? (
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full">
+                                                    <thead>
+                                                        <tr>
+                                                            <th className="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Product")}</th>
+                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Stock In")}</th>
+                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Stock Out")}</th>
+                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Net Quantity")}</th>
+                                                            <th className="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">{t("Net Total")}</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                        {mergedStats.top_products.map((product, index) => (
+                                                            <motion.tr 
+                                                                key={product.id} 
+                                                                className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                                                                initial={{ opacity: 0, y: 10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                transition={{ duration: 0.3, delay: index * 0.05 + 0.7 }}
+                                                            >
+                                                                <td className="px-4 py-3">
+                                                                    <div className="flex items-center">
+                                                                        <div className="h-8 w-8 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center mr-3">
+                                                                            <Package className="h-4 w-4" />
+                                                                        </div>
+                                                                        <span className="font-medium text-slate-900 dark:text-white">{product.name}</span>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-right">
+                                                                    <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                                                                        {product.income_quantity}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-right">
+                                                                    <span className="text-rose-600 dark:text-rose-400 font-medium">
+                                                                        {product.outcome_quantity}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-right">
+                                                                    <span className="font-semibold text-slate-900 dark:text-white">
+                                                                        {product.net_quantity}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-4 py-3 text-right">
+                                                                    <span className="font-semibold text-slate-900 dark:text-white">
+                                                                        {formatCurrency(product.net_total)}
+                                                                    </span>
+                                                                </td>
+                                                            </motion.tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        ) : (
+                                            <div className="text-center py-8">
+                                                <Package className="h-12 w-12 text-slate-200 dark:text-slate-700 mx-auto mb-3" />
+                                                <p className="text-slate-500 dark:text-slate-400">{t("No product data available")}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </motion.div>
                             </div>
                         </div>
                     </main>
