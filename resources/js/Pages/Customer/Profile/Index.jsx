@@ -363,37 +363,96 @@ export default function Profile({ auth }) {
                                     <div className="flex flex-col lg:flex-row gap-6">
                                         {/* Tabs */}
                                         <div className="lg:w-1/4">
-                                            <Card>
+                                            <Card className="overflow-hidden border-0 shadow-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm">
                                                 <CardContent className="p-0">
-                                                    <div className="flex flex-col divide-y divide-gray-200 dark:divide-gray-800">
+                                                    <div className="flex flex-col">
                                                         <Button
-                                                            variant={activeTab === 'personal' ? 'secondary' : 'ghost'}
-                                                            className="justify-start text-left px-4 py-6 rounded-none group"
+                                                            variant={activeTab === 'personal' ? 'default' : 'ghost'}
+                                                            className={`justify-start text-left px-6 py-5 rounded-none group relative overflow-hidden transition-all duration-300 ${
+                                                                activeTab === 'personal' 
+                                                                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium shadow-md' 
+                                                                    : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                                                            }`}
                                                             onClick={() => setActiveTab('personal')}
                                                         >
-                                                            <User className="w-5 h-5 mr-3 text-blue-600 dark:text-blue-400" />
-                                                            <div className="flex flex-col items-start">
-                                                                <span className="font-medium">{t('Personal Information')}</span>
-                                                                <span className="text-xs text-gray-500 dark:text-gray-400">{t('Update your name and email')}</span>
-                                                            </div>
-                                                            <ChevronRight className="w-4 h-4 ml-auto opacity-50 group-hover:opacity-100 transition-opacity" />
+                                                            {activeTab === 'personal' && (
+                                                                <>
+                                                                    <span className="absolute inset-0 w-full h-full bg-white opacity-10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></span>
+                                                                    <span className="absolute -inset-x-3 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-300 to-transparent opacity-30"></span>
+                                                                </>
+                                                            )}
+                                                            <span className={`relative z-10 flex items-center ${activeTab === 'personal' ? 'text-white' : 'text-slate-700 dark:text-slate-300'}`}>
+                                                                <span className={`flex items-center justify-center w-10 h-10 rounded-full mr-4 ${
+                                                                    activeTab === 'personal'
+                                                                        ? 'bg-white/20 text-white shadow-inner'
+                                                                        : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                                                                }`}>
+                                                                    <User className="w-5 h-5" />
+                                                                </span>
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-medium text-base">{t('Personal Information')}</span>
+                                                                    <span className={`text-xs ${activeTab === 'personal' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'}`}>
+                                                                        {t('Update your name and email')}
+                                                                    </span>
+                                                                </div>
+                                                                <ChevronRight className={`w-5 h-5 ml-auto transform transition-transform duration-300 ${
+                                                                    activeTab === 'personal' ? 'translate-x-0 text-white opacity-90' : 'opacity-40 group-hover:translate-x-1 group-hover:opacity-70'
+                                                                }`} />
+                                                            </span>
                                                         </Button>
 
                                                         <Button
-                                                            variant={activeTab === 'security' ? 'secondary' : 'ghost'}
-                                                            className="justify-start text-left px-4 py-6 rounded-none group"
+                                                            variant={activeTab === 'security' ? 'default' : 'ghost'}
+                                                            className={`justify-start text-left px-6 py-5 rounded-none group relative overflow-hidden transition-all duration-300 ${
+                                                                activeTab === 'security' 
+                                                                    ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium shadow-md' 
+                                                                    : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+                                                            }`}
                                                             onClick={() => setActiveTab('security')}
                                                         >
-                                                            <Shield className="w-5 h-5 mr-3 text-blue-600 dark:text-blue-400" />
-                                                            <div className="flex flex-col items-start">
-                                                                <span className="font-medium">{t('Security')}</span>
-                                                                <span className="text-xs text-gray-500 dark:text-gray-400">{t('Update your password')}</span>
-                                                            </div>
-                                                            <ChevronRight className="w-4 h-4 ml-auto opacity-50 group-hover:opacity-100 transition-opacity" />
+                                                            {activeTab === 'security' && (
+                                                                <>
+                                                                    <span className="absolute inset-0 w-full h-full bg-white opacity-10 transform scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500"></span>
+                                                                    <span className="absolute -inset-x-3 bottom-0 h-px bg-gradient-to-r from-transparent via-indigo-300 to-transparent opacity-30"></span>
+                                                                </>
+                                                            )}
+                                                            <span className={`relative z-10 flex items-center ${activeTab === 'security' ? 'text-white' : 'text-slate-700 dark:text-slate-300'}`}>
+                                                                <span className={`flex items-center justify-center w-10 h-10 rounded-full mr-4 ${
+                                                                    activeTab === 'security'
+                                                                        ? 'bg-white/20 text-white shadow-inner'
+                                                                        : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                                                                }`}>
+                                                                    <Shield className="w-5 h-5" />
+                                                                </span>
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-medium text-base">{t('Security')}</span>
+                                                                    <span className={`text-xs ${activeTab === 'security' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'}`}>
+                                                                        {t('Update your password')}
+                                                                    </span>
+                                                                </div>
+                                                                <ChevronRight className={`w-5 h-5 ml-auto transform transition-transform duration-300 ${
+                                                                    activeTab === 'security' ? 'translate-x-0 text-white opacity-90' : 'opacity-40 group-hover:translate-x-1 group-hover:opacity-70'
+                                                                }`} />
+                                                            </span>
                                                         </Button>
                                                     </div>
                                                 </CardContent>
                                             </Card>
+
+                                            {/* Add decorative element */}
+                                            <div className="mt-6 px-4 py-6 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 rounded-xl border border-indigo-100 dark:border-indigo-900/30 shadow-sm">
+                                                <div className="flex items-center">
+                                                    <div className="flex-shrink-0 bg-gradient-to-br from-indigo-500 to-purple-600 p-3 rounded-lg shadow-md">
+                                                        <Shield className="h-6 w-6 text-white" />
+                                                    </div>
+                                                    <div className="ml-4">
+                                                        <h3 className="text-sm font-medium text-gray-800 dark:text-gray-200">{t('Account Protection')}</h3>
+                                                        <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
+                                                            {t('Keep your account secure with a strong password and regular updates.')}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         {/* Form */}
