@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class StockIncomeController extends Controller
@@ -82,5 +83,59 @@ class StockIncomeController extends Controller
         return Inertia::render('Customer/StockIncomes/Show', [
             'stockIncome' => $stockIncome
         ]);
+    }
+
+    /**
+     * Show the form for creating a new stock income
+     */
+    public function create()
+    {
+        $customer = Auth::guard('customer_user')->user()->customer;
+
+        // Get available products
+        $products = Product::select('id', 'name', 'purchase_price')
+            ->where('is_activated', true)
+            ->get();
+
+        return Inertia::render('Customer/StockIncomes/Create', [
+            'products' => $products,
+            'reference' => 'INC-' . strtoupper(Str::random(8))
+        ]);
+    }
+
+    /**
+     * Store a newly created stock income
+     */
+    public function store(Request $request)
+    {
+        // Validate request
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'reference_number' => 'required|string|max:255|unique:customer_stock_incomes',
+            'quantity' => 'required|integer|min:1',
+            'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        // Get the authenticated customer
+        $customer = Auth::guard('customer_user')->user()->customer;
+
+        // Calculate total
+        $total = $validated['quantity'] * $validated['price'];
+
+        // Create stock income
+        $stockIncome = CustomerStockIncome::create([
+            'customer_id' => $customer->id,
+            'product_id' => $validated['product_id'],
+            'reference_number' => $validated['reference_number'],
+            'quantity' => $validated['quantity'],
+            'price' => $validated['price'],
+            'total' => $total,
+            'description' => $validated['description'] ?? null,
+            'status' => 'received',
+        ]);
+
+        return redirect()->route('customer.stock-incomes.index')
+            ->with('success', 'Stock income created successfully!');
     }
 }

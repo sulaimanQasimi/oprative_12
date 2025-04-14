@@ -36,7 +36,8 @@ import {
     Warehouse,
     Box,
     MapPin,
-    Route
+    Route,
+    Plus
 } from 'lucide-react';
 
 // PageLoader component
@@ -200,6 +201,16 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
                                     {t("Stock Incomes")}
                                 </h1>
                             </div>
+                        </div>
+
+                        <div>
+                            <Link
+                                href={route('customer.stock-incomes.create')}
+                                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors duration-200"
+                            >
+                                <Plus className="w-5 h-5 mr-2" />
+                                {t('Add Stock Income')}
+                            </Link>
                         </div>
                     </header>
 
