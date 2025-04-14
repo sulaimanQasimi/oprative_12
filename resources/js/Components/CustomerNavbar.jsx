@@ -16,7 +16,9 @@ import {
     HelpCircle,
     Moon,
     Sun,
-    Home
+    Home,
+    PackageCheck,
+    PackageX
 } from 'lucide-react';
 
 export default function CustomerNavbar({ auth, currentRoute }) {
@@ -95,6 +97,34 @@ export default function CustomerNavbar({ auth, currentRoute }) {
                                 type="button"
                             >
                                 <Package className="h-5 w-5" />
+                            </Button>
+                        </Link>
+
+                        <Link href={safeRoute('customer.stock-incomes.index')}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`${currentRoute === 'customer.stock-incomes.index' ?
+                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
+                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
+                                type="button"
+                                title={t('Stock Incomes')}
+                            >
+                                <PackageCheck className="h-5 w-5" />
+                            </Button>
+                        </Link>
+
+                        <Link href={safeRoute('customer.stock-outcomes.index')}>
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`${currentRoute === 'customer.stock-outcomes.index' ?
+                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
+                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
+                                type="button"
+                                title={t('Stock Outcomes')}
+                            >
+                                <PackageX className="h-5 w-5" />
                             </Button>
                         </Link>
 

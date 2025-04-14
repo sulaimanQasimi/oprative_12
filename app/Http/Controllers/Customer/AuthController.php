@@ -88,6 +88,41 @@ class AuthController extends Controller
             throw $e;
         }
     }
+
+    /**
+     * Show the customer registration form.
+     */
+    public function showRegistrationForm()
+    {
+        return Inertia::render('Customer/Register');
+    }
+
+    /**
+     * Handle customer registration request.
+     */
+    public function register(RegisterRequest $request)
+    {
+        try {
+            // Process registration via form request
+            $user = $request->register();
+
+            // Log the user in automatically
+            Auth::guard('customer_user')->login($user);
+
+            return redirect()->route('customer.dashboard')
+                ->with('success', 'Account created successfully! Welcome aboard.');
+        } catch (\Exception $e) {
+            Log::error('Registration error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()->withErrors([
+                'error' => 'An error occurred during registration. Please try again.'
+            ])->withInput();
+        }
+    }
+
     /**
      * Log the customer out of the application.
      */

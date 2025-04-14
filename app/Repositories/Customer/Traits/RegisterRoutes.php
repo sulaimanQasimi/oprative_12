@@ -78,6 +78,23 @@ trait RegisterRoutes
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
                         ->name('stock-products');
 
+                    // Stock Incomes and Outcomes routes
+                    Route::get('stock-incomes', [\App\Http\Controllers\Customer\StockIncomeController::class, 'index'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
+                        ->name('stock-incomes.index');
+
+                    Route::get('stock-incomes/{stockIncome}', [\App\Http\Controllers\Customer\StockIncomeController::class, 'show'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
+                        ->name('stock-incomes.show');
+
+                    Route::get('stock-outcomes', [\App\Http\Controllers\Customer\StockOutcomeController::class, 'index'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
+                        ->name('stock-outcomes.index');
+
+                    Route::get('stock-outcomes/{stockOutcome}', [\App\Http\Controllers\Customer\StockOutcomeController::class, 'show'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
+                        ->name('stock-outcomes.show');
+
                     // Customer Orders routes (now using React)
                     Route::get('orders', [CustomerOrderController::class,'view'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')

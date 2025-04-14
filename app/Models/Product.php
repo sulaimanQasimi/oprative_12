@@ -50,4 +50,14 @@ class Product extends Model
     public function warehouseProducts(){
         return $this->hasMany(WarehouseProduct::class,'product_id');
     }
+
+    public function customerStockIncomes()
+    {
+        return $this->hasMany(CustomerStockIncome::class);
+    }
+
+    public function customerStockOutcomes()
+    {
+        return $this->hasMany(CustomerStockOutcome::class);
+    }
 }

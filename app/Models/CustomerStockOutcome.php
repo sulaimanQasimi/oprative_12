@@ -2,24 +2,36 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class CustomerStockOutcome extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'reference_number',
         'customer_id',
         'product_id',
+        'reference_number',
+        'description',
         'quantity',
-        'price',
+        'reason',
         'total',
-        'model_type',
-        'model_id'
+        'status'
     ];
 
-    public function marketOrder()
+    protected $casts = [
+        'customer_id' => 'integer',
+        'product_id' => 'integer',
+        'quantity' => 'integer',
+        'total' => 'decimal:2',
+    ];
+
+    // Relationships
+    public function customer()
     {
-        return $this->belongsTo(MarketOrder::class);
+        return $this->belongsTo(Customer::class);
     }
 
     public function product()
