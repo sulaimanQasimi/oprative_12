@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Customer\Auth\LoginRequest;
-use App\Http\Requests\Customer\Auth\RegisterRequest;
 use App\Models\CustomerUser;
 use App\Services\Customer\AuthService;
 use Illuminate\Http\Request;
@@ -28,6 +27,7 @@ class AuthController extends Controller
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
+        // Middleware should be applied in routes file
     }
 
     /**
@@ -46,46 +46,106 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         // Validate login credentials
-        $request->validate([
+        $validated = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
+        $email = $validated['email'];
+
         // This throttle key combines IP and email to prevent brute force attacks
-        $throttleKey = strtolower($request->input('email')) . '|' . $request->ip();
+        $throttleKey = strtolower($email) . '|' . $request->ip();
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
+
+            // Log the throttling event
+            Log::warning('Login throttled', [
+                'ip' => $request->ip(),
+                'email' => $email,
+                'seconds_remaining' => $seconds
+            ]);
+
             throw ValidationException::withMessages([
                 'email' => [__('auth.throttle', ['seconds' => $seconds])],
             ]);
         }
 
         try {
-            if (!Auth::guard('customer_user')->attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+            // Check if user exists and is verified
+            $user = CustomerUser::where('email', $email)->first();
+
+            if ($user && $user->email_verified_at === null) {
+                RateLimiter::hit($throttleKey, 30);
+                throw ValidationException::withMessages([
+                    'email' => ['Please verify your email address before logging in.'],
+                ]);
+            }
+
+            if (!Auth::guard('customer_user')->attempt([
+                'email' => $email,
+                'password' => $validated['password']
+            ], $request->has('remember'))) {
                 RateLimiter::hit($throttleKey, 60); // Block for 1 minute after failed attempt
+
+                // Log failed login attempt
+                Log::warning('Failed login attempt', [
+                    'ip' => $request->ip(),
+                    'email' => $email
+                ]);
 
                 throw ValidationException::withMessages([
                     'email' => [__('auth.failed')],
                 ]);
             }
 
+            // Get the authenticated user
+            $user = Auth::guard('customer_user')->user();
+
+            // Check if the customer account is active
+            if ($user->customer && $user->customer->status !== 'active') {
+                Auth::guard('customer_user')->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                Log::warning('Inactive customer attempted login', [
+                    'customer_id' => $user->customer_id,
+                    'user_id' => $user->id,
+                    'ip' => $request->ip()
+                ]);
+
+                throw ValidationException::withMessages([
+                    'email' => ['Your account is not active. Please contact support.'],
+                ]);
+            }
+
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
 
-            Log::info('Customer login successful', ['customer_id' => Auth::guard('customer_user')->id()]);
+            // Use a safe subset of data for logging
+            Log::info('Customer login successful', [
+                'customer_id' => $user->id,
+                'ip' => $request->ip()
+            ]);
 
             return redirect()->intended(route('customer.dashboard'))
                 ->with('success', 'Welcome back!');
 
+        } catch (ValidationException $e) {
+            // Pass through validation exceptions
+            throw $e;
         } catch (\Exception $e) {
-            Log::error('Customer login error', [
-                'email' => $request->email,
+            // Log detailed error information but keep the user message generic
+            Log::error('Authentication error', [
                 'ip' => $request->ip(),
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
 
-            throw $e;
+            // Don't expose internal error details to user
+            throw ValidationException::withMessages([
+                'email' => ['An error occurred during authentication. Please try again later.'],
+            ]);
         }
     }
 
@@ -101,7 +161,10 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        Log::info('Customer logout', ['customer_id' => $customerId]);
+        Log::info('Customer logout', [
+            'customer_id' => $customerId,
+            'ip' => $request->ip()
+        ]);
 
         return redirect()->route('customer.login')
             ->with('success', 'You have been logged out successfully.');
