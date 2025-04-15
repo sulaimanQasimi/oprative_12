@@ -12,6 +12,8 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Database\Eloquent\Model;
+use Filament\Notifications\Notification;
 
 class ListCustomerUsers extends ManageRelatedRecords
 {
@@ -84,6 +86,10 @@ class ListCustomerUsers extends ManageRelatedRecords
                     ->color('success')
                     ->searchable()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('email_verified_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->label(__('Verified At')),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -98,12 +104,61 @@ class ListCustomerUsers extends ManageRelatedRecords
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('verify')
+                    ->label(__('Verify'))
+                    ->icon('heroicon-o-check-badge')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->visible(fn (CustomerUser $record) => $record->email_verified_at === null)
+                    ->action(function (CustomerUser $record) {
+                        $record->email_verified_at = now();
+                        $record->save();
+
+                        Notification::make()
+                            ->title(__('User verified successfully'))
+                            ->success()
+                            ->send();
+                    }),
+                Tables\Actions\Action::make('unverify')
+                    ->label(__('Unverify'))
+                    ->icon('heroicon-o-x-mark')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->visible(fn (CustomerUser $record) => $record->email_verified_at !== null)
+                    ->action(function (CustomerUser $record) {
+                        $record->email_verified_at = null;
+                        $record->save();
+
+                        Notification::make()
+                            ->title(__('User unverified successfully'))
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\BulkAction::make('verifySelected')
+                        ->label(__('Verify Selected'))
+                        ->icon('heroicon-o-check-badge')
+                        ->requiresConfirmation()
+                        ->action(function ($records) {
+                            $count = 0;
+                            foreach ($records as $record) {
+                                if ($record->email_verified_at === null) {
+                                    $record->email_verified_at = now();
+                                    $record->save();
+                                    $count++;
+                                }
+                            }
+
+                            Notification::make()
+                                ->title(__(':count users verified successfully', ['count' => $count]))
+                                ->success()
+                                ->send();
+                        }),
                 ]),
             ]);
     }

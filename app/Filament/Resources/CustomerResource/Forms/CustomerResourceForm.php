@@ -30,8 +30,14 @@ class CustomerResourceForm
                                     ->maxLength(255)
                                     ->label('Phone')
                                     ->translateLabel(),
-                                Toggle::make('status')
-                                    ->default(true)
+                                Select::make('status')
+                                    ->options([
+                                        'active' => trans('Active'),
+                                        'inactive' => trans('Inactive'),
+                                        'pending' => trans('Pending'),
+                                    ])
+                                    ->default('active')
+                                    ->required()
                                     ->label('Status')
                                     ->translateLabel(),
                             ])
