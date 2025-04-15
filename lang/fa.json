@@ -2376,5 +2376,11 @@
     "Recent Stock Movements": "جابجایی‌های اخیر موجودی",
     "View All Outgoing": "مشاهده تمام خروجی‌ها",
     "View All Incoming": "مشاهده تمام ورودی‌ها",
-    "No product data available": "اطلاعاتی درباره محصول موجود نیست"
+    "No product data available": "اطلاعاتی درباره محصول موجود نیست",
+    "All time stock incomes": "کل ورودی‌های موجودی تا کنون",
+    "Units received": "تعداد واحدهای دریافت‌شده",
+    "Value of stock incomes": "ارزش ورودی‌های موجودی",
+    "No stock incomes found": "هیچ ورودی موجودی یافت نشد",
+    "Try adjusting your search or filter to find what you are looking for.": "جستجو یا فیلتر خود را تنظیم کنید تا مورد مورد نظر را پیدا کنید.",
+    "No stock outcomes found": "هیچ خروجی موجودی یافت نشد"
 }
