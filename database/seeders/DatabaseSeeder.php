@@ -26,5 +26,8 @@ class DatabaseSeeder extends Seeder
         $this->call(CurrencySeeder::class);
         $this->call(CustomerPermissionSeeder::class);
         $this->call(WarehousePermissionSeeder::class);
+        $this->call(SuperAdmin::class);
+        $this->call(PermissionSeeder::class);
+
     }
 }
