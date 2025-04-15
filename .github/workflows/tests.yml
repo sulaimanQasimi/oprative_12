@@ -33,7 +33,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Node Dependencies
-        run: npm i
+        run: npm i  --legacy-peer-deps
 
       - name: Create SQLite Database
         run: touch database/database.sqlite
