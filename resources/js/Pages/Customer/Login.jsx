@@ -233,12 +233,12 @@ export default function Login() {
                 { step: 1, status: t('Scanning credentials...'), delay: 0 },
                 { step: 2, status: t('Verifying identity...'), delay: 1200 },
                 { step: 4, status: t('Access denied'), delay: 2400 } // Step 4 for error state
-              ]
+            ]
             : [
                 { step: 1, status: t('Scanning credentials...'), delay: 0 },
                 { step: 2, status: t('Verifying identity...'), delay: 1200 },
                 { step: 3, status: t('Access granted'), delay: 2400 }
-              ];
+            ];
 
         // Animate through verification steps
         verificationSteps.forEach(item => {
@@ -336,7 +336,7 @@ export default function Login() {
                 targets: '.animate-input',
                 opacity: [0, 1],
                 translateY: [20, 0],
-                delay: anime.stagger(150, {start: 300}),
+                delay: anime.stagger(150, { start: 300 }),
                 easing: 'easeOutExpo',
                 duration: 800
             });
@@ -595,16 +595,7 @@ export default function Login() {
                                         )}
                                     </button>
                                 </div>
-
-                                <div className="mt-4 text-center">
-                                    <p className="text-sm text-gray-600">
-                                        {t("Don't have an account?")} {' '}
-                                        <a href={route('customer.register')} className="font-semibold text-blue-600 hover:text-blue-500">
-                                            {t("Register now")}
-                                        </a>
-                                    </p>
-                                </div>
-                            </form>
+                                                            </form>
                         )}
                     </div>
 
