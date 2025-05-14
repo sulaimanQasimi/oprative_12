@@ -19,3 +19,9 @@ CustomerRepository::registerRoutes();
 WarehouseRepository::registerRoutes();
 require __DIR__.'/purchase.php';
 Route::redirect('/login', '/')->name('login');
+
+// Include admin routes
+Route::prefix('adminpanel')
+->group(function () {
+    require __DIR__.'/admin.php';
+});
