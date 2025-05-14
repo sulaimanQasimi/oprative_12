@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\CurrencyController;
+use App\Http\Controllers\Admin\SupplierController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -27,5 +28,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{id}/edit', [CurrencyController::class, 'edit'])->name('admin.currencies.edit');
         Route::put('/{id}', [CurrencyController::class, 'update'])->name('admin.currencies.update');
         Route::delete('/{id}', [CurrencyController::class, 'destroy'])->name('admin.currencies.destroy');
+    });
+
+    // Supplier Management
+    Route::prefix('suppliers')->group(function () {
+        Route::get('/', [SupplierController::class, 'index'])->name('admin.suppliers.index');
+        Route::get('/create', [SupplierController::class, 'create'])->name('admin.suppliers.create');
+        Route::post('/', [SupplierController::class, 'store'])->name('admin.suppliers.store');
+        Route::get('/{id}', [SupplierController::class, 'show'])->name('admin.suppliers.show');
+        Route::get('/{id}/edit', [SupplierController::class, 'edit'])->name('admin.suppliers.edit');
+        Route::put('/{id}', [SupplierController::class, 'update'])->name('admin.suppliers.update');
+        Route::delete('/{id}', [SupplierController::class, 'destroy'])->name('admin.suppliers.destroy');
+        Route::get('/{id}/payments', [SupplierController::class, 'payments'])->name('admin.suppliers.payments');
+        Route::get('/{id}/purchases', [SupplierController::class, 'purchases'])->name('admin.suppliers.purchases');
     });
 });

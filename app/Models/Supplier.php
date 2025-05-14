@@ -33,9 +33,10 @@ class Supplier extends Model
     {
         return $this->hasMany(Purchase::class);
     }
+
     public function purchasePayment(): HasManyThrough
     {
-        return $this->hasManyThrough(PurchasePayment::class,Purchase::class);
+        return $this->hasManyThrough(PurchasePayment::class, Purchase::class);
     }
 
     public function getInvoiceTotalAttribute()
@@ -43,5 +44,15 @@ class Supplier extends Model
         return $this->purchases()
             ->join('purchase_items', 'purchases.id', '=', 'purchase_items.purchase_id')
             ->sum('purchase_items.total_price');
+    }
+
+    /**
+     * Get the direct payments for the supplier.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function payments(): HasMany
+    {
+        return $this->hasMany(PurchasePayment::class);
     }
 }
