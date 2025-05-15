@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CurrencyController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\WarehouseController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -52,5 +53,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{product:id}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
         Route::put('/{product:id}', [ProductController::class, 'update'])->name('admin.products.update');
         Route::delete('/{product:id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
+    });
+
+    // Warehouse Management
+    Route::prefix('warehouses')->group(function () {
+        Route::get('/', [WarehouseController::class, 'index'])->name('admin.warehouses.index');
+        Route::get('/create', [WarehouseController::class, 'create'])->name('admin.warehouses.create');
+        Route::post('/', [WarehouseController::class, 'store'])->name('admin.warehouses.store');
+        Route::get('/{warehouse:id}/edit', [WarehouseController::class, 'edit'])->name('admin.warehouses.edit');
+        Route::put('/{warehouse:id}', [WarehouseController::class, 'update'])->name('admin.warehouses.update');
+        Route::delete('/{warehouse:id}', [WarehouseController::class, 'destroy'])->name('admin.warehouses.destroy');
+        Route::get('/{warehouse:id}', [WarehouseController::class, 'show'])->name('admin.warehouses.show');
+
+        // Warehouse user management
+        Route::post('/{warehouse:id}/users', [WarehouseController::class, 'addUser'])->name('admin.warehouses.users.add');
+        Route::put('/{warehouse:id}/users/{user}', [WarehouseController::class, 'updateUser'])->name('admin.warehouses.users.update');
     });
 });

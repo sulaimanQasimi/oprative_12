@@ -1,24 +1,33 @@
-import React from 'react';
+import React, { forwardRef } from "react";
+import { cn } from "@/lib/utils";
 
-const Badge = React.forwardRef(({ className, variant = 'default', children, ...props }, ref) => {
-  const variantClasses = {
-    default: 'bg-purple-600 text-white',
-    secondary: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-    destructive: 'bg-red-600 text-white',
-    outline: 'text-gray-800 border border-gray-200 dark:text-gray-300 dark:border-gray-700',
-  };
-
+const Badge = forwardRef(({ className, variant = "default", ...props }, ref) => {
   return (
-    <div
+    <span
       ref={ref}
-      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold transition-colors ${variantClasses[variant]} ${className || ''}`}
+      className={cn(
+        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 dark:border-slate-800 dark:focus:ring-slate-300",
+        {
+          "border-transparent bg-slate-900 text-slate-50 hover:bg-slate-900/80 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/80":
+            variant === "default",
+          "border-transparent bg-indigo-500 text-slate-50 hover:bg-indigo-500/80":
+            variant === "primary",
+          "border-transparent bg-green-500 text-slate-50 hover:bg-green-500/80":
+            variant === "success",
+          "border-transparent bg-yellow-500 text-slate-50 hover:bg-yellow-500/80":
+            variant === "warning",
+          "border-transparent bg-red-500 text-slate-50 hover:bg-red-500/80":
+            variant === "danger",
+          "border-slate-200 bg-white text-slate-900 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50 dark:hover:bg-slate-800 dark:hover:text-slate-50":
+            variant === "outline",
+        },
+        className
+      )}
       {...props}
-    >
-      {children}
-    </div>
+    />
   );
 });
 
-Badge.displayName = 'Badge';
+Badge.displayName = "Badge";
 
 export { Badge };

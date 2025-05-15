@@ -1,66 +1,49 @@
-import React from 'react';
+import React, { createContext, forwardRef, useContext } from "react";
+import { cn } from "@/lib/utils";
 
-const Tabs = React.forwardRef(({ className = '', children, value, onValueChange, ...props }, ref) => {
+const TabsContext = createContext({});
+
+const Tabs = ({ value, onValueChange, children, className, ...props }) => {
+  return (
+    <TabsContext.Provider value={{ value, onValueChange }}>
+      <div className={cn("", className)} {...props}>
+        {children}
+      </div>
+    </TabsContext.Provider>
+  );
+};
+
+const TabsList = forwardRef(({ className, children, ...props }, ref) => {
   return (
     <div
       ref={ref}
-      className={`w-full ${className}`}
+      className={cn(
+        "inline-flex h-10 items-center justify-center rounded-md bg-slate-100 p-1 text-slate-500 dark:bg-slate-800 dark:text-slate-400",
+        className
+      )}
       {...props}
     >
-      {React.Children.map(children, child => {
-        if (React.isValidElement(child)) {
-          if (child.type === TabsList) {
-            return React.cloneElement(child, {
-              activeValue: value,
-              onValueChange
-            });
-          }
-          return child;
-        }
-        return child;
-      })}
+      {children}
     </div>
   );
 });
 
-Tabs.displayName = 'Tabs';
-
-const TabsList = React.forwardRef(({ className = '', children, activeValue, onValueChange, ...props }, ref) => {
-  return (
-    <div
-      ref={ref}
-      className={`inline-flex h-10 items-center justify-center rounded-md bg-gray-100 dark:bg-gray-800 p-1 text-gray-500 dark:text-gray-400 ${className}`}
-      {...props}
-    >
-      {React.Children.map(children, child => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child, {
-            active: child.props.value === activeValue,
-            onValueChange
-          });
-        }
-        return child;
-      })}
-    </div>
-  );
-});
-
-TabsList.displayName = 'TabsList';
-
-const TabsTrigger = React.forwardRef(({ className = '', value, active, onValueChange, children, ...props }, ref) => {
-  const handleClick = () => {
-    if (onValueChange) {
-      onValueChange(value);
-    }
-  };
+const TabsTrigger = forwardRef(({ className, value, children, ...props }, ref) => {
+  const { value: selectedValue, onValueChange } = useContext(TabsContext);
+  const isActive = selectedValue === value;
 
   return (
     <button
       ref={ref}
-      onClick={handleClick}
-      className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all focus:outline-none
-        ${active ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm' : 'hover:text-gray-900 dark:hover:text-white'}
-        ${className}`}
+      type="button"
+      role="tab"
+      aria-selected={isActive}
+      data-state={isActive ? "active" : "inactive"}
+      onClick={() => onValueChange(value)}
+      className={cn(
+        "inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-slate-950 data-[state=active]:shadow-sm dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300 dark:data-[state=active]:bg-slate-950 dark:data-[state=active]:text-slate-50",
+        className
+      )}
       {...props}
     >
       {children}
@@ -68,17 +51,21 @@ const TabsTrigger = React.forwardRef(({ className = '', value, active, onValueCh
   );
 });
 
-TabsTrigger.displayName = 'TabsTrigger';
-
-const TabsContent = React.forwardRef(({ className = '', value, activeValue, children, ...props }, ref) => {
-  const isActive = value === activeValue;
+const TabsContent = forwardRef(({ className, value, children, ...props }, ref) => {
+  const { value: selectedValue } = useContext(TabsContext);
+  const isActive = selectedValue === value;
 
   if (!isActive) return null;
 
   return (
     <div
       ref={ref}
-      className={`mt-2 focus:outline-none ${className}`}
+      role="tabpanel"
+      data-state={isActive ? "active" : "inactive"}
+      className={cn(
+        "mt-2 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300",
+        className
+      )}
       {...props}
     >
       {children}
@@ -86,6 +73,8 @@ const TabsContent = React.forwardRef(({ className = '', value, activeValue, chil
   );
 });
 
-TabsContent.displayName = 'TabsContent';
+TabsList.displayName = "TabsList";
+TabsTrigger.displayName = "TabsTrigger";
+TabsContent.displayName = "TabsContent";
 
 export { Tabs, TabsList, TabsTrigger, TabsContent };

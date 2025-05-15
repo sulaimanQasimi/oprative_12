@@ -98,8 +98,8 @@ class Warehouse extends Model
     /**
      * Get the users assigned to this warehouse.
      */
-    public function users(): BelongsTo
+    public function users(): HasMany
     {
-        return $this->belongsTo(WarehouseUser::class);
+        return $this->hasMany(WareHouseUser::class);
     }
 }
