@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\CurrencyController;
 use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -41,5 +42,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}', [SupplierController::class, 'destroy'])->name('admin.suppliers.destroy');
         Route::get('/{id}/payments', [SupplierController::class, 'payments'])->name('admin.suppliers.payments');
         Route::get('/{id}/purchases', [SupplierController::class, 'purchases'])->name('admin.suppliers.purchases');
+    });
+
+    // Product Management
+    Route::prefix('products')->group(function () {
+        Route::get('/', [ProductController::class, 'index'])->name('admin.products.index');
+        Route::get('/create', [ProductController::class, 'create'])->name('admin.products.create');
+        Route::post('/', [ProductController::class, 'store'])->name('admin.products.store');
+        Route::get('/{product:id}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
+        Route::put('/{product:id}', [ProductController::class, 'update'])->name('admin.products.update');
+        Route::delete('/{product:id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
     });
 });
