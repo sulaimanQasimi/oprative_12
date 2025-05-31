@@ -23,6 +23,8 @@ class Product extends Model
         'is_in_stock',
         'is_shipped',
         'is_trend',
+        'wholesale_unit_id',
+        'retail_unit_id',
     ];
 
     protected $casts = [
@@ -38,6 +40,16 @@ class Product extends Model
         'is_trend' => 'boolean',
     ];
 
+    public function wholesaleUnit()
+    {
+        return $this->belongsTo(Unit::class, 'wholesale_unit_id');
+    }
+
+    public function retailUnit()
+    {
+        return $this->belongsTo(Unit::class, 'retail_unit_id');
+    }
+
     public function purchaseItems()
     {
         return $this->hasMany(PurchaseItem::class);
@@ -47,6 +59,7 @@ class Product extends Model
     {
         return $this->hasMany(SaleItem::class);
     }
+
     public function warehouseProducts(){
         return $this->hasMany(WarehouseProduct::class,'product_id');
     }

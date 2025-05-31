@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\CurrencyController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\WarehouseController;
+use App\Http\Controllers\Admin\UnitController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -30,6 +31,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{id}/edit', [CurrencyController::class, 'edit'])->name('admin.currencies.edit');
         Route::put('/{id}', [CurrencyController::class, 'update'])->name('admin.currencies.update');
         Route::delete('/{id}', [CurrencyController::class, 'destroy'])->name('admin.currencies.destroy');
+    });
+
+    // Unit Management
+    Route::prefix('units')->group(function () {
+        Route::get('/', [UnitController::class, 'index'])->name('admin.units.index');
+        Route::get('/create', [UnitController::class, 'create'])->name('admin.units.create');
+        Route::post('/', [UnitController::class, 'store'])->name('admin.units.store');
+        Route::get('/{id}/edit', [UnitController::class, 'edit'])->name('admin.units.edit');
+        Route::put('/{id}', [UnitController::class, 'update'])->name('admin.units.update');
+        Route::delete('/{id}', [UnitController::class, 'destroy'])->name('admin.units.destroy');
     });
 
     // Supplier Management
