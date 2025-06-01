@@ -42,11 +42,6 @@ class WarehouseController extends Controller
             'description' => 'nullable|string',
             'address' => 'nullable|string',
             'is_active' => 'boolean',
-            'users' => 'array',
-            'users.*.name' => 'required|string|max:255',
-            'users.*.email' => 'required|email|unique:ware_house_users,email',
-            'users.*.password' => 'required|string|min:8',
-            'users.*.role' => 'required|string|exists:roles,name'
         ]);
 
         $warehouse = Warehouse::create([
@@ -58,19 +53,6 @@ class WarehouseController extends Controller
         ]);
 
         // Create warehouse users
-        if (isset($validated['users'])) {
-            foreach ($validated['users'] as $userData) {
-                $user = WareHouseUser::create([
-                    'warehouse_id' => $warehouse->id,
-                    'name' => $userData['name'],
-                    'email' => $userData['email'],
-                    'password' => Hash::make($userData['password']),
-                ]);
-
-                $role = Role::findByName($userData['role'], 'warehouse_user');
-                $user->assignRole($role);
-            }
-        }
 
         return redirect()->route('admin.warehouses.index')
             ->with('success', 'Warehouse created successfully.');
@@ -92,74 +74,27 @@ class WarehouseController extends Controller
 
     public function update(Request $request, Warehouse $warehouse)
     {
+        // First validate the basic warehouse fields
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:50|unique:warehouses,code,' . $warehouse->id,
             'description' => 'nullable|string',
-            'address' => 'nullable|string',
+            'location' => 'nullable|string',
+            'capacity' => 'nullable|integer|min:0',
             'is_active' => 'boolean',
-            'users' => 'array',
-            'users.*.id' => 'nullable|exists:ware_house_users,id',
-            'users.*.name' => 'required|string|max:255',
-            'users.*.email' => 'required|email|unique:ware_house_users,email,' . ($request->input('users.*.id') ?? 'NULL') . ',id',
-            'users.*.password' => 'nullable|string|min:8',
-            'users.*.role' => 'required|string|exists:roles,name'
         ]);
+
 
         $warehouse->update([
             'name' => $validated['name'],
             'code' => $validated['code'],
             'description' => $validated['description'] ?? null,
-            'address' => $validated['address'] ?? null,
+            'location' => $validated['location'] ?? null,
+            'capacity' => $validated['capacity'] ?? null,
             'is_active' => $validated['is_active'] ?? true,
         ]);
 
-        // Update warehouse users
-        if (isset($validated['users'])) {
-            $currentUserIds = $warehouse->users->pluck('id')->toArray();
-            $updatedUserIds = [];
-
-            foreach ($validated['users'] as $userData) {
-                if (isset($userData['id'])) {
-                    // Update existing user
-                    $user = WareHouseUser::find($userData['id']);
-                    $user->update([
-                        'name' => $userData['name'],
-                        'email' => $userData['email'],
-                    ]);
-
-                    if (isset($userData['password'])) {
-                        $user->update(['password' => Hash::make($userData['password'])]);
-                    }
-
-                    $role = Role::findByName($userData['role'], 'warehouse_user');
-                    $user->syncRoles([$role]);
-
-                    $updatedUserIds[] = $user->id;
-                } else {
-                    // Create new user
-                    $user = WareHouseUser::create([
-                        'warehouse_id' => $warehouse->id,
-                        'name' => $userData['name'],
-                        'email' => $userData['email'],
-                        'password' => Hash::make($userData['password']),
-                    ]);
-
-                    $role = Role::findByName($userData['role'], 'warehouse_user');
-                    $user->assignRole($role);
-
-                    $updatedUserIds[] = $user->id;
-                }
-            }
-
-            // Delete users that were removed
-            $usersToDelete = array_diff($currentUserIds, $updatedUserIds);
-            if (!empty($usersToDelete)) {
-                WareHouseUser::whereIn('id', $usersToDelete)->delete();
-            }
-        }
-
-        return redirect()->route('admin.warehouses.index')
+        return redirect()->route('admin.warehouses.show', $warehouse->id)
             ->with('success', 'Warehouse updated successfully.');
     }
 

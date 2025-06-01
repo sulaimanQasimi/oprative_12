@@ -1,7 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
-import { Building2, ArrowLeft, UserPlus, X, Shield, Users, Key, Plus } from "lucide-react";
+import {
+    Building2,
+    ArrowLeft,
+    UserPlus,
+    X,
+    Shield,
+    Users,
+    Key,
+    Plus,
+    Edit,
+    Trash2,
+    CheckCircle,
+    AlertCircle,
+    Globe,
+    MapPin,
+    Phone,
+    Mail,
+    Calendar
+} from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
     Card,
@@ -22,6 +40,7 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Textarea } from "@/Components/ui/textarea";
 import { Switch } from "@/Components/ui/switch";
+import { Checkbox } from "@/Components/ui/checkbox";
 import {
     Select,
     SelectContent,
@@ -45,6 +64,7 @@ import {
     TabsTrigger,
 } from "@/Components/ui/tabs";
 import { Badge } from "@/Components/ui/badge";
+import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
@@ -52,23 +72,14 @@ export default function Show({ auth, warehouse, roles, permissions }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("details");
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
+    const [isAnimated, setIsAnimated] = useState(false);
 
-    const { data, setData, post, put, processing, errors, reset } = useForm({
-        name: "",
-        email: "",
-        password: "",
-        role: "",
-        permissions: [],
-    });
-
-    // Simulate loading delay
+    // Animation effect
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
+            setIsAnimated(true);
         }, 800);
-
         return () => clearTimeout(timer);
     }, []);
 
@@ -76,77 +87,37 @@ export default function Show({ auth, warehouse, roles, permissions }) {
     useEffect(() => {
         if (!warehouse) {
             console.error("Warehouse data is missing");
-        } else {
-            console.log("Warehouse data:", warehouse);
-            if (!warehouse.users) {
-                console.error("Warehouse users are missing");
-            } else {
-                console.log("Warehouse users:", warehouse.users);
-            }
-        }
-        if (!roles) {
-            console.error("Roles data is missing");
         }
         if (!permissions) {
             console.error("Permissions data is missing");
         }
     }, [warehouse, roles, permissions]);
 
-    const openAddUserDialog = () => {
-        reset();
-        setSelectedUser(null);
-        setDialogOpen(true);
-    };
+    // Filter warehouse-specific permissions
+    const warehousePermissions = permissions?.filter(permission =>
+        permission.guard_name === 'warehouse_user'
+    ) || [];
 
-    const openEditUserDialog = (user) => {
-        if (!user) return;
-
-        setData({
-            name: user.name || "",
-            email: user.email || "",
-            password: "",
-            role: user.roles && user.roles[0]?.name || "",
-            permissions: user.roles && user.roles[0]?.permissions?.map(p => p.name) || [],
-        });
-        setSelectedUser(user);
-        setDialogOpen(true);
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        if (selectedUser) {
-            // Edit user
-            put(route("admin.warehouses.users.update", [warehouse.id, selectedUser.id]), {
-                onSuccess: () => {
-                    setDialogOpen(false);
-                    reset();
-                }
-            });
-        } else {
-            // Add new user
-            post(route("admin.warehouses.users.add", warehouse.id), {
-                onSuccess: () => {
-                    setDialogOpen(false);
-                    reset();
-                }
-            });
-        }
-    };
-
-    const togglePermission = (permission) => {
-        const currentPermissions = [...data.permissions];
-        if (currentPermissions.includes(permission)) {
-            setData("permissions", currentPermissions.filter(p => p !== permission));
-        } else {
-            setData("permissions", [...currentPermissions, permission]);
-        }
+    const getPermissionDisplayName = (permissionName) => {
+        // Remove 'warehouse.' prefix for display
+        return permissionName.replace('warehouse.', '').replace(/[._]/g, ' ').toUpperCase();
     };
 
     return (
         <>
             <Head title={t("Warehouse Details")}>
                 <style>{`
+                    @keyframes shimmer {
+                        0% { background-position: -1000px 0; }
+                        100% { background-position: 1000px 0; }
+                    }
+
+                    .shimmer {
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                        background-size: 1000px 100%;
+                        animation: shimmer 2s infinite;
+                    }
+
                     .bg-grid-pattern {
                         background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
                                         linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
@@ -157,355 +128,400 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                         background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
                                         linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
                     }
+
+                    .glass-effect {
+                        background: rgba(255, 255, 255, 0.1);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                    }
+
+                    .dark .glass-effect {
+                        background: rgba(0, 0, 0, 0.2);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                    }
                 `}</style>
             </Head>
 
             <PageLoader isVisible={loading} />
 
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isAnimated ? 1 : 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 overflow-hidden bg-grid-pattern"
+            >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
-                    {/* Header */}
-                    <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
-                        <div className="flex items-center space-x-4">
-                            <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-0.5">
-                                    {t("Admin Panel")}
-                                </span>
-                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    <Building2 className="h-6 w-6 text-indigo-500" />
-                                    {warehouse?.name || t("Warehouse Details")}
-                                </h1>
+                    {/* Enhanced Header */}
+                    <motion.header
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ delay: 0.3, duration: 0.4 }}
+                                    className="relative"
+                                >
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl blur opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl">
+                                        <Building2 className="w-8 h-8 text-white" />
+                                    </div>
+                                </motion.div>
+                                <div>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1"
+                                    >
+                                        {t("Warehouse Management")}
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent"
+                                    >
+                                        {warehouse?.name || t("Warehouse Details")}
+                                    </motion.h1>
+                                    {warehouse?.code && (
+                                        <motion.p
+                                            initial={{ x: -20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.6, duration: 0.4 }}
+                                            className="text-sm text-slate-600 dark:text-slate-400"
+                                        >
+                                            {t("Code")}: <span className="font-mono font-semibold">{warehouse.code}</span>
+                                        </motion.p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="flex items-center space-x-3">
-                            <Link href={route("admin.warehouses.index")}>
-                                <Button variant="outline" className="gap-2">
-                                    <ArrowLeft className="h-4 w-4" />
-                                    {t("Back to List")}
-                                </Button>
-                            </Link>
-                            {warehouse && (
-                                <Link href={route("admin.warehouses.edit", warehouse.id)}>
-                                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                        {t("Edit Warehouse")}
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
+                            >
+                                <Link href={route("admin.warehouses.index")}>
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform">
+                                        <ArrowLeft className="h-4 w-4" />
+                                        {t("Back to List")}
                                     </Button>
                                 </Link>
-                            )}
+                                {warehouse && (
+                                    <Link href={route("admin.warehouses.edit", warehouse.id)}>
+                                        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:scale-105 transition-transform">
+                                            <Edit className="h-4 w-4 mr-2" />
+                                            {t("Edit Warehouse")}
+                                        </Button>
+                                    </Link>
+                                )}
+                            </motion.div>
                         </div>
-                    </header>
+                    </motion.header>
 
                     {/* Main Content Container */}
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                        <div className="p-6">
-                            <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                                <TabsList className="bg-slate-100 dark:bg-slate-800 p-1">
-                                    <TabsTrigger value="details" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900">
-                                        {t("Details")}
-                                    </TabsTrigger>
-                                    <TabsTrigger value="users" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900">
-                                        {t("Users")}
-                                    </TabsTrigger>
-                                    <TabsTrigger value="permissions" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900">
-                                        {t("Permissions")}
-                                    </TabsTrigger>
-                                </TabsList>
+                        <div className="p-8 space-y-8">
+                            {/* Enhanced Tabs */}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                            >
+                                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                                    <TabsList className="grid w-full grid-cols-2 p-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/20 dark:border-slate-700/50">
+                                        <TabsTrigger
+                                            value="details"
+                                            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
+                                        >
+                                            <Building2 className="h-4 w-4" />
+                                            {t("Details")}
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value="users"
+                                            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
+                                        >
+                                            <Users className="h-4 w-4" />
+                                            {t("Users")} ({warehouse?.users?.length || 0})
+                                        </TabsTrigger>
+                                    </TabsList>
 
-                                {/* Details Tab */}
-                                <TabsContent value="details" className="space-y-6">
-                                    <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
-                                        <CardHeader className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                                            <CardTitle className="text-slate-800 dark:text-slate-200">
-                                                {t("Warehouse Information")}
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="p-6">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <div>
-                                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("Name")}</h3>
-                                                    <p className="text-lg font-medium text-slate-900 dark:text-slate-100">{warehouse?.name || "-"}</p>
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("Code")}</h3>
-                                                    <p className="text-lg font-medium text-slate-900 dark:text-slate-100">{warehouse?.code || "-"}</p>
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("Status")}</h3>
-                                                    <Badge className={warehouse?.is_active ? "bg-green-500" : "bg-red-500"}>
-                                                        {warehouse?.is_active ? t("Active") : t("Inactive")}
-                                                    </Badge>
-                                                </div>
-                                                <div>
-                                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("Created At")}</h3>
-                                                    <p className="text-lg font-medium text-slate-900 dark:text-slate-100">
-                                                        {warehouse?.created_at ? new Date(warehouse.created_at).toLocaleDateString() : "-"}
-                                                    </p>
-                                                </div>
-                                                <div className="md:col-span-2">
-                                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("Description")}</h3>
-                                                    <p className="text-lg font-medium text-slate-900 dark:text-slate-100">
-                                                        {warehouse?.description || t("No description provided")}
-                                                    </p>
-                                                </div>
-                                                <div className="md:col-span-2">
-                                                    <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">{t("Address")}</h3>
-                                                    <p className="text-lg font-medium text-slate-900 dark:text-slate-100">
-                                                        {warehouse?.address || t("No address provided")}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </TabsContent>
-
-                                {/* Users Tab */}
-                                <TabsContent value="users" className="space-y-6">
-                                    <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
-                                        <CardHeader className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                                            <div className="flex items-center justify-between">
-                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                                                    <Users className="h-5 w-5 text-indigo-500" />
-                                                    {t("Warehouse Users")}
-                                                </CardTitle>
-                                                <Button
-                                                    onClick={openAddUserDialog}
-                                                    className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
-                                                >
-                                                    <UserPlus className="h-4 w-4" />
-                                                    {t("Add User")}
-                                                </Button>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="p-0">
-                                            <Table>
-                                                <TableHeader>
-                                                    <TableRow>
-                                                        <TableHead>{t("Name")}</TableHead>
-                                                        <TableHead>{t("Email")}</TableHead>
-                                                        <TableHead>{t("Role")}</TableHead>
-                                                        <TableHead className="text-right">{t("Actions")}</TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {warehouse && warehouse.users && warehouse.users.length > 0 ? (
-                                                        warehouse.users.map((user) => (
-                                                            <TableRow key={user.id}>
-                                                                <TableCell className="font-medium">{user.name}</TableCell>
-                                                                <TableCell>{user.email}</TableCell>
-                                                                <TableCell>
-                                                                    {user.roles && user.roles.map(role => (
-                                                                        <Badge key={role.id} className="bg-indigo-500 mr-1">
-                                                                            {role.name}
-                                                                        </Badge>
-                                                                    ))}
-                                                                </TableCell>
-                                                                <TableCell className="text-right">
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="sm"
-                                                                        onClick={() => openEditUserDialog(user)}
-                                                                    >
-                                                                        {t("Edit")}
-                                                                    </Button>
-                                                                </TableCell>
-                                                            </TableRow>
-                                                        ))
-                                                    ) : (
-                                                        <TableRow>
-                                                            <TableCell colSpan={4} className="text-center py-6 text-slate-500 dark:text-slate-400">
-                                                                {t("No users found for this warehouse")}
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    )}
-                                                </TableBody>
-                                            </Table>
-                                        </CardContent>
-                                    </Card>
-                                </TabsContent>
-
-                                {/* Permissions Tab */}
-                                <TabsContent value="permissions" className="space-y-6">
-                                    <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
-                                        <CardHeader className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                                            <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                                                <Shield className="h-5 w-5 text-indigo-500" />
-                                                {t("Roles & Permissions")}
-                                            </CardTitle>
-                                            <CardDescription>
-                                                {t("Manage roles and permissions for warehouse users")}
-                                            </CardDescription>
-                                        </CardHeader>
-                                        <CardContent className="p-6">
-                                            <div className="space-y-6">
-                                                {roles && roles.map((role) => (
-                                                    <div key={role.id} className="border border-slate-200 dark:border-slate-800 rounded-lg p-4">
-                                                        <div className="flex items-center justify-between mb-4">
-                                                            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                                                                <Key className="h-4 w-4 text-indigo-500" />
-                                                                {role.name}
-                                                            </h3>
+                                    {/* Warehouse Details Tab */}
+                                    <TabsContent value="details" className="space-y-6">
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 0.3, duration: 0.5 }}
+                                        >
+                                            <Card className="border-0 shadow-xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
+                                                <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-700/50">
+                                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                                                        <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                            <Building2 className="h-5 w-5 text-white" />
                                                         </div>
+                                                        {t("Warehouse Information")}
+                                                    </CardTitle>
+                                                    <CardDescription className="text-slate-600 dark:text-slate-400">
+                                                        {t("Complete details about this warehouse facility")}
+                                                    </CardDescription>
+                                                </CardHeader>
+                                                <CardContent className="p-8">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                                        {/* Name */}
+                                                        <motion.div
+                                                            whileHover={{ scale: 1.02 }}
+                                                            className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-700 dark:to-slate-600 border border-blue-200/50 dark:border-slate-600"
+                                                        >
+                                                            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                                                                <Building2 className="h-4 w-4" />
+                                                                <Label className="font-semibold">{t("Name")}</Label>
+                                                            </div>
+                                                            <p className="text-lg font-bold text-slate-800 dark:text-white">
+                                                                {warehouse?.name || "-"}
+                                                            </p>
+                                                        </motion.div>
 
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                                            {role.permissions && role.permissions.map((permission) => (
-                                                                <Badge key={permission.id} className="bg-slate-200 text-slate-800 dark:bg-slate-700 dark:text-slate-200">
-                                                                    {permission.name}
-                                                                </Badge>
-                                                            ))}
-                                                        </div>
+                                                        {/* Code */}
+                                                        <motion.div
+                                                            whileHover={{ scale: 1.02 }}
+                                                            className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-slate-700 dark:to-slate-600 border border-emerald-200/50 dark:border-slate-600"
+                                                        >
+                                                            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                                                                <Key className="h-4 w-4" />
+                                                                <Label className="font-semibold">{t("Code")}</Label>
+                                                            </div>
+                                                            <p className="text-lg font-bold font-mono text-slate-800 dark:text-white">
+                                                                {warehouse?.code || "-"}
+                                                            </p>
+                                                        </motion.div>
+
+                                                        {/* Status */}
+                                                        <motion.div
+                                                            whileHover={{ scale: 1.02 }}
+                                                            className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-slate-700 dark:to-slate-600 border border-purple-200/50 dark:border-slate-600"
+                                                        >
+                                                            <div className="flex items-center gap-2 text-purple-600 dark:text-purple-400">
+                                                                <CheckCircle className="h-4 w-4" />
+                                                                <Label className="font-semibold">{t("Status")}</Label>
+                                                            </div>
+                                                            <Badge
+                                                                variant={warehouse?.is_active ? "success" : "secondary"}
+                                                                className={`text-sm font-bold ${warehouse?.is_active
+                                                                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+                                                                    : 'bg-gradient-to-r from-gray-500 to-slate-600 text-white'
+                                                                }`}
+                                                            >
+                                                                {warehouse?.is_active ? t("Active") : t("Inactive")}
+                                                            </Badge>
+                                                        </motion.div>
+
+                                                        {/* Description */}
+                                                        <motion.div
+                                                            whileHover={{ scale: 1.02 }}
+                                                            className="md:col-span-2 lg:col-span-3 space-y-3 p-4 rounded-xl bg-gradient-to-br from-orange-50 to-amber-50 dark:from-slate-700 dark:to-slate-600 border border-orange-200/50 dark:border-slate-600"
+                                                        >
+                                                            <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
+                                                                <AlertCircle className="h-4 w-4" />
+                                                                <Label className="font-semibold">{t("Description")}</Label>
+                                                            </div>
+                                                            <p className="text-slate-700 dark:text-slate-300 leading-relaxed">
+                                                                {warehouse?.description || t("No description provided")}
+                                                            </p>
+                                                        </motion.div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </TabsContent>
-                            </Tabs>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    </TabsContent>
+
+                                    {/* Enhanced Users Tab */}
+                                    <TabsContent value="users" className="space-y-6">
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 0.3, duration: 0.5 }}
+                                        >
+                                            <Card className="border-0 shadow-xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
+                                                <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-700/50">
+                                                    <div className="flex items-center justify-between">
+                                                        <div>
+                                                            <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                                                                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                                    <Users className="h-5 w-5 text-white" />
+                                                                </div>
+                                                                {t("Warehouse Users")}
+                                                            </CardTitle>
+                                                            <CardDescription className="text-slate-600 dark:text-slate-400 mt-1">
+                                                                {t("Manage user access and permissions for this warehouse")}
+                                                            </CardDescription>
+                                                        </div>
+                                                        <Link href={route("admin.warehouses.users.create", warehouse.id)}>
+                                                            <Button
+                                                                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:scale-105 transition-transform"
+                                                            >
+                                                                <UserPlus className="h-4 w-4 mr-2" />
+                                                                {t("Add User")}
+                                                            </Button>
+                                                        </Link>
+                                                    </div>
+                                                </CardHeader>
+                                                <CardContent className="p-0">
+                                                    {warehouse?.users && warehouse.users.length > 0 ? (
+                                                        <div className="overflow-x-auto">
+                                                            <Table>
+                                                                <TableHeader>
+                                                                    <TableRow className="bg-slate-50/50 dark:bg-slate-800/50">
+                                                                        <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Users className="h-4 w-4" />
+                                                                                {t("Name")}
+                                                                            </div>
+                                                                        </TableHead>
+                                                                        <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Mail className="h-4 w-4" />
+                                                                                {t("Email")}
+                                                                            </div>
+                                                                        </TableHead>
+                                                                        <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Shield className="h-4 w-4" />
+                                                                                {t("Permissions")}
+                                                                            </div>
+                                                                        </TableHead>
+                                                                        <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Calendar className="h-4 w-4" />
+                                                                                {t("Created")}
+                                                                            </div>
+                                                                        </TableHead>
+                                                                        <TableHead className="text-right font-bold text-slate-700 dark:text-slate-300">
+                                                                            {t("Actions")}
+                                                                        </TableHead>
+                                                                    </TableRow>
+                                                                </TableHeader>
+                                                                <TableBody>
+                                                                    <AnimatePresence>
+                                                                        {warehouse.users.map((user, index) => (
+                                                                            <motion.tr
+                                                                                key={user.id}
+                                                                                initial={{ opacity: 0, y: 20 }}
+                                                                                animate={{ opacity: 1, y: 0 }}
+                                                                                transition={{ delay: index * 0.1 }}
+                                                                                className="hover:bg-blue-50/50 dark:hover:bg-slate-700/50 transition-colors"
+                                                                            >
+                                                                                <TableCell>
+                                                                                    <div className="flex items-center gap-3">
+                                                                                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                                                                                            <span className="text-white font-bold text-sm">
+                                                                                                {user.name?.charAt(0).toUpperCase()}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                        <span className="font-semibold text-slate-800 dark:text-white">
+                                                                                            {user.name}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                </TableCell>
+                                                                                <TableCell className="text-slate-600 dark:text-slate-400">
+                                                                                    {user.email}
+                                                                                </TableCell>
+                                                                                <TableCell>
+                                                                                    <div className="flex flex-wrap gap-1 max-w-xs">
+                                                                                        {user.permissions?.slice(0, 3).map((permission) => (
+                                                                                            <Badge
+                                                                                                key={permission.id}
+                                                                                                variant="secondary"
+                                                                                                className="text-xs bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-700"
+                                                                                            >
+                                                                                                {getPermissionDisplayName(permission.name)}
+                                                                                            </Badge>
+                                                                                        ))}
+                                                                                        {user.permissions?.length > 3 && (
+                                                                                            <Badge variant="outline" className="text-xs">
+                                                                                                +{user.permissions.length - 3} more
+                                                                                            </Badge>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </TableCell>
+                                                                                <TableCell className="text-slate-600 dark:text-slate-400">
+                                                                                    {new Date(user.created_at).toLocaleDateString()}
+                                                                                </TableCell>
+                                                                                <TableCell className="text-right">
+                                                                                    <div className="flex items-center justify-end gap-2">
+                                                                                        <Link href={route("admin.warehouses.users.edit", [warehouse.id, user.id])}>
+                                                                                            <Button
+                                                                                                size="sm"
+                                                                                                variant="outline"
+                                                                                                className="hover:scale-105 transition-transform"
+                                                                                            >
+                                                                                                <Edit className="h-3 w-3" />
+                                                                                            </Button>
+                                                                                        </Link>
+                                                                                        <Button
+                                                                                            size="sm"
+                                                                                            variant="outline"
+                                                                                            className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:scale-105 transition-all"
+                                                                                        >
+                                                                                            <Trash2 className="h-3 w-3" />
+                                                                                        </Button>
+                                                                                    </div>
+                                                                                </TableCell>
+                                                                            </motion.tr>
+                                                                        ))}
+                                                                    </AnimatePresence>
+                                                                </TableBody>
+                                                            </Table>
+                                                        </div>
+                                                    ) : (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, scale: 0.9 }}
+                                                            animate={{ opacity: 1, scale: 1 }}
+                                                            className="text-center py-16"
+                                                        >
+                                                            <div className="flex flex-col items-center gap-4">
+                                                                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                                                                    <Users className="h-8 w-8 text-white" />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">
+                                                                        {t("No users assigned")}
+                                                                    </h3>
+                                                                    <p className="text-slate-600 dark:text-slate-400 mb-4">
+                                                                        {t("Get started by adding your first warehouse user")}
+                                                                    </p>
+                                                                    <Link href={route("admin.warehouses.users.create", warehouse.id)}>
+                                                                        <Button
+                                                                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:scale-105 transition-transform"
+                                                                        >
+                                                                            <UserPlus className="h-4 w-4 mr-2" />
+                                                                            {t("Add First User")}
+                                                                        </Button>
+                                                                    </Link>
+                                                                </div>
+                                                            </div>
+                                                        </motion.div>
+                                                    )}
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    </TabsContent>
+                                </Tabs>
+                            </motion.div>
                         </div>
                     </main>
                 </div>
-            </div>
-
-            {/* User Dialog */}
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-                <DialogContent className="sm:max-w-[525px]">
-                    <DialogHeader>
-                        <DialogTitle>
-                            {selectedUser ? t("Edit User") : t("Add New User")}
-                        </DialogTitle>
-                        <DialogDescription>
-                            {selectedUser
-                                ? t("Update user details and permissions")
-                                : t("Add a new user to this warehouse")}
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Name */}
-                        <div className="space-y-2">
-                            <Label htmlFor="name">
-                                {t("Name")} <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                id="name"
-                                value={data.name}
-                                onChange={(e) => setData("name", e.target.value)}
-                                className={errors.name ? "border-red-500" : ""}
-                            />
-                            {errors.name && (
-                                <p className="text-sm text-red-500">{errors.name}</p>
-                            )}
-                        </div>
-
-                        {/* Email */}
-                        <div className="space-y-2">
-                            <Label htmlFor="email">
-                                {t("Email")} <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={data.email}
-                                onChange={(e) => setData("email", e.target.value)}
-                                className={errors.email ? "border-red-500" : ""}
-                            />
-                            {errors.email && (
-                                <p className="text-sm text-red-500">{errors.email}</p>
-                            )}
-                        </div>
-
-                        {/* Password */}
-                        <div className="space-y-2">
-                            <Label htmlFor="password">
-                                {t("Password")} {!selectedUser && <span className="text-red-500">*</span>}
-                            </Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                value={data.password}
-                                onChange={(e) => setData("password", e.target.value)}
-                                placeholder={selectedUser ? t("Leave blank to keep current password") : ""}
-                                className={errors.password ? "border-red-500" : ""}
-                            />
-                            {errors.password && (
-                                <p className="text-sm text-red-500">{errors.password}</p>
-                            )}
-                        </div>
-
-                        {/* Role */}
-                        <div className="space-y-2">
-                            <Label htmlFor="role">
-                                {t("Role")} <span className="text-red-500">*</span>
-                            </Label>
-                            <Select
-                                value={data.role}
-                                onValueChange={(value) => setData("role", value)}
-                            >
-                                <SelectTrigger id="role" className={errors.role ? "border-red-500" : ""}>
-                                    <SelectValue placeholder={t("Select a role")} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {roles && roles.map((role) => (
-                                        <SelectItem key={role.id} value={role.name}>
-                                            {role.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                            {errors.role && (
-                                <p className="text-sm text-red-500">{errors.role}</p>
-                            )}
-                        </div>
-
-                        {/* Custom Permissions */}
-                        <div className="space-y-2">
-                            <Label>{t("Additional Permissions")}</Label>
-                            <div className="grid grid-cols-2 gap-2 mt-2">
-                                {permissions && permissions.map((permission) => (
-                                    <div key={permission.id} className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            id={`permission-${permission.id}`}
-                                            checked={data.permissions.includes(permission.name)}
-                                            onChange={() => togglePermission(permission.name)}
-                                            className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
-                                        />
-                                        <Label htmlFor={`permission-${permission.id}`} className="text-sm">
-                                            {permission.name}
-                                        </Label>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <DialogFooter>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={() => setDialogOpen(false)}
-                            >
-                                {t("Cancel")}
-                            </Button>
-                            <Button
-                                type="submit"
-                                disabled={processing}
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                            >
-                                {processing
-                                    ? selectedUser
-                                        ? t("Updating...")
-                                        : t("Adding...")
-                                    : selectedUser
-                                        ? t("Update User")
-                                        : t("Add User")}
-                            </Button>
-                        </DialogFooter>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            </motion.div>
         </>
     );
 }

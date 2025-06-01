@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\UnitController;
+use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\WarehouseUserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -66,6 +68,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{product:id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
     });
 
+    // Employee Management
+    Route::prefix('employees')->group(function () {
+        Route::get('/', [EmployeeController::class, 'index'])->name('admin.employees.index');
+        Route::get('/create', [EmployeeController::class, 'create'])->name('admin.employees.create');
+        Route::post('/', [EmployeeController::class, 'store'])->name('admin.employees.store');
+        Route::get('/{id}', [EmployeeController::class, 'show'])->name('admin.employees.show');
+        Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employees.edit');
+        Route::put('/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
+        Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
+    });
+
     // Warehouse Management
     Route::prefix('warehouses')->group(function () {
         Route::get('/', [WarehouseController::class, 'index'])->name('admin.warehouses.index');
@@ -77,7 +90,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{warehouse:id}', [WarehouseController::class, 'show'])->name('admin.warehouses.show');
 
         // Warehouse user management
-        Route::post('/{warehouse:id}/users', [WarehouseController::class, 'addUser'])->name('admin.warehouses.users.add');
-        Route::put('/{warehouse:id}/users/{user}', [WarehouseController::class, 'updateUser'])->name('admin.warehouses.users.update');
+        Route::get('/{warehouse:id}/users/create', [WarehouseUserController::class, 'create'])->name('admin.warehouses.users.create');
+        Route::post('/{warehouse:id}/users', [WarehouseUserController::class, 'store'])->name('admin.warehouses.users.store');
+        Route::get('/{warehouse:id}/users/{user}/edit', [WarehouseUserController::class, 'edit'])->name('admin.warehouses.users.edit');
+        Route::put('/{warehouse:id}/users/{user}', [WarehouseUserController::class, 'update'])->name('admin.warehouses.users.update');
     });
 });

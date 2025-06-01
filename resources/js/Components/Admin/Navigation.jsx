@@ -62,6 +62,8 @@ const Navigation = ({ auth, currentRoute }) => {
                     return '/adminpanel/units';
                 case 'admin.currencies.index':
                     return '/adminpanel/currencies';
+                case 'admin.employees.index':
+                    return '/adminpanel/employees';
                 default:
                     return '#';
             }
@@ -72,11 +74,36 @@ const Navigation = ({ auth, currentRoute }) => {
             if (typeof route !== 'undefined' && route.has && route.has(routeName)) {
                 return route(routeName);
             }
-            // Fallback for specific known routes
+
+            // For logout, always use the direct path since it's causing issues
             if (routeName === 'logout') {
                 return '/logout';
             }
-            return route(routeName);
+
+            // Check if route function exists before calling it
+            if (typeof route !== 'undefined') {
+                return route(routeName);
+            }
+
+            // Fallback URLs
+            switch (routeName) {
+                case 'admin.dashboard':
+                    return '/adminpanel/dashboard';
+                case 'admin.products.index':
+                    return '/adminpanel/products';
+                case 'admin.suppliers.index':
+                    return '/adminpanel/suppliers';
+                case 'admin.warehouses.index':
+                    return '/adminpanel/warehouses';
+                case 'admin.units.index':
+                    return '/adminpanel/units';
+                case 'admin.currencies.index':
+                    return '/adminpanel/currencies';
+                case 'admin.employees.index':
+                    return '/adminpanel/employees';
+                default:
+                    return '#';
+            }
         } catch (error) {
             console.error(`Route not found: ${routeName}`, error);
             // Provide specific fallbacks for known routes
@@ -95,6 +122,8 @@ const Navigation = ({ auth, currentRoute }) => {
                     return '/adminpanel/units';
                 case 'admin.currencies.index':
                     return '/adminpanel/currencies';
+                case 'admin.employees.index':
+                    return '/adminpanel/employees';
                 default:
                     return '#'; // Fallback URL
             }
@@ -162,6 +191,13 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.warehouses.index",
                     active: currentRoute?.startsWith("admin.warehouses"),
                     description: t("Storage management"),
+                },
+                {
+                    name: t("Employees"),
+                    icon: <Users className="w-5 h-5" />,
+                    route: "admin.employees.index",
+                    active: currentRoute?.startsWith("admin.employees"),
+                    description: t("Employee management"),
                 },
             ],
         },

@@ -1,7 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
-import { Building2, ArrowLeft, UserPlus, X } from "lucide-react";
+import { motion } from "framer-motion";
+import anime from "animejs";
+import {
+    Building2,
+    ArrowLeft,
+    Save,
+    AlertCircle,
+    CheckCircle,
+    MapPin,
+    Package,
+    Users,
+    Settings,
+    Activity,
+    Info,
+    FileText,
+    Hash,
+    Building,
+    Edit as EditIcon,
+    Trash2,
+    UserPlus,
+    X,
+} from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
     Card,
@@ -13,6 +34,8 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Textarea } from "@/Components/ui/textarea";
 import { Switch } from "@/Components/ui/switch";
+import { Badge } from "@/Components/ui/badge";
+import { Separator } from "@/Components/ui/separator";
 import {
     Select,
     SelectContent,
@@ -26,13 +49,19 @@ import PageLoader from "@/Components/Admin/PageLoader";
 export default function Edit({ auth, warehouse, roles }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
+    const [isAnimated, setIsAnimated] = useState(false);
     const [users, setUsers] = useState([]);
+
+    // Refs for animation targets
+    const headerRef = useRef(null);
+    const formRef = useRef(null);
 
     const { data, setData, put, processing, errors } = useForm({
         name: warehouse?.name || "",
         code: warehouse?.code || "",
         description: warehouse?.description || "",
-        address: warehouse?.address || "",
+        location: warehouse?.location || "",
+        capacity: warehouse?.capacity || "",
         is_active: warehouse?.is_active || false,
         users: [],
     });
@@ -44,23 +73,24 @@ export default function Edit({ auth, warehouse, roles }) {
                 name: warehouse.name,
                 code: warehouse.code,
                 description: warehouse.description || "",
-                address: warehouse.address || "",
+                location: warehouse.location || "",
+                capacity: warehouse.capacity || "",
                 is_active: warehouse.is_active,
-                users: warehouse.users.map(user => ({
+                users: warehouse.users?.map(user => ({
                     id: user.id,
                     name: user.name,
                     email: user.email,
                     password: "",
-                    role: user.roles[0]?.name || "",
-                })),
+                    role: user.roles?.[0]?.name || "",
+                })) || [],
             });
-            setUsers(warehouse.users.map(user => ({
+            setUsers(warehouse.users?.map(user => ({
                 id: user.id,
                 name: user.name,
                 email: user.email,
                 password: "",
-                role: user.roles[0]?.name || "",
-            })));
+                role: user.roles?.[0]?.name || "",
+            })) || []);
         }
     }, [warehouse]);
 
@@ -98,11 +128,37 @@ export default function Edit({ auth, warehouse, roles }) {
         setData("users", newUsers);
     };
 
+    // Initialize animations
+    useEffect(() => {
+        if (!isAnimated) {
+            // Animate header
+            anime({
+                targets: headerRef.current,
+                opacity: [0, 1],
+                translateY: [-30, 0],
+                duration: 800,
+                easing: "easeOutExpo",
+            });
+
+            // Animate form
+            anime({
+                targets: formRef.current,
+                opacity: [0, 1],
+                translateY: [30, 0],
+                duration: 700,
+                easing: "easeOutExpo",
+                delay: 200,
+            });
+
+            setIsAnimated(true);
+        }
+    }, [isAnimated]);
+
     // Simulate loading delay
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 800);
+        }, 1200);
 
         return () => clearTimeout(timer);
     }, []);
@@ -111,378 +167,360 @@ export default function Edit({ auth, warehouse, roles }) {
         <>
             <Head title={t("Edit Warehouse")}>
                 <style>{`
-                    .bg-grid-pattern {
-                        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-                                        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-                        background-size: 14px 14px;
+                    @keyframes shimmer {
+                        0% { transform: translateX(-100%); }
+                        100% { transform: translateX(100%); }
                     }
-
+                    .animate-shimmer {
+                        animation: shimmer 3s infinite;
+                    }
+                    .bg-grid-pattern {
+                        background-image:
+                            linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+                        background-size: 20px 20px;
+                    }
                     .dark .bg-grid-pattern {
-                        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                        background-image:
+                            linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+                    }
+                    .glass-effect {
+                        backdrop-filter: blur(20px);
+                        background: rgba(255, 255, 255, 0.8);
+                    }
+                    .dark .glass-effect {
+                        background: rgba(15, 23, 42, 0.8);
+                    }
+                    .form-card {
+                        transition: all 0.3s ease;
+                    }
+                    .form-card:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                    }
+                    .dark .form-card:hover {
+                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
                     }
                 `}</style>
             </Head>
 
             <PageLoader isVisible={loading} />
 
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
+            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 bg-grid-pattern overflow-hidden">
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
-                    {/* Header */}
-                    <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
-                        <div className="flex items-center space-x-4">
-                            <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-0.5">
-                                    {t("Admin Panel")}
-                                </span>
-                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    {t("Edit Warehouse")}
-                                </h1>
+                    {/* Enhanced Header */}
+                    <header ref={headerRef} className="glass-effect border-b border-slate-200/50 dark:border-slate-800/50 py-6 px-8 sticky top-0 z-40">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-6">
+                                <div className="relative">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-25"></div>
+                                    <div className="relative bg-white dark:bg-slate-900 p-3 rounded-lg">
+                                        <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                                    </div>
+                                </div>
+                                <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                        <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+                                            {t("Warehouse Management")}
+                                        </span>
+                                        <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800">
+                                            <EditIcon className="h-3 w-3 mr-1" />
+                                            {t("Edit Mode")}
+                                        </Badge>
+                                    </div>
+                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                                        {t("Edit Warehouse")}
+                                    </h1>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                        {t("Update warehouse information and settings")}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="flex items-center space-x-3">
-                            <Link href={route("admin.warehouses.index")}>
-                                <Button variant="outline" className="gap-2">
-                                    <ArrowLeft className="h-4 w-4" />
-                                    {t("Back to List")}
-                                </Button>
-                            </Link>
+                            <div className="flex items-center space-x-3">
+                                <Link href={route("admin.warehouses.show", warehouse.id)}>
+                                    <Button variant="outline" className="shadow-sm">
+                                        <ArrowLeft className="h-4 w-4 mr-2" />
+                                        {t("Back to Warehouse")}
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                     </header>
 
                     {/* Main Content Container */}
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                        <div className="p-6">
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                {/* Warehouse Information */}
-                                <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
-                                    <CardHeader className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                                        <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                                            <Building2 className="h-5 w-5 text-indigo-500" />
-                                            {t("Warehouse Information")}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            {/* Name */}
-                                            <div className="space-y-2">
-                                                <Label htmlFor="name">
-                                                    {t("Name")} <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="name"
-                                                    type="text"
-                                                    value={data.name}
-                                                    onChange={(e) =>
-                                                        setData("name", e.target.value)
-                                                    }
-                                                    className={
-                                                        errors.name
-                                                            ? "border-red-500"
-                                                            : ""
-                                                    }
-                                                />
-                                                {errors.name && (
-                                                    <p className="text-sm text-red-500">
-                                                        {errors.name}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            {/* Code */}
-                                            <div className="space-y-2">
-                                                <Label htmlFor="code">
-                                                    {t("Code")} <span className="text-red-500">*</span>
-                                                </Label>
-                                                <Input
-                                                    id="code"
-                                                    type="text"
-                                                    value={data.code}
-                                                    onChange={(e) =>
-                                                        setData("code", e.target.value)
-                                                    }
-                                                    className={
-                                                        errors.code
-                                                            ? "border-red-500"
-                                                            : ""
-                                                    }
-                                                />
-                                                {errors.code && (
-                                                    <p className="text-sm text-red-500">
-                                                        {errors.code}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            {/* Description */}
-                                            <div className="space-y-2 md:col-span-2">
-                                                <Label htmlFor="description">
-                                                    {t("Description")}
-                                                </Label>
-                                                <Textarea
-                                                    id="description"
-                                                    value={data.description}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            "description",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className={
-                                                        errors.description
-                                                            ? "border-red-500"
-                                                            : ""
-                                                    }
-                                                />
-                                                {errors.description && (
-                                                    <p className="text-sm text-red-500">
-                                                        {errors.description}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            {/* Address */}
-                                            <div className="space-y-2 md:col-span-2">
-                                                <Label htmlFor="address">
-                                                    {t("Address")}
-                                                </Label>
-                                                <Textarea
-                                                    id="address"
-                                                    value={data.address}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            "address",
-                                                            e.target.value
-                                                        )
-                                                    }
-                                                    className={
-                                                        errors.address
-                                                            ? "border-red-500"
-                                                            : ""
-                                                    }
-                                                />
-                                                {errors.address && (
-                                                    <p className="text-sm text-red-500">
-                                                        {errors.address}
-                                                    </p>
-                                                )}
-                                            </div>
-
-                                            {/* Status */}
-                                            <div className="space-y-2">
-                                                <Label htmlFor="is_active">
-                                                    {t("Status")}
-                                                </Label>
-                                                <div className="flex items-center space-x-2">
-                                                    <Switch
-                                                        id="is_active"
-                                                        checked={data.is_active}
-                                                        onCheckedChange={(checked) =>
-                                                            setData(
-                                                                "is_active",
-                                                                checked
-                                                            )
-                                                        }
-                                                    />
-                                                    <Label htmlFor="is_active">
-                                                        {t("Active")}
-                                                    </Label>
+                        <div className="p-8">
+                            <div ref={formRef} className="max-w-4xl mx-auto space-y-8">
+                                <form onSubmit={handleSubmit} className="space-y-8">
+                                    {/* Warehouse Information Card */}
+                                    <Card className="form-card border-0 shadow-xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 overflow-hidden">
+                                        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-b border-slate-200/50 dark:border-slate-700/50 pb-6">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center space-x-4">
+                                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                        <Building2 className="h-6 w-6 text-white" />
+                                                    </div>
+                                                    <div>
+                                                        <CardTitle className="text-xl font-bold text-slate-900 dark:text-white">
+                                                            {t("Warehouse Information")}
+                                                        </CardTitle>
+                                                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                                            {t("Update the basic information for this warehouse")}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                {errors.is_active && (
-                                                    <p className="text-sm text-red-500">
-                                                        {errors.is_active}
-                                                    </p>
-                                                )}
+                                                <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
+                                                    <Info className="h-3 w-3 mr-1" />
+                                                    {t("Required Fields")}
+                                                </Badge>
                                             </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                        </CardHeader>
+                                        <CardContent className="p-8">
+                                            {/* Basic Information Section */}
+                                            <div className="space-y-6">
+                                                <div className="flex items-center space-x-2 mb-4">
+                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                        <FileText className="h-4 w-4 text-white" />
+                                                    </div>
+                                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                                        {t("Basic Information")}
+                                                    </h3>
+                                                </div>
 
-                                {/* Warehouse Users */}
-                                <Card className="border border-slate-200 dark:border-slate-800 shadow-sm">
-                                    <CardHeader className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                                        <div className="flex items-center justify-between">
-                                            <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-2">
-                                                <UserPlus className="h-5 w-5 text-indigo-500" />
-                                                {t("Warehouse Users")}
-                                            </CardTitle>
-                                            <Button
-                                                type="button"
-                                                onClick={addUser}
-                                                variant="outline"
-                                                className="gap-2"
-                                            >
-                                                <UserPlus className="h-4 w-4" />
-                                                {t("Add User")}
-                                            </Button>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="p-6">
-                                        <div className="space-y-6">
-                                            {users.map((user, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border border-slate-200 dark:border-slate-800 rounded-lg relative"
-                                                >
-                                                    <Button
-                                                        type="button"
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        className="absolute top-2 right-2"
-                                                        onClick={() => removeUser(index)}
-                                                    >
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
-
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     {/* Name */}
-                                                    <div className="space-y-2">
-                                                        <Label>
-                                                            {t("Name")} <span className="text-red-500">*</span>
+                                                    <div className="space-y-3">
+                                                        <Label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                            <Building className="h-4 w-4 text-blue-500" />
+                                                            {t("Warehouse Name")} <span className="text-red-500">*</span>
                                                         </Label>
                                                         <Input
+                                                            id="name"
                                                             type="text"
-                                                            value={user.name}
-                                                            onChange={(e) =>
-                                                                updateUser(
-                                                                    index,
-                                                                    "name",
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                            className={
-                                                                errors[`users.${index}.name`]
-                                                                    ? "border-red-500"
-                                                                    : ""
-                                                            }
+                                                            placeholder={t("Enter warehouse name")}
+                                                            value={data.name}
+                                                            onChange={(e) => setData("name", e.target.value)}
+                                                            className={`transition-all duration-200 ${
+                                                                errors.name
+                                                                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                                                                    : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                                            }`}
                                                         />
-                                                        {errors[`users.${index}.name`] && (
-                                                            <p className="text-sm text-red-500">
-                                                                {errors[`users.${index}.name`]}
-                                                            </p>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Email */}
-                                                    <div className="space-y-2">
-                                                        <Label>
-                                                            {t("Email")} <span className="text-red-500">*</span>
-                                                        </Label>
-                                                        <Input
-                                                            type="email"
-                                                            value={user.email}
-                                                            onChange={(e) =>
-                                                                updateUser(
-                                                                    index,
-                                                                    "email",
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                            className={
-                                                                errors[`users.${index}.email`]
-                                                                    ? "border-red-500"
-                                                                    : ""
-                                                            }
-                                                        />
-                                                        {errors[`users.${index}.email`] && (
-                                                            <p className="text-sm text-red-500">
-                                                                {errors[`users.${index}.email`]}
-                                                            </p>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Password */}
-                                                    <div className="space-y-2">
-                                                        <Label>
-                                                            {t("Password")} {!user.id && <span className="text-red-500">*</span>}
-                                                        </Label>
-                                                        <Input
-                                                            type="password"
-                                                            value={user.password}
-                                                            onChange={(e) =>
-                                                                updateUser(
-                                                                    index,
-                                                                    "password",
-                                                                    e.target.value
-                                                                )
-                                                            }
-                                                            placeholder={user.id ? t("Leave blank to keep current password") : ""}
-                                                            className={
-                                                                errors[`users.${index}.password`]
-                                                                    ? "border-red-500"
-                                                                    : ""
-                                                            }
-                                                        />
-                                                        {errors[`users.${index}.password`] && (
-                                                            <p className="text-sm text-red-500">
-                                                                {errors[`users.${index}.password`]}
-                                                            </p>
-                                                        )}
-                                                    </div>
-
-                                                    {/* Role */}
-                                                    <div className="space-y-2">
-                                                        <Label>
-                                                            {t("Role")} <span className="text-red-500">*</span>
-                                                        </Label>
-                                                        <Select
-                                                            value={user.role}
-                                                            onValueChange={(value) =>
-                                                                updateUser(index, "role", value)
-                                                            }
-                                                        >
-                                                            <SelectTrigger
-                                                                className={
-                                                                    errors[`users.${index}.role`]
-                                                                        ? "border-red-500"
-                                                                        : ""
-                                                                }
+                                                        {errors.name && (
+                                                            <motion.p
+                                                                initial={{ opacity: 0, y: -10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                className="text-sm text-red-500 flex items-center gap-1"
                                                             >
-                                                                <SelectValue placeholder={t("Select a role")} />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {roles.map((role) => (
-                                                                    <SelectItem key={role.id} value={role.name}>
-                                                                        {role.name}
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        {errors[`users.${index}.role`] && (
-                                                            <p className="text-sm text-red-500">
-                                                                {errors[`users.${index}.role`]}
-                                                            </p>
+                                                                <AlertCircle className="h-3 w-3" />
+                                                                {errors.name}
+                                                            </motion.p>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Code */}
+                                                    <div className="space-y-3">
+                                                        <Label htmlFor="code" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                            <Hash className="h-4 w-4 text-green-500" />
+                                                            {t("Warehouse Code")} <span className="text-red-500">*</span>
+                                                        </Label>
+                                                        <Input
+                                                            id="code"
+                                                            type="text"
+                                                            placeholder={t("Enter unique warehouse code")}
+                                                            value={data.code}
+                                                            onChange={(e) => setData("code", e.target.value.toUpperCase())}
+                                                            className={`transition-all duration-200 font-mono ${
+                                                                errors.code
+                                                                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                                                                    : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                                            }`}
+                                                        />
+                                                        {errors.code && (
+                                                            <motion.p
+                                                                initial={{ opacity: 0, y: -10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                className="text-sm text-red-500 flex items-center gap-1"
+                                                            >
+                                                                <AlertCircle className="h-3 w-3" />
+                                                                {errors.code}
+                                                            </motion.p>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Location */}
+                                                    <div className="space-y-3">
+                                                        <Label htmlFor="location" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                            <MapPin className="h-4 w-4 text-orange-500" />
+                                                            {t("Location")}
+                                                        </Label>
+                                                        <Input
+                                                            id="location"
+                                                            type="text"
+                                                            placeholder={t("Enter warehouse location")}
+                                                            value={data.location}
+                                                            onChange={(e) => setData("location", e.target.value)}
+                                                            className={`transition-all duration-200 ${
+                                                                errors.location
+                                                                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                                                                    : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                                            }`}
+                                                        />
+                                                        {errors.location && (
+                                                            <motion.p
+                                                                initial={{ opacity: 0, y: -10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                className="text-sm text-red-500 flex items-center gap-1"
+                                                            >
+                                                                <AlertCircle className="h-3 w-3" />
+                                                                {errors.location}
+                                                            </motion.p>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Capacity */}
+                                                    <div className="space-y-3">
+                                                        <Label htmlFor="capacity" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                            <Package className="h-4 w-4 text-purple-500" />
+                                                            {t("Storage Capacity")}
+                                                        </Label>
+                                                        <Input
+                                                            id="capacity"
+                                                            type="number"
+                                                            placeholder={t("Enter storage capacity")}
+                                                            value={data.capacity}
+                                                            onChange={(e) => setData("capacity", e.target.value)}
+                                                            className={`transition-all duration-200 ${
+                                                                errors.capacity
+                                                                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                                                                    : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                                            }`}
+                                                        />
+                                                        {errors.capacity && (
+                                                            <motion.p
+                                                                initial={{ opacity: 0, y: -10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                className="text-sm text-red-500 flex items-center gap-1"
+                                                            >
+                                                                <AlertCircle className="h-3 w-3" />
+                                                                {errors.capacity}
+                                                            </motion.p>
                                                         )}
                                                     </div>
                                                 </div>
-                                            ))}
 
-                                            {users.length === 0 && (
-                                                <div className="text-center py-8 text-slate-500 dark:text-slate-400">
-                                                    {t("No users added yet. Click 'Add User' to add warehouse users.")}
+                                                {/* Description */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="description" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <FileText className="h-4 w-4 text-indigo-500" />
+                                                        {t("Description")}
+                                                    </Label>
+                                                    <Textarea
+                                                        id="description"
+                                                        placeholder={t("Enter warehouse description (optional)")}
+                                                        value={data.description}
+                                                        onChange={(e) => setData("description", e.target.value)}
+                                                        rows={4}
+                                                        className={`transition-all duration-200 resize-none ${
+                                                            errors.description
+                                                                ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                                        }`}
+                                                    />
+                                                    {errors.description && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-500 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.description}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <Separator className="my-8" />
+
+                                            {/* Settings Section */}
+                                            <div className="space-y-6">
+                                                <div className="flex items-center space-x-2 mb-4">
+                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                        <Settings className="h-4 w-4 text-white" />
+                                                    </div>
+                                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                                        {t("Warehouse Settings")}
+                                                    </h3>
+                                                </div>
+
+                                                {/* Status */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="is_active" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Activity className="h-4 w-4 text-green-500" />
+                                                        {t("Warehouse Status")}
+                                                    </Label>
+                                                    <div className="flex items-center space-x-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                                        <Switch
+                                                            id="is_active"
+                                                            checked={data.is_active}
+                                                            onCheckedChange={(checked) => setData("is_active", checked)}
+                                                        />
+                                                        <div className="flex items-center space-x-2">
+                                                            {data.is_active ? (
+                                                                <CheckCircle className="h-4 w-4 text-green-500" />
+                                                            ) : (
+                                                                <AlertCircle className="h-4 w-4 text-red-500" />
+                                                            )}
+                                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                                {data.is_active ? t("Active") : t("Inactive")}
+                                                            </span>
+                                                        </div>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                            {data.is_active
+                                                                ? t("Warehouse is operational and can be used")
+                                                                : t("Warehouse is disabled and cannot be used")
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Action Buttons */}
+                                    <div className="flex items-center justify-between pt-6">
+                                        <Link href={route("admin.warehouses.show", warehouse.id)}>
+                                            <Button variant="outline" className="shadow-sm">
+                                                <ArrowLeft className="h-4 w-4 mr-2" />
+                                                {t("Cancel")}
+                                            </Button>
+                                        </Link>
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                            className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg min-w-[120px]"
+                                        >
+                                            {processing ? (
+                                                <div className="flex items-center space-x-2">
+                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                                    <span>{t("Updating...")}</span>
+                                                </div>
+                                            ) : (
+                                                <div className="flex items-center space-x-2">
+                                                    <Save className="h-4 w-4" />
+                                                    <span>{t("Update Warehouse")}</span>
                                                 </div>
                                             )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Submit Button */}
-                                <div className="flex justify-end">
-                                    <Button
-                                        type="submit"
-                                        disabled={processing}
-                                        className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                                    >
-                                        {processing
-                                            ? t("Updating...")
-                                            : t("Update Warehouse")}
-                                    </Button>
-                                </div>
-                            </form>
+                                        </Button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </main>
                 </div>
