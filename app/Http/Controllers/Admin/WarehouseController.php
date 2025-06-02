@@ -535,6 +535,7 @@ class WarehouseController extends Controller
                 'status' => 'completed',
                 'notes' => $validated['notes'],
                 'created_by' => Auth::id(),
+                'transfer_date' => now(),
             ]);
 
             // Create outcome record for source warehouse
@@ -556,10 +557,7 @@ class WarehouseController extends Controller
                 'reference_number' => $referenceNumber,
                 'quantity' => $validated['quantity'],
                 'price' => $validated['price'],
-                'total' => $total,
-                'status' => 'completed',
-                'notes' => 'Transfer from ' . $warehouse->name,
-            ]);
+                'total' => $total, ]);
 
             DB::commit();
 
