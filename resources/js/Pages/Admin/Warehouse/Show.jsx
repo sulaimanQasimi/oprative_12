@@ -18,7 +18,11 @@ import {
     MapPin,
     Phone,
     Mail,
-    Calendar
+    Calendar,
+    Package,
+    Download,
+    Upload,
+    ArrowRightLeft
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -118,17 +122,6 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                         animation: shimmer 2s infinite;
                     }
 
-                    .bg-grid-pattern {
-                        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-                                        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-                        background-size: 14px 14px;
-                    }
-
-                    .dark .bg-grid-pattern {
-                        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-                    }
-
                     .glass-effect {
                         background: rgba(255, 255, 255, 0.1);
                         backdrop-filter: blur(10px);
@@ -149,7 +142,7 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 overflow-hidden bg-grid-pattern"
+                className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden"
             >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
@@ -226,6 +219,30 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                         </Button>
                                     </Link>
                                 )}
+                                <Link href={route("admin.warehouses.products", warehouse.id)}>
+                                    <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:scale-105 transition-transform">
+                                        <Package className="h-4 w-4 mr-2" />
+                                        {t("View Products")}
+                                    </Button>
+                                </Link>
+                                <Link href={route("admin.warehouses.income", warehouse.id)}>
+                                    <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg hover:scale-105 transition-transform">
+                                        <Download className="h-4 w-4 mr-2" />
+                                        {t("Import")}
+                                    </Button>
+                                </Link>
+                                <Link href={route("admin.warehouses.outcome", warehouse.id)}>
+                                    <Button className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white shadow-lg hover:scale-105 transition-transform">
+                                        <Upload className="h-4 w-4 mr-2" />
+                                        {t("Export")}
+                                    </Button>
+                                </Link>
+                                <Link href={route("admin.warehouses.transfers", warehouse.id)}>
+                                    <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:scale-105 transition-transform">
+                                        <ArrowRightLeft className="h-4 w-4 mr-2" />
+                                        {t("Transfer")}
+                                    </Button>
+                                </Link>
                             </motion.div>
                         </div>
                     </motion.header>

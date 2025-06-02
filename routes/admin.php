@@ -89,10 +89,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{warehouse:id}', [WarehouseController::class, 'destroy'])->name('admin.warehouses.destroy');
         Route::get('/{warehouse:id}', [WarehouseController::class, 'show'])->name('admin.warehouses.show');
 
+        // Warehouse products
+        Route::get('/{warehouse:id}/products', [WarehouseController::class, 'products'])->name('admin.warehouses.products');
+
+        // Warehouse import management
+        Route::get('/{warehouse:id}/income', [WarehouseController::class, 'income'])->name('admin.warehouses.income');
+
+        // Warehouse export management
+        Route::get('/{warehouse:id}/outcome', [WarehouseController::class, 'outcome'])->name('admin.warehouses.outcome');
+
+        // Warehouse transfer management
+        Route::get('/{warehouse:id}/transfers', [WarehouseController::class, 'transfers'])->name('admin.warehouses.transfers');
+        Route::get('/{warehouse:id}/transfers/create', [WarehouseController::class, 'createTransfer'])->name('admin.warehouses.transfers.create');
+        Route::post('/{warehouse:id}/transfers', [WarehouseController::class, 'storeTransfer'])->name('admin.warehouses.transfers.store');
+
         // Warehouse user management
         Route::get('/{warehouse:id}/users/create', [WarehouseUserController::class, 'create'])->name('admin.warehouses.users.create');
         Route::post('/{warehouse:id}/users', [WarehouseUserController::class, 'store'])->name('admin.warehouses.users.store');
-        Route::get('/{warehouse:id}/users/{user}/edit', [WarehouseUserController::class, 'edit'])->name('admin.warehouses.users.edit');
-        Route::put('/{warehouse:id}/users/{user}', [WarehouseUserController::class, 'update'])->name('admin.warehouses.users.update');
+        Route::get('/{warehouse:id}/users/{warehouseUser}/edit', [WarehouseUserController::class, 'edit'])->name('admin.warehouses.users.edit');
+        Route::put('/{warehouse:id}/users/{warehouseUser}', [WarehouseUserController::class, 'update'])->name('admin.warehouses.users.update');
     });
 });

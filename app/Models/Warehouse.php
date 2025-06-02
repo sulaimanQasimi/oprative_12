@@ -82,6 +82,11 @@ class Warehouse extends Model
         return $this->hasMany(WarehouseOutcome::class);
     }
 
+    public function warehouseTransfers(): HasMany
+    {
+        return $this->hasMany(WarehouseTransfer::class, 'from_warehouse_id');
+    }
+
     public function sales(): HasMany
     {
         return $this->hasMany(Sale::class);

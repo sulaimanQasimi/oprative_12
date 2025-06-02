@@ -11,14 +11,17 @@ class WarehouseTransfer extends Model
     use SoftDeletes;
 
     protected $fillable = [
+        'reference_number',
         'from_warehouse_id',
         'to_warehouse_id',
         'product_id',
         'quantity',
+        'price',
+        'total',
+        'status',
         'notes',
         'created_by',
-        'transfer_date',
-        'status'
+        'transfer_date'
     ];
 
     protected $casts = [
@@ -63,10 +66,10 @@ class WarehouseTransfer extends Model
 
         $this->fromWarehouse->adjustStock($this->product_id, -$this->quantity);
         $this->toWarehouse->adjustStock($this->product_id, $this->quantity);
-        
+
         $this->status = 'completed';
         $this->save();
-        
+
         return true;
     }
 }
