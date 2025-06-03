@@ -25,6 +25,8 @@ class Product extends Model
         'is_trend',
         'wholesale_unit_id',
         'retail_unit_id',
+        'whole_sale_unit_amount',
+        'retails_sale_unit_amount',
     ];
 
     protected $casts = [
@@ -34,6 +36,8 @@ class Product extends Model
         'purchase_profit' => 'double',
         'wholesale_profit' => 'double',
         'retail_profit' => 'double',
+        'whole_sale_unit_amount' => 'double',
+        'retails_sale_unit_amount' => 'double',
         'is_activated' => 'boolean',
         'is_in_stock' => 'boolean',
         'is_shipped' => 'boolean',

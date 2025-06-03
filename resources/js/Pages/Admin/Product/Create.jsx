@@ -40,6 +40,8 @@ export default function Create({ auth, units = [] }) {
         is_trend: false,
         wholesale_unit_id: "",
         retail_unit_id: "",
+        whole_sale_unit_amount: "",
+        retails_sale_unit_amount: "",
     });
 
     function submit(e) {
@@ -314,6 +316,56 @@ export default function Create({ auth, units = [] }) {
                                                             <span className="text-xs">!</span>
                                                         </div>
                                                         {errors.retail_unit_id}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="whole_sale_unit_amount" className="flex items-center gap-2 text-sm font-medium">
+                                                    <DollarSign className="h-4 w-4 text-gray-500" />
+                                                    {t("Wholesale Unit Amount")}
+                                                </Label>
+                                                <Input
+                                                    id="whole_sale_unit_amount"
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={data.whole_sale_unit_amount}
+                                                    placeholder="0.00"
+                                                    onChange={(e) => setData("whole_sale_unit_amount", e.target.value)}
+                                                    className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20"
+                                                />
+                                                {errors.whole_sale_unit_amount && (
+                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                        <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
+                                                            <span className="text-xs">!</span>
+                                                        </div>
+                                                        {errors.whole_sale_unit_amount}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="retails_sale_unit_amount" className="flex items-center gap-2 text-sm font-medium">
+                                                    <DollarSign className="h-4 w-4 text-gray-500" />
+                                                    {t("Retail Unit Amount")}
+                                                </Label>
+                                                <Input
+                                                    id="retails_sale_unit_amount"
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={data.retails_sale_unit_amount}
+                                                    placeholder="0.00"
+                                                    onChange={(e) => setData("retails_sale_unit_amount", e.target.value)}
+                                                    className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20"
+                                                />
+                                                {errors.retails_sale_unit_amount && (
+                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                        <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
+                                                            <span className="text-xs">!</span>
+                                                        </div>
+                                                        {errors.retails_sale_unit_amount}
                                                     </div>
                                                 )}
                                             </div>

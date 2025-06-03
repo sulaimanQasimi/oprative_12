@@ -92,21 +92,6 @@ export default function Income({ auth, warehouse, incomes }) {
         });
     };
 
-    const getStatusBadge = (status) => {
-        const statusConfig = {
-            'pending': { color: 'bg-yellow-500', text: 'Pending' },
-            'completed': { color: 'bg-green-500', text: 'Completed' },
-            'cancelled': { color: 'bg-red-500', text: 'Cancelled' },
-        };
-        
-        const config = statusConfig[status] || { color: 'bg-gray-500', text: 'Unknown' };
-        return (
-            <Badge variant="secondary" className={`${config.color} text-white`}>
-                {t(config.text)}
-            </Badge>
-        );
-    };
-
     return (
         <>
             <Head title={`${warehouse?.name} - ${t("Import")}`}>
@@ -209,10 +194,12 @@ export default function Income({ auth, warehouse, incomes }) {
                                         {t("Back to Warehouse")}
                                     </Button>
                                 </Link>
-                                <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:scale-105 transition-transform">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    {t("Add Import")}
-                                </Button>
+                                <Link href={route("admin.warehouses.income.create", warehouse.id)}>
+                                    <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:scale-105 transition-transform">
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        {t("Add Import")}
+                                    </Button>
+                                </Link>
                             </motion.div>
                         </div>
                     </motion.header>
@@ -391,10 +378,12 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                         {formatCurrency(income.total)}
                                                                     </TableCell>
                                                                     <TableCell className="text-slate-600 dark:text-slate-400">
-                                                                        {formatDate(income.date || income.created_at)}
+                                                                        {formatDate(income.created_at)}
                                                                     </TableCell>
                                                                     <TableCell className="text-center">
-                                                                        {getStatusBadge(income.status)}
+                                                                        <Badge variant="secondary" className="bg-green-500 text-white">
+                                                                            {t("Completed")}
+                                                                        </Badge>
                                                                     </TableCell>
                                                                     <TableCell className="text-center">
                                                                         <div className="flex items-center justify-center gap-2">
@@ -442,7 +431,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                             {t("No import records found")}
                                                         </h3>
                                                         <p className="text-slate-600 dark:text-slate-400">
-                                                            {searchTerm 
+                                                            {searchTerm
                                                                 ? t("No import records match your search criteria")
                                                                 : t("This warehouse doesn't have any import records yet")
                                                             }
@@ -460,4 +449,4 @@ export default function Income({ auth, warehouse, incomes }) {
             </motion.div>
         </>
     );
-} 
+}

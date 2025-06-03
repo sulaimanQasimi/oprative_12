@@ -94,6 +94,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Warehouse import management
         Route::get('/{warehouse:id}/import', [WarehouseController::class, 'income'])->name('admin.warehouses.income');
+        Route::get('/{warehouse:id}/import/create', [WarehouseController::class, 'createIncome'])->name('admin.warehouses.income.create');
+        Route::post('/{warehouse:id}/import', [WarehouseController::class, 'storeIncome'])->name('admin.warehouses.income.store');
 
         // Warehouse export management
         Route::get('/{warehouse:id}/export', [WarehouseController::class, 'outcome'])->name('admin.warehouses.outcome');

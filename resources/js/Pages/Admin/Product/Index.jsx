@@ -500,6 +500,26 @@ export default function Index({ auth, products = [] }) {
                                                         <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
                                                     </div>
                                                 </th>
+                                                <th
+                                                    className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
+                                                    onClick={() => handleSort("whole_sale_unit_amount")}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <Package className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                                                        <span>{t("Wholesale Unit")}</span>
+                                                        <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+                                                    </div>
+                                                </th>
+                                                <th
+                                                    className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
+                                                    onClick={() => handleSort("retails_sale_unit_amount")}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <ShoppingCart className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                                                        <span>{t("Retail Unit")}</span>
+                                                        <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+                                                    </div>
+                                                </th>
                                                 <th className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
                                                     <div className="flex items-center gap-2">
                                                         <Activity className="h-4 w-4" />
@@ -573,6 +593,22 @@ export default function Index({ auth, products = [] }) {
                                                         <td className="px-6 py-5">
                                                             <div className="font-bold text-green-600 dark:text-green-400 text-lg">
                                                                 ${parseFloat(product.retail_price || 0).toLocaleString()}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-5">
+                                                            <div className="font-bold text-blue-600 dark:text-blue-400 text-sm">
+                                                                {product.whole_sale_unit_amount ?
+                                                                    `${parseFloat(product.whole_sale_unit_amount).toLocaleString()} ${product.wholesaleUnit?.name || ''}`
+                                                                    : "—"
+                                                                }
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-5">
+                                                            <div className="font-bold text-purple-600 dark:text-purple-400 text-sm">
+                                                                {product.retails_sale_unit_amount ?
+                                                                    `${parseFloat(product.retails_sale_unit_amount).toLocaleString()} ${product.retailUnit?.name || ''}`
+                                                                    : "—"
+                                                                }
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-5">

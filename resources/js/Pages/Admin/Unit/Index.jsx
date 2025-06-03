@@ -294,6 +294,17 @@ export default function Index({ auth, units = [] }) {
                                                         <ArrowUpDown className="h-4 w-4" />
                                                     </div>
                                                 </th>
+                                                <th
+                                                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer"
+                                                    onClick={() =>
+                                                        handleSort("symbol")
+                                                    }
+                                                >
+                                                    <div className="flex items-center space-x-1">
+                                                        <span>{t("Symbol")}</span>
+                                                        <ArrowUpDown className="h-4 w-4" />
+                                                    </div>
+                                                </th>
                                                 <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                     {t("Actions")}
                                                 </th>
@@ -319,6 +330,11 @@ export default function Index({ auth, units = [] }) {
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="text-sm text-slate-500 dark:text-slate-400">
                                                             {unit.code}
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md inline-block">
+                                                            {unit.symbol || "—"}
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

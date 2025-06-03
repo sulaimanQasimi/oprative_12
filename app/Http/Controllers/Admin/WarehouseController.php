@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\DB;
 use App\Models\Product;
+use App\Models\WarehouseIncome;
+use App\Models\WarehouseProduct;
 
 class WarehouseController extends Controller
 {
@@ -278,8 +280,7 @@ class WarehouseController extends Controller
         try {
             // Load warehouse with income records and related data
             $warehouse = Warehouse::with([
-                'warehouseIncome.product',
-                'warehouseIncome.purchase'
+                'warehouseIncome.product'
             ])->findOrFail($warehouse->id);
 
             // Get warehouse income records
@@ -296,14 +297,8 @@ class WarehouseController extends Controller
                     'quantity' => $income->quantity,
                     'price' => $income->price,
                     'total' => $income->total,
-                    'purchase_id' => $income->purchase_id,
-                    'purchase' => $income->purchase ? [
-                        'id' => $income->purchase->id,
-                        'reference_number' => $income->purchase->reference_number,
-                    ] : null,
-                    'date' => $income->date,
-                    'notes' => $income->notes,
-                    'status' => $income->status,
+                    'model_type' => $income->model_type,
+                    'model_id' => $income->model_id,
                     'created_at' => $income->created_at,
                     'updated_at' => $income->updated_at,
                 ];
@@ -326,6 +321,108 @@ class WarehouseController extends Controller
             Log::error('Error loading warehouse income: ' . $e->getMessage());
             return redirect()->route('admin.warehouses.show', $warehouse->id)
                 ->with('error', 'Error loading warehouse income: ' . $e->getMessage());
+        }
+    }
+
+    public function createIncome(Warehouse $warehouse)
+    {
+        try {
+            // Get all products with their units and pricing information
+            $products = Product::with(['wholesaleUnit', 'retailUnit'])
+                ->where('is_activated', true)
+                ->get()
+                ->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'barcode' => $product->barcode,
+                        'type' => $product->type,
+                        'purchase_price' => $product->purchase_price,
+                        'wholesale_price' => $product->wholesale_price,
+                        'retail_price' => $product->retail_price,
+                        'whole_sale_unit_amount' => $product->whole_sale_unit_amount,
+                        'retails_sale_unit_amount' => $product->retails_sale_unit_amount,
+                        'wholesaleUnit' => $product->wholesaleUnit ? [
+                            'id' => $product->wholesaleUnit->id,
+                            'name' => $product->wholesaleUnit->name,
+                            'code' => $product->wholesaleUnit->code,
+                            'symbol' => $product->wholesaleUnit->symbol,
+                        ] : null,
+                        'retailUnit' => $product->retailUnit ? [
+                            'id' => $product->retailUnit->id,
+                            'name' => $product->retailUnit->name,
+                            'code' => $product->retailUnit->code,
+                            'symbol' => $product->retailUnit->symbol,
+                        ] : null,
+                    ];
+                });
+
+            return Inertia::render('Admin/Warehouse/CreateIncome', [
+                'warehouse' => [
+                    'id' => $warehouse->id,
+                    'name' => $warehouse->name,
+                    'code' => $warehouse->code,
+                    'description' => $warehouse->description,
+                    'is_active' => $warehouse->is_active,
+                ],
+                'products' => $products,
+                'auth' => [
+                    'user' => Auth::user()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading create income page: ' . $e->getMessage());
+            return redirect()->route('admin.warehouses.income', $warehouse->id)
+                ->with('error', 'Error loading create income page: ' . $e->getMessage());
+        }
+    }
+
+    public function storeIncome(Request $request, Warehouse $warehouse)
+    {
+        try {
+            $validated = $request->validate([
+                'product_id' => 'required|exists:products,id',
+                'unit_type' => 'required|in:wholesale,retail',
+                'quantity' => 'required|numeric|min:0.01',
+                'price' => 'required|numeric|min:0',
+                'notes' => 'nullable|string|max:1000',
+            ]);
+
+            // Get the product with unit information
+            $product = Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($validated['product_id']);
+
+            // Calculate actual quantity and total based on unit type
+            $actualQuantity = $validated['quantity'];
+            $unitPrice = $validated['price'];
+
+            if ($validated['unit_type'] === 'wholesale' && $product->whole_sale_unit_amount) {
+                // If wholesale unit is selected, multiply by unit amount
+                $actualQuantity = $validated['quantity'] * $product->whole_sale_unit_amount;
+            }
+
+            $total = $actualQuantity * $unitPrice;
+
+            // Generate reference number
+            $referenceNumber = 'INC-' . $warehouse->code . '-' . date('YmdHis') . '-' . rand(100, 999);
+
+            // Create the income record (only with fields that exist in the table)
+            $income = WarehouseIncome::create([
+                'reference_number' => $referenceNumber,
+                'warehouse_id' => $warehouse->id,
+                'product_id' => $validated['product_id'],
+                'quantity' => $actualQuantity,
+                'price' => $unitPrice,
+                'total' => $total,
+            ]);
+
+            return redirect()->route('admin.warehouses.income', $warehouse->id)
+                ->with('success', 'Income record created successfully.');
+
+        } catch (\Exception $e) {
+            Log::error('Error creating income record: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Error creating income record: ' . $e->getMessage()]);
         }
     }
 
@@ -617,9 +714,9 @@ class WarehouseController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error loading warehouse sales: ' . $e->getMessage());
+            Log::error('Error loading warehouse store movements: ' . $e->getMessage());
             return redirect()->route('admin.warehouses.show', $warehouse->id)
-                ->with('error', 'Error loading warehouse sales: ' . $e->getMessage());
+                ->with('error', 'Error loading warehouse store movements: ' . $e->getMessage());
         }
     }
 
@@ -662,8 +759,8 @@ class WarehouseController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error('Error loading create sale page: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error loading create sale page');
+            Log::error('Error loading create store movement page: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error loading create store movement page');
         }
     }
 
@@ -708,7 +805,7 @@ class WarehouseController extends Controller
             DB::beginTransaction();
 
             // Generate reference number
-            $referenceNumber = 'SALE-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+            $referenceNumber = 'STORE-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
 
             // Calculate total
             $total = $validated['quantity'] * $validated['price'];
@@ -734,14 +831,14 @@ class WarehouseController extends Controller
                 'price' => $validated['price'],
                 'total' => $total,
                 'model_id' => $warehouse->id,
-                'description' => 'Sale from warehouse: ' . $warehouse->name,
+                'description' => 'Moved from warehouse: ' . $warehouse->name . ' to store',
                 'status' => 'completed',
             ]);
 
             DB::commit();
 
             return redirect()->route('admin.warehouses.sales', $warehouse->id)
-                ->with('success', 'Sale created successfully');
+                ->with('success', 'Products moved to store successfully');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
@@ -749,9 +846,9 @@ class WarehouseController extends Controller
                 ->withInput();
         } catch (\Exception $e) {
             DB::rollback();
-            Log::error('Error creating warehouse sale: ' . $e->getMessage());
+            Log::error('Error moving products to store: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Error creating sale: ' . $e->getMessage())
+                ->with('error', 'Error moving products to store: ' . $e->getMessage())
                 ->withInput();
         }
     }

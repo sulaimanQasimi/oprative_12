@@ -42,6 +42,8 @@ class ProductController extends Controller
             'is_trend' => 'boolean',
             'wholesale_unit_id' => 'required|exists:units,id',
             'retail_unit_id' => 'required|exists:units,id',
+            'whole_sale_unit_amount' => 'nullable|numeric|min:0',
+            'retails_sale_unit_amount' => 'nullable|numeric|min:0',
         ]);
 
         Product::create($validated);
@@ -77,6 +79,8 @@ class ProductController extends Controller
             'is_trend' => 'boolean',
             'wholesale_unit_id' => 'required|exists:units,id',
             'retail_unit_id' => 'required|exists:units,id',
+            'whole_sale_unit_amount' => 'nullable|numeric|min:0',
+            'retails_sale_unit_amount' => 'nullable|numeric|min:0',
         ]);
 
         $product->update($validated);

@@ -15,24 +15,13 @@ class WarehouseIncome extends Model
         'quantity',
         'price',
         'total',
-        'purchase_id',
-        'date',
-        'notes',
-        'status',
-    ];
-
-    protected $casts = [
-        'date' => 'datetime',
+        'model_type',
+        'model_id',
     ];
 
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
-    }
-
-    public function purchase(): BelongsTo
-    {
-        return $this->belongsTo(Purchase::class);
     }
 
     public function product(): BelongsTo

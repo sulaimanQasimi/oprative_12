@@ -17,6 +17,7 @@ export default function Edit({ auth, unit }) {
     const { data, setData, put, processing, errors } = useForm({
         name: unit.name,
         code: unit.code,
+        symbol: unit.symbol || "",
     });
 
     const handleSubmit = (e) => {
@@ -135,6 +136,32 @@ export default function Edit({ auth, unit }) {
                                             {errors.code && (
                                                 <p className="text-sm text-red-500">
                                                     {errors.code}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        {/* Symbol */}
+                                        <div className="space-y-2">
+                                            <Label htmlFor="symbol">
+                                                {t("Symbol")}
+                                            </Label>
+                                            <Input
+                                                id="symbol"
+                                                type="text"
+                                                value={data.symbol}
+                                                placeholder={t("Enter unit symbol (e.g., kg, pcs, m)")}
+                                                onChange={(e) =>
+                                                    setData("symbol", e.target.value)
+                                                }
+                                                className={
+                                                    errors.symbol
+                                                        ? "border-red-500 focus:border-red-500 focus:ring-red-500"
+                                                        : ""
+                                                }
+                                            />
+                                            {errors.symbol && (
+                                                <p className="text-sm text-red-500">
+                                                    {errors.symbol}
                                                 </p>
                                             )}
                                         </div>

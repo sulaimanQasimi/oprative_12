@@ -12,6 +12,7 @@ class Unit extends Model
     protected $fillable = [
         'name',
         'code',
+        'symbol',
     ];
 
     public function wholesaleProducts()
