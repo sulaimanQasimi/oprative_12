@@ -93,15 +93,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{warehouse:id}/products', [WarehouseController::class, 'products'])->name('admin.warehouses.products');
 
         // Warehouse import management
-        Route::get('/{warehouse:id}/income', [WarehouseController::class, 'income'])->name('admin.warehouses.income');
+        Route::get('/{warehouse:id}/import', [WarehouseController::class, 'income'])->name('admin.warehouses.income');
 
         // Warehouse export management
-        Route::get('/{warehouse:id}/outcome', [WarehouseController::class, 'outcome'])->name('admin.warehouses.outcome');
+        Route::get('/{warehouse:id}/export', [WarehouseController::class, 'outcome'])->name('admin.warehouses.outcome');
 
         // Warehouse transfer management
         Route::get('/{warehouse:id}/transfers', [WarehouseController::class, 'transfers'])->name('admin.warehouses.transfers');
         Route::get('/{warehouse:id}/transfers/create', [WarehouseController::class, 'createTransfer'])->name('admin.warehouses.transfers.create');
         Route::post('/{warehouse:id}/transfers', [WarehouseController::class, 'storeTransfer'])->name('admin.warehouses.transfers.store');
+
+        // Warehouse sales management
+        Route::get('/{warehouse:id}/sales', [WarehouseController::class, 'sales'])->name('admin.warehouses.sales');
+        Route::get('/{warehouse:id}/sales/create', [WarehouseController::class, 'createSale'])->name('admin.warehouses.sales.create');
+        Route::post('/{warehouse:id}/sales', [WarehouseController::class, 'storeSale'])->name('admin.warehouses.sales.store');
 
         // Warehouse user management
         Route::get('/{warehouse:id}/users/create', [WarehouseUserController::class, 'create'])->name('admin.warehouses.users.create');

@@ -572,5 +572,175 @@ class WarehouseController extends Controller
                 ->withInput();
         }
     }
+
+    public function sales(Warehouse $warehouse)
+    {
+        try {
+            // Load warehouse with sales records (customer incomes)
+            $warehouse->load(['warehouseOutcome.product']);
+
+            // Filter only sales-related outcomes (to customers)
+            $sales = $warehouse->warehouseOutcome->filter(function ($outcome) {
+                return $outcome->model_type === 'sale' || $outcome->model_type === 'customer_sale';
+            })->map(function ($outcome) {
+                return [
+                    'id' => $outcome->id,
+                    'reference_number' => $outcome->reference_number,
+                    'product' => [
+                        'id' => $outcome->product->id,
+                        'name' => $outcome->product->name,
+                        'barcode' => $outcome->product->barcode,
+                        'type' => $outcome->product->type,
+                    ],
+                    'quantity' => $outcome->quantity,
+                    'price' => $outcome->price,
+                    'total' => $outcome->total,
+                    'customer_id' => $outcome->model_id,
+                    'sale_date' => $outcome->created_at,
+                    'created_at' => $outcome->created_at,
+                    'updated_at' => $outcome->updated_at,
+                ];
+            });
+
+            return Inertia::render('Admin/Warehouse/Sales', [
+                'warehouse' => [
+                    'id' => $warehouse->id,
+                    'name' => $warehouse->name,
+                    'code' => $warehouse->code,
+                    'description' => $warehouse->description,
+                    'is_active' => $warehouse->is_active,
+                ],
+                'sales' => $sales->values(),
+                'auth' => [
+                    'user' => Auth::user()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error loading warehouse sales: ' . $e->getMessage());
+            return redirect()->route('admin.warehouses.show', $warehouse->id)
+                ->with('error', 'Error loading warehouse sales: ' . $e->getMessage());
+        }
+    }
+
+    public function createSale(Warehouse $warehouse)
+    {
+        try {
+            // Get customers
+            $customers = \App\Models\Customer::select('id', 'name', 'email', 'phone')->get();
+
+            // Get warehouse products with stock quantities
+            $warehouseProducts = $warehouse->items()->with('product')->get()->map(function ($item) {
+                return [
+                    'id' => $item->product->id,
+                    'name' => $item->product->name,
+                    'barcode' => $item->product->barcode,
+                    'type' => $item->product->type,
+                    'stock_quantity' => $item->net_quantity ?? 0,
+                    'purchase_price' => $item->product->purchase_price,
+                    'wholesale_price' => $item->product->wholesale_price,
+                    'retail_price' => $item->product->retail_price,
+                ];
+            })->filter(function ($product) {
+                return $product['stock_quantity'] > 0;
+            });
+
+            return Inertia::render('Admin/Warehouse/CreateSale', [
+                'warehouse' => [
+                    'id' => $warehouse->id,
+                    'name' => $warehouse->name,
+                    'code' => $warehouse->code,
+                    'description' => $warehouse->description,
+                    'address' => $warehouse->address,
+                    'is_active' => $warehouse->is_active,
+                ],
+                'customers' => $customers,
+                'warehouseProducts' => $warehouseProducts,
+                'auth' => [
+                    'user' => Auth::user()
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error loading create sale page: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error loading create sale page');
+        }
+    }
+
+    public function storeSale(Request $request, Warehouse $warehouse)
+    {
+        try {
+            $validated = $request->validate([
+                'customer_id' => 'required|exists:customers,id',
+                'product_id' => 'required|exists:products,id',
+                'quantity' => 'required|numeric|min:1',
+                'price' => 'required|numeric|min:0',
+                'notes' => 'nullable|string|max:1000',
+            ]);
+
+            // Check if product exists in warehouse and has sufficient stock
+            $warehouseProduct = $warehouse->items()->where('product_id', $validated['product_id'])->first();
+
+            if (!$warehouseProduct) {
+                return redirect()->back()
+                    ->with('error', 'Product not found in this warehouse')
+                    ->withInput();
+            }
+
+            $availableStock = $warehouseProduct->net_quantity ?? 0;
+
+            if ($validated['quantity'] > $availableStock) {
+                return redirect()->back()
+                    ->with('error', "Insufficient stock. Available: {$availableStock} units")
+                    ->withInput();
+            }
+
+            DB::beginTransaction();
+
+            // Generate reference number
+            $referenceNumber = 'SALE-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+            // Calculate total
+            $total = $validated['quantity'] * $validated['price'];
+
+            // Create warehouse outcome record
+            \App\Models\WarehouseOutcome::create([
+                'warehouse_id' => $warehouse->id,
+                'product_id' => $validated['product_id'],
+                'reference_number' => $referenceNumber,
+                'quantity' => $validated['quantity'],
+                'price' => $validated['price'],
+                'total' => $total,
+                'model_type' => 'customer_sale',
+                'model_id' => $validated['customer_id'],
+            ]);
+
+            // Create customer income record
+            \App\Models\CustomerIncome::create([
+                'customer_id' => $validated['customer_id'],
+                'product_id' => $validated['product_id'],
+                'reference_number' => $referenceNumber,
+                'quantity' => $validated['quantity'],
+                'price' => $validated['price'],
+                'total' => $total,
+                'warehouse_id' => $warehouse->id,
+                'sale_date' => now(),
+                'notes' => $validated['notes'],
+                'created_by' => Auth::id(),
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.warehouses.sales', $warehouse->id)
+                ->with('success', 'Sale created successfully');
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error creating warehouse sale: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error creating sale: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
 }
 

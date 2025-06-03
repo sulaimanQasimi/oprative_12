@@ -22,7 +22,8 @@ import {
     Package,
     Download,
     Upload,
-    ArrowRightLeft
+    ArrowRightLeft,
+    ShoppingCart
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -226,21 +227,27 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                     </Button>
                                 </Link>
                                 <Link href={route("admin.warehouses.income", warehouse.id)}>
-                                    <Button className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg hover:scale-105 transition-transform">
-                                        <Download className="h-4 w-4 mr-2" />
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform bg-green-50 hover:bg-green-100 border-green-200 text-green-700">
+                                        <Download className="h-4 w-4" />
                                         {t("Import")}
                                     </Button>
                                 </Link>
                                 <Link href={route("admin.warehouses.outcome", warehouse.id)}>
-                                    <Button className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white shadow-lg hover:scale-105 transition-transform">
-                                        <Upload className="h-4 w-4 mr-2" />
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform bg-red-50 hover:bg-red-100 border-red-200 text-red-700">
+                                        <Upload className="h-4 w-4" />
                                         {t("Export")}
                                     </Button>
                                 </Link>
                                 <Link href={route("admin.warehouses.transfers", warehouse.id)}>
-                                    <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:scale-105 transition-transform">
-                                        <ArrowRightLeft className="h-4 w-4 mr-2" />
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700">
+                                        <ArrowRightLeft className="h-4 w-4" />
                                         {t("Transfer")}
+                                    </Button>
+                                </Link>
+                                <Link href={route("admin.warehouses.sales", warehouse.id)}>
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700">
+                                        <ShoppingCart className="h-4 w-4" />
+                                        {t("Sales")}
                                     </Button>
                                 </Link>
                             </motion.div>
