@@ -23,7 +23,8 @@ import {
     Download,
     Upload,
     ArrowRightLeft,
-    ShoppingCart
+    ShoppingCart,
+    Store
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -245,9 +246,9 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                     </Button>
                                 </Link>
                                 <Link href={route("admin.warehouses.sales", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700">
-                                        <ShoppingCart className="h-4 w-4" />
-                                        {t("Sales")}
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                        <Store className="h-4 w-4 text-green-600" />
+                                        {t("Move to Store")}
                                     </Button>
                                 </Link>
                             </motion.div>

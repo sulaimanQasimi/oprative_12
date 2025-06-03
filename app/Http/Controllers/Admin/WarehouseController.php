@@ -684,7 +684,8 @@ class WarehouseController extends Controller
             if (!$warehouseProduct) {
                 return redirect()->back()
                     ->with('error', 'Product not found in this warehouse')
-                    ->withInput();
+                    ->withInput()
+                    ->withErrors(['product_id' => 'Product not found in this warehouse']);
             }
 
             $availableStock = $warehouseProduct->net_quantity ?? 0;
@@ -692,7 +693,16 @@ class WarehouseController extends Controller
             if ($validated['quantity'] > $availableStock) {
                 return redirect()->back()
                     ->with('error', "Insufficient stock. Available: {$availableStock} units")
-                    ->withInput();
+                    ->withInput()
+                    ->withErrors(['quantity' => "Quantity cannot exceed available stock of {$availableStock} units"]);
+            }
+
+            // Additional validation: ensure quantity is not zero or negative
+            if ($validated['quantity'] <= 0) {
+                return redirect()->back()
+                    ->with('error', 'Quantity must be greater than 0')
+                    ->withInput()
+                    ->withErrors(['quantity' => 'Quantity must be greater than 0']);
             }
 
             DB::beginTransaction();
@@ -716,17 +726,16 @@ class WarehouseController extends Controller
             ]);
 
             // Create customer income record
-            \App\Models\CustomerIncome::create([
+            \App\Models\CustomerStockIncome::create([
                 'customer_id' => $validated['customer_id'],
                 'product_id' => $validated['product_id'],
                 'reference_number' => $referenceNumber,
                 'quantity' => $validated['quantity'],
                 'price' => $validated['price'],
                 'total' => $total,
-                'warehouse_id' => $warehouse->id,
-                'sale_date' => now(),
-                'notes' => $validated['notes'],
-                'created_by' => Auth::id(),
+                'model_id' => $warehouse->id,
+                'description' => 'Sale from warehouse: ' . $warehouse->name,
+                'status' => 'completed',
             ]);
 
             DB::commit();
@@ -734,6 +743,10 @@ class WarehouseController extends Controller
             return redirect()->route('admin.warehouses.sales', $warehouse->id)
                 ->with('success', 'Sale created successfully');
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Error creating warehouse sale: ' . $e->getMessage());
