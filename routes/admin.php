@@ -7,6 +7,10 @@ use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\WarehouseUserController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\AccountController;
+use App\Http\Controllers\Admin\AccountIncomeController;
+use App\Http\Controllers\Admin\AccountOutcomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -79,6 +83,27 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
     });
 
+    // Customer Management (Store)
+    Route::prefix('customers')->group(function () {
+        Route::get('/', [CustomerController::class, 'index'])->name('admin.customers.index');
+        Route::get('/create', [CustomerController::class, 'create'])->name('admin.customers.create');
+        Route::post('/', [CustomerController::class, 'store'])->name('admin.customers.store');
+        Route::get('/{customer:id}', [CustomerController::class, 'show'])->name('admin.customers.show');
+        Route::get('/{customer:id}/edit', [CustomerController::class, 'edit'])->name('admin.customers.edit');
+        Route::put('/{customer:id}', [CustomerController::class, 'update'])->name('admin.customers.update');
+        Route::delete('/{customer:id}', [CustomerController::class, 'destroy'])->name('admin.customers.destroy');
+
+        // Customer income management
+        Route::get('/{customer:id}/income', [CustomerController::class, 'income'])->name('admin.customers.income');
+
+        // Customer outcome management
+        Route::get('/{customer:id}/outcome', [CustomerController::class, 'outcome'])->name('admin.customers.outcome');
+
+        // Customer user management
+        Route::post('/{customer:id}/users', [CustomerController::class, 'addUser'])->name('admin.customers.users.store');
+        Route::put('/{customer:id}/users/{user}', [CustomerController::class, 'updateUser'])->name('admin.customers.users.update');
+    });
+
     // Warehouse Management
     Route::prefix('warehouses')->group(function () {
         Route::get('/', [WarehouseController::class, 'index'])->name('admin.warehouses.index');
@@ -99,6 +124,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Warehouse export management
         Route::get('/{warehouse:id}/export', [WarehouseController::class, 'outcome'])->name('admin.warehouses.outcome');
+        Route::get('/{warehouse:id}/export/create', [WarehouseController::class, 'createOutcome'])->name('admin.warehouses.outcome.create');
+        Route::post('/{warehouse:id}/export', [WarehouseController::class, 'storeOutcome'])->name('admin.warehouses.outcome.store');
 
         // Warehouse transfer management
         Route::get('/{warehouse:id}/transfers', [WarehouseController::class, 'transfers'])->name('admin.warehouses.transfers');
@@ -115,5 +142,36 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{warehouse:id}/users', [WarehouseUserController::class, 'store'])->name('admin.warehouses.users.store');
         Route::get('/{warehouse:id}/users/{warehouseUser}/edit', [WarehouseUserController::class, 'edit'])->name('admin.warehouses.users.edit');
         Route::put('/{warehouse:id}/users/{warehouseUser}', [WarehouseUserController::class, 'update'])->name('admin.warehouses.users.update');
+    });
+
+    // Accounts Management
+    Route::prefix('accounts')->group(function () {
+        Route::get('/', [AccountController::class, 'index'])->name('admin.accounts.index');
+        Route::get('/create', [AccountController::class, 'create'])->name('admin.accounts.create');
+        Route::post('/', [AccountController::class, 'store'])->name('admin.accounts.store');
+        Route::get('/{account:id}', [AccountController::class, 'show'])->name('admin.accounts.show');
+        Route::get('/{account:id}/edit', [AccountController::class, 'edit'])->name('admin.accounts.edit');
+        Route::put('/{account:id}', [AccountController::class, 'update'])->name('admin.accounts.update');
+        Route::delete('/{account:id}', [AccountController::class, 'destroy'])->name('admin.accounts.destroy');
+
+        // Account Income/Outcome management
+        Route::get('/{account:id}/incomes', [AccountController::class, 'incomes'])->name('admin.accounts.incomes');
+        Route::get('/{account:id}/outcomes', [AccountController::class, 'outcomes'])->name('admin.accounts.outcomes');
+    });
+
+    // Account Income CRUD routes
+    Route::prefix('accounts/{account:id}/incomes')->name('admin.account.incomes.')->group(function () {
+        Route::post('/', [AccountIncomeController::class, 'store'])->name('store');
+        Route::get('/{income:id}', [AccountIncomeController::class, 'show'])->name('show');
+        Route::put('/{income:id}', [AccountIncomeController::class, 'update'])->name('update');
+        Route::delete('/{income:id}', [AccountIncomeController::class, 'destroy'])->name('destroy');
+    });
+
+    // Account Outcome CRUD routes
+    Route::prefix('accounts/{account:id}/outcomes')->name('admin.account.outcomes.')->group(function () {
+        Route::post('/', [AccountOutcomeController::class, 'store'])->name('store');
+        Route::get('/{outcome:id}', [AccountOutcomeController::class, 'show'])->name('show');
+        Route::put('/{outcome:id}', [AccountOutcomeController::class, 'update'])->name('update');
+        Route::delete('/{outcome:id}', [AccountOutcomeController::class, 'destroy'])->name('destroy');
     });
 });

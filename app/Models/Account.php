@@ -143,4 +143,9 @@ class Account extends Model
             ->pluck('total', 'month')
             ->toArray();
     }
+
+    public function getNetBalanceAttribute()
+    {
+        return $this->total_income - $this->total_outcome;
+    }
 }

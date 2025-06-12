@@ -23,17 +23,13 @@ class Customer extends Authenticatable implements FilamentUser
         'password',
         'phone',
         'address',
-        'tax_number',
-        'balance',
-        'credit_limit',
         'status',
         'notes',
         'user_id'
     ];
 
     protected $casts = [
-        'balance' => 'decimal:2',
-        'credit_limit' => 'decimal:2',
+        // Remove balance and credit_limit casts since columns don't exist
     ];
 
     public function user()

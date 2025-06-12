@@ -113,7 +113,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
             'transfer': { color: 'bg-orange-500', text: 'Transfer' },
             'adjustment': { color: 'bg-red-500', text: 'Adjustment' },
         };
-        
+
         const config = typeConfig[modelType?.toLowerCase()] || { color: 'bg-gray-500', text: 'Other' };
         return (
             <Badge variant="secondary" className={`${config.color} text-white`}>
@@ -224,10 +224,12 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                         {t("Back to Warehouse")}
                                     </Button>
                                 </Link>
-                                <Button className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white shadow-lg hover:scale-105 transition-transform">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    {t("Add Export")}
-                                </Button>
+                                <Link href={route("admin.warehouses.outcome.create", warehouse.id)}>
+                                    <Button className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white shadow-lg hover:scale-105 transition-transform">
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        {t("Add Export")}
+                                    </Button>
+                                </Link>
                             </motion.div>
                         </div>
                     </motion.header>
@@ -457,7 +459,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                             {t("No export records found")}
                                                         </h3>
                                                         <p className="text-slate-600 dark:text-slate-400">
-                                                            {searchTerm 
+                                                            {searchTerm
                                                                 ? t("No export records match your search criteria")
                                                                 : t("This warehouse doesn't have any export records yet")
                                                             }
@@ -476,4 +478,3 @@ export default function Outcome({ auth, warehouse, outcomes }) {
         </>
     );
 }
- 

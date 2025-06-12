@@ -2,7 +2,40 @@ import React from "react";
 import { motion } from "framer-motion";
 import { Settings, Cog } from "lucide-react";
 
-const PageLoader = ({ isVisible }) => {
+const PageLoader = ({ isVisible, icon: Icon = Settings, color = "indigo" }) => {
+    const colorConfig = {
+        indigo: {
+            primary: "indigo-600",
+            secondary: "indigo-500",
+            tertiary: "indigo-400",
+            light: "indigo-300",
+            background: "indigo-500/5"
+        },
+        green: {
+            primary: "green-600",
+            secondary: "green-500",
+            tertiary: "green-400",
+            light: "green-300",
+            background: "green-500/5"
+        },
+        blue: {
+            primary: "blue-600",
+            secondary: "blue-500",
+            tertiary: "blue-400",
+            light: "blue-300",
+            background: "blue-500/5"
+        },
+        purple: {
+            primary: "purple-600",
+            secondary: "purple-500",
+            tertiary: "purple-400",
+            light: "purple-300",
+            background: "purple-500/5"
+        }
+    };
+
+    const currentColor = colorConfig[color] || colorConfig.indigo;
+
     return (
         <motion.div
             className="fixed inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 z-50 flex flex-col items-center justify-center overflow-hidden"
@@ -21,7 +54,7 @@ const PageLoader = ({ isVisible }) => {
                 {[...Array(5)].map((_, i) => (
                     <motion.div
                         key={i}
-                        className="absolute bg-gradient-to-r from-blue-400/10 via-indigo-500/10 to-transparent h-[30vh] w-[100vw]"
+                        className={`absolute bg-gradient-to-r from-${currentColor.tertiary}/10 via-${currentColor.secondary}/10 to-transparent h-[30vh] w-[100vw]`}
                         style={{
                             top: `${10 + i * 20}%`,
                             left: "-100%",
@@ -82,7 +115,7 @@ const PageLoader = ({ isVisible }) => {
                 >
                     {/* Pulsing background circles */}
                     <motion.div
-                        className="absolute w-64 h-64 rounded-full bg-indigo-600/5 filter blur-2xl"
+                        className={`absolute w-64 h-64 rounded-full bg-${currentColor.primary}/5 filter blur-2xl`}
                         animate={{
                             scale: [1, 1.2, 1],
                             opacity: [0.3, 0.5, 0.3],
@@ -94,7 +127,7 @@ const PageLoader = ({ isVisible }) => {
                         }}
                     />
                     <motion.div
-                        className="absolute w-72 h-72 rounded-full bg-blue-500/5 filter blur-2xl transform -translate-x-4 translate-y-4"
+                        className={`absolute w-72 h-72 rounded-full bg-${currentColor.secondary}/5 filter blur-2xl transform -translate-x-4 translate-y-4`}
                         animate={{
                             scale: [1.2, 1, 1.2],
                             opacity: [0.3, 0.5, 0.3],
@@ -111,7 +144,7 @@ const PageLoader = ({ isVisible }) => {
                     <div className="relative flex items-center justify-center h-40 w-40">
                         {/* Spinning rings */}
                         <motion.div
-                            className="absolute h-full w-full rounded-full border-4 border-indigo-300/10"
+                            className={`absolute h-full w-full rounded-full border-4 border-${currentColor.light}/10`}
                             animate={{
                                 rotate: 360,
                             }}
@@ -122,7 +155,7 @@ const PageLoader = ({ isVisible }) => {
                             }}
                         />
                         <motion.div
-                            className="absolute h-[85%] w-[85%] rounded-full border-4 border-blue-400/20"
+                            className={`absolute h-[85%] w-[85%] rounded-full border-4 border-${currentColor.tertiary}/20`}
                             animate={{
                                 rotate: -360,
                             }}
@@ -133,7 +166,7 @@ const PageLoader = ({ isVisible }) => {
                             }}
                         />
                         <motion.div
-                            className="absolute h-[70%] w-[70%] rounded-full border-4 border-indigo-400/30"
+                            className={`absolute h-[70%] w-[70%] rounded-full border-4 border-${currentColor.secondary}/30`}
                             animate={{
                                 rotate: 360,
                             }}
@@ -146,7 +179,7 @@ const PageLoader = ({ isVisible }) => {
 
                         {/* Spinner arcs */}
                         <motion.div
-                            className="absolute h-full w-full rounded-full border-4 border-r-indigo-400 border-t-transparent border-l-transparent border-b-transparent"
+                            className={`absolute h-full w-full rounded-full border-4 border-r-${currentColor.tertiary} border-t-transparent border-l-transparent border-b-transparent`}
                             animate={{ rotate: 360 }}
                             transition={{
                                 duration: 1.5,
@@ -155,7 +188,7 @@ const PageLoader = ({ isVisible }) => {
                             }}
                         />
                         <motion.div
-                            className="absolute h-full w-full rounded-full border-4 border-b-blue-400 border-t-transparent border-l-transparent border-r-transparent"
+                            className={`absolute h-full w-full rounded-full border-4 border-b-${currentColor.secondary} border-t-transparent border-l-transparent border-r-transparent`}
                             animate={{ rotate: -180 }}
                             transition={{
                                 duration: 2,
@@ -167,7 +200,7 @@ const PageLoader = ({ isVisible }) => {
 
                         {/* Icon/logo in center */}
                         <motion.div
-                            className="relative z-10 bg-gradient-to-br from-indigo-500 to-blue-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
+                            className={`relative z-10 bg-gradient-to-br from-${currentColor.secondary} to-${currentColor.primary} h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl`}
                             animate={{
                                 rotate: [0, 10, 0, -10, 0],
                                 scale: [1, 1.1, 1, 1.1, 1],
@@ -178,7 +211,7 @@ const PageLoader = ({ isVisible }) => {
                                 ease: "easeInOut",
                             }}
                         >
-                            <Settings className="h-10 w-10 text-white drop-shadow-lg" />
+                            <Icon className="h-10 w-10 text-white drop-shadow-lg" />
                         </motion.div>
                     </div>
                 </motion.div>

@@ -64,6 +64,10 @@ const Navigation = ({ auth, currentRoute }) => {
                     return '/adminpanel/currencies';
                 case 'admin.employees.index':
                     return '/adminpanel/employees';
+                case 'admin.customers.index':
+                    return '/adminpanel/customers';
+                case 'admin.accounts.index':
+                    return '/adminpanel/accounts';
                 default:
                     return '#';
             }
@@ -101,6 +105,10 @@ const Navigation = ({ auth, currentRoute }) => {
                     return '/adminpanel/currencies';
                 case 'admin.employees.index':
                     return '/adminpanel/employees';
+                case 'admin.customers.index':
+                    return '/adminpanel/customers';
+                case 'admin.accounts.index':
+                    return '/adminpanel/accounts';
                 default:
                     return '#';
             }
@@ -124,6 +132,10 @@ const Navigation = ({ auth, currentRoute }) => {
                     return '/adminpanel/currencies';
                 case 'admin.employees.index':
                     return '/adminpanel/employees';
+                case 'admin.customers.index':
+                    return '/adminpanel/customers';
+                case 'admin.accounts.index':
+                    return '/adminpanel/accounts';
                 default:
                     return '#'; // Fallback URL
             }
@@ -198,6 +210,20 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.employees.index",
                     active: currentRoute?.startsWith("admin.employees"),
                     description: t("Employee management"),
+                },
+                {
+                    name: t("Stores"),
+                    icon: <ShoppingCart className="w-5 h-5" />,
+                    route: "admin.customers.index",
+                    active: currentRoute?.startsWith("admin.customers"),
+                    description: t("Customer stores"),
+                },
+                {
+                    name: t("Accounts"),
+                    icon: <CreditCard className="w-5 h-5" />,
+                    route: "admin.accounts.index",
+                    active: currentRoute?.startsWith("admin.accounts"),
+                    description: t("Financial accounts"),
                 },
             ],
         },
