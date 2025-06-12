@@ -977,8 +977,6 @@ class WarehouseController extends Controller
                 'price' => $validated['price'],
                 'total' => $total,
                 'model_id' => $warehouse->id,
-                'description' => 'Moved from warehouse: ' . $warehouse->name . ' to store',
-                'status' => 'completed',
             ]);
 
             DB::commit();

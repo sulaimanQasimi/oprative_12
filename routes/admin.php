@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\WarehouseUserController;
 use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\CustomerUserController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AccountIncomeController;
 use App\Http\Controllers\Admin\AccountOutcomeController;
@@ -102,6 +103,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Customer user management
         Route::post('/{customer:id}/users', [CustomerController::class, 'addUser'])->name('admin.customers.users.store');
         Route::put('/{customer:id}/users/{user}', [CustomerController::class, 'updateUser'])->name('admin.customers.users.update');
+    });
+
+    // Customer User Management
+    Route::prefix('customer-users')->group(function () {
+        Route::get('/', [CustomerUserController::class, 'index'])->name('admin.customer-users.index');
+        Route::get('/create', [CustomerUserController::class, 'create'])->name('admin.customer-users.create');
+        Route::post('/', [CustomerUserController::class, 'store'])->name('admin.customer-users.store');
+        Route::get('/{customerUser:id}', [CustomerUserController::class, 'show'])->name('admin.customer-users.show');
+        Route::get('/{customerUser:id}/edit', [CustomerUserController::class, 'edit'])->name('admin.customer-users.edit');
+        Route::put('/{customerUser:id}', [CustomerUserController::class, 'update'])->name('admin.customer-users.update');
+        Route::delete('/{customerUser:id}', [CustomerUserController::class, 'destroy'])->name('admin.customer-users.destroy');
     });
 
     // Warehouse Management
