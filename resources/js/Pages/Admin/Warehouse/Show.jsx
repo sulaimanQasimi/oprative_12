@@ -24,7 +24,8 @@ import {
     Upload,
     ArrowRightLeft,
     ShoppingCart,
-    Store
+    Store,
+    Sparkles
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -77,7 +78,7 @@ import PageLoader from "@/Components/Admin/PageLoader";
 export default function Show({ auth, warehouse, roles, permissions }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState("details");
+    const [activeTab, setActiveTab] = useState("overview");
     const [isAnimated, setIsAnimated] = useState(false);
 
     // Animation effect
@@ -118,10 +119,19 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                         100% { background-position: 1000px 0; }
                     }
 
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                    }
+
                     .shimmer {
                         background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
                         background-size: 1000px 100%;
                         animation: shimmer 2s infinite;
+                    }
+
+                    .float-animation {
+                        animation: float 6s ease-in-out infinite;
                     }
 
                     .glass-effect {
@@ -135,6 +145,17 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                         backdrop-filter: blur(10px);
                         border: 1px solid rgba(255, 255, 255, 0.1);
                     }
+
+                    .gradient-border {
+                        background: linear-gradient(white, white) padding-box,
+                                    linear-gradient(45deg, #10b981, #059669) border-box;
+                        border: 2px solid transparent;
+                    }
+
+                    .dark .gradient-border {
+                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                                    linear-gradient(45deg, #10b981, #059669) border-box;
+                    }
                 `}</style>
             </Head>
 
@@ -144,7 +165,7 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
@@ -161,14 +182,15 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <motion.div
-                                    initial={{ scale: 0.8, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ delay: 0.3, duration: 0.4 }}
-                                    className="relative"
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl blur opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-blue-500 to-indigo-600 p-3 rounded-xl">
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
                                         <Building2 className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
                                 <div>
@@ -176,28 +198,28 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1"
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
                                     >
-                                        {t("Warehouse Management")}
+                                        <Sparkles className="w-4 h-4" />
+                                        {t("Warehouse Details")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
                                     >
-                                        {warehouse?.name || t("Warehouse Details")}
+                                        {warehouse?.name || t("Warehouse")}
                                     </motion.h1>
-                                    {warehouse?.code && (
-                                        <motion.p
-                                            initial={{ x: -20, opacity: 0 }}
-                                            animate={{ x: 0, opacity: 1 }}
-                                            transition={{ delay: 0.6, duration: 0.4 }}
-                                            className="text-sm text-slate-600 dark:text-slate-400"
-                                        >
-                                            {t("Code")}: <span className="font-mono font-semibold">{warehouse.code}</span>
-                                        </motion.p>
-                                    )}
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                    >
+                                        <Building2 className="w-4 h-4" />
+                                        {warehouse?.code ? `${t("Code")}: ${warehouse.code} • ` : ""}{t("Complete warehouse information and management")}
+                                    </motion.p>
                                 </div>
                             </div>
 
@@ -256,7 +278,7 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                     </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent">
                         <div className="p-8 space-y-8">
                             {/* Enhanced Tabs */}
                             <motion.div
@@ -264,23 +286,180 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.8, duration: 0.5 }}
                             >
+                                {/* Overview Statistics Cards */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.3, duration: 0.5 }}
+                                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                                >
+                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/30">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">{t("Total Users")}</p>
+                                                    <p className="text-3xl font-bold text-green-700 dark:text-green-300">
+                                                        {warehouse?.users?.length || 0}
+                                                    </p>
+                                                </div>
+                                                <div className="p-3 bg-green-500 rounded-xl">
+                                                    <Users className="w-6 h-6 text-white" />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-900/20 dark:to-cyan-900/30">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t("Products")}</p>
+                                                    <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">0</p>
+                                                </div>
+                                                <div className="p-3 bg-blue-500 rounded-xl">
+                                                    <Package className="w-6 h-6 text-white" />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/20 dark:to-violet-900/30">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-purple-600 dark:text-purple-400">{t("Transactions")}</p>
+                                                    <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">0</p>
+                                                </div>
+                                                <div className="p-3 bg-purple-500 rounded-xl">
+                                                    <ArrowRightLeft className="w-6 h-6 text-white" />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/30">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-orange-600 dark:text-orange-400">{t("Status")}</p>
+                                                    <p className="text-lg font-bold text-orange-700 dark:text-orange-300 capitalize">
+                                                        {warehouse?.is_active ? t("Active") : t("Inactive")}
+                                                    </p>
+                                                </div>
+                                                <div className="p-3 bg-orange-500 rounded-xl">
+                                                    <CheckCircle className="w-6 h-6 text-white" />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
                                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                                    <TabsList className="grid w-full grid-cols-2 p-1 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-white/20 dark:border-slate-700/50">
+                                    <TabsList className="grid w-full grid-cols-4 h-14 p-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-2 border-slate-200 dark:border-slate-700">
+                                        <TabsTrigger
+                                            value="overview"
+                                            className="h-12 text-sm font-semibold flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
+                                        >
+                                            <Sparkles className="h-4 w-4" />
+                                            {t("Overview")}
+                                        </TabsTrigger>
                                         <TabsTrigger
                                             value="details"
-                                            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
+                                            className="h-12 text-sm font-semibold flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
                                         >
                                             <Building2 className="h-4 w-4" />
                                             {t("Details")}
                                         </TabsTrigger>
                                         <TabsTrigger
                                             value="users"
-                                            className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
+                                            className="h-12 text-sm font-semibold flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
                                         >
                                             <Users className="h-4 w-4" />
                                             {t("Users")} ({warehouse?.users?.length || 0})
                                         </TabsTrigger>
+                                        <TabsTrigger
+                                            value="operations"
+                                            className="h-12 text-sm font-semibold flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
+                                        >
+                                            <Package className="h-4 w-4" />
+                                            {t("Operations")}
+                                        </TabsTrigger>
                                     </TabsList>
+
+                                    {/* Overview Tab */}
+                                    <TabsContent value="overview" className="space-y-6">
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                                <CardHeader>
+                                                    <CardTitle className="flex items-center gap-2">
+                                                        <Package className="w-5 h-5 text-blue-600" />
+                                                        {t("Quick Actions")}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="space-y-3">
+                                                    <Link href={route("admin.warehouses.edit", warehouse.id)}>
+                                                        <Button className="w-full justify-start gap-2 bg-blue-600 hover:bg-blue-700">
+                                                            <Edit className="w-4 h-4" />
+                                                            {t("Edit Warehouse")}
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href={route("admin.warehouses.products", warehouse.id)}>
+                                                        <Button variant="outline" className="w-full justify-start gap-2">
+                                                            <Package className="w-4 h-4" />
+                                                            {t("Manage Products")}
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href={route("admin.warehouses.income", warehouse.id)}>
+                                                        <Button variant="outline" className="w-full justify-start gap-2">
+                                                            <Download className="w-4 h-4" />
+                                                            {t("View Imports")}
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href={route("admin.warehouses.outcome", warehouse.id)}>
+                                                        <Button variant="outline" className="w-full justify-start gap-2">
+                                                            <Upload className="w-4 h-4" />
+                                                            {t("View Exports")}
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href={route("admin.warehouses.sales", warehouse.id)}>
+                                                        <Button variant="outline" className="w-full justify-start gap-2">
+                                                            <ShoppingCart className="w-4 h-4" />
+                                                            {t("View Sales")}
+                                                        </Button>
+                                                    </Link>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                                <CardHeader>
+                                                    <CardTitle className="flex items-center gap-2">
+                                                        <Calendar className="w-5 h-5 text-purple-600" />
+                                                        {t("Recent Activity")}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <div className="space-y-4">
+                                                        <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                                                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                                            <div>
+                                                                <p className="text-sm font-medium">{t("Warehouse created")}</p>
+                                                                <p className="text-xs text-slate-500">{new Date(warehouse?.created_at).toLocaleDateString()}</p>
+                                                            </div>
+                                                        </div>
+                                                        {warehouse?.updated_at && warehouse?.updated_at !== warehouse?.created_at && (
+                                                            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
+                                                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                                <div>
+                                                                    <p className="text-sm font-medium">{t("Warehouse updated")}</p>
+                                                                    <p className="text-xs text-slate-500">{new Date(warehouse?.updated_at).toLocaleDateString()}</p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+                                    </TabsContent>
 
                                     {/* Warehouse Details Tab */}
                                     <TabsContent value="details" className="space-y-6">
@@ -289,11 +468,11 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                             animate={{ y: 0, opacity: 1 }}
                                             transition={{ delay: 0.3, duration: 0.5 }}
                                         >
-                                            <Card className="border-0 shadow-xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
                                                 <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-700/50">
                                                     <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
-                                                        <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                                                            <Building2 className="h-5 w-5 text-white" />
+                                                        <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                            <Building2 className="h-6 w-6 text-white" />
                                                         </div>
                                                         {t("Warehouse Information")}
                                                     </CardTitle>
@@ -377,13 +556,13 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                             animate={{ y: 0, opacity: 1 }}
                                             transition={{ delay: 0.3, duration: 0.5 }}
                                         >
-                                            <Card className="border-0 shadow-xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
                                                 <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-700/50">
                                                     <div className="flex items-center justify-between">
                                                         <div>
                                                             <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
-                                                                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                                                                    <Users className="h-5 w-5 text-white" />
+                                                                <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                                    <Users className="h-6 w-6 text-white" />
                                                                 </div>
                                                                 {t("Warehouse Users")}
                                                             </CardTitle>
@@ -540,6 +719,101 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                                 </CardContent>
                                             </Card>
                                         </motion.div>
+                                    </TabsContent>
+
+                                    {/* Operations Tab */}
+                                    <TabsContent value="operations" className="space-y-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            <Link href={route("admin.warehouses.income", warehouse.id)}>
+                                                <Card className="border-2 border-green-200 hover:border-green-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
+                                                    <CardContent className="p-6 text-center">
+                                                        <div className="p-4 bg-green-100 dark:bg-green-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                                                            <Download className="w-8 h-8 text-green-600 dark:text-green-400" />
+                                                        </div>
+                                                        <h3 className="text-lg font-semibold text-green-700 dark:text-green-300 mb-2">{t("Import Products")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("Manage incoming inventory and stock")}</p>
+                                                        <div className="mt-4 text-xs text-green-600 dark:text-green-400 font-medium">
+                                                            {t("View all imports →")}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </Link>
+
+                                            <Link href={route("admin.warehouses.outcome", warehouse.id)}>
+                                                <Card className="border-2 border-red-200 hover:border-red-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
+                                                    <CardContent className="p-6 text-center">
+                                                        <div className="p-4 bg-red-100 dark:bg-red-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                                                            <Upload className="w-8 h-8 text-red-600 dark:text-red-400" />
+                                                        </div>
+                                                        <h3 className="text-lg font-semibold text-red-700 dark:text-red-300 mb-2">{t("Export Products")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("Manage outgoing inventory and exports")}</p>
+                                                        <div className="mt-4 text-xs text-red-600 dark:text-red-400 font-medium">
+                                                            {t("View all exports →")}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </Link>
+
+                                            <Link href={route("admin.warehouses.transfers", warehouse.id)}>
+                                                <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
+                                                    <CardContent className="p-6 text-center">
+                                                        <div className="p-4 bg-purple-100 dark:bg-purple-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                                                            <ArrowRightLeft className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                                                        </div>
+                                                        <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">{t("Transfer Products")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("Move inventory between warehouses")}</p>
+                                                        <div className="mt-4 text-xs text-purple-600 dark:text-purple-400 font-medium">
+                                                            {t("View all transfers →")}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </Link>
+
+                                            <Link href={route("admin.warehouses.sales", warehouse.id)}>
+                                                <Card className="border-2 border-blue-200 hover:border-blue-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
+                                                    <CardContent className="p-6 text-center">
+                                                        <div className="p-4 bg-blue-100 dark:bg-blue-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                                                            <ShoppingCart className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                                                        </div>
+                                                        <h3 className="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">{t("Sales Records")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("Track sales and store movements")}</p>
+                                                        <div className="mt-4 text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                                            {t("View all sales →")}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </Link>
+
+                                            <Link href={route("admin.warehouses.products", warehouse.id)}>
+                                                <Card className="border-2 border-indigo-200 hover:border-indigo-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
+                                                    <CardContent className="p-6 text-center">
+                                                        <div className="p-4 bg-indigo-100 dark:bg-indigo-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                                                            <Package className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+                                                        </div>
+                                                        <h3 className="text-lg font-semibold text-indigo-700 dark:text-indigo-300 mb-2">{t("Product Management")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("View and manage warehouse products")}</p>
+                                                        <div className="mt-4 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                                                            {t("Manage products →")}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </Link>
+
+                                            <Link href={route("admin.warehouses.users.create", warehouse.id)}>
+                                                <Card className="border-2 border-emerald-200 hover:border-emerald-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
+                                                    <CardContent className="p-6 text-center">
+                                                        <div className="p-4 bg-emerald-100 dark:bg-emerald-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
+                                                            <UserPlus className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                                                        </div>
+                                                        <h3 className="text-lg font-semibold text-emerald-700 dark:text-emerald-300 mb-2">{t("User Management")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("Add and manage warehouse users")}</p>
+                                                        <div className="mt-4 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                                                            {t("Add new user →")}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </Link>
+                                        </div>
                                     </TabsContent>
                                 </Tabs>
                             </motion.div>

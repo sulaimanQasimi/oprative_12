@@ -873,7 +873,7 @@ class WarehouseController extends Controller
             $customers = \App\Models\Customer::select('id', 'name', 'email', 'phone')->get();
 
             // Get warehouse products with stock quantities
-            $warehouseProducts = $warehouse->items()->with('product')->get()->map(function ($item) {
+            $warehouseProducts = $warehouse->items()->with(['product.wholesaleUnit', 'product.retailUnit'])->get()->map(function ($item) {
                 return [
                     'id' => $item->product->id,
                     'name' => $item->product->name,
@@ -883,6 +883,22 @@ class WarehouseController extends Controller
                     'purchase_price' => $item->product->purchase_price,
                     'wholesale_price' => $item->product->wholesale_price,
                     'retail_price' => $item->product->retail_price,
+                    'wholesale_unit_id' => $item->product->wholesale_unit_id,
+                    'retail_unit_id' => $item->product->retail_unit_id,
+                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount,
+                    'retails_sale_unit_amount' => $item->product->retails_sale_unit_amount,
+                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
+                        'id' => $item->product->wholesaleUnit->id,
+                        'name' => $item->product->wholesaleUnit->name,
+                        'code' => $item->product->wholesaleUnit->code,
+                        'symbol' => $item->product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $item->product->retailUnit ? [
+                        'id' => $item->product->retailUnit->id,
+                        'name' => $item->product->retailUnit->name,
+                        'code' => $item->product->retailUnit->code,
+                        'symbol' => $item->product->retailUnit->symbol,
+                    ] : null,
                 ];
             })->filter(function ($product) {
                 return $product['stock_quantity'] > 0;
