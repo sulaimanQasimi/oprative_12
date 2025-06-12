@@ -1,32 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
-    Building2,
     ArrowLeft,
-    TrendingDown,
+    Store,
+    Package,
+    TrendingUp,
+    DollarSign,
+    Calendar,
     Search,
-    Plus,
+    Eye,
     Edit,
     Trash2,
-    Eye,
-    Package,
-    Calendar,
-    FileText,
-    DollarSign,
-    Hash,
-    CheckCircle,
-    AlertCircle,
-    ShoppingCart,
-    User,
+    Plus,
     Filter,
     Download,
     RefreshCw,
     BarChart3,
     Sparkles,
     ChevronDown,
-    X,
-    Info
+    X
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -34,7 +27,6 @@ import {
     CardContent,
     CardHeader,
     CardTitle,
-    CardDescription,
 } from "@/Components/ui/card";
 import {
     Table,
@@ -53,12 +45,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Outcome({ auth, warehouse, outcomes }) {
+export default function Sales({ auth, warehouse, sales }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -67,7 +58,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
     const [sortBy, setSortBy] = useState("created_at");
     const [sortOrder, setSortOrder] = useState("desc");
     const [showFilters, setShowFilters] = useState(false);
-    const [filteredOutcomes, setFilteredOutcomes] = useState(outcomes || []);
+    const [filteredSales, setFilteredSales] = useState(sales || []);
 
     // Animation effect
     useEffect(() => {
@@ -80,24 +71,24 @@ export default function Outcome({ auth, warehouse, outcomes }) {
 
     // Enhanced filtering logic
     useEffect(() => {
-        let filtered = [...outcomes];
+        let filtered = [...sales];
 
         // Search filter
         if (searchTerm) {
-            filtered = filtered.filter(outcome =>
-                outcome.reference_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                outcome.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                outcome.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                outcome.model_type?.toLowerCase().includes(searchTerm.toLowerCase())
+            filtered = filtered.filter(sale =>
+                sale.reference_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                sale.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                sale.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                sale.product.type?.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
         // Date filter
         if (dateFilter) {
             const filterDate = new Date(dateFilter);
-            filtered = filtered.filter(outcome => {
-                const outcomeDate = new Date(outcome.created_at);
-                return outcomeDate.toDateString() === filterDate.toDateString();
+            filtered = filtered.filter(sale => {
+                const saleDate = new Date(sale.sale_date);
+                return saleDate.toDateString() === filterDate.toDateString();
             });
         }
 
@@ -123,14 +114,14 @@ export default function Outcome({ auth, warehouse, outcomes }) {
             }
         });
 
-        setFilteredOutcomes(filtered);
-    }, [searchTerm, dateFilter, sortBy, sortOrder, outcomes]);
+        setFilteredSales(filtered);
+    }, [searchTerm, dateFilter, sortBy, sortOrder, sales]);
 
     // Calculate totals
-    const totalExports = filteredOutcomes.length;
-    const totalQuantity = filteredOutcomes.reduce((sum, outcome) => sum + (outcome.quantity || 0), 0);
-    const totalValue = filteredOutcomes.reduce((sum, outcome) => sum + (outcome.total || 0), 0);
-    const avgExportValue = totalExports > 0 ? totalValue / totalExports : 0;
+    const totalSales = filteredSales.length;
+    const totalQuantity = filteredSales.reduce((sum, sale) => sum + sale.quantity, 0);
+    const totalValue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
+    const avgSaleValue = totalSales > 0 ? totalValue / totalSales : 0;
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', {
@@ -157,36 +148,9 @@ export default function Outcome({ auth, warehouse, outcomes }) {
         setSortOrder("desc");
     };
 
-    const getModelTypeIcon = (modelType) => {
-        switch (modelType?.toLowerCase()) {
-            case 'sale':
-                return <ShoppingCart className="h-4 w-4" />;
-            case 'customer':
-                return <User className="h-4 w-4" />;
-            default:
-                return <Package className="h-4 w-4" />;
-        }
-    };
-
-    const getModelTypeBadge = (modelType) => {
-        const typeConfig = {
-            'sale': { color: 'bg-blue-500', text: 'Sale' },
-            'customer': { color: 'bg-purple-500', text: 'Customer' },
-            'transfer': { color: 'bg-orange-500', text: 'Transfer' },
-            'adjustment': { color: 'bg-red-500', text: 'Adjustment' },
-        };
-
-        const config = typeConfig[modelType?.toLowerCase()] || { color: 'bg-gray-500', text: 'Other' };
-        return (
-            <Badge variant="secondary" className={`${config.color} text-white`}>
-                {t(config.text)}
-            </Badge>
-        );
-    };
-
     return (
         <>
-            <Head title={`${warehouse?.name} - ${t("Export Records")}`}>
+            <Head title={`${warehouse?.name} - ${t("Shop Moves")}`}>
                 <style>{`
                     @keyframes shimmer {
                         0% { background-position: -1000px 0; }
@@ -199,8 +163,8 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                     }
 
                     @keyframes pulse-glow {
-                        0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
-                        50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.6); }
+                        0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.6); }
                     }
 
                     .shimmer {
@@ -231,24 +195,24 @@ export default function Outcome({ auth, warehouse, outcomes }) {
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
-                                    linear-gradient(45deg, #ef4444, #dc2626) border-box;
+                                    linear-gradient(45deg, #22c55e, #16a34a) border-box;
                         border: 2px solid transparent;
                     }
 
                     .dark .gradient-border {
                         background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
-                                    linear-gradient(45deg, #ef4444, #dc2626) border-box;
+                                    linear-gradient(45deg, #22c55e, #16a34a) border-box;
                     }
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} icon={TrendingDown} color="red" />
+            <PageLoader isVisible={loading} icon={Store} color="green" />
 
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-red-50 to-orange-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
@@ -270,9 +234,9 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-red-500 via-orange-500 to-red-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-red-500 via-orange-500 to-red-600 p-4 rounded-2xl shadow-2xl">
-                                        <TrendingDown className="w-8 h-8 text-white" />
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
+                                        <Store className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
@@ -281,18 +245,18 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-1 flex items-center gap-2"
+                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
-                                        {warehouse?.name} - {t("Export Management")}
+                                        {warehouse?.name} - {t("Shop Move Management")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-red-600 via-orange-600 to-red-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Export Records")}
+                                        {t("Shop Moves")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -301,7 +265,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
-                                        {t("Track and manage outgoing inventory")}
+                                        {t("Track and manage products moved to shop")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -312,7 +276,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-red-200 hover:border-red-300 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
@@ -322,10 +286,10 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                         {t("Back to Warehouse")}
                                     </Button>
                                 </Link>
-                                <Link href={route("admin.warehouses.outcome.create", warehouse.id)}>
-                                    <Button className="gap-2 bg-gradient-to-r from-red-600 via-orange-600 to-red-700 hover:from-red-700 hover:via-orange-700 hover:to-red-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                <Link href={route("admin.warehouses.sales.create", warehouse.id)}>
+                                    <Button className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
                                         <Plus className="h-4 w-4" />
-                                        {t("New Export")}
+                                        {t("Move to Shop")}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -333,7 +297,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                     </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-red-300 dark:scrollbar-thumb-red-700 scrollbar-track-transparent">
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-green-300 dark:scrollbar-thumb-green-700 scrollbar-track-transparent">
                         <div className="p-8">
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
@@ -353,17 +317,17 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Exports")}
+                                                            {t("Total Moves")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-red-600">
-                                                            {totalExports}
+                                                        <p className="text-3xl font-bold text-green-600">
+                                                            {totalSales}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
                                                             {t("Transactions")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-red-100 to-orange-100 dark:from-red-900/30 dark:to-orange-900/30 rounded-2xl">
-                                                        <TrendingDown className="h-8 w-8 text-red-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
+                                                        <Store className="h-8 w-8 text-green-600" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -386,7 +350,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                             {totalQuantity.toLocaleString()}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
-                                                            {t("Units exported")}
+                                                            {t("Units sold")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
@@ -407,13 +371,13 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Value")}
+                                                            {t("Total Revenue")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-purple-600">
                                                             {formatCurrency(totalValue)}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
-                                                            {t("Export value")}
+                                                            {t("Sales value")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
@@ -434,17 +398,17 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Average Export")}
+                                                            {t("Average Sale")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-orange-600">
-                                                            {formatCurrency(avgExportValue)}
+                                                            {formatCurrency(avgSaleValue)}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
                                                             {t("Per transaction")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
-                                                        <BarChart3 className="h-8 w-8 text-orange-600" />
+                                                        <TrendingUp className="h-8 w-8 text-orange-600" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -459,10 +423,10 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-red-500/20 via-orange-500/20 to-red-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
                                             <div className="flex items-center justify-between">
                                                 <CardTitle className="flex items-center gap-3">
-                                                    <div className="p-2 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg">
+                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
                                                         <Filter className="h-5 w-5 text-white" />
                                                     </div>
                                                     {t("Search & Filter")}
@@ -487,7 +451,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                         placeholder={t("Search by reference, product name, barcode, or type...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-12 h-12 text-lg border-2 border-red-200 focus:border-red-500 rounded-xl"
+                                                        className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -576,21 +540,21 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                     </Card>
                                 </motion.div>
 
-                                {/* Export Table */}
+                                {/* Sales Table */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-red-500/20 via-orange-500/20 to-red-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
                                             <CardTitle className="flex items-center gap-3">
-                                                <div className="p-2 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg">
+                                                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
                                                 </div>
-                                                {t("Export Records")}
+                                                {t("Shop Move Records")}
                                                 <Badge variant="secondary" className="ml-auto">
-                                                    {filteredOutcomes.length} {t("of")} {outcomes.length}
+                                                    {filteredSales.length} {t("of")} {sales.length}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
@@ -614,66 +578,74 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Total Value")}
                                                             </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">
-                                                                {t("Type")}
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Sale Date")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Export Date")}
+                                                                {t("Actions")}
                                                             </TableHead>
-
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {filteredOutcomes.length > 0 ? (
-                                                            filteredOutcomes.map((outcome, index) => (
+                                                        {filteredSales.length > 0 ? (
+                                                            filteredSales.map((sale, index) => (
                                                                 <TableRow
-                                                                    key={outcome.id}
-                                                                    className="hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                                                                    key={sale.id}
+                                                                    className="hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors"
                                                                 >
                                                                     <TableCell>
                                                                         <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
-                                                                            {outcome.reference_number || '-'}
+                                                                            {sale.reference_number}
                                                                         </span>
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-3">
-                                                                            <div className="p-2 bg-gradient-to-br from-red-100 to-orange-100 dark:from-red-900/30 dark:to-orange-900/30 rounded-lg">
-                                                                                <Package className="h-4 w-4 text-red-600" />
+                                                                            <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
+                                                                                <Package className="h-4 w-4 text-blue-600" />
                                                                             </div>
                                                                             <div>
-                                                                                <p className="font-semibold text-slate-800 dark:text-white">{outcome.product.name}</p>
+                                                                                <p className="font-semibold text-slate-800 dark:text-white">{sale.product.name}</p>
                                                                                 <p className="text-sm text-slate-500 flex items-center gap-1">
-                                                                                    {outcome.product.barcode && (
+                                                                                    {sale.product.barcode && (
                                                                                         <Badge variant="outline" className="text-xs">
-                                                                                            {outcome.product.barcode}
+                                                                                            {sale.product.barcode}
                                                                                         </Badge>
                                                                                     )}
-                                                                                    <span className="text-xs">{outcome.product.type}</span>
+                                                                                    <span className="text-xs">{sale.product.type}</span>
                                                                                 </p>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <Badge variant="secondary" className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
-                                                                            {outcome.quantity?.toLocaleString() || 0}
+                                                                        <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                                            {sale.quantity.toLocaleString()}
                                                                         </Badge>
                                                                     </TableCell>
                                                                     <TableCell className="font-medium">
-                                                                        {formatCurrency(outcome.price)}
+                                                                        {formatCurrency(sale.price)}
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-red-600">
-                                                                        {formatCurrency(outcome.total)}
-                                                                    </TableCell>
-                                                                    <TableCell className="text-center">
-                                                                        {getModelTypeBadge(outcome.model_type)}
+                                                                    <TableCell className="font-bold text-green-600">
+                                                                        {formatCurrency(sale.total)}
                                                                     </TableCell>
                                                                     <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                                                                         <div className="flex items-center gap-2">
                                                                             <Calendar className="h-4 w-4" />
-                                                                            {formatDate(outcome.created_at)}
+                                                                            {formatDate(sale.sale_date)}
                                                                         </div>
                                                                     </TableCell>
-
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300">
+                                                                                <Eye className="h-4 w-4 text-blue-600" />
+                                                                            </Button>
+                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300">
+                                                                                <Edit className="h-4 w-4 text-green-600" />
+                                                                            </Button>
+                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-300">
+                                                                                <Trash2 className="h-4 w-4 text-red-600" />
+                                                                            </Button>
+                                                                        </div>
+                                                                    </TableCell>
                                                                 </TableRow>
                                                             ))
                                                         ) : (
@@ -681,21 +653,21 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                                 <TableCell colSpan="7" className="h-32 text-center">
                                                                     <div className="flex flex-col items-center gap-4">
                                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                                            <TrendingDown className="h-8 w-8 text-slate-400" />
+                                                                            <Store className="h-8 w-8 text-slate-400" />
                                                                         </div>
                                                                         <div>
                                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-                                                                                {t("No export records found")}
+                                                                                {t("No shop moves found")}
                                                                             </p>
                                                                             <p className="text-sm text-slate-500">
-                                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("Create your first export record")}
+                                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("Create your first shop move")}
                                                                             </p>
                                                                         </div>
                                                                         {!searchTerm && !dateFilter && (
-                                                                            <Link href={route("admin.warehouses.outcome.create", warehouse.id)}>
+                                                                            <Link href={route("admin.warehouses.sales.create", warehouse.id)}>
                                                                                 <Button className="gap-2">
                                                                                     <Plus className="h-4 w-4" />
-                                                                                    {t("Create Export")}
+                                                                                    {t("Move to Shop")}
                                                                                 </Button>
                                                                             </Link>
                                                                         )}
@@ -716,4 +688,4 @@ export default function Outcome({ auth, warehouse, outcomes }) {
             </motion.div>
         </>
     );
-}
+} 

@@ -25,7 +25,8 @@ import {
     ArrowRightLeft,
     ShoppingCart,
     Store,
-    Sparkles
+    Sparkles,
+    ChevronDown
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -243,36 +244,7 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                         </Button>
                                     </Link>
                                 )}
-                                <Link href={route("admin.warehouses.products", warehouse.id)}>
-                                    <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:scale-105 transition-transform">
-                                        <Package className="h-4 w-4 mr-2" />
-                                        {t("View Products")}
-                                    </Button>
-                                </Link>
-                                <Link href={route("admin.warehouses.income", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform bg-green-50 hover:bg-green-100 border-green-200 text-green-700">
-                                        <Download className="h-4 w-4" />
-                                        {t("Import")}
-                                    </Button>
-                                </Link>
-                                <Link href={route("admin.warehouses.outcome", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform bg-red-50 hover:bg-red-100 border-red-200 text-red-700">
-                                        <Upload className="h-4 w-4" />
-                                        {t("Export")}
-                                    </Button>
-                                </Link>
-                                <Link href={route("admin.warehouses.transfers", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-700">
-                                        <ArrowRightLeft className="h-4 w-4" />
-                                        {t("Transfer")}
-                                    </Button>
-                                </Link>
-                                <Link href={route("admin.warehouses.sales", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
-                                        <Store className="h-4 w-4 text-green-600" />
-                                        {t("Move to Store")}
-                                    </Button>
-                                </Link>
+
                             </motion.div>
                         </div>
                     </motion.header>
@@ -725,90 +697,120 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                     <TabsContent value="operations" className="space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             <Link href={route("admin.warehouses.income", warehouse.id)}>
-                                                <Card className="border-2 border-green-200 hover:border-green-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
-                                                    <CardContent className="p-6 text-center">
-                                                        <div className="p-4 bg-green-100 dark:bg-green-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                                                            <Download className="w-8 h-8 text-green-600 dark:text-green-400" />
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-green-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                    <CardContent className="p-8 text-center">
+                                                        <div className="relative">
+                                                            <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-3xl blur-lg opacity-30"></div>
+                                                            <div className="relative p-6 bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                <Download className="w-10 h-10 text-white" />
+                                                                <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                            </div>
                                                         </div>
-                                                        <h3 className="text-lg font-semibold text-green-700 dark:text-green-300 mb-2">{t("Import Products")}</h3>
-                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("Manage incoming inventory and stock")}</p>
-                                                        <div className="mt-4 text-xs text-green-600 dark:text-green-400 font-medium">
-                                                            {t("View all imports →")}
+                                                        <h3 className="text-xl font-bold text-green-700 dark:text-green-300 mb-3">{t("Import Products")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Manage incoming inventory and stock")}</p>
+                                                        <div className="flex items-center justify-center gap-2 mt-6 text-sm text-green-600 dark:text-green-400 font-semibold">
+                                                            {t("Manage Imports")}
+                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
                                             </Link>
 
                                             <Link href={route("admin.warehouses.outcome", warehouse.id)}>
-                                                <Card className="border-2 border-red-200 hover:border-red-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
-                                                    <CardContent className="p-6 text-center">
-                                                        <div className="p-4 bg-red-100 dark:bg-red-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                                                            <Upload className="w-8 h-8 text-red-600 dark:text-red-400" />
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-red-50 via-orange-50 to-red-100 dark:from-red-900/20 dark:via-orange-900/20 dark:to-red-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                    <CardContent className="p-8 text-center">
+                                                        <div className="relative">
+                                                            <div className="absolute -inset-2 bg-gradient-to-r from-red-500 via-orange-500 to-red-600 rounded-3xl blur-lg opacity-30"></div>
+                                                            <div className="relative p-6 bg-gradient-to-br from-red-500 via-orange-500 to-red-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                <Upload className="w-10 h-10 text-white" />
+                                                                <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                            </div>
                                                         </div>
-                                                        <h3 className="text-lg font-semibold text-red-700 dark:text-red-300 mb-2">{t("Export Products")}</h3>
-                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("Manage outgoing inventory and exports")}</p>
-                                                        <div className="mt-4 text-xs text-red-600 dark:text-red-400 font-medium">
-                                                            {t("View all exports →")}
+                                                        <h3 className="text-xl font-bold text-red-700 dark:text-red-300 mb-3">{t("Export Products")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Manage outgoing inventory and exports")}</p>
+                                                        <div className="flex items-center justify-center gap-2 mt-6 text-sm text-red-600 dark:text-red-400 font-semibold">
+                                                            {t("Manage Exports")}
+                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
                                             </Link>
 
                                             <Link href={route("admin.warehouses.transfers", warehouse.id)}>
-                                                <Card className="border-2 border-purple-200 hover:border-purple-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
-                                                    <CardContent className="p-6 text-center">
-                                                        <div className="p-4 bg-purple-100 dark:bg-purple-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                                                            <ArrowRightLeft className="w-8 h-8 text-purple-600 dark:text-purple-400" />
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-purple-50 via-indigo-50 to-purple-100 dark:from-purple-900/20 dark:via-indigo-900/20 dark:to-purple-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                    <CardContent className="p-8 text-center">
+                                                        <div className="relative">
+                                                            <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-indigo-500 to-purple-600 rounded-3xl blur-lg opacity-30"></div>
+                                                            <div className="relative p-6 bg-gradient-to-br from-purple-500 via-indigo-500 to-purple-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                <ArrowRightLeft className="w-10 h-10 text-white" />
+                                                                <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                            </div>
                                                         </div>
-                                                        <h3 className="text-lg font-semibold text-purple-700 dark:text-purple-300 mb-2">{t("Transfer Products")}</h3>
-                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("Move inventory between warehouses")}</p>
-                                                        <div className="mt-4 text-xs text-purple-600 dark:text-purple-400 font-medium">
-                                                            {t("View all transfers →")}
+                                                        <h3 className="text-xl font-bold text-purple-700 dark:text-purple-300 mb-3">{t("Transfer Products")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Move inventory between warehouses")}</p>
+                                                        <div className="flex items-center justify-center gap-2 mt-6 text-sm text-purple-600 dark:text-purple-400 font-semibold">
+                                                            {t("Manage Transfers")}
+                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
                                             </Link>
 
                                             <Link href={route("admin.warehouses.sales", warehouse.id)}>
-                                                <Card className="border-2 border-blue-200 hover:border-blue-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
-                                                    <CardContent className="p-6 text-center">
-                                                        <div className="p-4 bg-blue-100 dark:bg-blue-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                                                            <ShoppingCart className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-blue-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                    <CardContent className="p-8 text-center">
+                                                        <div className="relative">
+                                                            <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-3xl blur-lg opacity-30"></div>
+                                                            <div className="relative p-6 bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                <Store className="w-10 h-10 text-white" />
+                                                                <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                            </div>
                                                         </div>
-                                                        <h3 className="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">{t("Sales Records")}</h3>
-                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("Track sales and store movements")}</p>
-                                                        <div className="mt-4 text-xs text-blue-600 dark:text-blue-400 font-medium">
-                                                            {t("View all sales →")}
+                                                        <h3 className="text-xl font-bold text-blue-700 dark:text-blue-300 mb-3">{t("Shop Moves")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Track products moved to shop for sales")}</p>
+                                                        <div className="flex items-center justify-center gap-2 mt-6 text-sm text-blue-600 dark:text-blue-400 font-semibold">
+                                                            {t("Manage Shop Moves")}
+                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
                                             </Link>
 
                                             <Link href={route("admin.warehouses.products", warehouse.id)}>
-                                                <Card className="border-2 border-indigo-200 hover:border-indigo-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
-                                                    <CardContent className="p-6 text-center">
-                                                        <div className="p-4 bg-indigo-100 dark:bg-indigo-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                                                            <Package className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 dark:from-indigo-900/20 dark:via-blue-900/20 dark:to-indigo-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                    <CardContent className="p-8 text-center">
+                                                        <div className="relative">
+                                                            <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-blue-500 to-indigo-600 rounded-3xl blur-lg opacity-30"></div>
+                                                            <div className="relative p-6 bg-gradient-to-br from-indigo-500 via-blue-500 to-indigo-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                <Package className="w-10 h-10 text-white" />
+                                                                <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                            </div>
                                                         </div>
-                                                        <h3 className="text-lg font-semibold text-indigo-700 dark:text-indigo-300 mb-2">{t("Product Management")}</h3>
-                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("View and manage warehouse products")}</p>
-                                                        <div className="mt-4 text-xs text-indigo-600 dark:text-indigo-400 font-medium">
-                                                            {t("Manage products →")}
+                                                        <h3 className="text-xl font-bold text-indigo-700 dark:text-indigo-300 mb-3">{t("Product Management")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("View and manage warehouse products")}</p>
+                                                        <div className="flex items-center justify-center gap-2 mt-6 text-sm text-indigo-600 dark:text-indigo-400 font-semibold">
+                                                            {t("Manage Products")}
+                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>
                                             </Link>
 
                                             <Link href={route("admin.warehouses.users.create", warehouse.id)}>
-                                                <Card className="border-2 border-emerald-200 hover:border-emerald-300 transition-all cursor-pointer hover:shadow-lg transform hover:scale-105 duration-200">
-                                                    <CardContent className="p-6 text-center">
-                                                        <div className="p-4 bg-emerald-100 dark:bg-emerald-900/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                                                            <UserPlus className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-emerald-50 via-teal-50 to-emerald-100 dark:from-emerald-900/20 dark:via-teal-900/20 dark:to-emerald-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                    <CardContent className="p-8 text-center">
+                                                        <div className="relative">
+                                                            <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-600 rounded-3xl blur-lg opacity-30"></div>
+                                                            <div className="relative p-6 bg-gradient-to-br from-emerald-500 via-teal-500 to-emerald-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                <UserPlus className="w-10 h-10 text-white" />
+                                                                <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                            </div>
                                                         </div>
-                                                        <h3 className="text-lg font-semibold text-emerald-700 dark:text-emerald-300 mb-2">{t("User Management")}</h3>
-                                                        <p className="text-slate-600 dark:text-slate-400 text-sm">{t("Add and manage warehouse users")}</p>
-                                                        <div className="mt-4 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
-                                                            {t("Add new user →")}
+                                                        <h3 className="text-xl font-bold text-emerald-700 dark:text-emerald-300 mb-3">{t("User Management")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Add and manage warehouse users")}</p>
+                                                        <div className="flex items-center justify-center gap-2 mt-6 text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
+                                                            {t("Manage Users")}
+                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>
                                                 </Card>

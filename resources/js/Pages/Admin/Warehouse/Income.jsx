@@ -16,7 +16,15 @@ import {
     DollarSign,
     Hash,
     CheckCircle,
-    AlertCircle
+    AlertCircle,
+    Filter,
+    Download,
+    RefreshCw,
+    BarChart3,
+    Sparkles,
+    ChevronDown,
+    X,
+    Info
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -36,6 +44,14 @@ import {
 } from "@/Components/ui/table";
 import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
@@ -45,6 +61,10 @@ export default function Income({ auth, warehouse, incomes }) {
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
+    const [dateFilter, setDateFilter] = useState("");
+    const [sortBy, setSortBy] = useState("created_at");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [showFilters, setShowFilters] = useState(false);
     const [filteredIncomes, setFilteredIncomes] = useState(incomes || []);
 
     // Animation effect
@@ -56,25 +76,59 @@ export default function Income({ auth, warehouse, incomes }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Filter incomes
+    // Enhanced filtering logic
     useEffect(() => {
-        let filtered = incomes || [];
+        let filtered = [...incomes];
 
+        // Search filter
         if (searchTerm) {
             filtered = filtered.filter(income =>
                 income.reference_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 income.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                income.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
+                income.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                income.product.type?.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
-        setFilteredIncomes(filtered);
-    }, [incomes, searchTerm]);
+        // Date filter
+        if (dateFilter) {
+            const filterDate = new Date(dateFilter);
+            filtered = filtered.filter(income => {
+                const incomeDate = new Date(income.created_at);
+                return incomeDate.toDateString() === filterDate.toDateString();
+            });
+        }
 
-    // Calculate summary statistics
-    const totalIncomes = filteredIncomes.length;
+        // Sorting
+        filtered.sort((a, b) => {
+            let aValue = a[sortBy];
+            let bValue = b[sortBy];
+
+            if (sortBy === 'product.name') {
+                aValue = a.product.name;
+                bValue = b.product.name;
+            }
+
+            if (typeof aValue === 'string') {
+                aValue = aValue.toLowerCase();
+                bValue = bValue.toLowerCase();
+            }
+
+            if (sortOrder === 'asc') {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
+        });
+
+        setFilteredIncomes(filtered);
+    }, [searchTerm, dateFilter, sortBy, sortOrder, incomes]);
+
+    // Calculate totals
+    const totalImports = filteredIncomes.length;
     const totalQuantity = filteredIncomes.reduce((sum, income) => sum + (income.quantity || 0), 0);
     const totalValue = filteredIncomes.reduce((sum, income) => sum + (income.total || 0), 0);
+    const avgImportValue = totalImports > 0 ? totalValue / totalImports : 0;
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', {
@@ -88,23 +142,50 @@ export default function Income({ auth, warehouse, incomes }) {
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
-            day: 'numeric'
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         });
+    };
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setDateFilter("");
+        setSortBy("created_at");
+        setSortOrder("desc");
     };
 
     return (
         <>
-            <Head title={`${warehouse?.name} - ${t("Import")}`}>
+            <Head title={`${warehouse?.name} - ${t("Import Records")}`}>
                 <style>{`
                     @keyframes shimmer {
                         0% { background-position: -1000px 0; }
                         100% { background-position: 1000px 0; }
                     }
 
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                    }
+
+                    @keyframes pulse-glow {
+                        0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.6); }
+                    }
+
                     .shimmer {
                         background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
                         background-size: 1000px 100%;
                         animation: shimmer 2s infinite;
+                    }
+
+                    .float-animation {
+                        animation: float 6s ease-in-out infinite;
+                    }
+
+                    .pulse-glow {
+                        animation: pulse-glow 2s ease-in-out infinite;
                     }
 
                     .glass-effect {
@@ -118,16 +199,27 @@ export default function Income({ auth, warehouse, incomes }) {
                         backdrop-filter: blur(10px);
                         border: 1px solid rgba(255, 255, 255, 0.1);
                     }
+
+                    .gradient-border {
+                        background: linear-gradient(white, white) padding-box,
+                                    linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                        border: 2px solid transparent;
+                    }
+
+                    .dark .gradient-border {
+                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                                    linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                    }
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} />
+            <PageLoader isVisible={loading} icon={TrendingUp} color="green" />
 
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
@@ -144,14 +236,15 @@ export default function Income({ auth, warehouse, incomes }) {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <motion.div
-                                    initial={{ scale: 0.8, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ delay: 0.3, duration: 0.4 }}
-                                    className="relative"
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-xl blur opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-blue-500 to-cyan-600 p-3 rounded-xl">
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
                                         <TrendingUp className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
                                 <div>
@@ -159,24 +252,26 @@ export default function Income({ auth, warehouse, incomes }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1"
+                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
                                     >
+                                        <Sparkles className="w-4 h-4" />
                                         {warehouse?.name} - {t("Import Management")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Warehouse Import")}
+                                        {t("Import Records")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400"
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
+                                        <BarChart3 className="w-4 h-4" />
                                         {t("Track and manage incoming inventory")}
                                     </motion.p>
                                 </div>
@@ -188,16 +283,20 @@ export default function Income({ auth, warehouse, incomes }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                    <Download className="h-4 w-4" />
+                                    {t("Export")}
+                                </Button>
                                 <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform">
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Warehouse")}
                                     </Button>
                                 </Link>
                                 <Link href={route("admin.warehouses.income.create", warehouse.id)}>
-                                    <Button className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:scale-105 transition-transform">
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        {t("Add Import")}
+                                    <Button className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                        <Plus className="h-4 w-4" />
+                                        {t("New Import")}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -205,243 +304,376 @@ export default function Income({ auth, warehouse, incomes }) {
                     </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                        <div className="p-8 space-y-8">
-                            {/* Summary Cards */}
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-green-300 dark:scrollbar-thumb-green-700 scrollbar-track-transparent">
+                        <div className="p-8">
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.8, duration: 0.5 }}
-                                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+                                className="space-y-8"
                             >
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                                                    {t("Total Import Records")}
-                                                </p>
-                                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                    {totalIncomes}
-                                                </p>
-                                            </div>
-                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg">
-                                                <FileText className="h-6 w-6 text-white" />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                {/* Enhanced Summary Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.9, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Imports")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-green-600">
+                                                            {totalImports}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Transactions")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
+                                                        <TrendingUp className="h-8 w-8 text-green-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
 
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                                                    {t("Total Quantity")}
-                                                </p>
-                                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                    {totalQuantity.toLocaleString()}
-                                                </p>
-                                            </div>
-                                            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                                                <Package className="h-6 w-6 text-white" />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.0, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Quantity")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-blue-600">
+                                                            {totalQuantity.toLocaleString()}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Units imported")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
+                                                        <Package className="h-8 w-8 text-blue-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
 
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                                                    {t("Total Value")}
-                                                </p>
-                                                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                                                    {formatCurrency(totalValue)}
-                                                </p>
-                                            </div>
-                                            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
-                                                <DollarSign className="h-6 w-6 text-white" />
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.1, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Value")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-purple-600">
+                                                            {formatCurrency(totalValue)}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Import value")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
+                                                        <DollarSign className="h-8 w-8 text-purple-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
 
-                            {/* Search */}
-                            <motion.div
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.9, duration: 0.5 }}
-                            >
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
-                                    <CardContent className="p-6">
-                                        <div className="relative max-w-md">
-                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                                            <Input
-                                                placeholder={t("Search import records...")}
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                                className="pl-10"
-                                            />
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.2, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Average Import")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-orange-600">
+                                                            {formatCurrency(avgImportValue)}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Per transaction")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
+                                                        <BarChart3 className="h-8 w-8 text-orange-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                </div>
 
-                            {/* Import Table */}
-                            <motion.div
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 1.0, duration: 0.5 }}
-                            >
-                                <Card className="border-0 shadow-xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
-                                    <CardHeader className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border-b border-white/20 dark:border-slate-700/50">
-                                        <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
-                                            <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg">
-                                                <TrendingUp className="h-5 w-5 text-white" />
+                                {/* Advanced Filters */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.3, duration: 0.4 }}
+                                >
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                            <div className="flex items-center justify-between">
+                                                <CardTitle className="flex items-center gap-3">
+                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                        <Filter className="h-5 w-5 text-white" />
+                                                    </div>
+                                                    {t("Search & Filter")}
+                                                </CardTitle>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => setShowFilters(!showFilters)}
+                                                    className="gap-2"
+                                                >
+                                                    <Filter className="h-4 w-4" />
+                                                    {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                                    <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                                                </Button>
                                             </div>
-                                            {t("Import Records")}
-                                        </CardTitle>
-                                        <CardDescription className="text-slate-600 dark:text-slate-400">
-                                            {t("Complete list of warehouse import transactions")}
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="p-0">
-                                        {filteredIncomes.length > 0 ? (
+                                        </CardHeader>
+                                        <CardContent className="p-6">
+                                            {/* Search Bar */}
+                                            <div className="mb-4">
+                                                <div className="relative">
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Input
+                                                        placeholder={t("Search by reference, product name, barcode, or type...")}
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
+                                                    />
+                                                    {searchTerm && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => setSearchTerm("")}
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Advanced Filters */}
+                                            <AnimatePresence>
+                                                {showFilters && (
+                                                    <motion.div
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: "auto", opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                        transition={{ duration: 0.3 }}
+                                                        className="overflow-hidden"
+                                                    >
+                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Date Filter")}
+                                                                </label>
+                                                                <Input
+                                                                    type="date"
+                                                                    value={dateFilter}
+                                                                    onChange={(e) => setDateFilter(e.target.value)}
+                                                                    className="h-10"
+                                                                />
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Sort By")}
+                                                                </label>
+                                                                <Select value={sortBy} onValueChange={setSortBy}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="created_at">{t("Date Created")}</SelectItem>
+                                                                        <SelectItem value="reference_number">{t("Reference")}</SelectItem>
+                                                                        <SelectItem value="product.name">{t("Product Name")}</SelectItem>
+                                                                        <SelectItem value="quantity">{t("Quantity")}</SelectItem>
+                                                                        <SelectItem value="total">{t("Total Value")}</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Sort Order")}
+                                                                </label>
+                                                                <Select value={sortOrder} onValueChange={setSortOrder}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="desc">{t("Descending")}</SelectItem>
+                                                                        <SelectItem value="asc">{t("Ascending")}</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div className="flex items-end">
+                                                                <Button
+                                                                    variant="outline"
+                                                                    onClick={clearFilters}
+                                                                    className="w-full h-10 gap-2"
+                                                                >
+                                                                    <RefreshCw className="h-4 w-4" />
+                                                                    {t("Clear Filters")}
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                {/* Import Table */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.4, duration: 0.4 }}
+                                >
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                            <CardTitle className="flex items-center gap-3">
+                                                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                    <BarChart3 className="h-5 w-5 text-white" />
+                                                </div>
+                                                {t("Import Records")}
+                                                <Badge variant="secondary" className="ml-auto">
+                                                    {filteredIncomes.length} {t("of")} {incomes.length}
+                                                </Badge>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="bg-slate-50/50 dark:bg-slate-800/50">
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Reference")}
                                                             </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Product")}
                                                             </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Quantity")}
                                                             </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
-                                                                {t("Price")}
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Unit Price")}
                                                             </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
-                                                                {t("Total")}
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Total Value")}
                                                             </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300">
-                                                                {t("Date")}
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Import Date")}
                                                             </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
-                                                                {t("Status")}
-                                                            </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
-                                                                {t("Actions")}
-                                                            </TableHead>
+
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        <AnimatePresence>
-                                                            {filteredIncomes.map((income, index) => (
-                                                                <motion.tr
+                                                        {filteredIncomes.length > 0 ? (
+                                                            filteredIncomes.map((income, index) => (
+                                                                <TableRow
                                                                     key={income.id}
-                                                                    initial={{ opacity: 0, y: 20 }}
-                                                                    animate={{ opacity: 1, y: 0 }}
-                                                                    transition={{ delay: index * 0.05 }}
-                                                                    className="hover:bg-blue-50/50 dark:hover:bg-slate-700/50 transition-colors"
+                                                                    className="hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors"
                                                                 >
-                                                                    <TableCell className="font-mono text-slate-600 dark:text-slate-400">
-                                                                        {income.reference_number || '-'}
+                                                                    <TableCell>
+                                                                        <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                                                                            {income.reference_number || '-'}
+                                                                        </span>
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-3">
-                                                                            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center">
-                                                                                <Package className="h-4 w-4 text-white" />
+                                                                            <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
+                                                                                <Package className="h-4 w-4 text-green-600" />
                                                                             </div>
                                                                             <div>
-                                                                                <p className="font-semibold text-slate-800 dark:text-white">
-                                                                                    {income.product.name}
-                                                                                </p>
-                                                                                <p className="text-sm text-slate-600 dark:text-slate-400">
-                                                                                    {income.product.barcode || income.product.type}
+                                                                                <p className="font-semibold text-slate-800 dark:text-white">{income.product.name}</p>
+                                                                                <p className="text-sm text-slate-500 flex items-center gap-1">
+                                                                                    {income.product.barcode && (
+                                                                                        <Badge variant="outline" className="text-xs">
+                                                                                            {income.product.barcode}
+                                                                                        </Badge>
+                                                                                    )}
+                                                                                    <span className="text-xs">{income.product.type}</span>
                                                                                 </p>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="text-center font-semibold">
-                                                                        {income.quantity?.toLocaleString() || 0}
-                                                                    </TableCell>
-                                                                    <TableCell className="text-right font-semibold">
-                                                                        {formatCurrency(income.price)}
-                                                                    </TableCell>
-                                                                    <TableCell className="text-right font-bold text-green-600 dark:text-green-400">
-                                                                        {formatCurrency(income.total)}
-                                                                    </TableCell>
-                                                                    <TableCell className="text-slate-600 dark:text-slate-400">
-                                                                        {formatDate(income.created_at)}
-                                                                    </TableCell>
-                                                                    <TableCell className="text-center">
-                                                                        <Badge variant="secondary" className="bg-green-500 text-white">
-                                                                            {t("Completed")}
+                                                                    <TableCell>
+                                                                        <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                                            {income.quantity?.toLocaleString() || 0}
                                                                         </Badge>
                                                                     </TableCell>
-                                                                    <TableCell className="text-center">
-                                                                        <div className="flex items-center justify-center gap-2">
-                                                                            <Button
-                                                                                size="sm"
-                                                                                variant="outline"
-                                                                                className="hover:scale-105 transition-transform"
-                                                                            >
-                                                                                <Eye className="h-3 w-3" />
-                                                                            </Button>
-                                                                            <Button
-                                                                                size="sm"
-                                                                                variant="outline"
-                                                                                className="hover:scale-105 transition-transform"
-                                                                            >
-                                                                                <Edit className="h-3 w-3" />
-                                                                            </Button>
-                                                                            <Button
-                                                                                size="sm"
-                                                                                variant="outline"
-                                                                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:scale-105 transition-all"
-                                                                            >
-                                                                                <Trash2 className="h-3 w-3" />
-                                                                            </Button>
+                                                                    <TableCell className="font-medium">
+                                                                        {formatCurrency(income.price)}
+                                                                    </TableCell>
+                                                                    <TableCell className="font-bold text-green-600">
+                                                                        {formatCurrency(income.total)}
+                                                                    </TableCell>
+                                                                    <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Calendar className="h-4 w-4" />
+                                                                            {formatDate(income.created_at)}
                                                                         </div>
                                                                     </TableCell>
-                                                                </motion.tr>
-                                                            ))}
-                                                        </AnimatePresence>
+
+                                                                </TableRow>
+                                                            ))
+                                                        ) : (
+                                                            <TableRow>
+                                                                <TableCell colSpan="6" className="h-32 text-center">
+                                                                    <div className="flex flex-col items-center gap-4">
+                                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                                            <TrendingUp className="h-8 w-8 text-slate-400" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                                {t("No import records found")}
+                                                                            </p>
+                                                                            <p className="text-sm text-slate-500">
+                                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("Create your first import record")}
+                                                                            </p>
+                                                                        </div>
+                                                                        {!searchTerm && !dateFilter && (
+                                                                            <Link href={route("admin.warehouses.income.create", warehouse.id)}>
+                                                                                <Button className="gap-2">
+                                                                                    <Plus className="h-4 w-4" />
+                                                                                    {t("Create Import")}
+                                                                                </Button>
+                                                                            </Link>
+                                                                        )}
+                                                                    </div>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        )}
                                                     </TableBody>
                                                 </Table>
                                             </div>
-                                        ) : (
-                                            <motion.div
-                                                initial={{ opacity: 0, scale: 0.9 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                className="text-center py-16"
-                                            >
-                                                <div className="flex flex-col items-center gap-4">
-                                                    <div className="w-16 h-16 bg-gradient-to-br from-slate-400 to-slate-600 rounded-full flex items-center justify-center">
-                                                        <TrendingUp className="h-8 w-8 text-white" />
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">
-                                                            {t("No import records found")}
-                                                        </h3>
-                                                        <p className="text-slate-600 dark:text-slate-400">
-                                                            {searchTerm
-                                                                ? t("No import records match your search criteria")
-                                                                : t("This warehouse doesn't have any import records yet")
-                                                            }
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </motion.div>
-                                        )}
-                                    </CardContent>
-                                </Card>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
                             </motion.div>
                         </div>
                     </main>

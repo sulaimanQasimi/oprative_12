@@ -204,7 +204,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
 
     return (
         <>
-            <Head title={`${warehouse?.name} - ${t("Create Sale")}`}>
+            <Head title={`${warehouse?.name} - ${t("Move to Shop")}`}>
                 <style>{`
                     @keyframes shimmer {
                         0% { background-position: -1000px 0; }
@@ -302,7 +302,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                         className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
-                                        {warehouse?.name} - {t("Create Sale")}
+                                        {warehouse?.name} - {t("Move to Shop")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
@@ -310,7 +310,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
                                     >
-                                        {t("New Sale Record")}
+                                        {t("Move to Shop")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -319,7 +319,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <Package className="w-4 h-4" />
-                                        {t("Create a new sale transaction for outgoing inventory")}
+                                        {t("Move products from warehouse to shop for sales")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -333,7 +333,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                 <Link href={route("admin.warehouses.sales", warehouse.id)}>
                                     <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
                                         <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Sales")}
+                                        {t("Back to Shop Moves")}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -869,7 +869,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                             ) : (
                                                 <>
                                                     <Save className="h-5 w-5 mr-3" />
-                                                    {t("Create Sale")}
+                                                    {t("Move to Shop")}
                                                 </>
                                             )}
                                         </Button>
