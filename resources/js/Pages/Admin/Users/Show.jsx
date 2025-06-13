@@ -38,6 +38,19 @@ export default function ShowUser({ auth, user }) {
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
 
+    // Group permissions by their group field or by extracting from name
+    const groupedDirectPermissions = user.permissions?.reduce((groups, permission) => {
+        // Use the group field if available, otherwise extract from permission name
+        const group = permission.group || permission.name.split('_').slice(-1)[0] || 'other';
+        const groupName = group.charAt(0).toUpperCase() + group.slice(1);
+
+        if (!groups[groupName]) {
+            groups[groupName] = [];
+        }
+        groups[groupName].push(permission);
+        return groups;
+    }, {}) || {};
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
@@ -297,13 +310,13 @@ export default function ShowUser({ auth, user }) {
                                                                         </p>
                                                                         <div className="flex flex-wrap gap-1">
                                                                             {role.permissions.slice(0, 3).map((permission) => (
-                                                                                <Badge
-                                                                                    key={permission.id}
-                                                                                    variant="outline"
-                                                                                    className="text-xs bg-white dark:bg-slate-800 border-purple-200 dark:border-purple-700"
-                                                                                >
-                                                                                    {permission.name}
-                                                                                </Badge>
+                                                                                                                                                        <Badge
+                                                                            key={permission.id}
+                                                                            variant="outline"
+                                                                            className="text-xs bg-white dark:bg-slate-800 border-purple-200 dark:border-purple-700"
+                                                                        >
+                                                                            {permission.label || permission.name}
+                                                                        </Badge>
                                                                             ))}
                                                                             {role.permissions.length > 3 && (
                                                                                 <Badge variant="outline" className="text-xs">
@@ -355,22 +368,36 @@ export default function ShowUser({ auth, user }) {
                                             </CardHeader>
                                             <CardContent className="p-6">
                                                 {user.permissions && user.permissions.length > 0 ? (
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                                                        {user.permissions.map((permission) => (
-                                                            <div
-                                                                key={permission.id}
-                                                                className="flex items-center gap-3 p-3 rounded-lg border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/20 hover:bg-green-100/50 dark:hover:bg-green-900/30 transition-colors"
-                                                            >
-                                                                <div className="p-1.5 bg-green-100 dark:bg-green-900/50 rounded-md">
-                                                                    <Key className="h-4 w-4 text-green-600" />
+                                                    <div className="space-y-6">
+                                                        {Object.entries(groupedDirectPermissions).map(([groupName, groupPermissions]) => (
+                                                            <div key={groupName} className="space-y-3">
+                                                                <div className="flex items-center gap-3 pb-2 border-b border-green-200 dark:border-green-800">
+                                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                                        <Shield className="h-4 w-4 text-white" />
+                                                                    </div>
+                                                                    <h4 className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                        {groupName} ({groupPermissions.length})
+                                                                    </h4>
                                                                 </div>
-                                                                <div>
-                                                                    <p className="font-medium text-slate-800 dark:text-white text-sm">
-                                                                        {permission.name}
-                                                                    </p>
-                                                                    <p className="text-xs text-slate-500">
-                                                                        {t("Direct permission")}
-                                                                    </p>
+                                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                                    {groupPermissions.map((permission) => (
+                                                                        <div
+                                                                            key={permission.id}
+                                                                            className="flex items-center gap-3 p-3 rounded-lg border border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-900/20 hover:bg-green-100/50 dark:hover:bg-green-900/30 transition-colors"
+                                                                        >
+                                                                            <div className="p-1.5 bg-green-100 dark:bg-green-900/50 rounded-md">
+                                                                                <Key className="h-4 w-4 text-green-600" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="font-medium text-slate-800 dark:text-white text-sm">
+                                                                                    {permission.label || permission.name}
+                                                                                </p>
+                                                                                <p className="text-xs text-slate-500">
+                                                                                    {t("Direct permission")}
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                    ))}
                                                                 </div>
                                                             </div>
                                                         ))}

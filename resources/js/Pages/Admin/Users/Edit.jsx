@@ -15,7 +15,9 @@ import {
     Sparkles,
     UserCheck,
     Save,
-    Edit
+    Edit,
+    ChevronDown,
+    ChevronRight
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -28,7 +30,7 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Badge } from "@/Components/ui/badge";
 import { Checkbox } from "@/Components/ui/checkbox";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
@@ -38,6 +40,7 @@ export default function EditUser({ auth, user, roles, permissions }) {
     const [isAnimated, setIsAnimated] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordConfirmation, setShowPasswordConfirmation] = useState(false);
+    const [collapsedGroups, setCollapsedGroups] = useState({});
 
     const { data, setData, put, processing, errors } = useForm({
         name: user.name || '',
@@ -76,6 +79,26 @@ export default function EditUser({ auth, user, roles, permissions }) {
             setData('permissions', data.permissions.filter(id => id !== permissionId));
         }
     };
+
+    const toggleGroup = (groupName) => {
+        setCollapsedGroups(prev => ({
+            ...prev,
+            [groupName]: !prev[groupName]
+        }));
+    };
+
+    // Group permissions by their group field or by extracting from name
+    const groupedPermissions = permissions?.reduce((groups, permission) => {
+        // Use the group field if available, otherwise extract from permission name
+        const group = permission.group || permission.name.split('_').slice(-1)[0] || 'other';
+        const groupName = group.charAt(0).toUpperCase() + group.slice(1);
+
+        if (!groups[groupName]) {
+            groups[groupName] = [];
+        }
+        groups[groupName].push(permission);
+        return groups;
+    }, {}) || {};
 
     return (
         <>
@@ -200,9 +223,11 @@ export default function EditUser({ auth, user, roles, permissions }) {
                             </motion.div>
 
                             <form onSubmit={handleSubmit}>
-                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                    {/* Basic Information */}
-                                    <div className="lg:col-span-2">
+                                <div className="space-y-8">
+                                    {/* Basic Information and Roles Row */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                        {/* Basic Information */}
+                                        <div className="lg:col-span-2">
                                         <motion.div
                                             initial={{ y: 20, opacity: 0 }}
                                             animate={{ y: 0, opacity: 1 }}
@@ -302,78 +327,130 @@ export default function EditUser({ auth, user, roles, permissions }) {
                                         </motion.div>
                                     </div>
 
-                                    {/* Roles and Permissions */}
-                                    <div className="space-y-6">
                                         {/* Roles */}
-                                        <motion.div
-                                            initial={{ y: 20, opacity: 0 }}
-                                            animate={{ y: 0, opacity: 1 }}
-                                            transition={{ delay: 1.1, duration: 0.4 }}
-                                        >
-                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                                <CardHeader className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20">
-                                                    <CardTitle className="flex items-center gap-3">
-                                                        <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
-                                                            <Crown className="h-5 w-5 text-white" />
-                                                        </div>
-                                                        {t("Roles")}
-                                                    </CardTitle>
-                                                </CardHeader>
-                                                <CardContent className="p-4">
-                                                    <div className="space-y-3">
-                                                        {roles?.map((role) => (
-                                                            <div key={role.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                                                                <Checkbox
-                                                                    id={`role-${role.id}`}
-                                                                    checked={data.roles.includes(role.id)}
-                                                                    onCheckedChange={(checked) => handleRoleChange(role.id, checked)}
-                                                                />
-                                                                <Label htmlFor={`role-${role.id}`} className="flex items-center gap-2 cursor-pointer">
-                                                                    <Crown className="h-4 w-4 text-purple-600" />
-                                                                    <span>{role.name}</span>
-                                                                </Label>
+                                        <div className="space-y-6">
+                                            <motion.div
+                                                initial={{ y: 20, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                transition={{ delay: 1.1, duration: 0.4 }}
+                                            >
+                                                <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                                    <CardHeader className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20">
+                                                        <CardTitle className="flex items-center gap-3">
+                                                            <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
+                                                                <Crown className="h-5 w-5 text-white" />
                                                             </div>
-                                                        ))}
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        </motion.div>
-
-                                        {/* Permissions */}
-                                        <motion.div
-                                            initial={{ y: 20, opacity: 0 }}
-                                            animate={{ y: 0, opacity: 1 }}
-                                            transition={{ delay: 1.2, duration: 0.4 }}
-                                        >
-                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                                <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20">
-                                                    <CardTitle className="flex items-center gap-3">
-                                                        <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                                                            <Shield className="h-5 w-5 text-white" />
+                                                            {t("Roles")}
+                                                        </CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="p-4">
+                                                        <div className="space-y-3">
+                                                            {roles?.map((role) => (
+                                                                <div key={role.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
+                                                                    <Checkbox
+                                                                        id={`role-${role.id}`}
+                                                                        checked={data.roles.includes(role.id)}
+                                                                        onCheckedChange={(checked) => handleRoleChange(role.id, checked)}
+                                                                    />
+                                                                    <Label htmlFor={`role-${role.id}`} className="flex items-center gap-2 cursor-pointer">
+                                                                        <Crown className="h-4 w-4 text-purple-600" />
+                                                                        <span>{role.name}</span>
+                                                                    </Label>
+                                                                </div>
+                                                            ))}
                                                         </div>
-                                                        {t("Permissions")}
-                                                    </CardTitle>
-                                                </CardHeader>
-                                                <CardContent className="p-4 max-h-64 overflow-y-auto">
-                                                    <div className="space-y-2">
-                                                        {permissions?.map((permission) => (
-                                                            <div key={permission.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/50">
-                                                                <Checkbox
-                                                                    id={`permission-${permission.id}`}
-                                                                    checked={data.permissions.includes(permission.id)}
-                                                                    onCheckedChange={(checked) => handlePermissionChange(permission.id, checked)}
-                                                                />
-                                                                <Label htmlFor={`permission-${permission.id}`} className="flex items-center gap-2 cursor-pointer text-sm">
-                                                                    <Key className="h-3 w-3 text-green-600" />
-                                                                    <span>{permission.name}</span>
-                                                                </Label>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        </motion.div>
+                                                    </CardContent>
+                                                </Card>
+                                            </motion.div>
+                                        </div>
                                     </div>
+
+                                    {/* Permissions - Full Width */}
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.2, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20">
+                                                <CardTitle className="flex items-center gap-3">
+                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                        <Shield className="h-5 w-5 text-white" />
+                                                    </div>
+                                                    {t("Permissions")}
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-6">
+                                                <div className="space-y-4">
+                                                    {Object.entries(groupedPermissions).map(([groupName, groupPermissions]) => (
+                                                        <div key={groupName} className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => toggleGroup(groupName)}
+                                                                className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                                                            >
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                                        <Shield className="h-4 w-4 text-white" />
+                                                                    </div>
+                                                                    <span className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                        {groupName} ({groupPermissions.length})
+                                                                    </span>
+                                                                </div>
+                                                                {collapsedGroups[groupName] ? (
+                                                                    <ChevronRight className="h-5 w-5 text-slate-500" />
+                                                                ) : (
+                                                                    <ChevronDown className="h-5 w-5 text-slate-500" />
+                                                                )}
+                                                            </button>
+
+                                                            <AnimatePresence>
+                                                                {!collapsedGroups[groupName] && (
+                                                                    <motion.div
+                                                                        initial={{ height: 0, opacity: 0 }}
+                                                                        animate={{ height: "auto", opacity: 1 }}
+                                                                        exit={{ height: 0, opacity: 0 }}
+                                                                        transition={{ duration: 0.3 }}
+                                                                        className="overflow-hidden"
+                                                                    >
+                                                                        <div className="p-4 bg-white dark:bg-slate-900 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                                                            {groupPermissions.map((permission) => (
+                                                                                <div key={permission.id} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-slate-100 dark:border-slate-700">
+                                                                                    <Checkbox
+                                                                                        id={`permission-${permission.id}`}
+                                                                                        checked={data.permissions.includes(permission.id)}
+                                                                                        onCheckedChange={(checked) => handlePermissionChange(permission.id, checked)}
+                                                                                        className="border-2 border-green-300 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                                                                                    />
+                                                                                    <Label
+                                                                                        htmlFor={`permission-${permission.id}`}
+                                                                                        className="flex items-center gap-2 cursor-pointer flex-1 text-sm"
+                                                                                    >
+                                                                                        <Key className="h-3 w-3 text-green-600" />
+                                                                                        <span className="text-xs">{permission.label || permission.name}</span>
+                                                                                    </Label>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </motion.div>
+                                                                )}
+                                                            </AnimatePresence>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                {errors.permissions && (
+                                                    <motion.p
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="text-red-500 text-sm flex items-center gap-1 mt-4"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                        {errors.permissions}
+                                                    </motion.p>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
                                 </div>
 
                                 {/* Submit Button */}
