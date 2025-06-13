@@ -173,8 +173,8 @@ export default function Transfers({ auth, warehouse, transfers }) {
                     }
 
                     @keyframes pulse-glow {
-                        0%, 100% { box-shadow: 0 0 20px rgba(147, 51, 234, 0.3); }
-                        50% { box-shadow: 0 0 30px rgba(147, 51, 234, 0.6); }
+                        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
                     }
 
                     .shimmer {
@@ -205,24 +205,24 @@ export default function Transfers({ auth, warehouse, transfers }) {
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
-                                    linear-gradient(45deg, #9333ea, #7c3aed) border-box;
+                                    linear-gradient(45deg, #3b82f6, #6366f1) border-box;
                         border: 2px solid transparent;
                     }
 
                     .dark .gradient-border {
                         background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
-                                    linear-gradient(45deg, #9333ea, #7c3aed) border-box;
+                                    linear-gradient(45deg, #3b82f6, #6366f1) border-box;
                     }
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} icon={ArrowRightLeft} color="purple" />
+            <PageLoader isVisible={loading} icon={ArrowRightLeft} color="blue" />
 
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
@@ -244,8 +244,8 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 p-4 rounded-2xl shadow-2xl">
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
                                         <ArrowRightLeft className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
@@ -255,7 +255,7 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-1 flex items-center gap-2"
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
                                         {warehouse?.name} - {t("Transfer Management")}
@@ -264,7 +264,7 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
                                     >
                                         {t("Transfer Records")}
                                     </motion.h1>
@@ -286,7 +286,7 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-purple-200 hover:border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20">
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
@@ -297,7 +297,7 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                     </Button>
                                 </Link>
                                 <Link href={route("admin.warehouses.transfers.create", warehouse.id)}>
-                                    <Button className="gap-2 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 hover:from-purple-700 hover:via-pink-700 hover:to-purple-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                    <Button className="gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
                                         <Plus className="h-4 w-4" />
                                         {t("New Transfer")}
                                     </Button>
@@ -307,7 +307,7 @@ export default function Transfers({ auth, warehouse, transfers }) {
                     </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-purple-300 dark:scrollbar-thumb-purple-700 scrollbar-track-transparent">
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent">
                         <div className="p-8">
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
@@ -329,15 +329,15 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Total Transfers")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-purple-600">
+                                                        <p className="text-3xl font-bold text-blue-600">
                                                             {totalTransfers}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
                                                             {t("Transactions")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
-                                                        <ArrowRightLeft className="h-8 w-8 text-purple-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
+                                                        <ArrowRightLeft className="h-8 w-8 text-blue-600" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -356,15 +356,15 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Total Quantity")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-blue-600">
+                                                        <p className="text-3xl font-bold text-cyan-600">
                                                             {totalQuantity.toLocaleString()}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
                                                             {t("Units transferred")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
-                                                        <Package className="h-8 w-8 text-blue-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-2xl">
+                                                        <Package className="h-8 w-8 text-cyan-600" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -433,10 +433,10 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
                                             <div className="flex items-center justify-between">
                                                 <CardTitle className="flex items-center gap-3">
-                                                    <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
+                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
                                                         <Filter className="h-5 w-5 text-white" />
                                                     </div>
                                                     {t("Search & Filter")}
@@ -461,7 +461,7 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                         placeholder={t("Search by reference, product name, barcode, type, or warehouse...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-12 h-12 text-lg border-2 border-purple-200 focus:border-purple-500 rounded-xl"
+                                                        className="pl-12 h-12 text-lg border-2 border-blue-200 focus:border-blue-500 rounded-xl"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -557,9 +557,9 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
                                             <CardTitle className="flex items-center gap-3">
-                                                <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
+                                                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
                                                 </div>
                                                 {t("Transfer Records")}
@@ -601,7 +601,7 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                             filteredTransfers.map((transfer, index) => (
                                                                 <TableRow
                                                                     key={transfer.id}
-                                                                    className="hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors"
+                                                                    className="hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
                                                                 >
                                                                     <TableCell>
                                                                         <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
@@ -610,8 +610,8 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-3">
-                                                                            <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
-                                                                                <Package className="h-4 w-4 text-purple-600" />
+                                                                            <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
+                                                                                <Package className="h-4 w-4 text-blue-600" />
                                                                             </div>
                                                                             <div>
                                                                                 <p className="font-semibold text-slate-800 dark:text-white">{transfer.product.name}</p>
@@ -628,11 +628,11 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-2">
-                                                                            <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                                            <Badge variant="outline" className="text-xs bg-cyan-50 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300">
                                                                                 {transfer.from_warehouse.name}
                                                                             </Badge>
                                                                             <div className="flex items-center gap-1">
-                                                                                <ArrowRightLeft className="h-3 w-3 text-purple-500" />
+                                                                                <ArrowRightLeft className="h-3 w-3 text-blue-500" />
                                                                                 <Truck className="h-3 w-3 text-slate-400" />
                                                                             </div>
                                                                             <Badge variant="outline" className="text-xs bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300">
@@ -641,14 +641,14 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                                                        <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                                                             {transfer.quantity?.toLocaleString() || 0}
                                                                         </Badge>
                                                                     </TableCell>
                                                                     <TableCell className="font-medium">
                                                                         {formatCurrency(transfer.price)}
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-purple-600">
+                                                                    <TableCell className="font-bold text-blue-600">
                                                                         {formatCurrency(transfer.total)}
                                                                     </TableCell>
                                                                     <TableCell className="text-sm text-slate-600 dark:text-slate-400">

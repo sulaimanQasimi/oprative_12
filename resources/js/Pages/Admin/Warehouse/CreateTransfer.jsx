@@ -279,8 +279,8 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-purple-500 via-pink-500 to-purple-600 p-4 rounded-2xl shadow-2xl">
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
                                         <ArrowRightLeft className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
@@ -290,7 +290,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-purple-600 dark:text-purple-400 mb-1 flex items-center gap-2"
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
                                         {warehouse?.name} - {t("Create Transfer")}
@@ -299,7 +299,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
                                     >
                                         {t("New Transfer Record")}
                                     </motion.h1>
@@ -322,7 +322,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.warehouses.transfers", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-purple-200 hover:border-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20">
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Transfers")}
                                     </Button>
