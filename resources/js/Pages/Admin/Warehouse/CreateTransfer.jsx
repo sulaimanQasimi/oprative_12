@@ -352,16 +352,16 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                     <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg">
                                                         <ArrowRightLeft className="h-6 w-6 text-white" />
-                                                    </div>
-                                                    {t("Transfer Details")}
+                                            </div>
+                                            {t("Transfer Details")}
                                                     <Badge variant="secondary" className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
                                                         {t("Required")}
                                                     </Badge>
-                                                </CardTitle>
-                                                <CardDescription className="text-slate-600 dark:text-slate-400">
+                                        </CardTitle>
+                                        <CardDescription className="text-slate-600 dark:text-slate-400">
                                                     {t("Fill in the details for the new transfer record with proper unit calculations")}
-                                                </CardDescription>
-                                            </CardHeader>
+                                        </CardDescription>
+                                    </CardHeader>
                                             <CardContent className="p-8 space-y-8">
                                                 {/* Error Alert */}
                                                 <AnimatePresence>
@@ -382,7 +382,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                 </AnimatePresence>
 
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                                                    {/* Product Selection */}
+                                                {/* Product Selection */}
                                                     <motion.div
                                                         initial={{ x: -20, opacity: 0 }}
                                                         animate={{ x: 0, opacity: 1 }}
@@ -392,16 +392,16 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                         <Label htmlFor="product_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
                                                             <Package className="w-5 h-5 text-purple-500" />
                                                             {t("Product")} *
-                                                        </Label>
+                                                    </Label>
                                                         <Select
                                                             value={data.product_id}
                                                             onValueChange={(value) => setData('product_id', value)}
                                                         >
                                                             <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.product_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-800`}>
                                                                 <SelectValue placeholder={t("Select a product to transfer")} />
-                                                            </SelectTrigger>
+                                                        </SelectTrigger>
                                                             <SelectContent className="max-w-md">
-                                                                {warehouseProducts.map((product) => (
+                                                            {warehouseProducts.map((product) => (
                                                                     <SelectItem key={product.id} value={product.id.toString()} className="p-4">
                                                                         <div className="flex items-center space-x-4">
                                                                             <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
@@ -417,24 +417,24 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                                                     </Badge>
                                                                                 </div>
                                                                             </div>
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        {errors.product_id && (
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {errors.product_id && (
                                                             <motion.p
                                                                 initial={{ opacity: 0 }}
                                                                 animate={{ opacity: 1 }}
                                                                 className="text-sm text-red-600 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
-                                                                {errors.product_id}
+                                                            {errors.product_id}
                                                             </motion.p>
-                                                        )}
+                                                    )}
                                                     </motion.div>
 
-                                                    {/* Destination Warehouse */}
+                                                {/* Destination Warehouse */}
                                                     <motion.div
                                                         initial={{ x: 20, opacity: 0 }}
                                                         animate={{ x: 0, opacity: 1 }}
@@ -444,43 +444,43 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                         <Label htmlFor="to_warehouse_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
                                                             <Building2 className="w-5 h-5 text-pink-500" />
                                                             {t("Destination Warehouse")} *
-                                                        </Label>
+                                                    </Label>
                                                         <Select
                                                             value={data.to_warehouse_id}
                                                             onValueChange={(value) => setData('to_warehouse_id', value)}
                                                         >
                                                             <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.to_warehouse_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-pink-300 focus:border-pink-500'} bg-white dark:bg-slate-800`}>
-                                                                <SelectValue placeholder={t("Select destination warehouse")} />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {warehouses.filter(w => w.id !== warehouse.id).map((w) => (
+                                                            <SelectValue placeholder={t("Select destination warehouse")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {warehouses.filter(w => w.id !== warehouse.id).map((w) => (
                                                                     <SelectItem key={w.id} value={w.id.toString()} className="p-4">
                                                                         <div className="flex items-center space-x-4">
                                                                             <div className="p-2 bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 rounded-lg">
                                                                                 <Building2 className="h-5 w-5 text-pink-600" />
                                                                             </div>
-                                                                            <div>
+                                                                        <div>
                                                                                 <div className="font-semibold text-slate-800 dark:text-white">{w.name}</div>
                                                                                 <div className="text-sm text-slate-500 flex items-center gap-2">
                                                                                     <Hash className="w-3 h-3" />
                                                                                     Code: {w.code}
                                                                                 </div>
                                                                             </div>
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        {errors.to_warehouse_id && (
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {errors.to_warehouse_id && (
                                                             <motion.p
                                                                 initial={{ opacity: 0 }}
                                                                 animate={{ opacity: 1 }}
                                                                 className="text-sm text-red-600 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
-                                                                {errors.to_warehouse_id}
+                                                            {errors.to_warehouse_id}
                                                             </motion.p>
-                                                        )}
+                                                    )}
                                                     </motion.div>
                                                 </div>
 
@@ -540,7 +540,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                         )}
                                                     </motion.div>
 
-                                                    {/* Quantity */}
+                                                {/* Quantity */}
                                                     <motion.div
                                                         initial={{ x: 20, opacity: 0 }}
                                                         animate={{ x: 0, opacity: 1 }}
@@ -550,37 +550,37 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                         <Label htmlFor="quantity" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
                                                             <Hash className="w-5 h-5 text-blue-500" />
                                                             {t("Quantity")} *
-                                                        </Label>
+                                                    </Label>
                                                         <div className="relative">
                                                             <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                            <Input
-                                                                id="quantity"
-                                                                type="number"
+                                                    <Input
+                                                        id="quantity"
+                                                        type="number"
                                                                 step="0.01"
                                                                 min="0.01"
                                                                 placeholder={t("Enter quantity")}
-                                                                value={data.quantity}
+                                                        value={data.quantity}
                                                                 onChange={(e) => setData('quantity', e.target.value)}
                                                                 className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.quantity ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}
-                                                            />
+                                                    />
                                                         </div>
-                                                        {selectedProduct && (
-                                                            <div className="flex items-center space-x-2">
-                                                                <Badge variant="outline">
+                                                    {selectedProduct && (
+                                                        <div className="flex items-center space-x-2">
+                                                            <Badge variant="outline">
                                                                     {t("Available")}: {selectedProduct.stock_quantity} {t("units")}
                                                                 </Badge>
-                                                            </div>
-                                                        )}
-                                                        {errors.quantity && (
+                                                        </div>
+                                                    )}
+                                                    {errors.quantity && (
                                                             <motion.p
                                                                 initial={{ opacity: 0 }}
                                                                 animate={{ opacity: 1 }}
                                                                 className="text-sm text-red-600 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
-                                                                {errors.quantity}
+                                                            {errors.quantity}
                                                             </motion.p>
-                                                        )}
+                                                    )}
                                                     </motion.div>
                                                 </div>
 
@@ -595,28 +595,28 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                         <Label htmlFor="price" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
                                                             <DollarSign className="w-5 h-5 text-green-500" />
                                                             {t("Price per Unit")} *
-                                                        </Label>
+                                                    </Label>
                                                         <div className="relative">
                                                             <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                            <Input
-                                                                id="price"
-                                                                type="number"
+                                                    <Input
+                                                        id="price"
+                                                        type="number"
                                                                 step="0.01"
-                                                                min="0"
+                                                        min="0"
                                                                 placeholder={t("Enter price")}
-                                                                value={data.price}
-                                                                onChange={(e) => setData('price', e.target.value)}
+                                                        value={data.price}
+                                                        onChange={(e) => setData('price', e.target.value)}
                                                                 className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.price ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}
-                                                            />
+                                                    />
                                                         </div>
-                                                        {errors.price && (
+                                                    {errors.price && (
                                                             <motion.p
                                                                 initial={{ opacity: 0 }}
                                                                 animate={{ opacity: 1 }}
                                                                 className="text-sm text-red-600 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
-                                                                {errors.price}
+                                                            {errors.price}
                                                             </motion.p>
                                                         )}
                                                     </motion.div>
@@ -662,7 +662,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                     {/* Calculation Summary */}
                                     <AnimatePresence>
                                         {selectedProduct && data.unit_type && data.quantity && data.price && (
-                                            <motion.div
+                                                <motion.div
                                                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
@@ -732,10 +732,10 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                                         <Package2 className="h-5 w-5 text-purple-600" />
                                                                         <AlertDescription className="text-purple-700 dark:text-purple-400 font-medium">
                                                                             <strong>{t("Wholesale unit multiplier applied")}:</strong> {data.quantity} × {selectedProduct.whole_sale_unit_amount} = {calculatedQuantity} {t("units")}
-                                                                        </AlertDescription>
-                                                                    </Alert>
-                                                                </motion.div>
-                                                            )}
+                                                        </AlertDescription>
+                                                    </Alert>
+                                                </motion.div>
+                                            )}
                                                         </AnimatePresence>
                                                     </CardContent>
                                                 </Card>
@@ -750,34 +750,34 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                         transition={{ delay: 1.6, duration: 0.4 }}
                                         className="flex justify-end space-x-6 pt-6"
                                     >
-                                        <Link href={route("admin.warehouses.transfers", warehouse.id)}>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
+                                                <Link href={route("admin.warehouses.transfers", warehouse.id)}>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
                                                 className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200"
-                                            >
-                                                {t("Cancel")}
-                                            </Button>
-                                        </Link>
-                                        <Button
-                                            type="submit"
+                                                    >
+                                                        {t("Cancel")}
+                                                    </Button>
+                                                </Link>
+                                                <Button
+                                                    type="submit"
                                             disabled={processing}
                                             className={`px-8 py-4 text-lg shadow-2xl transition-all duration-200 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-700 hover:from-purple-700 hover:via-pink-700 hover:to-purple-800 hover:scale-105 hover:shadow-3xl text-white`}
-                                        >
-                                            {processing ? (
-                                                <>
+                                                >
+                                                    {processing ? (
+                                                        <>
                                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                                                    {t("Creating...")}
-                                                </>
-                                            ) : (
-                                                <>
+                                                            {t("Creating...")}
+                                                        </>
+                                                    ) : (
+                                                        <>
                                                     <Save className="h-5 w-5 mr-3" />
-                                                    {t("Create Transfer")}
-                                                </>
-                                            )}
-                                        </Button>
+                                                            {t("Create Transfer")}
+                                                        </>
+                                                    )}
+                                                </Button>
                                     </motion.div>
-                                </form>
+                                        </form>
                             </motion.div>
                         </div>
                     </main>

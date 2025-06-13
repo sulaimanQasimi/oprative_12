@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Inertia\Inertia;
@@ -43,10 +44,10 @@ class UserController extends Controller
 
         $users = $query->paginate(
             $request->get('per_page', 15)
-        )->withQueryString();
+        )->appends($request->query());
 
-        $roles = Role::all();
-        $permissions = Permission::all();
+        $roles = Role::with('permissions')->where('guard_name', 'web')->get();
+        $permissions = Permission::where('guard_name', 'web')->get();
 
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
@@ -61,8 +62,8 @@ class UserController extends Controller
      */
     public function create()
     {
-        $roles = Role::all();
-        $permissions = Permission::all();
+        $roles = Role::with('permissions')->where('guard_name', 'web')->get();
+        $permissions = Permission::where('guard_name', 'web')->get();
 
         return Inertia::render('Admin/Users/Create', [
             'roles' => $roles,
@@ -92,12 +93,14 @@ class UserController extends Controller
 
         // Assign roles if provided
         if ($request->filled('roles')) {
-            $user->assignRole($request->roles);
+            $roleNames = Role::whereIn('id', $request->roles)->pluck('name')->toArray();
+            $user->assignRole($roleNames);
         }
 
         // Assign permissions if provided
         if ($request->filled('permissions')) {
-            $user->givePermissionTo($request->permissions);
+            $permissionNames = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
+            $user->givePermissionTo($permissionNames);
         }
 
         return redirect()->route('admin.users.index')
@@ -109,7 +112,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        $user->load(['roles', 'permissions']);
+        $user->load(['roles.permissions', 'permissions']);
 
         return Inertia::render('Admin/Users/Show', [
             'user' => $user,
@@ -121,9 +124,9 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        $user->load(['roles', 'permissions']);
-        $roles = Role::all();
-        $permissions = Permission::all();
+        $user->load(['roles.permissions', 'permissions']);
+        $roles = Role::with('permissions')->where('guard_name', 'web')->get();
+        $permissions = Permission::where('guard_name', 'web')->get();
 
         return Inertia::render('Admin/Users/Edit', [
             'user' => $user,
@@ -159,12 +162,14 @@ class UserController extends Controller
 
         // Sync roles
         if ($request->has('roles')) {
-            $user->syncRoles($request->roles);
+            $roleNames = Role::whereIn('id', $request->roles)->pluck('name')->toArray();
+            $user->syncRoles($roleNames);
         }
 
         // Sync permissions
         if ($request->has('permissions')) {
-            $user->syncPermissions($request->permissions);
+            $permissionNames = Permission::whereIn('id', $request->permissions)->pluck('name')->toArray();
+            $user->syncPermissions($permissionNames);
         }
 
         return redirect()->route('admin.users.index')
@@ -177,7 +182,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         // Prevent self-deletion
-        if (auth()->id() === $user->id) {
+        if (Auth::check() && Auth::user()->id === $user->id) {
             return redirect()->route('admin.users.index')
                 ->with('error', 'You cannot delete your own account.');
         }
@@ -213,4 +218,4 @@ class UserController extends Controller
         return redirect()->back()
             ->with('success', 'Role removed successfully.');
     }
-} 
+}

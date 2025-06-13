@@ -323,25 +323,25 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
                                         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Transfers")}
-                                                        </p>
+                                                    {t("Total Transfers")}
+                                                </p>
                                                         <p className="text-3xl font-bold text-blue-600">
-                                                            {totalTransfers}
-                                                        </p>
+                                                    {totalTransfers}
+                                                </p>
                                                         <p className="text-xs text-slate-500 mt-1">
                                                             {t("Transactions")}
                                                         </p>
-                                                    </div>
+                                            </div>
                                                     <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
                                                         <ArrowRightLeft className="h-8 w-8 text-blue-600" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                                     </motion.div>
 
                                     <motion.div
@@ -350,25 +350,25 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                         transition={{ delay: 1.0, duration: 0.4 }}
                                     >
                                         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Quantity")}
-                                                        </p>
+                                                    {t("Total Quantity")}
+                                                </p>
                                                         <p className="text-3xl font-bold text-cyan-600">
-                                                            {totalQuantity.toLocaleString()}
-                                                        </p>
+                                                    {totalQuantity.toLocaleString()}
+                                                </p>
                                                         <p className="text-xs text-slate-500 mt-1">
                                                             {t("Units transferred")}
                                                         </p>
-                                                    </div>
+                                            </div>
                                                     <div className="p-4 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30 rounded-2xl">
                                                         <Package className="h-8 w-8 text-cyan-600" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                                     </motion.div>
 
                                     <motion.div
@@ -377,26 +377,26 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                         transition={{ delay: 1.1, duration: 0.4 }}
                                     >
                                         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Value")}
-                                                        </p>
+                                                    {t("Total Value")}
+                                                </p>
                                                         <p className="text-3xl font-bold text-emerald-600">
-                                                            {formatCurrency(totalValue)}
-                                                        </p>
+                                                    {formatCurrency(totalValue)}
+                                                </p>
                                                         <p className="text-xs text-slate-500 mt-1">
                                                             {t("Transfer value")}
                                                         </p>
-                                                    </div>
+                                            </div>
                                                     <div className="p-4 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 rounded-2xl">
                                                         <DollarSign className="h-8 w-8 text-emerald-600" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
 
                                     <motion.div
                                         initial={{ scale: 0.9, opacity: 0 }}
@@ -427,9 +427,9 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                 </div>
 
                                 {/* Advanced Filters */}
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
@@ -452,15 +452,15 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                 </Button>
                                             </div>
                                         </CardHeader>
-                                        <CardContent className="p-6">
+                                    <CardContent className="p-6">
                                             {/* Search Bar */}
                                             <div className="mb-4">
                                                 <div className="relative">
                                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                    <Input
+                                            <Input
                                                         placeholder={t("Search by reference, product name, barcode, type, or warehouse...")}
-                                                        value={searchTerm}
-                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
                                                         className="pl-12 h-12 text-lg border-2 border-blue-200 focus:border-blue-500 rounded-xl"
                                                     />
                                                     {searchTerm && (
@@ -496,8 +496,8 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                     value={dateFilter}
                                                                     onChange={(e) => setDateFilter(e.target.value)}
                                                                     className="h-10"
-                                                                />
-                                                            </div>
+                                            />
+                                        </div>
 
                                                             <div>
                                                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
@@ -546,14 +546,14 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
 
                                 {/* Transfer Table */}
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
@@ -561,14 +561,14 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                             <CardTitle className="flex items-center gap-3">
                                                 <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
-                                                </div>
-                                                {t("Transfer Records")}
+                                            </div>
+                                            {t("Transfer Records")}
                                                 <Badge variant="secondary" className="ml-auto">
                                                     {filteredTransfers.length} {t("of")} {transfers.length}
                                                 </Badge>
-                                            </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="p-0">
+                                        </CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="p-0">
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
@@ -605,7 +605,7 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                 >
                                                                     <TableCell>
                                                                         <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
-                                                                            {transfer.reference_number || '-'}
+                                                                        {transfer.reference_number || '-'}
                                                                         </span>
                                                                     </TableCell>
                                                                     <TableCell>
@@ -642,7 +642,7 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                                            {transfer.quantity?.toLocaleString() || 0}
+                                                                        {transfer.quantity?.toLocaleString() || 0}
                                                                         </Badge>
                                                                     </TableCell>
                                                                     <TableCell className="font-medium">
@@ -654,7 +654,7 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                                     <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                                                                         <div className="flex items-center gap-2">
                                                                             <Calendar className="h-4 w-4" />
-                                                                            {formatDate(transfer.created_at)}
+                                                                        {formatDate(transfer.created_at)}
                                                                         </div>
                                                                     </TableCell>
                                                                 </TableRow>
@@ -689,8 +689,8 @@ export default function Transfers({ auth, warehouse, transfers }) {
                                                     </TableBody>
                                                 </Table>
                                             </div>
-                                        </CardContent>
-                                    </Card>
+                                    </CardContent>
+                                </Card>
                                 </motion.div>
                             </motion.div>
                         </div>
