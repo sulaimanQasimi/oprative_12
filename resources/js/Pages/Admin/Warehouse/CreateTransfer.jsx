@@ -12,7 +12,10 @@ import {
     Save,
     X,
     AlertCircle,
-    CheckCircle
+    CheckCircle,
+    Users,
+    ShoppingCart,
+    Store
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -44,6 +47,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
     const [isAnimated, setIsAnimated] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [availableStock, setAvailableStock] = useState(0);
+    const [customerType, setCustomerType] = useState('wholesale'); // wholesale or retail
 
     // Form for creating transfers
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -51,6 +55,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
         to_warehouse_id: '',
         quantity: '',
         price: '',
+        customer_type: 'wholesale',
         notes: '',
     });
 
@@ -76,9 +81,30 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
         setSelectedProduct(product);
         setAvailableStock(product ? product.stock_quantity : 0);
         setData('product_id', productId);
+        
+        // Auto-set price based on customer type and product pricing
+        if (product) {
+            const price = customerType === 'wholesale' 
+                ? (product.wholesale_price || product.price)
+                : (product.retail_price || product.price);
+            setData('price', price);
+        }
 
         // Reset quantity when product changes
         setData('quantity', '');
+    };
+
+    const handleCustomerTypeChange = (type) => {
+        setCustomerType(type);
+        setData('customer_type', type);
+        
+        // Update price based on customer type
+        if (selectedProduct) {
+            const price = type === 'wholesale' 
+                ? (selectedProduct.wholesale_price || selectedProduct.price)
+                : (selectedProduct.retail_price || selectedProduct.price);
+            setData('price', price);
+        }
     };
 
     const handleQuantityChange = (e) => {
@@ -107,6 +133,23 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
     const isQuantityValid = () => {
         const quantity = parseInt(data.quantity) || 0;
         return quantity > 0 && quantity <= availableStock;
+    };
+
+    const getCustomerTypeInfo = () => {
+        return {
+            wholesale: {
+                icon: <Building2 className="h-4 w-4" />,
+                label: t('Wholesale'),
+                description: t('Bulk transfer at wholesale prices'),
+                color: 'blue'
+            },
+            retail: {
+                icon: <Store className="h-4 w-4" />,
+                label: t('Retail'),
+                description: t('Individual transfer at retail prices'),
+                color: 'green'
+            }
+        };
     };
 
     return (
@@ -194,7 +237,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                         transition={{ delay: 0.6, duration: 0.4 }}
                                         className="text-sm text-slate-600 dark:text-slate-400"
                                     >
-                                        {t("Transfer inventory from this warehouse to another warehouse")}
+                                        {t("Transfer inventory with wholesale/retail pricing")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -224,46 +267,52 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                 transition={{ delay: 0.8, duration: 0.5 }}
                                 className="max-w-4xl mx-auto space-y-6"
                             >
-                                {/* Warehouse Information Card */}
+                                {/* Customer Type Selection */}
                                 <Card className="border-0 shadow-xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
-                                    <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-700/50">
+                                    <CardHeader className="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-b border-white/20 dark:border-slate-700/50">
                                         <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
-                                            <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                                                <Building2 className="h-5 w-5 text-white" />
+                                            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
+                                                <Users className="h-5 w-5 text-white" />
                                             </div>
-                                            {t("Source Warehouse Information")}
+                                            {t("Transfer Type")}
                                         </CardTitle>
                                         <CardDescription className="text-slate-600 dark:text-slate-400">
-                                            {t("Transfer from this warehouse to another location")}
+                                            {t("Select the type of transfer to determine pricing")}
                                         </CardDescription>
                                     </CardHeader>
                                     <CardContent className="p-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                            <div>
-                                                <Label className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("Warehouse Name")}</Label>
-                                                <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{warehouse.name}</p>
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("Code")}</Label>
-                                                <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">{warehouse.code}</p>
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("Status")}</Label>
-                                                <Badge variant={warehouse.is_active ? "success" : "secondary"}>
-                                                    {warehouse.is_active ? t("Active") : t("Inactive")}
-                                                </Badge>
-                                            </div>
-                                            <div>
-                                                <Label className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("Address")}</Label>
-                                                <p className="text-sm text-slate-700 dark:text-slate-300">{warehouse.address || t("Not specified")}</p>
-                                            </div>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {Object.entries(getCustomerTypeInfo()).map(([type, info]) => (
+                                                <button
+                                                    key={type}
+                                                    type="button"
+                                                    onClick={() => handleCustomerTypeChange(type)}
+                                                    className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                                                        customerType === type
+                                                            ? `border-${info.color}-500 bg-${info.color}-50 dark:bg-${info.color}-900/20`
+                                                            : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`p-2 rounded-lg ${
+                                                            customerType === type
+                                                                ? `bg-${info.color}-500 text-white`
+                                                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                                        }`}>
+                                                            {info.icon}
+                                                        </div>
+                                                        <div className="text-left">
+                                                            <h3 className="font-semibold text-slate-900 dark:text-white">
+                                                                {info.label}
+                                                            </h3>
+                                                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                                {info.description}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </button>
+                                            ))}
                                         </div>
-                                        {warehouse.description && (
-                                            <div className="mt-4">
-                                                <Label className="text-sm font-medium text-slate-500 dark:text-slate-400">{t("Description")}</Label>
-                                                <p className="text-sm text-slate-700 dark:text-slate-300">{warehouse.description}</p>
-                                            </div>
-                                        )}
                                     </CardContent>
                                 </Card>
 
@@ -301,11 +350,14 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                                             <Package className="h-4 w-4 text-purple-500" />
                                                                             <div>
                                                                                 <p className="font-medium">{product.name}</p>
-                                                                                {product.barcode && (
-                                                                                    <p className="text-xs text-slate-500">
-                                                                                        {t("Barcode")}: {product.barcode}
-                                                                                    </p>
-                                                                                )}
+                                                                                <div className="flex gap-2 text-xs">
+                                                                                    <span className="text-slate-500">
+                                                                                        W: {formatCurrency(product.wholesale_price || product.price)}
+                                                                                    </span>
+                                                                                    <span className="text-slate-500">
+                                                                                        R: {formatCurrency(product.retail_price || product.price)}
+                                                                                    </span>
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                         <Badge variant="outline" className="ml-2">
@@ -405,7 +457,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                 <div className="space-y-2">
                                                     <Label htmlFor="price" className="text-base font-semibold flex items-center gap-2">
                                                         <DollarSign className="h-4 w-4 text-purple-600" />
-                                                        {t("Unit Price")} (IRR) <span className="text-red-500">*</span>
+                                                        {t("Unit Price")} ({customerType === 'wholesale' ? t('Wholesale') : t('Retail')}) <span className="text-red-500">*</span>
                                                     </Label>
                                                     <Input
                                                         id="price"
@@ -436,7 +488,22 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                     <Alert>
                                                         <AlertCircle className="h-4 w-4" />
                                                         <AlertDescription>
-                                                            <strong>{t("Total Transfer Value")}: {formatCurrency(calculateTotal())}</strong>
+                                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                                                <div>
+                                                                    <strong>{t("Transfer Type")}: </strong>
+                                                                    <Badge variant={customerType === 'wholesale' ? 'default' : 'secondary'}>
+                                                                        {customerType === 'wholesale' ? t('Wholesale') : t('Retail')}
+                                                                    </Badge>
+                                                                </div>
+                                                                <div>
+                                                                    <strong>{t("Unit Price")}: </strong>
+                                                                    {formatCurrency(data.price)}
+                                                                </div>
+                                                                <div>
+                                                                    <strong>{t("Total Value")}: </strong>
+                                                                    <span className="text-lg font-bold">{formatCurrency(calculateTotal())}</span>
+                                                                </div>
+                                                            </div>
                                                         </AlertDescription>
                                                     </Alert>
                                                 </motion.div>

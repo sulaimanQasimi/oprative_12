@@ -15,6 +15,9 @@ use App\Http\Controllers\Admin\CustomerUserController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AccountIncomeController;
 use App\Http\Controllers\Admin\AccountOutcomeController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\PermissionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -53,6 +56,43 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Authentication
     Route::post('/logout', [AuthController::class, 'logout'])->name('admin.logout');
+
+    // User Management
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index'])->name('admin.users.index');
+        Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
+        Route::post('/', [UserController::class, 'store'])->name('admin.users.store');
+        Route::get('/{user:id}', [UserController::class, 'show'])->name('admin.users.show');
+        Route::get('/{user:id}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+        Route::put('/{user:id}', [UserController::class, 'update'])->name('admin.users.update');
+        Route::delete('/{user:id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::post('/{user:id}/assign-role', [UserController::class, 'assignRole'])->name('admin.users.assign-role');
+        Route::delete('/{user:id}/remove-role/{role}', [UserController::class, 'removeRole'])->name('admin.users.remove-role');
+    });
+
+    // Role Management
+    Route::prefix('roles')->group(function () {
+        Route::get('/', [RoleController::class, 'index'])->name('admin.roles.index');
+        Route::get('/create', [RoleController::class, 'create'])->name('admin.roles.create');
+        Route::post('/', [RoleController::class, 'store'])->name('admin.roles.store');
+        Route::get('/{role:id}', [RoleController::class, 'show'])->name('admin.roles.show');
+        Route::get('/{role:id}/edit', [RoleController::class, 'edit'])->name('admin.roles.edit');
+        Route::put('/{role:id}', [RoleController::class, 'update'])->name('admin.roles.update');
+        Route::delete('/{role:id}', [RoleController::class, 'destroy'])->name('admin.roles.destroy');
+        Route::post('/{role:id}/assign-permission', [RoleController::class, 'assignPermission'])->name('admin.roles.assign-permission');
+        Route::delete('/{role:id}/remove-permission/{permission}', [RoleController::class, 'removePermission'])->name('admin.roles.remove-permission');
+    });
+
+    // Permission Management
+    Route::prefix('permissions')->group(function () {
+        Route::get('/', [PermissionController::class, 'index'])->name('admin.permissions.index');
+        Route::get('/create', [PermissionController::class, 'create'])->name('admin.permissions.create');
+        Route::post('/', [PermissionController::class, 'store'])->name('admin.permissions.store');
+        Route::get('/{permission:id}', [PermissionController::class, 'show'])->name('admin.permissions.show');
+        Route::get('/{permission:id}/edit', [PermissionController::class, 'edit'])->name('admin.permissions.edit');
+        Route::put('/{permission:id}', [PermissionController::class, 'update'])->name('admin.permissions.update');
+        Route::delete('/{permission:id}', [PermissionController::class, 'destroy'])->name('admin.permissions.destroy');
+    });
 
     // Currency Management
     Route::prefix('currencies')->group(function () {
@@ -158,7 +198,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{warehouse:id}/import/create', [WarehouseController::class, 'createIncome'])->name('admin.warehouses.income.create');
         Route::post('/{warehouse:id}/import', [WarehouseController::class, 'storeIncome'])->name('admin.warehouses.income.store');
 
-        // Warehouse export management
+        // Warehouse export management  
         Route::get('/{warehouse:id}/export', [WarehouseController::class, 'outcome'])->name('admin.warehouses.outcome');
         Route::get('/{warehouse:id}/export/create', [WarehouseController::class, 'createOutcome'])->name('admin.warehouses.outcome.create');
         Route::post('/{warehouse:id}/export', [WarehouseController::class, 'storeOutcome'])->name('admin.warehouses.outcome.store');
