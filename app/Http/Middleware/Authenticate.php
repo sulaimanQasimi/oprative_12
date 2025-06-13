@@ -24,6 +24,10 @@ class Authenticate extends Middleware
                 return route('warehouse.login');
             }
 
+            if (str_starts_with($request->path(), 'adminpanel/')) {
+                return route('admin.login');
+            }
+
             return route('landing');
         });
     }
