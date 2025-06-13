@@ -300,7 +300,7 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                                 : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                                                         }`}>
                                                             {info.icon}
-                                                        </div>
+                                            </div>
                                                         <div className="text-left">
                                                             <h3 className="font-semibold text-slate-900 dark:text-white">
                                                                 {info.label}
@@ -308,8 +308,8 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                             <p className="text-sm text-slate-600 dark:text-slate-400">
                                                                 {info.description}
                                                             </p>
-                                                        </div>
-                                                    </div>
+                                            </div>
+                                            </div>
                                                 </button>
                                             ))}
                                         </div>

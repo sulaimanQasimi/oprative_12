@@ -418,7 +418,6 @@ class WarehouseController extends Controller
 
             return redirect()->route('admin.warehouses.income', $warehouse->id)
                 ->with('success', 'Income record created successfully.');
-
         } catch (\Exception $e) {
             Log::error('Error creating income record: ' . $e->getMessage());
             return redirect()->back()
@@ -490,7 +489,7 @@ class WarehouseController extends Controller
                 })
                 ->map(function ($product) use ($warehouse) {
                     $warehouseProduct = $warehouse->items()
-                    ->where('product_id', $product->id)->first();
+                        ->where('product_id', $product->id)->first();
                     return [
                         'id' => $product->id,
                         'name' => $product->name,
@@ -611,7 +610,6 @@ class WarehouseController extends Controller
 
             return redirect()->route('admin.warehouses.outcome', $warehouse->id)
                 ->with('success', 'Export record created successfully.');
-
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Error creating outcome record: ' . $e->getMessage());
@@ -677,7 +675,6 @@ class WarehouseController extends Controller
                     'user' => Auth::user()
                 ]
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error loading warehouse transfers: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error loading warehouse transfers');
@@ -703,6 +700,21 @@ class WarehouseController extends Controller
                     'purchase_price' => $item->product->purchase_price,
                     'wholesale_price' => $item->product->wholesale_price,
                     'retail_price' => $item->product->retail_price,
+                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount,
+                    'retails_sale_unit_amount' => $item->product->retails_sale_unit_amount,
+                    'available_stock' => $item->net_quantity ?? 0,
+                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
+                        'id' => $item->product->wholesaleUnit->id,
+                        'name' => $item->product->wholesaleUnit->name,
+                        'code' => $item->product->wholesaleUnit->code,
+                        'symbol' => $item->product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $item->product->retailUnit ? [
+                        'id' => $item->product->retailUnit->id,
+                        'name' => $item->product->retailUnit->name,
+                        'code' => $item->product->retailUnit->code,
+                        'symbol' => $item->product->retailUnit->symbol,
+                    ] : null,
                 ];
             })->filter(function ($product) {
                 return $product['stock_quantity'] > 0; // Only show products with stock
@@ -723,7 +735,6 @@ class WarehouseController extends Controller
                     'user' => Auth::user()
                 ]
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error loading create transfer page: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error loading create transfer page');
@@ -800,13 +811,13 @@ class WarehouseController extends Controller
                 'reference_number' => $referenceNumber,
                 'quantity' => $validated['quantity'],
                 'price' => $validated['price'],
-                'total' => $total, ]);
+                'total' => $total,
+            ]);
 
             DB::commit();
 
             return redirect()->route('admin.warehouses.transfers', $warehouse->id)
                 ->with('success', 'Transfer created successfully');
-
         } catch (\Exception $e) {
             DB::rollback();
             Log::error('Error creating warehouse transfer: ' . $e->getMessage());
@@ -858,7 +869,6 @@ class WarehouseController extends Controller
                     'user' => Auth::user()
                 ]
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error loading warehouse store movements: ' . $e->getMessage());
             return redirect()->route('admin.warehouses.show', $warehouse->id)
@@ -919,7 +929,6 @@ class WarehouseController extends Controller
                     'user' => Auth::user()
                 ]
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error loading create store movement page: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error loading create store movement page');
@@ -998,7 +1007,6 @@ class WarehouseController extends Controller
 
             return redirect()->route('admin.warehouses.sales', $warehouse->id)
                 ->with('success', 'Products moved to store successfully');
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
                 ->withErrors($e->errors())
@@ -1012,4 +1020,3 @@ class WarehouseController extends Controller
         }
     }
 }
-

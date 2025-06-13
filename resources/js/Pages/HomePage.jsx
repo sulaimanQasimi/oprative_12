@@ -37,21 +37,21 @@ export default function HomePage({ auth }) {
                         <div className="flex items-center space-x-4">
                             <div className="flex items-center space-x-6 pr-2">
                                 {auth?.web ? (
-                                    <a target='_blank' href="/admin/" className="px-4 ml-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center space-x-2 transform hover:scale-105 hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300 relative overflow-hidden group">
+                                    <Link href="/adminpanel/" className="px-4 ml-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center space-x-2 transform hover:scale-105 hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300 relative overflow-hidden group">
                                         <div className="absolute inset-0 bg-white/20 w-0 group-hover:w-full transition-all duration-700"></div>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                                         </svg>
                                         <span>داشبورد مدیر</span>
-                                    </a>
+                                    </Link>
                                 ) : (
-                                    <a target='_blank' href="/admin/login" className="px-4 ml-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center space-x-2 transform hover:scale-105 hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300 relative overflow-hidden group">
+                                    <Link href="/adminpanel/login" className="px-4 ml-4 py-2 rounded-lg bg-gradient-to-r from-pink-500 to-purple-600 text-white flex items-center space-x-2 transform hover:scale-105 hover:shadow-lg hover:shadow-pink-500/30 transition-all duration-300 relative overflow-hidden group">
                                         <div className="absolute inset-0 bg-white/20 w-0 group-hover:w-full transition-all duration-700"></div>
                                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                                         </svg>
                                         <span>ورود مدیر</span>
-                                    </a>
+                                    </Link>
                                 )}
 
                                 {auth?.warehouse ? (
