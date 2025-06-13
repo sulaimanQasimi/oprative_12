@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     Building2,
@@ -111,27 +111,22 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
         }
     }, [selectedProduct, data.unit_type]);
 
-    // Calculate actual quantity, total, and check stock warning
+    // Calculate actual quantity and total
     useEffect(() => {
         if (selectedProduct && data.unit_type && data.quantity && data.price) {
-            const enteredQuantity = parseFloat(data.quantity) || 0;
-            const unitPrice = parseFloat(data.price) || 0;
-            let actualQuantity = enteredQuantity;
+            let actualQuantity = parseFloat(data.quantity) || 0;
 
             if (data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount) {
-                // For wholesale: multiply entered quantity by unit amount to get actual pieces
-                actualQuantity = enteredQuantity * selectedProduct.whole_sale_unit_amount;
+                actualQuantity = (parseFloat(data.quantity) || 0) * selectedProduct.whole_sale_unit_amount;
             }
-            // For retail: actual quantity = entered quantity (1:1 ratio)
 
-            // Total = entered quantity × unit price (not actual quantity × price)
-            const total = enteredQuantity * unitPrice;
+            const total = actualQuantity * (parseFloat(data.price) || 0);
 
             setCalculatedQuantity(actualQuantity);
             setCalculatedTotal(total);
 
             // Check if requested quantity exceeds available stock
-            setStockWarning(enteredQuantity > availableStock);
+            setStockWarning((parseFloat(data.quantity) || 0) > availableStock);
         } else {
             setCalculatedQuantity(0);
             setCalculatedTotal(0);
@@ -142,8 +137,40 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
     const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
-        post(route('admin.warehouses.sales.store', warehouse.id), {
+        
+        // Calculate final quantity based on unit type before submission
+        let finalQuantity = parseFloat(data.quantity) || 0;
+        let finalTotal = parseFloat(data.price) || 0;
+        
+        if (data.unit_type === 'wholesale' && selectedProduct?.whole_sale_unit_amount) {
+            // For wholesale: multiply entered quantity by wholesale unit amount
+            finalQuantity = finalQuantity * selectedProduct.whole_sale_unit_amount;
+        }
+        
+        // Calculate total based on final quantity and price
+        finalTotal = finalQuantity * (parseFloat(data.price) || 0);
+        console.log('Original data:', data);
+        
+        console.log('Final quantity to submit:', finalQuantity);
+        console.log('Final total to submit:', finalTotal);
+        
+        // Create submission data with calculated values
+        const submissionData = {
+            product_id: data.product_id,
+            customer_id: data.customer_id,
+            unit_type: data.unit_type,
+            quantity: finalQuantity,
+            price: data.price,
+            total: finalTotal,
+            notes: data.notes
+        };
+        // Use router.post directly with calculated data
+        router.post(route('admin.warehouses.sales.store', warehouse.id), submissionData, {
             onFinish: () => setLoading(false),
+            onError: (errors) => {
+                console.log('Submission errors:', errors);
+                setLoading(false);
+            }
         });
     };
 
@@ -168,14 +195,14 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
         }
     };
 
-        const handleUnitTypeChange = (unitType) => {
-        const price = selectedProduct ? getUnitPrice(selectedProduct, unitType) : 0;
-        
-        setData(prevData => ({
-            ...prevData,
-            unit_type: unitType,
-            price: price.toString()
-        }));
+    const handleUnitTypeChange = (unitType) => {
+        setData('unit_type', unitType);
+
+        // Auto-fill price based on unit type
+        if (selectedProduct) {
+            const price = getUnitPrice(selectedProduct, unitType);
+            setData('price', price.toString());
+        }
     };
 
     const getAvailableUnits = (product) => {
@@ -402,15 +429,10 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                             <Package className="w-5 h-5 text-blue-500" />
                                                             {t("Product")} *
                                                         </Label>
-                                                        <Select
-                                                            value={data.product_id}
-                                                            onValueChange={(value) => setData(prevData => ({
-                                                                ...prevData,
-                                                                product_id: value,
-                                                                unit_type: '',
-                                                                price: ''
-                                                            }))}
-                                                        >
+                                                                                                <Select
+                                            value={data.product_id}
+                                            onValueChange={(value) => setData('product_id', value)}
+                                        >
                                                             <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.product_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}>
                                                                 <SelectValue placeholder={t("Select a product to sell")} />
                                                             </SelectTrigger>

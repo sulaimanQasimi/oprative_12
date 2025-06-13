@@ -971,7 +971,6 @@ class WarehouseController extends Controller
 
             // Calculate total
             $total = $validated['quantity'] * $validated['price'];
-
             // Create warehouse outcome record
             \App\Models\WarehouseOutcome::create([
                 'warehouse_id' => $warehouse->id,

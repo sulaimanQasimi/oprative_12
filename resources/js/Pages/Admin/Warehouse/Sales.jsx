@@ -119,13 +119,7 @@ export default function Sales({ auth, warehouse, sales }) {
 
     // Calculate totals
     const totalSales = filteredSales.length;
-    const totalQuantity = filteredSales.reduce((sum, sale) => {
-        // For wholesale, show entered quantity, for retail show actual quantity
-        const displayQuantity = sale.unit_type === 'wholesale_unit' 
-            ? sale.quantity / (sale.product.whole_sale_unit_amount || 1)
-            : sale.quantity;
-        return sum + displayQuantity;
-    }, 0);
+    const totalQuantity = filteredSales.reduce((sum, sale) => sum + sale.quantity, 0);
     const totalValue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
     const avgSaleValue = totalSales > 0 ? totalValue / totalSales : 0;
 
@@ -626,7 +620,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                         <div className="flex flex-col gap-1">
                                                                             <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
                                                                                 {sale.unit_type === 'wholesale_unit' 
-                                                                                    ? (sale.quantity / (sale.product.whole_sale_unit_amount || 1)).toLocaleString()
+                                                                                    ? sale.quantity.toLocaleString()
                                                                                     : sale.quantity.toLocaleString()
                                                                                 }
                                                                             </Badge>
