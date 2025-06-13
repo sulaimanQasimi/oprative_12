@@ -376,7 +376,7 @@ export default function ShowUser({ auth, user }) {
                                                                         <Shield className="h-4 w-4 text-white" />
                                                                     </div>
                                                                     <h4 className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                        {groupName} ({groupPermissions.length})
+                                                                        {t(groupName)} ({groupPermissions.length})
                                                                     </h4>
                                                                 </div>
                                                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

@@ -394,7 +394,7 @@ export default function EditUser({ auth, user, roles, permissions }) {
                                                                         <Shield className="h-4 w-4 text-white" />
                                                                     </div>
                                                                     <span className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                        {groupName} ({groupPermissions.length})
+                                                                        {t(groupName)} ({groupPermissions.length})
                                                                     </span>
                                                                 </div>
                                                                 {collapsedGroups[groupName] ? (

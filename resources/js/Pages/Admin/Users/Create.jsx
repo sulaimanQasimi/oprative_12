@@ -479,9 +479,9 @@ export default function CreateUser({ auth, roles, permissions }) {
                                                                         <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
                                                                             <Shield className="h-4 w-4 text-white" />
                                                                         </div>
-                                                                        <span className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                            {groupName} ({groupPermissions.length})
-                                                                        </span>
+                                                                                                                                            <span className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                        {t(groupName)} ({groupPermissions.length})
+                                                                    </span>
                                                                     </div>
                                                                     {collapsedGroups[groupName] ? (
                                                                         <ChevronRight className="h-5 w-5 text-slate-500" />
