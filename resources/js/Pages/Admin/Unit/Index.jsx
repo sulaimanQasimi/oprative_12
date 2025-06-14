@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Head, Link } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import anime from "animejs";
 import {
     Search,
@@ -17,6 +17,15 @@ import {
     AlertCircle,
     Filter,
     ArrowUpDown,
+    Download,
+    RefreshCw,
+    BarChart3,
+    Sparkles,
+    ChevronDown,
+    X,
+    Info,
+    Package,
+    Hash,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -26,7 +35,23 @@ import {
     CardTitle,
     CardFooter,
 } from "@/Components/ui/card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/Components/ui/table";
+import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
@@ -37,6 +62,7 @@ export default function Index({ auth, units = [] }) {
     const [isAnimated, setIsAnimated] = useState(false);
     const [sortField, setSortField] = useState("name");
     const [sortDirection, setSortDirection] = useState("asc");
+    const [showFilters, setShowFilters] = useState(false);
 
     // Refs for animation targets
     const headerRef = useRef(null);
@@ -83,71 +109,85 @@ export default function Index({ auth, units = [] }) {
         }
     };
 
-    // Initialize animations
-    useEffect(() => {
-        if (!isAnimated) {
-            // Animate header
-            anime({
-                targets: headerRef.current,
-                opacity: [0, 1],
-                translateY: [-20, 0],
-                duration: 600,
-                easing: "easeOutExpo",
-            });
-
-            // Animate table
-            anime({
-                targets: tableRef.current,
-                opacity: [0, 1],
-                translateY: [20, 0],
-                duration: 700,
-                easing: "easeOutExpo",
-                delay: 200,
-            });
-
-            // Animate rows with stagger
-            anime({
-                targets: rowRefs.current,
-                opacity: [0, 1],
-                translateX: [-20, 0],
-                delay: anime.stagger(50),
-                duration: 500,
-                easing: "easeOutExpo",
-                begin: () => setIsAnimated(true),
-            });
-        }
-    }, [isAnimated, filteredUnits.length]);
-
-    // Reset animation state when search or sort changes
-    useEffect(() => {
-        setIsAnimated(false);
-        // Clear refs
-        rowRefs.current = [];
-    }, [searchTerm, sortField, sortDirection]);
-
-    // Simulate loading delay
+    // Animation effect
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
-        }, 1000);
-
+            setIsAnimated(true);
+        }, 800);
         return () => clearTimeout(timer);
     }, []);
+
+    // Calculate totals
+    const totalUnits = filteredUnits.length;
+    const totalCodes = filteredUnits.filter((unit) => unit.code).length;
+    const totalSymbols = filteredUnits.filter((unit) => unit.symbol).length;
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setSortField("name");
+        setSortDirection("asc");
+    };
+
+    const handleDelete = (unitId) => {
+        // Add delete functionality here
+        console.log("Delete unit:", unitId);
+    };
 
     return (
         <>
             <Head title={t("Unit Management")}>
                 <style>{`
                     @keyframes shimmer {
-                        0% {
-                            transform: translateX(-100%);
-                        }
-                        100% {
-                            transform: translateX(100%);
-                        }
+                        0% { background-position: -1000px 0; }
+                        100% { background-position: 1000px 0; }
                     }
-                    .animate-shimmer {
-                        animation: shimmer 3s infinite;
+
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                    }
+
+                    @keyframes pulse-glow {
+                        0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.6); }
+                    }
+
+                    .shimmer {
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                        background-size: 1000px 100%;
+                        animation: shimmer 2s infinite;
+                    }
+
+                    .float-animation {
+                        animation: float 6s ease-in-out infinite;
+                    }
+
+                    .pulse-glow {
+                        animation: pulse-glow 2s ease-in-out infinite;
+                    }
+
+                    .glass-effect {
+                        background: rgba(255, 255, 255, 0.1);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                    }
+
+                    .dark .glass-effect {
+                        background: rgba(0, 0, 0, 0.2);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                    }
+
+                    .gradient-border {
+                        background: linear-gradient(white, white) padding-box,
+                                    linear-gradient(45deg, #6366f1, #4f46e5) border-box;
+                        border: 2px solid transparent;
+                    }
+
+                    .dark .gradient-border {
+                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                                    linear-gradient(45deg, #6366f1, #4f46e5) border-box;
                     }
 
                     .bg-grid-pattern {
@@ -163,213 +203,617 @@ export default function Index({ auth, units = [] }) {
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} />
+            <PageLoader isVisible={loading} icon={Package} color="indigo" />
 
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isAnimated ? 1 : 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+            >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.units" />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
-                    <header
-                        ref={headerRef}
-                        className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30"
+                    <motion.header
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
                     >
-                        <div className="flex items-center space-x-4">
-                            <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-0.5">
-                                    {t("Admin Panel")}
-                                </span>
-                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    {t("Unit Management")}
-                                    <Badge
-                                        variant="outline"
-                                        className="ml-2 bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800 rounded-full"
-                                    >
-                                        {units?.length || 0}
-                                    </Badge>
-                                </h1>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center space-x-3">
-                            <Link href={route("admin.units.create")}>
-                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    {t("Add Unit")}
-                                </Button>
-                            </Link>
-                        </div>
-                    </header>
-
-                    {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                        <div className="p-6">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
                                 <motion.div
-                                    initial={{ x: -20, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{ duration: 0.4 }}
-                                    className="w-full md:w-96 relative"
+                                    initial={{
+                                        scale: 0.8,
+                                        opacity: 0,
+                                        rotate: -180,
+                                    }}
+                                    animate={{
+                                        scale: 1,
+                                        opacity: 1,
+                                        rotate: 0,
+                                    }}
+                                    transition={{
+                                        delay: 0.3,
+                                        duration: 0.6,
+                                        type: "spring",
+                                        stiffness: 200,
+                                    }}
+                                    className="relative float-animation"
                                 >
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Search className="h-4 w-4 text-slate-400" />
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
+                                        <Package className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
-                                    <input
-                                        type="text"
-                                        placeholder={t("Search units...")}
-                                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 transition-all duration-200"
-                                        value={searchTerm}
-                                        onChange={(e) =>
-                                            setSearchTerm(e.target.value)
-                                        }
-                                    />
-                                    {searchTerm && (
-                                        <button
-                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-500"
-                                            onClick={() => setSearchTerm("")}
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-4 w-4"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <path d="M18 6 6 18"></path>
-                                                <path d="m6 6 12 12"></path>
-                                            </svg>
-                                        </button>
-                                    )}
                                 </motion.div>
-
-                                <motion.div
-                                    initial={{ x: 20, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{ duration: 0.4, delay: 0.1 }}
-                                    className="flex items-center space-x-2"
-                                >
-                                    <Button
-                                        variant="outline"
-                                        className="border-slate-200 dark:border-slate-800"
+                                <div>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{
+                                            delay: 0.4,
+                                            duration: 0.4,
+                                        }}
+                                        className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1 flex items-center gap-2"
                                     >
-                                        <Filter className="h-4 w-4 mr-2" />
-                                        {t("Filter")}
-                                    </Button>
-                                </motion.div>
-                            </div>
-
-                            {/* Table */}
-                            <div
-                                ref={tableRef}
-                                className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
-                            >
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead>
-                                            <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                                                <th
-                                                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer"
-                                                    onClick={() =>
-                                                        handleSort("name")
-                                                    }
-                                                >
-                                                    <div className="flex items-center space-x-1">
-                                                        <span>{t("Name")}</span>
-                                                        <ArrowUpDown className="h-4 w-4" />
-                                                    </div>
-                                                </th>
-                                                <th
-                                                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer"
-                                                    onClick={() =>
-                                                        handleSort("code")
-                                                    }
-                                                >
-                                                    <div className="flex items-center space-x-1">
-                                                        <span>{t("Code")}</span>
-                                                        <ArrowUpDown className="h-4 w-4" />
-                                                    </div>
-                                                </th>
-                                                <th
-                                                    className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer"
-                                                    onClick={() =>
-                                                        handleSort("symbol")
-                                                    }
-                                                >
-                                                    <div className="flex items-center space-x-1">
-                                                        <span>{t("Symbol")}</span>
-                                                        <ArrowUpDown className="h-4 w-4" />
-                                                    </div>
-                                                </th>
-                                                <th className="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                    {t("Actions")}
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                                            {sortedUnits.map((unit, index) => (
-                                                <tr
-                                                    key={unit.id}
-                                                    ref={(el) =>
-                                                        (rowRefs.current[index] =
-                                                            el)
-                                                    }
-                                                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-150"
-                                                >
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="flex items-center">
-                                                            <div className="text-sm font-medium text-slate-900 dark:text-white">
-                                                                {unit.name}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                            {unit.code}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap">
-                                                        <div className="text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md inline-block">
-                                                            {unit.symbol || "—"}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                        <div className="flex items-center justify-end space-x-2">
-                                                            <Link
-                                                                href={route(
-                                                                    "admin.units.edit",
-                                                                    unit.id
-                                                                )}
-                                                                className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
-                                                            >
-                                                                <Edit className="h-4 w-4" />
-                                                            </Link>
-                                                            <button
-                                                                onClick={() =>
-                                                                    handleDelete(
-                                                                        unit.id
-                                                                    )
-                                                                }
-                                                                className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
+                                        <Sparkles className="w-4 h-4" />
+                                        {t("Admin Panel")}
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{
+                                            delay: 0.5,
+                                            duration: 0.4,
+                                        }}
+                                        className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
+                                    >
+                                        {t("Unit Management")}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{
+                                            delay: 0.6,
+                                            duration: 0.4,
+                                        }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                    >
+                                        <BarChart3 className="w-4 h-4" />
+                                        {t(
+                                            "Manage measurement units and conversions"
+                                        )}
+                                    </motion.p>
                                 </div>
                             </div>
+
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
+                            >
+                                <Button
+                                    variant="outline"
+                                    className="gap-2 hover:scale-105 transition-all duration-200 border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    {t("Export")}
+                                </Button>
+                                <Link href={route("admin.units.create")}>
+                                    <Button className="gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                        <Plus className="h-4 w-4" />
+                                        {t("Add Unit")}
+                                    </Button>
+                                </Link>
+                            </motion.div>
+                        </div>
+                    </motion.header>
+
+                    {/* Main Content Container */}
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-700 scrollbar-track-transparent">
+                        <div className="p-8">
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="space-y-8"
+                            >
+                                {/* Enhanced Summary Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{
+                                            delay: 0.9,
+                                            duration: 0.4,
+                                        }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Units")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-indigo-600">
+                                                            {totalUnits}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t(
+                                                                "Measurement units"
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl">
+                                                        <Package className="h-8 w-8 text-indigo-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{
+                                            delay: 1.0,
+                                            duration: 0.4,
+                                        }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("With Codes")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-blue-600">
+                                                            {totalCodes}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t(
+                                                                "Units with codes"
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
+                                                        <Hash className="h-8 w-8 text-blue-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{
+                                            delay: 1.1,
+                                            duration: 0.4,
+                                        }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("With Symbols")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-purple-600">
+                                                            {totalSymbols}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t(
+                                                                "Units with symbols"
+                                                            )}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
+                                                        <Star className="h-8 w-8 text-purple-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                </div>
+
+                                {/* Advanced Filters */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.3, duration: 0.4 }}
+                                >
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                            <div className="flex items-center justify-between">
+                                                <CardTitle className="flex items-center gap-3">
+                                                    <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
+                                                        <Filter className="h-5 w-5 text-white" />
+                                                    </div>
+                                                    {t("Search & Filter")}
+                                                </CardTitle>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() =>
+                                                        setShowFilters(
+                                                            !showFilters
+                                                        )
+                                                    }
+                                                    className="gap-2"
+                                                >
+                                                    <Filter className="h-4 w-4" />
+                                                    {showFilters
+                                                        ? t("Hide Filters")
+                                                        : t("Show Filters")}
+                                                    <ChevronDown
+                                                        className={`h-4 w-4 transition-transform ${
+                                                            showFilters
+                                                                ? "rotate-180"
+                                                                : ""
+                                                        }`}
+                                                    />
+                                                </Button>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="p-6">
+                                            {/* Search Bar */}
+                                            <div className="mb-4">
+                                                <div className="relative">
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Input
+                                                        placeholder={t(
+                                                            "Search units by name, code, or symbol..."
+                                                        )}
+                                                        value={searchTerm}
+                                                        onChange={(e) =>
+                                                            setSearchTerm(
+                                                                e.target.value
+                                                            )
+                                                        }
+                                                        className="pl-12 h-12 text-lg border-2 border-indigo-200 focus:border-indigo-500 rounded-xl"
+                                                    />
+                                                    {searchTerm && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() =>
+                                                                setSearchTerm(
+                                                                    ""
+                                                                )
+                                                            }
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Advanced Filters */}
+                                            <AnimatePresence>
+                                                {showFilters && (
+                                                    <motion.div
+                                                        initial={{
+                                                            height: 0,
+                                                            opacity: 0,
+                                                        }}
+                                                        animate={{
+                                                            height: "auto",
+                                                            opacity: 1,
+                                                        }}
+                                                        exit={{
+                                                            height: 0,
+                                                            opacity: 0,
+                                                        }}
+                                                        transition={{
+                                                            duration: 0.3,
+                                                        }}
+                                                        className="overflow-hidden"
+                                                    >
+                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t(
+                                                                        "Sort By"
+                                                                    )}
+                                                                </label>
+                                                                <Select
+                                                                    value={
+                                                                        sortField
+                                                                    }
+                                                                    onValueChange={
+                                                                        setSortField
+                                                                    }
+                                                                >
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="name">
+                                                                            {t(
+                                                                                "Name"
+                                                                            )}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="code">
+                                                                            {t(
+                                                                                "Code"
+                                                                            )}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="symbol">
+                                                                            {t(
+                                                                                "Symbol"
+                                                                            )}
+                                                                        </SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t(
+                                                                        "Sort Order"
+                                                                    )}
+                                                                </label>
+                                                                <Select
+                                                                    value={
+                                                                        sortDirection
+                                                                    }
+                                                                    onValueChange={
+                                                                        setSortDirection
+                                                                    }
+                                                                >
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="asc">
+                                                                            {t(
+                                                                                "Ascending"
+                                                                            )}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="desc">
+                                                                            {t(
+                                                                                "Descending"
+                                                                            )}
+                                                                        </SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div className="flex items-end">
+                                                                <Button
+                                                                    variant="outline"
+                                                                    onClick={
+                                                                        clearFilters
+                                                                    }
+                                                                    className="w-full h-10 gap-2"
+                                                                >
+                                                                    <RefreshCw className="h-4 w-4" />
+                                                                    {t(
+                                                                        "Clear Filters"
+                                                                    )}
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                {/* Units Table */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.4, duration: 0.4 }}
+                                >
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                            <CardTitle className="flex items-center gap-3">
+                                                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
+                                                    <BarChart3 className="h-5 w-5 text-white" />
+                                                </div>
+                                                {t("Units")}
+                                                <Badge
+                                                    variant="secondary"
+                                                    className="ml-auto"
+                                                >
+                                                    {filteredUnits.length}{" "}
+                                                    {t("of")} {units.length}
+                                                </Badge>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
+                                            <div className="overflow-x-auto">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                            <TableHead
+                                                                className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                                onClick={() =>
+                                                                    handleSort(
+                                                                        "name"
+                                                                    )
+                                                                }
+                                                            >
+                                                                <div className="flex items-center space-x-1">
+                                                                    <span>
+                                                                        {t(
+                                                                            "Name"
+                                                                        )}
+                                                                    </span>
+                                                                    <ArrowUpDown className="h-4 w-4" />
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead
+                                                                className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                                onClick={() =>
+                                                                    handleSort(
+                                                                        "code"
+                                                                    )
+                                                                }
+                                                            >
+                                                                <div className="flex items-center space-x-1">
+                                                                    <span>
+                                                                        {t(
+                                                                            "Code"
+                                                                        )}
+                                                                    </span>
+                                                                    <ArrowUpDown className="h-4 w-4" />
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead
+                                                                className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
+                                                                onClick={() =>
+                                                                    handleSort(
+                                                                        "symbol"
+                                                                    )
+                                                                }
+                                                            >
+                                                                <div className="flex items-center space-x-1">
+                                                                    <span>
+                                                                        {t(
+                                                                            "Symbol"
+                                                                        )}
+                                                                    </span>
+                                                                    <ArrowUpDown className="h-4 w-4" />
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                                                                {t("Actions")}
+                                                            </TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {sortedUnits.length >
+                                                        0 ? (
+                                                            sortedUnits.map(
+                                                                (
+                                                                    unit,
+                                                                    index
+                                                                ) => (
+                                                                    <TableRow
+                                                                        key={
+                                                                            unit.id
+                                                                        }
+                                                                        className="hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors"
+                                                                    >
+                                                                        <TableCell>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg">
+                                                                                    <Package className="h-4 w-4 text-indigo-600" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="font-semibold text-slate-800 dark:text-white">
+                                                                                        {
+                                                                                            unit.name
+                                                                                        }
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                                                                                {unit.code ||
+                                                                                    "—"}
+                                                                            </span>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <Badge
+                                                                                variant="secondary"
+                                                                                className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                                                            >
+                                                                                {unit.symbol ||
+                                                                                    "—"}
+                                                                            </Badge>
+                                                                        </TableCell>
+                                                                        <TableCell className="text-right">
+                                                                            <div className="flex items-center justify-end space-x-2">
+                                                                                <Link
+                                                                                    href={route(
+                                                                                        "admin.units.edit",
+                                                                                        unit.id
+                                                                                    )}
+                                                                                    className="p-2 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all duration-200"
+                                                                                >
+                                                                                    <Edit className="h-4 w-4" />
+                                                                                </Link>
+                                                                                <button
+                                                                                    onClick={() =>
+                                                                                        handleDelete(
+                                                                                            unit.id
+                                                                                        )
+                                                                                    }
+                                                                                    className="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
+                                                                                >
+                                                                                    <Trash2 className="h-4 w-4" />
+                                                                                </button>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <TableRow>
+                                                                <TableCell
+                                                                    colSpan="4"
+                                                                    className="h-32 text-center"
+                                                                >
+                                                                    <div className="flex flex-col items-center gap-4">
+                                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                                            <Package className="h-8 w-8 text-slate-400" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                                {t(
+                                                                                    "No units found"
+                                                                                )}
+                                                                            </p>
+                                                                            <p className="text-sm text-slate-500">
+                                                                                {searchTerm
+                                                                                    ? t(
+                                                                                          "Try adjusting your search"
+                                                                                      )
+                                                                                    : t(
+                                                                                          "Create your first unit"
+                                                                                      )}
+                                                                            </p>
+                                                                        </div>
+                                                                        {!searchTerm && (
+                                                                            <Link
+                                                                                href={route(
+                                                                                    "admin.units.create"
+                                                                                )}
+                                                                            >
+                                                                                <Button className="gap-2">
+                                                                                    <Plus className="h-4 w-4" />
+                                                                                    {t(
+                                                                                        "Create Unit"
+                                                                                    )}
+                                                                                </Button>
+                                                                            </Link>
+                                                                        )}
+                                                                    </div>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        )}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            </motion.div>
                         </div>
                     </main>
                 </div>
-            </div>
+            </motion.div>
         </>
     );
 }
