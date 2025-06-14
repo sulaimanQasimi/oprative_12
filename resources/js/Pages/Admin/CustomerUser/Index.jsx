@@ -2,21 +2,26 @@ import React, { useState, useEffect } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
+    Users,
+    ArrowLeft,
     User,
-    Plus,
+    Calendar,
+    Mail,
+    Building2,
+    Sparkles,
     Search,
     Filter,
-    MoreVertical,
+    Download,
+    RefreshCw,
+    BarChart3,
+    ChevronDown,
+    X,
+    Plus,
     Edit,
     Trash2,
-    Eye,
-    Users,
-    Mail,
+    MoreVertical,
     Shield,
-    ArrowLeft,
-    Sparkles,
-    UserCheck,
-    Building2
+    Eye
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -25,14 +30,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@/Components/ui/card";
-import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu";
 import {
     Table,
     TableBody,
@@ -41,16 +39,34 @@ import {
     TableHeader,
     TableRow,
 } from "@/Components/ui/table";
+import { Input } from "@/Components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/Components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Index({ auth, customerUsers, customer }) {
+export default function Index({ auth, customerUsers }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredUsers, setFilteredUsers] = useState(customerUsers);
+    const [customerFilter, setCustomerFilter] = useState("");
+    const [sortBy, setSortBy] = useState("created_at");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [showFilters, setShowFilters] = useState(false);
+    const [filteredUsers, setFilteredUsers] = useState(customerUsers.data || []);
 
     // Animation effect
     useEffect(() => {
@@ -61,32 +77,80 @@ export default function Index({ auth, customerUsers, customer }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Filter users based on search term
+    // Enhanced filtering logic
     useEffect(() => {
-        const filtered = customerUsers.filter(user =>
-            user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            user.email?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredUsers(filtered);
-    }, [searchTerm, customerUsers]);
+        let filtered = [...(customerUsers.data || [])];
 
-    const handleDelete = (userId) => {
+        // Search filter
+        if (searchTerm) {
+            filtered = filtered.filter(user =>
+                user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Customer filter
+        if (customerFilter) {
+            filtered = filtered.filter(user => user.customer?.id === parseInt(customerFilter));
+        }
+
+        // Sorting
+        filtered.sort((a, b) => {
+            let aValue = a[sortBy];
+            let bValue = b[sortBy];
+
+            if (sortBy === 'customer.name') {
+                aValue = a.customer?.name || '';
+                bValue = b.customer?.name || '';
+            }
+
+            if (typeof aValue === 'string') {
+                aValue = aValue.toLowerCase();
+                bValue = bValue.toLowerCase();
+            }
+
+            if (sortOrder === 'asc') {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
+        });
+
+        setFilteredUsers(filtered);
+    }, [searchTerm, customerFilter, sortBy, sortOrder, customerUsers.data]);
+
+    // Calculate totals
+    const totalUsers = filteredUsers.length;
+    const uniqueCustomers = new Set(filteredUsers.map(user => user.customer?.id)).size;
+
+    const handleDeleteUser = (userId) => {
         if (confirm(t("Are you sure you want to delete this user?"))) {
             router.delete(route('admin.customer-users.destroy', userId));
         }
     };
 
-    const getRoleBadges = (roles) => {
-        if (!roles || roles.length === 0) {
-            return <Badge variant="outline" className="text-gray-500">{t("No Role")}</Badge>;
-        }
-
-        return roles.map((role, index) => (
-            <Badge key={index} variant="secondary" className="mr-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                {role.name}
-            </Badge>
-        ));
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     };
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setCustomerFilter("");
+        setSortBy("created_at");
+        setSortOrder("desc");
+    };
+
+    // Get unique customers for filter
+    const uniqueCustomersList = Array.from(
+        new Map((customerUsers.data || []).map(user => [user.customer?.id, user.customer])).values()
+    ).filter(customer => customer);
 
     return (
         <>
@@ -102,6 +166,11 @@ export default function Index({ auth, customerUsers, customer }) {
                         50% { transform: translateY(-10px); }
                     }
 
+                    @keyframes pulse-glow {
+                        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
+                    }
+
                     .shimmer {
                         background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
                         background-size: 1000px 100%;
@@ -110,6 +179,10 @@ export default function Index({ auth, customerUsers, customer }) {
 
                     .float-animation {
                         animation: float 6s ease-in-out infinite;
+                    }
+
+                    .pulse-glow {
+                        animation: pulse-glow 2s ease-in-out infinite;
                     }
 
                     .glass-effect {
@@ -137,7 +210,7 @@ export default function Index({ auth, customerUsers, customer }) {
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} icon={User} color="blue" />
+            <PageLoader isVisible={loading} icon={Users} color="blue" />
 
             <motion.div
                 initial={{ opacity: 0 }}
@@ -159,14 +232,6 @@ export default function Index({ auth, customerUsers, customer }) {
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <Link
-                                    href={route('admin.customers.index')}
-                                    className="inline-flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
-                                >
-                                    <ArrowLeft className="w-4 h-4 mr-2" />
-                                    {t("Back to Stores")}
-                                </Link>
-                                <div className="border-l border-gray-300 h-6"></div>
                                 <motion.div
                                     initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
@@ -175,7 +240,7 @@ export default function Index({ auth, customerUsers, customer }) {
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
                                     <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
-                                        <User className="w-8 h-8 text-white" />
+                                        <Users className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
@@ -187,7 +252,7 @@ export default function Index({ auth, customerUsers, customer }) {
                                         className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
-                                        {t("User Management")}
+                                        {t("Customer Users Management")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
@@ -195,7 +260,7 @@ export default function Index({ auth, customerUsers, customer }) {
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
                                     >
-                                        {customer ? `${customer.name} - ${t("Users")}` : t("Customer Users")}
+                                        {t("Customer Users")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -203,24 +268,27 @@ export default function Index({ auth, customerUsers, customer }) {
                                         transition={{ delay: 0.6, duration: 0.4 }}
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
-                                        <UserCheck className="w-4 h-4" />
-                                        {t("Manage store user accounts and permissions")}
+                                        <BarChart3 className="w-4 h-4" />
+                                        {t("Manage customer user accounts and permissions")}
                                     </motion.p>
                                 </div>
                             </div>
-
                             <motion.div
                                 initial={{ x: 20, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route("admin.customer-users.create", { customer: customer?.id })}>
+                                <Link href={route('admin.customer-users.create')}>
                                     <Button className="gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
                                         <Plus className="h-4 w-4" />
                                         {t("Add User")}
                                     </Button>
                                 </Link>
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                    <Download className="h-4 w-4" />
+                                    {t("Export")}
+                                </Button>
                             </motion.div>
                         </div>
                     </motion.header>
@@ -232,25 +300,90 @@ export default function Index({ auth, customerUsers, customer }) {
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.8, duration: 0.5 }}
-                                className="max-w-7xl mx-auto space-y-8"
+                                className="space-y-8"
                             >
-                                {/* Stats Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                {/* Enhanced Summary Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     <motion.div
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
-                                        whileHover={{ scale: 1.02 }}
                                     >
-                                        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/30">
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t("Total Users")}</p>
-                                                        <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{customerUsers.length}</p>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Users")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-blue-600">
+                                                            {totalUsers}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Active customer users")}
+                                                        </p>
                                                     </div>
-                                                    <div className="p-3 bg-blue-500 rounded-xl">
-                                                        <Users className="w-6 h-6 text-white" />
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
+                                                        <Users className="h-8 w-8 text-blue-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.0, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Unique Customers")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-green-600">
+                                                            {uniqueCustomers}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("With user accounts")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
+                                                        <Building2 className="h-8 w-8 text-green-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.1, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Recent Users")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-purple-600">
+                                                            {filteredUsers.filter(user => {
+                                                                const userDate = new Date(user.created_at);
+                                                                const weekAgo = new Date();
+                                                                weekAgo.setDate(weekAgo.getDate() - 7);
+                                                                return userDate >= weekAgo;
+                                                            }).length}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Added this week")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
+                                                        <Calendar className="h-8 w-8 text-purple-600" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -258,37 +391,132 @@ export default function Index({ auth, customerUsers, customer }) {
                                     </motion.div>
                                 </div>
 
-                                {/* Search and Filter */}
+                                {/* Advanced Filters */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 1.3, duration: 0.4 }}
+                                    transition={{ delay: 1.2, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                        <CardHeader>
-                                            <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
-                                                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
-                                                    <Search className="h-5 w-5 text-white" />
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                            <div className="flex items-center justify-between">
+                                                <CardTitle className="flex items-center gap-3">
+                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                        <Filter className="h-5 w-5 text-white" />
                                                 </div>
                                                 {t("Search & Filter")}
                                             </CardTitle>
-                                        </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <div className="flex flex-col sm:flex-row gap-4">
-                                                <div className="relative flex-1">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-                                                    <Input
-                                                        placeholder={t("Search users by name or email...")}
-                                                        value={searchTerm}
-                                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-10 h-12 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 transition-colors"
-                                                    />
-                                                </div>
-                                                <Button variant="outline" className="gap-2 h-12 border-2 hover:border-blue-300">
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => setShowFilters(!showFilters)}
+                                                    className="gap-2"
+                                                >
                                                     <Filter className="h-4 w-4" />
-                                                    {t("Filter")}
+                                                    {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                                    <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
                                                 </Button>
                                             </div>
+                                        </CardHeader>
+                                        <CardContent className="p-6">
+                                            {/* Search Bar */}
+                                            <div className="mb-4">
+                                                <div className="relative">
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Input
+                                                        placeholder={t("Search by name, email, or customer...")}
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        className="pl-12 h-12 text-lg border-2 border-blue-200 focus:border-blue-500 rounded-xl"
+                                                    />
+                                                    {searchTerm && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => setSearchTerm("")}
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Advanced Filters */}
+                                            <AnimatePresence>
+                                                {showFilters && (
+                                                    <motion.div
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: "auto", opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                        transition={{ duration: 0.3 }}
+                                                        className="overflow-hidden"
+                                                    >
+                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Customer Filter")}
+                                                                </label>
+                                                                <Select value={customerFilter} onValueChange={setCustomerFilter}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue placeholder={t("All customers")} />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="">{t("All customers")}</SelectItem>
+                                                                        {uniqueCustomersList.map((customer) => (
+                                                                            <SelectItem key={customer.id} value={customer.id.toString()}>
+                                                                                {customer.name}
+                                                                            </SelectItem>
+                                                                        ))}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Sort By")}
+                                                                </label>
+                                                                <Select value={sortBy} onValueChange={setSortBy}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="created_at">{t("Date Created")}</SelectItem>
+                                                                        <SelectItem value="name">{t("Name")}</SelectItem>
+                                                                        <SelectItem value="email">{t("Email")}</SelectItem>
+                                                                        <SelectItem value="customer.name">{t("Customer")}</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Sort Order")}
+                                                                </label>
+                                                                <Select value={sortOrder} onValueChange={setSortOrder}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="desc">{t("Descending")}</SelectItem>
+                                                                        <SelectItem value="asc">{t("Ascending")}</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div className="flex items-end">
+                                                                <Button
+                                                                    variant="outline"
+                                                                    onClick={clearFilters}
+                                                                    className="w-full h-10 gap-2"
+                                                                >
+                                                                    <RefreshCw className="h-4 w-4" />
+                                                                    {t("Clear Filters")}
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
@@ -297,114 +525,182 @@ export default function Index({ auth, customerUsers, customer }) {
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 1.4, duration: 0.4 }}
+                                    transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
-                                            <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                                                    <Users className="h-6 w-6 text-white" />
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                            <CardTitle className="flex items-center gap-3">
+                                                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                    <BarChart3 className="h-5 w-5 text-white" />
                                                 </div>
-                                                {t("Users List")}
-                                                <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                    {filteredUsers.length} {t("users")}
+                                                {t("Customer Users")}
+                                                <Badge variant="secondary" className="ml-auto">
+                                                    {filteredUsers.length} {t("of")} {customerUsers.data?.length || 0}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-0">
+                                            {filteredUsers.length > 0 ? (
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="border-b border-slate-200 dark:border-slate-700">
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("User")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Email")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Roles")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Store")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">{t("Actions")}</TableHead>
+                                                            <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                    {t("User")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                    {t("Customer")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                    {t("Permissions")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                    {t("Created")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Actions")}
+                                                                </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        <AnimatePresence>
                                                             {filteredUsers.map((user, index) => (
-                                                                <motion.tr
+                                                                <TableRow
                                                                     key={user.id}
-                                                                    initial={{ opacity: 0, y: 20 }}
-                                                                    animate={{ opacity: 1, y: 0 }}
-                                                                    exit={{ opacity: 0, y: -20 }}
-                                                                    transition={{ delay: index * 0.05 }}
-                                                                    className="border-b border-slate-100 dark:border-slate-700 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-colors"
+                                                                    className="hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
                                                                 >
                                                                     <TableCell>
-                                                                        <div className="flex items-center space-x-3">
+                                                                        <div className="flex items-center gap-3">
                                                                             <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
-                                                                                <User className="h-5 w-5 text-blue-600" />
+                                                                                <User className="h-4 w-4 text-blue-600" />
                                                                             </div>
                                                                             <div>
-                                                                                <div className="font-semibold text-slate-900 dark:text-white">{user.name}</div>
+                                                                                <p className="font-semibold text-slate-800 dark:text-white">{user.name}</p>
+                                                                                <p className="text-sm text-slate-500 flex items-center gap-1">
+                                                                                    <Mail className="w-3 h-3" />
+                                                                                    {user.email}
+                                                                                </p>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                                            <Mail className="w-3 h-3" />
-                                                                            {user.email}
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Building2 className="h-4 w-4 text-slate-400" />
+                                                                            <span className="font-medium">{user.customer?.name || '-'}</span>
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        {getRoleBadges(user.roles)}
+                                                                        <div className="flex gap-1 flex-wrap">
+                                                                            {user.permissions?.length > 0 ? (
+                                                                                user.permissions.slice(0, 2).map((permission) => (
+                                                                                    <Badge key={permission.id} variant="outline" className="text-xs">
+                                                                                        <Shield className="w-3 h-3 mr-1" />
+                                                                                        {permission.name}
+                                                                                    </Badge>
+                                                                                ))
+                                                                            ) : (
+                                                                                <Badge variant="secondary" className="text-xs">
+                                                                                    {t("No permissions")}
+                                                                                </Badge>
+                                                                            )}
+                                                                            {user.permissions?.length > 2 && (
+                                                                                <Badge variant="secondary" className="text-xs">
+                                                                                    +{user.permissions.length - 2}
+                                                                                </Badge>
+                                                                            )}
+                                                                        </div>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                                            <Building2 className="w-3 h-3" />
-                                                                            {user.customer?.name || t("No Store")}
+                                                                    <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Calendar className="h-4 w-4" />
+                                                                            {formatDate(user.created_at)}
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell className="text-right">
                                                                         <DropdownMenu>
                                                                             <DropdownMenuTrigger asChild>
-                                                                                <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/20">
-                                                                                    <span className="sr-only">{t("Open menu")}</span>
-                                                                                    <MoreVertical className="h-4 w-4" />
+                                                                                <Button variant="ghost" size="sm">
+                                                                                    <MoreVertical className="w-4 h-4" />
                                                                                 </Button>
                                                                             </DropdownMenuTrigger>
-                                                                            <DropdownMenuContent align="end" className="w-48 z-50 bg-white dark:bg-slate-800 shadow-lg border border-slate-200 dark:border-slate-700">
-                                                                                <DropdownMenuItem asChild>
-                                                                                    <Link href={route('admin.customer-users.show', user.id)} className="flex items-center gap-2">
-                                                                                        <Eye className="h-4 w-4" />
-                                                                                        {t("View Details")}
+                                                                            <DropdownMenuContent>
+                                                                                <Link href={route('admin.customer-users.show', user.id)}>
+                                                                                    <DropdownMenuItem>
+                                                                                        <Eye className="w-4 h-4 mr-2" />
+                                                                                        {t("View")}
+                                                                                    </DropdownMenuItem>
                                                                                     </Link>
-                                                                                </DropdownMenuItem>
-                                                                                <DropdownMenuItem asChild>
-                                                                                    <Link href={route('admin.customer-users.edit', user.id)} className="flex items-center gap-2">
-                                                                                        <Edit className="h-4 w-4" />
+                                                                                <Link href={route('admin.customer-users.edit', user.id)}>
+                                                                                    <DropdownMenuItem>
+                                                                                        <Edit className="w-4 h-4 mr-2" />
                                                                                         {t("Edit")}
-                                                                                    </Link>
                                                                                 </DropdownMenuItem>
-                                                                                <DropdownMenuItem asChild>
-                                                                                    <Link href={route('admin.customer-users.permissions', user.id)} className="flex items-center gap-2">
-                                                                                        <Shield className="h-4 w-4" />
-                                                                                        {t("Permissions")}
                                                                                     </Link>
-                                                                                </DropdownMenuItem>
                                                                                 <DropdownMenuItem
-                                                                                    onClick={() => handleDelete(user.id)}
-                                                                                    className="flex items-center gap-2 text-red-600 focus:text-red-600"
+                                                                                    onClick={() => handleDeleteUser(user.id)}
+                                                                                    className="text-red-600"
                                                                                 >
-                                                                                    <Trash2 className="h-4 w-4" />
+                                                                                    <Trash2 className="w-4 h-4 mr-2" />
                                                                                     {t("Delete")}
                                                                                 </DropdownMenuItem>
                                                                             </DropdownMenuContent>
                                                                         </DropdownMenu>
                                                                     </TableCell>
-                                                                </motion.tr>
+                                                                </TableRow>
                                                             ))}
-                                                        </AnimatePresence>
                                                     </TableBody>
                                                 </Table>
                                             </div>
+                                            ) : (
+                                                <div className="h-32 flex flex-col items-center justify-center">
+                                                    <div className="flex flex-col items-center gap-4">
+                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                            <Users className="h-8 w-8 text-slate-400" />
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                {t("No customer users found")}
+                                                            </p>
+                                                            <p className="text-sm text-slate-500">
+                                                                {searchTerm || customerFilter ? t("Try adjusting your filters") : t("No customer users have been created yet.")}
+                                                            </p>
+                                                        </div>
+                                                        <Link href={route('admin.customer-users.create')}>
+                                                            <Button className="gap-2">
+                                                                <Plus className="w-4 h-4" />
+                                                                {t("Add First User")}
+                                                            </Button>
+                                                        </Link>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </CardContent>
                                     </Card>
                                 </motion.div>
+
+                                {/* Pagination */}
+                                {customerUsers.links && customerUsers.links.length > 3 && (
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.4, duration: 0.4 }}
+                                        className="flex justify-center"
+                                    >
+                                        <div className="flex gap-2">
+                                            {customerUsers.links.map((link, index) => (
+                                                <Link
+                                                    key={index}
+                                                    href={link.url || '#'}
+                                                    className={`px-4 py-2 rounded-lg transition-all duration-200 ${
+                                                        link.active
+                                                            ? 'bg-blue-600 text-white shadow-lg'
+                                                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                                                    }`}
+                                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                                />
+                                            ))}
+                                        </div>
+                                    </motion.div>
+                                )}
                             </motion.div>
                         </div>
                     </main>

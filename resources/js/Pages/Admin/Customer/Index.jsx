@@ -6,7 +6,6 @@ import {
     Plus,
     Search,
     Filter,
-
     Edit,
     Trash2,
     Eye,
@@ -20,7 +19,11 @@ import {
     TrendingDown,
     Sparkles,
     Building2,
-    ShoppingBag
+    ShoppingBag,
+    ChevronLeft,
+    ChevronRight,
+    X,
+    RefreshCw
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -31,7 +34,13 @@ import {
 } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
-
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
 import {
     Table,
     TableBody,
@@ -44,12 +53,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Index({ auth, customers }) {
+export default function Index({ auth, customers, filters = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filteredCustomers, setFilteredCustomers] = useState(customers);
+    const [searchTerm, setSearchTerm] = useState(filters.search || "");
+    const [statusFilter, setStatusFilter] = useState(filters.status || "");
 
     // Animation effect
     useEffect(() => {
@@ -60,15 +69,37 @@ export default function Index({ auth, customers }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Filter customers based on search term
-    useEffect(() => {
-        const filtered = customers.filter(customer =>
-            customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            customer.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            customer.phone?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-        setFilteredCustomers(filtered);
-    }, [searchTerm, customers]);
+    // Handle search and filter
+    const handleSearch = (e) => {
+        e.preventDefault();
+        router.get(route('admin.customers.index'), {
+            search: searchTerm,
+            status: statusFilter,
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    };
+
+    const handleStatusFilter = (status) => {
+        setStatusFilter(status);
+        router.get(route('admin.customers.index'), {
+            search: searchTerm,
+            status: status,
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    };
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setStatusFilter("");
+        router.get(route('admin.customers.index'), {}, {
+            preserveState: true,
+            replace: true,
+        });
+    };
 
     const handleDelete = (customerId) => {
         if (confirm(t("Are you sure you want to delete this customer?"))) {
@@ -90,6 +121,12 @@ export default function Index({ auth, customers }) {
             </Badge>
         );
     };
+
+    // Get customer data array (handle both paginated and non-paginated)
+    const customerData = customers.data || customers;
+    const totalCustomers = customers.total || customerData.length;
+    const activeCustomers = customerData.filter(c => c.status === 'active').length;
+    const totalUsers = customerData.reduce((sum, c) => sum + c.users_count, 0);
 
     return (
         <>
@@ -242,7 +279,7 @@ export default function Index({ auth, customers }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-green-600 dark:text-green-400">{t("Total Stores")}</p>
-                                                        <p className="text-3xl font-bold text-green-700 dark:text-green-300">{customers.length}</p>
+                                                        <p className="text-3xl font-bold text-green-700 dark:text-green-300">{totalCustomers}</p>
                                                     </div>
                                                     <div className="p-3 bg-green-500 rounded-xl">
                                                         <Store className="w-6 h-6 text-white" />
@@ -264,7 +301,7 @@ export default function Index({ auth, customers }) {
                                                     <div>
                                                         <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t("Active Stores")}</p>
                                                         <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
-                                                            {customers.filter(c => c.status === 'active').length}
+                                                            {activeCustomers}
                                                         </p>
                                                     </div>
                                                     <div className="p-3 bg-blue-500 rounded-xl">
@@ -287,7 +324,7 @@ export default function Index({ auth, customers }) {
                                                     <div>
                                                         <p className="text-sm font-medium text-purple-600 dark:text-purple-400">{t("Total Users")}</p>
                                                         <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">
-                                                            {customers.reduce((sum, c) => sum + c.users_count, 0)}
+                                                            {totalUsers}
                                                         </p>
                                                     </div>
                                                     <div className="p-3 bg-purple-500 rounded-xl">
@@ -308,13 +345,13 @@ export default function Index({ auth, customers }) {
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-orange-600 dark:text-orange-400">{t("Total Users")}</p>
+                                                        <p className="text-sm font-medium text-orange-600 dark:text-orange-400">{t("Displaying")}</p>
                                                         <p className="text-3xl font-bold text-orange-700 dark:text-orange-300">
-                                                            {customers.reduce((sum, c) => sum + c.users_count, 0)}
+                                                            {customerData.length}
                                                         </p>
                                                     </div>
                                                     <div className="p-3 bg-orange-500 rounded-xl">
-                                                        <Users className="w-6 h-6 text-white" />
+                                                        <Eye className="w-6 h-6 text-white" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -335,24 +372,67 @@ export default function Index({ auth, customers }) {
                                                     <Search className="h-5 w-5 text-white" />
                                                 </div>
                                                 {t("Search & Filter")}
+                                                {(searchTerm || statusFilter) && (
+                                                    <Badge variant="secondary" className="ml-auto">
+                                                        {t("Filtered")}
+                                                    </Badge>
+                                                )}
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="space-y-4">
-                                            <div className="flex flex-col sm:flex-row gap-4">
+                                            <form onSubmit={handleSearch} className="flex flex-col lg:flex-row gap-4">
                                                 <div className="relative flex-1">
                                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
                                                     <Input
-                                                        placeholder={t("Search stores by name, email, or phone...")}
+                                                        placeholder={t("Search stores by name, email, phone, or address...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
                                                         className="pl-10 h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 transition-colors"
                                                     />
+                                                    {searchTerm && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => setSearchTerm("")}
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
                                                 </div>
-                                                <Button variant="outline" className="gap-2 h-12 border-2 hover:border-green-300">
-                                                    <Filter className="h-4 w-4" />
-                                                    {t("Filter")}
+                                                
+                                                <div className="flex gap-2">
+                                                    <Select value={statusFilter} onValueChange={handleStatusFilter}>
+                                                        <SelectTrigger className="w-48 h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500">
+                                                            <SelectValue placeholder={t("Filter by status")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="">{t("All Status")}</SelectItem>
+                                                            <SelectItem value="active">{t("Active")}</SelectItem>
+                                                            <SelectItem value="inactive">{t("Inactive")}</SelectItem>
+                                                            <SelectItem value="pending">{t("Pending")}</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+
+                                                    <Button type="submit" className="gap-2 h-12 bg-green-600 hover:bg-green-700">
+                                                        <Search className="h-4 w-4" />
+                                                        {t("Search")}
+                                                    </Button>
+
+                                                    {(searchTerm || statusFilter) && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            onClick={clearFilters}
+                                                            className="gap-2 h-12 border-2 hover:border-green-300"
+                                                        >
+                                                            <RefreshCw className="h-4 w-4" />
+                                                            {t("Clear")}
                                                 </Button>
+                                                    )}
                                             </div>
+                                            </form>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
@@ -371,11 +451,17 @@ export default function Index({ auth, customers }) {
                                                 </div>
                                                 {t("Stores List")}
                                                 <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                                                    {filteredCustomers.length} {t("stores")}
+                                                    {customerData.length} {t("stores")}
+                                                    {customers.total && (
+                                                        <span className="ml-1">
+                                                            {t("of")} {customers.total}
+                                                        </span>
+                                                    )}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-0">
+                                            {customerData.length > 0 ? (
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
@@ -389,7 +475,7 @@ export default function Index({ auth, customers }) {
                                                     </TableHeader>
                                                     <TableBody>
                                                         <AnimatePresence>
-                                                            {filteredCustomers.map((customer, index) => (
+                                                                {customerData.map((customer, index) => (
                                                                 <motion.tr
                                                                     key={customer.id}
                                                                     initial={{ opacity: 0, y: 20 }}
@@ -502,9 +588,105 @@ export default function Index({ auth, customers }) {
                                                     </TableBody>
                                                 </Table>
                                             </div>
+                                            ) : (
+                                                <div className="text-center py-12">
+                                                    <div className="flex flex-col items-center gap-4">
+                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                            <Store className="h-8 w-8 text-slate-400" />
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                {searchTerm || statusFilter ? t("No stores found") : t("No stores created yet")}
+                                                            </p>
+                                                            <p className="text-sm text-slate-500">
+                                                                {searchTerm || statusFilter ? t("Try adjusting your search or filters") : t("Create your first store to get started.")}
+                                                            </p>
+                                                        </div>
+                                                        {!(searchTerm || statusFilter) && (
+                                                            <Link href={route("admin.customers.create")}>
+                                                                <Button className="gap-2">
+                                                                    <Plus className="w-4 h-4" />
+                                                                    {t("Create First Store")}
+                                                                </Button>
+                                                            </Link>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </CardContent>
                                     </Card>
                                 </motion.div>
+
+                                {/* Pagination */}
+                                {customers.links && customers.links.length > 3 && (
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.5, duration: 0.4 }}
+                                        className="flex justify-center"
+                                    >
+                                        <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                            <CardContent className="p-4">
+                                                <div className="flex items-center justify-between gap-4">
+                                                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                        {t("Showing")} {customers.from} {t("to")} {customers.to} {t("of")} {customers.total} {t("stores")}
+                                                    </div>
+                                                    
+                                                    <div className="flex items-center gap-2">
+                                                        {customers.links.map((link, index) => {
+                                                            if (link.url === null) {
+                                                                return (
+                                                                    <Button
+                                                                        key={index}
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        disabled
+                                                                        className="w-10 h-10 p-0"
+                                                                    >
+                                                                        {link.label === '&laquo; Previous' ? (
+                                                                            <ChevronLeft className="h-4 w-4" />
+                                                                        ) : link.label === 'Next &raquo;' ? (
+                                                                            <ChevronRight className="h-4 w-4" />
+                                                                        ) : (
+                                                                            <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                                        )}
+                                                                    </Button>
+                                                                );
+                                                            }
+
+                                                            return (
+                                                                <Link
+                                                                    key={index}
+                                                                    href={link.url}
+                                                                    preserveState
+                                                                    preserveScroll
+                                                                >
+                                                                    <Button
+                                                                        variant={link.active ? "default" : "outline"}
+                                                                        size="sm"
+                                                                        className={`w-10 h-10 p-0 ${
+                                                                            link.active 
+                                                                                ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                                                                : 'hover:bg-green-50 hover:border-green-300'
+                                                                        }`}
+                                                                    >
+                                                                        {link.label === '&laquo; Previous' ? (
+                                                                            <ChevronLeft className="h-4 w-4" />
+                                                                        ) : link.label === 'Next &raquo;' ? (
+                                                                            <ChevronRight className="h-4 w-4" />
+                                                                        ) : (
+                                                                            <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                                        )}
+                                                                    </Button>
+                                                                </Link>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                )}
                             </motion.div>
                         </div>
                     </main>

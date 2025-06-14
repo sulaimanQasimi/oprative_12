@@ -106,4 +106,15 @@ class WarehouseUserController extends Controller
         return redirect()->route('admin.warehouses.show', $warehouse->id)
             ->with('success', 'User updated successfully.');
     }
+
+    /**
+     * Remove the specified warehouse user from storage.
+     */
+    public function destroy(Warehouse $warehouse, WareHouseUser $warehouseUser)
+    {
+        $warehouseUser->delete();
+
+        return redirect()->route('admin.warehouses.show', $warehouse->id)
+            ->with('success', 'User deleted successfully.');
+    }
 }

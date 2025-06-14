@@ -32,7 +32,7 @@
         "spatie/laravel-permission": "^6.16",
         "stephenjude/filament-debugger": "^3.1",
         "tapp/filament-authentication-log": "3.1",
-        "tightenco/ziggy": "^2.0",
+        "tightenco/ziggy": "*",
         "tomatophp/filament-api": "^1.0",
         "tomatophp/filament-language-switcher": "^1.0",
         "tomatophp/filament-users": "*",

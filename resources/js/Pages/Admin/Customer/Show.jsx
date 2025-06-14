@@ -22,10 +22,12 @@ import {
     Trash2,
     Eye,
     Calendar,
-    MoreVertical,
     Filter,
     Search,
-    ShoppingCart
+    ShoppingCart,
+    ChevronLeft,
+    ChevronRight,
+    X
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -49,23 +51,19 @@ import {
     TableHeader,
     TableRow,
 } from "@/Components/ui/table";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu";
 import { Input } from "@/Components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Show({ auth, customer, roles, permissions }) {
+export default function Show({ auth, customer, roles, permissions, accounts, accounts_filters = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [activeTab, setActiveTab] = useState("overview");
     const [searchTerm, setSearchTerm] = useState("");
+    const [accountsSearch, setAccountsSearch] = useState(accounts_filters.accounts_search || "");
+    const [accountsStatus, setAccountsStatus] = useState(accounts_filters.accounts_status || "");
 
     // Animation effect
     useEffect(() => {
@@ -78,7 +76,48 @@ export default function Show({ auth, customer, roles, permissions }) {
 
     const handleDeleteUser = (userId) => {
         if (confirm(t("Are you sure you want to delete this user?"))) {
-            router.delete(route('admin.customers.users.destroy', [customer.id, userId]));
+            router.delete(route('admin.customer-users.destroy', userId));
+        }
+    };
+
+    // Handle accounts search and filter
+    const handleAccountsSearch = (e) => {
+        e.preventDefault();
+        router.get(route('admin.customers.show', customer.id), {
+            accounts_search: accountsSearch,
+            accounts_status: accountsStatus,
+        }, {
+            preserveState: true,
+            replace: true,
+            only: ['accounts', 'accounts_filters']
+        });
+    };
+
+    const handleAccountsStatusFilter = (status) => {
+        setAccountsStatus(status);
+        router.get(route('admin.customers.show', customer.id), {
+            accounts_search: accountsSearch,
+            accounts_status: status,
+        }, {
+            preserveState: true,
+            replace: true,
+            only: ['accounts', 'accounts_filters']
+        });
+    };
+
+    const clearAccountsFilters = () => {
+        setAccountsSearch("");
+        setAccountsStatus("");
+        router.get(route('admin.customers.show', customer.id), {}, {
+            preserveState: true,
+            replace: true,
+            only: ['accounts', 'accounts_filters']
+        });
+    };
+
+    const handleDeleteAccount = (accountId) => {
+        if (confirm(t("Are you sure you want to delete this account?"))) {
+            router.delete(route('admin.accounts.destroy', accountId));
         }
     };
 
@@ -388,7 +427,9 @@ export default function Show({ auth, customer, roles, permissions }) {
                                                         <div className="flex items-center justify-between">
                                                             <div>
                                                                 <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t("Accounts")}</p>
-                                                                <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">0</p>
+                                                                <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
+                                                                    {accounts?.total || accounts?.data?.length || accounts?.length || 0}
+                                                                </p>
                                                             </div>
                                                             <div className="p-3 bg-blue-500 rounded-xl">
                                                                 <CreditCard className="w-6 h-6 text-white" />
@@ -467,6 +508,12 @@ export default function Show({ auth, customer, roles, permissions }) {
                                                 {t("View Market Orders")}
                                             </Button>
                                         </Link>
+                                        <Link href={route("admin.customer-users.index")}>
+                                            <Button variant="outline" className="w-full justify-start gap-2">
+                                                <Users className="w-4 h-4" />
+                                                {t("View All Customer Users")}
+                                            </Button>
+                                        </Link>
                                                     </CardContent>
                                                 </Card>
 
@@ -510,10 +557,12 @@ export default function Show({ auth, customer, roles, permissions }) {
                                                         {t("Store Users")}
                                                         <Badge variant="secondary">{customer.users?.length || 0}</Badge>
                                                     </CardTitle>
+                                                    <Link href={route("admin.customer-users.create", { customer_id: customer.id })}>
                                                     <Button className="gap-2">
-                                                        <Plus className="w-4 h-4" />
+                                                            <Plus className="w-4 w-4" />
                                                         {t("Add User")}
                                                     </Button>
+                                                    </Link>
                                                 </CardHeader>
                                                 <CardContent>
                                                     {customer.users && customer.users.length > 0 ? (
@@ -551,10 +600,18 @@ export default function Show({ auth, customer, roles, permissions }) {
                                                                                         </Button>
                                                                                     </DropdownMenuTrigger>
                                                                                     <DropdownMenuContent>
+                                                                                        <Link href={route('admin.customer-users.show', user.id)}>
+                                                                                            <DropdownMenuItem>
+                                                                                                <Eye className="w-4 h-4 mr-2" />
+                                                                                                {t("View")}
+                                                                                            </DropdownMenuItem>
+                                                                                        </Link>
+                                                                                        <Link href={route('admin.customer-users.edit', user.id)}>
                                                                                         <DropdownMenuItem>
                                                                                             <Edit className="w-4 h-4 mr-2" />
                                                                                             {t("Edit")}
                                                                                         </DropdownMenuItem>
+                                                                                        </Link>
                                                                                         <DropdownMenuItem
                                                                                             onClick={() => handleDeleteUser(user.id)}
                                                                                             className="text-red-600"
@@ -574,10 +631,12 @@ export default function Show({ auth, customer, roles, permissions }) {
                                                         <div className="text-center py-8">
                                                             <Users className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                                                             <p className="text-slate-500">{t("No users found for this store")}</p>
+                                                            <Link href={route("admin.customer-users.create", { customer_id: customer.id })}>
                                                             <Button className="mt-4 gap-2">
                                                                 <Plus className="w-4 h-4" />
                                                                 {t("Add First User")}
                                                             </Button>
+                                                            </Link>
                                                         </div>
                                                     )}
                                                 </CardContent>
@@ -586,11 +645,80 @@ export default function Show({ auth, customer, roles, permissions }) {
 
                                         {/* Accounts Tab */}
                                         <TabsContent value="accounts" className="space-y-6">
+                                            {/* Search and Filter */}
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                                <CardHeader>
+                                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                                                        <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-lg">
+                                                            <Search className="h-5 w-5 text-white" />
+                                                        </div>
+                                                        {t("Search & Filter Accounts")}
+                                                        {(accountsSearch || accountsStatus) && (
+                                                            <Badge variant="secondary" className="ml-auto">
+                                                                {t("Filtered")}
+                                                            </Badge>
+                                                        )}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="space-y-4">
+                                                    <form onSubmit={handleAccountsSearch} className="flex flex-col lg:flex-row gap-4">
+                                                        <div className="relative flex-1">
+                                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                                            <Input
+                                                                placeholder={t("Search accounts by name, account number, or ID number...")}
+                                                                value={accountsSearch}
+                                                                onChange={(e) => setAccountsSearch(e.target.value)}
+                                                                className="pl-10 h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 transition-colors"
+                                                            />
+                                                        </div>
+                                                        
+                                                        <div className="flex gap-2">
+                                                            <select
+                                                                value={accountsStatus}
+                                                                onChange={(e) => handleAccountsStatusFilter(e.target.value)}
+                                                                className="w-48 h-12 px-3 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 rounded-md transition-colors"
+                                                            >
+                                                                <option value="">{t("All Status")}</option>
+                                                                <option value="active">{t("Active")}</option>
+                                                                <option value="inactive">{t("Inactive")}</option>
+                                                                <option value="suspended">{t("Suspended")}</option>
+                                                            </select>
+
+                                                            <Button type="submit" className="gap-2 h-12 bg-green-600 hover:bg-green-700">
+                                                                <Search className="h-4 w-4" />
+                                                                {t("Search")}
+                                                            </Button>
+
+                                                            {(accountsSearch || accountsStatus) && (
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="outline"
+                                                                    onClick={clearAccountsFilters}
+                                                                    className="gap-2 h-12 border-2 hover:border-green-300"
+                                                                >
+                                                                    <X className="h-4 w-4" />
+                                                                    {t("Clear")}
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </form>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Accounts List */}
                                             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                                 <CardHeader className="flex flex-row items-center justify-between">
                                                     <CardTitle className="flex items-center gap-2">
                                                         <CreditCard className="w-5 h-5 text-green-600" />
                                                         {t("Customer Accounts")}
+                                                        <Badge variant="secondary">
+                                                            {accounts?.data?.length || accounts?.length || 0}
+                                                            {accounts?.total && (
+                                                                <span className="ml-1">
+                                                                    {t("of")} {accounts.total}
+                                                                </span>
+                                                            )}
+                                                        </Badge>
                                                     </CardTitle>
                                                     <Link href={route("admin.accounts.create", { customer_id: customer.id })}>
                                                         <Button className="gap-2">
@@ -600,18 +728,195 @@ export default function Show({ auth, customer, roles, permissions }) {
                                                     </Link>
                                                 </CardHeader>
                                                 <CardContent>
-                                                    <div className="text-center py-8">
-                                                        <CreditCard className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-                                                        <p className="text-slate-500">{t("Account management will be implemented here")}</p>
-                                                        <Link href={route("admin.accounts.index", { customer_id: customer.id })}>
-                                                            <Button className="mt-4 gap-2">
-                                                                <Eye className="w-4 h-4" />
-                                                                {t("View All Accounts")}
-                                                            </Button>
-                                                        </Link>
-                                                    </div>
+                                                    {accounts && (accounts.data?.length > 0 || accounts.length > 0) ? (
+                                                        <div className="overflow-x-auto">
+                                                            <Table>
+                                                                <TableHeader>
+                                                                    <TableRow>
+                                                                        <TableHead>{t("Account Info")}</TableHead>
+                                                                        <TableHead>{t("Contact")}</TableHead>
+                                                                        <TableHead>{t("Status")}</TableHead>
+                                                                        <TableHead>{t("Balance")}</TableHead>
+                                                                        <TableHead>{t("Transactions")}</TableHead>
+                                                                        <TableHead className="text-right">{t("Actions")}</TableHead>
+                                                                    </TableRow>
+                                                                </TableHeader>
+                                                                <TableBody>
+                                                                    {(accounts.data || accounts).map((account) => (
+                                                                        <TableRow key={account.id}>
+                                                                            <TableCell>
+                                                                                <div className="space-y-1">
+                                                                                    <div className="font-medium">{account.name}</div>
+                                                                                    <div className="text-sm text-slate-500">
+                                                                                        <div>Account: {account.account_number}</div>
+                                                                                        <div>ID: {account.id_number}</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </TableCell>
+                                                                            <TableCell>
+                                                                                <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                                                    {account.address ? (
+                                                                                        <div className="flex items-center gap-1">
+                                                                                            <MapPin className="w-3 h-3" />
+                                                                                            {account.address}
+                                                                                        </div>
+                                                                                    ) : (
+                                                                                        <span className="text-slate-400">-</span>
+                                                                                    )}
+                                                                                </div>
+                                                                            </TableCell>
+                                                                            <TableCell>
+                                                                                {getStatusBadge(account.status)}
+                                                                            </TableCell>
+                                                                            <TableCell>
+                                                                                <div className="space-y-1">
+                                                                                    <div className={`font-semibold ${account.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                                        {formatCurrency(account.balance)}
+                                                                                    </div>
+                                                                                    <div className="text-xs text-slate-500">
+                                                                                        In: {formatCurrency(account.total_income)} | 
+                                                                                        Out: {formatCurrency(account.total_outcome)}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </TableCell>
+                                                                            <TableCell>
+                                                                                <div className="flex gap-2">
+                                                                                    <Badge variant="outline" className="gap-1">
+                                                                                        <TrendingUp className="w-3 h-3 text-green-600" />
+                                                                                        {account.incomes_count}
+                                                                                    </Badge>
+                                                                                    <Badge variant="outline" className="gap-1">
+                                                                                        <TrendingDown className="w-3 h-3 text-red-600" />
+                                                                                        {account.outcomes_count}
+                                                                                    </Badge>
+                                                                                </div>
+                                                                            </TableCell>
+                                                                            <TableCell className="text-right">
+                                                                                <div className="flex items-center justify-end gap-1">
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                                                                                        asChild
+                                                                                    >
+                                                                                        <Link href={route('admin.accounts.show', account.id)}>
+                                                                                            <Eye className="h-4 w-4" />
+                                                                                            <span className="sr-only">{t("View Details")}</span>
+                                                                                        </Link>
+                                                                                    </Button>
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
+                                                                                        asChild
+                                                                                    >
+                                                                                        <Link href={route('admin.accounts.edit', account.id)}>
+                                                                                            <Edit className="h-4 w-4" />
+                                                                                            <span className="sr-only">{t("Edit")}</span>
+                                                                                        </Link>
+                                                                                    </Button>
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                                                                                        onClick={() => handleDeleteAccount(account.id)}
+                                                                                    >
+                                                                                        <Trash2 className="h-4 w-4" />
+                                                                                        <span className="sr-only">{t("Delete")}</span>
+                                                                                    </Button>
+                                                                                </div>
+                                                                            </TableCell>
+                                                                        </TableRow>
+                                                                    ))}
+                                                                </TableBody>
+                                                            </Table>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="text-center py-8">
+                                                            <CreditCard className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                                                            <p className="text-slate-500">
+                                                                {accountsSearch || accountsStatus ? t("No accounts found") : t("No accounts created yet")}
+                                                            </p>
+                                                            <p className="text-sm text-slate-400 mb-4">
+                                                                {accountsSearch || accountsStatus ? t("Try adjusting your search or filters") : t("Create the first account to get started")}
+                                                            </p>
+                                                            <Link href={route("admin.accounts.create", { customer_id: customer.id })}>
+                                                                <Button className="gap-2">
+                                                                    <Plus className="w-4 h-4" />
+                                                                    {t("Add Account")}
+                                                                </Button>
+                                                            </Link>
+                                                        </div>
+                                                    )}
                                                 </CardContent>
                                             </Card>
+
+                                            {/* Pagination */}
+                                            {accounts?.links && accounts.links.length > 3 && (
+                                                <div className="flex justify-center">
+                                                    <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                                        <CardContent className="p-4">
+                                                            <div className="flex items-center justify-between gap-4">
+                                                                <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                                    {t("Showing")} {accounts.from} {t("to")} {accounts.to} {t("of")} {accounts.total} {t("accounts")}
+                                                                </div>
+                                                                
+                                                                <div className="flex items-center gap-2">
+                                                                    {accounts.links.map((link, index) => {
+                                                                        if (link.url === null) {
+                                                                            return (
+                                                                                <Button
+                                                                                    key={index}
+                                                                                    variant="outline"
+                                                                                    size="sm"
+                                                                                    disabled
+                                                                                    className="w-10 h-10 p-0"
+                                                                                >
+                                                                                    {link.label === '&laquo; Previous' ? (
+                                                                                        <ChevronLeft className="h-4 w-4" />
+                                                                                    ) : link.label === 'Next &raquo;' ? (
+                                                                                        <ChevronRight className="h-4 w-4" />
+                                                                                    ) : (
+                                                                                        <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                                                    )}
+                                                                                </Button>
+                                                                            );
+                                                                        }
+
+                                                                        return (
+                                                                            <Link
+                                                                                key={index}
+                                                                                href={link.url}
+                                                                                preserveState
+                                                                                preserveScroll
+                                                                                only={['accounts', 'accounts_filters']}
+                                                                            >
+                                                                                <Button
+                                                                                    variant={link.active ? "default" : "outline"}
+                                                                                    size="sm"
+                                                                                    className={`w-10 h-10 p-0 ${
+                                                                                        link.active 
+                                                                                            ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                                                                            : 'hover:bg-green-50 hover:border-green-300'
+                                                                                    }`}
+                                                                                >
+                                                                                    {link.label === '&laquo; Previous' ? (
+                                                                                        <ChevronLeft className="h-4 w-4" />
+                                                                                    ) : link.label === 'Next &raquo;' ? (
+                                                                                        <ChevronRight className="h-4 w-4" />
+                                                                                    ) : (
+                                                                                        <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                                                    )}
+                                                                                </Button>
+                                                                            </Link>
+                                                                        );
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
+                                                </div>
+                                            )}
                                         </TabsContent>
 
                                         {/* Stock Tab */}

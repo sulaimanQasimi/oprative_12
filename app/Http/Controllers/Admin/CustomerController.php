@@ -15,27 +15,34 @@ use Spatie\Permission\Models\Role;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $customers = Customer::with(['users'])
-            ->latest()
-            ->get()
-            ->map(function ($customer) {
-                return [
-                    'id' => $customer->id,
-                    'name' => $customer->name,
-                    'email' => $customer->email,
-                    'phone' => $customer->phone,
-                    'address' => $customer->address,
-                    'status' => $customer->status,
-                    'users_count' => $customer->users->count(),
-                    'created_at' => $customer->created_at,
-                    'updated_at' => $customer->updated_at,
-                ];
+        $query = Customer::with(['users'])->latest();
+        
+        // Add search functionality
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%");
             });
+        }
+
+        // Add status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
+        }
+
+        $customers = $query->paginate(10);
+        
+        // Append query parameters to pagination links
+        $customers->appends($request->query());
 
         return Inertia::render('Admin/Customer/Index', [
             'customers' => $customers,
+            'filters' => $request->only(['search', 'status']),
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -83,14 +90,55 @@ class CustomerController extends Controller
         }
     }
 
-    public function show(Customer $customer)
+    public function show(Customer $customer, Request $request)
     {
         try {
             $customer = Customer::with(['users.roles.permissions'])->findOrFail($customer->id);
 
+            // Load accounts with pagination and filtering
+            $accountsQuery = $customer->accounts()
+                ->with(['incomes', 'outcomes']);
+
+            // Search functionality for accounts
+            if ($request->filled('accounts_search')) {
+                $search = $request->get('accounts_search');
+                $accountsQuery->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('account_number', 'like', "%{$search}%")
+                      ->orWhere('id_number', 'like', "%{$search}%");
+                });
+            }
+
+            // Status filter for accounts
+            if ($request->filled('accounts_status')) {
+                $accountsQuery->where('status', $request->get('accounts_status'));
+            }
+
+            $accounts = $accountsQuery->latest()->paginate(5, ['*'], 'accounts_page');
+            
+            // Transform accounts data
+            $accounts->getCollection()->transform(function ($account) {
+                return [
+                    'id' => $account->id,
+                    'name' => $account->name,
+                    'account_number' => $account->account_number,
+                    'id_number' => $account->id_number,
+                    'address' => $account->address,
+                    'status' => $account->status ?? 'active',
+                    'approved_by' => $account->approved_by,
+                    'total_income' => $account->incomes->where('status', 'approved')->sum('amount'),
+                    'total_outcome' => $account->outcomes->where('status', 'approved')->sum('amount'),
+                    'balance' => $account->incomes->where('status', 'approved')->sum('amount') - 
+                               $account->outcomes->where('status', 'approved')->sum('amount'),
+                    'incomes_count' => $account->incomes->count(),
+                    'outcomes_count' => $account->outcomes->count(),
+                    'created_at' => $account->created_at,
+                    'updated_at' => $account->updated_at,
+                ];
+            });
+
             $roles = Role::where('guard_name', 'customer_user')->with('permissions')->get();
             $permissions = \Spatie\Permission\Models\Permission::where('guard_name', 'customer_user')->get();
-
             return Inertia::render('Admin/Customer/Show', [
                 'customer' => [
                     'id' => $customer->id,
@@ -104,6 +152,8 @@ class CustomerController extends Controller
                     'created_at' => $customer->created_at,
                     'updated_at' => $customer->updated_at,
                 ],
+                'accounts' => $accounts,
+                'accounts_filters' => $request->only(['accounts_search', 'accounts_status']),
                 'roles' => $roles,
                 'permissions' => $permissions,
                 'auth' => [

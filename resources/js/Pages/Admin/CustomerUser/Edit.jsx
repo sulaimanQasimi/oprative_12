@@ -15,7 +15,8 @@ import {
     Eye,
     EyeOff,
     CheckCircle,
-    Info
+    Info,
+    Edit
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -41,20 +42,20 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Create({ auth, customers, permissions, selectedCustomerId, errors }) {
+export default function Edit({ auth, customerUser, customers, permissions, errors }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-    const { data, setData, post, processing, errors: formErrors } = useForm({
-        name: '',
-        email: '',
+    const { data, setData, patch, processing, errors: formErrors } = useForm({
+        name: customerUser.name || '',
+        email: customerUser.email || '',
         password: '',
         password_confirmation: '',
-        customer_id: selectedCustomerId || '',
-        permissions: [],
+        customer_id: customerUser.customer_id || '',
+        permissions: customerUser.permissions?.map(p => p.id) || [],
     });
 
     // Animation effect
@@ -68,7 +69,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('admin.customer-users.store'));
+        patch(route('admin.customer-users.update', customerUser.id));
     };
 
     const handlePermissionChange = (permissionId, checked) => {
@@ -83,7 +84,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
 
     return (
         <>
-            <Head title={t("Create Customer User")}>
+            <Head title={`${t("Edit User")} - ${customerUser.name}`}>
                 <style>{`
                     @keyframes shimmer {
                         0% { background-position: -1000px 0; }
@@ -169,7 +170,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
                                     <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
-                                        <Users className="w-8 h-8 text-white" />
+                                        <Edit className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
@@ -189,7 +190,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Create New User")}
+                                        {t("Edit User")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -198,7 +199,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <User className="w-4 h-4" />
-                                        {t("Create a new customer user account with permissions")}
+                                        {t("Update customer user account and permissions")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -229,25 +230,63 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                 className="max-w-5xl mx-auto"
                             >
                                 <form onSubmit={handleSubmit} className="space-y-8">
-                                    {/* Form Card */}
+                                    {/* Current User Info */}
                                     <motion.div
                                         initial={{ scale: 0.95, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.5 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                        <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-blue-900/30 backdrop-blur-xl">
+                                            <CardHeader className="bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-b border-blue-200/50 dark:border-blue-700/50">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                     <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
                                                         <User className="h-6 w-6 text-white" />
                                                     </div>
-                                                    {t("User Details")}
+                                                    {t("Current User Information")}
+                                                    <Badge className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                        <CheckCircle className="w-3 h-3 mr-1" />
+                                                        {t("Existing")}
+                                                    </Badge>
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-8">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                    <div className="space-y-2">
+                                                        <p className="text-sm text-slate-600 dark:text-slate-400">{t("Name")}</p>
+                                                        <p className="text-lg font-semibold text-slate-900 dark:text-white">{customerUser.name}</p>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <p className="text-sm text-slate-600 dark:text-slate-400">{t("Email")}</p>
+                                                        <p className="text-lg font-semibold text-slate-900 dark:text-white">{customerUser.email}</p>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <p className="text-sm text-slate-600 dark:text-slate-400">{t("Customer")}</p>
+                                                        <p className="text-lg font-semibold text-slate-900 dark:text-white">{customerUser.customer?.name || t("No customer assigned")}</p>
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    {/* Form Card */}
+                                    <motion.div
+                                        initial={{ scale: 0.95, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.0, duration: 0.5 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                        <Edit className="h-6 w-6 text-white" />
+                                                    </div>
+                                                    {t("Update User Details")}
                                                     <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                                         {t("Required")}
                                                     </Badge>
                                                 </CardTitle>
                                                 <CardDescription className="text-slate-600 dark:text-slate-400">
-                                                    {t("Fill in the details for the new customer user account")}
+                                                    {t("Update the details for this customer user account")}
                                                 </CardDescription>
                                             </CardHeader>
                                             <CardContent className="p-8 space-y-8">
@@ -274,7 +313,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                                     <motion.div
                                                         initial={{ x: -20, opacity: 0 }}
                                                         animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.0, duration: 0.4 }}
+                                                        transition={{ delay: 1.1, duration: 0.4 }}
                                                         className="space-y-3"
                                                     >
                                                         <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
@@ -283,11 +322,11 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                                         </Label>
                                                         <div className="relative">
                                                             <User className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                        <Input
-                                                            id="name"
-                                                            type="text"
+                                                            <Input
+                                                                id="name"
+                                                                type="text"
                                                                 placeholder={t("Enter full name")}
-                                                            value={data.name}
+                                                                value={data.name}
                                                                 onChange={(e) => setData('name', e.target.value)}
                                                                 className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${formErrors.name ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}
                                                             />
@@ -308,7 +347,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                                     <motion.div
                                                         initial={{ x: 20, opacity: 0 }}
                                                         animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.1, duration: 0.4 }}
+                                                        transition={{ delay: 1.2, duration: 0.4 }}
                                                         className="space-y-3"
                                                     >
                                                         <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
@@ -317,11 +356,11 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                                         </Label>
                                                         <div className="relative">
                                                             <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                        <Input
-                                                            id="email"
-                                                            type="email"
+                                                            <Input
+                                                                id="email"
+                                                                type="email"
                                                                 placeholder={t("Enter email address")}
-                                                            value={data.email}
+                                                                value={data.email}
                                                                 onChange={(e) => setData('email', e.target.value)}
                                                                 className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${formErrors.email ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}
                                                             />
@@ -343,7 +382,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                                 <motion.div
                                                     initial={{ y: 20, opacity: 0 }}
                                                     animate={{ y: 0, opacity: 1 }}
-                                                    transition={{ delay: 1.2, duration: 0.4 }}
+                                                    transition={{ delay: 1.3, duration: 0.4 }}
                                                     className="space-y-3"
                                                 >
                                                     <Label htmlFor="customer_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
@@ -381,29 +420,32 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                                         >
                                                             <AlertCircle className="w-4 h-4" />
                                                             {formErrors.customer_id}
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
+                                                        </motion.p>
+                                                    )}
+                                                </motion.div>
 
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                                     {/* Password */}
                                                     <motion.div
                                                         initial={{ x: -20, opacity: 0 }}
                                                         animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.3, duration: 0.4 }}
+                                                        transition={{ delay: 1.4, duration: 0.4 }}
                                                         className="space-y-3"
                                                     >
                                                         <Label htmlFor="password" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
                                                             <Key className="w-5 h-5 text-red-500" />
-                                                            {t("Password")} *
+                                                            {t("New Password")}
+                                                            <Badge variant="secondary" className="text-xs">
+                                                                {t("Optional")}
+                                                            </Badge>
                                                         </Label>
                                                         <div className="relative">
                                                             <Key className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                        <Input
-                                                            id="password"
+                                                            <Input
+                                                                id="password"
                                                                 type={showPassword ? "text" : "password"}
-                                                                placeholder={t("Enter password")}
-                                                            value={data.password}
+                                                                placeholder={t("Leave blank to keep current password")}
+                                                                value={data.password}
                                                                 onChange={(e) => setData('password', e.target.value)}
                                                                 className={`pl-12 pr-12 h-14 text-lg border-2 transition-all duration-200 ${formErrors.password ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-red-300 focus:border-red-500'} bg-white dark:bg-slate-800`}
                                                             />
@@ -432,20 +474,20 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                                     <motion.div
                                                         initial={{ x: 20, opacity: 0 }}
                                                         animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.4, duration: 0.4 }}
+                                                        transition={{ delay: 1.5, duration: 0.4 }}
                                                         className="space-y-3"
                                                     >
                                                         <Label htmlFor="password_confirmation" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
                                                             <Key className="w-5 h-5 text-orange-500" />
-                                                            {t("Confirm Password")} *
+                                                            {t("Confirm New Password")}
                                                         </Label>
                                                         <div className="relative">
                                                             <Key className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                        <Input
-                                                            id="password_confirmation"
+                                                            <Input
+                                                                id="password_confirmation"
                                                                 type={showPasswordConfirm ? "text" : "password"}
-                                                                placeholder={t("Confirm password")}
-                                                            value={data.password_confirmation}
+                                                                placeholder={t("Confirm new password")}
+                                                                value={data.password_confirmation}
                                                                 onChange={(e) => setData('password_confirmation', e.target.value)}
                                                                 className={`pl-12 pr-12 h-14 text-lg border-2 transition-all duration-200 ${formErrors.password_confirmation ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-orange-300 focus:border-orange-500'} bg-white dark:bg-slate-800`}
                                                             />
@@ -470,32 +512,40 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                                         )}
                                                     </motion.div>
                                                 </div>
+
+                                                {/* Password Info Alert */}
+                                                <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+                                                    <Info className="h-4 w-4 text-blue-600" />
+                                                    <AlertDescription className="text-blue-700 dark:text-blue-400">
+                                                        {t("Leave password fields blank to keep the current password unchanged.")}
+                                                    </AlertDescription>
+                                                </Alert>
                                             </CardContent>
                                         </Card>
                                     </motion.div>
 
-                                                                        {/* Permissions Card */}
+                                    {/* Permissions Card */}
                                     {permissions && permissions.length > 0 && (
-                                    <motion.div
-                                        initial={{ scale: 0.95, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                            transition={{ delay: 1.5, duration: 0.5 }}
-                                    >
+                                        <motion.div
+                                            initial={{ scale: 0.95, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            transition={{ delay: 1.6, duration: 0.5 }}
+                                        >
                                             <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                                 <CardHeader className="bg-gradient-to-r from-purple-500/20 via-indigo-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                         <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-lg">
-                                                        <Shield className="h-6 w-6 text-white" />
-                                                    </div>
+                                                            <Shield className="h-6 w-6 text-white" />
+                                                        </div>
                                                         {t("Permissions")}
                                                         <Badge variant="secondary" className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
                                                             {t("Optional")}
-                                                    </Badge>
-                                                </CardTitle>
+                                                        </Badge>
+                                                    </CardTitle>
                                                     <CardDescription className="text-slate-600 dark:text-slate-400">
-                                                        {t("Select the permissions for this user account")}
+                                                        {t("Update the permissions for this user account")}
                                                     </CardDescription>
-                                            </CardHeader>
+                                                </CardHeader>
                                                 <CardContent className="p-8">
                                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                                         {permissions.map((permission) => (
@@ -564,11 +614,11 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                                             <div className="space-y-2">
                                                                 <p className="text-sm text-slate-600 dark:text-slate-400">{t("Email")}</p>
                                                                 <p className="text-lg font-semibold text-slate-900 dark:text-white">{selectedCustomer.email || t("Not provided")}</p>
+                                                            </div>
                                                         </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
+                                                    </CardContent>
+                                                </Card>
+                                            </motion.div>
                                         )}
                                     </AnimatePresence>
 
@@ -576,7 +626,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.6, duration: 0.4 }}
+                                        transition={{ delay: 1.7, duration: 0.4 }}
                                         className="flex justify-end space-x-6 pt-6"
                                     >
                                         <Link href={route("admin.customer-users.index")}>
@@ -596,12 +646,12 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                             {processing ? (
                                                 <>
                                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                                                    {t("Creating...")}
+                                                    {t("Updating...")}
                                                 </>
                                             ) : (
                                                 <>
                                                     <Save className="h-5 w-5 mr-3" />
-                                                    {t("Create User")}
+                                                    {t("Update User")}
                                                 </>
                                             )}
                                         </Button>
@@ -614,4 +664,4 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
             </motion.div>
         </>
     );
-}
+} 
