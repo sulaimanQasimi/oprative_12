@@ -24,7 +24,8 @@ import {
     Calendar,
     MoreVertical,
     Filter,
-    Search
+    Search,
+    ShoppingCart
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -454,12 +455,18 @@ export default function Show({ auth, customer, roles, permissions }) {
                                                                 {t("View Income History")}
                                                             </Button>
                                                         </Link>
-                                                        <Link href={route("admin.customers.outcome", customer.id)}>
-                                                            <Button variant="outline" className="w-full justify-start gap-2">
-                                                                <TrendingDown className="w-4 h-4" />
-                                                                {t("View Outcome History")}
-                                                            </Button>
-                                                        </Link>
+                                                                                                <Link href={route("admin.customers.outcome", customer.id)}>
+                                            <Button variant="outline" className="w-full justify-start gap-2">
+                                                <TrendingDown className="w-4 h-4" />
+                                                {t("View Outcome History")}
+                                            </Button>
+                                        </Link>
+                                        <Link href={route("admin.customers.orders", customer.id)}>
+                                            <Button variant="outline" className="w-full justify-start gap-2">
+                                                <ShoppingCart className="w-4 h-4" />
+                                                {t("View Market Orders")}
+                                            </Button>
+                                        </Link>
                                                     </CardContent>
                                                 </Card>
 
