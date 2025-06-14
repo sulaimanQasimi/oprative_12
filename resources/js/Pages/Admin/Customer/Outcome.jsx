@@ -53,6 +53,12 @@ export default function Outcome({ auth, customer, outcomes }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [dateFilter, setDateFilter] = useState("");
+    const [sortBy, setSortBy] = useState("created_at");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [showFilters, setShowFilters] = useState(false);
+    const [filteredOutcomes, setFilteredOutcomes] = useState(outcomes || []);
 
     // Animation effect
     useEffect(() => {
@@ -62,6 +68,60 @@ export default function Outcome({ auth, customer, outcomes }) {
         }, 800);
         return () => clearTimeout(timer);
     }, []);
+
+    // Enhanced filtering logic
+    useEffect(() => {
+        let filtered = [...outcomes];
+
+        // Search filter
+        if (searchTerm) {
+            filtered = filtered.filter(outcome =>
+                outcome.reference_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                outcome.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                outcome.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                outcome.reason?.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+        }
+
+        // Date filter
+        if (dateFilter) {
+            const filterDate = new Date(dateFilter);
+            filtered = filtered.filter(outcome => {
+                const outcomeDate = new Date(outcome.created_at);
+                return outcomeDate.toDateString() === filterDate.toDateString();
+            });
+        }
+
+        // Sorting
+        filtered.sort((a, b) => {
+            let aValue = a[sortBy];
+            let bValue = b[sortBy];
+
+            if (sortBy === 'product.name') {
+                aValue = a.product.name;
+                bValue = b.product.name;
+            }
+
+            if (typeof aValue === 'string') {
+                aValue = aValue.toLowerCase();
+                bValue = bValue.toLowerCase();
+            }
+
+            if (sortOrder === 'asc') {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
+        });
+
+        setFilteredOutcomes(filtered);
+    }, [searchTerm, dateFilter, sortBy, sortOrder, outcomes]);
+
+    // Calculate totals
+    const totalOutcomes = filteredOutcomes.length;
+    const totalQuantity = filteredOutcomes.reduce((sum, outcome) => sum + (outcome.quantity || 0), 0);
+    const totalValue = filteredOutcomes.reduce((sum, outcome) => sum + (outcome.total || 0), 0);
+    const avgOutcomeValue = totalOutcomes > 0 ? totalValue / totalOutcomes : 0;
 
     const getStatusBadge = (status) => {
         const statusConfig = {
@@ -103,7 +163,20 @@ export default function Outcome({ auth, customer, outcomes }) {
     };
 
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('fa-IR');
+        return new Date(dateString).toLocaleDateString('fa-IR', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setDateFilter("");
+        setSortBy("created_at");
+        setSortOrder("desc");
     };
 
     return (
@@ -120,6 +193,11 @@ export default function Outcome({ auth, customer, outcomes }) {
                         50% { transform: translateY(-10px); }
                     }
 
+                    @keyframes pulse-glow {
+                        0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.6); }
+                    }
+
                     .shimmer {
                         background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
                         background-size: 1000px 100%;
@@ -128,6 +206,10 @@ export default function Outcome({ auth, customer, outcomes }) {
 
                     .float-animation {
                         animation: float 6s ease-in-out infinite;
+                    }
+
+                    .pulse-glow {
+                        animation: pulse-glow 2s ease-in-out infinite;
                     }
 
                     .glass-effect {
@@ -155,7 +237,7 @@ export default function Outcome({ auth, customer, outcomes }) {
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} />
+            <PageLoader isVisible={loading} icon={TrendingDown} color="red" />
 
             <motion.div
                 initial={{ opacity: 0 }}
@@ -197,7 +279,7 @@ export default function Outcome({ auth, customer, outcomes }) {
                                         className="text-sm font-bold uppercase tracking-wider text-red-600 dark:text-red-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
-                                        {t("Customer Outcome")}
+                                        {customer.name} - {t("Outcome Management")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
@@ -205,7 +287,7 @@ export default function Outcome({ auth, customer, outcomes }) {
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-red-600 via-orange-600 to-red-700 bg-clip-text text-transparent"
                                     >
-                                        {customer.name}
+                                        {t("Outcome Records")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -213,8 +295,8 @@ export default function Outcome({ auth, customer, outcomes }) {
                                         transition={{ delay: 0.6, duration: 0.4 }}
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
-                                        <User className="w-4 h-4" />
-                                        {t("Outcome Records")} • {outcomes.length} {t("Records")}
+                                        <BarChart3 className="w-4 h-4" />
+                                        {t("Track and manage customer outcome records")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -222,14 +304,15 @@ export default function Outcome({ auth, customer, outcomes }) {
                                 initial={{ x: 20, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center gap-3"
+                                className="flex items-center space-x-3"
                             >
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-red-200 hover:border-red-300 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                    <Download className="h-4 w-4" />
+                                    {t("Export")}
+                                </Button>
                                 <Link href={route('admin.customers.show', customer.id)}>
-                                    <Button
-                                        variant="outline"
-                                        className="gradient-border hover:shadow-lg hover:shadow-red-500/25 transition-all duration-300 group"
-                                    >
-                                        <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform duration-300" />
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
+                                        <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Customer")}
                                     </Button>
                                 </Link>
