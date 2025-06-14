@@ -354,4 +354,116 @@ class CustomerController extends Controller
                 ->with('error', 'Error loading customer outcome: ' . $e->getMessage());
         }
     }
+
+    public function orders(Customer $customer)
+    {
+        try {
+            // Load customer with market orders
+            $customer = Customer::with([
+                'marketOrders.items.product'
+            ])->findOrFail($customer->id);
+
+            // Get customer market orders
+            $orders = $customer->marketOrders->map(function ($order) {
+                return [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'total_amount' => $order->total_amount,
+                    'subtotal' => $order->subtotal,
+                    'tax_amount' => $order->tax_amount,
+                    'discount_amount' => $order->discount_amount,
+                    'payment_method' => $order->payment_method,
+                    'payment_status' => $order->payment_status,
+                    'order_status' => $order->order_status,
+                    'status' => $order->status,
+                    'notes' => $order->notes,
+                    'items_count' => $order->items->count(),
+                    'total_quantity' => $order->items->sum('quantity'),
+                    'created_at' => $order->created_at,
+                    'updated_at' => $order->updated_at,
+                ];
+            });
+
+            return Inertia::render('Admin/Customer/Orders/Index', [
+                'customer' => [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'email' => $customer->email,
+                    'phone' => $customer->phone,
+                    'status' => $customer->status,
+                ],
+                'orders' => $orders,
+                'auth' => [
+                    'user' => Auth::user()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading customer orders: ' . $e->getMessage());
+            return redirect()->route('admin.customers.show', $customer->id)
+                ->with('error', 'Error loading customer orders: ' . $e->getMessage());
+        }
+    }
+
+    public function showOrder(Customer $customer, $orderId)
+    {
+        try {
+            // Load the specific order with items and products
+            $order = \App\Models\MarketOrder::with([
+                'items.product',
+                'customer'
+            ])->where('customer_id', $customer->id)
+              ->findOrFail($orderId);
+
+            // Format order items
+            $orderItems = $order->items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'product' => [
+                        'id' => $item->product->id,
+                        'name' => $item->product->name,
+                        'barcode' => $item->product->barcode,
+                        'type' => $item->product->type,
+                    ],
+                    'quantity' => $item->quantity,
+                    'unit_price' => $item->unit_price,
+                    'subtotal' => $item->subtotal,
+                    'discount_amount' => $item->discount_amount,
+                    'notes' => $item->notes,
+                ];
+            });
+
+            return Inertia::render('Admin/Customer/Orders/Show', [
+                'customer' => [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'email' => $customer->email,
+                    'phone' => $customer->phone,
+                    'status' => $customer->status,
+                ],
+                'order' => [
+                    'id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'total_amount' => $order->total_amount,
+                    'subtotal' => $order->subtotal,
+                    'tax_amount' => $order->tax_amount,
+                    'discount_amount' => $order->discount_amount,
+                    'payment_method' => $order->payment_method,
+                    'payment_status' => $order->payment_status,
+                    'order_status' => $order->order_status,
+                    'status' => $order->status,
+                    'notes' => $order->notes,
+                    'created_at' => $order->created_at,
+                    'updated_at' => $order->updated_at,
+                ],
+                'orderItems' => $orderItems,
+                'auth' => [
+                    'user' => Auth::user()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading customer order: ' . $e->getMessage());
+            return redirect()->route('admin.customers.orders', $customer->id)
+                ->with('error', 'Error loading customer order: ' . $e->getMessage());
+        }
+    }
 }

@@ -164,6 +164,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Customer outcome management
         Route::get('/{customer:id}/outcome', [CustomerController::class, 'outcome'])->name('admin.customers.outcome');
 
+        // Customer orders management
+        Route::get('/{customer:id}/orders', [CustomerController::class, 'orders'])->name('admin.customers.orders');
+        Route::get('/{customer:id}/orders/{order}', [CustomerController::class, 'showOrder'])->name('admin.customers.orders.show');
+
         // Customer user management
         Route::post('/{customer:id}/users', [CustomerController::class, 'addUser'])->name('admin.customers.users.store');
         Route::put('/{customer:id}/users/{user}', [CustomerController::class, 'updateUser'])->name('admin.customers.users.update');
