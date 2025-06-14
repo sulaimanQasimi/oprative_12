@@ -11,7 +11,15 @@ import {
     Sparkles,
     Building2,
     User,
-    AlertTriangle
+    AlertTriangle,
+    Search,
+    Filter,
+    Download,
+    RefreshCw,
+    BarChart3,
+    ChevronDown,
+    X,
+    DollarSign
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -29,7 +37,15 @@ import {
     TableHeader,
     TableRow,
 } from "@/Components/ui/table";
-import { motion } from "framer-motion";
+import { Input } from "@/Components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
