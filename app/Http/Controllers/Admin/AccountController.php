@@ -42,34 +42,47 @@ class AccountController extends Controller
             $query->where('status', $request->status);
         }
 
-        $accounts = $query->latest()
-            ->paginate(10)
-            ->withQueryString()
-            ->through(function ($account) {
-                $totalIncome = $account->approvedIncomes()->sum('amount');
-                $totalOutcome = $account->approvedOutcomes()->sum('amount');
-                $netBalance = $totalIncome - $totalOutcome;
+        $paginatedAccounts = $query->latest()->paginate(10);
+        $paginatedAccounts->appends($request->query());
+        
+        // Transform the paginated data
+        $accounts = [
+            'data' => $paginatedAccounts->items(),
+            'current_page' => $paginatedAccounts->currentPage(),
+            'last_page' => $paginatedAccounts->lastPage(),
+            'per_page' => $paginatedAccounts->perPage(),
+            'total' => $paginatedAccounts->total(),
+            'from' => $paginatedAccounts->firstItem(),
+            'to' => $paginatedAccounts->lastItem(),
+            'links' => $paginatedAccounts->linkCollection(),
+        ];
+        
+        // Transform each account
+        $accounts['data'] = collect($accounts['data'])->map(function ($account) {
+            $totalIncome = $account->approvedIncomes()->sum('amount');
+            $totalOutcome = $account->approvedOutcomes()->sum('amount');
+            $netBalance = $totalIncome - $totalOutcome;
 
-                return [
-                    'id' => $account->id,
-                    'name' => $account->name,
-                    'id_number' => $account->id_number,
-                    'account_number' => $account->account_number,
-                    'customer' => [
-                        'id' => $account->customer->id,
-                        'name' => $account->customer->name,
-                    ],
-                    'address' => $account->address,
-                    'status' => $account->status,
-                    'total_income' => $totalIncome,
-                    'total_outcome' => $totalOutcome,
-                    'net_balance' => $netBalance,
-                    'pending_income' => $account->pendingIncomes()->sum('amount'),
-                    'pending_outcome' => $account->pendingOutcomes()->sum('amount'),
-                    'created_at' => $account->created_at,
-                    'updated_at' => $account->updated_at,
-                ];
-            });
+            return [
+                'id' => $account->id,
+                'name' => $account->name,
+                'id_number' => $account->id_number,
+                'account_number' => $account->account_number,
+                'customer' => [
+                    'id' => $account->customer->id,
+                    'name' => $account->customer->name,
+                ],
+                'address' => $account->address,
+                'status' => $account->status,
+                'total_income' => $totalIncome,
+                'total_outcome' => $totalOutcome,
+                'net_balance' => $netBalance,
+                'pending_income' => $account->pendingIncomes()->sum('amount'),
+                'pending_outcome' => $account->pendingOutcomes()->sum('amount'),
+                'created_at' => $account->created_at,
+                'updated_at' => $account->updated_at,
+            ];
+        })->toArray();
 
         $customers = Customer::select('id', 'name')->orderBy('name')->get();
 
