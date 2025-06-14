@@ -10,7 +10,24 @@ import {
     CardTitle,
     CardFooter,
 } from "@/Components/ui/card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/Components/ui/table";
+import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
+import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
 import {
     Search,
@@ -46,10 +63,13 @@ import {
     List,
     LayoutGrid,
     AlertTriangle,
+    Sparkles,
+    X,
+    Info,
 } from "lucide-react";
 import anime from "animejs";
 import Navigation from "@/Components/Warehouse/Navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 // Safe querySelector utility function that checks if element exists
 const safeQuerySelector = (element, selector) => {
@@ -342,8 +362,11 @@ export default function Products({ auth, products }) {
     const [view, setView] = useState("grid");
     const [isAnimated, setIsAnimated] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [isFiltersVisible, setIsFiltersVisible] = useState(false);
-    const [viewMode, setViewMode] = useState("grid"); // grid, table
+    const [showFilters, setShowFilters] = useState(false);
+    const [sortBy, setSortBy] = useState("created_at");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [categoryFilter, setCategoryFilter] = useState("");
+    const [filteredProducts, setFilteredProducts] = useState(products || []);
 
     // Refs for animation targets
     const headerRef = useRef(null);
@@ -355,43 +378,65 @@ export default function Products({ auth, products }) {
     // Animation timeline
     const timelineRef = useRef(null);
 
-    // Filter products based on search term
-    const filteredProducts = useMemo(() => {
-        if (!products || !Array.isArray(products) || products.length === 0)
-            return [];
+    // Enhanced filtering logic
+    useEffect(() => {
+        let filtered = [...(products || [])];
 
-        return products.filter((product) => {
-            // Check if product exists and has valid structure
-            if (!product) return false;
+        // Search filter
+        if (searchTerm) {
+            filtered = filtered.filter((product) => {
+                if (!product || !product.product || !Array.isArray(product.product) || product.product.length === 0) {
+                    return false;
+                }
+                const productItem = product.product[0];
+                const nameMatch = productItem.name?.toLowerCase().includes(searchTerm.toLowerCase());
+                const barcodeMatch = productItem.barcode?.toLowerCase().includes(searchTerm.toLowerCase());
+                return nameMatch || barcodeMatch;
+            });
+        }
 
-            // Check if product.product is a valid array with at least one item
-            if (
-                !product.product ||
-                !Array.isArray(product.product) ||
-                product.product.length === 0
-            )
-                return false;
+        // Category filter
+        if (categoryFilter) {
+            filtered = filtered.filter((product) => {
+                if (!product || !product.product || !Array.isArray(product.product) || product.product.length === 0) {
+                    return false;
+                }
+                const productItem = product.product[0];
+                return productItem.type === categoryFilter;
+            });
+        }
 
-            // Get the first product item
-            const productItem = product.product[0];
-            if (!productItem) return false;
+        // Sorting
+        filtered.sort((a, b) => {
+            let aValue = a[sortBy];
+            let bValue = b[sortBy];
 
-            // Check if name or barcode matches search term
-            const nameMatch =
-                typeof productItem.name === "string" &&
-                productItem.name
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase());
+            if (sortBy === 'product.name') {
+                aValue = a.product?.[0]?.name || '';
+                bValue = b.product?.[0]?.name || '';
+            }
 
-            const barcodeMatch =
-                typeof productItem.barcode === "string" &&
-                productItem.barcode
-                    .toLowerCase()
-                    .includes(searchTerm.toLowerCase());
+            if (typeof aValue === 'string') {
+                aValue = aValue.toLowerCase();
+                bValue = bValue.toLowerCase();
+            }
 
-            return nameMatch || barcodeMatch;
+            if (sortOrder === 'asc') {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
         });
-    }, [products, searchTerm]);
+
+        setFilteredProducts(filtered);
+    }, [searchTerm, categoryFilter, sortBy, sortOrder, products]);
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setCategoryFilter("");
+        setSortBy("created_at");
+        setSortOrder("desc");
+    };
 
     // Calculate total inventory value using useMemo
     const totalValue = useMemo(() => {
@@ -653,15 +698,55 @@ export default function Products({ auth, products }) {
             <Head title={t("Warehouse Products")}>
                 <style>{`
                     @keyframes shimmer {
-                        0% {
-                            transform: translateX(-100%);
-                        }
-                        100% {
-                            transform: translateX(100%);
-                        }
+                        0% { background-position: -1000px 0; }
+                        100% { background-position: 1000px 0; }
                     }
-                    .animate-shimmer {
-                        animation: shimmer 3s infinite;
+
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                    }
+
+                    @keyframes pulse-glow {
+                        0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.6); }
+                    }
+
+                    .shimmer {
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                        background-size: 1000px 100%;
+                        animation: shimmer 2s infinite;
+                    }
+
+                    .float-animation {
+                        animation: float 6s ease-in-out infinite;
+                    }
+
+                    .pulse-glow {
+                        animation: pulse-glow 2s ease-in-out infinite;
+                    }
+
+                    .glass-effect {
+                        background: rgba(255, 255, 255, 0.1);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                    }
+
+                    .dark .glass-effect {
+                        background: rgba(0, 0, 0, 0.2);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                    }
+
+                    .gradient-border {
+                        background: linear-gradient(white, white) padding-box,
+                                    linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                        border: 2px solid transparent;
+                    }
+
+                    .dark .gradient-border {
+                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                                    linear-gradient(45deg, #22c55e, #16a34a) border-box;
                     }
 
                     .bg-grid-pattern {
@@ -677,39 +762,90 @@ export default function Products({ auth, products }) {
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} />
+            <PageLoader isVisible={loading} icon={Package} color="green" />
 
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isAnimated ? 1 : 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+            >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="warehouse.products" />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
-                    <header
-                        ref={headerRef}
-                        className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30"
+                    <motion.header
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
                     >
-                        <div className="flex items-center space-x-4">
-                            <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">
-                                    {t("Warehouse Management")}
-                                </span>
-                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    {t("Products Inventory")}
-                                    <Badge
-                                        variant="outline"
-                                        className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800 rounded-full"
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-4">
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative float-animation"
+                                >
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-emerald-500 via-green-500 to-emerald-600 p-4 rounded-2xl shadow-2xl">
+                                        <Package className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
+                                    </div>
+                                </motion.div>
+                                <div>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1 flex items-center gap-2"
                                     >
-                                        {products?.length || 0}
-                                    </Badge>
-                                </h1>
+                                        <Sparkles className="w-4 h-4" />
+                                        {t("Warehouse Management")}
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-4xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 bg-clip-text text-transparent"
+                                    >
+                                        {t("Products Inventory")}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                    >
+                                        <BarChart3 className="w-4 h-4" />
+                                        {t("Manage and track your product inventory")}
+                                    </motion.p>
+                                </div>
                             </div>
+
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
+                            >
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-emerald-200 hover:border-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/20">
+                                    <Download className="h-4 w-4" />
+                                    {t("Export")}
+                                </Button>
+                                <Button className="gap-2 bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 hover:from-emerald-700 hover:via-green-700 hover:to-emerald-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                    <Plus className="h-4 w-4" />
+                                    {t("Add Product")}
+                                </Button>
+                            </motion.div>
                         </div>
-                    </header>
+                    </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-700 scrollbar-track-transparent">
                         {/* Dashboard Stats Section */}
                         <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 p-6 relative flex-shrink-0">
                             <div className="absolute inset-0 bg-gradient-to-r from-emerald-50/30 to-white/30 dark:from-slate-900/30 dark:to-slate-950/30 opacity-80"></div>
@@ -1103,81 +1239,308 @@ export default function Products({ auth, products }) {
                         </div>
 
                         {/* Search and Tabs Section */}
-                        <div className="p-6">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                                <div className="w-full md:w-96 relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Search className="h-4 w-4 text-slate-400" />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder={t("Search products...")}
-                                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-all duration-200"
-                                        value={searchTerm}
-                                        onChange={(e) =>
-                                            setSearchTerm(e.target.value)
-                                        }
-                                    />
-                                    {searchTerm && (
-                                        <button
-                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-500"
-                                            onClick={() => setSearchTerm("")}
-                                        >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-4 w-4"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <path d="M18 6 6 18"></path>
-                                                <path d="m6 6 12 12"></path>
-                                            </svg>
-                                        </button>
-                                    )}
+                        <div className="p-8">
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="space-y-8"
+                            >
+                                {/* Enhanced Summary Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.9, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Value")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-emerald-600">
+                                                            ${totalValue.toFixed(2)}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Inventory value")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 rounded-2xl">
+                                                        <DollarSign className="h-8 w-8 text-emerald-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.0, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Products")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-blue-600">
+                                                            {products?.length || 0}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Product variants")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
+                                                        <Package className="h-8 w-8 text-blue-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.1, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Low Stock")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-orange-600">
+                                                            {lowStockCount}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Items need restock")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
+                                                        <AlertTriangle className="h-8 w-8 text-orange-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.2, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Categories")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-purple-600">
+                                                            {categories.length}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Product types")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
+                                                        <PieChart className="h-8 w-8 text-purple-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
                                 </div>
 
-                                <div className="flex items-center gap-4">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
-                                    >
-                                        <RefreshCw className="h-3.5 w-3.5" />
-                                        <span>{t("Refresh")}</span>
-                                    </Button>
-                                    <Tabs
-                                        defaultValue="grid"
-                                        className="w-auto"
-                                    >
-                                        <TabsList className="p-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
-                                            <TabsTrigger
-                                                value="grid"
-                                                active={view === "grid"}
-                                                onClick={() =>
-                                                    handleViewChange("grid")
-                                                }
-                                                className="px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm rounded-md transition-all"
-                                            >
-                                                <LayoutGrid className="h-4 w-4" />
-                                            </TabsTrigger>
-                                            <TabsTrigger
-                                                value="list"
-                                                active={view === "list"}
-                                                onClick={() =>
-                                                    handleViewChange("list")
-                                                }
-                                                className="px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm rounded-md transition-all"
-                                            >
-                                                <List className="h-4 w-4" />
-                                            </TabsTrigger>
-                                        </TabsList>
-                                    </Tabs>
+                                {/* Advanced Filters */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.3, duration: 0.4 }}
+                                >
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-emerald-500/20 via-green-500/20 to-emerald-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                            <div className="flex items-center justify-between">
+                                                <CardTitle className="flex items-center gap-3">
+                                                    <div className="p-2 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg">
+                                                        <Filter className="h-5 w-5 text-white" />
+                                                    </div>
+                                                    {t("Search & Filter")}
+                                                </CardTitle>
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => setShowFilters(!showFilters)}
+                                                    className="gap-2"
+                                                >
+                                                    <Filter className="h-4 w-4" />
+                                                    {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                                    <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                                                </Button>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="p-6">
+                                            {/* Search Bar */}
+                                            <div className="mb-4">
+                                                <div className="relative">
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Input
+                                                        placeholder={t("Search products by name or barcode...")}
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        className="pl-12 h-12 text-lg border-2 border-emerald-200 focus:border-emerald-500 rounded-xl"
+                                                    />
+                                                    {searchTerm && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => setSearchTerm("")}
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Advanced Filters */}
+                                            <AnimatePresence>
+                                                {showFilters && (
+                                                    <motion.div
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: "auto", opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                        transition={{ duration: 0.3 }}
+                                                        className="overflow-hidden"
+                                                    >
+                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Category")}
+                                                                </label>
+                                                                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue placeholder={t("All Categories")} />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="">{t("All Categories")}</SelectItem>
+                                                                        {categories.map((category) => (
+                                                                            <SelectItem key={category} value={category}>
+                                                                                {category}
+                                                                            </SelectItem>
+                                                                        ))}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Sort By")}
+                                                                </label>
+                                                                <Select value={sortBy} onValueChange={setSortBy}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="created_at">{t("Date Created")}</SelectItem>
+                                                                        <SelectItem value="product.name">{t("Product Name")}</SelectItem>
+                                                                        <SelectItem value="net_quantity">{t("Stock Quantity")}</SelectItem>
+                                                                        <SelectItem value="income_price">{t("Price")}</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Sort Order")}
+                                                                </label>
+                                                                <Select value={sortOrder} onValueChange={setSortOrder}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="desc">{t("Descending")}</SelectItem>
+                                                                        <SelectItem value="asc">{t("Ascending")}</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div className="flex items-end">
+                                                                <Button
+                                                                    variant="outline"
+                                                                    onClick={clearFilters}
+                                                                    className="w-full h-10 gap-2"
+                                                                >
+                                                                    <RefreshCw className="h-4 w-4" />
+                                                                    {t("Clear Filters")}
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                {/* View Toggle */}
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        {searchTerm && (
+                                            <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 animate-pulse">
+                                                <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
+                                                <p>
+                                                    {t("Showing results for:")}{" "}
+                                                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                                                        {searchTerm}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="flex items-center gap-4">
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
+                                        >
+                                            <RefreshCw className="h-3.5 w-3.5" />
+                                            <span>{t("Refresh")}</span>
+                                        </Button>
+                                        <Tabs
+                                            defaultValue="grid"
+                                            className="w-auto"
+                                        >
+                                            <TabsList className="p-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
+                                                <TabsTrigger
+                                                    value="grid"
+                                                    active={view === "grid"}
+                                                    onClick={() =>
+                                                        handleViewChange("grid")
+                                                    }
+                                                    className="px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm rounded-md transition-all"
+                                                >
+                                                    <LayoutGrid className="h-4 w-4" />
+                                                </TabsTrigger>
+                                                <TabsTrigger
+                                                    value="list"
+                                                    active={view === "list"}
+                                                    onClick={() =>
+                                                        handleViewChange("list")
+                                                    }
+                                                    className="px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm rounded-md transition-all"
+                                                >
+                                                    <List className="h-4 w-4" />
+                                                </TabsTrigger>
+                                            </TabsList>
+                                        </Tabs>
+                                    </div>
                                 </div>
-                            </div>
 
                             {searchTerm && (
                                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 animate-pulse">
@@ -1686,7 +2049,7 @@ export default function Products({ auth, products }) {
                         </div>
                     </main>
                 </div>
-            </div>
+            </motion.div>
         </>
     );
 }
