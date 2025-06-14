@@ -14,7 +14,7 @@ export default function Edit({ account, customers, auth }) {
         account_number: account.account_number || '',
         customer_id: account.customer_id || '',
         address: account.address || '',
-        status: account.status || 'active',
+        status: account.status || 'pending',
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -231,9 +231,10 @@ export default function Edit({ account, customers, auth }) {
                                                         }`}
                                                         required
                                                     >
+                                                        <option value="pending">{t("Pending")}</option>
                                                         <option value="active">{t("Active")}</option>
-                                                        <option value="inactive">{t("Inactive")}</option>
                                                         <option value="suspended">{t("Suspended")}</option>
+                                                        <option value="closed">{t("Closed")}</option>
                                                     </select>
                                                     {errors.status && (
                                                         <p className="mt-1 text-sm text-red-600 flex items-center">

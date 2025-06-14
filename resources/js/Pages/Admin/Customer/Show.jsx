@@ -123,9 +123,10 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            active: { color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300', label: t('Active') },
-            inactive: { color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300', label: t('Inactive') },
             pending: { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300', label: t('Pending') },
+            active: { color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300', label: t('Active') },
+            suspended: { color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300', label: t('Suspended') },
+            closed: { color: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300', label: t('Closed') },
         };
 
         const config = statusConfig[status] || statusConfig.pending;
@@ -593,34 +594,39 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                                             </TableCell>
                                                                             <TableCell>{formatDate(user.created_at)}</TableCell>
                                                                             <TableCell className="text-right">
-                                                                                <DropdownMenu>
-                                                                                    <DropdownMenuTrigger asChild>
-                                                                                        <Button variant="ghost" size="sm">
-                                                                                            <MoreVertical className="w-4 h-4" />
-                                                                                        </Button>
-                                                                                    </DropdownMenuTrigger>
-                                                                                    <DropdownMenuContent>
+                                                                                <div className="flex items-center justify-end gap-1">
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                                                                                        asChild
+                                                                                    >
                                                                                         <Link href={route('admin.customer-users.show', user.id)}>
-                                                                                            <DropdownMenuItem>
-                                                                                                <Eye className="w-4 h-4 mr-2" />
-                                                                                                {t("View")}
-                                                                                            </DropdownMenuItem>
+                                                                                            <Eye className="h-4 w-4" />
+                                                                                            <span className="sr-only">{t("View")}</span>
                                                                                         </Link>
+                                                                                    </Button>
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
+                                                                                        asChild
+                                                                                    >
                                                                                         <Link href={route('admin.customer-users.edit', user.id)}>
-                                                                                        <DropdownMenuItem>
-                                                                                            <Edit className="w-4 h-4 mr-2" />
-                                                                                            {t("Edit")}
-                                                                                        </DropdownMenuItem>
+                                                                                            <Edit className="h-4 w-4" />
+                                                                                            <span className="sr-only">{t("Edit")}</span>
                                                                                         </Link>
-                                                                                        <DropdownMenuItem
-                                                                                            onClick={() => handleDeleteUser(user.id)}
-                                                                                            className="text-red-600"
-                                                                                        >
-                                                                                            <Trash2 className="w-4 h-4 mr-2" />
-                                                                                            {t("Delete")}
-                                                                                        </DropdownMenuItem>
-                                                                                    </DropdownMenuContent>
-                                                                                </DropdownMenu>
+                                                                                    </Button>
+                                                                                    <Button
+                                                                                        variant="ghost"
+                                                                                        size="sm"
+                                                                                        className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                                                                                        onClick={() => handleDeleteUser(user.id)}
+                                                                                    >
+                                                                                        <Trash2 className="h-4 w-4" />
+                                                                                        <span className="sr-only">{t("Delete")}</span>
+                                                                                    </Button>
+                                                                                </div>
                                                                             </TableCell>
                                                                         </TableRow>
                                                                     ))}
@@ -679,9 +685,10 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                                 className="w-48 h-12 px-3 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 rounded-md transition-colors"
                                                             >
                                                                 <option value="">{t("All Status")}</option>
+                                                                <option value="pending">{t("Pending")}</option>
                                                                 <option value="active">{t("Active")}</option>
-                                                                <option value="inactive">{t("Inactive")}</option>
                                                                 <option value="suspended">{t("Suspended")}</option>
+                                                                <option value="closed">{t("Closed")}</option>
                                                             </select>
 
                                                             <Button type="submit" className="gap-2 h-12 bg-green-600 hover:bg-green-700">

@@ -20,12 +20,12 @@ class AccountController extends Controller
         $query = Account::with(['customer', 'incomes', 'outcomes']);
 
         // Filter by customer if specified
-        if ($request->has('customer_id')) {
+        if ($request->filled('customer_id')) {
             $query->where('customer_id', $request->customer_id);
         }
 
         // Search functionality
-        if ($request->has('search') && $request->search) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -38,13 +38,14 @@ class AccountController extends Controller
         }
 
         // Status filter
-        if ($request->has('status') && $request->status) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         $accounts = $query->latest()
-            ->get()
-            ->map(function ($account) {
+            ->paginate(10)
+            ->withQueryString()
+            ->through(function ($account) {
                 $totalIncome = $account->approvedIncomes()->sum('amount');
                 $totalOutcome = $account->approvedOutcomes()->sum('amount');
                 $netBalance = $totalIncome - $totalOutcome;
@@ -75,7 +76,11 @@ class AccountController extends Controller
         return Inertia::render('Admin/Account/Index', [
             'accounts' => $accounts,
             'customers' => $customers,
-            'filters' => $request->only(['search', 'status', 'customer_id']),
+            'filters' => [
+                'search' => $request->get('search'),
+                'status' => $request->get('status'),
+                'customer_id' => $request->get('customer_id'),
+            ],
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -104,7 +109,7 @@ class AccountController extends Controller
             'account_number' => 'required|string|max:50|unique:accounts,account_number',
             'customer_id' => 'required|exists:customers,id',
             'address' => 'nullable|string|max:500',
-            'status' => 'required|in:active,inactive,suspended',
+            'status' => 'required|in:pending,active,suspended,closed',
         ]);
 
         try {
@@ -215,7 +220,7 @@ class AccountController extends Controller
             'account_number' => 'required|string|max:50|unique:accounts,account_number,' . $account->id,
             'customer_id' => 'required|exists:customers,id',
             'address' => 'nullable|string|max:500',
-            'status' => 'required|in:active,inactive,suspended',
+            'status' => 'required|in:pending,active,suspended,closed',
         ]);
 
         try {

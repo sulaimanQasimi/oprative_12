@@ -14,7 +14,7 @@ export default function Create({ customers, selectedCustomerId, auth }) {
         account_number: '',
         customer_id: selectedCustomerId || '',
         address: '',
-        status: 'active',
+        status: 'pending',
     });
 
     const [isLoading, setIsLoading] = useState(false);
@@ -224,9 +224,10 @@ export default function Create({ customers, selectedCustomerId, auth }) {
                                                         }`}
                                                         required
                                                     >
+                                                        <option value="pending">{t("Pending")}</option>
                                                         <option value="active">{t("Active")}</option>
-                                                        <option value="inactive">{t("Inactive")}</option>
                                                         <option value="suspended">{t("Suspended")}</option>
+                                                        <option value="closed">{t("Closed")}</option>
                                                     </select>
                                                     {errors.status && (
                                                         <p className="mt-1 text-sm text-red-600 flex items-center">
