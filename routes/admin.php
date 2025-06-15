@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\CustomerUserController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AccountIncomeController;
 use App\Http\Controllers\Admin\AccountOutcomeController;
+use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -253,5 +254,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{outcome:id}', [AccountOutcomeController::class, 'show'])->name('show');
         Route::put('/{outcome:id}', [AccountOutcomeController::class, 'update'])->name('update');
         Route::delete('/{outcome:id}', [AccountOutcomeController::class, 'destroy'])->name('destroy');
+    });
+
+    // Purchase Management
+    Route::prefix('purchases')->group(function () {
+        Route::get('/', [PurchaseController::class, 'index'])->name('admin.purchases.index');
+        Route::get('/create', [PurchaseController::class, 'create'])->name('admin.purchases.create');
+        Route::post('/', [PurchaseController::class, 'store'])->name('admin.purchases.store');
+        Route::get('/{purchase:id}', [PurchaseController::class, 'show'])->name('admin.purchases.show');
+        Route::get('/{purchase:id}/edit', [PurchaseController::class, 'edit'])->name('admin.purchases.edit');
+        Route::put('/{purchase:id}', [PurchaseController::class, 'update'])->name('admin.purchases.update');
+        Route::delete('/{purchase:id}', [PurchaseController::class, 'destroy'])->name('admin.purchases.destroy');
+
+        // Purchase Items Management
+        Route::get('/{purchase:id}/items', [PurchaseController::class, 'items'])->name('admin.purchases.items');
+        Route::post('/{purchase:id}/items', [PurchaseController::class, 'storeItem'])->name('admin.purchases.items.store');
+        Route::put('/{purchase:id}/items/{item:id}', [PurchaseController::class, 'updateItem'])->name('admin.purchases.items.update');
+        Route::delete('/{purchase:id}/items/{item:id}', [PurchaseController::class, 'destroyItem'])->name('admin.purchases.items.destroy');
     });
 });

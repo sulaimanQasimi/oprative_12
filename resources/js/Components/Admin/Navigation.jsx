@@ -88,6 +88,14 @@ const Navigation = ({ auth, currentRoute }) => {
                     return '/adminpanel/customers';
                 case 'admin.accounts.index':
                     return '/adminpanel/accounts';
+                case 'admin.purchases.index':
+                    return '/adminpanel/purchases';
+                case 'admin.purchases.create':
+                    return '/adminpanel/purchases/create';
+                case 'admin.purchases.show':
+                    return '/adminpanel/purchases/show';
+                case 'admin.purchases.edit':
+                    return '/adminpanel/purchases/edit';
                 case 'admin.users.index':
                     return '/adminpanel/users';
                 case 'admin.roles.index':
@@ -170,6 +178,13 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <CreditCard className="w-5 h-5" />,
                     route: "admin.accounts.index",
                     active: currentRoute?.startsWith("admin.accounts"),
+                },
+                {
+                    name: t("Purchases"),
+                    icon: <ShoppingCart className="w-5 h-5" />,
+                    route: "admin.purchases.index",
+                    active: currentRoute?.startsWith("admin.purchases"),
+                    badge: "New",
                 },
             ],
         },
