@@ -770,23 +770,21 @@ export default function Items({ auth, purchase, purchaseItems, products }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.2, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card 
+                                            className="border-0 shadow-2xl bg-gradient-to-br from-green-100 to-emerald-200 dark:from-green-900/40 dark:to-emerald-900/40 backdrop-blur-xl hover:scale-105 transition-all duration-300 cursor-pointer group"
+                                            onClick={openCreateDialog}
+                                        >
                                             <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Average Price")}
-                                                        </p>
-                                                        <p className="text-3xl font-bold text-orange-600">
-                                                            {formatCurrency(filteredItems.length > 0 ? getTotalAmount() / filteredItems.length : 0)}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
-                                                            {t("Per item")}
-                                                        </p>
+                                                <div className="flex flex-col items-center justify-center text-center">
+                                                    <div className="p-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl mb-3 group-hover:scale-110 transition-transform duration-200">
+                                                        <Plus className="h-8 w-8 text-white" />
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
-                                                        <Calculator className="h-8 w-8 text-orange-600" />
-                                                    </div>
+                                                    <p className="text-lg font-bold text-green-700 dark:text-green-300 mb-1">
+                                                        {t("Add New Item")}
+                                                    </p>
+                                                    <p className="text-xs text-green-600 dark:text-green-400">
+                                                        {t("Click to add product")}
+                                                    </p>
                                                 </div>
                                             </CardContent>
                                         </Card>
@@ -921,6 +919,14 @@ export default function Items({ auth, purchase, purchaseItems, products }) {
                                                 <Badge variant="secondary" className="ml-auto">
                                                     {filteredItems.length} {t("of")} {purchaseItems.length}
                                                 </Badge>
+                                                <Button 
+                                                    onClick={openCreateDialog}
+                                                    className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg"
+                                                    size="sm"
+                                                >
+                                                    <Plus className="h-4 w-4" />
+                                                    {t("Add New Item")}
+                                                </Button>
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-0">
