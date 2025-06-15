@@ -984,20 +984,9 @@ export default function Items({ auth, purchase, purchaseItems, products }) {
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        {item.unit_type === 'wholesale' && item.product?.whole_sale_unit_amount ? (
-                                                                            <div className="text-sm">
-                                                                                <Badge variant="secondary" className="bg-orange-100 text-orange-700">
-                                                                                    {(parseFloat(item.quantity) * item.product.whole_sale_unit_amount).toLocaleString()}
-                                                                                </Badge>
-                                                                                <p className="text-xs text-slate-500 mt-1">
-                                                                                    {item.quantity} × {item.product.whole_sale_unit_amount}
-                                                                                </p>
-                                                                            </div>
-                                                                        ) : (
-                                                                            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                                                                                {parseFloat(item.quantity).toLocaleString()}
-                                                                            </Badge>
-                                                                        )}
+                                                                        <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                                            {parseFloat(item.quantity).toLocaleString()}
+                                                                        </Badge>
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         {item.unit_type ? (
