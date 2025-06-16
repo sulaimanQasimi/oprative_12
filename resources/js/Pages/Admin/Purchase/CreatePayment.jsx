@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link, useForm, router } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     ArrowLeft,
@@ -15,7 +15,6 @@ import {
     FileText,
     User,
     Banknote,
-    CheckCircle
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -34,7 +33,6 @@ import {
     SelectValue,
 } from "@/Components/ui/select";
 import { Textarea } from "@/Components/ui/textarea";
-import { Badge } from "@/Components/ui/badge";
 import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
@@ -71,22 +69,9 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies })
         
         post(route('admin.purchases.payments.store', purchase.id), {
             onFinish: () => setLoading(false),
-            onError: (errors) => {
-                console.log('Submission errors:', errors);
-                setLoading(false);
-            },
-            onSuccess: () => {
-                setLoading(false);
-            }
+            onError: () => setLoading(false),
+            onSuccess: () => setLoading(false)
         });
-    };
-
-    const formatCurrency = (amount) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: purchase.currency?.code || 'USD',
-            minimumFractionDigits: 0,
-        }).format(amount || 0);
     };
 
     const paymentMethods = [
@@ -523,4 +508,4 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies })
             </motion.div>
         </>
     );
-} 
+}

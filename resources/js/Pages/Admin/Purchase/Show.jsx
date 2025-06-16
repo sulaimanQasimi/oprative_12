@@ -50,7 +50,7 @@ import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Show({ auth, purchase, purchaseItems, additionalCosts }) {
+export default function Show({ auth, purchase, purchaseItems, additionalCosts, payments }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -583,18 +583,166 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts })
                                     </TabsContent>
 
                                     <TabsContent value="payments" className="space-y-6">
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardHeader>
-                                                <CardTitle className="flex items-center gap-3">
-                                                    <CreditCard className="h-5 w-5 text-blue-600" />
-                                                    {t("Payment History")}
-                                                </CardTitle>
+                                        {/* Payments Summary Cards */}
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Total Payments")}</p>
+                                                        <p className="text-3xl font-bold text-blue-600">{(payments || []).length}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{t("Payment Records")}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/50 rounded-2xl">
+                                                        <CreditCard className="h-8 w-8 text-blue-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Total Paid")}</p>
+                                                        <p className="text-3xl font-bold text-green-600">{formatCurrency((payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0))}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{t("Amount Paid")}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-900/50 rounded-2xl">
+                                                        <DollarSign className="h-8 w-8 text-green-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Average Payment")}</p>
+                                                        <p className="text-3xl font-bold text-purple-600">
+                                                            {formatCurrency((payments || []).length > 0 ? 
+                                                                (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0) / (payments || []).length 
+                                                                : 0)}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">{t("Per Payment")}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-900/50 rounded-2xl">
+                                                        <Calculator className="h-8 w-8 text-purple-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+
+                                        {/* Payments List */}
+                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                                <div className="flex items-center justify-between">
+                                                    <CardTitle className="flex items-center gap-3 text-lg">
+                                                        <CreditCard className="h-5 w-5 text-blue-600" />
+                                                        {t("Payment History")}
+                                                        <Badge variant="secondary" className="ml-auto">
+                                                            {(payments || []).length} {t("payments")}
+                                                        </Badge>
+                                                    </CardTitle>
+                                                    <Link href={route('admin.purchases.payments.create', purchase.id)}>
+                                                        <Button className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                                            <Plus className="h-4 w-4" />
+                                                            {t("Add Payment")}
+                                                        </Button>
+                                                    </Link>
+                                                </div>
                                             </CardHeader>
-                                            <CardContent>
-                                                <div className="text-center py-8">
-                                                    <p className="text-slate-600 dark:text-slate-400">
-                                                        {t("Payment management will be available in a future update")}
-                                                    </p>
+                                            <CardContent className="p-0">
+                                                <div className="overflow-x-auto">
+                                                    <Table>
+                                                        <TableHeader>
+                                                            <TableRow>
+                                                                <TableHead>{t("Amount")}</TableHead>
+                                                                <TableHead>{t("Payment Method")}</TableHead>
+                                                                <TableHead>{t("Reference")}</TableHead>
+                                                                <TableHead>{t("Supplier")}</TableHead>
+                                                                <TableHead>{t("Payment Date")}</TableHead>
+                                                                <TableHead>{t("Actions")}</TableHead>
+                                                            </TableRow>
+                                                        </TableHeader>
+                                                        <TableBody>
+                                                            {(payments || []).length > 0 ? (
+                                                                (payments || []).map((payment) => (
+                                                                    <TableRow key={payment.id} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10">
+                                                                        <TableCell className="font-bold text-green-600 font-mono">{formatCurrency(payment.amount)}</TableCell>
+                                                                        <TableCell>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                                                                                    <CreditCard className="h-5 w-5 text-slate-500" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="font-semibold capitalize">{payment.payment_method?.replace('_', ' ')}</p>
+                                                                                    {payment.bank_name && (
+                                                                                        <p className="text-xs text-slate-500">{payment.bank_name}</p>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            {payment.reference_number ? (
+                                                                                <Badge variant="outline" className="font-mono text-xs">
+                                                                                    {payment.reference_number}
+                                                                                </Badge>
+                                                                            ) : (
+                                                                                <span className="text-slate-400">-</span>
+                                                                            )}
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                                                                                    <User className="h-5 w-5 text-slate-500" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="font-semibold">{payment.supplier?.name}</p>
+                                                                                    <p className="text-xs text-slate-500">Supplier</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell className="text-sm text-slate-500">
+                                                                            {new Date(payment.payment_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Button 
+                                                                                    size="icon" 
+                                                                                    variant="ghost" 
+                                                                                    onClick={() => {
+                                                                                        if (confirm(t('Are you sure you want to delete this payment?'))) {
+                                                                                            router.delete(route('admin.purchases.payments.destroy', [purchase.id, payment.id]));
+                                                                                        }
+                                                                                    }} 
+                                                                                    className="h-8 w-8 hover:bg-red-100"
+                                                                                >
+                                                                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                                                                </Button>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                ))
+                                                            ) : (
+                                                                <TableRow>
+                                                                    <TableCell colSpan="6" className="h-48 text-center">
+                                                                        <div className="flex flex-col items-center gap-4">
+                                                                            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                                                <CreditCard className="h-8 w-8 text-slate-400" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="font-medium">{t("This purchase has no payments yet")}</p>
+                                                                                <p className="text-sm text-slate-500">{t("Click the button below to add the first payment.")}</p>
+                                                                            </div>
+                                                                            <Link href={route('admin.purchases.payments.create', purchase.id)}>
+                                                                                <Button className="gap-2 mt-2">
+                                                                                    <Plus className="h-4 w-4" />
+                                                                                    {t("Add First Payment")}
+                                                                                </Button>
+                                                                            </Link>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            )}
+                                                        </TableBody>
+                                                    </Table>
                                                 </div>
                                             </CardContent>
                                         </Card>

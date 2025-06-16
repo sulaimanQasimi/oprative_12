@@ -149,7 +149,9 @@ class PurchaseController extends Controller
                 'user',
                 'purchaseItems.product.wholesaleUnit',
                 'purchaseItems.product.retailUnit',
-                'payments',
+                'payments.supplier',
+                'payments.currency',
+                'payments.user',
                 'additional_costs'
             ]);
 
@@ -484,6 +486,7 @@ class PurchaseController extends Controller
      */
     public function createPayment(Purchase $purchase)
     {
+        $purchase->load(['supplier', 'currency']);
         $suppliers = Supplier::select('id', 'name')->orderBy('name')->get();
         $currencies = Currency::select('id', 'name', 'code')->orderBy('name')->get();
 
