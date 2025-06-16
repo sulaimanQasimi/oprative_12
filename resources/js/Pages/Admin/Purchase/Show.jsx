@@ -545,11 +545,6 @@ export default function Show({ auth, purchase, purchaseItems }) {
                                                                         </TableCell>
                                                                         <TableCell>
                                                                             <div className="flex items-center gap-2">
-                                                                                <Link href={route('admin.purchases.items.edit', [purchase.id, item.id])}>
-                                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-green-100">
-                                                                                        <Edit className="h-4 w-4 text-green-600" />
-                                                                                    </Button>
-                                                                                </Link>
                                                                                 <Button size="icon" variant="ghost" onClick={() => handleDeleteItem(item.id)} className="h-8 w-8 hover:bg-red-100">
                                                                                     <Trash2 className="h-4 w-4 text-red-600" />
                                                                                 </Button>

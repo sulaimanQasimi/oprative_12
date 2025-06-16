@@ -341,8 +341,6 @@ class PurchaseController extends Controller
         ]);
     }
 
-
-
     /**
      * Store purchase item.
      */
@@ -380,57 +378,6 @@ class PurchaseController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['error' => 'Error adding purchase item: ' . $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Update purchase item.
-     */
-    public function updateItem(Request $request, Purchase $purchase, PurchaseItem $item)
-    {
-        try {
-            $validated = $request->validate([
-                'product_id' => 'required|exists:products,id',
-                'unit_type' => 'required|in:wholesale,retail',
-                'quantity' => 'required|numeric|min:0.01',
-                'price' => 'required|numeric|min:0',
-                'notes' => 'nullable|string|max:1000',
-            ]);
-
-            // Get the product with unit information
-            $product = Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($validated['product_id']);
-
-            // Calculate actual quantity and total based on unit type
-            $actualQuantity = $validated['quantity'];
-            $unitPrice = $validated['price'];
-
-            if ($validated['unit_type'] === 'wholesale' && $product->whole_sale_unit_amount) {
-                // If wholesale unit is selected, multiply by unit amount
-                $actualQuantity = $validated['quantity'] * $product->whole_sale_unit_amount;
-            }
-
-            $total = $actualQuantity * $unitPrice;
-
-            DB::beginTransaction();
-
-            $item->update([
-                'product_id' => $validated['product_id'],
-                'quantity' => $actualQuantity,
-                'unit_type' => $validated['unit_type'],
-                'price' => $unitPrice,
-                'total_price' => $total,
-            ]);
-
-            DB::commit();
-
-            return redirect()->route('admin.purchases.show', $purchase->id)
-                ->with('success', 'Purchase item updated successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error updating purchase item: ' . $e->getMessage());
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Error updating purchase item: ' . $e->getMessage()]);
         }
     }
 

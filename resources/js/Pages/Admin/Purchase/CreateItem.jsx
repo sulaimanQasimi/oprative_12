@@ -43,7 +43,6 @@ import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
 export default function CreateItem({ auth, purchase, products }) {
-    console.log(products);
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
