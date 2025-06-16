@@ -401,13 +401,13 @@ export default function Index({ auth, customers, filters = {} }) {
                                                         </Button>
                                                     )}
                                                 </div>
-                                                
+
                                                 <div className="flex gap-2">
                                                     <Select value={statusFilter} onValueChange={handleStatusFilter}>
                                                         <SelectTrigger className="w-48 h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500">
                                                             <SelectValue placeholder={t("Filter by status")} />
                                                         </SelectTrigger>
-                                                        <SelectContent>
+                                                        <SelectContent className="fixed top-0 w-20 ">
                                                             <SelectItem value="">{t("All Status")}</SelectItem>
                                                             <SelectItem value="active">{t("Active")}</SelectItem>
                                                             <SelectItem value="inactive">{t("Inactive")}</SelectItem>
@@ -631,7 +631,7 @@ export default function Index({ auth, customers, filters = {} }) {
                                                     <div className="text-sm text-slate-600 dark:text-slate-400">
                                                         {t("Showing")} {customers.from} {t("to")} {customers.to} {t("of")} {customers.total} {t("stores")}
                                                     </div>
-                                                    
+
                                                     <div className="flex items-center gap-2">
                                                         {customers.links.map((link, index) => {
                                                             if (link.url === null) {
@@ -665,8 +665,8 @@ export default function Index({ auth, customers, filters = {} }) {
                                                                         variant={link.active ? "default" : "outline"}
                                                                         size="sm"
                                                                         className={`w-10 h-10 p-0 ${
-                                                                            link.active 
-                                                                                ? 'bg-green-600 hover:bg-green-700 text-white' 
+                                                                            link.active
+                                                                                ? 'bg-green-600 hover:bg-green-700 text-white'
                                                                                 : 'hover:bg-green-50 hover:border-green-300'
                                                                         }`}
                                                                     >

@@ -131,7 +131,7 @@ export default function Index({ auth, units = [] }) {
 
     const handleDelete = (unitId) => {
         // Add delete functionality here
-        console.log("Delete unit:", unitId);
+        console.log(t("Delete unit:"), unitId);
     };
 
     return (
@@ -721,7 +721,9 @@ export default function Index({ auth, units = [] }) {
                                                                         <TableCell>
                                                                             <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
                                                                                 {unit.code ||
-                                                                                    "—"}
+                                                                                    t(
+                                                                                        "—"
+                                                                                    )}
                                                                             </span>
                                                                         </TableCell>
                                                                         <TableCell>
@@ -730,7 +732,9 @@ export default function Index({ auth, units = [] }) {
                                                                                 className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
                                                                             >
                                                                                 {unit.symbol ||
-                                                                                    "—"}
+                                                                                    t(
+                                                                                        "—"
+                                                                                    )}
                                                                             </Badge>
                                                                         </TableCell>
                                                                         <TableCell className="text-right">
