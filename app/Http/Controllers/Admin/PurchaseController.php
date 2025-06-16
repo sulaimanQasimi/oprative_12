@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
+use App\Models\PurchaseHasAddionalCosts;
+use App\Models\PurchasePayment;
 use App\Models\Supplier;
 use App\Models\Currency;
 use App\Models\Product;
@@ -400,6 +402,174 @@ class PurchaseController extends Controller
             Log::error('Error deleting purchase item: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Error deleting purchase item: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show the form for creating a new additional cost.
+     */
+    public function createAdditionalCost(Purchase $purchase)
+    {
+        return Inertia::render('Admin/Purchase/CreateAdditionalCost', [
+            'purchase' => [
+                'id' => $purchase->id,
+                'invoice_number' => $purchase->invoice_number,
+                'invoice_date' => $purchase->invoice_date,
+                'currency' => $purchase->currency,
+            ],
+            'auth' => [
+                'user' => Auth::guard('web')->user()
+            ]
+        ]);
+    }
+
+    /**
+     * Store additional cost.
+     */
+    public function storeAdditionalCost(Request $request, Purchase $purchase)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'amount' => 'required|numeric|min:0',
+            ]);
+
+            DB::beginTransaction();
+
+            // Create the additional cost record
+            $cost = PurchaseHasAddionalCosts::create([
+                'purchase_id' => $purchase->id,
+                'name' => $validated['name'],
+                'amount' => $validated['amount'],
+                // Note: description is not supported by the existing model
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.purchases.show', $purchase->id)
+                ->with('success', 'Additional cost added successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error adding additional cost: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Error adding additional cost: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Delete additional cost.
+     */
+    public function destroyAdditionalCost(Purchase $purchase, PurchaseHasAddionalCosts $cost)
+    {
+        try {
+            DB::beginTransaction();
+
+            $cost->delete();
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Additional cost deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting additional cost: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error deleting additional cost: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show the form for creating a new payment.
+     */
+    public function createPayment(Purchase $purchase)
+    {
+        $suppliers = Supplier::select('id', 'name')->orderBy('name')->get();
+        $currencies = Currency::select('id', 'name', 'code')->orderBy('name')->get();
+
+        return Inertia::render('Admin/Purchase/CreatePayment', [
+            'purchase' => [
+                'id' => $purchase->id,
+                'invoice_number' => $purchase->invoice_number,
+                'invoice_date' => $purchase->invoice_date,
+                'supplier' => $purchase->supplier,
+                'currency' => $purchase->currency,
+            ],
+            'suppliers' => $suppliers,
+            'currencies' => $currencies,
+            'auth' => [
+                'user' => Auth::guard('web')->user()
+            ]
+        ]);
+    }
+
+    /**
+     * Store payment.
+     */
+    public function storePayment(Request $request, Purchase $purchase)
+    {
+        try {
+            $validated = $request->validate([
+                'supplier_id' => 'required|exists:suppliers,id',
+                'currency_id' => 'required|exists:currencies,id',
+                'amount' => 'required|numeric|min:0.01',
+                'payment_method' => 'required|in:cash,bank_transfer,check,credit_card,other',
+                'reference_number' => 'nullable|string|max:255',
+                'bank_name' => 'nullable|string|max:255',
+                'bank_account' => 'nullable|string|max:255',
+                'payment_date' => 'required|date',
+                'notes' => 'nullable|string|max:1000',
+            ]);
+
+            DB::beginTransaction();
+
+            // Create the payment record
+            $payment = PurchasePayment::create([
+                'purchase_id' => $purchase->id,
+                'user_id' => Auth::id(),
+                'supplier_id' => $validated['supplier_id'],
+                'currency_id' => $validated['currency_id'],
+                'amount' => $validated['amount'],
+                'payment_method' => $validated['payment_method'],
+                'reference_number' => $validated['reference_number'],
+                'bank_name' => $validated['bank_name'],
+                'bank_account' => $validated['bank_account'],
+                'payment_date' => $validated['payment_date'],
+                'notes' => $validated['notes'],
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.purchases.show', $purchase->id)
+                ->with('success', 'Payment added successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error adding payment: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Error adding payment: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Delete payment.
+     */
+    public function destroyPayment(Purchase $purchase, PurchasePayment $payment)
+    {
+        try {
+            DB::beginTransaction();
+
+            $payment->delete();
+
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Payment deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting payment: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error deleting payment: ' . $e->getMessage());
         }
     }
 }

@@ -20,7 +20,9 @@ import {
     Eye,
     Sparkles,
     User,
-    Hash
+    Hash,
+    Receipt,
+    Calculator
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -48,7 +50,7 @@ import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Show({ auth, purchase, purchaseItems }) {
+export default function Show({ auth, purchase, purchaseItems, additionalCosts }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -580,8 +582,6 @@ export default function Show({ auth, purchase, purchaseItems }) {
                                         </Card>
                                     </TabsContent>
 
-
-
                                     <TabsContent value="payments" className="space-y-6">
                                         <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                             <CardHeader>
@@ -601,18 +601,142 @@ export default function Show({ auth, purchase, purchaseItems }) {
                                     </TabsContent>
 
                                     <TabsContent value="costs" className="space-y-6">
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardHeader>
-                                                <CardTitle className="flex items-center gap-3">
-                                                    <DollarSign className="h-5 w-5 text-orange-600" />
-                                                    {t("Additional Costs")}
-                                                </CardTitle>
+                                        {/* Additional Costs Summary Cards */}
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Total Costs")}</p>
+                                                        <p className="text-3xl font-bold text-orange-600">{(additionalCosts || []).length}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{t("Additional Costs")}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-900/50 rounded-2xl">
+                                                        <DollarSign className="h-8 w-8 text-orange-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Total Amount")}</p>
+                                                        <p className="text-3xl font-bold text-red-600">{formatCurrency((additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0))}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{t("Extra Costs")}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-900/50 rounded-2xl">
+                                                        <Receipt className="h-8 w-8 text-red-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Average Cost")}</p>
+                                                        <p className="text-3xl font-bold text-purple-600">
+                                                            {formatCurrency((additionalCosts || []).length > 0 ? 
+                                                                (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) / (additionalCosts || []).length 
+                                                                : 0)}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">{t("Per Cost")}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-900/50 rounded-2xl">
+                                                        <Calculator className="h-8 w-8 text-purple-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+
+                                        {/* Additional Costs List */}
+                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                                <div className="flex items-center justify-between">
+                                                    <CardTitle className="flex items-center gap-3 text-lg">
+                                                        <DollarSign className="h-5 w-5 text-orange-600" />
+                                                        {t("Additional Costs List")}
+                                                        <Badge variant="secondary" className="ml-auto">
+                                                            {(additionalCosts || []).length} {t("costs")}
+                                                        </Badge>
+                                                    </CardTitle>
+                                                    <Link href={route('admin.purchases.additional-costs.create', purchase.id)}>
+                                                        <Button className="gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                                            <Plus className="h-4 w-4" />
+                                                            {t("Add Cost")}
+                                                        </Button>
+                                                    </Link>
+                                                </div>
                                             </CardHeader>
-                                            <CardContent>
-                                                <div className="text-center py-8">
-                                                    <p className="text-slate-600 dark:text-slate-400">
-                                                        {t("Additional costs management will be available in a future update")}
-                                                    </p>
+                                            <CardContent className="p-0">
+                                                <div className="overflow-x-auto">
+                                                    <Table>
+                                                        <TableHeader>
+                                                            <TableRow>
+                                                                <TableHead>{t("Name")}</TableHead>
+                                                                <TableHead>{t("Amount")}</TableHead>
+                                                                <TableHead>{t("Date Added")}</TableHead>
+                                                                <TableHead>{t("Actions")}</TableHead>
+                                                            </TableRow>
+                                                        </TableHeader>
+                                                        <TableBody>
+                                                            {(additionalCosts || []).length > 0 ? (
+                                                                (additionalCosts || []).map((cost) => (
+                                                                    <TableRow key={cost.id} className="hover:bg-orange-50/50 dark:hover:bg-orange-900/10">
+                                                                        <TableCell>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                                                                                    <Receipt className="h-5 w-5 text-slate-500" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="font-semibold">{cost.name}</p>
+                                                                                    <p className="text-xs text-slate-500">ID: {cost.id}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell className="font-bold text-red-600 font-mono">{formatCurrency(cost.amount)}</TableCell>
+                                                                        <TableCell className="text-sm text-slate-500">
+                                                                            {new Date(cost.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Button 
+                                                                                    size="icon" 
+                                                                                    variant="ghost" 
+                                                                                    onClick={() => {
+                                                                                        if (confirm(t('Are you sure you want to delete this additional cost?'))) {
+                                                                                            router.delete(route('admin.purchases.additional-costs.destroy', [purchase.id, cost.id]));
+                                                                                        }
+                                                                                    }} 
+                                                                                    className="h-8 w-8 hover:bg-red-100"
+                                                                                >
+                                                                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                                                                </Button>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                ))
+                                                            ) : (
+                                                                <TableRow>
+                                                                    <TableCell colSpan="4" className="h-48 text-center">
+                                                                        <div className="flex flex-col items-center gap-4">
+                                                                            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                                                <DollarSign className="h-8 w-8 text-slate-400" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="font-medium">{t("This purchase has no additional costs yet")}</p>
+                                                                                <p className="text-sm text-slate-500">{t("Click the button below to add the first additional cost.")}</p>
+                                                                            </div>
+                                                                            <Link href={route('admin.purchases.additional-costs.create', purchase.id)}>
+                                                                                <Button className="gap-2 mt-2">
+                                                                                    <Plus className="h-4 w-4" />
+                                                                                    {t("Add First Cost")}
+                                                                                </Button>
+                                                                            </Link>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            )}
+                                                        </TableBody>
+                                                    </Table>
                                                 </div>
                                             </CardContent>
                                         </Card>

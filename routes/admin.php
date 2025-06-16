@@ -271,5 +271,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{purchase:id}/items/create', [PurchaseController::class, 'createItem'])->name('admin.purchases.items.create');
         Route::post('/{purchase:id}/items', [PurchaseController::class, 'storeItem'])->name('admin.purchases.items.store');
         Route::delete('/{purchase:id}/items/{item:id}', [PurchaseController::class, 'destroyItem'])->name('admin.purchases.items.destroy');
+
+        // Purchase Additional Costs Management
+        Route::get('/{purchase:id}/additional-costs/create', [PurchaseController::class, 'createAdditionalCost'])->name('admin.purchases.additional-costs.create');
+        Route::post('/{purchase:id}/additional-costs', [PurchaseController::class, 'storeAdditionalCost'])->name('admin.purchases.additional-costs.store');
+        Route::delete('/{purchase:id}/additional-costs/{cost:id}', [PurchaseController::class, 'destroyAdditionalCost'])->name('admin.purchases.additional-costs.destroy');
+
+        // Purchase Payments Management
+        Route::get('/{purchase:id}/payments/create', [PurchaseController::class, 'createPayment'])->name('admin.purchases.payments.create');
+        Route::post('/{purchase:id}/payments', [PurchaseController::class, 'storePayment'])->name('admin.purchases.payments.store');
+        Route::delete('/{purchase:id}/payments/{payment:id}', [PurchaseController::class, 'destroyPayment'])->name('admin.purchases.payments.destroy');
     });
 });
