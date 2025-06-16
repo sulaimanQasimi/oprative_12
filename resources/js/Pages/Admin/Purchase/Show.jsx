@@ -51,11 +51,14 @@ import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Show({ auth, purchase, purchaseItems, additionalCosts, payments }) {
+export default function Show({ auth, purchase, purchaseItems, additionalCosts, payments, warehouses }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [activeTab, setActiveTab] = useState("overview");
+    const [selectedWarehouse, setSelectedWarehouse] = useState("");
+    const [warehouseTransferLoading, setWarehouseTransferLoading] = useState(false);
+    const [transferNotes, setTransferNotes] = useState("");
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -107,8 +110,29 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
         }
     };
 
+    const handleWarehouseTransfer = () => {
+        if (!selectedWarehouse) {
+            alert(t('Please select a warehouse'));
+            return;
+        }
+
+        if (confirm(t('Are you sure you want to transfer all items to the selected warehouse? This action cannot be undone.'))) {
+            setWarehouseTransferLoading(true);
+            router.post(route('admin.purchases.warehouse-transfer.store', purchase.id), {
+                warehouse_id: selectedWarehouse,
+                notes: transferNotes,
+            }, {
+                onFinish: () => setWarehouseTransferLoading(false),
+                onError: () => setWarehouseTransferLoading(false),
+            });
+        }
+    };
+
     const getTotalAmount = () => (purchaseItems || []).reduce((sum, item) => sum + parseFloat(item.total_price || 0), 0);
     const getTotalQuantity = () => (purchaseItems || []).reduce((sum, item) => sum + parseFloat(item.quantity || 0), 0);
+
+    // Check if warehouse tab should be shown
+    const showWarehouseTab = purchase.status === 'arrived' && !purchase.is_moved_to_warehouse;
 
     return (
         <>
@@ -388,7 +412,7 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
 
                                 {/* Tabs for Items, Payments, Additional Costs */}
                                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                                    <TabsList className="grid w-full grid-cols-4 h-14 p-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-2 border-slate-200 dark:border-slate-700">
+                                    <TabsList className={`grid w-full ${showWarehouseTab ? 'grid-cols-5' : 'grid-cols-4'} h-14 p-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-2 border-slate-200 dark:border-slate-700`}>
                                         <TabsTrigger value="overview" className="h-12 text-sm font-semibold">
                                             {t("Overview")}
                                         </TabsTrigger>
@@ -401,6 +425,11 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                         <TabsTrigger value="costs" className="h-12 text-sm font-semibold">
                                             {t("Additional Costs")}
                                         </TabsTrigger>
+                                        {showWarehouseTab && (
+                                            <TabsTrigger value="warehouse" className="h-12 text-sm font-semibold">
+                                                {t("Warehouse")}
+                                            </TabsTrigger>
+                                        )}
                                     </TabsList>
 
                                     <TabsContent value="overview" className="space-y-6">
@@ -1109,6 +1138,195 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                             </CardContent>
                                         </Card>
                                     </TabsContent>
+
+                                    {showWarehouseTab && (
+                                        <TabsContent value="warehouse" className="space-y-6">
+                                            {/* Warehouse Transfer Section */}
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                                    <CardTitle className="flex items-center gap-3 text-xl">
+                                                        <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
+                                                            <Building2 className="h-6 w-6 text-white" />
+                                                        </div>
+                                                        {t("Transfer to Warehouse")}
+                                                        <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700">
+                                                            {t("Ready for Transfer")}
+                                                        </Badge>
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-8">
+                                                    <div className="space-y-6">
+                                                        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 border border-blue-200 dark:border-blue-800">
+                                                            <div className="flex items-start gap-4">
+                                                                <div className="p-2 bg-blue-500 rounded-lg">
+                                                                    <AlertCircle className="h-5 w-5 text-white" />
+                                                                </div>
+                                                                <div>
+                                                                    <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                                                                        {t("Ready for Warehouse Transfer")}
+                                                                    </h3>
+                                                                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                                                                        {t("This purchase has arrived and is ready to be transferred to a warehouse. All items will be added to the selected warehouse inventory as incoming stock.")}
+                                                                    </p>
+                                                                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
+                                                                        <strong>{t("Items to transfer:")}</strong> {(purchaseItems || []).length} {t("items")} • 
+                                                                        <strong className="ml-2">{t("Total quantity:")}</strong> {getTotalQuantity().toLocaleString()} {t("units")}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                            {/* Warehouse Selection */}
+                                                            <div className="space-y-4">
+                                                                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                                                    <Building2 className="h-5 w-5 text-indigo-600" />
+                                                                    {t("Select Destination Warehouse")}
+                                                                </h3>
+                                                                
+                                                                <div className="space-y-3">
+                                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                                        {t("Warehouse")} <span className="text-red-500">*</span>
+                                                                    </label>
+                                                                    <select
+                                                                        value={selectedWarehouse}
+                                                                        onChange={(e) => setSelectedWarehouse(e.target.value)}
+                                                                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                                                        disabled={warehouseTransferLoading}
+                                                                    >
+                                                                        <option value="">{t("Choose a warehouse...")}</option>
+                                                                        {(warehouses || []).map((warehouse) => (
+                                                                            <option key={warehouse.id} value={warehouse.id}>
+                                                                                {warehouse.name} ({warehouse.code})
+                                                                            </option>
+                                                                        ))}
+                                                                    </select>
+                                                                </div>
+
+                                                                <div className="space-y-3">
+                                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                                        {t("Transfer Notes")} <span className="text-slate-400">({t("Optional")})</span>
+                                                                    </label>
+                                                                    <textarea
+                                                                        value={transferNotes}
+                                                                        onChange={(e) => setTransferNotes(e.target.value)}
+                                                                        rows={3}
+                                                                        className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors resize-none"
+                                                                        placeholder={t("Add any notes about this transfer...")}
+                                                                        disabled={warehouseTransferLoading}
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Transfer Summary */}
+                                                            <div className="space-y-4">
+                                                                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                                                    <Package className="h-5 w-5 text-green-600" />
+                                                                    {t("Transfer Summary")}
+                                                                </h3>
+                                                                
+                                                                <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-6">
+                                                                    <div className="space-y-4">
+                                                                        <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                                                            <span className="text-slate-600 dark:text-slate-400">{t("Purchase Invoice")}</span>
+                                                                            <span className="font-semibold font-mono">{purchase.invoice_number}</span>
+                                                                        </div>
+                                                                        <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                                                            <span className="text-slate-600 dark:text-slate-400">{t("Total Items")}</span>
+                                                                            <span className="font-semibold">{(purchaseItems || []).length} {t("items")}</span>
+                                                                        </div>
+                                                                        <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                                                            <span className="text-slate-600 dark:text-slate-400">{t("Total Quantity")}</span>
+                                                                            <span className="font-semibold">{getTotalQuantity().toLocaleString()} {t("units")}</span>
+                                                                        </div>
+                                                                        <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                                                            <span className="text-slate-600 dark:text-slate-400">{t("Items Value")}</span>
+                                                                            <span className="font-semibold font-mono">{formatCurrency(getTotalAmount())}</span>
+                                                                        </div>
+                                                                        <div className="flex justify-between items-center py-3 bg-slate-100 dark:bg-slate-800 rounded-lg px-4">
+                                                                            <span className="text-lg font-semibold text-slate-800 dark:text-slate-200">{t("Status")}</span>
+                                                                            <Badge className="bg-green-100 text-green-700">
+                                                                                {t("Ready for Transfer")}
+                                                                            </Badge>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Transfer Action */}
+                                                        <div className="flex justify-center pt-6 border-t border-slate-200 dark:border-slate-700">
+                                                            <Button
+                                                                onClick={handleWarehouseTransfer}
+                                                                disabled={!selectedWarehouse || warehouseTransferLoading}
+                                                                className="gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transition-all duration-200 text-lg font-semibold"
+                                                            >
+                                                                {warehouseTransferLoading ? (
+                                                                    <>
+                                                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                                        {t("Transferring...")}
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <Building2 className="h-5 w-5" />
+                                                                        {t("Transfer to Warehouse")}
+                                                                    </>
+                                                                )}
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {/* Items Preview */}
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                                    <CardTitle className="flex items-center gap-3 text-lg">
+                                                        <Package className="h-5 w-5 text-green-600" />
+                                                        {t("Items to Transfer")}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-0">
+                                                    <div className="overflow-x-auto">
+                                                        <Table>
+                                                            <TableHeader>
+                                                                <TableRow>
+                                                                    <TableHead>{t("Product")}</TableHead>
+                                                                    <TableHead>{t("Quantity")}</TableHead>
+                                                                    <TableHead>{t("Unit Price")}</TableHead>
+                                                                    <TableHead>{t("Total Value")}</TableHead>
+                                                                </TableRow>
+                                                            </TableHeader>
+                                                            <TableBody>
+                                                                {(purchaseItems || []).map((item) => (
+                                                                    <TableRow key={item.id} className="hover:bg-green-50/50 dark:hover:bg-green-900/10">
+                                                                        <TableCell>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                                                                                    <Package className="h-4 w-4 text-slate-500" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="font-semibold">{item.product?.name || 'N/A'}</p>
+                                                                                    <p className="text-xs text-slate-500">{item.product?.barcode}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <Badge variant="secondary" className="font-mono text-xs">
+                                                                                {parseFloat(item.quantity).toLocaleString()} {t("units")}
+                                                                            </Badge>
+                                                                        </TableCell>
+                                                                        <TableCell className="font-mono">{formatCurrency(item.price)}</TableCell>
+                                                                        <TableCell className="font-bold text-green-600 font-mono">{formatCurrency(item.total_price)}</TableCell>
+                                                                    </TableRow>
+                                                                ))}
+                                                            </TableBody>
+                                                        </Table>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </TabsContent>
+                                    )}
                                 </Tabs>
                             </motion.div>
                         </div>

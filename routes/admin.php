@@ -281,5 +281,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{purchase:id}/payments/create', [PurchaseController::class, 'createPayment'])->name('admin.purchases.payments.create');
         Route::post('/{purchase:id}/payments', [PurchaseController::class, 'storePayment'])->name('admin.purchases.payments.store');
         Route::delete('/{purchase:id}/payments/{payment:id}', [PurchaseController::class, 'destroyPayment'])->name('admin.purchases.payments.destroy');
+
+        // Purchase Warehouse Transfer Management
+        Route::get('/{purchase:id}/warehouse-transfer', [PurchaseController::class, 'warehouseTransfer'])->name('admin.purchases.warehouse-transfer');
+        Route::post('/{purchase:id}/warehouse-transfer', [PurchaseController::class, 'storeWarehouseTransfer'])->name('admin.purchases.warehouse-transfer.store');
     });
 });

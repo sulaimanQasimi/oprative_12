@@ -147,6 +147,7 @@ class PurchaseController extends Controller
                 'supplier',
                 'currency',
                 'user',
+                'warehouse',
                 'purchaseItems.product.wholesaleUnit',
                 'purchaseItems.product.retailUnit',
                 'payments.supplier',
@@ -162,6 +163,12 @@ class PurchaseController extends Controller
             $paidAmount = $purchase->payments->sum('amount');
             $dueAmount = $totalAmount - $paidAmount;
 
+            // Get warehouses for transfer (only active warehouses)
+            $warehouses = \App\Models\Warehouse::select('id', 'name', 'code')
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get();
+
             return Inertia::render('Admin/Purchase/Show', [
                 'purchase' => [
                     'id' => $purchase->id,
@@ -169,9 +176,12 @@ class PurchaseController extends Controller
                     'invoice_date' => $purchase->invoice_date,
                     'status' => $purchase->status,
                     'currency_rate' => $purchase->currency_rate,
+                    'warehouse_id' => $purchase->warehouse_id,
+                    'is_moved_to_warehouse' => $purchase->is_moved_to_warehouse,
                     'supplier' => $purchase->supplier,
                     'currency' => $purchase->currency,
                     'user' => $purchase->user,
+                    'warehouse' => $purchase->warehouse,
                     'items_total' => $itemsTotal,
                     'additional_costs_total' => $additionalCostsTotal,
                     'total_amount' => $totalAmount,
@@ -183,6 +193,7 @@ class PurchaseController extends Controller
                 'purchaseItems' => $purchase->purchaseItems,
                 'payments' => $purchase->payments,
                 'additionalCosts' => $purchase->additional_costs,
+                'warehouses' => $warehouses,
                 'auth' => [
                     'user' => Auth::guard('web')->user()
                 ]
@@ -199,6 +210,12 @@ class PurchaseController extends Controller
      */
     public function edit(Purchase $purchase)
     {
+        // Prevent editing if purchase is moved to warehouse
+        if ($purchase->status === 'warehouse_moved') {
+            return redirect()->route('admin.purchases.show', $purchase->id)
+                ->with('error', 'Cannot edit purchase that has been moved to warehouse.');
+        }
+
         $suppliers = Supplier::select('id', 'name')->orderBy('name')->get();
         $currencies = Currency::select('id', 'name', 'code')->orderBy('name')->get();
 
@@ -225,6 +242,12 @@ class PurchaseController extends Controller
      */
     public function update(Request $request, Purchase $purchase)
     {
+        // Prevent updating if purchase is moved to warehouse
+        if ($purchase->status === 'warehouse_moved') {
+            return redirect()->route('admin.purchases.show', $purchase->id)
+                ->with('error', 'Cannot update purchase that has been moved to warehouse.');
+        }
+
         $validated = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'currency_id' => 'required|exists:currencies,id',
@@ -573,6 +596,113 @@ class PurchaseController extends Controller
             Log::error('Error deleting payment: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Error deleting payment: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Show warehouse transfer form.
+     */
+    public function warehouseTransfer(Purchase $purchase)
+    {
+        // Only allow warehouse transfer for arrived purchases
+        if ($purchase->status !== 'arrived') {
+            return redirect()->back()
+                ->with('error', 'Warehouse transfer is only available for arrived purchases.');
+        }
+
+        // Check if already moved to warehouse
+        if ($purchase->is_moved_to_warehouse) {
+            return redirect()->back()
+                ->with('error', 'This purchase has already been moved to warehouse.');
+        }
+
+        $warehouses = \App\Models\Warehouse::select('id', 'name', 'code')->where('is_active', true)->orderBy('name')->get();
+
+        return Inertia::render('Admin/Purchase/WarehouseTransfer', [
+            'purchase' => [
+                'id' => $purchase->id,
+                'invoice_number' => $purchase->invoice_number,
+                'invoice_date' => $purchase->invoice_date,
+                'status' => $purchase->status,
+                'supplier' => $purchase->supplier,
+                'currency' => $purchase->currency,
+                'is_moved_to_warehouse' => $purchase->is_moved_to_warehouse,
+            ],
+            'warehouses' => $warehouses,
+            'auth' => [
+                'user' => Auth::guard('web')->user()
+            ]
+        ]);
+    }
+
+    /**
+     * Store warehouse transfer.
+     */
+    public function storeWarehouseTransfer(Request $request, Purchase $purchase)
+    {
+        try {
+            // Only allow warehouse transfer for arrived purchases
+            if ($purchase->status !== 'arrived') {
+                return redirect()->back()
+                    ->with('error', 'Warehouse transfer is only available for arrived purchases.');
+            }
+
+            // Check if already moved to warehouse
+            if ($purchase->is_moved_to_warehouse) {
+                return redirect()->back()
+                    ->with('error', 'This purchase has already been moved to warehouse.');
+            }
+
+            $validated = $request->validate([
+                'warehouse_id' => 'required|exists:warehouses,id',
+                'notes' => 'nullable|string|max:1000',
+            ]);
+
+            DB::beginTransaction();
+
+            // Load purchase items
+            $purchase->load('purchaseItems.product');
+
+            // Check if purchase has items
+            if ($purchase->purchaseItems->count() === 0) {
+                return redirect()->back()
+                    ->with('error', 'Cannot transfer purchase with no items to warehouse.');
+            }
+
+            // Generate reference number for warehouse income
+            $referenceNumber = 'PUR-' . $purchase->invoice_number . '-WH-' . date('Y-m-d-H-i-s');
+
+            // Create warehouse income records for each purchase item
+            foreach ($purchase->purchaseItems as $item) {
+                \App\Models\WarehouseIncome::create([
+                    'reference_number' => $referenceNumber,
+                    'warehouse_id' => $validated['warehouse_id'],
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'total' => $item->total_price,
+                    'model_type' => 'App\\Models\\Purchase',
+                    'model_id' => $purchase->id,
+                ]);
+            }
+
+            // Update purchase status and warehouse assignment
+            $purchase->update([
+                'warehouse_id' => $validated['warehouse_id'],
+                'is_moved_to_warehouse' => true,
+                'status' => 'warehouse_moved'
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.purchases.show', $purchase->id)
+                ->with('success', 'Purchase items successfully transferred to warehouse.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error transferring purchase to warehouse: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Error transferring purchase to warehouse: ' . $e->getMessage()]);
         }
     }
 }
