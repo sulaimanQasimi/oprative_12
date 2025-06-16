@@ -22,7 +22,8 @@ import {
     User,
     Hash,
     Receipt,
-    Calculator
+    Calculator,
+    AlertCircle
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -403,18 +404,237 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                     </TabsList>
 
                                     <TabsContent value="overview" className="space-y-6">
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardHeader>
-                                                <CardTitle className="flex items-center gap-3">
-                                                    <Package className="h-5 w-5 text-green-600" />
-                                                    {t("Purchase Summary")}
+                                        {/* Financial Overview */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Items Value")}</p>
+                                                        <p className="text-2xl font-bold text-green-600">{formatCurrency(getTotalAmount())}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{(purchaseItems || []).length} {t("items")}</p>
+                                                    </div>
+                                                    <div className="p-3 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-900/50 rounded-xl">
+                                                        <Package className="h-6 w-6 text-green-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Additional Costs")}</p>
+                                                        <p className="text-2xl font-bold text-orange-600">{formatCurrency((additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0))}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{(additionalCosts || []).length} {t("costs")}</p>
+                                                    </div>
+                                                    <div className="p-3 bg-gradient-to-br from-orange-100 to-orange-200 dark:from-orange-900/30 dark:to-orange-900/50 rounded-xl">
+                                                        <Receipt className="h-6 w-6 text-orange-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Total Paid")}</p>
+                                                        <p className="text-2xl font-bold text-blue-600">{formatCurrency((payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0))}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{(payments || []).length} {t("payments")}</p>
+                                                    </div>
+                                                    <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/50 rounded-xl">
+                                                        <CreditCard className="h-6 w-6 text-blue-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Balance Due")}</p>
+                                                        <p className={`text-2xl font-bold ${
+                                                            (getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)) > 0 
+                                                            ? 'text-red-600' 
+                                                            : 'text-emerald-600'
+                                                        }`}>
+                                                            {formatCurrency(getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0))}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {(getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)) > 0 
+                                                                ? t("Outstanding") 
+                                                                : t("Paid in Full")
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                    <div className={`p-3 rounded-xl ${
+                                                        (getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)) > 0 
+                                                        ? 'bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-900/50' 
+                                                        : 'bg-gradient-to-br from-emerald-100 to-emerald-200 dark:from-emerald-900/30 dark:to-emerald-900/50'
+                                                    }`}>
+                                                        <DollarSign className={`h-6 w-6 ${
+                                                            (getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)) > 0 
+                                                            ? 'text-red-600' 
+                                                            : 'text-emerald-600'
+                                                        }`} />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+
+                                        {/* Detailed Financial Breakdown */}
+                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                                <CardTitle className="flex items-center gap-3 text-xl">
+                                                    <Calculator className="h-6 w-6 text-indigo-600" />
+                                                    {t("Financial Breakdown")}
                                                 </CardTitle>
                                             </CardHeader>
-                                            <CardContent>
-                                                <div className="text-center py-8">
-                                                    <p className="text-slate-600 dark:text-slate-400">
-                                                        {t("Use the tabs above to view items, payments, and additional costs")}
-                                                    </p>
+                                            <CardContent className="p-6">
+                                                <div className="space-y-6">
+                                                    {/* Purchase Calculation */}
+                                                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-6">
+                                                        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                                                            <Hash className="h-5 w-5 text-indigo-600" />
+                                                            {t("Purchase Calculation")}
+                                                        </h3>
+                                                        <div className="space-y-3">
+                                                            <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                                                <span className="text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                                                                    <Package className="h-4 w-4" />
+                                                                    {t("Items Subtotal")} ({(purchaseItems || []).length} {t("items")})
+                                                                </span>
+                                                                <span className="font-semibold font-mono">{formatCurrency(getTotalAmount())}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                                                <span className="text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                                                                    <Receipt className="h-4 w-4" />
+                                                                    {t("Additional Costs")} ({(additionalCosts || []).length} {t("costs")})
+                                                                </span>
+                                                                <span className="font-semibold font-mono text-orange-600">+ {formatCurrency((additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0))}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center py-3 bg-slate-100 dark:bg-slate-800 rounded-lg px-4">
+                                                                <span className="text-lg font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                                                    <DollarSign className="h-5 w-5" />
+                                                                    {t("Total Purchase Amount")}
+                                                                </span>
+                                                                <span className="text-xl font-bold text-slate-800 dark:text-slate-200 font-mono">
+                                                                    {formatCurrency(getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0))}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Payment Status */}
+                                                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-6">
+                                                        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                                                            <CreditCard className="h-5 w-5 text-blue-600" />
+                                                            {t("Payment Status")}
+                                                        </h3>
+                                                        <div className="space-y-3">
+                                                            <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                                                <span className="text-slate-600 dark:text-slate-400">
+                                                                    {t("Total Amount Due")}
+                                                                </span>
+                                                                <span className="font-semibold font-mono">
+                                                                    {formatCurrency(getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0))}
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
+                                                                <span className="text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                                                                    <CreditCard className="h-4 w-4" />
+                                                                    {t("Total Paid")} ({(payments || []).length} {t("payments")})
+                                                                </span>
+                                                                <span className="font-semibold font-mono text-blue-600">- {formatCurrency((payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0))}</span>
+                                                            </div>
+                                                            <div className={`flex justify-between items-center py-3 rounded-lg px-4 ${
+                                                                (getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)) > 0 
+                                                                ? 'bg-red-50 dark:bg-red-900/20' 
+                                                                : 'bg-emerald-50 dark:bg-emerald-900/20'
+                                                            }`}>
+                                                                <span className={`text-lg font-semibold flex items-center gap-2 ${
+                                                                    (getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)) > 0 
+                                                                    ? 'text-red-700 dark:text-red-300' 
+                                                                    : 'text-emerald-700 dark:text-emerald-300'
+                                                                }`}>
+                                                                    {(getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)) > 0 ? (
+                                                                        <AlertCircle className="h-5 w-5" />
+                                                                    ) : (
+                                                                        <CheckCircle className="h-5 w-5" />
+                                                                    )}
+                                                                    {(getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)) > 0 
+                                                                        ? t("Remaining Balance") 
+                                                                        : t("Fully Paid")
+                                                                    }
+                                                                </span>
+                                                                <span className={`text-xl font-bold font-mono ${
+                                                                    (getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)) > 0 
+                                                                    ? 'text-red-700 dark:text-red-300' 
+                                                                    : 'text-emerald-700 dark:text-emerald-300'
+                                                                }`}>
+                                                                    {formatCurrency(Math.abs(getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0) - (payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0)))}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Payment Progress */}
+                                                    <div className="bg-slate-50 dark:bg-slate-900/50 rounded-lg p-6">
+                                                        <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                                                            <Hash className="h-5 w-5 text-purple-600" />
+                                                            {t("Payment Progress")}
+                                                        </h3>
+                                                        <div className="space-y-4">
+                                                            <div className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
+                                                                <span>{t("Payment Completion")}</span>
+                                                                <span>
+                                                                    {(getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0)) > 0 
+                                                                        ? Math.round(((payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0) / (getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0))) * 100)
+                                                                        : 100
+                                                                    }%
+                                                                </span>
+                                                            </div>
+                                                            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3">
+                                                                <div 
+                                                                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-500"
+                                                                    style={{ 
+                                                                        width: `${(getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0)) > 0 
+                                                                            ? Math.min(((payments || []).reduce((sum, payment) => sum + parseFloat(payment.amount || 0), 0) / (getTotalAmount() + (additionalCosts || []).reduce((sum, cost) => sum + parseFloat(cost.amount || 0), 0))) * 100, 100)
+                                                                            : 100
+                                                                        }%` 
+                                                                    }}
+                                                                ></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        {/* Quick Actions */}
+                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                                <CardTitle className="flex items-center gap-3 text-xl">
+                                                    <Sparkles className="h-6 w-6 text-purple-600" />
+                                                    {t("Quick Actions")}
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-6">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                    <Link href={route('admin.purchases.items.create', purchase.id)}>
+                                                        <Button className="w-full gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                                            <Package className="h-4 w-4" />
+                                                            {t("Add Item")}
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href={route('admin.purchases.payments.create', purchase.id)}>
+                                                        <Button className="w-full gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                                            <CreditCard className="h-4 w-4" />
+                                                            {t("Add Payment")}
+                                                        </Button>
+                                                    </Link>
+                                                    <Link href={route('admin.purchases.additional-costs.create', purchase.id)}>
+                                                        <Button className="w-full gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                                            <Receipt className="h-4 w-4" />
+                                                            {t("Add Cost")}
+                                                        </Button>
+                                                    </Link>
                                                 </div>
                                             </CardContent>
                                         </Card>
