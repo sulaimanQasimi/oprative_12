@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     ArrowLeft,
@@ -19,7 +19,8 @@ import {
     Plus,
     Eye,
     Sparkles,
-    User
+    User,
+    Hash
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -34,12 +35,20 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/Components/ui/tabs";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
 import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Show({ auth, purchase }) {
+export default function Show({ auth, purchase, purchaseItems }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -88,6 +97,15 @@ export default function Show({ auth, purchase }) {
             </Badge>
         );
     };
+
+    const handleDeleteItem = (itemId) => {
+        if (confirm(t('Are you sure you want to delete this item?'))) {
+            router.delete(route('admin.purchases.items.destroy', [purchase.id, itemId]));
+        }
+    };
+
+    const getTotalAmount = () => (purchaseItems || []).reduce((sum, item) => sum + parseFloat(item.total_price || 0), 0);
+    const getTotalQuantity = () => (purchaseItems || []).reduce((sum, item) => sum + parseFloat(item.quantity || 0), 0);
 
     return (
         <>
@@ -401,28 +419,173 @@ export default function Show({ auth, purchase }) {
                                     </TabsContent>
 
                                     <TabsContent value="items" className="space-y-6">
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardHeader className="flex flex-row items-center justify-between">
-                                                <CardTitle className="flex items-center gap-3">
-                                                    <Package className="h-5 w-5 text-green-600" />
-                                                    {t("Purchase Items")}
-                                                </CardTitle>
-                                                <Link href={route('admin.purchases.items', purchase.id)}>
-                                                    <Button className="gap-2">
-                                                        <Plus className="h-4 w-4" />
-                                                        {t("Manage Items")}
-                                                    </Button>
-                                                </Link>
+                                        {/* Items Summary Cards */}
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Total Items")}</p>
+                                                        <p className="text-3xl font-bold text-green-600">{(purchaseItems || []).length}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{t("Products")}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-green-200 dark:from-green-900/30 dark:to-green-900/50 rounded-2xl">
+                                                        <Package className="h-8 w-8 text-green-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Total Quantity")}</p>
+                                                        <p className="text-3xl font-bold text-blue-600">{getTotalQuantity().toLocaleString()}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{t("Units Ordered")}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/50 rounded-2xl">
+                                                        <Hash className="h-8 w-8 text-blue-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardContent className="p-6 flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">{t("Total Amount")}</p>
+                                                        <p className="text-3xl font-bold text-purple-600">{formatCurrency(getTotalAmount())}</p>
+                                                        <p className="text-xs text-slate-500 mt-1">{t("Purchase Value")}</p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-purple-200 dark:from-purple-900/30 dark:to-purple-900/50 rounded-2xl">
+                                                        <DollarSign className="h-8 w-8 text-purple-600" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+
+                                        {/* Items List */}
+                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                                <div className="flex items-center justify-between">
+                                                    <CardTitle className="flex items-center gap-3 text-lg">
+                                                        <Package className="h-5 w-5 text-green-600" />
+                                                        {t("Purchase Items List")}
+                                                        <Badge variant="secondary" className="ml-auto">
+                                                            {(purchaseItems || []).length} {t("items")}
+                                                        </Badge>
+                                                    </CardTitle>
+                                                    <Link href={route('admin.purchases.items.create', purchase.id)}>
+                                                        <Button className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                                            <Plus className="h-4 w-4" />
+                                                            {t("Add Item")}
+                                                        </Button>
+                                                    </Link>
+                                                </div>
                                             </CardHeader>
-                                            <CardContent>
-                                                <div className="text-center py-8">
-                                                    <p className="text-slate-600 dark:text-slate-400">
-                                                        {t("Purchase items will be displayed here")}
-                                                    </p>
+                                            <CardContent className="p-0">
+                                                <div className="overflow-x-auto">
+                                                    <Table>
+                                                        <TableHeader>
+                                                            <TableRow>
+                                                                <TableHead>{t("Product")}</TableHead>
+                                                                <TableHead>{t("Input Qty")}</TableHead>
+                                                                <TableHead>{t("Unit Type")}</TableHead>
+                                                                <TableHead>{t("Unit Price")}</TableHead>
+                                                                <TableHead>{t("Total Price")}</TableHead>
+                                                                <TableHead>{t("Actual Qty (DB)")}</TableHead>
+                                                                <TableHead>{t("Date Added")}</TableHead>
+                                                                <TableHead>{t("Actions")}</TableHead>
+                                                            </TableRow>
+                                                        </TableHeader>
+                                                        <TableBody>
+                                                            {(purchaseItems || []).length > 0 ? (
+                                                                purchaseItems.map((item) => (
+                                                                    <TableRow key={item.id} className="hover:bg-green-50/50 dark:hover:bg-green-900/10">
+                                                                        <TableCell>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                                                                                    <Package className="h-5 w-5 text-slate-500" />
+                                                                                </div>
+                                                                                <div>
+                                                                                    <p className="font-semibold">{item.product?.name || 'N/A'}</p>
+                                                                                    <p className="text-xs text-slate-500">{item.product?.barcode}</p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="space-y-1">
+                                                                                <Badge variant="secondary" className="font-mono text-xs">
+                                                                                    {(() => {
+                                                                                        const product = item.product;
+                                                                                        if (item.unit_type === 'wholesale' && product?.whole_sale_unit_amount > 0) {
+                                                                                            return (parseFloat(item.quantity) / product.whole_sale_unit_amount).toFixed(2);
+                                                                                        } else if (item.unit_type === 'retail' && product?.retails_sale_unit_amount > 0) {
+                                                                                            return (parseFloat(item.quantity) / product.retails_sale_unit_amount).toFixed(2);
+                                                                                        }
+                                                                                        return parseFloat(item.quantity).toLocaleString();
+                                                                                    })()}
+                                                                                </Badge>
+                                                                                <div className="text-xs text-slate-500">
+                                                                                    {item.unit_type ? `${item.unit_type} units` : 'units'}
+                                                                                </div>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <Badge variant="outline" className={`${item.unit_type === 'wholesale' ? 'border-orange-300 text-orange-700 bg-orange-50 dark:bg-orange-900/30' : 'border-blue-300 text-blue-700 bg-blue-50 dark:bg-blue-900/30'}`}>
+                                                                                {item.unit_type ? t(item.unit_type.charAt(0).toUpperCase() + item.unit_type.slice(1)) : '-'}
+                                                                            </Badge>
+                                                                        </TableCell>
+                                                                        <TableCell className="font-mono">{formatCurrency(item.price)}</TableCell>
+                                                                        <TableCell className="font-bold text-green-600 font-mono">{formatCurrency(item.total_price)}</TableCell>
+                                                                        <TableCell>
+                                                                            <Badge variant="secondary" className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 font-mono">
+                                                                                {parseFloat(item.quantity).toLocaleString()}
+                                                                            </Badge>
+                                                                        </TableCell>
+                                                                        <TableCell className="text-sm text-slate-500">
+                                                                            {new Date(item.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Link href={route('admin.purchases.items.edit', [purchase.id, item.id])}>
+                                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-green-100">
+                                                                                        <Edit className="h-4 w-4 text-green-600" />
+                                                                                    </Button>
+                                                                                </Link>
+                                                                                <Button size="icon" variant="ghost" onClick={() => handleDeleteItem(item.id)} className="h-8 w-8 hover:bg-red-100">
+                                                                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                                                                </Button>
+                                                                            </div>
+                                                                        </TableCell>
+                                                                    </TableRow>
+                                                                ))
+                                                            ) : (
+                                                                <TableRow>
+                                                                    <TableCell colSpan="8" className="h-48 text-center">
+                                                                        <div className="flex flex-col items-center gap-4">
+                                                                            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                                                <Package className="h-8 w-8 text-slate-400" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="font-medium">{t("This purchase has no items yet")}</p>
+                                                                                <p className="text-sm text-slate-500">{t("Click the button below to add the first item.")}</p>
+                                                                            </div>
+                                                                            <Link href={route('admin.purchases.items.create', purchase.id)}>
+                                                                                <Button className="gap-2 mt-2">
+                                                                                    <Plus className="h-4 w-4" />
+                                                                                    {t("Add First Item")}
+                                                                                </Button>
+                                                                            </Link>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            )}
+                                                        </TableBody>
+                                                    </Table>
                                                 </div>
                                             </CardContent>
                                         </Card>
                                     </TabsContent>
+
+
 
                                     <TabsContent value="payments" className="space-y-6">
                                         <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
@@ -467,4 +630,4 @@ export default function Show({ auth, purchase }) {
             </motion.div>
         </>
     );
-} 
+}

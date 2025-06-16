@@ -203,7 +203,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{warehouse:id}/import/create', [WarehouseController::class, 'createIncome'])->name('admin.warehouses.income.create');
         Route::post('/{warehouse:id}/import', [WarehouseController::class, 'storeIncome'])->name('admin.warehouses.income.store');
 
-        // Warehouse export management  
+        // Warehouse export management
         Route::get('/{warehouse:id}/export', [WarehouseController::class, 'outcome'])->name('admin.warehouses.outcome');
         Route::get('/{warehouse:id}/export/create', [WarehouseController::class, 'createOutcome'])->name('admin.warehouses.outcome.create');
         Route::post('/{warehouse:id}/export', [WarehouseController::class, 'storeOutcome'])->name('admin.warehouses.outcome.store');
@@ -268,8 +268,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Purchase Items Management
         Route::get('/{purchase:id}/items', [PurchaseController::class, 'items'])->name('admin.purchases.items');
+        Route::get('/{purchase:id}/items/create', [PurchaseController::class, 'createItem'])->name('admin.purchases.items.create');
         Route::post('/{purchase:id}/items', [PurchaseController::class, 'storeItem'])->name('admin.purchases.items.store');
-        Route::put('/{purchase:id}/items/{item:id}', [PurchaseController::class, 'updateItem'])->name('admin.purchases.items.update');
         Route::delete('/{purchase:id}/items/{item:id}', [PurchaseController::class, 'destroyItem'])->name('admin.purchases.items.destroy');
     });
 });

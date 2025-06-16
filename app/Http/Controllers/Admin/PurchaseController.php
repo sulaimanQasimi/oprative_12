@@ -145,7 +145,8 @@ class PurchaseController extends Controller
                 'supplier',
                 'currency',
                 'user',
-                'purchaseItems.product',
+                'purchaseItems.product.wholesaleUnit',
+                'purchaseItems.product.retailUnit',
                 'payments',
                 'additional_costs'
             ]);
@@ -277,7 +278,7 @@ class PurchaseController extends Controller
     {
         $purchase->load(['purchaseItems.product.wholesaleUnit', 'purchaseItems.product.retailUnit', 'supplier', 'currency']);
         $products = Product::with(['wholesaleUnit', 'retailUnit'])
-            ->select('id', 'name', 'purchase_price', 'wholesale_price', 'retail_price', 'whole_sale_unit_amount', 'wholesale_unit_id', 'retail_unit_id', 'barcode')
+            ->select('id', 'name', 'purchase_price', 'wholesale_price', 'retail_price', 'whole_sale_unit_amount', 'retails_sale_unit_amount', 'wholesale_unit_id', 'retail_unit_id', 'barcode')
             ->orderBy('name')
             ->get();
 
@@ -292,22 +293,75 @@ class PurchaseController extends Controller
     }
 
     /**
+     * Show the form for creating a new purchase item.
+     */
+    public function createItem(Purchase $purchase)
+    {
+        $products = Product::with(['wholesaleUnit', 'retailUnit'])
+            ->select('id', 'name', 'purchase_price', 'wholesale_price', 'retail_price', 'whole_sale_unit_amount', 'retails_sale_unit_amount', 'wholesale_unit_id', 'retail_unit_id', 'barcode')
+            ->orderBy('name')
+            ->get()->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'type' => $product->type,
+                    'stock_quantity' => $product->net_quantity ?? 0, // Available stock in warehouse
+                    'purchase_price' => $product->purchase_price,
+                    'wholesale_price' => $product->wholesale_price,
+                    'retail_price' => $product->retail_price,
+                    'whole_sale_unit_amount' => $product->whole_sale_unit_amount,
+                    'retails_sale_unit_amount' => $product->retails_sale_unit_amount,
+                    'available_stock' => $product->net_quantity ?? 0,
+                    'wholesaleUnit' => $product->wholesaleUnit ? [
+                        'id' => $product->wholesaleUnit->id,
+                        'name' => $product->wholesaleUnit->name,
+                        'code' => $product->wholesaleUnit->code,
+                        'symbol' => $product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $product->retailUnit ? [
+                        'id' => $product->retailUnit->id,
+                        'name' => $product->retailUnit->name,
+                        'code' => $product->retailUnit->code,
+                        'symbol' => $product->retailUnit->symbol,
+                    ] : null,
+                ];
+            });
+        return Inertia::render('Admin/Purchase/CreateItem', [
+            'purchase' => [
+                'id' => $purchase->id,
+                'invoice_number' => $purchase->invoice_number,
+                'invoice_date' => $purchase->invoice_date,
+                'currency' => $purchase->currency,
+            ],
+            'products' => $products,
+            'auth' => [
+                'user' => Auth::guard('web')->user()
+            ]
+        ]);
+    }
+
+
+
+    /**
      * Store purchase item.
      */
     public function storeItem(Request $request, Purchase $purchase)
     {
-        $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|numeric|min:0.01',
-            'unit_type' => 'nullable|string|in:wholesale,retail',
-            'price' => 'required|numeric|min:0',
-            'total_price' => 'required|numeric|min:0',
-        ]);
-
         try {
+            $validated = $request->validate([
+                'product_id' => 'required|exists:products,id',
+                'unit_type' => 'required|in:wholesale,retail',
+                'quantity' => 'required|numeric|min:0.01',
+                'price' => 'required|numeric|min:0',
+                'notes' => 'nullable|string|max:1000',
+                'total_price' => 'required|numeric|min:0',
+            ]);
+
             DB::beginTransaction();
 
-            PurchaseItem::create([
+            // Create the purchase item record
+            $item = PurchaseItem::create([
                 'purchase_id' => $purchase->id,
                 'product_id' => $validated['product_id'],
                 'quantity' => $validated['quantity'],
@@ -318,7 +372,7 @@ class PurchaseController extends Controller
 
             DB::commit();
 
-            return redirect()->back()
+            return redirect()->route('admin.purchases.show', $purchase->id)
                 ->with('success', 'Purchase item added successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -334,28 +388,42 @@ class PurchaseController extends Controller
      */
     public function updateItem(Request $request, Purchase $purchase, PurchaseItem $item)
     {
-        $validated = $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|numeric|min:0.01',
-            'unit_type' => 'nullable|string|in:wholesale,retail',
-            'price' => 'required|numeric|min:0',
-            'total_price' => 'required|numeric|min:0',
-        ]);
-
         try {
+            $validated = $request->validate([
+                'product_id' => 'required|exists:products,id',
+                'unit_type' => 'required|in:wholesale,retail',
+                'quantity' => 'required|numeric|min:0.01',
+                'price' => 'required|numeric|min:0',
+                'notes' => 'nullable|string|max:1000',
+            ]);
+
+            // Get the product with unit information
+            $product = Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($validated['product_id']);
+
+            // Calculate actual quantity and total based on unit type
+            $actualQuantity = $validated['quantity'];
+            $unitPrice = $validated['price'];
+
+            if ($validated['unit_type'] === 'wholesale' && $product->whole_sale_unit_amount) {
+                // If wholesale unit is selected, multiply by unit amount
+                $actualQuantity = $validated['quantity'] * $product->whole_sale_unit_amount;
+            }
+
+            $total = $actualQuantity * $unitPrice;
+
             DB::beginTransaction();
 
             $item->update([
                 'product_id' => $validated['product_id'],
-                'quantity' => $validated['quantity'],
+                'quantity' => $actualQuantity,
                 'unit_type' => $validated['unit_type'],
-                'price' => $validated['price'],
-                'total_price' => $validated['total_price'],
+                'price' => $unitPrice,
+                'total_price' => $total,
             ]);
 
             DB::commit();
 
-            return redirect()->back()
+            return redirect()->route('admin.purchases.show', $purchase->id)
                 ->with('success', 'Purchase item updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
@@ -387,4 +455,4 @@ class PurchaseController extends Controller
                 ->with('error', 'Error deleting purchase item: ' . $e->getMessage());
         }
     }
-} 
+}
