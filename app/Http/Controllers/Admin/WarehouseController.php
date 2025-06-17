@@ -8,6 +8,7 @@ use App\Models\WareHouseUser;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
@@ -19,11 +20,36 @@ use App\Models\WarehouseOutcome;
 
 class WarehouseController extends Controller
 {
+    /**
+     * Constructor to apply middleware
+     */
+    public function __construct()
+    {
+        $this->middleware('permission:view_any_warehouse')->only(['index']);
+        $this->middleware('permission:view_warehouse')->only(['show']);
+        $this->middleware('permission:create_warehouse')->only(['create', 'store']);
+        $this->middleware('permission:update_warehouse')->only(['edit', 'update']);
+        $this->middleware('permission:delete_warehouse')->only(['destroy']);
+        $this->middleware('permission:restore_warehouse')->only(['restore']);
+        $this->middleware('permission:force_delete_warehouse')->only(['forceDelete']);
+    }
     public function index()
     {
         $warehouses = Warehouse::with('users')->latest()->get();
+
+        // Pass permissions to the frontend
+        $permissions = [
+            'can_create' => Gate::allows('create_warehouse'),
+            'can_update' => Gate::allows('update_warehouse', Warehouse::class),
+            'can_delete' => Gate::allows('delete_warehouse', Warehouse::class),
+            'can_view' => Gate::allows('view_warehouse', Warehouse::class),
+            'can_restore' => Gate::allows('restore_warehouse', Warehouse::class),
+            'can_force_delete' => Gate::allows('force_delete_warehouse', Warehouse::class),
+        ];
+
         return Inertia::render('Admin/Warehouse/Index', [
             'warehouses' => $warehouses,
+            'permissions' => $permissions,
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -32,7 +58,12 @@ class WarehouseController extends Controller
 
     public function create()
     {
+        $permissions = [
+            'can_create' => Gate::allows('create_warehouse'),
+        ];
+
         return Inertia::render('Admin/Warehouse/Create', [
+            'permissions' => $permissions,
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -68,9 +99,14 @@ class WarehouseController extends Controller
         $warehouse->load('users.roles');
         $roles = Role::where('guard_name', 'warehouse_user')->get();
 
+        $permissions = [
+            'can_update' => Gate::allows('update_warehouse', $warehouse),
+        ];
+
         return Inertia::render('Admin/Warehouse/Edit', [
             'warehouse' => $warehouse,
             'roles' => $roles,
+            'permissions' => $permissions,
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -114,6 +150,37 @@ class WarehouseController extends Controller
             ->with('success', 'Warehouse deleted successfully.');
     }
 
+    /**
+     * Restore the specified warehouse from trash
+     *
+     * @param Warehouse $warehouse
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function restore(Warehouse $warehouse)
+    {
+        $warehouse->restore();
+
+        return redirect()->route('admin.warehouses.index')
+            ->with('success', 'Warehouse restored successfully.');
+    }
+
+    /**
+     * Permanently delete the specified warehouse
+     *
+     * @param Warehouse $warehouse
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function forceDelete(Warehouse $warehouse)
+    {
+        // Permanently delete associated users first
+        $warehouse->users()->forceDelete();
+
+        $warehouse->forceDelete();
+
+        return redirect()->route('admin.warehouses.index')
+            ->with('success', 'Warehouse permanently deleted.');
+    }
+
     public function show(Warehouse $warehouse)
     {
         try {
@@ -128,14 +195,24 @@ class WarehouseController extends Controller
             $roles = Role::where('guard_name', 'warehouse_user')->with('permissions')->get();
             $permissions = \Spatie\Permission\Models\Permission::where('guard_name', 'warehouse_user')->get();
 
-            return Inertia::render('Admin/Warehouse/Show', [
-                'warehouse' => $warehouse,
-                'roles' => $roles,
-                'permissions' => $permissions,
-                'auth' => [
-                    'user' => Auth::guard('web')->user()
-                ]
-            ]);
+                    // Pass permissions to the frontend
+        $warehousePermissions = [
+            'can_view' => Gate::allows('view_warehouse', $warehouse),
+            'can_update' => Gate::allows('update_warehouse', $warehouse),
+            'can_delete' => Gate::allows('delete_warehouse', $warehouse),
+            'can_restore' => Gate::allows('restore_warehouse', $warehouse),
+            'can_force_delete' => Gate::allows('force_delete_warehouse', $warehouse),
+        ];
+
+        return Inertia::render('Admin/Warehouse/Show', [
+            'warehouse' => $warehouse,
+            'roles' => $roles,
+            'permissions' => $permissions,
+            'warehousePermissions' => $warehousePermissions,
+            'auth' => [
+                'user' => Auth::guard('web')->user()
+            ]
+        ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse: ' . $e->getMessage());
             return redirect()->route('admin.warehouses.index')

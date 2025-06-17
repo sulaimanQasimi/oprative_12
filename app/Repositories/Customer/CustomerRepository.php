@@ -23,7 +23,11 @@ class CustomerRepository
 
     public static function currentUserCustomer()
     {
-        return new static(Auth::guard('customer_user')->user()->customer);
+        $user = Auth::guard('customer_user')->user();
+        if (!$user || !$user->customer) {
+            return null;
+        }
+        return new static($user->customer);
     }
 
 }

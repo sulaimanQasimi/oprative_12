@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -14,6 +15,16 @@ use Inertia\Inertia;
 
 class SupplierController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:view_any_supplier')->only(['index']);
+        $this->middleware('can:view_supplier,supplier')->only(['show']);
+        $this->middleware('can:create_supplier')->only(['create', 'store']);
+        $this->middleware('can:update_supplier,supplier')->only(['edit', 'update']);
+        $this->middleware('can:delete_supplier,supplier')->only(['destroy']);
+        $this->middleware('can:restore_supplier,supplier')->only(['restore']);
+        $this->middleware('can:force_delete_supplier,supplier')->only(['forceDelete']);
+    }
     /**
      * Display the supplier management page
      *
@@ -24,8 +35,17 @@ class SupplierController extends Controller
         // Get all suppliers
         $suppliers = Supplier::orderBy('name')->get();
 
+        // Pass permissions to the frontend
+        $permissions = [
+            'can_create' => Gate::allows('create_supplier'),
+            'can_update' => Gate::allows('update_supplier', Supplier::class),
+            'can_delete' => Gate::allows('delete_supplier', Supplier::class),
+            'can_view' => Gate::allows('view_supplier', Supplier::class),
+        ];
+
         return Inertia::render('Admin/Supplier/Index', [
-            'suppliers' => $suppliers
+            'suppliers' => $suppliers,
+            'permissions' => $permissions,
         ]);
     }
 
@@ -36,7 +56,13 @@ class SupplierController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Admin/Supplier/Create');
+        $permissions = [
+            'can_create' => Gate::allows('create_supplier'),
+        ];
+
+        return Inertia::render('Admin/Supplier/Create', [
+            'permissions' => $permissions,
+        ]);
     }
 
     /**
@@ -97,52 +123,51 @@ class SupplierController extends Controller
     /**
      * Display the supplier details page
      *
-     * @param int $id
+     * @param Supplier $supplier
      * @return \Inertia\Response
      */
-    public function show($id)
+    public function show(Supplier $supplier)
     {
-        try {
-            $supplier = Supplier::findOrFail($id);
+        $permissions = [
+            'can_view' => Gate::allows('view_supplier', $supplier),
+            'can_update' => Gate::allows('update_supplier', $supplier),
+            'can_delete' => Gate::allows('delete_supplier', $supplier),
+        ];
 
-            return Inertia::render('Admin/Supplier/Show', [
-                'supplier' => $supplier
-            ]);
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin.suppliers.index')->with('error', 'Supplier not found.');
-        }
+        return Inertia::render('Admin/Supplier/Show', [
+            'supplier' => $supplier,
+            'permissions' => $permissions,
+        ]);
     }
 
     /**
      * Display the edit supplier page
      *
-     * @param int $id
+     * @param Supplier $supplier
      * @return \Inertia\Response
      */
-    public function edit($id)
+    public function edit(Supplier $supplier)
     {
-        try {
-            $supplier = Supplier::findOrFail($id);
+        $permissions = [
+            'can_update' => Gate::allows('update_supplier', $supplier),
+        ];
 
-            return Inertia::render('Admin/Supplier/Edit', [
-                'supplier' => $supplier
-            ]);
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin.suppliers.index')->with('error', 'Supplier not found.');
-        }
+        return Inertia::render('Admin/Supplier/Edit', [
+            'supplier' => $supplier,
+            'permissions' => $permissions,
+        ]);
     }
 
     /**
      * Update the specified supplier
      *
      * @param Request $request
-     * @param int $id
+     * @param Supplier $supplier
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Supplier $supplier)
     {
         try {
-            $supplier = Supplier::findOrFail($id);
 
             // Validate request data
             $validator = Validator::make($request->all(), [
@@ -182,7 +207,7 @@ class SupplierController extends Controller
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             Log::error('Error updating supplier', [
-                'supplier_id' => $id,
+                'supplier_id' => $supplier->id,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_id' => Auth::id(),
@@ -195,21 +220,18 @@ class SupplierController extends Controller
     /**
      * Delete the specified supplier
      *
-     * @param int $id
+     * @param Supplier $supplier
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy(Supplier $supplier)
     {
         try {
-            $supplier = Supplier::findOrFail($id);
             $supplier->delete();
 
             return redirect()->route('admin.suppliers.index')->with('success', 'Supplier deleted successfully.');
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin.suppliers.index')->with('error', 'Supplier not found.');
         } catch (\Exception $e) {
             Log::error('Error deleting supplier', [
-                'supplier_id' => $id,
+                'supplier_id' => $supplier->id,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_id' => Auth::id(),
@@ -220,44 +242,98 @@ class SupplierController extends Controller
     }
 
     /**
-     * Display the supplier payments page
+     * Restore the specified supplier
      *
      * @param int $id
-     * @return \Inertia\Response
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function payments($id)
+    public function restore($id)
     {
         try {
-            $supplier = Supplier::findOrFail($id);
-            $payments = $supplier->payments()->orderBy('payment_date', 'desc')->get();
+            $supplier = Supplier::withTrashed()->findOrFail($id);
+            $supplier->restore();
 
-            return Inertia::render('Admin/Supplier/Payments', [
-                'supplier' => $supplier,
-                'payments' => $payments
-            ]);
+            return redirect()->route('admin.suppliers.index')->with('success', 'Supplier restored successfully.');
         } catch (ModelNotFoundException $e) {
             return redirect()->route('admin.suppliers.index')->with('error', 'Supplier not found.');
+        } catch (\Exception $e) {
+            Log::error('Error restoring supplier', [
+                'supplier_id' => $id,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => Auth::id(),
+            ]);
+
+            return redirect()->route('admin.suppliers.index')->with('error', 'An error occurred while restoring the supplier.');
         }
+    }
+
+    /**
+     * Force delete the specified supplier
+     *
+     * @param int $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function forceDelete($id)
+    {
+        try {
+            $supplier = Supplier::withTrashed()->findOrFail($id);
+            $supplier->forceDelete();
+
+            return redirect()->route('admin.suppliers.index')->with('success', 'Supplier permanently deleted.');
+        } catch (ModelNotFoundException $e) {
+            return redirect()->route('admin.suppliers.index')->with('error', 'Supplier not found.');
+        } catch (\Exception $e) {
+            Log::error('Error force deleting supplier', [
+                'supplier_id' => $id,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user_id' => Auth::id(),
+            ]);
+
+            return redirect()->route('admin.suppliers.index')->with('error', 'An error occurred while permanently deleting the supplier.');
+        }
+    }
+
+    /**
+     * Display the supplier payments page
+     *
+     * @param Supplier $supplier
+     * @return \Inertia\Response
+     */
+    public function payments(Supplier $supplier)
+    {
+        $payments = $supplier->payments()->orderBy('payment_date', 'desc')->get();
+
+        $permissions = [
+            'can_view' => Gate::allows('view_supplier', $supplier),
+        ];
+
+        return Inertia::render('Admin/Supplier/Payments', [
+            'supplier' => $supplier,
+            'payments' => $payments,
+            'permissions' => $permissions,
+        ]);
     }
 
     /**
      * Display the supplier purchases page
      *
-     * @param int $id
+     * @param Supplier $supplier
      * @return \Inertia\Response
      */
-    public function purchases($id)
+    public function purchases(Supplier $supplier)
     {
-        try {
-            $supplier = Supplier::findOrFail($id);
-            $purchases = $supplier->purchases()->orderBy('invoice_date', 'desc')->get();
+        $purchases = $supplier->purchases()->orderBy('invoice_date', 'desc')->get();
 
-            return Inertia::render('Admin/Supplier/Purchases', [
-                'supplier' => $supplier,
-                'purchases' => $purchases
-            ]);
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin.suppliers.index')->with('error', 'Supplier not found.');
-        }
+        $permissions = [
+            'can_view' => Gate::allows('view_supplier', $supplier),
+        ];
+
+        return Inertia::render('Admin/Supplier/Purchases', [
+            'supplier' => $supplier,
+            'purchases' => $purchases,
+            'permissions' => $permissions,
+        ]);
     }
 }

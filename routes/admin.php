@@ -119,12 +119,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [SupplierController::class, 'index'])->name('admin.suppliers.index');
         Route::get('/create', [SupplierController::class, 'create'])->name('admin.suppliers.create');
         Route::post('/', [SupplierController::class, 'store'])->name('admin.suppliers.store');
-        Route::get('/{id}', [SupplierController::class, 'show'])->name('admin.suppliers.show');
-        Route::get('/{id}/edit', [SupplierController::class, 'edit'])->name('admin.suppliers.edit');
-        Route::put('/{id}', [SupplierController::class, 'update'])->name('admin.suppliers.update');
-        Route::delete('/{id}', [SupplierController::class, 'destroy'])->name('admin.suppliers.destroy');
-        Route::get('/{id}/payments', [SupplierController::class, 'payments'])->name('admin.suppliers.payments');
-        Route::get('/{id}/purchases', [SupplierController::class, 'purchases'])->name('admin.suppliers.purchases');
+        Route::get('/{supplier}', [SupplierController::class, 'show'])->name('admin.suppliers.show');
+        Route::get('/{supplier}/edit', [SupplierController::class, 'edit'])->name('admin.suppliers.edit');
+        Route::put('/{supplier}', [SupplierController::class, 'update'])->name('admin.suppliers.update');
+        Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->name('admin.suppliers.destroy');
+        Route::post('/{supplier}/restore', [SupplierController::class, 'restore'])->name('admin.suppliers.restore');
+        Route::delete('/{supplier}/force-delete', [SupplierController::class, 'forceDelete'])->name('admin.suppliers.force-delete');
+        Route::get('/{supplier}/payments', [SupplierController::class, 'payments'])->name('admin.suppliers.payments');
+        Route::get('/{supplier}/purchases', [SupplierController::class, 'purchases'])->name('admin.suppliers.purchases');
     });
 
     // Product Management
@@ -192,6 +194,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{warehouse:id}/edit', [WarehouseController::class, 'edit'])->name('admin.warehouses.edit');
         Route::put('/{warehouse:id}', [WarehouseController::class, 'update'])->name('admin.warehouses.update');
         Route::delete('/{warehouse:id}', [WarehouseController::class, 'destroy'])->name('admin.warehouses.destroy');
+        Route::post('/{warehouse:id}/restore', [WarehouseController::class, 'restore'])->name('admin.warehouses.restore');
+        Route::delete('/{warehouse:id}/force-delete', [WarehouseController::class, 'forceDelete'])->name('admin.warehouses.force-delete');
         Route::get('/{warehouse:id}', [WarehouseController::class, 'show'])->name('admin.warehouses.show');
 
         // Warehouse products

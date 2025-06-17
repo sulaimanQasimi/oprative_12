@@ -50,7 +50,7 @@ import { Separator } from "@/Components/ui/separator";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Index({ auth, suppliers = [] }) {
+export default function Index({ auth, suppliers = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
@@ -142,7 +142,15 @@ export default function Index({ auth, suppliers = [] }) {
     // Delete handler
     const handleDelete = (supplierId) => {
         if (confirm(t("Are you sure you want to delete this supplier?"))) {
-            router.delete(route("admin.suppliers.destroy", supplierId));
+            router.delete(route("admin.suppliers.destroy", supplierId), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // Optional: Add success notification
+                },
+                onError: () => {
+                    // Optional: Add error notification
+                }
+            });
         }
     };
 
@@ -302,12 +310,14 @@ export default function Index({ auth, suppliers = [] }) {
                             </div>
 
                             <div className="flex items-center space-x-3">
-                                <Link href={route("admin.suppliers.create")}>
-                                    <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg">
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        {t("Add Supplier")}
-                                    </Button>
-                                </Link>
+                                {permissions.can_create && (
+                                    <Link href={route("admin.suppliers.create")}>
+                                        <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg">
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            {t("Add Supplier")}
+                                        </Button>
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </header>
@@ -559,32 +569,38 @@ export default function Index({ auth, suppliers = [] }) {
                                                         </td>
                                                         <td className="px-6 py-5">
                                                             <div className="flex items-center justify-center gap-2">
-                                                                <Link href={route("admin.suppliers.show", supplier.id)}>
+                                                                {permissions.can_view && (
+                                                                    <Link href={route("admin.suppliers.show", supplier.id)}>
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 dark:hover:bg-blue-900/30 shadow-sm"
+                                                                        >
+                                                                            <Eye className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </Link>
+                                                                )}
+                                                                {permissions.can_update && (
+                                                                    <Link href={route("admin.suppliers.edit", supplier.id)}>
+                                                                        <Button
+                                                                            variant="outline"
+                                                                            size="sm"
+                                                                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200 dark:hover:bg-indigo-900/30 shadow-sm"
+                                                                        >
+                                                                            <Edit className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </Link>
+                                                                )}
+                                                                {permissions.can_delete && (
                                                                     <Button
                                                                         variant="outline"
                                                                         size="sm"
-                                                                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 dark:hover:bg-blue-900/30 shadow-sm"
+                                                                        onClick={() => handleDelete(supplier.id)}
+                                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 shadow-sm"
                                                                     >
-                                                                        <Eye className="h-4 w-4" />
+                                                                        <Trash2 className="h-4 w-4" />
                                                                     </Button>
-                                                                </Link>
-                                                                <Link href={route("admin.suppliers.edit", supplier.id)}>
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        size="sm"
-                                                                        className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200 dark:hover:bg-indigo-900/30 shadow-sm"
-                                                                    >
-                                                                        <Edit className="h-4 w-4" />
-                                                                    </Button>
-                                                                </Link>
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    onClick={() => handleDelete(supplier.id)}
-                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 shadow-sm"
-                                                                >
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                </Button>
+                                                                )}
                                                             </div>
                                                         </td>
                                                     </motion.tr>
@@ -610,7 +626,7 @@ export default function Index({ auth, suppliers = [] }) {
                                                 ? t("Try adjusting your search or filters to find what you're looking for")
                                                 : t("Get started by adding your first supplier to the system")}
                                         </p>
-                                        {(!searchTerm && filterStatus === "all") && (
+                                        {(!searchTerm && filterStatus === "all" && permissions.can_create) && (
                                             <Link href={route("admin.suppliers.create")}>
                                                 <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg">
                                                     <Plus className="h-4 w-4 mr-2" />

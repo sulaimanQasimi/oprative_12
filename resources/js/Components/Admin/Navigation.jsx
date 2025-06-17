@@ -160,6 +160,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Truck className="w-5 h-5" />,
                     route: "admin.suppliers.index",
                     active: currentRoute?.startsWith("admin.suppliers"),
+                    permission: "view_any_supplier",
                 },
                 {
                     name: t("Stores"),
@@ -198,6 +199,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Building2 className="w-5 h-5" />,
                     route: "admin.warehouses.index",
                     active: currentRoute === "admin.warehouses.index",
+                    permission: "view_any_warehouse",
                 },
                 {
                     name: t("Shop Sales"),

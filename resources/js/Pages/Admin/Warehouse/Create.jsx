@@ -33,7 +33,7 @@ import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import { Checkbox } from "@/Components/ui/checkbox";
 
-export default function Create({ auth }) {
+export default function Create({ auth, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);

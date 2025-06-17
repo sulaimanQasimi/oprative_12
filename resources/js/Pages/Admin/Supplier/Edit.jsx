@@ -37,7 +37,7 @@ import { Alert, AlertDescription } from "@/Components/ui/alert";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-const EditSupplier = ({ auth, supplier }) => {
+const EditSupplier = ({ auth, supplier, permissions = {} }) => {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
 

@@ -49,7 +49,7 @@ import { Input } from "@/Components/ui/input";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Index({ auth, warehouses = [] }) {
+export default function Index({ auth, warehouses = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
@@ -302,12 +302,14 @@ export default function Index({ auth, warehouses = [] }) {
                                     <RefreshCw className="h-4 w-4 mr-2" />
                                     {t("Refresh")}
                                 </Button>
-                                <Link href={route("admin.warehouses.create")}>
-                                    <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg">
-                                        <Plus className="h-4 w-4 mr-2" />
-                                        {t("Add Warehouse")}
-                                    </Button>
-                                </Link>
+                                {permissions.can_create && (
+                                    <Link href={route("admin.warehouses.create")}>
+                                        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg">
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            {t("Add Warehouse")}
+                                        </Button>
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </header>
@@ -477,27 +479,33 @@ export default function Index({ auth, warehouses = [] }) {
                                                         <CardFooter className="bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-200/50 dark:border-slate-700/50 p-4">
                                                             <div className="flex items-center justify-between w-full">
                                                                 <div className="flex items-center space-x-2">
-                                                                    <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                                                        <Button size="sm" variant="outline" className="hover:bg-blue-50 dark:hover:bg-blue-950/30">
-                                                                            <Eye className="h-3 w-3 mr-1" />
-                                                                            {t("View")}
-                                                                        </Button>
-                                                                    </Link>
-                                                                    <Link href={route("admin.warehouses.edit", warehouse.id)}>
-                                                                        <Button size="sm" variant="outline" className="hover:bg-green-50 dark:hover:bg-green-950/30">
-                                                                            <Edit className="h-3 w-3 mr-1" />
-                                                                            {t("Edit")}
-                                                                        </Button>
-                                                                    </Link>
+                                                                    {permissions.can_view && (
+                                                                        <Link href={route("admin.warehouses.show", warehouse.id)}>
+                                                                            <Button size="sm" variant="outline" className="hover:bg-blue-50 dark:hover:bg-blue-950/30">
+                                                                                <Eye className="h-3 w-3 mr-1" />
+                                                                                {t("View")}
+                                                                            </Button>
+                                                                        </Link>
+                                                                    )}
+                                                                    {permissions.can_update && (
+                                                                        <Link href={route("admin.warehouses.edit", warehouse.id)}>
+                                                                            <Button size="sm" variant="outline" className="hover:bg-green-50 dark:hover:bg-green-950/30">
+                                                                                <Edit className="h-3 w-3 mr-1" />
+                                                                                {t("Edit")}
+                                                                            </Button>
+                                                                        </Link>
+                                                                    )}
                                                                 </div>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="outline"
-                                                                    onClick={() => handleDelete(warehouse.id)}
-                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
-                                                                >
-                                                                    <Trash2 className="h-3 w-3" />
-                                                                </Button>
+                                                                {permissions.can_delete && (
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="outline"
+                                                                        onClick={() => handleDelete(warehouse.id)}
+                                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                                                    >
+                                                                        <Trash2 className="h-3 w-3" />
+                                                                    </Button>
+                                                                )}
                                                             </div>
                                                         </CardFooter>
                                                     </Card>
@@ -522,7 +530,7 @@ export default function Index({ auth, warehouses = [] }) {
                                                             : t("Get started by creating your first warehouse")
                                                         }
                                                     </p>
-                                                    {!searchTerm && (
+                                                    {!searchTerm && permissions.can_create && (
                                                         <Link href={route("admin.warehouses.create")}>
                                                             <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white">
                                                                 <Plus className="h-4 w-4 mr-2" />

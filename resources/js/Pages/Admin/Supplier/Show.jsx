@@ -31,7 +31,7 @@ import { Badge } from "@/Components/ui/badge";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Show({ auth, supplier }) {
+export default function Show({ auth, supplier, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
 
@@ -92,12 +92,14 @@ export default function Show({ auth, supplier }) {
                                     {t("Back to List")}
                                 </Button>
                             </Link>
-                            <Link href={route("admin.suppliers.edit", supplier.id)}>
-                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                    <Edit className="h-4 w-4 mr-2" />
-                                    {t("Edit Supplier")}
-                                </Button>
-                            </Link>
+                            {permissions.can_update && (
+                                <Link href={route("admin.suppliers.edit", supplier.id)}>
+                                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                        <Edit className="h-4 w-4 mr-2" />
+                                        {t("Edit Supplier")}
+                                    </Button>
+                                </Link>
+                            )}
                         </div>
                     </header>
 
@@ -106,33 +108,39 @@ export default function Show({ auth, supplier }) {
                         <div className="p-6 max-w-4xl mx-auto">
                             <div className="mb-6 flex justify-between">
                                 <div className="flex space-x-2">
-                                    <Link href={route("admin.suppliers.payments", supplier.id)}>
-                                        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                            <PaymentIcon className="h-4 w-4 mr-2" />
-                                            {t("View Payments")}
-                                        </Button>
-                                    </Link>
-                                    <Link href={route("admin.suppliers.purchases", supplier.id)}>
-                                        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                            <ShoppingBag className="h-4 w-4 mr-2" />
-                                            {t("View Purchases")}
-                                        </Button>
-                                    </Link>
+                                    {permissions.can_view && (
+                                        <Link href={route("admin.suppliers.payments", supplier.id)}>
+                                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                                <PaymentIcon className="h-4 w-4 mr-2" />
+                                                {t("View Payments")}
+                                            </Button>
+                                        </Link>
+                                    )}
+                                    {permissions.can_view && (
+                                        <Link href={route("admin.suppliers.purchases", supplier.id)}>
+                                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                                <ShoppingBag className="h-4 w-4 mr-2" />
+                                                {t("View Purchases")}
+                                            </Button>
+                                        </Link>
+                                    )}
                                 </div>
                                 <div>
-                                    <Link
-                                        href={route("admin.suppliers.destroy", supplier.id)}
-                                        method="delete"
-                                        as="button"
-                                    >
-                                        <Button
-                                            variant="outline"
-                                            className="border-red-200 dark:border-red-800 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                    {permissions.can_delete && (
+                                        <Link
+                                            href={route("admin.suppliers.destroy", supplier.id)}
+                                            method="delete"
+                                            as="button"
                                         >
-                                            <Trash2 className="h-4 w-4 mr-2" />
-                                            {t("Delete Supplier")}
-                                        </Button>
-                                    </Link>
+                                            <Button
+                                                variant="outline"
+                                                className="border-red-200 dark:border-red-800 text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                            >
+                                                <Trash2 className="h-4 w-4 mr-2" />
+                                                {t("Delete Supplier")}
+                                            </Button>
+                                        </Link>
+                                    )}
                                 </div>
                             </div>
 
