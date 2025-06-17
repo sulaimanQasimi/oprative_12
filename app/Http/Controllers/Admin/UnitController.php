@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Unit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 
 class UnitController extends Controller
@@ -25,11 +28,12 @@ class UnitController extends Controller
         $units = Unit::all();
 
         // Pass permissions to the frontend
+        $user = Auth::user();
         $permissions = [
-            'can_create' => auth()->user()->can('create_unit'),
-            'can_update' => auth()->user()->can('update_unit', Unit::class),
-            'can_delete' => auth()->user()->can('delete_unit', Unit::class),
-            'can_view' => auth()->user()->can('view_unit', Unit::class),
+            'can_create' => Gate::allows('create_unit'),
+            'can_update' => Gate::allows('update_unit', Unit::class),
+            'can_delete' => Gate::allows('delete_unit', Unit::class),
+            'can_view' => Gate::allows('view_unit', Unit::class),
         ];
 
         return Inertia::render('Admin/Unit/Index', [
@@ -41,7 +45,7 @@ class UnitController extends Controller
     public function create()
     {
         $permissions = [
-            'can_create' => auth()->user()->can('create_unit'),
+            'can_create' => Gate::allows('create_unit'),
         ];
 
         return Inertia::render('Admin/Unit/Create', [
@@ -66,9 +70,9 @@ class UnitController extends Controller
     public function show(Unit $unit)
     {
         $permissions = [
-            'can_view' => auth()->user()->can('view_unit', $unit),
-            'can_update' => auth()->user()->can('update_unit', $unit),
-            'can_delete' => auth()->user()->can('delete_unit', $unit),
+            'can_view' => Gate::allows('view_unit', $unit),
+            'can_update' => Gate::allows('update_unit', $unit),
+            'can_delete' => Gate::allows('delete_unit', $unit),
         ];
 
         return Inertia::render('Admin/Unit/Show', [
@@ -80,7 +84,7 @@ class UnitController extends Controller
     public function edit(Unit $unit)
     {
         $permissions = [
-            'can_update' => auth()->user()->can('update_unit', $unit),
+            'can_update' => Gate::allows('update_unit', $unit),
         ];
 
         return Inertia::render('Admin/Unit/Edit', [
