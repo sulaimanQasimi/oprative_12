@@ -335,7 +335,16 @@ const Navigation = ({ auth, currentRoute }) => {
                         {(!group.key || expandedGroups[group.key]) && (
                             <ul className="space-y-1 px-2">
                                 {group.items
-                                    .filter(item => !item.permission || auth.user.permissions?.includes(item.permission) || auth.user.can?.(item.permission))
+                                    .filter(item => {
+                                        if (!item.permission) return true;
+
+                                        // Check if user has the required permission
+                                        const hasPermission = auth.user.permissions?.some(permission =>
+                                            permission.name === item.permission
+                                        );
+
+                                        return hasPermission;
+                                    })
                                     .map((item, index) => (
                                     <li key={index}>
                                         <Link
