@@ -324,6 +324,12 @@ class PurchaseController extends Controller
      */
     public function createItem(Purchase $purchase)
     {
+        // Prevent adding items if purchase is moved to warehouse
+        if ($purchase->status === 'warehouse_moved') {
+            return redirect()->route('admin.purchases.show', $purchase->id)
+                ->with('error', 'Cannot add items to purchase that has been moved to warehouse.');
+        }
+
         $products = Product::with(['wholesaleUnit', 'retailUnit'])
             ->select('id', 'name', 'purchase_price', 'wholesale_price', 'retail_price', 'whole_sale_unit_amount', 'retails_sale_unit_amount', 'wholesale_unit_id', 'retail_unit_id', 'barcode')
             ->orderBy('name')
@@ -373,6 +379,12 @@ class PurchaseController extends Controller
      */
     public function storeItem(Request $request, Purchase $purchase)
     {
+        // Prevent adding items if purchase is moved to warehouse
+        if ($purchase->status === 'warehouse_moved') {
+            return redirect()->route('admin.purchases.show', $purchase->id)
+                ->with('error', 'Cannot add items to purchase that has been moved to warehouse.');
+        }
+
         try {
             $validated = $request->validate([
                 'product_id' => 'required|exists:products,id',

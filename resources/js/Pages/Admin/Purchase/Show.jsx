@@ -133,6 +133,9 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
 
     // Check if warehouse tab should be shown
     const showWarehouseTab = purchase.status === 'arrived' && !purchase.is_moved_to_warehouse;
+    
+    // Check if purchase is locked (warehouse moved)
+    const isPurchaseLocked = purchase.status === 'warehouse_moved';
 
     return (
         <>
