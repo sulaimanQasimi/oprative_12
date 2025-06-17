@@ -567,7 +567,12 @@ export default function CreateTransfer({ auth, warehouse, warehouses, warehouseP
                                                     {selectedProduct && (
                                                         <div className="flex items-center space-x-2">
                                                             <Badge variant="outline">
-                                                                    {t("Available")}: {selectedProduct.stock_quantity} {t("units")}
+                                                                    {t("Available:")} {
+                                                                    (data.unit_type === 'wholesale')?
+                                                                        parseInt(selectedProduct.stock_quantity/selectedProduct.whole_sale_unit_amount)+ " " + selectedProduct.wholesaleUnit.name + " " + selectedProduct.stock_quantity%selectedProduct.whole_sale_unit_amount+" "+ selectedProduct.retailUnit.name
+                                                                    :
+                                                                        selectedProduct.stock_quantity + " " + t("units")
+                                                                    } 
                                                                 </Badge>
                                                         </div>
                                                     )}

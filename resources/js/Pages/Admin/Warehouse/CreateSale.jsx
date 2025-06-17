@@ -149,10 +149,6 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
         
         // Calculate total based on final quantity and price
         finalTotal = finalQuantity * (parseFloat(data.price) || 0);
-        console.log('Original data:', data);
-        
-        console.log('Final quantity to submit:', finalQuantity);
-        console.log('Final total to submit:', finalTotal);
         
         // Create submission data with calculated values
         const submissionData = {
@@ -170,7 +166,12 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
             onError: (errors) => {
                 console.log('Submission errors:', errors);
                 setLoading(false);
+            
+            },
+            onSuccess: () => {
+                setLoading(false);
             }
+            
         });
     };
 

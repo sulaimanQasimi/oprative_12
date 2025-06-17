@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\CustomerUserController;
 use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AccountIncomeController;
 use App\Http\Controllers\Admin\AccountOutcomeController;
+use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
@@ -202,7 +203,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{warehouse:id}/import/create', [WarehouseController::class, 'createIncome'])->name('admin.warehouses.income.create');
         Route::post('/{warehouse:id}/import', [WarehouseController::class, 'storeIncome'])->name('admin.warehouses.income.store');
 
-        // Warehouse export management  
+        // Warehouse export management
         Route::get('/{warehouse:id}/export', [WarehouseController::class, 'outcome'])->name('admin.warehouses.outcome');
         Route::get('/{warehouse:id}/export/create', [WarehouseController::class, 'createOutcome'])->name('admin.warehouses.outcome.create');
         Route::post('/{warehouse:id}/export', [WarehouseController::class, 'storeOutcome'])->name('admin.warehouses.outcome.store');
@@ -253,5 +254,32 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{outcome:id}', [AccountOutcomeController::class, 'show'])->name('show');
         Route::put('/{outcome:id}', [AccountOutcomeController::class, 'update'])->name('update');
         Route::delete('/{outcome:id}', [AccountOutcomeController::class, 'destroy'])->name('destroy');
+    });
+
+    // Purchase Management
+    Route::prefix('purchases')->group(function () {
+        Route::get('/', [PurchaseController::class, 'index'])->name('admin.purchases.index');
+        Route::get('/create', [PurchaseController::class, 'create'])->name('admin.purchases.create');
+        Route::post('/', [PurchaseController::class, 'store'])->name('admin.purchases.store');
+        Route::get('/{purchase:id}', [PurchaseController::class, 'show'])->name('admin.purchases.show');
+        Route::get('/{purchase:id}/edit', [PurchaseController::class, 'edit'])->name('admin.purchases.edit');
+        Route::put('/{purchase:id}', [PurchaseController::class, 'update'])->name('admin.purchases.update');
+        Route::delete('/{purchase:id}', [PurchaseController::class, 'destroy'])->name('admin.purchases.destroy');
+
+        // Purchase Items Management
+        Route::get('/{purchase:id}/items', [PurchaseController::class, 'items'])->name('admin.purchases.items');
+        Route::get('/{purchase:id}/items/create', [PurchaseController::class, 'createItem'])->name('admin.purchases.items.create');
+        Route::post('/{purchase:id}/items', [PurchaseController::class, 'storeItem'])->name('admin.purchases.items.store');
+        Route::delete('/{purchase:id}/items/{item:id}', [PurchaseController::class, 'destroyItem'])->name('admin.purchases.items.destroy');
+
+        // Purchase Additional Costs Management
+        Route::get('/{purchase:id}/additional-costs/create', [PurchaseController::class, 'createAdditionalCost'])->name('admin.purchases.additional-costs.create');
+        Route::post('/{purchase:id}/additional-costs', [PurchaseController::class, 'storeAdditionalCost'])->name('admin.purchases.additional-costs.store');
+        Route::delete('/{purchase:id}/additional-costs/{cost:id}', [PurchaseController::class, 'destroyAdditionalCost'])->name('admin.purchases.additional-costs.destroy');
+
+        // Purchase Payments Management
+        Route::get('/{purchase:id}/payments/create', [PurchaseController::class, 'createPayment'])->name('admin.purchases.payments.create');
+        Route::post('/{purchase:id}/payments', [PurchaseController::class, 'storePayment'])->name('admin.purchases.payments.store');
+        Route::delete('/{purchase:id}/payments/{payment:id}', [PurchaseController::class, 'destroyPayment'])->name('admin.purchases.payments.destroy');
     });
 });

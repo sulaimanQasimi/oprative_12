@@ -272,18 +272,18 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                 initial={{ x: 20, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-3"
+                                className="flex items-center space-x-5"
                             >
                                 <Link href={route("admin.customers.edit", customer.id)}>
-                                    <Button className="gap-2 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-700 hover:via-amber-700 hover:to-orange-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                                        <Edit className="h-4 w-4" />
-                                        {t("Edit Store")}
+                                    <Button className="relative group bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 hover:from-amber-600 hover:via-orange-600 hover:to-yellow-600 text-white shadow-2xl hover:shadow-amber-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300">
+                                        <Edit className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400/20 to-yellow-400/20 blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
                                     </Button>
                                 </Link>
                                 <Link href={route("admin.customers.index")}>
-                                    <Button variant="outline" className="gap-2 border-2 hover:border-blue-300">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Stores")}
+                                    <Button className="relative group bg-gradient-to-r from-slate-600 via-gray-600 to-zinc-600 hover:from-slate-700 hover:via-gray-700 hover:to-zinc-700 text-white shadow-2xl hover:shadow-slate-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300">
+                                        <ArrowLeft className="h-5 w-5 relative z-10 group-hover:-translate-x-1 transition-transform duration-300" />
+                                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-slate-400/20 to-zinc-400/20 blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
                                     </Button>
                                 </Link>
                             </motion.div>

@@ -9,13 +9,14 @@ class PurchaseItem extends Model
 {
     use SoftDeletes;
 
-    public $timestamps = false;
+    public $timestamps = true;
     protected $fillable = [
         'purchase_id',
         'product_id',
         'quantity',
         'price',
-        'total_price'
+        'total_price',
+        'unit_type'
     ];
 
     public function purchase()
