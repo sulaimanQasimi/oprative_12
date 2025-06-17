@@ -106,9 +106,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [UnitController::class, 'index'])->name('admin.units.index');
         Route::get('/create', [UnitController::class, 'create'])->name('admin.units.create');
         Route::post('/', [UnitController::class, 'store'])->name('admin.units.store');
-        Route::get('/{id}/edit', [UnitController::class, 'edit'])->name('admin.units.edit');
-        Route::put('/{id}', [UnitController::class, 'update'])->name('admin.units.update');
-        Route::delete('/{id}', [UnitController::class, 'destroy'])->name('admin.units.destroy');
+        Route::get('/{unit}', [UnitController::class, 'show'])->name('admin.units.show');
+        Route::get('/{unit}/edit', [UnitController::class, 'edit'])->name('admin.units.edit');
+        Route::put('/{unit}', [UnitController::class, 'update'])->name('admin.units.update');
+        Route::delete('/{unit}', [UnitController::class, 'destroy'])->name('admin.units.destroy');
+        Route::post('/{unit}/restore', [UnitController::class, 'restore'])->name('admin.units.restore');
+        Route::delete('/{unit}/force-delete', [UnitController::class, 'forceDelete'])->name('admin.units.force-delete');
     });
 
     // Supplier Management

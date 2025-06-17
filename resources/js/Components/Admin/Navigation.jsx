@@ -260,6 +260,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Ruler className="w-5 h-5" />,
                     route: "admin.units.index",
                     active: currentRoute?.startsWith("admin.units"),
+                    permission: "view_any_unit",
                 },
                 {
                     name: t("Currencies"),
@@ -333,7 +334,9 @@ const Navigation = ({ auth, currentRoute }) => {
                         {/* Group Items */}
                         {(!group.key || expandedGroups[group.key]) && (
                             <ul className="space-y-1 px-2">
-                                {group.items.map((item, index) => (
+                                {group.items
+                                    .filter(item => !item.permission || auth.user.permissions?.includes(item.permission) || auth.user.can?.(item.permission))
+                                    .map((item, index) => (
                                     <li key={index}>
                                         <Link
                                             href={safeRoute(item.route)}

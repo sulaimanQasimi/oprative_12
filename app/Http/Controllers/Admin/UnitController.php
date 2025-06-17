@@ -9,17 +9,44 @@ use Inertia\Inertia;
 
 class UnitController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('can:view_any_unit')->only(['index']);
+        $this->middleware('can:view_unit,unit')->only(['show']);
+        $this->middleware('can:create_unit')->only(['create', 'store']);
+        $this->middleware('can:update_unit,unit')->only(['edit', 'update']);
+        $this->middleware('can:delete_unit,unit')->only(['destroy']);
+        $this->middleware('can:restore_unit,unit')->only(['restore']);
+        $this->middleware('can:force_delete_unit,unit')->only(['forceDelete']);
+    }
+
     public function index()
     {
         $units = Unit::all();
+
+        // Pass permissions to the frontend
+        $permissions = [
+            'can_create' => auth()->user()->can('create_unit'),
+            'can_update' => auth()->user()->can('update_unit', Unit::class),
+            'can_delete' => auth()->user()->can('delete_unit', Unit::class),
+            'can_view' => auth()->user()->can('view_unit', Unit::class),
+        ];
+
         return Inertia::render('Admin/Unit/Index', [
             'units' => $units,
+            'permissions' => $permissions,
         ]);
     }
 
     public function create()
     {
-        return Inertia::render('Admin/Unit/Create');
+        $permissions = [
+            'can_create' => auth()->user()->can('create_unit'),
+        ];
+
+        return Inertia::render('Admin/Unit/Create', [
+            'permissions' => $permissions,
+        ]);
     }
 
     public function store(Request $request)
@@ -36,10 +63,29 @@ class UnitController extends Controller
             ->with('success', 'Unit created successfully.');
     }
 
+    public function show(Unit $unit)
+    {
+        $permissions = [
+            'can_view' => auth()->user()->can('view_unit', $unit),
+            'can_update' => auth()->user()->can('update_unit', $unit),
+            'can_delete' => auth()->user()->can('delete_unit', $unit),
+        ];
+
+        return Inertia::render('Admin/Unit/Show', [
+            'unit' => $unit,
+            'permissions' => $permissions,
+        ]);
+    }
+
     public function edit(Unit $unit)
     {
+        $permissions = [
+            'can_update' => auth()->user()->can('update_unit', $unit),
+        ];
+
         return Inertia::render('Admin/Unit/Edit', [
             'unit' => $unit,
+            'permissions' => $permissions,
         ]);
     }
 
@@ -63,5 +109,21 @@ class UnitController extends Controller
 
         return redirect()->route('admin.units.index')
             ->with('success', 'Unit deleted successfully.');
+    }
+
+    public function restore(Unit $unit)
+    {
+        $unit->restore();
+
+        return redirect()->route('admin.units.index')
+            ->with('success', 'Unit restored successfully.');
+    }
+
+    public function forceDelete(Unit $unit)
+    {
+        $unit->forceDelete();
+
+        return redirect()->route('admin.units.index')
+            ->with('success', 'Unit permanently deleted.');
     }
 }
