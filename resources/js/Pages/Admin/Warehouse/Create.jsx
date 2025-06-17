@@ -22,12 +22,7 @@ import {
     Building,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/Components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Textarea } from "@/Components/ui/textarea";
@@ -36,6 +31,7 @@ import { Badge } from "@/Components/ui/badge";
 import { Separator } from "@/Components/ui/separator";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import { Checkbox } from "@/Components/ui/checkbox";
 
 export default function Create({ auth }) {
     const { t } = useLaravelReactI18n();
@@ -146,7 +142,10 @@ export default function Create({ auth }) {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Enhanced Header */}
-                    <header ref={headerRef} className="glass-effect border-b border-slate-200/50 dark:border-slate-800/50 py-6 px-8 sticky top-0 z-40">
+                    <header
+                        ref={headerRef}
+                        className="glass-effect border-b border-slate-200/50 dark:border-slate-800/50 py-6 px-8 sticky top-0 z-40"
+                    >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
                                 <div className="relative">
@@ -160,7 +159,10 @@ export default function Create({ auth }) {
                                         <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                                             {t("Warehouse Management")}
                                         </span>
-                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+                                        <Badge
+                                            variant="outline"
+                                            className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
+                                        >
                                             <Activity className="h-3 w-3 mr-1" />
                                             {t("Create Mode")}
                                         </Badge>
@@ -169,14 +171,19 @@ export default function Create({ auth }) {
                                         {t("Create Warehouse")}
                                     </h1>
                                     <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                        {t("Add a new warehouse facility to your system")}
+                                        {t(
+                                            "Add a new warehouse facility to your system"
+                                        )}
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-center space-x-3">
                                 <Link href={route("admin.warehouses.index")}>
-                                    <Button variant="outline" className="shadow-sm">
+                                    <Button
+                                        variant="outline"
+                                        className="shadow-sm"
+                                    >
                                         <ArrowLeft className="h-4 w-4 mr-2" />
                                         {t("Back to List")}
                                     </Button>
@@ -188,7 +195,10 @@ export default function Create({ auth }) {
                     {/* Main Content Container */}
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
                         <div className="p-8">
-                            <div ref={formRef} className="max-w-4xl mx-auto space-y-8">
+                            <div
+                                ref={formRef}
+                                className="max-w-4xl mx-auto space-y-8"
+                            >
                                 {/* Form Card */}
                                 <Card className="form-card border-0 shadow-xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 overflow-hidden">
                                     <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-b border-slate-200/50 dark:border-slate-700/50 pb-6">
@@ -199,21 +209,31 @@ export default function Create({ auth }) {
                                                 </div>
                                                 <div>
                                                     <CardTitle className="text-xl font-bold text-slate-900 dark:text-white">
-                                                        {t("Warehouse Information")}
+                                                        {t(
+                                                            "Warehouse Information"
+                                                        )}
                                                     </CardTitle>
                                                     <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                                        {t("Fill in the details for your new warehouse facility")}
+                                                        {t(
+                                                            "Fill in the details for your new warehouse facility"
+                                                        )}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
+                                            <Badge
+                                                variant="outline"
+                                                className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800"
+                                            >
                                                 <Info className="h-3 w-3 mr-1" />
                                                 {t("Required Fields")}
                                             </Badge>
                                         </div>
                                     </CardHeader>
                                     <CardContent className="p-8">
-                                        <form onSubmit={handleSubmit} className="space-y-8">
+                                        <form
+                                            onSubmit={handleSubmit}
+                                            className="space-y-8"
+                                        >
                                             {/* Basic Information Section */}
                                             <div className="space-y-6">
                                                 <div className="flex items-center space-x-2 mb-4">
@@ -228,16 +248,32 @@ export default function Create({ auth }) {
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                     {/* Name */}
                                                     <div className="space-y-3">
-                                                        <Label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="name"
+                                                            className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                                        >
                                                             <Building className="h-4 w-4 text-blue-500" />
-                                                            {t("Warehouse Name")} <span className="text-red-500">*</span>
+                                                            {t(
+                                                                "Warehouse Name"
+                                                            )}{" "}
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Input
                                                             id="name"
                                                             type="text"
-                                                            placeholder={t("Enter warehouse name")}
+                                                            placeholder={t(
+                                                                "Enter warehouse name"
+                                                            )}
                                                             value={data.name}
-                                                            onChange={(e) => setData("name", e.target.value)}
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    "name",
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
                                                             className={`transition-all duration-200 ${
                                                                 errors.name
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -246,8 +282,14 @@ export default function Create({ auth }) {
                                                         />
                                                         {errors.name && (
                                                             <motion.p
-                                                                initial={{ opacity: 0, y: -10 }}
-                                                                animate={{ opacity: 1, y: 0 }}
+                                                                initial={{
+                                                                    opacity: 0,
+                                                                    y: -10,
+                                                                }}
+                                                                animate={{
+                                                                    opacity: 1,
+                                                                    y: 0,
+                                                                }}
                                                                 className="text-sm text-red-500 flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="h-3 w-3" />
@@ -258,16 +300,31 @@ export default function Create({ auth }) {
 
                                                     {/* Code */}
                                                     <div className="space-y-3">
-                                                        <Label htmlFor="code" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="code"
+                                                            className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                                        >
                                                             <Hash className="h-4 w-4 text-green-500" />
-                                                            {t("Warehouse Code")} <span className="text-red-500">*</span>
+                                                            {t(
+                                                                "Warehouse Code"
+                                                            )}{" "}
+                                                            <span className="text-red-500">
+                                                                *
+                                                            </span>
                                                         </Label>
                                                         <Input
                                                             id="code"
                                                             type="text"
-                                                            placeholder={t("Enter unique warehouse code")}
+                                                            placeholder={t(
+                                                                "Enter unique warehouse code"
+                                                            )}
                                                             value={data.code}
-                                                            onChange={(e) => setData("code", e.target.value.toUpperCase())}
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    "code",
+                                                                    e.target.value.toUpperCase()
+                                                                )
+                                                            }
                                                             className={`transition-all duration-200 font-mono ${
                                                                 errors.code
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -276,8 +333,14 @@ export default function Create({ auth }) {
                                                         />
                                                         {errors.code && (
                                                             <motion.p
-                                                                initial={{ opacity: 0, y: -10 }}
-                                                                animate={{ opacity: 1, y: 0 }}
+                                                                initial={{
+                                                                    opacity: 0,
+                                                                    y: -10,
+                                                                }}
+                                                                animate={{
+                                                                    opacity: 1,
+                                                                    y: 0,
+                                                                }}
                                                                 className="text-sm text-red-500 flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="h-3 w-3" />
@@ -288,16 +351,29 @@ export default function Create({ auth }) {
 
                                                     {/* Location */}
                                                     <div className="space-y-3">
-                                                        <Label htmlFor="location" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="location"
+                                                            className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                                        >
                                                             <MapPin className="h-4 w-4 text-orange-500" />
                                                             {t("Location")}
                                                         </Label>
                                                         <Input
                                                             id="location"
                                                             type="text"
-                                                            placeholder={t("Enter warehouse location")}
-                                                            value={data.location}
-                                                            onChange={(e) => setData("location", e.target.value)}
+                                                            placeholder={t(
+                                                                "Enter warehouse location"
+                                                            )}
+                                                            value={
+                                                                data.location
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    "location",
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
                                                             className={`transition-all duration-200 ${
                                                                 errors.location
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -306,28 +382,51 @@ export default function Create({ auth }) {
                                                         />
                                                         {errors.location && (
                                                             <motion.p
-                                                                initial={{ opacity: 0, y: -10 }}
-                                                                animate={{ opacity: 1, y: 0 }}
+                                                                initial={{
+                                                                    opacity: 0,
+                                                                    y: -10,
+                                                                }}
+                                                                animate={{
+                                                                    opacity: 1,
+                                                                    y: 0,
+                                                                }}
                                                                 className="text-sm text-red-500 flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="h-3 w-3" />
-                                                                {errors.location}
+                                                                {
+                                                                    errors.location
+                                                                }
                                                             </motion.p>
                                                         )}
                                                     </div>
 
                                                     {/* Capacity */}
                                                     <div className="space-y-3">
-                                                        <Label htmlFor="capacity" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Label
+                                                            htmlFor="capacity"
+                                                            className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                                        >
                                                             <Package className="h-4 w-4 text-purple-500" />
-                                                            {t("Storage Capacity")}
+                                                            {t(
+                                                                "Storage Capacity"
+                                                            )}
                                                         </Label>
                                                         <Input
                                                             id="capacity"
                                                             type="number"
-                                                            placeholder={t("Enter storage capacity")}
-                                                            value={data.capacity}
-                                                            onChange={(e) => setData("capacity", e.target.value)}
+                                                            placeholder={t(
+                                                                "Enter storage capacity"
+                                                            )}
+                                                            value={
+                                                                data.capacity
+                                                            }
+                                                            onChange={(e) =>
+                                                                setData(
+                                                                    "capacity",
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
                                                             className={`transition-all duration-200 ${
                                                                 errors.capacity
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -336,12 +435,20 @@ export default function Create({ auth }) {
                                                         />
                                                         {errors.capacity && (
                                                             <motion.p
-                                                                initial={{ opacity: 0, y: -10 }}
-                                                                animate={{ opacity: 1, y: 0 }}
+                                                                initial={{
+                                                                    opacity: 0,
+                                                                    y: -10,
+                                                                }}
+                                                                animate={{
+                                                                    opacity: 1,
+                                                                    y: 0,
+                                                                }}
                                                                 className="text-sm text-red-500 flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="h-3 w-3" />
-                                                                {errors.capacity}
+                                                                {
+                                                                    errors.capacity
+                                                                }
                                                             </motion.p>
                                                         )}
                                                     </div>
@@ -349,15 +456,25 @@ export default function Create({ auth }) {
 
                                                 {/* Description */}
                                                 <div className="space-y-3">
-                                                    <Label htmlFor="description" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                    <Label
+                                                        htmlFor="description"
+                                                        className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                                    >
                                                         <FileText className="h-4 w-4 text-indigo-500" />
                                                         {t("Description")}
                                                     </Label>
                                                     <Textarea
                                                         id="description"
-                                                        placeholder={t("Enter warehouse description (optional)")}
+                                                        placeholder={t(
+                                                            "Enter warehouse description (optional)"
+                                                        )}
                                                         value={data.description}
-                                                        onChange={(e) => setData("description", e.target.value)}
+                                                        onChange={(e) =>
+                                                            setData(
+                                                                "description",
+                                                                e.target.value
+                                                            )
+                                                        }
                                                         rows={4}
                                                         className={`transition-all duration-200 resize-none ${
                                                             errors.description
@@ -367,8 +484,14 @@ export default function Create({ auth }) {
                                                     />
                                                     {errors.description && (
                                                         <motion.p
-                                                            initial={{ opacity: 0, y: -10 }}
-                                                            animate={{ opacity: 1, y: 0 }}
+                                                            initial={{
+                                                                opacity: 0,
+                                                                y: -10,
+                                                            }}
+                                                            animate={{
+                                                                opacity: 1,
+                                                                y: 0,
+                                                            }}
                                                             className="text-sm text-red-500 flex items-center gap-1"
                                                         >
                                                             <AlertCircle className="h-3 w-3" />
@@ -387,37 +510,73 @@ export default function Create({ auth }) {
                                                         <Settings className="h-4 w-4 text-white" />
                                                     </div>
                                                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                                                        {t("Warehouse Settings")}
+                                                        {t(
+                                                            "Warehouse Settings"
+                                                        )}
                                                     </h3>
                                                 </div>
 
                                                 {/* Status */}
                                                 <div className="space-y-3">
-                                                    <Label htmlFor="is_active" className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                    <Label
+                                                        htmlFor="is_active"
+                                                        className="text-sm font-medium text-slate-700 dark:text-slate-300 flex items-center gap-2"
+                                                    >
                                                         <Activity className="h-4 w-4 text-green-500" />
                                                         {t("Warehouse Status")}
                                                     </Label>
                                                     <div className="flex items-center space-x-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
-                                                        <Switch
-                                                            id="is_active"
-                                                            checked={data.is_active}
-                                                            onCheckedChange={(checked) => setData("is_active", checked)}
-                                                        />
-                                                        <div className="flex items-center space-x-2">
-                                                            {data.is_active ? (
-                                                                <CheckCircle className="h-4 w-4 text-green-500" />
-                                                            ) : (
-                                                                <AlertCircle className="h-4 w-4 text-red-500" />
-                                                            )}
-                                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                                {data.is_active ? t("Active") : t("Inactive")}
-                                                            </span>
+                                                        <div className="flex items-center space-x-4">
+                                                            <Checkbox
+                                                                id="is_active"
+                                                                checked={
+                                                                    data.is_active
+                                                                }
+                                                                onCheckedChange={(
+                                                                    checked
+                                                                ) =>
+                                                                    setData(
+                                                                        "is_active",
+                                                                        checked
+                                                                    )
+                                                                }
+                                                                className={`${
+                                                                    data.is_active
+                                                                        ? "border-green-500 bg-green-500 hover:bg-green-600"
+                                                                        : "border-red-500 bg-red-500 hover:bg-red-600"
+                                                                }`}
+                                                            />
+                                                            <div className="flex items-center space-x-2">
+                                                                {data.is_active ? (
+                                                                    <CheckCircle className="h-4 w-4 text-green-500" />
+                                                                ) : (
+                                                                    <AlertCircle className="h-4 w-4 text-red-500" />
+                                                                )}
+                                                                <span
+                                                                    className={`text-sm ml-2 font-medium ${
+                                                                        data.is_active
+                                                                            ? "text-green-700 dark:text-green-400"
+                                                                            : "text-red-700 dark:text-red-400"
+                                                                    }`}
+                                                                >
+                                                                    {data.is_active
+                                                                        ? t(
+                                                                              "Active"
+                                                                          )
+                                                                        : t(
+                                                                              "Inactive"
+                                                                          )}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400">
                                                             {data.is_active
-                                                                ? t("Warehouse is operational and can be used")
-                                                                : t("Warehouse is disabled and cannot be used")
-                                                            }
+                                                                ? t(
+                                                                      "Warehouse is operational and can be used"
+                                                                  )
+                                                                : t(
+                                                                      "Warehouse is disabled and cannot be used"
+                                                                  )}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -427,8 +586,15 @@ export default function Create({ auth }) {
 
                                             {/* Action Buttons */}
                                             <div className="flex items-center justify-between pt-6">
-                                                <Link href={route("admin.warehouses.index")}>
-                                                    <Button variant="outline" className="shadow-sm">
+                                                <Link
+                                                    href={route(
+                                                        "admin.warehouses.index"
+                                                    )}
+                                                >
+                                                    <Button
+                                                        variant="outline"
+                                                        className="shadow-sm"
+                                                    >
                                                         <ArrowLeft className="h-4 w-4 mr-2" />
                                                         {t("Cancel")}
                                                     </Button>
@@ -441,12 +607,20 @@ export default function Create({ auth }) {
                                                     {processing ? (
                                                         <div className="flex items-center space-x-2">
                                                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                                            <span>{t("Creating...")}</span>
+                                                            <span>
+                                                                {t(
+                                                                    "Creating..."
+                                                                )}
+                                                            </span>
                                                         </div>
                                                     ) : (
                                                         <div className="flex items-center space-x-2">
                                                             <Save className="h-4 w-4" />
-                                                            <span>{t("Create Warehouse")}</span>
+                                                            <span>
+                                                                {t(
+                                                                    "Create Warehouse"
+                                                                )}
+                                                            </span>
                                                         </div>
                                                     )}
                                                 </Button>

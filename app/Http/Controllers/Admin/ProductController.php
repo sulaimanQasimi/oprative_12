@@ -11,11 +11,59 @@ use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with(['wholesaleUnit', 'retailUnit'])->latest()->get();
+        $query = Product::with(['wholesaleUnit', 'retailUnit']);
+
+        // Apply search filter
+        if ($request->has('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhere('barcode', 'like', "%{$search}%")
+                    ->orWhere('type', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply status filter
+        if ($request->has('status') && $request->input('status') !== 'all') {
+            $status = $request->input('status');
+            switch ($status) {
+                case 'active':
+                    $query->where('is_activated', true);
+                    break;
+                case 'inactive':
+                    $query->where('is_activated', false);
+                    break;
+                case 'in_stock':
+                    $query->where('is_in_stock', true);
+                    break;
+                case 'trending':
+                    $query->where('is_trend', true);
+                    break;
+            }
+        }
+
+        // Apply type filter
+        if ($request->has('type') && $request->input('type') !== 'all') {
+            $query->where('type', $request->input('type'));
+        }
+
+        // Apply sorting
+        $sortField = $request->input('sort_field', 'name');
+        $sortDirection = $request->input('sort_direction', 'asc');
+        $query->orderBy($sortField, $sortDirection);
+
+        // Get paginated results
+        $products = $query->paginate(10)->withQueryString();
+
+        // Get unique product types for filter
+        $productTypes = Product::distinct()->pluck('type')->filter();
+
         return Inertia::render('Admin/Product/Index', [
-            'products' => $products
+            'products' => $products,
+            'filters' => $request->only(['search', 'status', 'type', 'sort_field', 'sort_direction']),
+            'productTypes' => $productTypes
         ]);
     }
 

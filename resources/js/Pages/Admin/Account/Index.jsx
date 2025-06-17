@@ -491,7 +491,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                     <SelectTrigger className="h-10">
                                                                         <SelectValue placeholder={t("All Statuses")} />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
+                                                                    <SelectContent className="fixed top-0">
                                                                         <SelectItem value="">{t("All Statuses")}</SelectItem>
                                                                         <SelectItem value="pending">{t("Pending")}</SelectItem>
                                                                         <SelectItem value="active">{t("Active")}</SelectItem>
@@ -509,7 +509,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                     <SelectTrigger className="h-10">
                                                                         <SelectValue placeholder={t("All Customers")} />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
+                                                                    <SelectContent className="fixed top-50 right-0">
                                                                         <SelectItem value="">{t("All Customers")}</SelectItem>
                                                                         {customers.map(customer => (
                                                                             <SelectItem key={customer.id} value={customer.id.toString()}>
@@ -650,9 +650,9 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                                     <Edit className="h-4 w-4 text-green-600" />
                                                                                 </Link>
                                                                             </Button>
-                                                                            <Button 
-                                                                                size="sm" 
-                                                                                variant="outline" 
+                                                                            <Button
+                                                                                size="sm"
+                                                                                variant="outline"
                                                                                 className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-300"
                                                                                 onClick={() => handleDelete(account)}
                                                                             >
@@ -710,7 +710,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                     <div className="text-sm text-slate-600 dark:text-slate-400">
                                                         {t("Showing")} {accounts.from} {t("to")} {accounts.to} {t("of")} {accounts.total} {t("accounts")}
                                                     </div>
-                                                    
+
                                                     <div className="flex items-center gap-2">
                                                         {accounts.links.map((link, index) => {
                                                             if (link.url === null) {
@@ -722,8 +722,8 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                         disabled
                                                                         className="w-10 h-10 p-0"
                                                                     >
-                                                                        {link.label === '&laquo; Previous' ? <ChevronLeft className="h-4 w-4" /> : 
-                                                                         link.label === 'Next &raquo;' ? <ChevronRight className="h-4 w-4" /> : 
+                                                                        {link.label === '&laquo; Previous' ? <ChevronLeft className="h-4 w-4" /> :
+                                                                         link.label === 'Next &raquo;' ? <ChevronRight className="h-4 w-4" /> :
                                                                          link.label}
                                                                     </Button>
                                                                 );
@@ -743,8 +743,8 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                         });
                                                                     }}
                                                                 >
-                                                                    {link.label === '&laquo; Previous' ? <ChevronLeft className="h-4 w-4" /> : 
-                                                                     link.label === 'Next &raquo;' ? <ChevronRight className="h-4 w-4" /> : 
+                                                                    {link.label === '&laquo; Previous' ? <ChevronLeft className="h-4 w-4" /> :
+                                                                     link.label === 'Next &raquo;' ? <ChevronRight className="h-4 w-4" /> :
                                                                      link.label}
                                                                 </Button>
                                                             );
