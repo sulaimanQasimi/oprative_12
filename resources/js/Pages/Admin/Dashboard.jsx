@@ -10,13 +10,10 @@ import {
     TrendingUp,
     BarChart3,
     Users,
-    DollarSign,
-    Eye,
     Plus,
     Sparkles,
     ArrowUpRight,
 } from "lucide-react";
-import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
@@ -31,7 +28,7 @@ export default function Dashboard({ auth }) {
 
     // Animation effect
     useEffect(() => {
-        const timer = setTimeout(() => {
+        const timer = setTimeout(() => { 
             setLoading(false);
             setIsAnimated(true);
         }, 800);
