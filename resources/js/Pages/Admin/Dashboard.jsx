@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Head, Link, usePage } from '@inertiajs/react';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import React, { useState, useEffect } from "react";
+import { Head, Link, usePage } from "@inertiajs/react";
+import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     Home,
     Package,
@@ -10,32 +10,25 @@ import {
     TrendingUp,
     BarChart3,
     Users,
-    DollarSign,
-    Eye,
     Plus,
     Sparkles,
-    ArrowUpRight
-} from 'lucide-react';
-import { Button } from '@/Components/ui/button';
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from '@/Components/ui/card';
-import { motion } from 'framer-motion';
-import Navigation from '@/Components/Admin/Navigation';
-import PageLoader from '@/Components/Admin/PageLoader';
+    ArrowUpRight,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { motion } from "framer-motion";
+import Navigation from "@/Components/Admin/Navigation";
+import PageLoader from "@/Components/Admin/PageLoader";
 
 export default function Dashboard({ auth }) {
     const { t } = useLaravelReactI18n();
-    const { stats, recentProducts, recentWarehouses, recentCustomers } = usePage().props;
+    const { stats, recentProducts, recentWarehouses, recentCustomers } =
+        usePage().props;
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
 
     // Animation effect
     useEffect(() => {
-        const timer = setTimeout(() => {
+        const timer = setTimeout(() => { 
             setLoading(false);
             setIsAnimated(true);
         }, 800);
@@ -54,14 +47,20 @@ export default function Dashboard({ auth }) {
                     <div className="flex items-center justify-between">
                         <div className="space-y-2">
                             <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                                {title}
+                                {t(title)}
                             </p>
                             <p className={`text-3xl font-bold ${color}`}>
-                                {typeof value === 'number' ? value.toLocaleString() : value}
+                                {typeof value === "number"
+                                    ? value.toLocaleString()
+                                    : value}
                             </p>
-                            <p className="text-xs text-slate-500">{description}</p>
+                            <p className="text-xs text-slate-500">
+                                {t(description)}
+                            </p>
                         </div>
-                        <div className={`p-4 bg-gradient-to-br rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        <div
+                            className={`p-4 bg-gradient-to-br rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                        >
                             {icon}
                         </div>
                     </div>
@@ -70,7 +69,7 @@ export default function Dashboard({ auth }) {
                             href={route(link)}
                             className="mt-4 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors group-hover:translate-x-1 duration-200"
                         >
-                            View all
+                            {t("View all")}
                             <ArrowUpRight className="w-4 h-4 ml-1" />
                         </Link>
                     )}
@@ -91,7 +90,9 @@ export default function Dashboard({ auth }) {
                 <h4 className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {title}
                 </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{subtitle}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {subtitle}
+                </p>
             </div>
             <div className="text-sm text-gray-400">
                 {new Date(date).toLocaleDateString()}
@@ -180,9 +181,22 @@ export default function Dashboard({ auth }) {
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <motion.div
-                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
-                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    initial={{
+                                        scale: 0.8,
+                                        opacity: 0,
+                                        rotate: -180,
+                                    }}
+                                    animate={{
+                                        scale: 1,
+                                        opacity: 1,
+                                        rotate: 0,
+                                    }}
+                                    transition={{
+                                        delay: 0.3,
+                                        duration: 0.6,
+                                        type: "spring",
+                                        stiffness: 200,
+                                    }}
                                     className="relative float-animation"
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl blur-lg opacity-60"></div>
@@ -195,7 +209,10 @@ export default function Dashboard({ auth }) {
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        transition={{
+                                            delay: 0.4,
+                                            duration: 0.4,
+                                        }}
                                         className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
@@ -204,7 +221,10 @@ export default function Dashboard({ auth }) {
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        transition={{
+                                            delay: 0.5,
+                                            duration: 0.4,
+                                        }}
                                         className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 bg-clip-text text-transparent"
                                     >
                                         {t("Dashboard")}
@@ -212,7 +232,10 @@ export default function Dashboard({ auth }) {
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        transition={{
+                                            delay: 0.6,
+                                            duration: 0.4,
+                                        }}
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
@@ -227,11 +250,11 @@ export default function Dashboard({ auth }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="text-sm text-slate-600 dark:text-slate-400"
                             >
-                                {new Date().toLocaleDateString('en-US', {
-                                    weekday: 'long',
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
+                                {new Date().toLocaleDateString("en-US", {
+                                    weekday: "long",
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
                                 })}
                             </motion.div>
                         </div>
@@ -249,36 +272,44 @@ export default function Dashboard({ auth }) {
                                 {/* Stats Grid */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                                     <StatCard
-                                        title="Products"
+                                        title={t("Products")}
                                         value={stats?.products || 0}
                                         color="text-blue-600"
                                         link="admin.products.index"
-                                        description="Product catalog"
-                                        icon={<Package className="w-8 h-8 text-blue-600" />}
+                                        description={t("Product catalog")}
+                                        icon={
+                                            <Package className="w-8 h-8 text-blue-600" />
+                                        }
                                     />
                                     <StatCard
-                                        title="Warehouses"
+                                        title={t("Warehouses")}
                                         value={stats?.warehouses || 0}
                                         color="text-green-600"
                                         link="admin.warehouses.index"
-                                        description="Storage facilities"
-                                        icon={<Warehouse className="w-8 h-8 text-green-600" />}
+                                        description={t("Storage facilities")}
+                                        icon={
+                                            <Warehouse className="w-8 h-8 text-green-600" />
+                                        }
                                     />
                                     <StatCard
-                                        title="Shops"
+                                        title={t("Shops")}
                                         value={stats?.shops || 0}
                                         color="text-purple-600"
                                         link="admin.customers.index"
-                                        description="Customer stores"
-                                        icon={<ShoppingCart className="w-8 h-8 text-purple-600" />}
+                                        description={t("Customer stores")}
+                                        icon={
+                                            <ShoppingCart className="w-8 h-8 text-purple-600" />
+                                        }
                                     />
                                     <StatCard
-                                        title="Units"
+                                        title={t("Units")}
                                         value={stats?.units || 0}
                                         color="text-orange-600"
                                         link="admin.units.index"
-                                        description="Measurement units"
-                                        icon={<Ruler className="w-8 h-8 text-orange-600" />}
+                                        description={t("Measurement units")}
+                                        icon={
+                                            <Ruler className="w-8 h-8 text-orange-600" />
+                                        }
                                     />
                                 </div>
 
@@ -288,7 +319,10 @@ export default function Dashboard({ auth }) {
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.0, duration: 0.4 }}
+                                        transition={{
+                                            delay: 1.0,
+                                            duration: 0.4,
+                                        }}
                                     >
                                         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                             <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
@@ -298,26 +332,44 @@ export default function Dashboard({ auth }) {
                                                     </div>
                                                     {t("Recent Products")}
                                                     <Link
-                                                        href={route('admin.products.index')}
+                                                        href={route(
+                                                            "admin.products.index"
+                                                        )}
                                                         className="ml-auto text-blue-600 hover:text-blue-800 text-sm font-medium"
                                                     >
-                                                        View all
+                                                        {t("View all")}
                                                     </Link>
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6 space-y-4">
                                                 {recentProducts?.length > 0 ? (
-                                                    recentProducts.map((product) => (
-                                                        <RecentItem
-                                                            key={product.id}
-                                                            title={product.name}
-                                                            subtitle={`Unit: ${product.unit?.name || 'N/A'}`}
-                                                            date={product.created_at}
-                                                            icon={<Package className="w-5 h-5 text-blue-600" />}
-                                                        />
-                                                    ))
+                                                    recentProducts.map(
+                                                        (product) => (
+                                                            <RecentItem
+                                                                key={product.id}
+                                                                title={
+                                                                    product.name
+                                                                }
+                                                                subtitle={`Unit: ${
+                                                                    product.unit
+                                                                        ?.name ||
+                                                                    "N/A"
+                                                                }`}
+                                                                date={
+                                                                    product.created_at
+                                                                }
+                                                                icon={
+                                                                    <Package className="w-5 h-5 text-blue-600" />
+                                                                }
+                                                            />
+                                                        )
+                                                    )
                                                 ) : (
-                                                    <p className="text-gray-500 text-center py-4">No recent products</p>
+                                                    <p className="text-gray-500 text-center py-4">
+                                                        {t(
+                                                            "No recent products"
+                                                        )}
+                                                    </p>
                                                 )}
                                             </CardContent>
                                         </Card>
@@ -327,7 +379,10 @@ export default function Dashboard({ auth }) {
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.1, duration: 0.4 }}
+                                        transition={{
+                                            delay: 1.1,
+                                            duration: 0.4,
+                                        }}
                                     >
                                         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                             <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
@@ -337,26 +392,46 @@ export default function Dashboard({ auth }) {
                                                     </div>
                                                     {t("Recent Warehouses")}
                                                     <Link
-                                                        href={route('admin.warehouses.index')}
+                                                        href={route(
+                                                            "admin.warehouses.index"
+                                                        )}
                                                         className="ml-auto text-green-600 hover:text-green-800 text-sm font-medium"
                                                     >
-                                                        View all
+                                                        {t("View all")}
                                                     </Link>
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6 space-y-4">
-                                                {recentWarehouses?.length > 0 ? (
-                                                    recentWarehouses.map((warehouse) => (
-                                                        <RecentItem
-                                                            key={warehouse.id}
-                                                            title={warehouse.name}
-                                                            subtitle={`Location: ${warehouse.location || 'N/A'}`}
-                                                            date={warehouse.created_at}
-                                                            icon={<Warehouse className="w-5 h-5 text-green-600" />}
-                                                        />
-                                                    ))
+                                                {recentWarehouses?.length >
+                                                0 ? (
+                                                    recentWarehouses.map(
+                                                        (warehouse) => (
+                                                            <RecentItem
+                                                                key={
+                                                                    warehouse.id
+                                                                }
+                                                                title={
+                                                                    warehouse.name
+                                                                }
+                                                                subtitle={`Location: ${
+                                                                    warehouse.location ||
+                                                                    "N/A"
+                                                                }`}
+                                                                date={
+                                                                    warehouse.created_at
+                                                                }
+                                                                icon={
+                                                                    <Warehouse className="w-5 h-5 text-green-600" />
+                                                                }
+                                                            />
+                                                        )
+                                                    )
                                                 ) : (
-                                                    <p className="text-gray-500 text-center py-4">No recent warehouses</p>
+                                                    <p className="text-gray-500 text-center py-4">
+                                                        {t(
+                                                            "No recent warehouses"
+                                                        )}
+                                                    </p>
                                                 )}
                                             </CardContent>
                                         </Card>
@@ -366,7 +441,10 @@ export default function Dashboard({ auth }) {
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.2, duration: 0.4 }}
+                                        transition={{
+                                            delay: 1.2,
+                                            duration: 0.4,
+                                        }}
                                     >
                                         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                             <CardHeader className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50">
@@ -376,26 +454,43 @@ export default function Dashboard({ auth }) {
                                                     </div>
                                                     {t("Recent Shops")}
                                                     <Link
-                                                        href={route('admin.customers.index')}
+                                                        href={route(
+                                                            "admin.customers.index"
+                                                        )}
                                                         className="ml-auto text-purple-600 hover:text-purple-800 text-sm font-medium"
                                                     >
-                                                        View all
+                                                        {t("View all")}
                                                     </Link>
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-6 space-y-4">
                                                 {recentCustomers?.length > 0 ? (
-                                                    recentCustomers.map((customer) => (
-                                                        <RecentItem
-                                                            key={customer.id}
-                                                            title={customer.name}
-                                                            subtitle={`Email: ${customer.email || 'N/A'}`}
-                                                            date={customer.created_at}
-                                                            icon={<Users className="w-5 h-5 text-purple-600" />}
-                                                        />
-                                                    ))
+                                                    recentCustomers.map(
+                                                        (customer) => (
+                                                            <RecentItem
+                                                                key={
+                                                                    customer.id
+                                                                }
+                                                                title={
+                                                                    customer.name
+                                                                }
+                                                                subtitle={`Email: ${
+                                                                    customer.email ||
+                                                                    "N/A"
+                                                                }`}
+                                                                date={
+                                                                    customer.created_at
+                                                                }
+                                                                icon={
+                                                                    <Users className="w-5 h-5 text-purple-600" />
+                                                                }
+                                                            />
+                                                        )
+                                                    )
                                                 ) : (
-                                                    <p className="text-gray-500 text-center py-4">No recent shops</p>
+                                                    <p className="text-gray-500 text-center py-4">
+                                                        {t("No recent shops")}
+                                                    </p>
                                                 )}
                                             </CardContent>
                                         </Card>
@@ -420,50 +515,66 @@ export default function Dashboard({ auth }) {
                                         <CardContent className="p-6">
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                                                 <Link
-                                                    href={route('admin.products.create')}
+                                                    href={route(
+                                                        "admin.products.create"
+                                                    )}
                                                     className="bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
                                                         <div className="bg-blue-600 p-2 rounded-lg mr-3 group-hover:bg-blue-700 transition-colors">
                                                             <Plus className="w-5 h-5 text-white" />
                                                         </div>
-                                                        <span className="font-medium text-blue-900 dark:text-blue-100">Add Product</span>
+                                                        <span className="font-medium text-blue-900 dark:text-blue-100">
+                                                            {t("Add Product")}
+                                                        </span>
                                                     </div>
                                                 </Link>
 
                                                 <Link
-                                                    href={route('admin.warehouses.create')}
+                                                    href={route(
+                                                        "admin.warehouses.create"
+                                                    )}
                                                     className="bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30 p-4 rounded-lg border border-green-200 dark:border-green-800 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
                                                         <div className="bg-green-600 p-2 rounded-lg mr-3 group-hover:bg-green-700 transition-colors">
                                                             <Plus className="w-5 h-5 text-white" />
                                                         </div>
-                                                        <span className="font-medium text-green-900 dark:text-green-100">Add Warehouse</span>
+                                                        <span className="font-medium text-green-900 dark:text-green-100">
+                                                            {t("Add Warehouse")}
+                                                        </span>
                                                     </div>
                                                 </Link>
 
                                                 <Link
-                                                    href={route('admin.customers.create')}
+                                                    href={route(
+                                                        "admin.customers.create"
+                                                    )}
                                                     className="bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30 p-4 rounded-lg border border-purple-200 dark:border-purple-800 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
                                                         <div className="bg-purple-600 p-2 rounded-lg mr-3 group-hover:bg-purple-700 transition-colors">
                                                             <Plus className="w-5 h-5 text-white" />
                                                         </div>
-                                                        <span className="font-medium text-purple-900 dark:text-purple-100">Add Shop</span>
+                                                        <span className="font-medium text-purple-900 dark:text-purple-100">
+                                                            {t("Add Shop")}
+                                                        </span>
                                                     </div>
                                                 </Link>
 
                                                 <Link
-                                                    href={route('admin.units.create')}
+                                                    href={route(
+                                                        "admin.units.create"
+                                                    )}
                                                     className="bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-900/30 p-4 rounded-lg border border-orange-200 dark:border-orange-800 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
                                                         <div className="bg-orange-600 p-2 rounded-lg mr-3 group-hover:bg-orange-700 transition-colors">
                                                             <Plus className="w-5 h-5 text-white" />
                                                         </div>
-                                                        <span className="font-medium text-orange-900 dark:text-orange-100">Add Unit</span>
+                                                        <span className="font-medium text-orange-900 dark:text-orange-100">
+                                                            {t("Add Unit")}
+                                                        </span>
                                                     </div>
                                                 </Link>
                                             </div>

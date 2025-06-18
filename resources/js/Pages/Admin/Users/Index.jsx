@@ -529,7 +529,7 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                         <SelectValue placeholder={t("All Roles")} />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
-                                                                        <SelectItem value="">{t("All Roles")}</SelectItem>
+                                                                        <SelectItem className="fixed bottom-0 w-40" value="">{t("All Roles")}</SelectItem>
                                                                         {roles?.map(role => (
                                                                             <SelectItem key={role.id} value={role.name}>
                                                                                 {role.name}
@@ -547,7 +547,7 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                     <SelectTrigger className="h-10">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
+                                                                    <SelectContent className="fixed bottom-0 w-11">
                                                                         <SelectItem value="created_at">{t("Date Created")}</SelectItem>
                                                                         <SelectItem value="name">{t("Name")}</SelectItem>
                                                                         <SelectItem value="email">{t("Email")}</SelectItem>
@@ -563,7 +563,7 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                     <SelectTrigger className="h-10">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
+                                                                    <SelectContent className="bottom-0 w-12">
                                                                         <SelectItem value="desc">{t("Descending")}</SelectItem>
                                                                         <SelectItem value="asc">{t("Ascending")}</SelectItem>
                                                                     </SelectContent>

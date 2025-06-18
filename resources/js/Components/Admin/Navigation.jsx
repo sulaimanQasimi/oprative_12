@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
@@ -31,12 +31,14 @@ import {
     Zap,
     UserCheck,
     Key,
-    Building2
+    Building2,
+    X,
 } from "lucide-react";
 
 const Navigation = ({ auth, currentRoute }) => {
     const { t } = useLaravelReactI18n();
     const { url } = usePage();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [expandedGroups, setExpandedGroups] = useState({
         inventory: false,
         warehouse: false,
@@ -44,84 +46,112 @@ const Navigation = ({ auth, currentRoute }) => {
         system: false,
     });
 
+    const toggleMobileMenu = () => {
+        console.log("Toggling menu:", !isMobileMenuOpen); // Debug log
+        setIsMobileMenuOpen((prev) => !prev);
+    };
+
+    // Close mobile menu when route changes
+    useEffect(() => {
+        setIsMobileMenuOpen(false);
+    }, [url]);
+
+    // Close mobile menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (
+                isMobileMenuOpen &&
+                !event.target.closest(".mobile-menu") &&
+                !event.target.closest(".mobile-menu-button")
+            ) {
+                setIsMobileMenuOpen(false);
+            }
+        };
+
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, [isMobileMenuOpen]);
+
     const toggleGroup = (groupKey) => {
-        setExpandedGroups(prev => ({
+        setExpandedGroups((prev) => ({
             ...prev,
-            [groupKey]: !prev[groupKey]
+            [groupKey]: !prev[groupKey],
         }));
     };
 
     // Helper function to safely access routes
     const safeRoute = (routeName) => {
         try {
-            if (typeof route !== 'undefined') {
+            if (typeof route !== "undefined") {
                 return route(routeName);
             }
 
             // Fallback URLs
             switch (routeName) {
-                case 'admin.dashboard':
-                    return '/adminpanel/dashboard';
-                case 'admin.profile.edit':
-                    return '/adminpanel/profile';
-                case 'admin.products.index':
-                    return '/adminpanel/products';
-                case 'admin.suppliers.index':
-                    return '/adminpanel/suppliers';
-                case 'admin.warehouses.index':
-                    return '/adminpanel/warehouses';
-                case 'admin.warehouses.sales':
-                    return '/adminpanel/warehouses/sales';
-                case 'admin.warehouses.income':
-                    return '/adminpanel/warehouses/income';
-                case 'admin.warehouses.outcome':
-                    return '/adminpanel/warehouses/outcome';
-                case 'admin.warehouses.transfers':
-                    return '/adminpanel/warehouses/transfers';
-                case 'admin.units.index':
-                    return '/adminpanel/units';
-                case 'admin.currencies.index':
-                    return '/adminpanel/currencies';
-                case 'admin.employees.index':
-                    return '/adminpanel/employees';
-                case 'admin.customers.index':
-                    return '/adminpanel/customers';
-                case 'admin.accounts.index':
-                    return '/adminpanel/accounts';
-                case 'admin.purchases.index':
-                    return '/adminpanel/purchases';
-                case 'admin.purchases.create':
-                    return '/adminpanel/purchases/create';
-                case 'admin.purchases.show':
-                    return '/adminpanel/purchases/show';
-                case 'admin.purchases.edit':
-                    return '/adminpanel/purchases/edit';
-                case 'admin.users.index':
-                    return '/adminpanel/users';
-                case 'admin.roles.index':
-                    return '/adminpanel/roles';
-                case 'admin.permissions.index':
-                    return '/adminpanel/permissions';
+                case "admin.dashboard":
+                    return "/adminpanel/dashboard";
+                case "admin.profile.edit":
+                    return "/adminpanel/profile";
+                case "admin.products.index":
+                    return "/adminpanel/products";
+                case "admin.suppliers.index":
+                    return "/adminpanel/suppliers";
+                case "admin.warehouses.index":
+                    return "/adminpanel/warehouses";
+                case "admin.warehouses.sales":
+                    return "/adminpanel/warehouses/sales";
+                case "admin.warehouses.income":
+                    return "/adminpanel/warehouses/income";
+                case "admin.warehouses.outcome":
+                    return "/adminpanel/warehouses/outcome";
+                case "admin.warehouses.transfers":
+                    return "/adminpanel/warehouses/transfers";
+                case "admin.units.index":
+                    return "/adminpanel/units";
+                case "admin.currencies.index":
+                    return "/adminpanel/currencies";
+                case "admin.employees.index":
+                    return "/adminpanel/employees";
+                case "admin.customers.index":
+                    return "/adminpanel/customers";
+                case "admin.accounts.index":
+                    return "/adminpanel/accounts";
+                case "admin.purchases.index":
+                    return "/adminpanel/purchases";
+                case "admin.purchases.create":
+                    return "/adminpanel/purchases/create";
+                case "admin.purchases.show":
+                    return "/adminpanel/purchases/show";
+                case "admin.purchases.edit":
+                    return "/adminpanel/purchases/edit";
+                case "admin.users.index":
+                    return "/adminpanel/users";
+                case "admin.roles.index":
+                    return "/adminpanel/roles";
+                case "admin.permissions.index":
+                    return "/adminpanel/permissions";
                 default:
-                    return '#';
+                    return "#";
             }
         } catch (error) {
             console.error(`Route not found: ${routeName}`, error);
-            return '#';
+            return "#";
         }
     };
 
     // Handle logout
     const handleLogout = () => {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/adminpanel/logout';
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = "/adminpanel/logout";
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        const csrfToken = document
+            .querySelector('meta[name="csrf-token"]')
+            ?.getAttribute("content");
         if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '_token';
+            const csrfInput = document.createElement("input");
+            csrfInput.type = "hidden";
+            csrfInput.name = "_token";
             csrfInput.value = csrfToken;
             form.appendChild(csrfInput);
         }
@@ -275,63 +305,104 @@ const Navigation = ({ auth, currentRoute }) => {
     ];
 
     return (
-        <aside className="w-72 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white flex-shrink-0 hidden md:flex flex-col h-screen sticky top-0 shadow-2xl border-r border-slate-700/50">
-            {/* Enhanced Logo and branding */}
-            <div className="p-5 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm">
-                <div className="flex items-center space-x-3">
-                    <div className="relative">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-xl blur opacity-75"></div>
-                        <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-2.5 rounded-xl shadow-lg">
-                            <Zap className="w-6 h-6 text-white" />
+        <>
+            {/* Mobile Menu Button */}
+            <button
+                type="button"
+                onClick={toggleMobileMenu}
+                className="mobile-menu-button fixed top-4 right-4 z-[60] md:hidden bg-slate-900 p-2 rounded-lg shadow-lg border border-slate-700/50 hover:bg-slate-800 transition-colors"
+                aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+            >
+                {isMobileMenuOpen ? (
+                    <X className="w-6 h-6 text-white" />
+                ) : (
+                    <Menu className="w-6 h-6 text-white" />
+                )}
+            </button>
+
+            {/* Mobile Menu Overlay */}
+            {isMobileMenuOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[45] md:hidden"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    aria-hidden="true"
+                />
+            )}
+
+            {/* Navigation Sidebar */}
+            <aside
+                className={`
+                    fixed md:relative w-72 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white
+                    flex-shrink-0 flex flex-col h-screen shadow-2xl border-l border-slate-700/50 z-[50]
+                    transition-transform duration-300 ease-in-out right-0 top-0
+                    ${
+                        isMobileMenuOpen
+                            ? "translate-x-0"
+                            : "translate-x-full md:translate-x-0"
+                    }
+                `}
+                role="navigation"
+                aria-label="Main navigation"
+            >
+                {/* Enhanced Logo and branding */}
+                <div className="p-5 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm">
+                    <div className="flex items-center space-x-3">
+                        <div className="relative">
+                            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-xl blur opacity-75"></div>
+                            <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-2.5 rounded-xl shadow-lg">
+                                <Zap className="w-6 h-6 text-white" />
+                            </div>
+                        </div>
+                        <div>
+                            <h1 className="font-bold text-lg text-white">
+                                {t("Admin Panel")}
+                            </h1>
+                            <p className="text-xs text-blue-400 font-medium">
+                                {t("Management System")}
+                            </p>
                         </div>
                     </div>
-                    <div>
-                        <h1 className="font-bold text-lg text-white">
-                            {t("Admin Panel")}
-                        </h1>
-                        <p className="text-xs text-blue-400 font-medium">
-                            {t("Management System")}
-                        </p>
-                    </div>
                 </div>
-            </div>
 
-            {/* Enhanced Navigation links */}
-            <nav className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
-                {navigationGroups.map((group, groupIndex) => (
-                    <div key={groupIndex} className="mb-4">
-                        {/* Group Header */}
-                        <div className="px-4 mb-2">
-                            {group.key ? (
-                                <button
-                                    onClick={() => toggleGroup(group.key)}
-                                    className="flex items-center justify-between w-full text-left group hover:bg-slate-800/50 rounded-lg p-2 transition-all duration-200"
-                                >
-                                    <div className="flex items-center space-x-2">
-                                        <span className="text-blue-400 group-hover:text-blue-300 transition-colors">
-                                            {group.icon}
+                {/* Enhanced Navigation links */}
+                <nav className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
+                    {navigationGroups.map((group, groupIndex) => (
+                        <div key={groupIndex} className="mb-4">
+                            {/* Group Header */}
+                            <div className="px-4 mb-2">
+                                {group.key ? (
+                                    <button
+                                        onClick={() => toggleGroup(group.key)}
+                                        className="flex items-center justify-between w-full text-left group hover:bg-slate-800/50 rounded-lg p-2 transition-all duration-200"
+                                        aria-expanded={
+                                            expandedGroups[group.key]
+                                        }
+                                    >
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-blue-400 group-hover:text-blue-300 transition-colors">
+                                                {group.icon}
+                                            </span>
+                                            <p className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors uppercase tracking-wider">
+                                                {group.title}
+                                            </p>
+                                        </div>
+                                        {expandedGroups[group.key] ? (
+                                            <ChevronUp className="h-3 w-3 text-slate-400 group-hover:text-blue-400 transition-colors" />
+                                        ) : (
+                                            <ChevronDown className="h-3 w-3 text-slate-400 group-hover:text-blue-400 transition-colors" />
+                                        )}
+                                    </button>
+                                ) : (
+                                    <div className="flex items-center space-x-2 ml-2">
+                                        <span className="text-blue-400">
+                                            <Home className="w-3 h-3" />
                                         </span>
-                                        <p className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors uppercase tracking-wider">
+                                        <p className="text-xs font-bold text-slate-300 uppercase tracking-wider">
                                             {group.title}
                                         </p>
                                     </div>
-                                    {expandedGroups[group.key] ? (
-                                        <ChevronUp className="h-3 w-3 text-slate-400 group-hover:text-blue-400 transition-colors" />
-                                    ) : (
-                                        <ChevronDown className="h-3 w-3 text-slate-400 group-hover:text-blue-400 transition-colors" />
-                                    )}
-                                </button>
-                            ) : (
-                                <div className="flex items-center space-x-2 ml-2">
-                                    <span className="text-blue-400">
-                                        <Home className="w-3 h-3" />
-                                    </span>
-                                    <p className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                                        {group.title}
-                                    </p>
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
 
                         {/* Group Items */}
                         {(!group.key || expandedGroups[group.key]) && (
@@ -361,112 +432,140 @@ const Navigation = ({ auth, currentRoute }) => {
                                             {item.active && (
                                                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-indigo-400 rounded-r"></div>
                                             )}
-
-                                            {/* Icon */}
-                                            <span
-                                                className={`transition-colors flex-shrink-0 ${
+                            {/* Group Items */}
+                            {(!group.key || expandedGroups[group.key]) && (
+                                <ul className="space-y-1 px-2">
+                                    {group.items.map((item, index) => (
+                                        <li key={index}>
+                                            <Link
+                                                href={safeRoute(item.route)}
+                                                className={`group flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all duration-200 relative overflow-hidden ${
                                                     item.active
-                                                        ? "text-blue-400"
-                                                        : "text-slate-500 group-hover:text-blue-400"
+                                                        ? "bg-gradient-to-r from-blue-600/30 to-indigo-600/30 text-white shadow-lg border border-blue-500/30 backdrop-blur-sm"
+                                                        : "text-slate-400 hover:text-white hover:bg-slate-800/60"
                                                 }`}
+                                                onClick={() =>
+                                                    setIsMobileMenuOpen(false)
+                                                }
                                             >
-                                                {item.icon}
-                                            </span>
+                                                {/* Active indicator */}
+                                                {item.active && (
+                                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-indigo-400 rounded-r"></div>
+                                                )}
 
-                                            {/* Content */}
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="font-medium text-sm truncate">
-                                                        {item.name}
-                                                    </span>
-                                                    {item.badge && (
-                                                        <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full animate-pulse">
-                                                            {item.badge}
+                                                {/* Icon */}
+                                                <span
+                                                    className={`transition-colors flex-shrink-0 ${
+                                                        item.active
+                                                            ? "text-blue-400"
+                                                            : "text-slate-500 group-hover:text-blue-400"
+                                                    }`}
+                                                >
+                                                    {item.icon}
+                                                </span>
+
+                                                {/* Content */}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="font-medium text-sm truncate">
+                                                            {item.name}
                                                         </span>
-                                                    )}
+                                                        {item.badge && (
+                                                            <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full animate-pulse">
+                                                                {item.badge}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            {/* Active arrow */}
-                                            {item.active && (
-                                                <ChevronRight className="h-3 w-3 text-blue-400 flex-shrink-0" />
-                                            )}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
+                                                {/* Active arrow */}
+                                                {item.active && (
+                                                    <ChevronRight className="h-3 w-3 text-blue-400 flex-shrink-0" />
+                                                )}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+                    ))}
+                </nav>
+
+                {/* Enhanced User profile with actions */}
+                <div className="p-4 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-900/30 backdrop-blur-sm space-y-3">
+                    {/* Profile Section */}
+                    <div className="flex items-center space-x-3">
+                        <div className="relative">
+                            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-full blur opacity-60"></div>
+                            <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
+                                <span className="text-sm font-bold text-white">
+                                    {auth.user.name.charAt(0).toUpperCase()}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-white truncate">
+                                {auth.user.name}
+                            </p>
+                            <p className="text-xs text-slate-400 truncate">
+                                {auth.user.email}
+                            </p>
+                            <div className="flex items-center space-x-2 mt-1">
+                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                                <span className="text-xs text-green-400 font-medium">
+                                    {t("Administrator")}
+                                </span>
+                            </div>
+                        </div>
                     </div>
-                ))}
-            </nav>
 
-            {/* Enhanced User profile with actions */}
-            <div className="p-4 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-900/30 backdrop-blur-sm space-y-3">
-                {/* Profile Section */}
-                <div className="flex items-center space-x-3">
-                    <div className="relative">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-full blur opacity-60"></div>
-                        <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
-                            <span className="text-sm font-bold text-white">
-                                {auth.user.name.charAt(0).toUpperCase()}
+                    {/* Action Buttons */}
+                    <div className="space-y-1">
+                        <Link
+                            href={safeRoute("admin.profile.edit")}
+                            className="group w-full flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-blue-500/10 border border-transparent hover:border-blue-500/30"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                            <span className="text-slate-500 group-hover:text-blue-400 transition-colors">
+                                <User className="w-4 h-4" />
+                            </span>
+                            <span className="font-medium text-xs">
+                                {t("Profile")}
+                            </span>
+                            <ChevronRight className="h-3 w-3 ml-auto group-hover:translate-x-1 transition-transform" />
+                        </Link>
+
+                        <button
+                            onClick={handleLogout}
+                            className="group w-full flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 text-slate-400 hover:text-red-300 hover:bg-red-500/10 border border-transparent hover:border-red-500/30"
+                        >
+                            <span className="text-slate-500 group-hover:text-red-400 transition-colors">
+                                <LogOut className="w-4 h-4" />
+                            </span>
+                            <span className="font-medium text-xs">
+                                {t("Sign Out")}
+                            </span>
+                            <ChevronRight className="h-3 w-3 ml-auto group-hover:translate-x-1 transition-transform" />
+                        </button>
+                    </div>
+
+                    {/* Status indicator */}
+                    <div className="pt-2 border-t border-slate-700/50">
+                        <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center space-x-2">
+                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
+                                <span className="text-slate-400">
+                                    {t("System Online")}
+                                </span>
+                            </div>
+                            <span className="text-slate-500">
+                                {new Date().toLocaleTimeString()}
                             </span>
                         </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">
-                            {auth.user.name}
-                        </p>
-                        <p className="text-xs text-slate-400 truncate">
-                            {auth.user.email}
-                        </p>
-                        <div className="flex items-center space-x-2 mt-1">
-                            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                            <span className="text-xs text-green-400 font-medium">{t("Administrator")}</span>
-                        </div>
-                    </div>
                 </div>
-
-                {/* Action Buttons */}
-                <div className="space-y-1">
-                    <Link
-                        href={safeRoute('admin.profile.edit')}
-                        className="group w-full flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-blue-500/10 border border-transparent hover:border-blue-500/30"
-                    >
-                        <span className="text-slate-500 group-hover:text-blue-400 transition-colors">
-                            <User className="w-4 h-4" />
-                        </span>
-                        <span className="font-medium text-xs">
-                            {t("Profile")}
-                        </span>
-                        <ChevronRight className="h-3 w-3 ml-auto group-hover:translate-x-1 transition-transform" />
-                    </Link>
-
-                    <button
-                        onClick={handleLogout}
-                        className="group w-full flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 text-slate-400 hover:text-red-300 hover:bg-red-500/10 border border-transparent hover:border-red-500/30"
-                    >
-                        <span className="text-slate-500 group-hover:text-red-400 transition-colors">
-                            <LogOut className="w-4 h-4" />
-                        </span>
-                        <span className="font-medium text-xs">
-                            {t("Sign Out")}
-                        </span>
-                        <ChevronRight className="h-3 w-3 ml-auto group-hover:translate-x-1 transition-transform" />
-                    </button>
-                </div>
-
-                {/* Status indicator */}
-                <div className="pt-2 border-t border-slate-700/50">
-                    <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center space-x-2">
-                            <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                            <span className="text-slate-400">{t("System Online")}</span>
-                        </div>
-                        <span className="text-slate-500">{new Date().toLocaleTimeString()}</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
+            </aside>
+        </>
     );
 };
 
