@@ -2,13 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
-    DollarSign,
-    BarChart3,
     Settings,
     Users,
     Package,
     ShoppingCart,
-    Layers,
     CreditCard,
     Globe,
     Home,
@@ -19,11 +16,9 @@ import {
     Truck,
     Ruler,
     Warehouse,
-    TrendingUp,
     Shield,
     User,
     Menu,
-    Sparkles,
     ArrowUpRight,
     ArrowDownRight,
     ArrowRightLeft,
@@ -192,7 +187,6 @@ const Navigation = ({ auth, currentRoute }) => {
     // Define navigation groups and items
     const navigationGroups = [
         {
-            title: t("Dashboard"),
             items: [
                 {
                     name: t("Dashboard"),
@@ -405,15 +399,15 @@ const Navigation = ({ auth, currentRoute }) => {
                     <div className="flex items-center space-x-3">
                         <div className="relative flex-shrink-0">
                             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-xl blur opacity-75"></div>
-                            <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-2.5 rounded-xl shadow-lg">
+                            <div className="relative bg-gradient-to-br from-blue-500 via-indigo-900 to-purple-600 p-2.5 rounded-xl shadow-lg">
                                 <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                             </div>
                         </div>
                         <div className="min-w-0 flex-1">
-                            <h1 className="font-bold text-base sm:text-lg text-white truncate">
+                            <h1 className="font-bold text-base mr-3 sm:text-lg text-white truncate">
                                 {t("Admin Panel")}
                             </h1>
-                            <p className="text-xs text-blue-400 font-medium truncate">
+                            <p className="text-xs text-blue-400 mr-3 font-medium truncate">
                                 {t("Management System")}
                             </p>
                         </div>
@@ -452,9 +446,6 @@ const Navigation = ({ auth, currentRoute }) => {
                                     </button>
                                 ) : (
                                     <div className="flex items-center space-x-2 ml-2 p-2">
-                                        <span className="text-blue-400 flex-shrink-0">
-                                            <Home className="w-3 h-3" />
-                                        </span>
                                         <p className="text-xs font-bold text-slate-300 uppercase tracking-wider truncate">
                                             {group.title}
                                         </p>
@@ -521,80 +512,49 @@ const Navigation = ({ auth, currentRoute }) => {
                     ))}
                 </nav>
 
-                {/* Enhanced User profile with actions */}
-                <div className="p-3 sm:p-4 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-900/30 backdrop-blur-sm space-y-3">
+                {/* User profile section */}
+                <div className="p-4 border-t border-slate-700/50 bg-slate-800/30">
                     {/* Profile Section */}
-                    <div className="flex items-center space-x-3">
-                        <div className="relative flex-shrink-0">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-full blur opacity-60"></div>
-                            <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
-                                <span className="text-sm font-bold text-white">
-                                    {auth.user.name.charAt(0).toUpperCase()}
-                                </span>
-                            </div>
+                    <div className="flex items-center space-x-3 mb-3">
+                        <div className="bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0">
+                            <span className="text-sm font-medium text-white">
+                                {auth.user.name.charAt(0).toUpperCase()}
+                            </span>
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-white truncate">
+                            <p className="text-sm font-medium text-white truncate">
                                 {auth.user.name}
                             </p>
                             <p className="text-xs text-slate-400 truncate">
-                                {auth.user.email}
+                                {t("Administrator")}
                             </p>
-                            <div className="flex items-center space-x-2 mt-1">
-                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse flex-shrink-0"></div>
-                                <span className="text-xs text-green-400 font-medium truncate">
-                                    {t("Administrator")}
-                                </span>
-                            </div>
                         </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="space-y-1">
+                    <div className="flex space-x-2">
                         <Link
                             href={safeRoute("admin.profile.edit")}
-                            className="group w-full flex items-center space-x-2 px-3 py-3 rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-blue-500/10 border border-transparent hover:border-blue-500/30 touch-manipulation"
+                            className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 text-xs text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors"
                             onClick={() => setIsMobileMenuOpen(false)}
+                            title={t("Profile")}
                         >
-                            <span className="text-slate-500 group-hover:text-blue-400 transition-colors flex-shrink-0">
-                                <User className="w-4 h-4" />
-                            </span>
-                            <span className="font-medium text-xs flex-1 truncate">
+                            <User className="w-4 h-4" />
+                            <span className="hidden sm:inline">
                                 {t("Profile")}
                             </span>
-                            <ChevronRight className="h-3 w-3 ml-auto group-hover:translate-x-1 transition-transform flex-shrink-0" />
                         </Link>
 
                         <button
                             onClick={handleLogout}
-                            className="group w-full flex items-center space-x-2 px-3 py-3 rounded-lg transition-all duration-200 text-slate-400 hover:text-red-300 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 touch-manipulation"
+                            className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 text-xs text-slate-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition-colors"
+                            title={t("Sign Out")}
                         >
-                            <span className="text-slate-500 group-hover:text-red-400 transition-colors flex-shrink-0">
-                                <LogOut className="w-4 h-4" />
-                            </span>
-                            <span className="font-medium text-xs flex-1 truncate">
+                            <LogOut className="w-4 h-4" />
+                            <span className="hidden sm:inline">
                                 {t("Sign Out")}
                             </span>
-                            <ChevronRight className="h-3 w-3 ml-auto group-hover:translate-x-1 transition-transform flex-shrink-0" />
                         </button>
-                    </div>
-
-                    {/* Status indicator */}
-                    <div className="pt-2 border-t border-slate-700/50">
-                        <div className="flex items-center justify-between text-xs">
-                            <div className="flex items-center space-x-2 min-w-0 flex-1">
-                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse flex-shrink-0"></div>
-                                <span className="text-slate-400 truncate">
-                                    {t("System Online")}
-                                </span>
-                            </div>
-                            <span className="text-slate-500 text-xs flex-shrink-0 ml-2">
-                                {new Date().toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </span>
-                        </div>
                     </div>
                 </div>
             </aside>
