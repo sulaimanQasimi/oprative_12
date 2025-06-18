@@ -338,6 +338,12 @@ class CustomerController extends Controller
 
     public function addUser(Request $request, Customer $customer)
     {
+        // Verify user has permission to update customers (and thus manage their users)
+        if (!Auth::user()->can('update_customer')) {
+            return redirect()->route('admin.customers.show', $customer->id)
+                ->with('error', 'You do not have permission to add users to this customer.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:customer_users,email',
@@ -374,6 +380,12 @@ class CustomerController extends Controller
 
     public function updateUser(Request $request, Customer $customer, CustomerUser $user)
     {
+        // Verify user has permission to update customers (and thus manage their users)
+        if (!Auth::user()->can('update_customer')) {
+            return redirect()->route('admin.customers.show', $customer->id)
+                ->with('error', 'You do not have permission to update users for this customer.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:customer_users,email,' . $user->id,
@@ -440,6 +452,11 @@ class CustomerController extends Controller
                 ];
             });
 
+            // Pass view permission to frontend
+            $permissions = [
+                'view_customer' => Auth::user()->can('view_customer'),
+            ];
+
             return Inertia::render('Admin/Customer/Income', [
                 'customer' => [
                     'id' => $customer->id,
@@ -449,6 +466,7 @@ class CustomerController extends Controller
                     'status' => $customer->status,
                 ],
                 'incomes' => $incomes,
+                'permissions' => $permissions,
                 'auth' => [
                     'user' => Auth::user()
                 ]
@@ -489,6 +507,11 @@ class CustomerController extends Controller
                 ];
             });
 
+            // Pass view permission to frontend
+            $permissions = [
+                'view_customer' => Auth::user()->can('view_customer'),
+            ];
+
             return Inertia::render('Admin/Customer/Outcome', [
                 'customer' => [
                     'id' => $customer->id,
@@ -498,6 +521,7 @@ class CustomerController extends Controller
                     'status' => $customer->status,
                 ],
                 'outcomes' => $outcomes,
+                'permissions' => $permissions,
                 'auth' => [
                     'user' => Auth::user()
                 ]
@@ -538,6 +562,11 @@ class CustomerController extends Controller
                 ];
             });
 
+            // Pass view permission to frontend
+            $permissions = [
+                'view_customer' => Auth::user()->can('view_customer'),
+            ];
+
             return Inertia::render('Admin/Customer/Orders/Index', [
                 'customer' => [
                     'id' => $customer->id,
@@ -547,6 +576,7 @@ class CustomerController extends Controller
                     'status' => $customer->status,
                 ],
                 'orders' => $orders,
+                'permissions' => $permissions,
                 'auth' => [
                     'user' => Auth::user()
                 ]
@@ -586,6 +616,11 @@ class CustomerController extends Controller
                 ];
             });
 
+            // Pass view permission to frontend
+            $permissions = [
+                'view_customer' => Auth::user()->can('view_customer'),
+            ];
+
             return Inertia::render('Admin/Customer/Orders/Show', [
                 'customer' => [
                     'id' => $customer->id,
@@ -610,6 +645,7 @@ class CustomerController extends Controller
                     'updated_at' => $order->updated_at,
                 ],
                 'orderItems' => $orderItems,
+                'permissions' => $permissions,
                 'auth' => [
                     'user' => Auth::user()
                 ]

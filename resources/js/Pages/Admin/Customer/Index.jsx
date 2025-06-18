@@ -559,7 +559,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                                                 <Button
                                                                                     variant="ghost"
                                                                                     size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400 transition-colors"
+                                                                                    className="h-8 w-8 p-0 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400 transition-colors"
                                                                                     asChild
                                                                                 >
                                                                                     <Link href={route('admin.customers.income', customer.id)}>
