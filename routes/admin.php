@@ -123,8 +123,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{supplier}/edit', [SupplierController::class, 'edit'])->name('admin.suppliers.edit');
         Route::put('/{supplier}', [SupplierController::class, 'update'])->name('admin.suppliers.update');
         Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->name('admin.suppliers.destroy');
-        Route::post('/{supplier}/restore', [SupplierController::class, 'restore'])->name('admin.suppliers.restore');
-        Route::delete('/{supplier}/force-delete', [SupplierController::class, 'forceDelete'])->name('admin.suppliers.force-delete');
+        Route::post('/{supplier}/restore', [SupplierController::class, 'restore'])->name('admin.suppliers.restore')->withTrashed();
+        Route::delete('/{supplier}/force-delete', [SupplierController::class, 'forceDelete'])->name('admin.suppliers.force-delete')->withTrashed();
         Route::get('/{supplier}/payments', [SupplierController::class, 'payments'])->name('admin.suppliers.payments');
         Route::get('/{supplier}/purchases', [SupplierController::class, 'purchases'])->name('admin.suppliers.purchases');
     });

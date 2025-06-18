@@ -13,12 +13,27 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
+/**
+ * Supplier Controller with comprehensive permissions implementation
+ * 
+ * This controller implements 7 core permissions for supplier management:
+ * 
+ * 1. view_any_supplier - View the supplier list/index page
+ * 2. view_supplier - View individual supplier details, payments, and purchases
+ * 3. create_supplier - Create new suppliers
+ * 4. update_supplier - Edit/update existing suppliers  
+ * 5. delete_supplier - Soft delete suppliers
+ * 6. restore_supplier - Restore soft-deleted suppliers
+ * 7. force_delete_supplier - Permanently delete suppliers
+ * 
+ * All methods are protected by middleware and pass appropriate permissions to frontend
+ */
 class SupplierController extends Controller
 {
     public function __construct()
     {
         $this->middleware('can:view_any_supplier')->only(['index']);
-        $this->middleware('can:view_supplier,supplier')->only(['show']);
+        $this->middleware('can:view_supplier,supplier')->only(['show', 'payments', 'purchases']);
         $this->middleware('can:create_supplier')->only(['create', 'store']);
         $this->middleware('can:update_supplier,supplier')->only(['edit', 'update']);
         $this->middleware('can:delete_supplier,supplier')->only(['destroy']);
@@ -35,12 +50,15 @@ class SupplierController extends Controller
         // Get all suppliers
         $suppliers = Supplier::orderBy('name')->get();
 
-        // Pass permissions to the frontend
+        // Pass all permissions to the frontend
         $permissions = [
+            'can_view_any' => Gate::allows('view_any_supplier'),
+            'can_view' => Gate::allows('view_supplier', Supplier::class),
             'can_create' => Gate::allows('create_supplier'),
             'can_update' => Gate::allows('update_supplier', Supplier::class),
             'can_delete' => Gate::allows('delete_supplier', Supplier::class),
-            'can_view' => Gate::allows('view_supplier', Supplier::class),
+            'can_restore' => Gate::allows('restore_supplier', Supplier::class),
+            'can_force_delete' => Gate::allows('force_delete_supplier', Supplier::class),
         ];
 
         return Inertia::render('Admin/Supplier/Index', [
@@ -58,6 +76,7 @@ class SupplierController extends Controller
     {
         $permissions = [
             'can_create' => Gate::allows('create_supplier'),
+            'can_view_any' => Gate::allows('view_any_supplier'),
         ];
 
         return Inertia::render('Admin/Supplier/Create', [
@@ -132,6 +151,8 @@ class SupplierController extends Controller
             'can_view' => Gate::allows('view_supplier', $supplier),
             'can_update' => Gate::allows('update_supplier', $supplier),
             'can_delete' => Gate::allows('delete_supplier', $supplier),
+            'can_restore' => Gate::allows('restore_supplier', $supplier),
+            'can_force_delete' => Gate::allows('force_delete_supplier', $supplier),
         ];
 
         return Inertia::render('Admin/Supplier/Show', [
@@ -150,6 +171,8 @@ class SupplierController extends Controller
     {
         $permissions = [
             'can_update' => Gate::allows('update_supplier', $supplier),
+            'can_view' => Gate::allows('view_supplier', $supplier),
+            'can_view_any' => Gate::allows('view_any_supplier'),
         ];
 
         return Inertia::render('Admin/Supplier/Edit', [
@@ -244,21 +267,18 @@ class SupplierController extends Controller
     /**
      * Restore the specified supplier
      *
-     * @param int $id
+     * @param Supplier $supplier
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function restore($id)
+    public function restore(Supplier $supplier)
     {
         try {
-            $supplier = Supplier::withTrashed()->findOrFail($id);
             $supplier->restore();
 
             return redirect()->route('admin.suppliers.index')->with('success', 'Supplier restored successfully.');
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin.suppliers.index')->with('error', 'Supplier not found.');
         } catch (\Exception $e) {
             Log::error('Error restoring supplier', [
-                'supplier_id' => $id,
+                'supplier_id' => $supplier->id,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_id' => Auth::id(),
@@ -271,21 +291,18 @@ class SupplierController extends Controller
     /**
      * Force delete the specified supplier
      *
-     * @param int $id
+     * @param Supplier $supplier
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function forceDelete($id)
+    public function forceDelete(Supplier $supplier)
     {
         try {
-            $supplier = Supplier::withTrashed()->findOrFail($id);
             $supplier->forceDelete();
 
             return redirect()->route('admin.suppliers.index')->with('success', 'Supplier permanently deleted.');
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin.suppliers.index')->with('error', 'Supplier not found.');
         } catch (\Exception $e) {
             Log::error('Error force deleting supplier', [
-                'supplier_id' => $id,
+                'supplier_id' => $supplier->id,
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
                 'user_id' => Auth::id(),
@@ -307,6 +324,7 @@ class SupplierController extends Controller
 
         $permissions = [
             'can_view' => Gate::allows('view_supplier', $supplier),
+            'can_create' => Gate::allows('create_supplier'),
         ];
 
         return Inertia::render('Admin/Supplier/Payments', [
@@ -328,6 +346,7 @@ class SupplierController extends Controller
 
         $permissions = [
             'can_view' => Gate::allows('view_supplier', $supplier),
+            'can_create' => Gate::allows('create_supplier'),
         ];
 
         return Inertia::render('Admin/Supplier/Purchases', [
