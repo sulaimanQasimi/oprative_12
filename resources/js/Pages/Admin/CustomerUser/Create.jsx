@@ -41,7 +41,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Create({ auth, customers, permissions, selectedCustomerId, errors }) {
+export default function Create({ auth, customers, permissions, selectedCustomerId, customerPermissions = {}, errors }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -228,6 +228,33 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                 transition={{ delay: 0.8, duration: 0.5 }}
                                 className="max-w-5xl mx-auto"
                             >
+                                {!customerPermissions.update_customer ? (
+                                    <motion.div
+                                        initial={{ scale: 0.95, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.9, duration: 0.5 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                            <CardContent className="p-12 text-center">
+                                                <div className="p-4 bg-red-100 dark:bg-red-900/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                                                    <Shield className="h-8 w-8 text-red-500" />
+                                                </div>
+                                                <h3 className="text-lg font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                    {t("Access Denied")}
+                                                </h3>
+                                                <p className="text-sm text-slate-500 mb-4">
+                                                    {t("You don't have permission to create customer users.")}
+                                                </p>
+                                                <Link href={route("admin.customer-users.index")}>
+                                                    <Button variant="outline" className="gap-2">
+                                                        <ArrowLeft className="h-4 w-4" />
+                                                        {t("Back to Users")}
+                                                    </Button>
+                                                </Link>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                ) : (
                                 <form onSubmit={handleSubmit} className="space-y-8">
                                     {/* Form Card */}
                                     <motion.div
@@ -474,7 +501,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                         </Card>
                                     </motion.div>
 
-                                                                        {/* Permissions Card */}
+                                                                                {/* Permissions Card */}
                                     {permissions && permissions.length > 0 && (
                                     <motion.div
                                         initial={{ scale: 0.95, opacity: 0 }}
@@ -490,80 +517,80 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                                         {t("Permissions")}
                                                         <Badge variant="secondary" className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
                                                             {t("Optional")}
-                                                    </Badge>
-                                                </CardTitle>
-                                                    <CardDescription className="text-slate-600 dark:text-slate-400">
-                                                        {t("Select the permissions for this user account")}
-                                                    </CardDescription>
-                                            </CardHeader>
-                                                <CardContent className="p-8">
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                                        {permissions.map((permission) => (
-                                                            <motion.div
-                                                                key={permission.id}
-                                                                whileHover={{ scale: 1.02 }}
-                                                                className="flex items-center space-x-3 p-4 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 bg-white/50 dark:bg-slate-800/50"
-                                                            >
-                                                                <Checkbox
-                                                                    id={`permission-${permission.id}`}
-                                                                    checked={data.permissions.includes(permission.id)}
-                                                                    onCheckedChange={(checked) => handlePermissionChange(permission.id, checked)}
-                                                                />
-                                                                <div className="flex-1">
-                                                                    <Label
-                                                                        htmlFor={`permission-${permission.id}`}
-                                                                        className="font-semibold text-slate-800 dark:text-white cursor-pointer"
-                                                                    >
-                                                                        {permission.name}
-                                                                    </Label>
-                                                                </div>
-                                                            </motion.div>
-                                                        ))}
-                                                    </div>
-                                                    {data.permissions.length > 0 && (
-                                                        <Alert className="mt-6 border-purple-200 bg-purple-50 dark:bg-purple-900/20">
-                                                            <Shield className="h-4 w-4 text-purple-600" />
-                                                            <AlertDescription className="text-purple-700 dark:text-purple-400">
-                                                                <strong>{data.permissions.length}</strong> {t("permissions selected")}
-                                                            </AlertDescription>
-                                                        </Alert>
-                                                    )}
-                                                </CardContent>
-                                            </Card>
-                                        </motion.div>
-                                    )}
+                                                </Badge>
+                                            </CardTitle>
+                                                <CardDescription className="text-slate-600 dark:text-slate-400">
+                                                    {t("Select the permissions for this user account")}
+                                                </CardDescription>
+                                        </CardHeader>
+                                            <CardContent className="p-8">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                    {permissions.map((permission) => (
+                                                        <motion.div
+                                                            key={permission.id}
+                                                            whileHover={{ scale: 1.02 }}
+                                                            className="flex items-center space-x-3 p-4 rounded-lg border-2 border-slate-200 dark:border-slate-700 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 bg-white/50 dark:bg-slate-800/50"
+                                                        >
+                                                            <Checkbox
+                                                                id={`permission-${permission.id}`}
+                                                                checked={data.permissions.includes(permission.id)}
+                                                                onCheckedChange={(checked) => handlePermissionChange(permission.id, checked)}
+                                                            />
+                                                            <div className="flex-1">
+                                                                <Label
+                                                                    htmlFor={`permission-${permission.id}`}
+                                                                    className="font-semibold text-slate-800 dark:text-white cursor-pointer"
+                                                                >
+                                                                    {permission.label || permission.name}
+                                                                </Label>
+                                                            </div>
+                                                        </motion.div>
+                                                    ))}
+                                                </div>
+                                                {data.permissions.length > 0 && (
+                                                    <Alert className="mt-6 border-purple-200 bg-purple-50 dark:bg-purple-900/20">
+                                                        <Shield className="h-4 w-4 text-purple-600" />
+                                                        <AlertDescription className="text-purple-700 dark:text-purple-400">
+                                                            <strong>{data.permissions.length}</strong> {t("permissions selected")}
+                                                        </AlertDescription>
+                                                    </Alert>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                )}
 
-                                    {/* Customer Info Display */}
-                                    <AnimatePresence>
-                                        {selectedCustomer && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                                                transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
-                                            >
-                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-blue-900/30 backdrop-blur-xl">
-                                                    <CardHeader className="bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-b border-blue-200/50 dark:border-blue-700/50">
-                                                        <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                                                                <Building2 className="h-6 w-6 text-white" />
-                                                            </div>
-                                                            {t("Selected Customer")}
-                                                            <Badge className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                                                                <CheckCircle className="w-3 h-3 mr-1" />
-                                                                {t("Selected")}
-                                                            </Badge>
-                                                        </CardTitle>
-                                                    </CardHeader>
-                                                    <CardContent className="p-8">
-                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                            <div className="space-y-2">
-                                                                <p className="text-sm text-slate-600 dark:text-slate-400">{t("Customer Name")}</p>
-                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{selectedCustomer.name}</p>
-                                                            </div>
-                                                            <div className="space-y-2">
-                                                                <p className="text-sm text-slate-600 dark:text-slate-400">{t("Email")}</p>
-                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{selectedCustomer.email || t("Not provided")}</p>
+                                {/* Customer Info Display */}
+                                <AnimatePresence>
+                                    {selectedCustomer && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                                            transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
+                                        >
+                                            <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-blue-900/30 backdrop-blur-xl">
+                                                <CardHeader className="bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-b border-blue-200/50 dark:border-blue-700/50">
+                                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                        <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                            <Building2 className="h-6 w-6 text-white" />
+                                                        </div>
+                                                        {t("Selected Customer")}
+                                                        <Badge className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                            <CheckCircle className="w-3 h-3 mr-1" />
+                                                            {t("Selected")}
+                                                        </Badge>
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-8">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <div className="space-y-2">
+                                                            <p className="text-sm text-slate-600 dark:text-slate-400">{t("Customer Name")}</p>
+                                                            <p className="text-lg font-semibold text-slate-900 dark:text-white">{selectedCustomer.name}</p>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <p className="text-sm text-slate-600 dark:text-slate-400">{t("Email")}</p>
+                                                            <p className="text-lg font-semibold text-slate-900 dark:text-white">{selectedCustomer.email || t("Not provided")}</p>
                                                         </div>
                                                 </div>
                                             </CardContent>
@@ -607,6 +634,7 @@ export default function Create({ auth, customers, permissions, selectedCustomerI
                                         </Button>
                                     </motion.div>
                                 </form>
+                                )}
                             </motion.div>
                         </div>
                     </main>
