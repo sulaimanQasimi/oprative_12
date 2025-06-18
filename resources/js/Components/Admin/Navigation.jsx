@@ -39,6 +39,7 @@ const Navigation = ({ auth, currentRoute }) => {
     const { t } = useLaravelReactI18n();
     const { url } = usePage();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isAnimating, setIsAnimating] = useState(false);
     const [expandedGroups, setExpandedGroups] = useState({
         inventory: false,
         warehouse: false,
@@ -47,8 +48,13 @@ const Navigation = ({ auth, currentRoute }) => {
     });
 
     const toggleMobileMenu = () => {
-        console.log("Toggling menu:", !isMobileMenuOpen); // Debug log
+        if (isAnimating) return; // Prevent rapid clicking
+
+        setIsAnimating(true);
         setIsMobileMenuOpen((prev) => !prev);
+
+        // Reset animation lock after transition completes
+        setTimeout(() => setIsAnimating(false), 300);
     };
 
     // Close mobile menu when route changes
@@ -62,7 +68,8 @@ const Navigation = ({ auth, currentRoute }) => {
             if (
                 isMobileMenuOpen &&
                 !event.target.closest(".mobile-menu") &&
-                !event.target.closest(".mobile-menu-button")
+                !event.target.closest(".mobile-menu-button") &&
+                !isAnimating
             ) {
                 setIsMobileMenuOpen(false);
             }
@@ -70,6 +77,19 @@ const Navigation = ({ auth, currentRoute }) => {
 
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
+    }, [isMobileMenuOpen, isAnimating]);
+
+    // Prevent body scroll when mobile menu is open
+    useEffect(() => {
+        if (isMobileMenuOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "unset";
+        }
+
+        return () => {
+            document.body.style.overflow = "unset";
+        };
     }, [isMobileMenuOpen]);
 
     const toggleGroup = (groupKey) => {
@@ -77,6 +97,15 @@ const Navigation = ({ auth, currentRoute }) => {
             ...prev,
             [groupKey]: !prev[groupKey],
         }));
+    };
+
+    // Close mobile menu with animation
+    const closeMobileMenu = () => {
+        if (!isAnimating) {
+            setIsAnimating(true);
+            setIsMobileMenuOpen(false);
+            setTimeout(() => setIsAnimating(false), 300);
+        }
     };
 
     // Helper function to safely access routes
@@ -307,54 +336,84 @@ const Navigation = ({ auth, currentRoute }) => {
             <button
                 type="button"
                 onClick={toggleMobileMenu}
-                className="mobile-menu-button fixed top-4 right-4 z-[60] md:hidden bg-slate-900 p-2 rounded-lg shadow-lg border border-slate-700/50 hover:bg-slate-800 transition-colors"
+                disabled={isAnimating}
+                className={`mobile-menu-button fixed top-4 right-4 z-[70] md:hidden
+                    bg-gradient-to-br from-slate-900 to-slate-800 p-3 rounded-xl shadow-xl
+                    border border-slate-700/50 backdrop-blur-sm
+                    hover:bg-gradient-to-br hover:from-slate-800 hover:to-slate-700
+                    active:scale-95 transform transition-all duration-200
+                    ${isMobileMenuOpen ? "bg-slate-800" : ""}
+                    ${isAnimating ? "pointer-events-none" : "hover:scale-105"}
+                `}
                 aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+                aria-expanded={isMobileMenuOpen}
             >
-                {isMobileMenuOpen ? (
-                    <X className="w-6 h-6 text-white" />
-                ) : (
-                    <Menu className="w-6 h-6 text-white" />
-                )}
+                <div className="relative w-6 h-6 flex items-center justify-center">
+                    <Menu
+                        className={`w-6 h-6 text-white absolute transition-all duration-300 transform ${
+                            isMobileMenuOpen
+                                ? "opacity-0 rotate-180 scale-0"
+                                : "opacity-100 rotate-0 scale-100"
+                        }`}
+                    />
+                    <X
+                        className={`w-6 h-6 text-white absolute transition-all duration-300 transform ${
+                            isMobileMenuOpen
+                                ? "opacity-100 rotate-0 scale-100"
+                                : "opacity-0 -rotate-180 scale-0"
+                        }`}
+                    />
+                </div>
             </button>
 
             {/* Mobile Menu Overlay */}
-            {isMobileMenuOpen && (
-                <div
-                    className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[45] md:hidden"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    aria-hidden="true"
-                />
-            )}
+            <div
+                className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-[55] md:hidden transition-all duration-300 ${
+                    isMobileMenuOpen
+                        ? "opacity-100 visible"
+                        : "opacity-0 invisible"
+                }`}
+                onClick={() => !isAnimating && setIsMobileMenuOpen(false)}
+                aria-hidden="true"
+            />
 
             {/* Navigation Sidebar */}
             <aside
-                className={`
-                    fixed md:relative w-72 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white
-                    flex-shrink-0 flex flex-col h-screen shadow-2xl border-l border-slate-700/50 z-[50]
-                    transition-transform duration-300 ease-in-out right-0 top-0
+                className={`mobile-menu
+                    fixed md:relative
+                    w-80 sm:w-72 md:w-72
+                    bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white
+                    flex-shrink-0 flex flex-col h-screen shadow-2xl border-l md:border-r md:border-l-0 border-slate-700/50 z-[60]
+                    transition-all duration-300 ease-out right-0 md:left-0 top-0
                     ${
                         isMobileMenuOpen
                             ? "translate-x-0"
                             : "translate-x-full md:translate-x-0"
                     }
+                    ${
+                        isAnimating
+                            ? "pointer-events-none md:pointer-events-auto"
+                            : ""
+                    }
                 `}
                 role="navigation"
                 aria-label="Main navigation"
+                aria-hidden={!isMobileMenuOpen}
             >
                 {/* Enhanced Logo and branding */}
-                <div className="p-5 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm">
+                <div className="p-4 sm:p-5 border-b border-slate-700/50 bg-gradient-to-r from-slate-800/50 to-slate-900/50 backdrop-blur-sm">
                     <div className="flex items-center space-x-3">
-                        <div className="relative">
+                        <div className="relative flex-shrink-0">
                             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-xl blur opacity-75"></div>
                             <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-2.5 rounded-xl shadow-lg">
-                                <Zap className="w-6 h-6 text-white" />
+                                <Zap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                             </div>
                         </div>
-                        <div>
-                            <h1 className="font-bold text-lg text-white">
+                        <div className="min-w-0 flex-1">
+                            <h1 className="font-bold text-base sm:text-lg text-white truncate">
                                 {t("Admin Panel")}
                             </h1>
-                            <p className="text-xs text-blue-400 font-medium">
+                            <p className="text-xs text-blue-400 font-medium truncate">
                                 {t("Management System")}
                             </p>
                         </div>
@@ -362,39 +421,41 @@ const Navigation = ({ auth, currentRoute }) => {
                 </div>
 
                 {/* Enhanced Navigation links */}
-                <nav className="flex-1 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
+                <nav className="flex-1 overflow-y-auto py-3 sm:py-4 scrollbar-thin scrollbar-thumb-slate-600 scrollbar-track-transparent">
                     {navigationGroups.map((group, groupIndex) => (
-                        <div key={groupIndex} className="mb-4">
+                        <div key={groupIndex} className="mb-3 sm:mb-4">
                             {/* Group Header */}
-                            <div className="px-4 mb-2">
+                            <div className="px-3 sm:px-4 mb-2">
                                 {group.key ? (
                                     <button
                                         onClick={() => toggleGroup(group.key)}
-                                        className="flex items-center justify-between w-full text-left group hover:bg-slate-800/50 rounded-lg p-2 transition-all duration-200"
+                                        className="flex items-center justify-between w-full text-left group hover:bg-slate-800/50 rounded-lg p-3 transition-all duration-200 touch-manipulation"
                                         aria-expanded={
                                             expandedGroups[group.key]
                                         }
                                     >
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-blue-400 group-hover:text-blue-300 transition-colors">
+                                        <div className="flex items-center space-x-2 min-w-0 flex-1">
+                                            <span className="text-blue-400 group-hover:text-blue-300 transition-colors flex-shrink-0">
                                                 {group.icon}
                                             </span>
-                                            <p className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors uppercase tracking-wider">
+                                            <p className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors uppercase tracking-wider truncate">
                                                 {group.title}
                                             </p>
                                         </div>
-                                        {expandedGroups[group.key] ? (
-                                            <ChevronUp className="h-3 w-3 text-slate-400 group-hover:text-blue-400 transition-colors" />
-                                        ) : (
-                                            <ChevronDown className="h-3 w-3 text-slate-400 group-hover:text-blue-400 transition-colors" />
-                                        )}
+                                        <div className="flex-shrink-0 ml-2">
+                                            {expandedGroups[group.key] ? (
+                                                <ChevronUp className="h-4 w-4 text-slate-400 group-hover:text-blue-400 transition-colors" />
+                                            ) : (
+                                                <ChevronDown className="h-4 w-4 text-slate-400 group-hover:text-blue-400 transition-colors" />
+                                            )}
+                                        </div>
                                     </button>
                                 ) : (
-                                    <div className="flex items-center space-x-2 ml-2">
-                                        <span className="text-blue-400">
+                                    <div className="flex items-center space-x-2 ml-2 p-2">
+                                        <span className="text-blue-400 flex-shrink-0">
                                             <Home className="w-3 h-3" />
                                         </span>
-                                        <p className="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                                        <p className="text-xs font-bold text-slate-300 uppercase tracking-wider truncate">
                                             {group.title}
                                         </p>
                                     </div>
@@ -403,12 +464,12 @@ const Navigation = ({ auth, currentRoute }) => {
 
                             {/* Group Items */}
                             {(!group.key || expandedGroups[group.key]) && (
-                                <ul className="space-y-1 px-2">
+                                <ul className="space-y-1 px-2 sm:px-2">
                                     {group.items.map((item, index) => (
                                         <li key={index}>
                                             <Link
                                                 href={safeRoute(item.route)}
-                                                className={`group flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all duration-200 relative overflow-hidden ${
+                                                className={`group flex items-center space-x-3 px-3 py-3 sm:py-2.5 rounded-lg transition-all duration-200 relative overflow-hidden touch-manipulation ${
                                                     item.active
                                                         ? "bg-gradient-to-r from-blue-600/30 to-indigo-600/30 text-white shadow-lg border border-blue-500/30 backdrop-blur-sm"
                                                         : "text-slate-400 hover:text-white hover:bg-slate-800/60"
@@ -440,7 +501,7 @@ const Navigation = ({ auth, currentRoute }) => {
                                                             {item.name}
                                                         </span>
                                                         {item.badge && (
-                                                            <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full animate-pulse">
+                                                            <span className="ml-2 px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full animate-pulse flex-shrink-0">
                                                                 {item.badge}
                                                             </span>
                                                         )}
@@ -461,10 +522,10 @@ const Navigation = ({ auth, currentRoute }) => {
                 </nav>
 
                 {/* Enhanced User profile with actions */}
-                <div className="p-4 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-900/30 backdrop-blur-sm space-y-3">
+                <div className="p-3 sm:p-4 border-t border-slate-700/50 bg-gradient-to-r from-slate-800/30 to-slate-900/30 backdrop-blur-sm space-y-3">
                     {/* Profile Section */}
                     <div className="flex items-center space-x-3">
-                        <div className="relative">
+                        <div className="relative flex-shrink-0">
                             <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-full blur opacity-60"></div>
                             <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
                                 <span className="text-sm font-bold text-white">
@@ -480,8 +541,8 @@ const Navigation = ({ auth, currentRoute }) => {
                                 {auth.user.email}
                             </p>
                             <div className="flex items-center space-x-2 mt-1">
-                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                                <span className="text-xs text-green-400 font-medium">
+                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse flex-shrink-0"></div>
+                                <span className="text-xs text-green-400 font-medium truncate">
                                     {t("Administrator")}
                                 </span>
                             </div>
@@ -492,43 +553,46 @@ const Navigation = ({ auth, currentRoute }) => {
                     <div className="space-y-1">
                         <Link
                             href={safeRoute("admin.profile.edit")}
-                            className="group w-full flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-blue-500/10 border border-transparent hover:border-blue-500/30"
+                            className="group w-full flex items-center space-x-2 px-3 py-3 rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-blue-500/10 border border-transparent hover:border-blue-500/30 touch-manipulation"
                             onClick={() => setIsMobileMenuOpen(false)}
                         >
-                            <span className="text-slate-500 group-hover:text-blue-400 transition-colors">
+                            <span className="text-slate-500 group-hover:text-blue-400 transition-colors flex-shrink-0">
                                 <User className="w-4 h-4" />
                             </span>
-                            <span className="font-medium text-xs">
+                            <span className="font-medium text-xs flex-1 truncate">
                                 {t("Profile")}
                             </span>
-                            <ChevronRight className="h-3 w-3 ml-auto group-hover:translate-x-1 transition-transform" />
+                            <ChevronRight className="h-3 w-3 ml-auto group-hover:translate-x-1 transition-transform flex-shrink-0" />
                         </Link>
 
                         <button
                             onClick={handleLogout}
-                            className="group w-full flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 text-slate-400 hover:text-red-300 hover:bg-red-500/10 border border-transparent hover:border-red-500/30"
+                            className="group w-full flex items-center space-x-2 px-3 py-3 rounded-lg transition-all duration-200 text-slate-400 hover:text-red-300 hover:bg-red-500/10 border border-transparent hover:border-red-500/30 touch-manipulation"
                         >
-                            <span className="text-slate-500 group-hover:text-red-400 transition-colors">
+                            <span className="text-slate-500 group-hover:text-red-400 transition-colors flex-shrink-0">
                                 <LogOut className="w-4 h-4" />
                             </span>
-                            <span className="font-medium text-xs">
+                            <span className="font-medium text-xs flex-1 truncate">
                                 {t("Sign Out")}
                             </span>
-                            <ChevronRight className="h-3 w-3 ml-auto group-hover:translate-x-1 transition-transform" />
+                            <ChevronRight className="h-3 w-3 ml-auto group-hover:translate-x-1 transition-transform flex-shrink-0" />
                         </button>
                     </div>
 
                     {/* Status indicator */}
                     <div className="pt-2 border-t border-slate-700/50">
                         <div className="flex items-center justify-between text-xs">
-                            <div className="flex items-center space-x-2">
-                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></div>
-                                <span className="text-slate-400">
+                            <div className="flex items-center space-x-2 min-w-0 flex-1">
+                                <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse flex-shrink-0"></div>
+                                <span className="text-slate-400 truncate">
                                     {t("System Online")}
                                 </span>
                             </div>
-                            <span className="text-slate-500">
-                                {new Date().toLocaleTimeString()}
+                            <span className="text-slate-500 text-xs flex-shrink-0 ml-2">
+                                {new Date().toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                })}
                             </span>
                         </div>
                     </div>
