@@ -53,7 +53,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Index({ auth, customers, filters = {} }) {
+export default function Index({ auth, customers, filters = {}, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -247,12 +247,14 @@ export default function Index({ auth, customers, filters = {} }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route("admin.customers.create")}>
-                                    <Button className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                                        <Plus className="h-4 w-4" />
-                                        {t("Add Store")}
-                                    </Button>
-                                </Link>
+                                {permissions.create_customer && (
+                                    <Link href={route("admin.customers.create")}>
+                                        <Button className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+                                            <Plus className="h-4 w-4" />
+                                            {t("Add Store")}
+                                        </Button>
+                                    </Link>
+                                )}
                             </motion.div>
                         </div>
                     </motion.header>
@@ -429,9 +431,9 @@ export default function Index({ auth, customers, filters = {} }) {
                                                         >
                                                             <RefreshCw className="h-4 w-4" />
                                                             {t("Clear")}
-                                                </Button>
+                                                        </Button>
                                                     )}
-                                            </div>
+                                                </div>
                                             </form>
                                         </CardContent>
                                     </Card>
@@ -527,59 +529,69 @@ export default function Index({ auth, customers, filters = {} }) {
                                                                     </TableCell>
                                                                     <TableCell className="text-right">
                                                                         <div className="flex items-center justify-end gap-1">
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="sm"
-                                                                                className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                                                                                asChild
-                                                                            >
-                                                                                <Link href={route('admin.customers.show', customer.id)}>
-                                                                                    <Eye className="h-4 w-4" />
-                                                                                    <span className="sr-only">{t("View Details")}</span>
-                                                                                </Link>
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="sm"
-                                                                                className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
-                                                                                asChild
-                                                                            >
-                                                                                <Link href={route('admin.customers.edit', customer.id)}>
-                                                                                    <Edit className="h-4 w-4" />
-                                                                                    <span className="sr-only">{t("Edit")}</span>
-                                                                                </Link>
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="sm"
-                                                                                className="h-8 w-8 p-0 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400 transition-colors"
-                                                                                asChild
-                                                                            >
-                                                                                <Link href={route('admin.customers.income', customer.id)}>
-                                                                                    <TrendingUp className="h-4 w-4" />
-                                                                                    <span className="sr-only">{t("Income")}</span>
-                                                                                </Link>
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="sm"
-                                                                                className="h-8 w-8 p-0 hover:bg-orange-50 hover:text-orange-600 dark:hover:bg-orange-900/20 dark:hover:text-orange-400 transition-colors"
-                                                                                asChild
-                                                                            >
-                                                                                <Link href={route('admin.customers.outcome', customer.id)}>
-                                                                                    <TrendingDown className="h-4 w-4" />
-                                                                                    <span className="sr-only">{t("Outcome")}</span>
-                                                                                </Link>
-                                                                            </Button>
-                                                                            <Button
-                                                                                variant="ghost"
-                                                                                size="sm"
-                                                                                className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
-                                                                                onClick={() => handleDelete(customer.id)}
-                                                                            >
-                                                                                <Trash2 className="h-4 w-4" />
-                                                                                <span className="sr-only">{t("Delete")}</span>
-                                                                            </Button>
+                                                                            {permissions.view_customer && (
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                                                                                    asChild
+                                                                                >
+                                                                                    <Link href={route('admin.customers.show', customer.id)}>
+                                                                                        <Eye className="h-4 w-4" />
+                                                                                        <span className="sr-only">{t("View Details")}</span>
+                                                                                    </Link>
+                                                                                </Button>
+                                                                            )}
+                                                                            {permissions.update_customer && (
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
+                                                                                    asChild
+                                                                                >
+                                                                                    <Link href={route('admin.customers.edit', customer.id)}>
+                                                                                        <Edit className="h-4 w-4" />
+                                                                                        <span className="sr-only">{t("Edit")}</span>
+                                                                                    </Link>
+                                                                                </Button>
+                                                                            )}
+                                                                            {permissions.view_customer && (
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/20 dark:hover:text-emerald-400 transition-colors"
+                                                                                    asChild
+                                                                                >
+                                                                                    <Link href={route('admin.customers.income', customer.id)}>
+                                                                                        <TrendingUp className="h-4 w-4" />
+                                                                                        <span className="sr-only">{t("Income")}</span>
+                                                                                    </Link>
+                                                                                </Button>
+                                                                            )}
+                                                                            {permissions.view_customer && (
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-orange-50 hover:text-orange-600 dark:hover:bg-orange-900/20 dark:hover:text-orange-400 transition-colors"
+                                                                                    asChild
+                                                                                >
+                                                                                    <Link href={route('admin.customers.outcome', customer.id)}>
+                                                                                        <TrendingDown className="h-4 w-4" />
+                                                                                        <span className="sr-only">{t("Outcome")}</span>
+                                                                                    </Link>
+                                                                                </Button>
+                                                                            )}
+                                                                            {permissions.delete_customer && (
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                                                                                    onClick={() => handleDelete(customer.id)}
+                                                                                >
+                                                                                    <Trash2 className="h-4 w-4" />
+                                                                                    <span className="sr-only">{t("Delete")}</span>
+                                                                                </Button>
+                                                                            )}
                                                                         </div>
                                                                     </TableCell>
                                                                 </motion.tr>
@@ -602,7 +614,7 @@ export default function Index({ auth, customers, filters = {} }) {
                                                                 {searchTerm || statusFilter ? t("Try adjusting your search or filters") : t("Create your first store to get started.")}
                                                             </p>
                                                         </div>
-                                                        {!(searchTerm || statusFilter) && (
+                                                        {!(searchTerm || statusFilter) && permissions.create_customer && (
                                                             <Link href={route("admin.customers.create")}>
                                                                 <Button className="gap-2">
                                                                     <Plus className="w-4 h-4" />
