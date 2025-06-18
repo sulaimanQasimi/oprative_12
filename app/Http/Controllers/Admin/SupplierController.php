@@ -148,94 +148,25 @@ class SupplierController extends Controller
      */
     public function show(Supplier $supplier)
     {
-        // Load supplier with related data
-        $supplier->load(['purchases' => function($query) {
-            $query->orderBy('invoice_date', 'desc')->limit(10);
-        }]);
-
-        // Get recent purchases with pagination data
+        // Get paginated purchases with essential data only
         $purchases = $supplier->purchases()
+            ->select('id', 'supplier_id', 'invoice_number', 'invoice_date', 'status', 'created_at')
+            ->with(['purchaseItems:purchase_id,total_price', 'payments:purchase_id,amount'])
             ->orderBy('invoice_date', 'desc')
-            ->paginate(10);
+            ->paginate(10, ['*'], 'purchases_page');
 
-        // Get recent payments with pagination data  
+        // Get paginated payments with essential data only  
         $payments = $supplier->payments()
+            ->select('id', 'supplier_id', 'amount', 'payment_method', 'reference_number', 'bank_name', 'payment_date', 'notes')
             ->orderBy('payment_date', 'desc')
-            ->paginate(10);
+            ->paginate(10, ['*'], 'payments_page');
 
-        // Calculate summary statistics
-        $totalPurchases = $supplier->purchases()->count();
-        
-        // Calculate total purchase amount by currency from purchase_items table
-        $purchaseAmountsByCurrency = DB::table('purchase_items')
-            ->join('purchases', 'purchase_items.purchase_id', '=', 'purchases.id')
-            ->join('currencies', 'purchases.currency_id', '=', 'currencies.id')
-            ->where('purchases.supplier_id', $supplier->id)
-            ->whereNull('purchases.deleted_at')
-            ->whereNull('purchase_items.deleted_at')
-            ->whereNull('currencies.deleted_at')
-            ->select('currencies.code', 'currencies.name', DB::raw('SUM(purchase_items.total_price) as total_amount'))
-            ->groupBy('currencies.id', 'currencies.code', 'currencies.name')
-            ->get();
-        
-        // Calculate total additional costs by currency
-        $additionalCostsByCurrency = DB::table('purchase_has_addional_costs')
-            ->join('purchases', 'purchase_has_addional_costs.purchase_id', '=', 'purchases.id')
-            ->join('currencies', 'purchases.currency_id', '=', 'currencies.id')
-            ->where('purchases.supplier_id', $supplier->id)
-            ->whereNull('purchases.deleted_at')
-            ->whereNull('currencies.deleted_at')
-            ->select('currencies.code', DB::raw('SUM(purchase_has_addional_costs.amount) as total_additional'))
-            ->groupBy('currencies.id', 'currencies.code')
-            ->get()
-            ->keyBy('code');
-        
-        // Combine purchase amounts with additional costs by currency
-        $totalPurchaseAmountsByCurrency = $purchaseAmountsByCurrency->map(function ($purchase) use ($additionalCostsByCurrency) {
-            $additionalCost = $additionalCostsByCurrency->get($purchase->code);
-            $purchase->total_amount += $additionalCost ? $additionalCost->total_additional : 0;
+        // Add calculated totals to purchases for display
+        $purchases->getCollection()->transform(function ($purchase) {
+            $purchase->total_amount = $purchase->purchaseItems->sum('total_price');
+            $purchase->paid_amount = $purchase->payments->sum('amount');
             return $purchase;
         });
-        
-        // Calculate total payment amount by currency
-        $totalPaymentAmountsByCurrency = DB::table('purchase_payments')
-            ->join('currencies', 'purchase_payments.currency_id', '=', 'currencies.id')
-            ->where('purchase_payments.supplier_id', $supplier->id)
-            ->whereNull('purchase_payments.deleted_at')
-            ->whereNull('currencies.deleted_at')
-            ->select('currencies.code', 'currencies.name', DB::raw('SUM(purchase_payments.amount) as total_amount'))
-            ->groupBy('currencies.id', 'currencies.code', 'currencies.name')
-            ->get();
-        
-        $totalPayments = $supplier->payments()->count();
-        
-        // Calculate outstanding amounts by currency
-        $outstandingAmountsByCurrency = [];
-        foreach ($totalPurchaseAmountsByCurrency as $purchase) {
-            $payment = $totalPaymentAmountsByCurrency->where('code', $purchase->code)->first();
-            $paymentAmount = $payment ? $payment->total_amount : 0;
-            $outstandingAmountsByCurrency[] = [
-                'currency_code' => $purchase->code,
-                'currency_name' => $purchase->name,
-                'purchase_amount' => $purchase->total_amount,
-                'payment_amount' => $paymentAmount,
-                'outstanding_amount' => $purchase->total_amount - $paymentAmount,
-            ];
-        }
-        
-        // Add currencies that have payments but no purchases
-        foreach ($totalPaymentAmountsByCurrency as $payment) {
-            $existingCurrency = collect($outstandingAmountsByCurrency)->where('currency_code', $payment->code)->first();
-            if (!$existingCurrency) {
-                $outstandingAmountsByCurrency[] = [
-                    'currency_code' => $payment->code,
-                    'currency_name' => $payment->name,
-                    'purchase_amount' => 0,
-                    'payment_amount' => $payment->total_amount,
-                    'outstanding_amount' => -$payment->total_amount,
-                ];
-            }
-        }
 
         $permissions = [
             'can_view' => Gate::allows('view_supplier', $supplier),
@@ -250,13 +181,6 @@ class SupplierController extends Controller
             'supplier' => $supplier,
             'purchases' => $purchases,
             'payments' => $payments,
-            'summary' => [
-                'total_purchases' => $totalPurchases,
-                'total_purchase_amounts_by_currency' => $totalPurchaseAmountsByCurrency,
-                'total_payments' => $totalPayments,
-                'total_payment_amounts_by_currency' => $totalPaymentAmountsByCurrency,
-                'outstanding_amounts_by_currency' => $outstandingAmountsByCurrency,
-            ],
             'permissions' => $permissions,
         ]);
     }
