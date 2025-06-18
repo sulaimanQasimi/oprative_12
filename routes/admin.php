@@ -89,10 +89,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [PermissionController::class, 'index'])->name('admin.permissions.index');
         Route::get('/create', [PermissionController::class, 'create'])->name('admin.permissions.create');
         Route::post('/', [PermissionController::class, 'store'])->name('admin.permissions.store');
-        Route::get('/{permission:id}', [PermissionController::class, 'show'])->name('admin.permissions.show');
-        Route::get('/{permission:id}/edit', [PermissionController::class, 'edit'])->name('admin.permissions.edit');
-        Route::put('/{permission:id}', [PermissionController::class, 'update'])->name('admin.permissions.update');
-        Route::delete('/{permission:id}', [PermissionController::class, 'destroy'])->name('admin.permissions.destroy');
     });
 
     // Currency Management
@@ -281,5 +277,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{purchase:id}/payments/create', [PurchaseController::class, 'createPayment'])->name('admin.purchases.payments.create');
         Route::post('/{purchase:id}/payments', [PurchaseController::class, 'storePayment'])->name('admin.purchases.payments.store');
         Route::delete('/{purchase:id}/payments/{payment:id}', [PurchaseController::class, 'destroyPayment'])->name('admin.purchases.payments.destroy');
+
+        // Purchase Warehouse Transfer Management
+        Route::get('/{purchase:id}/warehouse-transfer', [PurchaseController::class, 'warehouseTransfer'])->name('admin.purchases.warehouse-transfer');
+        Route::post('/{purchase:id}/warehouse-transfer', [PurchaseController::class, 'storeWarehouseTransfer'])->name('admin.purchases.warehouse-transfer.store');
     });
 });
