@@ -15,6 +15,7 @@ class CustomerRepository
     use RegisterRoutes;
     public Customer $model;
     public $id;
+
     public function __construct(Customer $model)
     {
         $this->model = $model;
@@ -29,5 +30,4 @@ class CustomerRepository
         }
         return new static($user->customer);
     }
-
 }

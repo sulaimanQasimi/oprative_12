@@ -17,7 +17,8 @@ class SalesListController extends Controller
 
     public function __construct()
     {
-        $this->customer = CustomerRepository::currentUserCustomer()->model;
+        $customerRepo = CustomerRepository::currentUserCustomer();
+        $this->customer = $customerRepo ? $customerRepo->model : null;
     }
 
     public function index(Request $request)
