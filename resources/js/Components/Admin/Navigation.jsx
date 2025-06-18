@@ -404,38 +404,21 @@ const Navigation = ({ auth, currentRoute }) => {
                                 )}
                             </div>
 
-                        {/* Group Items */}
-                        {(!group.key || expandedGroups[group.key]) && (
-                            <ul className="space-y-1 px-2">
-                                {group.items
-                                    .filter(item => {
-                                        if (!item.permission) return true;
-
-                                        // Check if user has the required permission
-                                        const hasPermission = auth.user.permissions?.some(permission =>
-                                            permission.name === item.permission
-                                        );
-
-                                        return hasPermission;
-                                    })
-                                    .map((item, index) => (
-                                    <li key={index}>
-                                        <Link
-                                            href={safeRoute(item.route)}
-                                            className={`group flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all duration-200 relative overflow-hidden ${
-                                                item.active
-                                                    ? "bg-gradient-to-r from-blue-600/30 to-indigo-600/30 text-white shadow-lg border border-blue-500/30 backdrop-blur-sm"
-                                                    : "text-slate-400 hover:text-white hover:bg-slate-800/60"
-                                            }`}
-                                        >
-                                            {/* Active indicator */}
-                                            {item.active && (
-                                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-400 to-indigo-400 rounded-r"></div>
-                                            )}
                             {/* Group Items */}
                             {(!group.key || expandedGroups[group.key]) && (
                                 <ul className="space-y-1 px-2">
-                                    {group.items.map((item, index) => (
+                                    {group.items
+                                        .filter(item => {
+                                            if (!item.permission) return true;
+
+                                            // Check if user has the required permission
+                                            const hasPermission = auth.user.permissions?.some(permission =>
+                                                permission.name === item.permission
+                                            );
+
+                                            return hasPermission;
+                                        })
+                                        .map((item, index) => (
                                         <li key={index}>
                                             <Link
                                                 href={safeRoute(item.route)}
@@ -444,9 +427,7 @@ const Navigation = ({ auth, currentRoute }) => {
                                                         ? "bg-gradient-to-r from-blue-600/30 to-indigo-600/30 text-white shadow-lg border border-blue-500/30 backdrop-blur-sm"
                                                         : "text-slate-400 hover:text-white hover:bg-slate-800/60"
                                                 }`}
-                                                onClick={() =>
-                                                    setIsMobileMenuOpen(false)
-                                                }
+                                                onClick={() => setIsMobileMenuOpen(false)}
                                             >
                                                 {/* Active indicator */}
                                                 {item.active && (
