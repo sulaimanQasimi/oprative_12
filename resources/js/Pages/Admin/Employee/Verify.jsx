@@ -20,6 +20,14 @@ import {
     Scan,
     Eye,
     Clock,
+    Timer,
+    LogIn,
+    LogOut,
+    Activity,
+    UserCheck,
+    Wifi,
+    WifiOff,
+    Zap,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -35,7 +43,99 @@ export default function Verify({ auth }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [lastVerified, setLastVerified] = useState(null);
+    const [attendanceHistory, setAttendanceHistory] = useState([]);
+    const [currentAttendance, setCurrentAttendance] = useState(null);
+    const [fingerprintStatus, setFingerprintStatus] = useState("idle"); // idle, scanning, matched, failed
+    const [scannerConnected, setScannerConnected] = useState(false);
+    const [secugenScore, setSecugenScore] = useState(0);
+    const [autoScanTriggered, setAutoScanTriggered] = useState(false);
+    const [todayStats, setTodayStats] = useState({
+        total_employees: 0,
+        checked_in: 0,
+        checked_out: 0,
+        late_arrivals: 0,
+    });
+    const [deviceInfo, setDeviceInfo] = useState(null);
+    const [deviceCount, setDeviceCount] = useState(0);
+    const [captureStatus, setCaptureStatus] = useState("idle");
+    const [ledStatus, setLedStatus] = useState(false);
+    const [webApiVersion, setWebApiVersion] = useState("");
     const inputRef = useRef(null);
+
+    // SecuGen license key and templates
+    const secugen_lic = ""; // Add your SecuGen license key here
+
+    // Initialize SecuGen functions
+    useEffect(() => {
+        // SecuGen capture function
+        window.CallSGIFPGetData = function(successCall, failCall) {
+            var uri = "https://localhost:8443/SGIFPCapture";
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    var fpobject = JSON.parse(xmlhttp.responseText);
+                    successCall(fpobject);
+                }
+                else if (xmlhttp.status == 404) {
+                    failCall(xmlhttp.status);
+                }
+            }
+            xmlhttp.onerror = function () {
+                failCall(xmlhttp.status);
+            }
+            var params = "Timeout=" + "10000";
+            params += "&Quality=" + "50";
+            params += "&licstr=" + encodeURIComponent(secugen_lic);
+            params += "&templateFormat=" + "ISO";
+            xmlhttp.open("POST", uri, true);
+            xmlhttp.send(params);
+        };
+
+        // SecuGen matching function
+        window.matchScore = function(succFunction, failFunction) {
+            if (!window.template_1 || !window.template_2) {
+                failFunction("Missing templates for comparison");
+                return;
+            }
+            var uri = "https://localhost:8443/SGIMatchScore";
+
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    var fpobject = JSON.parse(xmlhttp.responseText);
+                    succFunction(fpobject);
+                }
+                else if (xmlhttp.status == 404) {
+                    failFunction(xmlhttp.status);
+                }
+            }
+
+            xmlhttp.onerror = function () {
+                failFunction(xmlhttp.status);
+            }
+            var params = "template1=" + encodeURIComponent(window.template_1);
+            params += "&template2=" + encodeURIComponent(window.template_2);
+            params += "&licstr=" + encodeURIComponent(secugen_lic);
+            params += "&templateFormat=" + "ISO";
+            xmlhttp.open("POST", uri, false);
+            xmlhttp.send(params);
+        };
+
+        // Test SecuGen connection
+        const testConnection = () => {
+            fetch('https://localhost:8443/SGIFPCapture', {
+                method: 'POST',
+                body: 'Timeout=1000&Quality=50&licstr=' + encodeURIComponent(secugen_lic) + '&templateFormat=ISO'
+            })
+            .then(() => setScannerConnected(true))
+            .catch(() => setScannerConnected(false));
+        };
+
+        testConnection();
+        const connectionInterval = setInterval(testConnection, 5000);
+
+        return () => clearInterval(connectionInterval);
+    }, []);
 
     // Auto-focus input on mount and refocus after any action
     useEffect(() => {
@@ -43,6 +143,30 @@ export default function Verify({ auth }) {
             inputRef.current.focus();
         }
     }, [employee, error]);
+
+    // Load today's attendance stats
+    useEffect(() => {
+        loadTodayStats();
+    }, []);
+
+    const loadTodayStats = async () => {
+        try {
+            const response = await fetch(route("admin.attendance.today-stats"), {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setTodayStats(data);
+            }
+        } catch (err) {
+            console.error("Failed to load today's stats:", err);
+        }
+    };
 
     // Refocus input every 100ms to ensure it's always focused
     useEffect(() => {
@@ -55,6 +179,16 @@ export default function Verify({ auth }) {
         return () => clearInterval(interval);
     }, []);
 
+    // Auto-trigger SecuGen scan when employee verified and no attendance for today
+    useEffect(() => {
+        if (employee && !currentAttendance && scannerConnected && !autoScanTriggered) {
+            setAutoScanTriggered(true);
+            setTimeout(() => {
+                startSecuGenScan();
+            }, 1000); // Wait 1 second after verification
+        }
+    }, [employee, currentAttendance, scannerConnected, autoScanTriggered]);
+
     // Search for employee when input changes
     useEffect(() => {
         if (employeeId.trim()) {
@@ -65,7 +199,10 @@ export default function Verify({ auth }) {
             return () => clearTimeout(timeoutId);
         } else {
             setEmployee(null);
+            setCurrentAttendance(null);
+            setAttendanceHistory([]);
             setError("");
+            setAutoScanTriggered(false);
         }
     }, [employeeId]);
 
@@ -74,6 +211,8 @@ export default function Verify({ auth }) {
 
         setLoading(true);
         setError("");
+        setFingerprintStatus("idle");
+        setAutoScanTriggered(false);
 
         try {
             const response = await fetch(route("admin.employees.verify-employee"), {
@@ -89,38 +228,148 @@ export default function Verify({ auth }) {
 
             if (data.success) {
                 setEmployee(data.employee);
+                setCurrentAttendance(data.current_attendance || null);
+                setAttendanceHistory(data.attendance_history || []);
                 setError("");
                 setLastVerified(new Date());
             } else {
                 setEmployee(null);
+                setCurrentAttendance(null);
+                setAttendanceHistory([]);
                 setError(data.message || t("Employee not found"));
             }
         } catch (err) {
             setEmployee(null);
+            setCurrentAttendance(null);
+            setAttendanceHistory([]);
             setError(t("Error verifying employee"));
         } finally {
             setLoading(false);
         }
     };
 
+        const startSecuGenScan = () => {
+        setFingerprintStatus("scanning");
+        setError("");
+        setSecugenScore(0);
+
+        if (!employee || !employee.biometric || !employee.fingerprint_template) {
+            setFingerprintStatus("failed");
+            setError(t("No biometric template registered for this employee."));
+            return;
+        }
+
+        // Call SecuGen scanner to capture fingerprint
+        window.CallSGIFPGetData(
+            function(fpObject) {
+                // Success - fingerprint captured
+                if (fpObject.ErrorCode === 0) {
+                    const capturedTemplate = fpObject.TemplateBase64;
+
+                    // Now match with stored template
+                    window.template_1 = employee.fingerprint_template; // Stored template
+                    window.template_2 = capturedTemplate; // Captured template
+
+                    window.matchScore(
+                        function(matchResult) {
+                            // Success - matching completed
+                            const score = matchResult.MatchingScore;
+                            setSecugenScore(score);
+
+                            if (score >= 30) {
+                                setFingerprintStatus("matched");
+                                handleAttendanceAction();
+                            } else {
+                                setFingerprintStatus("failed");
+                                setError(t(`Fingerprint match failed. Score: ${score}/100. Minimum required: 30`));
+                            }
+                        },
+                        function(error) {
+                            // Error in matching
+                            setFingerprintStatus("failed");
+                            setError(t("Error during fingerprint matching. Please try again."));
+                        }
+                    );
+                } else {
+                    setFingerprintStatus("failed");
+                    setError(t(`SecuGen capture failed. Error: ${fpObject.ErrorCode}`));
+                }
+            },
+            function(error) {
+                // Error in capture
+                setFingerprintStatus("failed");
+                setError(t("SecuGen scanner error. Please check connection and try again."));
+            }
+        );
+    };
+
+    const handleAttendanceAction = async () => {
+        if (!employee) return;
+
+        try {
+            const action = currentAttendance ? "check_out" : "check_in";
+            const response = await fetch(route("admin.attendance.record"), {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                },
+                body: JSON.stringify({
+                    employee_id: employee.id,
+                    action: action,
+                    verification_method: "secugen_fingerprint",
+                    fingerprint_score: secugenScore,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                setCurrentAttendance(data.attendance);
+                setAttendanceHistory([data.attendance, ...attendanceHistory]);
+
+                // Show success message
+                setTimeout(() => {
+                    setFingerprintStatus("idle");
+                }, 2000);
+            } else {
+                setError(data.message || t("Failed to record attendance"));
+                setFingerprintStatus("failed");
+            }
+        } catch (err) {
+            setError(t("Error recording attendance"));
+            setFingerprintStatus("failed");
+        }
+    };
+
     const handleInputChange = (e) => {
         setEmployeeId(e.target.value);
+        setFingerprintStatus("idle");
+        setAutoScanTriggered(false);
     };
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
             verifyEmployee();
         } else if (e.key === "Escape") {
-            setEmployeeId("");
-            setEmployee(null);
-            setError("");
+            clearSearch();
+        } else if (e.key === "F1") {
+            e.preventDefault();
+            if (employee && scannerConnected) {
+                startSecuGenScan();
+            }
         }
     };
 
     const clearSearch = () => {
         setEmployeeId("");
         setEmployee(null);
+        setCurrentAttendance(null);
+        setAttendanceHistory([]);
         setError("");
+        setFingerprintStatus("idle");
+        setAutoScanTriggered(false);
+        setSecugenScore(0);
         inputRef.current?.focus();
     };
 
@@ -135,9 +384,18 @@ export default function Verify({ auth }) {
         });
     };
 
+    const formatTime = (dateString) => {
+        if (!dateString) return "N/A";
+        return new Date(dateString).toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+        });
+    };
+
     return (
         <>
-            <Head title={t("Employee Verification")} />
+            <Head title={t("Employee Attendance System")} />
 
             <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
                 <Navigation auth={auth} currentRoute="admin.employees" />
@@ -156,7 +414,7 @@ export default function Verify({ auth }) {
                                     >
                                         <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
                                         <div className="relative bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
-                                            <Scan className="w-8 h-8 text-white" />
+                                            <Fingerprint className="w-8 h-8 text-white" />
                                             <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                         </div>
                                     </motion.div>
@@ -167,7 +425,7 @@ export default function Verify({ auth }) {
                                             transition={{ delay: 0.2, duration: 0.4 }}
                                             className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 bg-clip-text text-transparent"
                                         >
-                                            {t("Employee Verification")}
+                                            {t("Attendance System")}
                                         </motion.h1>
                                         <motion.p
                                             initial={{ x: -20, opacity: 0 }}
@@ -175,24 +433,61 @@ export default function Verify({ auth }) {
                                             transition={{ delay: 0.3, duration: 0.4 }}
                                             className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                         >
-                                            <Eye className="w-4 h-4" />
-                                            {t("Enter Employee ID to verify identity")}
+                                            <Activity className="w-4 h-4" />
+                                            {t("SecuGen Biometric Verification & Attendance Tracking")}
                                         </motion.p>
                                     </div>
                                 </div>
-                                {lastVerified && (
+                                <div className="flex items-center gap-4">
+                                    {/* SecuGen Scanner Status */}
                                     <motion.div
                                         initial={{ opacity: 0, y: -10 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="flex items-center gap-2 text-sm text-green-600 bg-green-50 dark:bg-green-900/20 px-3 py-2 rounded-lg border border-green-200 dark:border-green-800"
+                                        className={`flex items-center gap-2 text-sm px-3 py-2 rounded-lg border ${
+                                            scannerConnected
+                                                ? "text-green-600 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                                : "text-red-600 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
+                                        }`}
                                     >
-                                        <CheckCircle className="w-4 h-4" />
-                                        {t("Last verified")}: {lastVerified.toLocaleTimeString()}
+                                        {scannerConnected ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+                                        {scannerConnected ? t("SecuGen Online") : t("SecuGen Offline")}
                                     </motion.div>
-                                )}
+                                    {lastVerified && (
+                                        <motion.div
+                                            initial={{ opacity: 0, y: -10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 dark:bg-blue-900/20 px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800"
+                                        >
+                                            <CheckCircle className="w-4 h-4" />
+                                            {t("Last verified")}: {lastVerified.toLocaleTimeString()}
+                                        </motion.div>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     </header>
+
+                    {/* Today's Stats */}
+                    <div className="px-6 py-4 bg-white/50 dark:bg-slate-800/50 border-b border-white/20 dark:border-slate-700/50">
+                        <div className="grid grid-cols-4 gap-4">
+                            <div className="text-center">
+                                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{todayStats.total_employees}</div>
+                                <div className="text-sm text-slate-600 dark:text-slate-400">{t("Total Employees")}</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-2xl font-bold text-green-600 dark:text-green-400">{todayStats.checked_in}</div>
+                                <div className="text-sm text-slate-600 dark:text-slate-400">{t("Checked In")}</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{todayStats.checked_out}</div>
+                                <div className="text-sm text-slate-600 dark:text-slate-400">{t("Checked Out")}</div>
+                            </div>
+                            <div className="text-center">
+                                <div className="text-2xl font-bold text-red-600 dark:text-red-400">{todayStats.late_arrivals}</div>
+                                <div className="text-sm text-slate-600 dark:text-slate-400">{t("Late Arrivals")}</div>
+                            </div>
+                        </div>
+                    </div>
 
                     {/* Main Content */}
                     <main className="flex-1 overflow-auto p-6">
@@ -237,15 +532,23 @@ export default function Verify({ auth }) {
                                                     </Button>
                                                 )}
                                             </div>
-                                            
+
                                             <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                                                <div className="flex items-center gap-2">
-                                                    <kbd className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs">Enter</kbd>
-                                                    {t("to search")}
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <kbd className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs">Esc</kbd>
-                                                    {t("to clear")}
+                                                <div className="flex items-center gap-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <kbd className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs">Enter</kbd>
+                                                        {t("to search")}
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <kbd className="px-2 py-1 bg-slate-100 dark:bg-slate-700 rounded text-xs">Esc</kbd>
+                                                        {t("to clear")}
+                                                    </div>
+                                                    {employee && scannerConnected && (
+                                                        <div className="flex items-center gap-2">
+                                                            <kbd className="px-2 py-1 bg-green-100 dark:bg-green-700 rounded text-xs">F1</kbd>
+                                                            {t("for SecuGen scan")}
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -269,6 +572,244 @@ export default function Verify({ auth }) {
                                     </CardContent>
                                 </Card>
                             </motion.div>
+
+                            {/* SecuGen Attendance Scanner */}
+                            <AnimatePresence>
+                                {employee && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 30 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -30 }}
+                                        transition={{ duration: 0.5 }}
+                                        className="space-y-6"
+                                    >
+                                        {/* Attendance Status Card */}
+                                        <Card className={`border-0 shadow-2xl backdrop-blur-xl ${
+                                            currentAttendance
+                                                ? "bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800"
+                                                : "bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800"
+                                        }`}>
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`p-3 rounded-full ${
+                                                        currentAttendance ? "bg-green-500" : "bg-orange-500"
+                                                    }`}>
+                                                        {currentAttendance ? (
+                                                            <UserCheck className="h-8 w-8 text-white" />
+                                                        ) : (
+                                                            <Timer className="h-8 w-8 text-white" />
+                                                        )}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <h2 className={`text-2xl font-bold ${
+                                                            currentAttendance
+                                                                ? "text-green-800 dark:text-green-200"
+                                                                : "text-orange-800 dark:text-orange-200"
+                                                        }`}>
+                                                            {currentAttendance ? t("Employee Already Checked In") : t("No Attendance Today - SecuGen Scan Required")}
+                                                        </h2>
+                                                        <p className={currentAttendance ? "text-green-600 dark:text-green-400" : "text-orange-600 dark:text-orange-400"}>
+                                                            {currentAttendance
+                                                                ? `${t("Checked in at")}: ${formatTime(currentAttendance.check_in)}`
+                                                                : t("Automatic SecuGen fingerprint verification will start")
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                    {currentAttendance && (
+                                                        <div className="text-right">
+                                                            <div className="text-sm text-green-600 dark:text-green-400">{t("Status")}</div>
+                                                            <div className="text-lg font-semibold text-green-800 dark:text-green-200">{t("Present")}</div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        {/* SecuGen Scanner Interface */}
+                                        {!currentAttendance && (
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                                <CardHeader className="bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                                    <CardTitle className="flex items-center gap-3 text-xl">
+                                                        <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                                                            <Fingerprint className="h-6 w-6 text-white" />
+                                                        </div>
+                                                        {t("SecuGen Fingerprint Attendance")}
+                                                        {secugenScore > 0 && (
+                                                            <div className={`ml-auto px-3 py-1 rounded-full text-sm font-medium ${
+                                                                secugenScore >= 30
+                                                                    ? "bg-green-100 text-green-800 border border-green-200"
+                                                                    : "bg-red-100 text-red-800 border border-red-200"
+                                                            }`}>
+                                                                {t("Score")}: {secugenScore}/100
+                                                            </div>
+                                                        )}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-8">
+                                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                        {/* Fingerprint Scanner Visual */}
+                                                        <div className="space-y-6">
+                                                            <div className="text-center">
+                                                                <motion.div
+                                                                    className={`mx-auto w-48 h-48 rounded-full border-8 flex items-center justify-center relative ${
+                                                                        fingerprintStatus === "scanning"
+                                                                            ? "border-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                                                                            : fingerprintStatus === "matched"
+                                                                            ? "border-green-400 bg-green-50 dark:bg-green-900/20"
+                                                                            : fingerprintStatus === "failed"
+                                                                            ? "border-red-400 bg-red-50 dark:bg-red-900/20"
+                                                                            : "border-slate-300 bg-slate-50 dark:bg-slate-700"
+                                                                    }`}
+                                                                    animate={
+                                                                        fingerprintStatus === "scanning"
+                                                                            ? { scale: [1, 1.05, 1], opacity: [0.7, 1, 0.7] }
+                                                                            : {}
+                                                                    }
+                                                                    transition={{ repeat: Infinity, duration: 1.5 }}
+                                                                >
+                                                                    {fingerprintStatus === "scanning" && (
+                                                                        <div className="absolute inset-0 rounded-full border-4 border-blue-400 animate-ping"></div>
+                                                                    )}
+                                                                    <Fingerprint
+                                                                        className={`w-24 h-24 ${
+                                                                            fingerprintStatus === "scanning"
+                                                                                ? "text-blue-600"
+                                                                                : fingerprintStatus === "matched"
+                                                                                ? "text-green-600"
+                                                                                : fingerprintStatus === "failed"
+                                                                                ? "text-red-600"
+                                                                                : "text-slate-400"
+                                                                        }`}
+                                                                    />
+                                                                </motion.div>
+                                                                <div className="mt-6 space-y-2">
+                                                                    <h3 className="text-xl font-semibold">
+                                                                        {fingerprintStatus === "scanning"
+                                                                            ? t("SecuGen Scanning...")
+                                                                            : fingerprintStatus === "matched"
+                                                                            ? t("Fingerprint Matched!")
+                                                                            : fingerprintStatus === "failed"
+                                                                            ? t("Scan Failed")
+                                                                            : autoScanTriggered
+                                                                            ? t("Auto-scan will start soon...")
+                                                                            : t("Place Finger on SecuGen Scanner")}
+                                                                    </h3>
+                                                                    <p className="text-slate-600 dark:text-slate-400">
+                                                                        {fingerprintStatus === "scanning"
+                                                                            ? t("Please keep finger steady on SecuGen scanner...")
+                                                                            : fingerprintStatus === "matched"
+                                                                            ? t("Attendance recorded successfully")
+                                                                            : fingerprintStatus === "failed"
+                                                                            ? t("Please try again or contact admin")
+                                                                            : autoScanTriggered
+                                                                            ? t("SecuGen will automatically scan for attendance")
+                                                                            : t("Manual scan available via F1 key")}
+                                                                    </p>
+                                                                    {secugenScore > 0 && (
+                                                                        <p className={`text-sm font-medium ${
+                                                                            secugenScore >= 30 ? "text-green-600" : "text-red-600"
+                                                                        }`}>
+                                                                            {secugenScore >= 30
+                                                                                ? t("✓ Score meets minimum requirement (30+)")
+                                                                                : t("✗ Score below minimum requirement (30+)")
+                                                                            }
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="text-center">
+                                                                <Button
+                                                                    onClick={startSecuGenScan}
+                                                                    disabled={!scannerConnected || fingerprintStatus === "scanning"}
+                                                                    size="lg"
+                                                                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3"
+                                                                >
+                                                                    {fingerprintStatus === "scanning" ? (
+                                                                        <>
+                                                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                                                                            {t("SecuGen Scanning...")}
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Zap className="w-5 h-5 mr-2" />
+                                                                            {t("Start SecuGen Scan")}
+                                                                        </>
+                                                                    )}
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* Employee Info & Instructions */}
+                                                        <div className="space-y-6">
+                                                            <div className="space-y-4">
+                                                                <h3 className="text-lg font-semibold flex items-center gap-2">
+                                                                    <UserCheck className="w-5 h-5" />
+                                                                    {t("Employee Details")}
+                                                                </h3>
+                                                                <div className="grid grid-cols-1 gap-3">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <User className="w-5 h-5 text-slate-500" />
+                                                                        <div>
+                                                                            <p className="font-medium">{employee.first_name} {employee.last_name}</p>
+                                                                            <p className="text-sm text-slate-600 dark:text-slate-400">{employee.employee_id}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-3">
+                                                                        <Building className="w-5 h-5 text-slate-500" />
+                                                                        <div>
+                                                                            <p className="font-medium">{employee.department}</p>
+                                                                            <p className="text-sm text-slate-600 dark:text-slate-400">{t("Department")}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-3">
+                                                                        <Shield className="w-5 h-5 text-slate-500" />
+                                                                        <div>
+                                                                            <UIBadge variant={employee.biometric ? "default" : "secondary"}>
+                                                                                {employee.biometric ? t("Biometric Registered") : t("No Biometric")}
+                                                                            </UIBadge>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="space-y-4">
+                                                                <h3 className="text-lg font-semibold flex items-center gap-2">
+                                                                    <Activity className="w-5 h-5" />
+                                                                    {t("SecuGen Instructions")}
+                                                                </h3>
+                                                                <div className="space-y-3 text-sm">
+                                                                    <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                                                        <div className="w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</div>
+                                                                        <div>
+                                                                            <p className="font-medium text-blue-800 dark:text-blue-200">{t("Automatic Scan")}</p>
+                                                                            <p className="text-blue-600 dark:text-blue-400">{t("SecuGen will auto-scan when no attendance found")}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex items-start gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                                                        <div className="w-6 h-6 bg-green-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</div>
+                                                                        <div>
+                                                                            <p className="font-medium text-green-800 dark:text-green-200">{t("Score Requirement")}</p>
+                                                                            <p className="text-green-600 dark:text-green-400">{t("Minimum score of 30/100 required for attendance")}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex items-start gap-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                                                                        <div className="w-6 h-6 bg-purple-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</div>
+                                                                        <div>
+                                                                            <p className="font-medium text-purple-800 dark:text-purple-200">{t("Manual Override")}</p>
+                                                                            <p className="text-purple-600 dark:text-purple-400">{t("Press F1 for manual SecuGen scan")}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        )}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
 
                             {/* Employee Details */}
                             <AnimatePresence>
@@ -496,4 +1037,4 @@ export default function Verify({ auth }) {
             </div>
         </>
     );
-} 
+}

@@ -203,23 +203,75 @@ class EmployeeController extends Controller
             ], 404);
         }
 
+        // Check today's attendance
+        $today = Carbon::today();
+        $currentAttendance = Attendance::where('employee_id', $employee->id)
+            ->where('date', $today)
+            ->first();
+
+        // Get attendance history for last 7 days
+        $attendanceHistory = Attendance::where('employee_id', $employee->id)
+            ->where('date', '>=', Carbon::now()->subDays(7))
+            ->orderBy('date', 'desc')
+            ->get()
+            ->map(function ($attendance) {
+                return [
+                    'id' => $attendance->id,
+                    'date' => $attendance->date,
+                    'check_in' => $attendance->enter_time,
+                    'check_out' => $attendance->exit_time,
+                    'status' => $attendance->exit_time ? 'checked_out' : 'checked_in',
+                ];
+            });
+
         return response()->json([
             'success' => true,
-            'employee' => $employee
+            'employee' => [
+                'id' => $employee->id,
+                'first_name' => $employee->first_name,
+                'last_name' => $employee->last_name,
+                'employee_id' => $employee->employee_id,
+                'taskra_id' => $employee->taskra_id,
+                'department' => $employee->department,
+                'email' => $employee->email,
+                'photo' => $employee->photo,
+                'contact_info' => $employee->contact_info,
+                'biometric' => $employee->biometric ? true : false,
+                'fingerprint_template' => $employee->biometric ? $employee->biometric->template : null,
+                'gate' => $employee->gate,
+                'created_at' => $employee->created_at,
+            ],
+            'current_attendance' => $currentAttendance ? [
+                'id' => $currentAttendance->id,
+                'check_in' => $currentAttendance->enter_time,
+                'check_out' => $currentAttendance->exit_time,
+                'date' => $currentAttendance->date,
+            ] : null,
+            'attendance_history' => $attendanceHistory
         ]);
     }
 
     /**
-     * Mark attendance for employee after fingerprint verification.
+     * Record attendance after SecuGen fingerprint verification.
      */
-    public function markAttendance(Request $request)
+    public function recordAttendance(Request $request)
     {
         $request->validate([
-            'employee_id' => 'required|string',
-            'matching_score' => 'required|numeric|min:0|max:100'
+            'employee_id' => 'required|integer',
+            'action' => 'required|in:check_in,check_out',
+            'verification_method' => 'required|string',
+            'fingerprint_score' => 'required|numeric|min:0|max:100'
         ]);
 
-        $employee = Employee::where('employee_id', $request->employee_id)->first();
+        // Check if fingerprint score meets minimum requirement
+        if ($request->fingerprint_score < 30) {
+            return response()->json([
+                'success' => false,
+                'message' => "Fingerprint verification failed. Score: {$request->fingerprint_score}/100. Minimum required: 30"
+            ], 400);
+        }
+
+        $employee = Employee::find($request->employee_id);
 
         if (!$employee) {
             return response()->json([
@@ -236,28 +288,15 @@ class EmployeeController extends Controller
             ->where('date', $today)
             ->first();
 
-        if ($existingAttendance) {
-            // If no exit time, mark exit time
-            if (!$existingAttendance->exit_time) {
-                $existingAttendance->update([
-                    'exit_time' => $now
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Exit time marked successfully',
-                    'type' => 'exit',
-                    'attendance' => $existingAttendance,
-                    'matching_score' => $request->matching_score
-                ]);
-            } else {
+        if ($request->action === 'check_in') {
+            if ($existingAttendance) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Attendance already marked for today (both entry and exit)',
+                    'message' => 'Employee already checked in today',
                     'attendance' => $existingAttendance
                 ], 400);
             }
-        } else {
+
             // Create new attendance record
             $attendance = Attendance::create([
                 'employee_id' => $employee->id,
@@ -267,11 +306,78 @@ class EmployeeController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Entry time marked successfully',
-                'type' => 'entry',
-                'attendance' => $attendance,
-                'matching_score' => $request->matching_score
+                'message' => 'Check-in successful',
+                'attendance' => [
+                    'id' => $attendance->id,
+                    'check_in' => $attendance->enter_time,
+                    'check_out' => null,
+                    'date' => $attendance->date,
+                ],
+                'fingerprint_score' => $request->fingerprint_score,
+                'verification_method' => $request->verification_method
+            ]);
+        } else {
+            // Check out
+            if (!$existingAttendance) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No check-in record found for today'
+                ], 400);
+            }
+
+            if ($existingAttendance->exit_time) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Employee already checked out today'
+                ], 400);
+            }
+
+            $existingAttendance->update([
+                'exit_time' => $now
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Check-out successful',
+                'attendance' => [
+                    'id' => $existingAttendance->id,
+                    'check_in' => $existingAttendance->enter_time,
+                    'check_out' => $existingAttendance->exit_time,
+                    'date' => $existingAttendance->date,
+                ],
+                'fingerprint_score' => $request->fingerprint_score,
+                'verification_method' => $request->verification_method
             ]);
         }
     }
-} 
+
+    /**
+     * Get today's attendance statistics.
+     */
+    public function getTodayStats()
+    {
+        $today = Carbon::today();
+
+        $totalEmployees = Employee::count();
+        $checkedIn = Attendance::where('date', $today)
+            ->whereNotNull('enter_time')
+            ->whereNull('exit_time')
+            ->count();
+        $checkedOut = Attendance::where('date', $today)
+            ->whereNotNull('exit_time')
+            ->count();
+
+        // Count late arrivals (assuming work starts at 9:00 AM)
+        $workStartTime = Carbon::today()->setTime(9, 0, 0);
+        $lateArrivals = Attendance::where('date', $today)
+            ->where('enter_time', '>', $workStartTime)
+            ->count();
+
+        return response()->json([
+            'total_employees' => $totalEmployees,
+            'checked_in' => $checkedIn,
+            'checked_out' => $checkedOut,
+            'late_arrivals' => $lateArrivals
+        ]);
+    }
+}
