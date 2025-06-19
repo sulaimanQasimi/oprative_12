@@ -1,41 +1,69 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Head, router } from "@inertiajs/react";
+import { Head } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
+import moment from "moment-jalaali";
 import {
     Search,
     User,
-    Badge,
-    Building,
     Mail,
-    Phone,
-    MapPin,
     Calendar,
     Users,
-    Contact,
     Fingerprint,
-    Shield,
     CheckCircle,
     XCircle,
     AlertCircle,
-    Scan,
-    Eye,
     Clock,
     Timer,
     LogIn,
     LogOut,
     Activity,
-    UserCheck,
     Wifi,
     WifiOff,
     Zap,
     Square,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Card, CardContent } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";
 import { Badge as UIBadge } from "@/Components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
+
+// Configure moment-jalaali for Persian locale
+moment.loadPersian({ dialect: 'persian-modern' });
+
+// Persian date utilities
+const formatPersianDate = (dateString) => {
+    if (!dateString) return "N/A";
+    return moment(dateString).format('jYYYY/jMM/jDD');
+};
+
+const formatPersianDateTime = (dateString) => {
+    if (!dateString) return "N/A";
+    return moment(dateString).format('jYYYY/jMM/jDD HH:mm:ss');
+};
+
+const formatPersianTime = (dateString) => {
+    if (!dateString) return "N/A";
+    return moment(dateString).format('HH:mm:ss');
+};
+
+const getCurrentPersianDate = () => {
+    return moment().format('jYYYY/jMM/jDD');
+};
+
+const getCurrentPersianDateWithDay = () => {
+    return moment().format('dddd، jYYYY/jMM/jDD');
+};
+
+const getCurrentPersianTime = () => {
+    return moment().format('HH:mm:ss');
+};
+
+const formatRelativeTime = (dateString) => {
+    if (!dateString) return "N/A";
+    return moment(dateString).fromNow();
+};
 
 export default function Verify({ auth }) {
     const { t } = useLaravelReactI18n();
@@ -61,6 +89,7 @@ export default function Verify({ auth }) {
     const [captureStatus, setCaptureStatus] = useState("idle");
     const [ledStatus, setLedStatus] = useState(false);
     const [webApiVersion, setWebApiVersion] = useState("");
+    const [currentTime, setCurrentTime] = useState(getCurrentPersianTime());
     const inputRef = useRef(null);
 
     // Initialize SecuGen functions for fingerprint capture
@@ -127,6 +156,15 @@ export default function Verify({ auth }) {
     // Load today's attendance stats
     useEffect(() => {
         loadTodayStats();
+    }, []);
+
+    // Live clock - update every second
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTime(getCurrentPersianTime());
+        }, 1000);
+
+        return () => clearInterval(interval);
     }, []);
 
     const loadTodayStats = async () => {
@@ -437,25 +475,7 @@ export default function Verify({ auth }) {
         inputRef.current?.focus();
     };
 
-    const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
-        return new Date(dateString).toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-    };
-
-    const formatTime = (dateString) => {
-        if (!dateString) return "N/A";
-        return new Date(dateString).toLocaleTimeString("en-US", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-        });
-    };
+    // Date formatting functions are now defined at the top of the file
 
     return (
         <>
@@ -479,11 +499,23 @@ export default function Verify({ auth }) {
                             </div>
                             <div className="text-right">
                                 <div className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
-                                    {new Date().toLocaleDateString()}
+                                    {moment().format('dddd')}
                                 </div>
-                                <div className="text-sm text-slate-500">
-                                    {new Date().toLocaleTimeString()}
+                                <div className="text-xl font-semibold text-slate-700 dark:text-slate-300">
+                                    {getCurrentPersianDate()}
                                 </div>
+                                <motion.div 
+                                    key={currentTime}
+                                    initial={{ opacity: 0.7 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="text-lg font-medium text-slate-600 dark:text-slate-400 tabular-nums"
+                                >
+                                    <span className="inline-flex items-center gap-2">
+                                        <Clock className="w-4 h-4 text-indigo-500" />
+                                        {currentTime}
+                                    </span>
+                                </motion.div>
                             </div>
                         </div>
 
@@ -704,12 +736,12 @@ export default function Verify({ auth }) {
                                                             <h2 className="text-3xl font-bold text-white mb-2">
                                                                 {currentAttendance ? t("Already Checked In") : t("Ready for Check-In")}
                                                             </h2>
-                                                            <p className="text-white/90 text-lg">
-                                                                {currentAttendance
-                                                                    ? `${t("Checked in at")}: ${formatTime(currentAttendance.check_in)}`
-                                                                    : t("Place finger on SecuGen scanner to continue")
-                                                                }
-                                                            </p>
+                                                                                                        <p className="text-white/90 text-lg">
+                                                {currentAttendance
+                                                    ? `${t("Checked in at")}: ${formatPersianTime(currentAttendance.check_in)}`
+                                                    : t("Place finger on SecuGen scanner to continue")
+                                                }
+                                            </p>
                                                         </div>
                                                         {currentAttendance && (
                                                             <div className="text-right">
@@ -935,12 +967,12 @@ export default function Verify({ auth }) {
                                                     </div>
                                                 </div>
                                                 {lastVerified && (
-                                                    <div className="text-right">
-                                                        <div className="text-xs text-slate-500">{t("Last verified")}</div>
-                                                        <div className="text-sm font-medium text-slate-900 dark:text-white">
-                                                            {lastVerified.toLocaleTimeString()}
+                                                                                                            <div className="text-right">
+                                                            <div className="text-xs text-slate-500">{t("Last verified")}</div>
+                                                            <div className="text-sm font-medium text-slate-900 dark:text-white">
+                                                                {formatPersianTime(lastVerified)}
+                                                            </div>
                                                         </div>
-                                                    </div>
                                                 )}
                                             </div>
                                         </CardContent>
@@ -1043,7 +1075,7 @@ export default function Verify({ auth }) {
                                                                 <span className="text-sm text-slate-600 dark:text-slate-400">{t("Joined")}</span>
                                                             </div>
                                                             <span className="text-sm font-medium text-slate-900 dark:text-white">
-                                                                {formatDate(employee.created_at)}
+                                                                {formatPersianDate(employee.created_at)}
                                                             </span>
                                                         </div>
                                                     </div>
