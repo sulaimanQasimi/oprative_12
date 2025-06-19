@@ -34,6 +34,7 @@ import {
     Building2,
     X,
     Clock,
+    Scan,
 } from "lucide-react";
 
 const Navigation = ({ auth, currentRoute }) => {
@@ -114,6 +115,8 @@ const Navigation = ({ auth, currentRoute }) => {
                     return "/adminpanel/currencies";
                 case "admin.employees.index":
                     return "/adminpanel/employees";
+                case "admin.employees.verify":
+                    return "/adminpanel/employees/verify";
                 case "admin.attendance-settings.index":
                     return "/adminpanel/attendance-settings";
                 case "admin.gates.index":
@@ -276,7 +279,14 @@ const Navigation = ({ auth, currentRoute }) => {
                     name: t("Employees"),
                     icon: <Users className="w-5 h-5" />,
                     route: "admin.employees.index",
-                    active: currentRoute?.startsWith("admin.employees"),
+                    active: currentRoute?.startsWith("admin.employees") && currentRoute !== "admin.employees.verify",
+                },
+                {
+                    name: t("Employee Verification"),
+                    icon: <Scan className="w-5 h-5" />,
+                    route: "admin.employees.verify",
+                    active: currentRoute === "admin.employees.verify",
+                    badge: "Live",
                 },
                 {
                     name: t("Attendance Settings"),
