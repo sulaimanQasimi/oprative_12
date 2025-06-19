@@ -35,6 +35,7 @@ import {
     X,
     Clock,
     Scan,
+    FileText,
 } from "lucide-react";
 
 const Navigation = ({ auth, currentRoute }) => {
@@ -117,6 +118,10 @@ const Navigation = ({ auth, currentRoute }) => {
                     return "/adminpanel/employees";
                 case "admin.employees.verify":
                     return "/adminpanel/employees/verify";
+                case "admin.employees.manual-attendance":
+                    return "/adminpanel/employees/manual-attendance";
+                case "admin.employees.attendance-report":
+                    return "/adminpanel/employees/attendance-report";
                 case "admin.attendance-settings.index":
                     return "/adminpanel/attendance-settings";
                 case "admin.gates.index":
@@ -279,7 +284,10 @@ const Navigation = ({ auth, currentRoute }) => {
                     name: t("Employees"),
                     icon: <Users className="w-5 h-5" />,
                     route: "admin.employees.index",
-                    active: currentRoute?.startsWith("admin.employees") && currentRoute !== "admin.employees.verify",
+                    active: currentRoute?.startsWith("admin.employees") &&
+                           currentRoute !== "admin.employees.verify" &&
+                           currentRoute !== "admin.employees.manual-attendance" &&
+                           currentRoute !== "admin.employees.attendance-report",
                 },
                 {
                     name: t("Employee Verification"),
@@ -287,6 +295,20 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.employees.verify",
                     active: currentRoute === "admin.employees.verify",
                     badge: "Live",
+                },
+                {
+                    name: t("Manual Attendance"),
+                    icon: <Clock className="w-5 h-5" />,
+                    route: "admin.employees.manual-attendance",
+                    active: currentRoute === "admin.employees.manual-attendance",
+                    badge: "New",
+                },
+                {
+                    name: t("Attendance Report"),
+                    icon: <FileText className="w-5 h-5" />,
+                    route: "admin.employees.attendance-report",
+                    active: currentRoute === "admin.employees.attendance-report",
+                    badge: "Hot",
                 },
                 {
                     name: t("Attendance Settings"),

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7587fd8a1be9fa2c81febc9b1dd7574d",
+    "content-hash": "f5d929222d8f887c0425406c78a074dd",
     "packages": [
         {
             "name": "barryvdh/laravel-dompdf",
@@ -1758,22 +1758,22 @@
         },
         {
             "name": "hekmatinasser/verta",
-            "version": "v8.4.1",
+            "version": "v8.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hekmatinasser/verta.git",
-                "reference": "f3b3f43da1f9eb7e0e8d751cc8aa46d324875dcb"
+                "reference": "754307385c8576eb295adea0e3345c089314b60a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hekmatinasser/verta/zipball/f3b3f43da1f9eb7e0e8d751cc8aa46d324875dcb",
-                "reference": "f3b3f43da1f9eb7e0e8d751cc8aa46d324875dcb",
+                "url": "https://api.github.com/repos/hekmatinasser/verta/zipball/754307385c8576eb295adea0e3345c089314b60a",
+                "reference": "754307385c8576eb295adea0e3345c089314b60a",
                 "shasum": ""
             },
             "require": {
                 "hekmatinasser/jalali": "^8.2.3",
-                "illuminate/support": "^8.0|^9.0|^10.0|^11.0",
-                "illuminate/validation": "^8.0|^9.0|^10.0|^11.0",
+                "illuminate/support": "^8.0|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/validation": "^8.0|^9.0|^10.0|^11.0|^12.0",
                 "php": "^8.0"
             },
             "require-dev": {
@@ -1819,7 +1819,7 @@
             ],
             "support": {
                 "issues": "https://github.com/hekmatinasser/verta/issues",
-                "source": "https://github.com/hekmatinasser/verta/tree/v8.4.1"
+                "source": "https://github.com/hekmatinasser/verta/tree/v8.5"
             },
             "funding": [
                 {
@@ -1827,7 +1827,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2024-04-09T14:55:49+00:00"
+            "time": "2025-03-09T13:03:20+00:00"
         },
         {
             "name": "inertiajs/inertia-laravel",

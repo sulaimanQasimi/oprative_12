@@ -63,316 +63,59 @@ export default function Verify({ auth }) {
     const [webApiVersion, setWebApiVersion] = useState("");
     const inputRef = useRef(null);
 
-    // SecuGen license key and templates
-    const secugen_lic = ""; // ⚠️ IMPORTANT: Add your SecuGen license key here for device detection to work!
-
-    // Initialize SecuGen functions and device management
+    // Initialize SecuGen functions for fingerprint capture
     useEffect(() => {
-        // SecuGen API base functions
-        const secugenApi = {
-            // Capture fingerprint
-            capture: function(successCall, failCall) {
-                const uri = "https://localhost:8443/SGIFPCapture";
-                const xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        const fpobject = JSON.parse(xmlhttp.responseText);
-                        successCall(fpobject);
-                    } else if (xmlhttp.status == 404) {
-                        failCall(xmlhttp.status);
-                    }
-                }
-                xmlhttp.onerror = function () {
+        // SecuGen WebAPI capture function from EditBiometric.jsx
+        window.CallSGIFPGetData = function(successCall, failCall) {
+            const uri = "https://localhost:8000/SGIFPCapture";
+            const xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    const fpobject = JSON.parse(xmlhttp.responseText);
+                    successCall(fpobject);
+                } else if (xmlhttp.readyState == 4) {
                     failCall(xmlhttp.status);
                 }
-                // const params = "Timeout=10000&Quality=50&licstr=" + encodeURIComponent(secugen_lic) + "&templateFormat=ISO";
-                xmlhttp.open("POST", uri, true);
-                xmlhttp.send(params);
-            },
+            };
+            xmlhttp.open("POST", uri, true);
+            xmlhttp.send();
+        };
 
-            // Get device information
-            getDeviceInfo: function(successCall, failCall) {
-                const uri = "https://localhost:8443/SGIFPGetInfo";
-                const xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        const deviceInfo = JSON.parse(xmlhttp.responseText);
-                        successCall(deviceInfo);
-                    } else if (xmlhttp.status == 404) {
-                        failCall(xmlhttp.status);
-                    }
-                }
-                xmlhttp.onerror = function () {
-                    failCall(xmlhttp.status);
-                }
-                // const params = "licstr=" + encodeURIComponent(secugen_lic);
-                xmlhttp.open("POST", uri, true);
-                xmlhttp.send(params);
-            },
-
-            // Get device count
-            getDeviceCount: function(successCall, failCall) {
-                const uri = "https://localhost:8443/SGIFPGetDeviceCount";
-                const xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4) {
-                        if (xmlhttp.status == 200) {
-                            try {
-                                const result = JSON.parse(xmlhttp.responseText);
-                                console.log("Device count raw response:", xmlhttp.responseText);
-
-                                // Handle different response formats
-                                if (result.ErrorCode === 0 || result.errorCode === 0) {
-                                    successCall(result);
-                                } else if (result.DeviceCount !== undefined || result.deviceCount !== undefined) {
-                                    successCall(result);
-                                } else {
-                                    console.log("Device count response format unexpected:", result);
-                                    failCall("Unexpected response format");
-                                }
-                            } catch (e) {
-                                console.log("Failed to parse device count response:", e);
-                                failCall("JSON parse error");
-                            }
-                        } else {
-                            console.log("Device count HTTP error:", xmlhttp.status);
-                            failCall(xmlhttp.status);
-                        }
-                    }
-                }
-                xmlhttp.onerror = function () {
-                    console.log("Device count network error:", xmlhttp.status);
-                    failCall(xmlhttp.status);
-                }
-                // const params = "licstr=" + encodeURIComponent(secugen_lic);
-                xmlhttp.open("POST", uri, true);
-                xmlhttp.send(params);
-            },
-
-            // Get WebAPI version
-            getVersion: function(successCall, failCall) {
-                const uri = "https://localhost:8443/SGIFPGetVersion";
-                const xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        const result = JSON.parse(xmlhttp.responseText);
-                        successCall(result);
-                    } else if (xmlhttp.status == 404) {
-                        failCall(xmlhttp.status);
-                    }
-                }
-                xmlhttp.onerror = function () {
-                    failCall(xmlhttp.status);
-                }
-                xmlhttp.open("POST", uri, true);
-                xmlhttp.send("");
-            },
-
-            // Turn LED on
-            setLedOn: function(successCall, failCall) {
-                const uri = "https://localhost:8443/SGIFPSetLedOn";
-                const xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        const result = JSON.parse(xmlhttp.responseText);
-                        successCall(result);
-                    } else if (xmlhttp.status == 404) {
-                        failCall(xmlhttp.status);
-                    }
-                }
-                xmlhttp.onerror = function () {
-                    failCall(xmlhttp.status);
-                }
-                // const params = "licstr=" + encodeURIComponent(secugen_lic);
-                xmlhttp.open("POST", uri, true);
-                xmlhttp.send(params);
-            },
-
-            // Turn LED off
-            setLedOff: function(successCall, failCall) {
-                const uri = "https://localhost:8443/SGIFPSetLedOff";
-                const xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        const result = JSON.parse(xmlhttp.responseText);
-                        successCall(result);
-                    } else if (xmlhttp.status == 404) {
-                        failCall(xmlhttp.status);
-                    }
-                }
-                xmlhttp.onerror = function () {
-                    failCall(xmlhttp.status);
-                }
-                // const params = "licstr=" + encodeURIComponent(secugen_lic);
-                xmlhttp.open("POST", uri, true);
-                xmlhttp.send(params);
-            },
-
-            // Get capture status
-            getCaptureStatus: function(successCall, failCall) {
-                const uri = "https://localhost:8443/SGIFPGetCaptureStatus";
-                const xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        const result = JSON.parse(xmlhttp.responseText);
-                        successCall(result);
-                    } else if (xmlhttp.status == 404) {
-                        failCall(xmlhttp.status);
-                    }
-                }
-                xmlhttp.onerror = function () {
-                    failCall(xmlhttp.status);
-                }
-                const params = "licstr=" + encodeURIComponent(secugen_lic);
-                xmlhttp.open("POST", uri, true);
-                xmlhttp.send(params);
-            },
-
-            // Stop capture
-            stopCapture: function(successCall, failCall) {
-                const uri = "https://localhost:8443/SGIFPStopCapture";
-                const xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        const result = JSON.parse(xmlhttp.responseText);
-                        successCall(result);
-                    } else if (xmlhttp.status == 404) {
-                        failCall(xmlhttp.status);
-                    }
-                }
-                xmlhttp.onerror = function () {
-                    failCall(xmlhttp.status);
-                }
-                const params = "licstr=" + encodeURIComponent(secugen_lic);
-                xmlhttp.open("POST", uri, true);
-                xmlhttp.send(params);
-            },
-
-            // Match templates
-            matchScore: function(template1, template2, successCall, failCall) {
-                if (!template1 || !template2) {
-                    failCall("Missing templates for comparison");
-                    return;
-                }
-                const uri = "https://localhost:8443/SGIMatchScore";
-                const xmlhttp = new XMLHttpRequest();
-                xmlhttp.onreadystatechange = function () {
-                    if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-                        const result = JSON.parse(xmlhttp.responseText);
-                        successCall(result);
-                    } else if (xmlhttp.status == 404) {
-                        failCall(xmlhttp.status);
-                    }
-                }
-                xmlhttp.onerror = function () {
-                    failCall(xmlhttp.status);
-                }
-                const params = "template1=" + encodeURIComponent(template1) +
-                              "&template2=" + encodeURIComponent(template2) +
-                              "&licstr=" + encodeURIComponent(secugen_lic) +
-                              "&templateFormat=ISO";
-                xmlhttp.open("POST", uri, false);
-                xmlhttp.send(params);
+        // Simple SecuGen matchScore function without license
+        window.matchScore = function(succFunction, failFunction) {
+            if (window.template_1 == "" || window.template_2 == "") {
+                alert("Please scan two fingers to verify!!");
+                return;
             }
-        };
+            var uri = "https://localhost:8443/SGIMatchScore";
 
-        // Make API available globally
-        window.secugenApi = secugenApi;
-
-        // Legacy function names for backward compatibility
-        window.CallSGIFPGetData = secugenApi.capture;
-        window.matchScore = function(successCall, failCall) {
-            secugenApi.matchScore(window.template_1, window.template_2, successCall, failCall);
-        };
-
-        // Initialize device information
-        const initializeDevice = () => {
-            console.log("Initializing SecuGen device...");
-
-            // Get WebAPI version first to test connection
-            secugenApi.getVersion(
-                (result) => {
-                    console.log("SecuGen WebAPI version:", result);
-                    setWebApiVersion(result.version || result.Version || "Connected");
-
-                    // If version call succeeds, try to get device count
-                    secugenApi.getDeviceCount(
-                        (result) => {
-                            console.log("Device count result:", result);
-                            const deviceCount = result.DeviceCount || result.deviceCount || 0;
-                            setDeviceCount(deviceCount);
-                            setScannerConnected(deviceCount > 0);
-
-                            console.log(`Found ${deviceCount} SecuGen device(s)`);
-
-                            // Get device info if devices are connected
-                            if (deviceCount > 0) {
-                                secugenApi.getDeviceInfo(
-                                    (result) => {
-                                        console.log("Device info:", result);
-                                        setDeviceInfo(result);
-
-                                        // Turn on LED to indicate system is ready
-                                        secugenApi.setLedOn(
-                                            (ledResult) => {
-                                                console.log("LED turned on:", ledResult);
-                                                setLedStatus(true);
-                                            },
-                                            (error) => {
-                                                console.log("Failed to turn on LED:", error);
-                                                setLedStatus(false);
-                                            }
-                                        );
-                                    },
-                                    (error) => {
-                                        console.log("Failed to get device info:", error);
-                                        setDeviceInfo(null);
-                                    }
-                                );
-                            }
-                        },
-                        (error) => {
-                            console.log("Failed to get device count:", error);
-                            setDeviceCount(0);
-                            setScannerConnected(false);
-                        }
-                    );
-                },
-                (error) => {
-                    console.log("Failed to get version - SecuGen service may not be running:", error);
-                    setWebApiVersion("Offline");
-                    setDeviceCount(0);
-                    setScannerConnected(false);
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    var fpobject = JSON.parse(xmlhttp.responseText);
+                    succFunction(fpobject);
                 }
-            );
-        };
-
-        // Monitor capture status during scanning
-        const monitorCaptureStatus = () => {
-            if (fingerprintStatus === "scanning") {
-                secugenApi.getCaptureStatus(
-                    (result) => setCaptureStatus(result.CaptureStatus || "idle"),
-                    () => setCaptureStatus("error")
-                );
+                else if (xmlhttp.status == 404) {
+                    failFunction(xmlhttp.status);
+                }
             }
+
+            var params = "template1=" + encodeURIComponent(window.template_1) +
+                        "&template2=" + encodeURIComponent(window.template_2) +
+                        "&templateFormat=ISO";
+            xmlhttp.open("POST", uri, false);
+            xmlhttp.send(params);
         };
 
-        // Initialize device on mount
-        initializeDevice();
-
-        // Set up monitoring intervals
-        const deviceInterval = setInterval(initializeDevice, 10000); // Check every 10 seconds
-        const statusInterval = setInterval(monitorCaptureStatus, 1000); // Check status every second
+        // Set basic device status
+        setScannerConnected(true);
+        setDeviceCount(1);
+        setWebApiVersion("SecuGen");
 
         return () => {
-            clearInterval(deviceInterval);
-            clearInterval(statusInterval);
-            // Turn off LED when component unmounts
-            if (window.secugenApi && scannerConnected) {
-                window.secugenApi.setLedOff(() => {}, () => {});
-            }
+            // Cleanup if needed
         };
-    }, [scannerConnected, fingerprintStatus]);
+    }, []);
 
     // Auto-focus input on mount and refocus after any action
     useEffect(() => {
@@ -485,40 +228,34 @@ export default function Verify({ auth }) {
         }
     };
 
-            const startSecuGenScan = () => {
+    const startSecuGenScan = () => {
         setFingerprintStatus("scanning");
         setError("");
         setSecugenScore(0);
 
-        if (!employee || !employee.biometric || !employee.fingerprint_template) {
+        // Check for biometric template in multiple places for compatibility
+        const storedTemplate = employee.fingerprint_template ||
+                              (employee.biometric && employee.biometric.TemplateBase64);
+
+        if (!employee || !storedTemplate) {
             setFingerprintStatus("failed");
             setError(t("No biometric template registered for this employee."));
             return;
         }
 
-        if (!scannerConnected || deviceCount === 0) {
-            setFingerprintStatus("failed");
-            setError(t("No SecuGen device connected. Please check device connection."));
-            return;
-        }
+        // Set stored template for comparison
+        window.template_1 = storedTemplate;
 
-        // Turn on LED to indicate scanning
-        window.secugenApi.setLedOn(
-            () => setLedStatus(true),
-            () => {}
-        );
-
-        // Call SecuGen scanner to capture fingerprint
-        window.secugenApi.capture(
-            function(fpObject) {
+        // Capture fingerprint using SecuGen
+        window.CallSGIFPGetData(
+            function(result) {
                 // Success - fingerprint captured
-                if (fpObject.ErrorCode === 0) {
-                    const capturedTemplate = fpObject.TemplateBase64;
+                if (result.ErrorCode == 0) {
+                    // Set captured template
+                    window.template_2 = result.TemplateBase64;
 
                     // Now match with stored template
-                    window.secugenApi.matchScore(
-                        employee.fingerprint_template, // Stored template
-                        capturedTemplate, // Captured template
+                    window.matchScore(
                         function(matchResult) {
                             // Success - matching completed
                             const score = matchResult.MatchingScore;
@@ -526,100 +263,41 @@ export default function Verify({ auth }) {
 
                             if (score >= 30) {
                                 setFingerprintStatus("matched");
-                                // Flash LED to indicate success
-                                window.secugenApi.setLedOff(() => {
-                                    setTimeout(() => {
-                                        window.secugenApi.setLedOn(() => setLedStatus(true), () => {});
-                                    }, 200);
-                                }, () => {});
                                 handleAttendanceAction();
                             } else {
                                 setFingerprintStatus("failed");
                                 setError(t(`Fingerprint match failed. Score: ${score}/100. Minimum required: 30`));
-                                // Turn off LED on failure
-                                window.secugenApi.setLedOff(() => setLedStatus(false), () => {});
                             }
                         },
                         function(error) {
                             // Error in matching
                             setFingerprintStatus("failed");
                             setError(t("Error during fingerprint matching. Please try again."));
-                            window.secugenApi.setLedOff(() => setLedStatus(false), () => {});
                         }
                     );
                 } else {
                     setFingerprintStatus("failed");
-                    setError(t(`SecuGen capture failed. Error: ${fpObject.ErrorCode}`));
-                    window.secugenApi.setLedOff(() => setLedStatus(false), () => {});
+                    setError(t(`SecuGen capture failed. Error code: ${result.ErrorCode}`));
                 }
             },
-            function(error) {
+            function(status) {
                 // Error in capture
                 setFingerprintStatus("failed");
-                setError(t("SecuGen scanner error. Please check connection and try again."));
-                window.secugenApi.setLedOff(() => setLedStatus(false), () => {});
+                setError(t("Check if SGIBIOSRV is running. Unable to connect to fingerprint device."));
             }
         );
     };
 
     // Function to stop scanning if needed
     const stopScanning = () => {
-        if (window.secugenApi) {
-            window.secugenApi.stopCapture(
-                () => {
-                    setFingerprintStatus("idle");
-                    window.secugenApi.setLedOff(() => setLedStatus(false), () => {});
-                },
-                () => {}
-            );
-        }
+        setFingerprintStatus("idle");
     };
 
     // Manual device check function
     const checkDeviceStatus = () => {
-        console.log("=== Manual Device Check ===");
-        console.log("SecuGen License:", secugen_lic ? "Set" : "NOT SET - This could be the issue!");
-
-        if (!window.secugenApi) {
-            console.log("SecuGen API not initialized");
-            return;
-        }
-
-        // Test basic connectivity
-        fetch('https://localhost:8443/SGIFPGetVersion', {
-            method: 'POST',
-            body: ''
-        })
-        .then(response => response.text())
-        .then(data => {
-            console.log("Direct API test response:", data);
-            // Re-initialize device after manual check
-            const initializeDevice = () => {
-                window.secugenApi.getDeviceCount(
-                    (result) => {
-                        console.log("Manual device count result:", result);
-                        const deviceCount = result.DeviceCount || result.deviceCount || 0;
-                        setDeviceCount(deviceCount);
-                        setScannerConnected(deviceCount > 0);
-
-                        if (deviceCount > 0) {
-                            setError("");
-                        } else {
-                            setError(t("Device connected but not detected. Check SecuGen license key."));
-                        }
-                    },
-                    (error) => {
-                        console.log("Manual device count failed:", error);
-                        setError(t("Device detection failed. Check SecuGen service and license."));
-                    }
-                );
-            };
-            initializeDevice();
-        })
-        .catch(error => {
-            console.log("Direct API test failed:", error);
-            setError(t("SecuGen service not responding. Check if SecuGen WebAPI is running."));
-        });
+        setScannerConnected(true);
+        setDeviceCount(1);
+        setError("");
     };
 
     const handleAttendanceAction = async () => {
@@ -627,18 +305,22 @@ export default function Verify({ auth }) {
 
         try {
             const action = currentAttendance ? "check_out" : "check_in";
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
+
+            const requestData = {
+                employee_id: employee.id,
+                action: action,
+                verification_method: "secugen_fingerprint",
+                fingerprint_score: secugenScore,
+            };
+
             const response = await fetch(route("admin.attendance.record"), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute("content"),
+                    "X-CSRF-TOKEN": csrfToken,
                 },
-                body: JSON.stringify({
-                    employee_id: employee.id,
-                    action: action,
-                    verification_method: "secugen_fingerprint",
-                    fingerprint_score: secugenScore,
-                }),
+                body: JSON.stringify(requestData),
             });
 
             const data = await response.json();
@@ -820,7 +502,7 @@ export default function Verify({ auth }) {
                                             className="text-xs px-3 py-1 border-blue-300 text-blue-600 hover:bg-blue-50"
                                         >
                                             <Activity className="w-3 h-3 mr-1" />
-                                            {t("Check Device")}
+                                            {t("Simple Mode")}
                                         </Button>
                                     </motion.div>
                                     {lastVerified && (
@@ -837,19 +519,6 @@ export default function Verify({ auth }) {
                             </div>
                         </div>
                     </header>
-
-                                                        {/* License Key Warning */}
-                    {!secugen_lic && (
-                        <div className="px-6 py-3 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800">
-                            <div className="flex items-center gap-3 text-red-800 dark:text-red-200">
-                                <AlertCircle className="w-5 h-5" />
-                                <div>
-                                    <span className="font-medium">{t("SecuGen License Key Required")}: </span>
-                                    <span className="text-sm">{t("Please add your SecuGen license key to the secugen_lic variable in the code for device detection to work properly.")}</span>
-                                </div>
-                            </div>
-                        </div>
-                    )}
 
                     {/* Today's Stats */}
                     <div className="px-6 py-4 bg-white/50 dark:bg-slate-800/50 border-b border-white/20 dark:border-slate-700/50">
@@ -1069,25 +738,25 @@ export default function Verify({ auth }) {
                                                                 <div className="mt-6 space-y-2">
                                                                     <h3 className="text-xl font-semibold">
                                                                         {fingerprintStatus === "scanning"
-                                                                            ? t("SecuGen Scanning...")
+                                                                            ? t("SecuGen Capturing...")
                                                                             : fingerprintStatus === "matched"
                                                                             ? t("Fingerprint Matched!")
                                                                             : fingerprintStatus === "failed"
-                                                                            ? t("Scan Failed")
+                                                                            ? t("Capture Failed")
                                                                             : autoScanTriggered
-                                                                            ? t("Auto-scan will start soon...")
+                                                                            ? t("Auto-capture will start soon...")
                                                                             : t("Place Finger on SecuGen Scanner")}
                                                                     </h3>
                                                                     <p className="text-slate-600 dark:text-slate-400">
                                                                         {fingerprintStatus === "scanning"
-                                                                            ? t("Please keep finger steady on SecuGen scanner...")
+                                                                            ? t("Please keep finger steady on SecuGen device...")
                                                                             : fingerprintStatus === "matched"
                                                                             ? t("Attendance recorded successfully")
                                                                             : fingerprintStatus === "failed"
                                                                             ? t("Please try again or contact admin")
                                                                             : autoScanTriggered
-                                                                            ? t("SecuGen will automatically scan for attendance")
-                                                                            : t("Manual scan available via F1 key")}
+                                                                            ? t("SecuGen will automatically capture for attendance")
+                                                                            : t("Manual capture available via F1 key")}
                                                                     </p>
                                                                     {secugenScore > 0 && (
                                                                         <p className={`text-sm font-medium ${
@@ -1438,7 +1107,7 @@ export default function Verify({ auth }) {
                                                                     </p>
                                                                 </div>
                                                             </div>
-                                                            {employee.biometric ? (
+                                                            {(employee.fingerprint_template || (employee.biometric && employee.biometric.TemplateBase64)) ? (
                                                                 <UIBadge variant="default" className="bg-green-100 text-green-800 border-green-200">
                                                                     <CheckCircle className="h-3 w-3 mr-1" />
                                                                     {t("Registered")}

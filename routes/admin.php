@@ -149,15 +149,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [EmployeeController::class, 'index'])->name('admin.employees.index');
         Route::get('/create', [EmployeeController::class, 'create'])->name('admin.employees.create');
         Route::post('/', [EmployeeController::class, 'store'])->name('admin.employees.store');
-            Route::get('/verify', [EmployeeController::class, 'verify'])->name('admin.employees.verify');
-    Route::post('/verify-employee', [EmployeeController::class, 'verifyEmployee'])->name('admin.employees.verify-employee');
-    Route::post('/record-attendance', [EmployeeController::class, 'recordAttendance'])->name('admin.attendance.record');
-    Route::get('/today-stats', [EmployeeController::class, 'getTodayStats'])->name('admin.attendance.today-stats');
+        Route::get('/verify', [EmployeeController::class, 'verify'])->name('admin.employees.verify');
+        Route::post('/verify-employee', [EmployeeController::class, 'verifyEmployee'])->name('admin.employees.verify-employee');
+        Route::post('/record-attendance', [EmployeeController::class, 'recordAttendance'])->name('admin.attendance.record');
+        Route::get('/today-stats', [EmployeeController::class, 'getTodayStats'])->name('admin.attendance.today-stats');
         Route::post('/mark-attendance', [EmployeeController::class, 'markAttendance'])->name('admin.employees.mark-attendance');
-        Route::get('/{id}', [EmployeeController::class, 'show'])->name('admin.employees.show');
-        Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employees.edit');
-        Route::put('/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
-        Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
 
         // Employee Biometric routes
         Route::get('/{id}/biometric/create', [BioMetricController::class, 'create'])->name('admin.employees.biometric.create');
@@ -165,6 +161,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{id}/biometric/edit', [BioMetricController::class, 'edit'])->name('admin.employees.biometric.edit');
         Route::put('/{id}/biometric', [BioMetricController::class, 'update'])->name('admin.employees.biometric.update');
         Route::delete('/{id}/biometric', [BioMetricController::class, 'destroy'])->name('admin.employees.biometric.destroy');
+
+        // Employee routes
+        Route::get('/manual-attendance', [EmployeeController::class, 'manualAttendance'])->name('admin.employees.manual-attendance');
+        Route::post('/manual-record-attendance', [EmployeeController::class, 'recordManualAttendance'])->name('admin.attendance.manual-record');
+        Route::get('/attendance-report', [EmployeeController::class, 'attendanceReport'])->name('admin.employees.attendance-report');
+        Route::get('/{id}', [EmployeeController::class, 'show'])->name('admin.employees.show');
+        Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employees.edit');
+        Route::put('/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
+        Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
+
     });
 
     // Attendance Settings routes

@@ -8,7 +8,6 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/js/app.jsx',
-                'resources/css/filament/admin/theme.css'
             ],
             ssr: 'resources/js/ssr.jsx',
             refresh: true,

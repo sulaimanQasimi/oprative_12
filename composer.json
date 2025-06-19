@@ -9,7 +9,7 @@
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
         "geniusts/hijri-dates": "^1.2",
-        "hekmatinasser/verta": "*",
+        "hekmatinasser/verta": "^8.5",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^11.31",
         "laravel/reverb": "^1.0",
