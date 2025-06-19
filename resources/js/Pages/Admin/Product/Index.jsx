@@ -31,6 +31,8 @@ import {
     ChevronLeft,
     SkipBack,
     SkipForward,
+    RotateCcw,
+    XOctagon,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -167,6 +169,20 @@ export default function Index({
     const handleDelete = (productId) => {
         if (confirm(t("Are you sure you want to delete this product?"))) {
             router.delete(route("admin.products.destroy", productId));
+        }
+    };
+
+    // Restore handler
+    const handleRestore = (productId) => {
+        if (confirm(t("Are you sure you want to restore this product?"))) {
+            router.patch(route("admin.products.restore", productId));
+        }
+    };
+
+    // Force Delete handler
+    const handleForceDelete = (productId) => {
+        if (confirm(t("Are you sure you want to permanently delete this product? This action cannot be undone."))) {
+            router.delete(route("admin.products.force-delete", productId));
         }
     };
 
@@ -1060,7 +1076,7 @@ export default function Index({
                                                                         </td>
                                                                         <td className="px-6 py-5">
                                                                             <div className="flex items-center justify-center gap-2">
-                                                                                {permissions.view_product && (
+                                                                                {!product.deleted_at && permissions.view_product && (
                                                                                     <Link
                                                                                         href={route(
                                                                                             "admin.products.edit",
@@ -1077,7 +1093,7 @@ export default function Index({
                                                                                         </Button>
                                                                                     </Link>
                                                                                 )}
-                                                                                {permissions.delete_product && (
+                                                                                {!product.deleted_at && permissions.delete_product && (
                                                                                     <Button
                                                                                         variant="outline"
                                                                                         size="sm"
@@ -1090,6 +1106,36 @@ export default function Index({
                                                                                         title={t("Delete Product")}
                                                                                     >
                                                                                         <Trash2 className="h-4 w-4" />
+                                                                                    </Button>
+                                                                                )}
+                                                                                {product.deleted_at && permissions.restore_product && (
+                                                                                    <Button
+                                                                                        variant="outline"
+                                                                                        size="sm"
+                                                                                        onClick={() =>
+                                                                                            handleRestore(
+                                                                                                product.id
+                                                                                            )
+                                                                                        }
+                                                                                        className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 dark:hover:bg-green-900/30 shadow-sm"
+                                                                                        title={t("Restore Product")}
+                                                                                    >
+                                                                                        <RotateCcw className="h-4 w-4" />
+                                                                                    </Button>
+                                                                                )}
+                                                                                {product.deleted_at && permissions.force_delete_product && (
+                                                                                    <Button
+                                                                                        variant="outline"
+                                                                                        size="sm"
+                                                                                        onClick={() =>
+                                                                                            handleForceDelete(
+                                                                                                product.id
+                                                                                            )
+                                                                                        }
+                                                                                        className="text-red-800 hover:text-red-900 hover:bg-red-100 border-red-300 dark:hover:bg-red-900/50 shadow-sm"
+                                                                                        title={t("Permanently Delete Product")}
+                                                                                    >
+                                                                                        <XOctagon className="h-4 w-4" />
                                                                                     </Button>
                                                                                 )}
                                                                             </div>
