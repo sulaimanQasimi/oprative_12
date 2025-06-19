@@ -101,10 +101,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
         }
     }, [warehouse, roles, permissions]);
 
-    // Filter warehouse-specific permissions
-    const warehousePermissions = permissions?.filter(permission =>
-        permission.guard_name === 'warehouse_user'
-    ) || [];
+
 
     const getPermissionDisplayName = (permissionName) => {
         // Remove 'warehouse.' prefix for display
