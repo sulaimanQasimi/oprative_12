@@ -161,13 +161,17 @@ export default function Verify({ auth }) {
 
     // Auto-trigger SecuGen scan when employee verified and no attendance for today
     useEffect(() => {
-        if (employee && !currentAttendance && scannerConnected && !autoScanTriggered) {
+        if (employee && !currentAttendance && scannerConnected && !autoScanTriggered && fingerprintStatus === "idle") {
+            console.log("Auto-triggering scan for employee:", employee.employee_id, "Current attendance:", currentAttendance);
             setAutoScanTriggered(true);
             setTimeout(() => {
-                startSecuGenScan();
-            }, 1000); // Wait 1 second after verification
+                // Double-check state before starting scan
+                if (fingerprintStatus === "idle") {
+                    startSecuGenScan();
+                }
+            }, 1500); // Wait 1.5 seconds after verification
         }
-    }, [employee, currentAttendance, scannerConnected, autoScanTriggered]);
+    }, [employee, currentAttendance, scannerConnected, autoScanTriggered, fingerprintStatus]);
 
     // Search for employee when input changes
     useEffect(() => {
@@ -207,11 +211,13 @@ export default function Verify({ auth }) {
             const data = await response.json();
 
             if (data.success) {
+                console.log("Employee verification successful:", data);
                 setEmployee(data.employee);
                 setCurrentAttendance(data.current_attendance || null);
                 setAttendanceHistory(data.attendance_history || []);
                 setError("");
                 setLastVerified(new Date());
+                console.log("Current attendance set to:", data.current_attendance);
             } else {
                 setEmployee(null);
                 setCurrentAttendance(null);
@@ -219,16 +225,24 @@ export default function Verify({ auth }) {
                 setError(data.message || t("Employee not found"));
             }
         } catch (err) {
-            setEmployee(null);
-            setCurrentAttendance(null);
-            setAttendanceHistory([]);
-            setError(t("Error verifying employee"));
+            console.error("Attendance request error:", err);
+            setError(t("Error recording attendance") + ": " + (err.message || "Unknown error"));
+            setFingerprintStatus("failed");
+            // Reset auto-scan trigger on error too
+            setAutoScanTriggered(false);
         } finally {
             setLoading(false);
         }
     };
 
     const startSecuGenScan = () => {
+        // Prevent concurrent scans
+        if (fingerprintStatus === "scanning") {
+            console.log("Scan already in progress, ignoring new scan request");
+            return;
+        }
+
+        console.log("Starting SecuGen scan for employee:", employee?.employee_id);
         setFingerprintStatus("scanning");
         setError("");
         setSecugenScore(0);
@@ -238,10 +252,13 @@ export default function Verify({ auth }) {
                               (employee.biometric && employee.biometric.TemplateBase64);
 
         if (!employee || !storedTemplate) {
+            console.error("No biometric template found for employee");
             setFingerprintStatus("failed");
             setError(t("No biometric template registered for this employee."));
             return;
         }
+
+        console.log("Using stored template:", storedTemplate.substring(0, 50) + "...");
 
         // Set stored template for comparison
         window.template_1 = storedTemplate;
@@ -249,14 +266,17 @@ export default function Verify({ auth }) {
         // Capture fingerprint using SecuGen
         window.CallSGIFPGetData(
             function(result) {
+                console.log("SecuGen capture result:", result);
                 // Success - fingerprint captured
                 if (result.ErrorCode == 0) {
                     // Set captured template
                     window.template_2 = result.TemplateBase64;
+                    console.log("Captured template:", result.TemplateBase64.substring(0, 50) + "...");
 
                     // Now match with stored template
                     window.matchScore(
                         function(matchResult) {
+                            console.log("Match result:", matchResult);
                             // Success - matching completed
                             const score = matchResult.MatchingScore;
                             setSecugenScore(score);
@@ -270,17 +290,20 @@ export default function Verify({ auth }) {
                             }
                         },
                         function(error) {
+                            console.error("Error during fingerprint matching:", error);
                             // Error in matching
                             setFingerprintStatus("failed");
                             setError(t("Error during fingerprint matching. Please try again."));
                         }
                     );
                 } else {
+                    console.error("SecuGen capture failed with error code:", result.ErrorCode);
                     setFingerprintStatus("failed");
                     setError(t(`SecuGen capture failed. Error code: ${result.ErrorCode}`));
                 }
             },
             function(status) {
+                console.error("SecuGen capture failed with status:", status);
                 // Error in capture
                 setFingerprintStatus("failed");
                 setError(t("Check if SGIBIOSRV is running. Unable to connect to fingerprint device."));
@@ -307,6 +330,11 @@ export default function Verify({ auth }) {
             const action = currentAttendance ? "check_out" : "check_in";
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
 
+            // Debug CSRF token and route
+            console.log("CSRF Token:", csrfToken);
+            console.log("Route URL:", route("admin.attendance.record"));
+            console.log("Current URL:", window.location.href);
+
             const requestData = {
                 employee_id: employee.id,
                 action: action,
@@ -314,32 +342,67 @@ export default function Verify({ auth }) {
                 fingerprint_score: secugenScore,
             };
 
+            console.log("Sending attendance request:", requestData);
+
             const response = await fetch(route("admin.attendance.record"), {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": csrfToken,
+                    "Accept": "application/json", // Explicitly request JSON response
                 },
                 body: JSON.stringify(requestData),
             });
 
-            const data = await response.json();
+            console.log("Response status:", response.status);
+            console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+            
+            // Get the response text first to see what we're actually receiving
+            const responseText = await response.text();
+            console.log("Raw response:", responseText);
+
+            let data;
+            try {
+                data = JSON.parse(responseText);
+                console.log("Parsed attendance response:", data);
+            } catch (parseError) {
+                console.error("JSON parsing failed:", parseError);
+                console.error("Response was not valid JSON:", responseText.substring(0, 200));
+                setError(t("Server returned invalid response. Check console for details."));
+                setFingerprintStatus("failed");
+                setAutoScanTriggered(false);
+                return;
+            }
 
             if (data.success) {
+                console.log("Attendance recorded successfully, updating state");
                 setCurrentAttendance(data.attendance);
                 setAttendanceHistory([data.attendance, ...attendanceHistory]);
+                
+                // Reset auto-scan trigger to allow future operations
+                setAutoScanTriggered(false);
 
-                // Show success message
+                // Reload today's stats
+                loadTodayStats();
+
+                // Show success message and then reset status
                 setTimeout(() => {
                     setFingerprintStatus("idle");
+                    console.log("Fingerprint status reset to idle");
                 }, 2000);
             } else {
+                console.error("Attendance recording failed:", data);
                 setError(data.message || t("Failed to record attendance"));
                 setFingerprintStatus("failed");
+                // Reset auto-scan trigger on failure too
+                setAutoScanTriggered(false);
             }
         } catch (err) {
-            setError(t("Error recording attendance"));
+            console.error("Attendance request error:", err);
+            setError(t("Error recording attendance") + ": " + (err.message || "Unknown error"));
             setFingerprintStatus("failed");
+            // Reset auto-scan trigger on error too
+            setAutoScanTriggered(false);
         }
     };
 
