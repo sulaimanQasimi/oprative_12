@@ -281,7 +281,7 @@ export default function Verify({ auth }) {
                                         className="space-y-6"
                                     >
                                         {/* Success Header */}
-                                        <Card className="border-0 shadow-2xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                                        <Card className="border shadow-2xl bg-green-50 dark:bg-green-900/20  border-green-200 dark:border-green-800">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center gap-4">
                                                     <div className="p-3 bg-green-500 rounded-full">

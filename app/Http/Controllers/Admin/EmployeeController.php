@@ -5,10 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\BioDataTable;
+use App\Models\Attendance;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class EmployeeController extends Controller
 {
@@ -205,5 +207,71 @@ class EmployeeController extends Controller
             'success' => true,
             'employee' => $employee
         ]);
+    }
+
+    /**
+     * Mark attendance for employee after fingerprint verification.
+     */
+    public function markAttendance(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|string',
+            'matching_score' => 'required|numeric|min:0|max:100'
+        ]);
+
+        $employee = Employee::where('employee_id', $request->employee_id)->first();
+
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Employee not found'
+            ], 404);
+        }
+
+        $today = Carbon::today();
+        $now = Carbon::now();
+
+        // Check if attendance already exists for today
+        $existingAttendance = Attendance::where('employee_id', $employee->id)
+            ->where('date', $today)
+            ->first();
+
+        if ($existingAttendance) {
+            // If no exit time, mark exit time
+            if (!$existingAttendance->exit_time) {
+                $existingAttendance->update([
+                    'exit_time' => $now
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Exit time marked successfully',
+                    'type' => 'exit',
+                    'attendance' => $existingAttendance,
+                    'matching_score' => $request->matching_score
+                ]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Attendance already marked for today (both entry and exit)',
+                    'attendance' => $existingAttendance
+                ], 400);
+            }
+        } else {
+            // Create new attendance record
+            $attendance = Attendance::create([
+                'employee_id' => $employee->id,
+                'enter_time' => $now,
+                'date' => $today
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Entry time marked successfully',
+                'type' => 'entry',
+                'attendance' => $attendance,
+                'matching_score' => $request->matching_score
+            ]);
+        }
     }
 } 

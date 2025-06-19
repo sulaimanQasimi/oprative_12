@@ -151,6 +151,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [EmployeeController::class, 'store'])->name('admin.employees.store');
         Route::get('/verify', [EmployeeController::class, 'verify'])->name('admin.employees.verify');
         Route::post('/verify-employee', [EmployeeController::class, 'verifyEmployee'])->name('admin.employees.verify-employee');
+        Route::post('/mark-attendance', [EmployeeController::class, 'markAttendance'])->name('admin.employees.mark-attendance');
         Route::get('/{id}', [EmployeeController::class, 'show'])->name('admin.employees.show');
         Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employees.edit');
         Route::put('/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
