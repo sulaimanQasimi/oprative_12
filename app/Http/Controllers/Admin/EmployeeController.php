@@ -172,4 +172,38 @@ class EmployeeController extends Controller
         return redirect()->route('admin.employees.index')
             ->with('success', 'Employee deleted successfully.');
     }
+
+    /**
+     * Show the employee verification page.
+     */
+    public function verify()
+    {
+        return Inertia::render('Admin/Employee/Verify');
+    }
+
+    /**
+     * Verify employee by employee_id.
+     */
+    public function verifyEmployee(Request $request)
+    {
+        $request->validate([
+            'employee_id' => 'required|string'
+        ]);
+
+        $employee = Employee::with(['fingerprints', 'gate.user', 'biometric'])
+            ->where('employee_id', $request->employee_id)
+            ->first();
+
+        if (!$employee) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Employee not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'employee' => $employee
+        ]);
+    }
 } 

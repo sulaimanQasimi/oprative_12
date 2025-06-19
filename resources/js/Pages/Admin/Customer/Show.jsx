@@ -563,7 +563,7 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                     {permissions.update_customer && (
                                                         <Link href={route("admin.customer-users.create", { customer_id: customer.id })}>
                                                             <Button className="gap-2">
-                                                                <Plus className="w-4 w-4" />
+                                                                <Plus className="w-4 h-4" />
                                                                 {t("Add User")}
                                                             </Button>
                                                         </Link>
