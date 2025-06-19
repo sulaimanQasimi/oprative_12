@@ -58,6 +58,7 @@ export default function Index({
     },
     filters = {},
     productTypes = [],
+    permissions = {},
 }) {
     const { t } = useLaravelReactI18n();
     const [searchTerm, setSearchTerm] = useState(filters.search || "");
@@ -371,12 +372,14 @@ export default function Index({
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
-                                <Link href={route("admin.products.create")}>
-                                    <Button className="gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                        <Plus className="h-4 w-4" />
-                                        {t("Add Product")}
-                                    </Button>
-                                </Link>
+                                {permissions.create_product && (
+                                    <Link href={route("admin.products.create")}>
+                                        <Button className="gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                            <Plus className="h-4 w-4" />
+                                            {t("Add Product")}
+                                        </Button>
+                                    </Link>
+                                )}
                             </motion.div>
                         </div>
                     </motion.header>
@@ -1057,32 +1060,38 @@ export default function Index({
                                                                         </td>
                                                                         <td className="px-6 py-5">
                                                                             <div className="flex items-center justify-center gap-2">
-                                                                                <Link
-                                                                                    href={route(
-                                                                                        "admin.products.edit",
-                                                                                        product.id
-                                                                                    )}
-                                                                                >
+                                                                                {permissions.view_product && (
+                                                                                    <Link
+                                                                                        href={route(
+                                                                                            "admin.products.edit",
+                                                                                            product.id
+                                                                                        )}
+                                                                                    >
+                                                                                        <Button
+                                                                                            variant="outline"
+                                                                                            size="sm"
+                                                                                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200 dark:hover:bg-indigo-900/30 shadow-sm"
+                                                                                            title={t("Edit Product")}
+                                                                                        >
+                                                                                            <Edit className="h-4 w-4" />
+                                                                                        </Button>
+                                                                                    </Link>
+                                                                                )}
+                                                                                {permissions.delete_product && (
                                                                                     <Button
                                                                                         variant="outline"
                                                                                         size="sm"
-                                                                                        className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200 dark:hover:bg-indigo-900/30 shadow-sm"
+                                                                                        onClick={() =>
+                                                                                            handleDelete(
+                                                                                                product.id
+                                                                                            )
+                                                                                        }
+                                                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 shadow-sm"
+                                                                                        title={t("Delete Product")}
                                                                                     >
-                                                                                        <Edit className="h-4 w-4" />
+                                                                                        <Trash2 className="h-4 w-4" />
                                                                                     </Button>
-                                                                                </Link>
-                                                                                <Button
-                                                                                    variant="outline"
-                                                                                    size="sm"
-                                                                                    onClick={() =>
-                                                                                        handleDelete(
-                                                                                            product.id
-                                                                                        )
-                                                                                    }
-                                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 shadow-sm"
-                                                                                >
-                                                                                    <Trash2 className="h-4 w-4" />
-                                                                                </Button>
+                                                                                )}
                                                                             </div>
                                                                         </td>
                                                                     </motion.tr>

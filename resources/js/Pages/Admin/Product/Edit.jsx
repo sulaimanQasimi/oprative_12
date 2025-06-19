@@ -25,7 +25,7 @@ import {
 } from "@/Components/ui/select";
 import Navigation from "@/Components/Admin/Navigation";
 
-export default function Edit({ auth, product, units = [] }) {
+export default function Edit({ auth, product, units = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const { data, setData, put, processing, errors, reset } = useForm({
         type: product.type || "",
@@ -457,14 +457,16 @@ export default function Edit({ auth, product, units = [] }) {
                                             {t("Cancel")}
                                         </Button>
                                     </Link>
-                                    <Button
-                                        type="submit"
-                                        disabled={processing}
-                                        className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                                    >
-                                        <Save className="h-4 w-4 mr-2" />
-                                        {processing ? t("Updating...") : t("Update Product")}
-                                    </Button>
+                                    {permissions.update_product && (
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                                        >
+                                            <Save className="h-4 w-4 mr-2" />
+                                            {processing ? t("Updating...") : t("Update Product")}
+                                        </Button>
+                                    )}
                                 </div>
                             </form>
                         </div>

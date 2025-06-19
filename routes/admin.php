@@ -137,6 +137,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{product:id}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
         Route::put('/{product:id}', [ProductController::class, 'update'])->name('admin.products.update');
         Route::delete('/{product:id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
+        Route::patch('/{id}/restore', [ProductController::class, 'restore'])->name('admin.products.restore');
+        Route::delete('/{id}/force', [ProductController::class, 'forceDelete'])->name('admin.products.force-delete');
     });
 
     // Employee Management
