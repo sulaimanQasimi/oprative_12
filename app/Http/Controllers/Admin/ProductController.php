@@ -19,6 +19,13 @@ class ProductController extends Controller
 
         $query = Product::with(['wholesaleUnit', 'retailUnit']);
 
+        // Include trashed products if requested
+        if ($request->input('show_trashed') === 'true') {
+            $query->withTrashed();
+        } elseif ($request->input('show_trashed') === 'only') {
+            $query->onlyTrashed();
+        }
+
         // Apply search filter
         if ($request->has('search')) {
             $search = $request->input('search');
@@ -66,13 +73,15 @@ class ProductController extends Controller
 
         return Inertia::render('Admin/Product/Index', [
             'products' => $products,
-            'filters' => $request->only(['search', 'status', 'type', 'sort_field', 'sort_direction']),
+            'filters' => $request->only(['search', 'status', 'type', 'sort_field', 'sort_direction', 'show_trashed']),
             'productTypes' => $productTypes,
             'permissions' => [
                 'create_product' => Auth::user()->can('create_product'),
                 'update_product' => Auth::user()->can('update_product'),
                 'delete_product' => Auth::user()->can('delete_product'),
                 'view_product' => Auth::user()->can('view_product'),
+                'restore_product' => Auth::user()->can('restore_product'),
+                'force_delete_product' => Auth::user()->can('force_delete_product'),
             ]
         ]);
     }
