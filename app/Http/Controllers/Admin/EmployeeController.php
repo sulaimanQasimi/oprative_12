@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\BioDataTable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -91,9 +92,11 @@ class EmployeeController extends Controller
     public function show($id)
     {
         $employee = Employee::with(['fingerprints', 'gate.user'])->findOrFail($id);
+        $biometric = BioDataTable::where('employee_id', $id)->first();
 
         return Inertia::render('Admin/Employee/Show', [
-            'employee' => $employee
+            'employee' => $employee,
+            'biometric' => $biometric
         ]);
     }
 

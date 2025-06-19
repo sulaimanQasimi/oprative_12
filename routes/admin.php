@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\BioMetricController;
 use App\Http\Controllers\Admin\AttendanceSettingController;
 use App\Http\Controllers\Admin\GateController;
 use App\Http\Controllers\Admin\WarehouseUserController;
@@ -152,6 +153,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employees.edit');
         Route::put('/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
         Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
+        
+        // Employee Biometric routes
+        Route::get('/{id}/biometric/create', [BioMetricController::class, 'create'])->name('admin.employees.biometric.create');
+        Route::post('/{id}/biometric', [BioMetricController::class, 'store'])->name('admin.employees.biometric.store');
+        Route::get('/{id}/biometric/edit', [BioMetricController::class, 'edit'])->name('admin.employees.biometric.edit');
+        Route::put('/{id}/biometric', [BioMetricController::class, 'update'])->name('admin.employees.biometric.update');
+        Route::delete('/{id}/biometric', [BioMetricController::class, 'destroy'])->name('admin.employees.biometric.destroy');
     });
 
     // Attendance Settings routes

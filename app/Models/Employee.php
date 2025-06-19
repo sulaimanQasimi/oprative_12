@@ -85,6 +85,14 @@ class Employee extends Model
     }
 
     /**
+     * Get the biometric record for this employee (should only be one)
+     */
+    public function biometric()
+    {
+        return $this->hasOne(BioDataTable::class);
+    }
+
+    /**
      * Scope a query to only include employees from a specific department.
      */
     public function scopeByDepartment($query, string $department)
