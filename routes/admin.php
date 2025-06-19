@@ -9,6 +9,8 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\AttendanceSettingController;
+use App\Http\Controllers\Admin\GateController;
 use App\Http\Controllers\Admin\WarehouseUserController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerUserController;
@@ -150,6 +152,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employees.edit');
         Route::put('/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
         Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
+    });
+
+    // Attendance Settings routes
+    Route::prefix('attendance-settings')->group(function () {
+        Route::get('/', [AttendanceSettingController::class, 'index'])->name('admin.attendance-settings.index');
+        Route::get('/create', [AttendanceSettingController::class, 'create'])->name('admin.attendance-settings.create');
+        Route::post('/', [AttendanceSettingController::class, 'store'])->name('admin.attendance-settings.store');
+        Route::get('/{attendanceSetting}', [AttendanceSettingController::class, 'show'])->name('admin.attendance-settings.show');
+        Route::get('/{attendanceSetting}/edit', [AttendanceSettingController::class, 'edit'])->name('admin.attendance-settings.edit');
+        Route::put('/{attendanceSetting}', [AttendanceSettingController::class, 'update'])->name('admin.attendance-settings.update');
+        Route::delete('/{attendanceSetting}', [AttendanceSettingController::class, 'destroy'])->name('admin.attendance-settings.destroy');
+    });
+
+    // Gates routes
+    Route::prefix('gates')->group(function () {
+        Route::get('/', [GateController::class, 'index'])->name('admin.gates.index');
+        Route::get('/create', [GateController::class, 'create'])->name('admin.gates.create');
+        Route::post('/', [GateController::class, 'store'])->name('admin.gates.store');
+        Route::get('/{gate}', [GateController::class, 'show'])->name('admin.gates.show');
+        Route::get('/{gate}/edit', [GateController::class, 'edit'])->name('admin.gates.edit');
+        Route::put('/{gate}', [GateController::class, 'update'])->name('admin.gates.update');
+        Route::delete('/{gate}', [GateController::class, 'destroy'])->name('admin.gates.destroy');
     });
 
     // Customer Management (Store)

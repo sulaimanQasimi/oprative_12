@@ -43,7 +43,11 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Admin/Employee/Create');
+        $gates = \App\Models\Gate::with('user')->select('id', 'name', 'user_id')->get();
+
+        return Inertia::render('Admin/Employee/Create', [
+            'gates' => $gates
+        ]);
     }
 
     /**
@@ -58,6 +62,7 @@ class EmployeeController extends Controller
             'last_name' => 'required|string|max:255',
             'employee_id' => 'required|string|max:255|unique:employees',
             'department' => 'required|string|max:255',
+            'gate_id' => 'nullable|exists:gates,id',
             'contact_info' => 'nullable|array',
             'contact_info.phone' => 'nullable|string|max:20',
             'contact_info.mobile' => 'nullable|string|max:20',
@@ -85,7 +90,7 @@ class EmployeeController extends Controller
      */
     public function show($id)
     {
-        $employee = Employee::with('fingerprints')->findOrFail($id);
+        $employee = Employee::with(['fingerprints', 'gate.user'])->findOrFail($id);
 
         return Inertia::render('Admin/Employee/Show', [
             'employee' => $employee

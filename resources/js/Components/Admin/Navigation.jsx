@@ -33,6 +33,7 @@ import {
     Key,
     Building2,
     X,
+    Clock,
 } from "lucide-react";
 
 const Navigation = ({ auth, currentRoute }) => {
@@ -42,6 +43,7 @@ const Navigation = ({ auth, currentRoute }) => {
     const [expandedGroups, setExpandedGroups] = useState({
         inventory: false,
         warehouse: false,
+        attendance: false,
         users: false,
         system: false,
     });
@@ -112,6 +114,10 @@ const Navigation = ({ auth, currentRoute }) => {
                     return "/adminpanel/currencies";
                 case "admin.employees.index":
                     return "/adminpanel/employees";
+                case "admin.attendance-settings.index":
+                    return "/adminpanel/attendance-settings";
+                case "admin.gates.index":
+                    return "/adminpanel/gates";
                 case "admin.customers.index":
                     return "/adminpanel/customers";
                 case "admin.customer-users.index":
@@ -207,12 +213,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     active: currentRoute?.startsWith("admin.customer-users"),
                     permission: "view_any_customer_user",
                 },
-                {
-                    name: t("Employees"),
-                    icon: <Users className="w-5 h-5" />,
-                    route: "admin.employees.index",
-                    active: currentRoute?.startsWith("admin.employees"),
-                },
+
                 {
                     name: t("Accounts"),
                     icon: <CreditCard className="w-5 h-5" />,
@@ -263,6 +264,31 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <ArrowRightLeft className="w-5 h-5" />,
                     route: "admin.warehouses.transfers",
                     active: currentRoute?.includes("transfers"),
+                },
+            ],
+        },
+        {
+            title: t("Employee Attendance"),
+            key: "attendance",
+            icon: <Users className="w-4 h-4" />,
+            items: [
+                {
+                    name: t("Employees"),
+                    icon: <Users className="w-5 h-5" />,
+                    route: "admin.employees.index",
+                    active: currentRoute?.startsWith("admin.employees"),
+                },
+                {
+                    name: t("Attendance Settings"),
+                    icon: <Clock className="w-5 h-5" />,
+                    route: "admin.attendance-settings.index",
+                    active: currentRoute?.startsWith("admin.attendance-settings"),
+                },
+                {
+                    name: t("Gates"),
+                    icon: <Building2 className="w-5 h-5" />,
+                    route: "admin.gates.index",
+                    active: currentRoute?.startsWith("admin.gates"),
                 },
             ],
         },
