@@ -8,12 +8,15 @@ import {
     Save,
     User,
     Sparkles,
+    CheckCircle,
+    AlertCircle,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Badge } from "@/Components/ui/badge";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
@@ -38,22 +41,72 @@ export default function Create({ auth, users = [], permissions = {} }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route("admin.gates.store"));
+        post(route("admin.gates.store"), {
+            onSuccess: () => {
+                reset();
+            },
+        });
     };
 
     return (
         <>
-            <Head title={t("Create Gate")}>
+            <Head title={t("Add New Gate")}>
                 <style>{`
+                    @keyframes shimmer {
+                        0% { background-position: -1000px 0; }
+                        100% { background-position: 1000px 0; }
+                    }
+
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                    }
+
+                    @keyframes pulse-glow {
+                        0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.5); }
+                    }
+
+                    .shimmer {
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                        background-size: 1000px 100%;
+                        animation: shimmer 2s infinite;
+                    }
+
+                    .float-animation {
+                        animation: float 6s ease-in-out infinite;
+                    }
+
+                    .pulse-glow {
+                        animation: pulse-glow 3s ease-in-out infinite;
+                    }
+
                     .glass-effect {
                         background: rgba(255, 255, 255, 0.1);
                         backdrop-filter: blur(10px);
                         border: 1px solid rgba(255, 255, 255, 0.2);
                     }
+
                     .dark .glass-effect {
                         background: rgba(0, 0, 0, 0.2);
                         backdrop-filter: blur(10px);
                         border: 1px solid rgba(255, 255, 255, 0.1);
+                    }
+
+                    .gradient-border {
+                        background: linear-gradient(white, white) padding-box,
+                                    linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
+                        border: 2px solid transparent;
+                    }
+
+                    .dark .gradient-border {
+                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                                    linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
+                    }
+
+                    .input-glow:focus {
+                        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+                        border-color: #6366f1;
                     }
                 `}</style>
             </Head>
@@ -84,7 +137,7 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                     initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                    className="relative"
+                                    className="relative float-animation"
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
                                     <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
@@ -108,23 +161,30 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Create Gate")}
+                                        {t("Add New Gate")}
                                     </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                    >
+                                        <Building className="w-4 h-4" />
+                                        {t("Create a new access gate")}
+                                    </motion.p>
                                 </div>
                             </div>
 
                             <motion.div
                                 initial={{ x: 20, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.6, duration: 0.4 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.gates.index")}>
-                                    <Button
-                                        variant="outline"
-                                        className="gap-2 hover:scale-105 transition-all duration-200"
-                                    >
+                                    <Button variant="outline" className="gap-2 border-2 hover:border-indigo-300">
                                         <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to List")}
+                                        {t("Back to Gates")}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -137,96 +197,151 @@ export default function Create({ auth, users = [], permissions = {} }) {
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.5 }}
-                                className="max-w-2xl mx-auto"
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="max-w-4xl mx-auto"
                             >
-                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-3">
-                                            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
-                                                <Building className="h-5 w-5 text-white" />
-                                            </div>
-                                            {t("Gate Details")}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <form onSubmit={handleSubmit} className="space-y-6">
-                                            {/* Gate Name */}
-                                            <div className="space-y-2">
-                                                <Label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                    {t("Gate Name")} *
-                                                </Label>
-                                                <Input
-                                                    id="name"
-                                                    type="text"
-                                                    value={data.name}
-                                                    onChange={(e) => setData("name", e.target.value)}
-                                                    className="h-12 border-2 border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg"
-                                                    placeholder={t("Enter gate name")}
-                                                    required
-                                                />
-                                                {errors.name && (
-                                                    <p className="text-sm text-red-600 dark:text-red-400">{errors.name}</p>
-                                                )}
-                                            </div>
-
-                                            {/* Assigned User */}
-                                            <div className="space-y-2">
-                                                <Label htmlFor="user_id" className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                    {t("Assigned User")} *
-                                                </Label>
-                                                <Select
-                                                    value={data.user_id}
-                                                    onValueChange={(value) => setData("user_id", value)}
-                                                    required
+                                <form onSubmit={handleSubmit} className="space-y-8">
+                                    {/* Gate Information Card */}
+                                    <motion.div
+                                        initial={{ scale: 0.95, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.9, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                    <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
+                                                        <Building className="h-6 w-6 text-white" />
+                                                    </div>
+                                                    {t("Gate Information")}
+                                                    <Badge className="ml-auto bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                        {t("Required")}
+                                                    </Badge>
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-8 space-y-6">
+                                                <motion.div
+                                                    initial={{ x: -20, opacity: 0 }}
+                                                    animate={{ x: 0, opacity: 1 }}
+                                                    transition={{ delay: 1.0, duration: 0.4 }}
+                                                    className="space-y-2"
                                                 >
-                                                    <SelectTrigger className="h-12 border-2 border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg">
-                                                        <SelectValue placeholder={t("Select a user")}>
-                                                            {data.user_id && users.find(user => user.id.toString() === data.user_id.toString())?.name}
-                                                        </SelectValue>
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {users.map((user) => (
-                                                            <SelectItem key={user.id} value={user.id.toString()}>
-                                                                <div className="flex items-center gap-2">
-                                                                    <User className="h-4 w-4" />
-                                                                    <div>
-                                                                        <div className="font-medium">{user.name}</div>
-                                                                        <div className="text-sm text-slate-500">{user.email}</div>
-                                                                    </div>
-                                                                </div>
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                {errors.user_id && (
-                                                    <p className="text-sm text-red-600 dark:text-red-400">{errors.user_id}</p>
-                                                )}
-                                            </div>
+                                                    <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
+                                                        <Building className="w-4 h-4 text-indigo-600" />
+                                                        {t("Gate Name")} *
+                                                    </Label>
+                                                    <Input
+                                                        id="name"
+                                                        type="text"
+                                                        value={data.name}
+                                                        onChange={(e) => setData("name", e.target.value)}
+                                                        className={`h-12 border-2 transition-all duration-200 input-glow ${
+                                                            errors.name ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300"
+                                                        }`}
+                                                        placeholder={t("Enter gate name")}
+                                                        required
+                                                    />
+                                                    {errors.name && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-red-500 text-sm flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="w-4 h-4" />
+                                                            {errors.name}
+                                                        </motion.p>
+                                                    )}
+                                                </motion.div>
 
-                                            {/* Submit Buttons */}
-                                            <div className="flex items-center justify-end space-x-4 pt-6">
-                                                <Link href={route("admin.gates.index")}>
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
-                                                        className="px-6 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                                                <motion.div
+                                                    initial={{ x: 20, opacity: 0 }}
+                                                    animate={{ x: 0, opacity: 1 }}
+                                                    transition={{ delay: 1.1, duration: 0.4 }}
+                                                    className="space-y-2"
+                                                >
+                                                    <Label htmlFor="user_id" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
+                                                        <User className="w-4 h-4 text-indigo-600" />
+                                                        {t("Assigned User")} *
+                                                    </Label>
+                                                    <Select
+                                                        value={data.user_id}
+                                                        onValueChange={(value) => setData("user_id", value)}
+                                                        required
                                                     >
-                                                        {t("Cancel")}
-                                                    </Button>
-                                                </Link>
-                                                <Button
-                                                    type="submit"
-                                                    disabled={processing}
-                                                    className="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                                                >
-                                                    <Save className="h-4 w-4 mr-2" />
-                                                    {processing ? t("Creating...") : t("Create Gate")}
-                                                </Button>
-                                            </div>
-                                        </form>
-                                    </CardContent>
-                                </Card>
+                                                        <SelectTrigger className={`h-12 border-2 transition-all duration-200 input-glow ${
+                                                            errors.user_id ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300"
+                                                        }`}>
+                                                            <SelectValue placeholder={t("Select a user")}>
+                                                                {data.user_id && users.find(user => user.id.toString() === data.user_id.toString())?.name}
+                                                            </SelectValue>
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {users.map((user) => (
+                                                                <SelectItem key={user.id} value={user.id.toString()}>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className="p-1 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded">
+                                                                            <User className="h-3 w-3 text-indigo-600" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="font-medium">{user.name}</div>
+                                                                            <div className="text-sm text-slate-500">{user.email}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {errors.user_id && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-red-500 text-sm flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="w-4 h-4" />
+                                                            {errors.user_id}
+                                                        </motion.p>
+                                                    )}
+                                                </motion.div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    {/* Submit Button */}
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.2, duration: 0.4 }}
+                                        className="flex justify-end space-x-4"
+                                    >
+                                        <Link href={route("admin.gates.index")}>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                className="gap-2 h-12 px-8 border-2 hover:border-slate-300"
+                                            >
+                                                <ArrowLeft className="h-4 w-4" />
+                                                {t("Cancel")}
+                                            </Button>
+                                        </Link>
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
+                                            className="gap-2 h-12 px-8 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 pulse-glow"
+                                        >
+                                            {processing ? (
+                                                <>
+                                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    {t("Creating...")}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Save className="h-4 w-4" />
+                                                    {t("Create Gate")}
+                                                </>
+                                            )}
+                                        </Button>
+                                    </motion.div>
+                                </form>
                             </motion.div>
                         </div>
                     </main>

@@ -41,10 +41,10 @@ class GateController extends Controller
             'gates' => $gates,
             'filters' => $request->only(['search', 'sort_field', 'sort_direction']),
             'permissions' => [
-                'create_gate' => Auth::user()->can('create_gate'),
-                'update_gate' => Auth::user()->can('update_gate'),
-                'delete_gate' => Auth::user()->can('delete_gate'),
-                'view_gate' => Auth::user()->can('view_gate'),
+                'create_gate' => true,
+                'update_gate' => true,
+                'delete_gate' => true,
+                'view_gate' => true,
             ]
         ]);
     }

@@ -8,20 +8,24 @@ import {
     Building,
     Edit,
     Trash2,
-    ArrowUpDown,
     Download,
     Settings,
-    ChevronLeft,
-    SkipBack,
-    SkipForward,
     X,
     User,
     Users,
+    RefreshCw,
+    ChevronLeft,
+    ChevronRight,
+    Sparkles,
+    Activity,
+    TrendingUp,
+    Eye,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
@@ -42,90 +46,97 @@ export default function Index({
     const [searchTerm, setSearchTerm] = useState(filters.search || "");
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [sortField, setSortField] = useState(filters.sort_field || "name");
-    const [sortDirection, setSortDirection] = useState(
-        filters.sort_direction || "asc"
-    );
 
-    // Handle search with debounce
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            router.get(
-                route("admin.gates.index"),
-                { search: searchTerm },
-                { preserveState: true, preserveScroll: true }
-            );
-        }, 300);
-
-        return () => clearTimeout(timer);
-    }, [searchTerm]);
-
-    // Handle filter changes
-    useEffect(() => {
-        router.get(
-            route("admin.gates.index"),
-            {
-                sort_field: sortField,
-                sort_direction: sortDirection,
-            },
-            { preserveState: true, preserveScroll: true }
-        );
-    }, [sortField, sortDirection]);
-
-    // Sort handler
-    const handleSort = (field) => {
-        if (field === sortField) {
-            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-        } else {
-            setSortField(field);
-            setSortDirection("asc");
-        }
-    };
-
-    // Pagination handlers
-    const handlePageChange = (page) => {
-        router.get(
-            route("admin.gates.index"),
-            { page },
-            { preserveState: true, preserveScroll: true }
-        );
-    };
-
-    // Delete handler
-    const handleDelete = (gateId) => {
-        if (confirm(t("Are you sure you want to delete this gate?"))) {
-            router.delete(route("admin.gates.destroy", gateId));
-        }
-    };
-
-    // Simulate loading delay
+    // Animation effect
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
             setIsAnimated(true);
         }, 800);
-
         return () => clearTimeout(timer);
     }, []);
 
+    // Handle search and filter
+    const handleSearch = (e) => {
+        e.preventDefault();
+        router.get(route('admin.gates.index'), {
+            search: searchTerm,
+        }, {
+            preserveState: true,
+            replace: true,
+        });
+    };
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        router.get(route('admin.gates.index'), {}, {
+            preserveState: true,
+            replace: true,
+        });
+    };
+
+    const handleDelete = (gateId) => {
+        if (confirm(t("Are you sure you want to delete this gate?"))) {
+            router.delete(route('admin.gates.destroy', gateId));
+        }
+    };
+
+    // Get gate data array (handle both paginated and non-paginated)
+    const gateData = gates.data || gates;
+    const totalGates = gates.total || gateData.length;
+    const totalUsers = gateData.filter(g => g.user).length;
+    const totalEmployees = gateData.reduce((sum, g) => sum + (g.employees?.length || 0), 0);
+
     return (
         <>
-            <Head title={t("Gates")}>
+            <Head title={t("Gate Management")}>
                 <style>{`
+                    @keyframes shimmer {
+                        0% { background-position: -1000px 0; }
+                        100% { background-position: 1000px 0; }
+                    }
+
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                    }
+
+                    .shimmer {
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                        background-size: 1000px 100%;
+                        animation: shimmer 2s infinite;
+                    }
+
+                    .float-animation {
+                        animation: float 6s ease-in-out infinite;
+                    }
+
                     .glass-effect {
                         background: rgba(255, 255, 255, 0.1);
                         backdrop-filter: blur(10px);
                         border: 1px solid rgba(255, 255, 255, 0.2);
                     }
+
                     .dark .glass-effect {
                         background: rgba(0, 0, 0, 0.2);
                         backdrop-filter: blur(10px);
                         border: 1px solid rgba(255, 255, 255, 0.1);
                     }
+
+                    .gradient-border {
+                        background: linear-gradient(white, white) padding-box,
+                                    linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
+                        border: 2px solid transparent;
+                    }
+
+                    .dark .gradient-border {
+                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                                    linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
+                    }
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} icon={Building} color="indigo" />
+            <PageLoader isVisible={loading} />
 
             <motion.div
                 initial={{ opacity: 0 }}
@@ -151,7 +162,7 @@ export default function Index({
                                     initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                    className="relative"
+                                    className="relative float-animation"
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
                                     <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
@@ -160,10 +171,19 @@ export default function Index({
                                     </div>
                                 </motion.div>
                                 <div>
-                                    <motion.h1
+                                    <motion.p
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1 flex items-center gap-2"
+                                    >
+                                        <Sparkles className="w-4 h-4" />
+                                        {t("Access Management")}
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
                                     >
                                         {t("Gates")}
@@ -171,10 +191,11 @@ export default function Index({
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400"
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
-                                        {t("Manage access gates")}
+                                        <Building className="w-4 h-4" />
+                                        {t("Manage access gates and permissions")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -182,19 +203,12 @@ export default function Index({
                             <motion.div
                                 initial={{ x: 20, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.6, duration: 0.4 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button
-                                    variant="outline"
-                                    className="gap-2 hover:scale-105 transition-all duration-200"
-                                >
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
                                 {permissions.create_gate && (
                                     <Link href={route("admin.gates.create")}>
-                                        <Button className="gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                        <Button className="gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
                                             <Plus className="h-4 w-4" />
                                             {t("Add Gate")}
                                         </Button>
@@ -210,61 +224,164 @@ export default function Index({
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.5 }}
-                                className="space-y-8"
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="max-w-7xl mx-auto space-y-8"
                             >
-                                {/* Summary Card */}
-                                <motion.div
-                                    initial={{ scale: 0.9, opacity: 0 }}
-                                    animate={{ scale: 1, opacity: 1 }}
-                                    transition={{ delay: 0.8, duration: 0.4 }}
-                                >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                        {t("Total Gates")}
-                                                    </p>
-                                                    <p className="text-3xl font-bold text-indigo-600">
-                                                        {gates.total}
-                                                    </p>
+                                {/* Stats Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.9, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
+                                    >
+                                        <Card className="border-0 shadow-lg bg-gradient-to-br from-indigo-50 to-purple-100 dark:from-indigo-900/20 dark:to-purple-900/30">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-indigo-600 dark:text-indigo-400">{t("Total Gates")}</p>
+                                                        <p className="text-3xl font-bold text-indigo-700 dark:text-indigo-300">{totalGates}</p>
+                                                    </div>
+                                                    <div className="p-3 bg-indigo-500 rounded-xl">
+                                                        <Building className="w-6 h-6 text-white" />
+                                                    </div>
                                                 </div>
-                                                <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl">
-                                                    <Settings className="h-8 w-8 text-indigo-600" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
 
-                                {/* Search & Filter Card */}
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.0, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
+                                    >
+                                        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-cyan-100 dark:from-blue-900/20 dark:to-cyan-900/30">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t("Assigned Users")}</p>
+                                                        <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
+                                                            {totalUsers}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-3 bg-blue-500 rounded-xl">
+                                                        <User className="w-6 h-6 text-white" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.1, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
+                                    >
+                                        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-violet-100 dark:from-purple-900/20 dark:to-violet-900/30">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-purple-600 dark:text-purple-400">{t("Total Employees")}</p>
+                                                        <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">
+                                                            {totalEmployees}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-3 bg-purple-500 rounded-xl">
+                                                        <Users className="w-6 h-6 text-white" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.2, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
+                                    >
+                                        <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/30">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-orange-600 dark:text-orange-400">{t("Displaying")}</p>
+                                                        <p className="text-3xl font-bold text-orange-700 dark:text-orange-300">
+                                                            {gateData.length}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-3 bg-orange-500 rounded-xl">
+                                                        <Eye className="w-6 h-6 text-white" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                </div>
+
+                                {/* Search and Filter */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.9, duration: 0.4 }}
+                                    transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardContent className="p-6">
-                                            <div className="relative w-full">
-                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                <Input
-                                                    placeholder={t("Search gates...")}
-                                                    value={searchTerm}
-                                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                                    className="pl-12 h-12 text-lg border-2 border-indigo-200 focus:border-indigo-500 rounded-xl w-full"
-                                                />
+                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                        <CardHeader>
+                                            <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                                                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
+                                                    <Search className="h-5 w-5 text-white" />
+                                                </div>
+                                                {t("Search & Filter")}
                                                 {searchTerm && (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => setSearchTerm("")}
-                                                        className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                                                    >
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
+                                                    <Badge variant="secondary" className="ml-auto">
+                                                        {t("Filtered")}
+                                                    </Badge>
                                                 )}
-                                            </div>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <form onSubmit={handleSearch} className="flex flex-col lg:flex-row gap-4">
+                                                <div className="relative flex-1">
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                                    <Input
+                                                        placeholder={t("Search gates by name, user, or description...")}
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        className="pl-10 h-12 border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 transition-colors"
+                                                    />
+                                                    {searchTerm && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => setSearchTerm("")}
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex gap-2">
+                                                    <Button type="submit" className="gap-2 h-12 bg-indigo-600 hover:bg-indigo-700">
+                                                        <Search className="h-4 w-4" />
+                                                        {t("Search")}
+                                                    </Button>
+
+                                                    {searchTerm && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            onClick={clearFilters}
+                                                            className="gap-2 h-12 border-2 hover:border-indigo-300"
+                                                        >
+                                                            <RefreshCw className="h-4 w-4" />
+                                                            {t("Clear")}
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </form>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
@@ -273,191 +390,212 @@ export default function Index({
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 1.0, duration: 0.4 }}
+                                    transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-3">
-                                                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
-                                                    <Building className="h-5 w-5 text-white" />
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                        <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                            <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
+                                                    <Building className="h-6 w-6 text-white" />
                                                 </div>
                                                 {t("Gates List")}
-                                                <Badge variant="secondary" className="ml-auto">
-                                                    {gates.total} {t("total")}
+                                                <Badge variant="secondary" className="ml-auto bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                    {gateData.length} {t("gates")}
+                                                    {gates.total && (
+                                                        <span className="ml-1">
+                                                            {t("of")} {gates.total}
+                                                        </span>
+                                                    )}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-0">
+                                            {gateData.length > 0 ? (
                                             <div className="overflow-x-auto">
-                                                <table className="w-full">
-                                                    <thead>
-                                                        <tr className="bg-slate-50 dark:bg-slate-900/50">
-                                                            <th
-                                                                className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
-                                                                onClick={() => handleSort("name")}
-                                                            >
-                                                                <div className="flex items-center gap-2">
-                                                                    <Building className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                                                                    <span>{t("Name")}</span>
-                                                                    <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
-                                                                </div>
-                                                            </th>
-                                                            <th className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                                                                <div className="flex items-center gap-2">
-                                                                    <User className="h-4 w-4" />
-                                                                    <span>{t("Assigned User")}</span>
-                                                                </div>
-                                                            </th>
-                                                            <th className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                                                                <div className="flex items-center gap-2">
-                                                                    <Users className="h-4 w-4" />
-                                                                    <span>{t("Employees")}</span>
-                                                                </div>
-                                                            </th>
-                                                            <th className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                                                                {t("Actions")}
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow className="border-b border-slate-200 dark:border-slate-700">
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Gate")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Assigned User")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Employees")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">{t("Actions")}</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
                                                         <AnimatePresence>
-                                                            {gates.data.map((gate, index) => (
+                                                            {gateData.map((gate, index) => (
                                                                 <motion.tr
                                                                     key={gate.id}
                                                                     initial={{ opacity: 0, y: 20 }}
                                                                     animate={{ opacity: 1, y: 0 }}
                                                                     exit={{ opacity: 0, y: -20 }}
-                                                                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                                                                    className="hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors"
+                                                                    transition={{ delay: index * 0.05 }}
+                                                                    className="border-b border-slate-100 dark:border-slate-700 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-colors"
                                                                 >
-                                                                    <td className="px-6 py-5">
-                                                                        <div className="flex items-center gap-3">
+                                                                    <TableCell>
+                                                                        <div className="flex items-center space-x-3">
                                                                             <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg">
-                                                                                <Building className="h-4 w-4 text-indigo-600" />
+                                                                                <Building className="h-5 w-5 text-indigo-600" />
                                                                             </div>
-                                                                            <div className="font-bold text-slate-900 dark:text-white text-lg">
-                                                                                {gate.name}
+                                                                            <div>
+                                                                                <div className="font-semibold text-slate-900 dark:text-white">{gate.name}</div>
                                                                             </div>
                                                                         </div>
-                                                                    </td>
-                                                                    <td className="px-6 py-5">
-                                                                        <div>
-                                                                            <div className="font-bold text-slate-900 dark:text-white">
-                                                                                {gate.user?.name || "—"}
-                                                                            </div>
-                                                                            {gate.user?.email && (
-                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                    {gate.user.email}
-                                                                                </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="space-y-1">
+                                                                            {gate.user ? (
+                                                                                <>
+                                                                                    <div className="font-medium text-slate-900 dark:text-white">{gate.user.name}</div>
+                                                                                    <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                                                                        <User className="w-3 h-3" />
+                                                                                        {gate.user.email}
+                                                                                    </div>
+                                                                                </>
+                                                                            ) : (
+                                                                                <span className="text-slate-500 italic">{t("No user assigned")}</span>
                                                                             )}
                                                                         </div>
-                                                                    </td>
-                                                                    <td className="px-6 py-5">
-                                                                        <Badge variant="outline" className="font-medium">
-                                                                            {gate.employees?.length || 0} {t("employees")}
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Badge variant="outline" className="gap-1">
+                                                                            <Users className="w-3 h-3" />
+                                                                            {gate.employees?.length || 0}
                                                                         </Badge>
-                                                                    </td>
-                                                                    <td className="px-6 py-5">
-                                                                        <div className="flex items-center justify-center gap-2">
-                                                                            {permissions.view_gate && (
-                                                                                <Link href={route("admin.gates.edit", gate.id)}>
-                                                                                    <Button
-                                                                                        variant="outline"
-                                                                                        size="sm"
-                                                                                        className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200 dark:hover:bg-indigo-900/30 shadow-sm"
-                                                                                        title={t("Edit Gate")}
-                                                                                    >
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        <div className="flex items-center justify-end gap-1">
+                                                                            {permissions.update_gate && (
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400 transition-colors"
+                                                                                    asChild
+                                                                                >
+                                                                                    <Link href={route('admin.gates.edit', gate.id)}>
                                                                                         <Edit className="h-4 w-4" />
-                                                                                    </Button>
-                                                                                </Link>
+                                                                                        <span className="sr-only">{t("Edit")}</span>
+                                                                                    </Link>
+                                                                                </Button>
                                                                             )}
                                                                             {permissions.delete_gate && (
                                                                                 <Button
-                                                                                    variant="outline"
+                                                                                    variant="ghost"
                                                                                     size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
                                                                                     onClick={() => handleDelete(gate.id)}
-                                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 shadow-sm"
-                                                                                    title={t("Delete Gate")}
                                                                                 >
                                                                                     <Trash2 className="h-4 w-4" />
+                                                                                    <span className="sr-only">{t("Delete")}</span>
                                                                                 </Button>
                                                                             )}
                                                                         </div>
-                                                                    </td>
+                                                                    </TableCell>
                                                                 </motion.tr>
                                                             ))}
                                                         </AnimatePresence>
-                                                    </tbody>
-                                                </table>
+                                                    </TableBody>
+                                                </Table>
                                             </div>
-
-                                            {/* Pagination */}
-                                            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-slate-700">
-                                                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                                                    {t("Showing")} {gates?.from || 0} - {gates?.to || 0} {t("of")} {gates?.total || 0} {t("results")}
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handlePageChange(1)}
-                                                        disabled={!gates?.current_page || gates.current_page === 1}
-                                                        className="gap-1"
-                                                    >
-                                                        <SkipBack className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handlePageChange(gates.current_page - 1)}
-                                                        disabled={!gates?.current_page || gates.current_page === 1}
-                                                        className="gap-1"
-                                                    >
-                                                        <ChevronLeft className="h-4 w-4" />
-                                                    </Button>
-                                                    {Array.from({ length: gates?.last_page || 1 }, (_, i) => i + 1)
-                                                        .filter((page) => {
-                                                            const current = gates?.current_page || 1;
-                                                            return page === 1 || page === (gates?.last_page || 1) || (page >= current - 1 && page <= current + 1);
-                                                        })
-                                                        .map((page, index, array) => (
-                                                            <React.Fragment key={page}>
-                                                                {index > 0 && array[index - 1] !== page - 1 && (
-                                                                    <span className="px-2 text-slate-400">...</span>
-                                                                )}
-                                                                <Button
-                                                                    variant={page === (gates?.current_page || 1) ? "default" : "outline"}
-                                                                    size="sm"
-                                                                    onClick={() => handlePageChange(page)}
-                                                                    className="min-w-[2rem]"
-                                                                >
-                                                                    {page}
+                                            ) : (
+                                                <div className="text-center py-12">
+                                                    <div className="flex flex-col items-center gap-4">
+                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                            <Building className="h-8 w-8 text-slate-400" />
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                {searchTerm ? t("No gates found") : t("No gates created yet")}
+                                                            </p>
+                                                            <p className="text-sm text-slate-500">
+                                                                {searchTerm ? t("Try adjusting your search") : t("Create your first gate to get started.")}
+                                                            </p>
+                                                        </div>
+                                                        {!searchTerm && permissions.create_gate && (
+                                                            <Link href={route("admin.gates.create")}>
+                                                                <Button className="gap-2">
+                                                                    <Plus className="w-4 h-4" />
+                                                                    {t("Create First Gate")}
                                                                 </Button>
-                                                            </React.Fragment>
-                                                        ))}
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handlePageChange(gates.current_page + 1)}
-                                                        disabled={!gates?.current_page || gates.current_page === gates.last_page}
-                                                        className="gap-1"
-                                                    >
-                                                        <ChevronLeft className="h-4 w-4 rotate-180" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handlePageChange(gates.last_page)}
-                                                        disabled={!gates?.current_page || gates.current_page === gates.last_page}
-                                                        className="gap-1"
-                                                    >
-                                                        <SkipForward className="h-4 w-4" />
-                                                    </Button>
+                                                            </Link>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            )}
                                         </CardContent>
                                     </Card>
                                 </motion.div>
+
+                                {/* Pagination */}
+                                {gates.links && gates.links.length > 3 && (
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.5, duration: 0.4 }}
+                                        className="flex justify-center"
+                                    >
+                                        <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                            <CardContent className="p-4">
+                                                <div className="flex items-center justify-between gap-4">
+                                                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                        {t("Showing")} {gates.from} {t("to")} {gates.to} {t("of")} {gates.total} {t("gates")}
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2">
+                                                        {gates.links.map((link, index) => {
+                                                            if (link.url === null) {
+                                                                return (
+                                                                    <Button
+                                                                        key={index}
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        disabled
+                                                                        className="w-10 h-10 p-0"
+                                                                    >
+                                                                        {link.label === '&laquo; Previous' ? (
+                                                                            <ChevronLeft className="h-4 w-4" />
+                                                                        ) : link.label === 'Next &raquo;' ? (
+                                                                            <ChevronRight className="h-4 w-4" />
+                                                                        ) : (
+                                                                            <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                                        )}
+                                                                    </Button>
+                                                                );
+                                                            }
+
+                                                            return (
+                                                                <Link
+                                                                    key={index}
+                                                                    href={link.url}
+                                                                    preserveState
+                                                                    preserveScroll
+                                                                >
+                                                                    <Button
+                                                                        variant={link.active ? "default" : "outline"}
+                                                                        size="sm"
+                                                                        className={`w-10 h-10 p-0 ${
+                                                                            link.active
+                                                                                ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+                                                                                : 'hover:bg-indigo-50 hover:border-indigo-300'
+                                                                        }`}
+                                                                    >
+                                                                        {link.label === '&laquo; Previous' ? (
+                                                                            <ChevronLeft className="h-4 w-4" />
+                                                                        ) : link.label === 'Next &raquo;' ? (
+                                                                            <ChevronRight className="h-4 w-4" />
+                                                                        ) : (
+                                                                            <span dangerouslySetInnerHTML={{ __html: link.label }} />
+                                                                        )}
+                                                                    </Button>
+                                                                </Link>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                )}
                             </motion.div>
                         </div>
                     </main>
