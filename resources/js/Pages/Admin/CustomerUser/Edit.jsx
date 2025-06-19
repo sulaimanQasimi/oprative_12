@@ -16,7 +16,7 @@ import {
     EyeOff,
     CheckCircle,
     Info,
-    Edit
+    Edit as EditIcon
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -170,7 +170,7 @@ export default function Edit({ auth, customerUser, customers, permissions, custo
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
                                     <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
-                                        <Edit className="w-8 h-8 text-white" />
+                                        <EditIcon className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
@@ -692,4 +692,4 @@ export default function Edit({ auth, customerUser, customers, permissions, custo
             </motion.div>
         </>
     );
-} 
+}

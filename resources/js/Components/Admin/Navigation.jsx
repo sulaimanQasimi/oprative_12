@@ -114,6 +114,8 @@ const Navigation = ({ auth, currentRoute }) => {
                     return "/adminpanel/employees";
                 case "admin.customers.index":
                     return "/adminpanel/customers";
+                case "admin.customer-users.index":
+                    return "/adminpanel/customer-users";
                 case "admin.accounts.index":
                     return "/adminpanel/accounts";
                 case "admin.purchases.index":
@@ -197,6 +199,13 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <ShoppingCart className="w-5 h-5" />,
                     route: "admin.customers.index",
                     active: currentRoute?.startsWith("admin.customers"),
+                },
+                {
+                    name: t("Store Users"),
+                    icon: <UserCheck className="w-5 h-5" />,
+                    route: "admin.customer-users.index",
+                    active: currentRoute?.startsWith("admin.customer-users"),
+                    permission: "view_any_customer_user",
                 },
                 {
                     name: t("Employees"),

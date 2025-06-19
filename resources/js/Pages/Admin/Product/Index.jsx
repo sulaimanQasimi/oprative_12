@@ -1117,7 +1117,7 @@ export default function Index({
                                                         }
                                                         className="gap-1"
                                                     >
-                                                        <SkipBack className="h-4 w-4" />
+                                                        <SkipForward className="h-4 w-4" />
                                                     </Button>
                                                     <Button
                                                         variant="outline"
@@ -1135,7 +1135,7 @@ export default function Index({
                                                         }
                                                         className="gap-1"
                                                     >
-                                                        <ChevronLeft className="h-4 w-4" />
+                                                        <ChevronRight className="h-4 w-4" />
                                                     </Button>
                                                     {Array.from(
                                                         {
@@ -1220,7 +1220,7 @@ export default function Index({
                                                         }
                                                         className="gap-1"
                                                     >
-                                                        <ChevronRight className="h-4 w-4" />
+                                                        <ChevronLeft className="h-4 w-4" />
                                                     </Button>
                                                     <Button
                                                         variant="outline"
@@ -1237,7 +1237,7 @@ export default function Index({
                                                         }
                                                         className="gap-1"
                                                     >
-                                                        <SkipForward className="h-4 w-4" />
+                                                        <SkipBack className="h-4 w-4" />
                                                     </Button>
                                                 </div>
                                             </div>

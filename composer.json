@@ -7,12 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "althinect/filament-spatie-roles-permissions": "^2.2",
-        "ariaieboy/filament-jalali": "^1.0",
         "barryvdh/laravel-dompdf": "^3.1",
-        "bezhansalleh/filament-shield": "*",
-        "filament/filament": "^3.2",
-        "filament/forms": "^3.2",
         "geniusts/hijri-dates": "^1.2",
         "hekmatinasser/verta": "*",
         "inertiajs/inertia-laravel": "^2.0",
@@ -24,19 +19,9 @@
         "maatwebsite/excel": "^3.1",
         "mojtabaahn/php-persian-number-to-words": "*",
         "namu/wirechat": "^0.0.7",
-        "okeonline/filament-archivable": "^0.0.2",
-        "pxlrbt/filament-activity-log": "^1.1",
-        "pxlrbt/filament-excel": "*",
-        "shuvroroy/filament-spatie-laravel-backup": "^2.2",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-permission": "^6.16",
-        "stephenjude/filament-debugger": "^3.1",
-        "tapp/filament-authentication-log": "3.1",
-        "tightenco/ziggy": "*",
-        "tomatophp/filament-api": "^1.0",
-        "tomatophp/filament-language-switcher": "^1.0",
-        "tomatophp/filament-users": "*",
-        "torgodly/html2media": "^1.1"
+        "tightenco/ziggy": "*"
     },
     "autoload": {
         "psr-4": {

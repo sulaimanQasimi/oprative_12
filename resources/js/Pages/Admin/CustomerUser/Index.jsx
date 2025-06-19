@@ -19,7 +19,6 @@ import {
     Plus,
     Edit,
     Trash2,
-    MoreVertical,
     Shield,
     Eye
 } from "lucide-react";
@@ -47,17 +46,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Index({ auth, customerUsers }) {
+export default function Index({ auth, customerUsers, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -279,12 +272,14 @@ export default function Index({ auth, customerUsers }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route('admin.customer-users.create')}>
-                                    <Button className="gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                                        <Plus className="h-4 w-4" />
-                                        {t("Add User")}
-                                    </Button>
-                                </Link>
+                                {permissions.create_customer_user && (
+                                    <Link href={route('admin.customer-users.create')}>
+                                        <Button className="gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+                                            <Plus className="h-4 w-4" />
+                                            {t("Add User")}
+                                        </Button>
+                                    </Link>
+                                )}
                                 <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
@@ -616,34 +611,43 @@ export default function Index({ auth, customerUsers }) {
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell className="text-right">
-                                                                        <DropdownMenu>
-                                                                            <DropdownMenuTrigger asChild>
-                                                                                <Button variant="ghost" size="sm">
-                                                                                    <MoreVertical className="w-4 h-4" />
-                                                                                </Button>
-                                                                            </DropdownMenuTrigger>
-                                                                            <DropdownMenuContent>
+                                                                        <div className="flex items-center justify-end gap-2">
+                                                                            {permissions.view_customer_user && (
                                                                                 <Link href={route('admin.customer-users.show', user.id)}>
-                                                                                    <DropdownMenuItem>
-                                                                                        <Eye className="w-4 h-4 mr-2" />
-                                                                                        {t("View")}
-                                                                                    </DropdownMenuItem>
-                                                                                    </Link>
+                                                                                    <Button 
+                                                                                        variant="ghost" 
+                                                                                        size="sm"
+                                                                                        className="h-8 w-8 p-0 hover:bg-blue-100 hover:text-blue-600 dark:hover:bg-blue-900/20"
+                                                                                        title={t("View")}
+                                                                                    >
+                                                                                        <Eye className="h-4 w-4" />
+                                                                                    </Button>
+                                                                                </Link>
+                                                                            )}
+                                                                            {permissions.update_customer_user && (
                                                                                 <Link href={route('admin.customer-users.edit', user.id)}>
-                                                                                    <DropdownMenuItem>
-                                                                                        <Edit className="w-4 h-4 mr-2" />
-                                                                                        {t("Edit")}
-                                                                                </DropdownMenuItem>
-                                                                                    </Link>
-                                                                                <DropdownMenuItem
+                                                                                    <Button 
+                                                                                        variant="ghost" 
+                                                                                        size="sm"
+                                                                                        className="h-8 w-8 p-0 hover:bg-yellow-100 hover:text-yellow-600 dark:hover:bg-yellow-900/20"
+                                                                                        title={t("Edit")}
+                                                                                    >
+                                                                                        <Edit className="h-4 w-4" />
+                                                                                    </Button>
+                                                                                </Link>
+                                                                            )}
+                                                                            {permissions.delete_customer_user && (
+                                                                                <Button 
+                                                                                    variant="ghost" 
+                                                                                    size="sm"
                                                                                     onClick={() => handleDeleteUser(user.id)}
-                                                                                    className="text-red-600"
+                                                                                    className="h-8 w-8 p-0 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-900/20"
+                                                                                    title={t("Delete")}
                                                                                 >
-                                                                                    <Trash2 className="w-4 h-4 mr-2" />
-                                                                                    {t("Delete")}
-                                                                                </DropdownMenuItem>
-                                                                            </DropdownMenuContent>
-                                                                        </DropdownMenu>
+                                                                                    <Trash2 className="h-4 w-4" />
+                                                                                </Button>
+                                                                            )}
+                                                                        </div>
                                                                     </TableCell>
                                                                 </TableRow>
                                                             ))}
@@ -664,12 +668,14 @@ export default function Index({ auth, customerUsers }) {
                                                                 {searchTerm || customerFilter ? t("Try adjusting your filters") : t("No customer users have been created yet.")}
                                                             </p>
                                                         </div>
-                                                        <Link href={route('admin.customer-users.create')}>
-                                                            <Button className="gap-2">
-                                                                <Plus className="w-4 h-4" />
-                                                                {t("Add First User")}
-                                                            </Button>
-                                                        </Link>
+                                                        {!searchTerm && !customerFilter && permissions.create_customer_user && (
+                                                            <Link href={route('admin.customer-users.create')}>
+                                                                <Button className="gap-2">
+                                                                    <Plus className="w-4 h-4" />
+                                                                    {t("Add First User")}
+                                                                </Button>
+                                                            </Link>
+                                                        )}
                                                     </div>
                                                 </div>
                                             )}
@@ -677,28 +683,46 @@ export default function Index({ auth, customerUsers }) {
                                     </Card>
                                 </motion.div>
 
-                                {/* Pagination */}
+                                {/* Enhanced Pagination */}
                                 {customerUsers.links && customerUsers.links.length > 3 && (
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 1.4, duration: 0.4 }}
-                                        className="flex justify-center"
+                                        className="flex flex-col items-center space-y-4"
                                     >
-                                        <div className="flex gap-2">
-                                            {customerUsers.links.map((link, index) => (
-                                                <Link
-                                                    key={index}
-                                                    href={link.url || '#'}
-                                                    className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-                                                        link.active
-                                                            ? 'bg-blue-600 text-white shadow-lg'
-                                                            : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
-                                                    }`}
-                                                    dangerouslySetInnerHTML={{ __html: link.label }}
-                                                />
-                                            ))}
+                                        {/* Pagination Info */}
+                                        <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                                            <Users className="w-4 h-4" />
+                                            {t("Showing")} {customerUsers.from || 0} {t("to")} {customerUsers.to || 0} {t("of")} {customerUsers.total || 0} {t("results")}
                                         </div>
+                                        
+                                        {/* Pagination Links */}
+                                        <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                            <CardContent className="p-4">
+                                                <div className="flex gap-2 justify-center">
+                                                    {customerUsers.links.map((link, index) => (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url || '#'}
+                                                            preserveState
+                                                            preserveScroll
+                                                            className={`
+                                                                inline-flex items-center px-3 py-2 rounded-lg font-medium text-sm transition-all duration-200
+                                                                ${link.active
+                                                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg hover:shadow-xl'
+                                                                    : link.url
+                                                                        ? 'bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 border border-slate-200 dark:border-slate-600'
+                                                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                                                                }
+                                                                ${link.url && !link.active ? 'hover:scale-105' : ''}
+                                                            `}
+                                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
                                     </motion.div>
                                 )}
                             </motion.div>
