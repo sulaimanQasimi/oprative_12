@@ -25,13 +25,13 @@ class PublicAttendanceRequestController extends Controller
     {
         $request->validate([
             'employee_id' => 'required|string|exists:employees,employee_id',
-            'date' => 'required|date|before_or_equal:today',
+            'date' => 'required|date|after_or_equal:today',
             'type' => ['required', Rule::in(['late', 'absent'])],
             'reason' => 'required|string|min:10|max:1000',
         ], [
             'employee_id.required' => 'Employee ID is required.',
             'employee_id.exists' => 'Employee ID not found in our records.',
-            'date.before_or_equal' => 'You cannot submit a request for future dates.',
+            'date.after_or_equal' => 'You can only submit requests for today or future dates.',
             'reason.min' => 'Please provide a detailed reason (at least 10 characters).',
             'reason.max' => 'Reason is too long (maximum 1000 characters).',
         ]);

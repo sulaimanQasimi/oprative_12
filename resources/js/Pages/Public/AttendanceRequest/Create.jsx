@@ -2,6 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { Head, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import moment from 'moment-jalaali';
+import {
+    Calendar,
+    Clock,
+    User,
+    FileText,
+    Send,
+    CheckCircle,
+    AlertCircle,
+    Building,
+    Mail,
+    Search,
+    Copy,
+    Info,
+    ArrowRight,
+} from 'lucide-react';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Input } from '@/Components/ui/input';
+import { Label } from '@/Components/ui/label';
+import { Textarea } from '@/Components/ui/textarea';
+import { Alert, AlertDescription } from '@/Components/ui/alert';
+import { Badge } from '@/Components/ui/badge';
+// RadioGroup component not available, using standard HTML radio inputs
 
 export default function PublicAttendanceRequestCreate() {
     const [employee, setEmployee] = useState(null);
@@ -19,6 +43,20 @@ export default function PublicAttendanceRequestCreate() {
     useEffect(() => {
         setData('date', new Date().toISOString().split('T')[0]);
     }, []);
+
+    // Helper function to convert Gregorian date to Jalali
+    const formatJalaliDate = (date) => {
+        return moment(date).format('jYYYY/jMM/jDD');
+    };
+
+    // Helper function to convert Jalali date to Gregorian for form submission
+    const convertJalaliToGregorian = (jalaliDate) => {
+        const jMoment = moment(jalaliDate, 'jYYYY/jMM/jDD');
+        return jMoment.format('YYYY-MM-DD');
+    };
+
+    // Get today's date in Jalali format
+    const todayJalali = formatJalaliDate(new Date());
 
     const handleEmployeeIdChange = async (e) => {
         const employeeId = e.target.value;
@@ -52,6 +90,11 @@ export default function PublicAttendanceRequestCreate() {
                 setLoadingEmployee(false);
             }
         }
+    };
+
+    const handleDateChange = (e) => {
+        const jalaliDate = e.target.value;
+        setData('date', convertJalaliToGregorian(jalaliDate));
     };
 
     const handleSubmit = (e) => {
@@ -142,17 +185,18 @@ export default function PublicAttendanceRequestCreate() {
                                             Employee ID <span className="text-red-400">*</span>
                                         </label>
                                         <div className="relative">
-                                            <input
+                                            <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                            <Input
                                                 type="text"
                                                 value={data.employee_id}
                                                 onChange={handleEmployeeIdChange}
-                                                className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl text-white placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:outline-none transition-all duration-300"
+                                                className="pl-12 h-12 border-2 border-slate-200 focus:border-blue-400 rounded-lg"
                                                 placeholder="Enter your Employee ID"
                                                 required
                                             />
                                             {loadingEmployee && (
                                                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                                    <div className="w-5 h-5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+                                                    <Search className="h-5 w-5 text-blue-500 animate-spin" />
                                                 </div>
                                             )}
                                         </div>
@@ -212,16 +256,21 @@ export default function PublicAttendanceRequestCreate() {
                                             {/* Date */}
                                             <div>
                                                 <label className="block text-white font-semibold mb-3">
-                                                    Date <span className="text-red-400">*</span>
-                                                </label>
-                                                <input
-                                                    type="date"
-                                                    value={data.date}
-                                                    onChange={(e) => setData('date', e.target.value)}
-                                                    max={new Date().toISOString().split('T')[0]}
-                                                    className="w-full px-4 py-3 bg-white/10 border border-white/30 rounded-xl text-white focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:outline-none transition-all duration-300"
-                                                    required
-                                                />
+                                                                                                Date <span className="text-red-400">*</span>
+                                        </label>
+                                        <div className="relative">
+                                            <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                            <Input
+                                                type="text"
+                                                onChange={handleDateChange}
+                                                className="pl-12 h-12 border-2 border-slate-200 focus:border-blue-400 rounded-lg text-right"
+                                                placeholder={`Today: ${todayJalali} (Format: 1403/09/25)`}
+                                                required
+                                            />
+                                        </div>
+                                        <p className="text-xs text-slate-300 mt-1">
+                                            Format: jYYYY/jMM/jDD (Jalali date). Only today or future dates allowed.
+                                        </p>
                                                 {errors.date && (
                                                     <p className="text-red-400 text-sm mt-2">{errors.date}</p>
                                                 )}
@@ -285,7 +334,7 @@ export default function PublicAttendanceRequestCreate() {
                                             </h3>
                                             <ul className="text-blue-200 text-sm space-y-2">
                                                 <li>• Provide honest and detailed reasons for your absence or late arrival</li>
-                                                <li>• Requests can only be submitted for past dates, not future dates</li>
+                                                <li>• Requests can only be submitted for today or future dates</li>
                                                 <li>• You will receive a tracking number to monitor your request status</li>
                                                 <li>• Your manager will review and approve/reject your request</li>
                                                 <li>• Only one request per employee per date is allowed</li>

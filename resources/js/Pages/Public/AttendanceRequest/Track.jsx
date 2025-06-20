@@ -1,414 +1,368 @@
 import React, { useState } from 'react';
 import { Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import moment from 'moment-jalaali';
 import axios from 'axios';
+import {
+    Search,
+    FileText,
+    Calendar,
+    Clock,
+    User,
+    Building,
+    CheckCircle,
+    XCircle,
+    AlertCircle,
+    Hash,
+    Eye,
+    Info,
+    ArrowLeft,
+} from 'lucide-react';
+import { Button } from '@/Components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
+import { Input } from '@/Components/ui/input';
+import { Label } from '@/Components/ui/label';
+import { Alert, AlertDescription } from '@/Components/ui/alert';
+import { Badge } from '@/Components/ui/badge';
 
-export default function PublicAttendanceRequestTrack() {
+export default function Track() {
     const [trackNumber, setTrackNumber] = useState('');
+    const [request, setRequest] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [requestData, setRequestData] = useState(null);
     const [error, setError] = useState('');
 
-    const handleTrackNumberChange = (e) => {
-        const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-        setTrackNumber(value);
-        setError('');
-        setRequestData(null);
+    // Helper function to format Jalali dates
+    const formatJalaliDate = (date) => {
+        return moment(date).format('jYYYY/jMM/jDD');
+    };
+
+    const formatJalaliDateTime = (date) => {
+        return moment(date).format('jYYYY/jMM/jDD - HH:mm');
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (trackNumber.length !== 6) {
-            setError('Please enter a valid 6-digit track number');
+        if (!trackNumber.trim()) {
+            setError('Please enter a track number');
             return;
         }
 
         setLoading(true);
         setError('');
+        setRequest(null);
 
         try {
             const response = await axios.post('/attendance-request/track', {
                 track_number: trackNumber
             });
-
-            if (response.data.success) {
-                setRequestData(response.data.request);
-                setError('');
-            }
-        } catch (err) {
-            if (err.response?.status === 404) {
-                setError('Track number not found. Please check your track number and try again.');
+            
+            setRequest(response.data.request);
+        } catch (error) {
+            if (error.response?.status === 404) {
+                setError(error.response.data.error);
             } else {
-                setError('An error occurred while tracking your request. Please try again.');
+                setError('An error occurred while tracking your request');
             }
-            setRequestData(null);
         } finally {
             setLoading(false);
         }
     };
 
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'pending':
-                return 'text-yellow-300 bg-yellow-500/20 border-yellow-400/30';
-            case 'accepted':
-                return 'text-green-300 bg-green-500/20 border-green-400/30';
-            case 'rejected':
-                return 'text-red-300 bg-red-500/20 border-red-400/30';
-            default:
-                return 'text-gray-300 bg-gray-500/20 border-gray-400/30';
-        }
+    const getStatusConfig = (status) => {
+        const configs = {
+            pending: {
+                color: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+                icon: Clock,
+                label: 'در انتظار بررسی'
+            },
+            accepted: {
+                color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+                icon: CheckCircle,
+                label: 'تأیید شده'
+            },
+            rejected: {
+                color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+                icon: XCircle,
+                label: 'رد شده'
+            }
+        };
+        return configs[status] || configs.pending;
     };
 
-    const getStatusIcon = (status) => {
-        switch (status) {
-            case 'pending':
-                return (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                );
-            case 'accepted':
-                return (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                );
-            case 'rejected':
-                return (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                );
-            default:
-                return null;
-        }
+    const getTypeConfig = (type) => {
+        const configs = {
+            late: {
+                color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+                icon: Clock,
+                label: 'تأخیر'
+            },
+            absent: {
+                color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+                icon: AlertCircle,
+                label: 'غیبت'
+            }
+        };
+        return configs[type] || configs.late;
     };
 
     return (
         <>
             <Head title="Track Attendance Request" />
             
-            <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-                {/* Background Animation */}
-                <div className="fixed inset-0 -z-10 overflow-hidden">
-                    <div className="absolute top-0 left-0 w-72 h-72 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute top-1/2 right-0 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-gradient-to-br from-indigo-500/20 to-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-                </div>
-
-                {/* Navigation */}
-                <nav className="bg-white/10 backdrop-blur-lg border-b border-white/20 fixed w-full z-50">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between h-20">
-                            <div className="flex items-center">
-                                <a href="/" className="flex items-center space-x-3">
-                                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                                        <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                        </svg>
-                                    </div>
-                                    <span className="text-2xl font-bold text-white">Track Request</span>
-                                </a>
-                            </div>
-                            <div className="flex items-center space-x-4">
-                                <a 
-                                    href="/attendance-request" 
-                                    className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-all duration-300"
-                                >
-                                    Submit Request
-                                </a>
-                                <a 
-                                    href="/" 
-                                    className="px-4 py-2 rounded-lg bg-blue-500/20 text-blue-200 hover:bg-blue-500/30 transition-all duration-300"
-                                >
-                                    Home
-                                </a>
+            <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-purple-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 py-12 px-4">
+                <div className="max-w-2xl mx-auto">
+                    {/* Header */}
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="text-center mb-8"
+                    >
+                        <div className="flex justify-center mb-4">
+                            <div className="relative">
+                                <div className="absolute -inset-2 bg-gradient-to-r from-teal-500 via-blue-500 to-purple-600 rounded-full blur-lg opacity-60"></div>
+                                <div className="relative bg-gradient-to-br from-teal-500 via-blue-500 to-purple-600 p-4 rounded-full shadow-2xl">
+                                    <Search className="w-8 h-8 text-white" />
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </nav>
+                        <h1 className="text-4xl font-bold bg-gradient-to-r from-teal-600 via-blue-600 to-purple-700 bg-clip-text text-transparent mb-2">
+                            پیگیری درخواست
+                        </h1>
+                        <p className="text-slate-600 dark:text-slate-400">
+                            وضعیت درخواست توجیه حضور خود را پیگیری کنید
+                        </p>
+                    </motion.div>
 
-                {/* Main Content */}
-                <div className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
-                    <div className="max-w-4xl mx-auto">
-                        {/* Header */}
-                        <motion.div
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ duration: 0.6 }}
-                            className="text-center mb-12"
-                        >
-                            <h1 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                                Track Your Request
-                            </h1>
-                            <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                                Enter your 6-digit tracking number to check the status of your attendance request
-                            </p>
-                        </motion.div>
-
-                        {/* Tracking Form */}
-                        <motion.div
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.3, duration: 0.6 }}
-                            className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl mb-8"
-                        >
-                            <form onSubmit={handleSubmit} className="space-y-6">
-                                <div className="text-center">
-                                    <label className="block text-white font-semibold mb-4 text-lg">
-                                        Enter Your Tracking Number
-                                    </label>
-                                    <div className="max-w-md mx-auto">
-                                        <input
-                                            type="text"
-                                            value={trackNumber}
-                                            onChange={handleTrackNumberChange}
-                                            className="w-full px-6 py-4 bg-white/10 border border-white/30 rounded-xl text-white text-center text-2xl font-mono tracking-widest placeholder-gray-400 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:outline-none transition-all duration-300"
-                                            placeholder="000000"
-                                            maxLength="6"
-                                            required
-                                        />
-                                        <p className="text-gray-400 text-sm mt-2">
-                                            6-digit number provided when you submitted your request
-                                        </p>
+                    {/* Search Form */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
+                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl mb-8">
+                            <CardHeader className="text-center pb-2">
+                                <CardTitle className="flex items-center justify-center gap-3 text-xl">
+                                    <div className="p-2 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg">
+                                        <Hash className="h-5 w-5 text-white" />
                                     </div>
-                                </div>
+                                    شماره پیگیری
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="track_number" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                            شماره پیگیری ۶ رقمی *
+                                        </Label>
+                                        <div className="relative">
+                                            <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                            <Input
+                                                id="track_number"
+                                                type="text"
+                                                value={trackNumber}
+                                                onChange={(e) => setTrackNumber(e.target.value)}
+                                                className="pl-12 h-12 border-2 border-slate-200 dark:border-slate-700 focus:border-teal-500 rounded-lg text-center text-lg font-mono"
+                                                placeholder="123456"
+                                                maxLength={6}
+                                                required
+                                            />
+                                        </div>
+                                        {error && (
+                                            <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20">
+                                                <AlertCircle className="h-4 w-4 text-red-600" />
+                                                <AlertDescription className="text-red-700 dark:text-red-300">
+                                                    {error}
+                                                </AlertDescription>
+                                            </Alert>
+                                        )}
+                                    </div>
 
-                                {error && (
-                                    <motion.div
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        className="bg-red-500/10 border border-red-400/30 rounded-xl p-4 text-center"
-                                    >
-                                        <p className="text-red-400">{error}</p>
-                                    </motion.div>
-                                )}
-
-                                <div className="flex justify-center">
-                                    <motion.button
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
+                                    <Button
                                         type="submit"
                                         disabled={loading || trackNumber.length !== 6}
-                                        className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-blue-500/25 transform transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-3"
+                                        className="w-full h-12 bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
                                     >
                                         {loading ? (
-                                            <>
-                                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                <span>Tracking...</span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                                </svg>
-                                                <span>Track Request</span>
-                                            </>
-                                        )}
-                                    </motion.button>
-                                </div>
-                            </form>
-                        </motion.div>
-
-                        {/* Request Details */}
-                        {requestData && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.6 }}
-                                className="bg-white/10 backdrop-blur-lg rounded-3xl p-8 border border-white/20 shadow-2xl"
-                            >
-                                <div className="flex items-center justify-between mb-8">
-                                    <h2 className="text-2xl font-bold text-white">Request Details</h2>
-                                    <div className={`flex items-center space-x-2 px-4 py-2 rounded-xl border ${getStatusColor(requestData.status)}`}>
-                                        {getStatusIcon(requestData.status)}
-                                        <span className="font-semibold capitalize">
-                                            {requestData.status === 'accepted' ? 'Approved' : 
-                                             requestData.status === 'rejected' ? 'Rejected' : 
-                                             'Pending Review'}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    {/* Employee Information */}
-                                    <div className="space-y-6">
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-white mb-4">Employee Information</h3>
-                                            <div className="space-y-3">
-                                                <div>
-                                                    <span className="text-gray-400 text-sm">Name</span>
-                                                    <div className="text-white font-medium">{requestData.employee.name}</div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-400 text-sm">Employee ID</span>
-                                                    <div className="text-white font-medium">{requestData.employee.employee_id}</div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-400 text-sm">Department</span>
-                                                    <div className="text-white font-medium">{requestData.employee.department}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Request Information */}
-                                    <div className="space-y-6">
-                                        <div>
-                                            <h3 className="text-lg font-semibold text-white mb-4">Request Information</h3>
-                                            <div className="space-y-3">
-                                                <div>
-                                                    <span className="text-gray-400 text-sm">Date</span>
-                                                    <div className="text-white font-medium">
-                                                        {new Date(requestData.date).toLocaleDateString('en-US', {
-                                                            weekday: 'long',
-                                                            year: 'numeric',
-                                                            month: 'long',
-                                                            day: 'numeric'
-                                                        })}
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-400 text-sm">Type</span>
-                                                    <div className="text-white font-medium capitalize">
-                                                        {requestData.type === 'late' ? 'Late Arrival' : 'Absent'}
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <span className="text-gray-400 text-sm">Submitted</span>
-                                                    <div className="text-white font-medium">
-                                                        {new Date(requestData.submitted_at).toLocaleDateString('en-US', {
-                                                            month: 'short',
-                                                            day: 'numeric',
-                                                            year: 'numeric',
-                                                            hour: '2-digit',
-                                                            minute: '2-digit'
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Reason */}
-                                <div className="mt-8">
-                                    <h3 className="text-lg font-semibold text-white mb-4">Reason</h3>
-                                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                                        <p className="text-gray-200 leading-relaxed">{requestData.reason}</p>
-                                    </div>
-                                </div>
-
-                                {/* Review Information */}
-                                {requestData.reviewed_at && (
-                                    <div className="mt-8">
-                                        <h3 className="text-lg font-semibold text-white mb-4">Review Information</h3>
-                                        <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <span className="text-gray-400 text-sm">Reviewed by</span>
-                                                    <div className="text-white font-medium">{requestData.reviewer || 'Manager'}</div>
-                                                </div>
-                                                <div className="text-right">
-                                                    <span className="text-gray-400 text-sm">Reviewed on</span>
-                                                    <div className="text-white font-medium">
-                                                        {new Date(requestData.reviewed_at).toLocaleDateString('en-US', {
-                                                            month: 'short',
-                                                            day: 'numeric',
-                                                            year: 'numeric',
-                                                            hour: '2-digit',
-                                                            minute: '2-digit'
-                                                        })}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Timeline */}
-                                <div className="mt-8">
-                                    <h3 className="text-lg font-semibold text-white mb-4">Timeline</h3>
-                                    <div className="space-y-4">
-                                        <div className="flex items-center space-x-4">
-                                            <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                                            <div>
-                                                <div className="text-white font-medium">Request Submitted</div>
-                                                <div className="text-gray-400 text-sm">
-                                                    {new Date(requestData.submitted_at).toLocaleDateString('en-US', {
-                                                        month: 'short',
-                                                        day: 'numeric',
-                                                        year: 'numeric',
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    })}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        {requestData.reviewed_at ? (
-                                            <div className="flex items-center space-x-4">
-                                                <div className={`w-3 h-3 rounded-full ${
-                                                    requestData.status === 'accepted' ? 'bg-green-500' : 'bg-red-500'
-                                                }`}></div>
-                                                <div>
-                                                    <div className="text-white font-medium">
-                                                        Request {requestData.status === 'accepted' ? 'Approved' : 'Rejected'}
-                                                    </div>
-                                                    <div className="text-gray-400 text-sm">
-                                                        {new Date(requestData.reviewed_at).toLocaleDateString('en-US', {
-                                                            month: 'short',
-                                                            day: 'numeric',
-                                                            year: 'numeric',
-                                                            hour: '2-digit',
-                                                            minute: '2-digit'
-                                                        })}
-                                                    </div>
-                                                </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                در حال جستجو...
                                             </div>
                                         ) : (
-                                            <div className="flex items-center space-x-4">
-                                                <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
-                                                <div>
-                                                    <div className="text-white font-medium">Under Review</div>
-                                                    <div className="text-gray-400 text-sm">Waiting for manager approval</div>
-                                                </div>
+                                            <div className="flex items-center gap-2">
+                                                <Search className="w-4 h-4" />
+                                                پیگیری درخواست
                                             </div>
                                         )}
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
 
-                        {/* Help Section */}
+                    {/* Request Details */}
+                    {request && (
                         <motion.div
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: 0.6, duration: 0.6 }}
-                            className="bg-white/5 backdrop-blur-lg rounded-2xl p-6 border border-white/10 mt-8"
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.6 }}
                         >
-                            <h3 className="text-white font-semibold mb-3">Need Help?</h3>
-                            <p className="text-gray-300 text-sm mb-4">
-                                If you've lost your tracking number or need assistance, please contact your manager or HR department.
-                            </p>
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <a
-                                    href="/attendance-request"
-                                    className="px-6 py-2 bg-blue-500/20 text-blue-300 rounded-lg hover:bg-blue-500/30 transition-all duration-300 text-center"
-                                >
-                                    Submit New Request
-                                </a>
-                                <a
-                                    href="/"
-                                    className="px-6 py-2 bg-gray-500/20 text-gray-300 rounded-lg hover:bg-gray-500/30 transition-all duration-300 text-center"
-                                >
-                                    Back to Home
-                                </a>
-                            </div>
+                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                <CardHeader className="border-b border-slate-200 dark:border-slate-700">
+                                    <CardTitle className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg">
+                                                <FileText className="h-5 w-5 text-white" />
+                                            </div>
+                                            جزئیات درخواست
+                                        </div>
+                                        <div className="font-mono text-lg font-bold text-teal-600">
+                                            #{request.track_number}
+                                        </div>
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-6 pt-6">
+                                    {/* Status */}
+                                    <div className="flex items-center justify-center">
+                                        {(() => {
+                                            const statusConfig = getStatusConfig(request.status);
+                                            const StatusIcon = statusConfig.icon;
+                                            return (
+                                                <Badge className={`${statusConfig.color} px-4 py-2 text-lg font-medium`}>
+                                                    <StatusIcon className="w-5 h-5 mr-2" />
+                                                    {statusConfig.label}
+                                                </Badge>
+                                            );
+                                        })()}
+                                    </div>
+
+                                    {/* Employee Info */}
+                                    <div className="bg-gradient-to-r from-slate-50 to-blue-50 dark:from-slate-800 dark:to-blue-900/20 rounded-xl p-4">
+                                        <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-3 flex items-center gap-2">
+                                            <User className="w-5 h-5" />
+                                            اطلاعات کارمند
+                                        </h3>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-medium text-slate-600 dark:text-slate-400">شماره پرسنلی:</span>
+                                                <span className="font-mono font-bold">{request.employee.employee_id}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-medium text-slate-600 dark:text-slate-400">نام:</span>
+                                                <span>{request.employee.name}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Building className="w-4 h-4 text-slate-500" />
+                                                <span className="font-medium text-slate-600 dark:text-slate-400">بخش:</span>
+                                                <span>{request.employee.department}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Request Details */}
+                                    <div className="space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="space-y-1">
+                                                <label className="text-sm font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                                                    <Calendar className="w-4 h-4" />
+                                                    تاریخ
+                                                </label>
+                                                <div className="font-semibold text-lg">{formatJalaliDate(request.date)}</div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-sm font-medium text-slate-600 dark:text-slate-400">نوع درخواست</label>
+                                                <div>
+                                                    {(() => {
+                                                        const typeConfig = getTypeConfig(request.type);
+                                                        const TypeIcon = typeConfig.icon;
+                                                        return (
+                                                            <Badge className={typeConfig.color}>
+                                                                <TypeIcon className="w-4 h-4 mr-1" />
+                                                                {typeConfig.label}
+                                                            </Badge>
+                                                        );
+                                                    })()}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-1">
+                                            <label className="text-sm font-medium text-slate-600 dark:text-slate-400">دلیل توجیه</label>
+                                            <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 text-sm">
+                                                {request.reason}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Timeline */}
+                                    <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+                                        <h3 className="font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
+                                            <Clock className="w-5 h-5" />
+                                            تاریخچه درخواست
+                                        </h3>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                                <div className="flex-1">
+                                                    <div className="text-sm font-medium">درخواست ارسال شد</div>
+                                                    <div className="text-xs text-slate-500">{formatJalaliDateTime(request.submitted_at)}</div>
+                                                </div>
+                                            </div>
+                                            
+                                            {request.reviewed_at && (
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-2 h-2 rounded-full ${request.status === 'accepted' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                                                    <div className="flex-1">
+                                                        <div className="text-sm font-medium">
+                                                            {request.status === 'accepted' ? 'درخواست تأیید شد' : 'درخواست رد شد'}
+                                                        </div>
+                                                        <div className="text-xs text-slate-500">
+                                                            {formatJalaliDateTime(request.reviewed_at)} 
+                                                            {request.reviewer && ` توسط ${request.reviewer}`}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </motion.div>
-                    </div>
+                    )}
+
+                    {/* Instructions */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        className="mt-8"
+                    >
+                        <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+                            <Info className="h-4 w-4 text-blue-600" />
+                            <AlertDescription className="text-blue-700 dark:text-blue-300">
+                                <strong>راهنمای پیگیری:</strong>
+                                <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                                    <li>شماره پیگیری ۶ رقمی خود را در فیلد بالا وارد کنید</li>
+                                    <li>وضعیت درخواست شما به‌روزرسانی خودکار می‌شود</li>
+                                    <li>در صورت تأیید، حضور شما اصلاح خواهد شد</li>
+                                    <li>برای سوالات بیشتر با واحد منابع انسانی تماس بگیرید</li>
+                                </ul>
+                            </AlertDescription>
+                        </Alert>
+                    </motion.div>
+
+                    {/* Footer */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.4 }}
+                        className="text-center mt-8"
+                    >
+                        <p className="text-sm text-slate-600 dark:text-slate-400">
+                            سیستم مدیریت حضور و غیاب | تمامی حقوق محفوظ است
+                        </p>
+                    </motion.div>
                 </div>
             </div>
         </>
