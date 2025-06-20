@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\EmployeeController;
 use App\Http\Controllers\Admin\BioMetricController;
 use App\Http\Controllers\Admin\AttendanceSettingController;
 use App\Http\Controllers\Admin\GateController;
+use App\Http\Controllers\Admin\AttendanceRequestController;
 use App\Http\Controllers\Admin\WarehouseUserController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerUserController;
@@ -195,6 +196,23 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{gate}', [GateController::class, 'destroy'])->name('admin.gates.destroy');
         Route::patch('/{id}/restore', [GateController::class, 'restore'])->name('admin.gates.restore');
         Route::delete('/{id}/force', [GateController::class, 'forceDelete'])->name('admin.gates.force-delete');
+    });
+
+    // Attendance Request routes
+    Route::prefix('attendance-requests')->group(function () {
+        // Manager/Admin routes
+        Route::get('/', [AttendanceRequestController::class, 'index'])->name('admin.attendance-requests.index');
+        Route::get('/{attendanceRequest}', [AttendanceRequestController::class, 'show'])->name('admin.attendance-requests.show');
+        Route::patch('/{attendanceRequest}/approve', [AttendanceRequestController::class, 'approve'])->name('admin.attendance-requests.approve');
+        Route::patch('/{attendanceRequest}/reject', [AttendanceRequestController::class, 'reject'])->name('admin.attendance-requests.reject');
+        Route::post('/bulk-approve', [AttendanceRequestController::class, 'bulkApprove'])->name('admin.attendance-requests.bulk-approve');
+        Route::post('/bulk-reject', [AttendanceRequestController::class, 'bulkReject'])->name('admin.attendance-requests.bulk-reject');
+        Route::get('/api/pending-count', [AttendanceRequestController::class, 'getPendingCount'])->name('admin.attendance-requests.pending-count');
+        
+        // Employee routes
+        Route::get('/my/requests', [AttendanceRequestController::class, 'myRequests'])->name('admin.attendance-requests.my-requests');
+        Route::get('/my/create', [AttendanceRequestController::class, 'create'])->name('admin.attendance-requests.create');
+        Route::post('/my/store', [AttendanceRequestController::class, 'store'])->name('admin.attendance-requests.store');
     });
 
     // Customer Management (Store)

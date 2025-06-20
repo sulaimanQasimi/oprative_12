@@ -7,10 +7,12 @@ use App\Models\Unit;
 use App\Models\Supplier;
 use App\Models\Warehouse;
 use App\Models\Gate;
+use App\Models\AttendanceRequest;
 use App\Policies\UnitPolicy;
 use App\Policies\SupplierPolicy;
 use App\Policies\WarehousePolicy;
 use App\Policies\GatePolicy;
+use App\Policies\AttendanceRequestPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -19,6 +21,7 @@ class AuthServiceProvider extends ServiceProvider
         Supplier::class => SupplierPolicy::class,
         Warehouse::class => WarehousePolicy::class,
         Gate::class => GatePolicy::class,
+        AttendanceRequest::class => AttendanceRequestPolicy::class,
     ];
 
     public function boot(): void
