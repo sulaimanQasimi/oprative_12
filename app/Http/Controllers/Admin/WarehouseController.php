@@ -17,6 +17,7 @@ use App\Models\Product;
 use App\Models\WarehouseIncome;
 use App\Models\WarehouseProduct;
 use App\Models\WarehouseOutcome;
+use App\Models\Sale;
 
 class WarehouseController extends Controller
 {
@@ -907,31 +908,62 @@ class WarehouseController extends Controller
     public function sales(Warehouse $warehouse)
     {
         try {
-            // Load warehouse with sales records (customer incomes)
-            $warehouse->load(['warehouseOutcome.product']);
-
-            // Filter only sales-related outcomes (to customers)
-            $sales = $warehouse->warehouseOutcome->filter(function ($outcome) {
-                return $outcome->model_type === 'sale' || $outcome->model_type === 'customer_sale';
-            })->map(function ($outcome) {
-                return [
-                    'id' => $outcome->id,
-                    'reference_number' => $outcome->reference_number,
-                    'product' => [
-                        'id' => $outcome->product->id,
-                        'name' => $outcome->product->name,
-                        'barcode' => $outcome->product->barcode,
-                        'type' => $outcome->product->type,
-                    ],
-                    'quantity' => $outcome->quantity,
-                    'price' => $outcome->price,
-                    'total' => $outcome->total,
-                    'customer_id' => $outcome->model_id,
-                    'sale_date' => $outcome->created_at,
-                    'created_at' => $outcome->created_at,
-                    'updated_at' => $outcome->updated_at,
-                ];
-            });
+            // Load warehouse sales with their relationships
+            $sales = Sale::where('warehouse_id', $warehouse->id)
+                ->with([
+                    'customer:id,name,email,phone',
+                    'saleItems.product:id,name,barcode,type',
+                    'currency:id,name,code,symbol'
+                ])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($sale) {
+                    return [
+                        'id' => $sale->id,
+                        'reference' => $sale->reference,
+                        'date' => $sale->date,
+                        'status' => $sale->status,
+                        'notes' => $sale->notes,
+                        'customer' => $sale->customer ? [
+                            'id' => $sale->customer->id,
+                            'name' => $sale->customer->name,
+                            'email' => $sale->customer->email,
+                            'phone' => $sale->customer->phone,
+                        ] : null,
+                        'currency' => $sale->currency ? [
+                            'id' => $sale->currency->id,
+                            'name' => $sale->currency->name,
+                            'code' => $sale->currency->code,
+                            'symbol' => $sale->currency->symbol,
+                        ] : null,
+                        'sale_items' => $sale->saleItems->map(function ($item) {
+                            return [
+                                'id' => $item->id,
+                                'product_id' => $item->product_id,
+                                'product' => $item->product ? [
+                                    'id' => $item->product->id,
+                                    'name' => $item->product->name,
+                                    'barcode' => $item->product->barcode,
+                                    'type' => $item->product->type,
+                                ] : null,
+                                'quantity' => $item->quantity,
+                                'unit_price' => $item->unit_price,
+                                'total_price' => $item->total_price,
+                                'discount_amount' => $item->discount_amount ?? 0,
+                                'tax_amount' => $item->tax_amount ?? 0,
+                            ];
+                        }),
+                        'total_amount' => $sale->total_amount ?? $sale->saleItems->sum('total_price'),
+                        'tax_amount' => $sale->tax_amount ?? 0,
+                        'discount_amount' => $sale->discount_amount ?? 0,
+                        'paid_amount' => $sale->paid_amount ?? 0,
+                        'due_amount' => $sale->due_amount ?? 0,
+                        'confirmed_by_warehouse' => $sale->confirmed_by_warehouse,
+                        'confirmed_by_shop' => $sale->confirmed_by_shop,
+                        'created_at' => $sale->created_at,
+                        'updated_at' => $sale->updated_at,
+                    ];
+                });
 
             return Inertia::render('Admin/Warehouse/Sales', [
                 'warehouse' => [
@@ -941,15 +973,15 @@ class WarehouseController extends Controller
                     'description' => $warehouse->description,
                     'is_active' => $warehouse->is_active,
                 ],
-                'sales' => $sales->values(),
+                'sales' => $sales,
                 'auth' => [
                     'user' => Auth::user()
                 ]
             ]);
         } catch (\Exception $e) {
-            Log::error('Error loading warehouse store movements: ' . $e->getMessage());
+            Log::error('Error loading warehouse sales: ' . $e->getMessage());
             return redirect()->route('admin.warehouses.show', $warehouse->id)
-                ->with('error', 'Error loading warehouse store movements: ' . $e->getMessage());
+                ->with('error', 'Error loading warehouse sales: ' . $e->getMessage());
         }
     }
 
