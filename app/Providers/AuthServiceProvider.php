@@ -6,9 +6,11 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 use App\Models\Unit;
 use App\Models\Supplier;
 use App\Models\Warehouse;
+use App\Models\Gate;
 use App\Policies\UnitPolicy;
 use App\Policies\SupplierPolicy;
 use App\Policies\WarehousePolicy;
+use App\Policies\GatePolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
         Unit::class => UnitPolicy::class,
         Supplier::class => SupplierPolicy::class,
         Warehouse::class => WarehousePolicy::class,
+        Gate::class => GatePolicy::class,
     ];
 
     public function boot(): void

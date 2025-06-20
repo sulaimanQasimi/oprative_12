@@ -237,6 +237,9 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                                         placeholder={t("Enter gate name")}
                                                         required
                                                     />
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        {t("Gate name must be unique across all gates")}
+                                                    </p>
                                                     {errors.name && (
                                                         <motion.p
                                                             initial={{ opacity: 0, y: -10 }}
@@ -287,6 +290,9 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                                             ))}
                                                         </SelectContent>
                                                     </Select>
+                                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        {t("Each user can only be assigned to one gate")}
+                                                    </p>
                                                     {errors.user_id && (
                                                         <motion.p
                                                             initial={{ opacity: 0, y: -10 }}

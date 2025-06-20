@@ -193,6 +193,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{gate}/edit', [GateController::class, 'edit'])->name('admin.gates.edit');
         Route::put('/{gate}', [GateController::class, 'update'])->name('admin.gates.update');
         Route::delete('/{gate}', [GateController::class, 'destroy'])->name('admin.gates.destroy');
+        Route::patch('/{id}/restore', [GateController::class, 'restore'])->name('admin.gates.restore');
+        Route::delete('/{id}/force', [GateController::class, 'forceDelete'])->name('admin.gates.force-delete');
     });
 
     // Customer Management (Store)
