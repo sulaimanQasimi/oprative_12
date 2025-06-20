@@ -237,6 +237,17 @@ export default function Products({ auth, products }) {
         }).length;
     }, [products]);
 
+    // Calculate total quantity (actual amounts) using useMemo
+    const totalQuantity = useMemo(() => {
+        if (!products || !Array.isArray(products) || products.length === 0)
+            return 0;
+        return products.reduce((sum, product) => {
+            if (!product) return sum;
+            const quantity = typeof product.net_quantity === "number" ? product.net_quantity : 0;
+            return sum + quantity;
+        }, 0);
+    }, [products]);
+
     // Get unique product categories using useMemo
     const categories = useMemo(() => {
         if (!products || !Array.isArray(products) || products.length === 0)
@@ -429,13 +440,13 @@ export default function Products({ auth, products }) {
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                        {t("Total Products")}
+                                                        {t("Total Quantity")}
                                                     </p>
                                                     <p className="text-3xl font-bold text-blue-600">
-                                                        {products?.length || 0}
+                                                        {totalQuantity.toLocaleString()}
                                                     </p>
                                                     <p className="text-xs text-slate-500 mt-1">
-                                                        {t("Product variants")}
+                                                        {t("Actual units in stock")}
                                                     </p>
                                                 </div>
                                                 <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
@@ -471,13 +482,13 @@ export default function Products({ auth, products }) {
                                             <div className="flex items-center justify-between">
                                                 <div>
                                                     <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                        {t("Categories")}
+                                                        {t("Products & Categories")}
                                                     </p>
                                                     <p className="text-3xl font-bold text-purple-600">
-                                                        {categories.length}
+                                                        {products?.length || 0}
                                                     </p>
                                                     <p className="text-xs text-slate-500 mt-1">
-                                                        {t("Product types")}
+                                                        {t("Products in")} {categories.length} {t("categories")}
                                                     </p>
                                                 </div>
                                                 <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
@@ -705,15 +716,61 @@ export default function Products({ auth, products }) {
                                                                                 {t("Stock")}
                                                                             </p>
                                                                             <p className={`text-xl font-bold ${product.net_quantity < 10 ? "text-amber-600 dark:text-amber-500" : "text-emerald-600 dark:text-emerald-400"}`}>
-                                                                                {product.net_quantity}
+                                                                                {(() => {
+                                                                                    const netQty = product.net_quantity || 0;
+                                                                                    const wholesaleAmount = product.product?.whole_sale_unit_amount || 1;
+                                                                                    const wholesaleUnits = Math.floor(netQty / wholesaleAmount);
+                                                                                    const remainderUnits = netQty % wholesaleAmount;
+                                                                                    
+                                                                                    let display = "";
+                                                                                    if (wholesaleUnits > 0) {
+                                                                                        display += `${wholesaleUnits} ${product.product?.wholesaleUnit?.name || t("Units")}`;
+                                                                                    }
+                                                                                    if (remainderUnits > 0) {
+                                                                                        if (display) display += " + ";
+                                                                                        display += `${remainderUnits} ${product.product?.retailUnit?.name || t("Units")}`;
+                                                                                    }
+                                                                                    if (!display) display = `${netQty} ${t("Units")}`;
+                                                                                    
+                                                                                    // Add actual amount in parentheses
+                                                                                    display += ` (${netQty} ${t("total")})`;
+                                                                                    
+                                                                                    return display;
+                                                                                })()}
                                                                             </p>
                                                                         </div>
                                                                         <div>
                                                                             <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                                                {t("Price")}
+                                                                                {t("Purchase Price")}
                                                                             </p>
                                                                             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                                                                                 ${product.income_price}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    {/* Pricing Information */}
+                                                                    <div className="grid grid-cols-2 gap-2">
+                                                                        <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                                                            <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                                                                                {t("Wholesale Price")}
+                                                                            </p>
+                                                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                                                                ${product.product?.wholesale_price || 0}
+                                                                            </p>
+                                                                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                {t("per")} {product.product?.wholesaleUnit?.name || t("unit")}
+                                                                            </p>
+                                                                        </div>
+                                                                        <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                                                            <p className="text-xs font-medium text-green-600 dark:text-green-400">
+                                                                                {t("Retail Price")}
+                                                                            </p>
+                                                                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                                                                ${product.product?.retail_price || 0}
+                                                                            </p>
+                                                                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                {t("per")} {product.product?.retailUnit?.name || t("unit")}
                                                                             </p>
                                                                         </div>
                                                                     </div>
@@ -731,7 +788,7 @@ export default function Products({ auth, products }) {
                                                                             </p>
                                                                             {product.product?.whole_sale_unit_amount && (
                                                                                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                                                    {product.product.whole_sale_unit_amount} {t("units")}
+                                                                                    {product.product.whole_sale_unit_amount} {t("retail units")}
                                                                                 </p>
                                                                             )}
                                                                         </div>
@@ -746,30 +803,13 @@ export default function Products({ auth, products }) {
                                                                             </p>
                                                                             {product.product?.retails_sale_unit_amount && (
                                                                                 <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                                                    {product.product.retails_sale_unit_amount} {t("units")}
+                                                                                    {product.product.retails_sale_unit_amount} {t("base units")}
                                                                                 </p>
                                                                             )}
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </CardContent>
-                                                            <CardFooter className="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-between">
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center gap-1 px-2 h-8"
-                                                                >
-                                                                    <Eye className="h-3.5 w-3.5" />
-                                                                    <span>{t("View")}</span>
-                                                                </Button>
-                                                                <Button
-                                                                    variant="default"
-                                                                    size="sm"
-                                                                    className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg h-8"
-                                                                >
-                                                                    {t("Details")}
-                                                                </Button>
-                                                            </CardFooter>
                                                         </Card>
                                                     </motion.div>
                                                 ))}
