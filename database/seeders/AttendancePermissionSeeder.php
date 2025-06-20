@@ -119,19 +119,24 @@ class AttendancePermissionSeeder extends Seeder
         $allPermissions = array_merge($attendanceRecordPermissions, $attendanceSettingPermissions);
         
         foreach ($allPermissions as $permission) {
-            Permission::create([
+            Permission::firstOrCreate([
                 'name' => $permission['name'],
                 'guard_name' => 'web',
+            ], [
                 'label' => $permission['label'],
                 'group' => $permission['group']
             ]);
         }
 
         // Create roles if they don't exist
+        $superAdminRole = Role::firstOrCreate(['name' => 'super_admin', 'guard_name' => 'web']);
         $adminRole = Role::firstOrCreate(['name' => 'admin', 'guard_name' => 'web']);
         $hrRole = Role::firstOrCreate(['name' => 'hr_manager', 'guard_name' => 'web']);
         $employeeRole = Role::firstOrCreate(['name' => 'employee', 'guard_name' => 'web']);
 
+        // Super Admin gets all permissions
+        $superAdminRole->givePermissionTo(array_column($allPermissions, 'name'));
+        
         // Admin gets all permissions
         $adminRole->syncPermissions(array_column($allPermissions, 'name'));
 

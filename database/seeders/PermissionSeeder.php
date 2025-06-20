@@ -39,6 +39,10 @@ class PermissionSeeder extends Seeder
             'payment',
             'order',
             'invoice',
+            'gate',
+            'attendance_record',
+            'attendance_setting',
+            'fingerprint',
         ];
 
         // Define permission actions with Persian labels
@@ -61,8 +65,8 @@ class PermissionSeeder extends Seeder
             'permission' => 'مجوز',
             'product' => 'محصول',
             'supplier' => 'تامین کننده',
-            'warehouse' => 'انبار',
-            'customer' => 'مشتری',
+            'warehouse' => 'گدام',
+            'customer' => 'فروشگاه',
             'employee' => 'کارمند',
             'unit' => 'واحد',
             'currency' => 'ارز',
@@ -80,6 +84,10 @@ class PermissionSeeder extends Seeder
             'payment' => 'پرداخت',
             'order' => 'سفارش',
             'invoice' => 'فاکتور',
+            'gate' => 'دروازه',
+            'attendance_record' => 'سابقه حضور و غیاب',
+            'attendance_setting' => 'تنظیمات حضور و غیاب',
+            'fingerprint' => 'اثر انگشت',
         ];
 
         // Create permissions for each model and action
@@ -211,12 +219,15 @@ class PermissionSeeder extends Seeder
 
     private function createRoles(): void
     {
-        // Super Admin - All permissions
+        // Super Admin - All permissions (only web guard permissions)
         $superAdmin = Role::firstOrCreate([
             'name' => 'super_admin',
             'guard_name' => 'web',
         ]);
-        $superAdmin->givePermissionTo(Permission::all());
+        
+        // Clear existing permissions and assign all web guard permissions
+        $webPermissions = Permission::where('guard_name', 'web')->get();
+        $superAdmin->syncPermissions($webPermissions);
 
         // Admin - Most permissions except system critical ones
         $admin = Role::firstOrCreate([

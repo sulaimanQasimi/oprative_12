@@ -10,6 +10,8 @@ import {
     Sparkles,
     CheckCircle,
     AlertCircle,
+    FileText,
+    Building2,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -29,6 +31,10 @@ export default function Create({ auth, users = [], permissions = {} }) {
         name: "",
         user_id: "",
     });
+
+    // Get the selected user's name for display
+    const selectedUser = users.find(user => user.id.toString() === data.user_id?.toString());
+    const displayUserName = selectedUser ? selectedUser.name : "";
 
     // Animation effect
     useEffect(() => {
@@ -169,8 +175,8 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                         transition={{ delay: 0.6, duration: 0.4 }}
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
-                                        <Building className="w-4 h-4" />
-                                        {t("Create a new access gate")}
+                                        <Building2 className="w-4 h-4" />
+                                        {t("Create a new access gate for your system")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -220,87 +226,165 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-8 space-y-6">
-                                                <motion.div
-                                                    initial={{ x: -20, opacity: 0 }}
-                                                    animate={{ x: 0, opacity: 1 }}
-                                                    transition={{ delay: 1.0, duration: 0.4 }}
-                                                    className="space-y-2"
-                                                >
-                                                    <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                        <Building className="w-4 h-4 text-indigo-600" />
-                                                        {t("Gate Name")} *
-                                                    </Label>
-                                                    <Input
-                                                        id="name"
-                                                        type="text"
-                                                        value={data.name}
-                                                        onChange={(e) => setData("name", e.target.value)}
-                                                        className={`h-12 border-2 transition-all duration-200 input-glow ${
-                                                            errors.name ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300"
-                                                        }`}
-                                                        placeholder={t("Enter gate name")}
-                                                        required
-                                                    />
-                                                    {errors.name && (
-                                                        <motion.p
-                                                            initial={{ opacity: 0, y: -10 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            className="text-red-500 text-sm flex items-center gap-1"
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <motion.div
+                                                        initial={{ x: -20, opacity: 0 }}
+                                                        animate={{ x: 0, opacity: 1 }}
+                                                        transition={{ delay: 1.0, duration: 0.4 }}
+                                                        className="space-y-2"
+                                                    >
+                                                        <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
+                                                            <Building className="w-4 h-4 text-indigo-600" />
+                                                            {t("Gate Name")} *
+                                                        </Label>
+                                                        <Input
+                                                            id="name"
+                                                            type="text"
+                                                            value={data.name}
+                                                            onChange={(e) => setData("name", e.target.value)}
+                                                            className={`h-12 border-2 transition-all duration-200 input-glow ${
+                                                                errors.name ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300"
+                                                            }`}
+                                                            placeholder={t("Enter gate name")}
+                                                            required
+                                                        />
+                                                        {errors.name && (
+                                                            <motion.p
+                                                                initial={{ opacity: 0, y: -10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                className="text-red-500 text-sm flex items-center gap-1"
+                                                            >
+                                                                <AlertCircle className="w-4 h-4" />
+                                                                {errors.name}
+                                                            </motion.p>
+                                                        )}
+                                                    </motion.div>
+
+                                                    <motion.div
+                                                        initial={{ x: 20, opacity: 0 }}
+                                                        animate={{ x: 0, opacity: 1 }}
+                                                        transition={{ delay: 1.1, duration: 0.4 }}
+                                                        className="space-y-2"
+                                                    >
+                                                        <Label htmlFor="user_id" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
+                                                            <User className="w-4 h-4 text-indigo-600" />
+                                                            {t("Assigned User")} *
+                                                        </Label>
+                                                        <Select
+                                                            value={data.user_id?.toString() || ""}
+                                                            onValueChange={(value) => setData("user_id", value)}
+                                                            required
                                                         >
-                                                            <AlertCircle className="w-4 h-4" />
-                                                            {errors.name}
-                                                        </motion.p>
-                                                    )}
-                                                </motion.div>
+                                                            <SelectTrigger className={`h-12 border-2 transition-all duration-200 input-glow ${
+                                                                errors.user_id ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300"
+                                                            }`}>
+                                                                <SelectValue placeholder={t("Select a user")}>
+                                                                    {displayUserName || <span className="text-gray-500">{t("Select a user")}</span>}
+                                                                </SelectValue>
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {users.map((user) => (
+                                                                    <SelectItem key={user.id} value={user.id.toString()}>
+                                                                        <div className="flex items-center gap-2 w-full">
+                                                                            <div className="p-1 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded">
+                                                                                <User className="h-3 w-3 text-indigo-600" />
+                                                                            </div>
+                                                                            <div className="flex-1">
+                                                                                <div className="font-medium">{user.name}</div>
+                                                                                <div className="text-sm text-slate-500">{user.email}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+                                                        {errors.user_id && (
+                                                            <motion.p
+                                                                initial={{ opacity: 0, y: -10 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                className="text-red-500 text-sm flex items-center gap-1"
+                                                            >
+                                                                <AlertCircle className="w-4 h-4" />
+                                                                {errors.user_id}
+                                                            </motion.p>
+                                                        )}
+                                                    </motion.div>
+                                                </div>
 
                                                 <motion.div
-                                                    initial={{ x: 20, opacity: 0 }}
-                                                    animate={{ x: 0, opacity: 1 }}
-                                                    transition={{ delay: 1.1, duration: 0.4 }}
-                                                    className="space-y-2"
+                                                    initial={{ y: 20, opacity: 0 }}
+                                                    animate={{ y: 0, opacity: 1 }}
+                                                    transition={{ delay: 1.2, duration: 0.4 }}
+                                                    className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg p-4 border border-indigo-200 dark:border-indigo-800"
                                                 >
-                                                    <Label htmlFor="user_id" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                        <User className="w-4 h-4 text-indigo-600" />
-                                                        {t("Assigned User")} *
-                                                    </Label>
-                                                    <Select
-                                                        value={data.user_id}
-                                                        onValueChange={(value) => setData("user_id", value)}
-                                                        required
-                                                    >
-                                                        <SelectTrigger className={`h-12 border-2 transition-all duration-200 input-glow ${
-                                                            errors.user_id ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300"
-                                                        }`}>
-                                                            <SelectValue placeholder={t("Select a user")}>
-                                                                {data.user_id && users.find(user => user.id.toString() === data.user_id.toString())?.name}
-                                                            </SelectValue>
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {users.map((user) => (
-                                                                <SelectItem key={user.id} value={user.id.toString()}>
-                                                                    <div className="flex items-center gap-2">
-                                                                        <div className="p-1 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded">
-                                                                            <User className="h-3 w-3 text-indigo-600" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <div className="font-medium">{user.name}</div>
-                                                                            <div className="text-sm text-slate-500">{user.email}</div>
-                                                                        </div>
-                                                                    </div>
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {errors.user_id && (
-                                                        <motion.p
-                                                            initial={{ opacity: 0, y: -10 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            className="text-red-500 text-sm flex items-center gap-1"
-                                                        >
-                                                            <AlertCircle className="w-4 h-4" />
-                                                            {errors.user_id}
-                                                        </motion.p>
-                                                    )}
+                                                    <div className="flex items-start gap-3">
+                                                        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                                                            <CheckCircle className="w-5 h-5 text-indigo-600" />
+                                                        </div>
+                                                        <div>
+                                                            <h4 className="font-semibold text-indigo-700 dark:text-indigo-300 mb-1">
+                                                                {t("Gate Configuration")}
+                                                            </h4>
+                                                            <p className="text-sm text-indigo-600 dark:text-indigo-400 leading-relaxed">
+                                                                {t("The assigned user will have full access to manage this gate and its associated employees. You can modify these settings later from the gate management panel.")}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    {/* Additional Information Card */}
+                                    <motion.div
+                                        initial={{ scale: 0.95, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.3, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="bg-gradient-to-r from-purple-500/20 via-violet-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                    <div className="p-3 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg">
+                                                        <FileText className="h-6 w-6 text-white" />
+                                                    </div>
+                                                    {t("Access Information")}
+                                                    <Badge className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                                        {t("Info")}
+                                                    </Badge>
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-8">
+                                                <motion.div
+                                                    initial={{ y: 20, opacity: 0 }}
+                                                    animate={{ y: 0, opacity: 1 }}
+                                                    transition={{ delay: 1.4, duration: 0.4 }}
+                                                    className="space-y-4"
+                                                >
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                        <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-indigo-200 dark:border-indigo-800">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <User className="w-4 h-4 text-indigo-600" />
+                                                                <h5 className="font-semibold text-indigo-700 dark:text-indigo-300">
+                                                                    {t("User Assignment")}
+                                                                </h5>
+                                                            </div>
+                                                            <p className="text-sm text-indigo-600 dark:text-indigo-400">
+                                                                {t("Each gate must be assigned to a user who will manage its operations and employee access.")}
+                                                            </p>
+                                                        </div>
+
+                                                        <div className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <Building className="w-4 h-4 text-purple-600" />
+                                                                <h5 className="font-semibold text-purple-700 dark:text-purple-300">
+                                                                    {t("Gate Access")}
+                                                                </h5>
+                                                            </div>
+                                                            <p className="text-sm text-purple-600 dark:text-purple-400">
+                                                                {t("Gates control employee access to specific areas and track entry/exit activities.")}
+                                                            </p>
+                                                        </div>
+                                                    </div>
                                                 </motion.div>
                                             </CardContent>
                                         </Card>
@@ -310,7 +394,7 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.2, duration: 0.4 }}
+                                        transition={{ delay: 1.5, duration: 0.4 }}
                                         className="flex justify-end space-x-4"
                                     >
                                         <Link href={route("admin.gates.index")}>
