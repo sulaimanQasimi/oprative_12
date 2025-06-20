@@ -19,7 +19,10 @@ import {
     BarChart3,
     Sparkles,
     ChevronDown,
-    X
+    X,
+    User,
+    CheckCircle,
+    Clock
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -55,6 +58,7 @@ export default function Sales({ auth, warehouse, sales }) {
     const [isAnimated, setIsAnimated] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [dateFilter, setDateFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
     const [sortBy, setSortBy] = useState("created_at");
     const [sortOrder, setSortOrder] = useState("desc");
     const [showFilters, setShowFilters] = useState(false);
@@ -76,10 +80,13 @@ export default function Sales({ auth, warehouse, sales }) {
         // Search filter
         if (searchTerm) {
             filtered = filtered.filter(sale =>
-                sale.reference_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                sale.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                sale.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                sale.product.type?.toLowerCase().includes(searchTerm.toLowerCase())
+                sale.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                sale.customer?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                sale.customer?.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                sale.sale_items?.some(item => 
+                    item.product?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    item.product?.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
+                )
             );
         }
 
@@ -87,9 +94,14 @@ export default function Sales({ auth, warehouse, sales }) {
         if (dateFilter) {
             const filterDate = new Date(dateFilter);
             filtered = filtered.filter(sale => {
-                const saleDate = new Date(sale.sale_date);
+                const saleDate = new Date(sale.date);
                 return saleDate.toDateString() === filterDate.toDateString();
             });
+        }
+
+        // Status filter
+        if (statusFilter) {
+            filtered = filtered.filter(sale => sale.status === statusFilter);
         }
 
         // Sorting
@@ -97,9 +109,9 @@ export default function Sales({ auth, warehouse, sales }) {
             let aValue = a[sortBy];
             let bValue = b[sortBy];
 
-            if (sortBy === 'product.name') {
-                aValue = a.product.name;
-                bValue = b.product.name;
+            if (sortBy === 'customer.name') {
+                aValue = a.customer?.name || '';
+                bValue = b.customer?.name || '';
             }
 
             if (typeof aValue === 'string') {
@@ -115,13 +127,13 @@ export default function Sales({ auth, warehouse, sales }) {
         });
 
         setFilteredSales(filtered);
-    }, [searchTerm, dateFilter, sortBy, sortOrder, sales]);
+    }, [searchTerm, dateFilter, statusFilter, sortBy, sortOrder, sales]);
 
     // Calculate totals
     const totalSales = filteredSales.length;
-    const totalQuantity = filteredSales.reduce((sum, sale) => sum + sale.quantity, 0);
-    const totalValue = filteredSales.reduce((sum, sale) => sum + sale.total, 0);
-    const avgSaleValue = totalSales > 0 ? totalValue / totalSales : 0;
+    const totalAmount = filteredSales.reduce((sum, sale) => sum + (sale.total_amount || 0), 0);
+    const totalItems = filteredSales.reduce((sum, sale) => sum + (sale.sale_items?.length || 0), 0);
+    const avgSaleValue = totalSales > 0 ? totalAmount / totalSales : 0;
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', {
@@ -141,16 +153,30 @@ export default function Sales({ auth, warehouse, sales }) {
         });
     };
 
+    const getStatusBadgeClass = (status) => {
+        switch (status) {
+            case 'completed':
+                return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
+            case 'pending':
+                return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
+            case 'cancelled':
+                return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
+            default:
+                return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
+        }
+    };
+
     const clearFilters = () => {
         setSearchTerm("");
         setDateFilter("");
+        setStatusFilter("");
         setSortBy("created_at");
         setSortOrder("desc");
     };
 
     return (
         <>
-            <Head title={`${warehouse?.name} - ${t("Shop Moves")}`}>
+            <Head title={`${warehouse?.name} - ${t("Sales")}`}>
                 <style>{`
                     @keyframes shimmer {
                         0% { background-position: -1000px 0; }
@@ -248,7 +274,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                         className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
-                                        {warehouse?.name} - {t("Shop Move Management")}
+                                        {warehouse?.name} - {t("Sales Management")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
@@ -256,7 +282,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Shop Moves")}
+                                        {t("Sales")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -265,7 +291,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
-                                        {t("Track and manage products moved to shop")}
+                                        {t("Track and manage warehouse sales")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -289,7 +315,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                 <Link href={route("admin.warehouses.sales.create", warehouse.id)}>
                                     <Button className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
                                         <Plus className="h-4 w-4" />
-                                        {t("Move to Shop")}
+                                        {t("Create Sale")}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -317,13 +343,13 @@ export default function Sales({ auth, warehouse, sales }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Moves")}
+                                                            {t("Total Sales")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-green-600">
                                                             {totalSales}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
-                                                            {t("Transactions")}
+                                                            {t("Orders")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
@@ -344,13 +370,13 @@ export default function Sales({ auth, warehouse, sales }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Quantity")}
+                                                            {t("Total Items")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-blue-600">
-                                                            {totalQuantity.toLocaleString()}
+                                                            {totalItems.toLocaleString()}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
-                                                            {t("Units sold")}
+                                                            {t("Products sold")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
@@ -374,7 +400,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                             {t("Total Revenue")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-purple-600">
-                                                            {formatCurrency(totalValue)}
+                                                            {formatCurrency(totalAmount)}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
                                                             {t("Sales value")}
@@ -404,7 +430,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                             {formatCurrency(avgSaleValue)}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
-                                                            {t("Per transaction")}
+                                                            {t("Per order")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
@@ -448,7 +474,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                 <div className="relative">
                                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                                     <Input
-                                                        placeholder={t("Search by reference, product name, barcode, or type...")}
+                                                        placeholder={t("Search by reference, customer, or product...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
                                                         className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
@@ -476,7 +502,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                         transition={{ duration: 0.3 }}
                                                         className="overflow-hidden"
                                                     >
-                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                                                             <div>
                                                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                                     {t("Date Filter")}
@@ -491,6 +517,23 @@ export default function Sales({ auth, warehouse, sales }) {
 
                                                             <div>
                                                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Status")}
+                                                                </label>
+                                                                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue placeholder={t("All Statuses")} />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="">{t("All Statuses")}</SelectItem>
+                                                                        <SelectItem value="pending">{t("Pending")}</SelectItem>
+                                                                        <SelectItem value="completed">{t("Completed")}</SelectItem>
+                                                                        <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                                     {t("Sort By")}
                                                                 </label>
                                                                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -499,10 +542,10 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                     </SelectTrigger>
                                                                     <SelectContent>
                                                                         <SelectItem value="created_at">{t("Date Created")}</SelectItem>
-                                                                        <SelectItem value="reference_number">{t("Reference")}</SelectItem>
-                                                                        <SelectItem value="product.name">{t("Product Name")}</SelectItem>
-                                                                        <SelectItem value="quantity">{t("Quantity")}</SelectItem>
-                                                                        <SelectItem value="total">{t("Total Value")}</SelectItem>
+                                                                        <SelectItem value="reference">{t("Reference")}</SelectItem>
+                                                                        <SelectItem value="customer.name">{t("Customer")}</SelectItem>
+                                                                        <SelectItem value="total_amount">{t("Total Amount")}</SelectItem>
+                                                                        <SelectItem value="status">{t("Status")}</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
@@ -552,7 +595,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                 <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
                                                 </div>
-                                                {t("Shop Move Records")}
+                                                {t("Sales Records")}
                                                 <Badge variant="secondary" className="ml-auto">
                                                     {filteredSales.length} {t("of")} {sales.length}
                                                 </Badge>
@@ -567,19 +610,22 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                 {t("Reference")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Product")}
+                                                                {t("Customer")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Quantity")}
+                                                                {t("Items")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Unit Price")}
+                                                                {t("Total Amount")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Total Value")}
+                                                                {t("Status")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                {t("Sale Date")}
+                                                                {t("Confirmations")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Date")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Actions")}
@@ -595,50 +641,65 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                 >
                                                                     <TableCell>
                                                                         <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
-                                                                            {sale.reference_number}
+                                                                            {sale.reference}
                                                                         </span>
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-3">
                                                                             <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
-                                                                                <Package className="h-4 w-4 text-blue-600" />
+                                                                                <User className="h-4 w-4 text-blue-600" />
                                                                             </div>
                                                                             <div>
-                                                                                <p className="font-semibold text-slate-800 dark:text-white">{sale.product.name}</p>
-                                                                                <p className="text-sm text-slate-500 flex items-center gap-1">
-                                                                                    {sale.product.barcode && (
-                                                                                        <Badge variant="outline" className="text-xs">
-                                                                                            {sale.product.barcode}
-                                                                                        </Badge>
-                                                                                    )}
-                                                                                    <span className="text-xs">{sale.product.type}</span>
-                                                                                </p>
+                                                                                <p className="font-semibold text-slate-800 dark:text-white">{sale.customer?.name || 'N/A'}</p>
+                                                                                <p className="text-sm text-slate-500">{sale.customer?.email || ''}</p>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex flex-col gap-1">
-                                                                            <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                                                                                {sale.unit_type === 'wholesale_unit' 
-                                                                                    ? sale.quantity.toLocaleString()
-                                                                                    : sale.quantity.toLocaleString()
-                                                                                }
+                                                                            <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 w-fit">
+                                                                                {sale.sale_items?.length || 0} {t('items')}
                                                                             </Badge>
-                                                                            <span className="text-xs text-slate-500">
-                                                                                {sale.unit_type === 'wholesale_unit' ? t('Wholesale') : t('Retail')}
-                                                                            </span>
+                                                                            {sale.sale_items && sale.sale_items.length > 0 && (
+                                                                                <span className="text-xs text-slate-500">
+                                                                                    {sale.sale_items[0].product?.name}
+                                                                                    {sale.sale_items.length > 1 && ` +${sale.sale_items.length - 1} more`}
+                                                                                </span>
+                                                                            )}
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="font-medium">
-                                                                        {formatCurrency(sale.price)}
-                                                                    </TableCell>
                                                                     <TableCell className="font-bold text-green-600">
-                                                                        {formatCurrency(sale.total)}
+                                                                        {formatCurrency(sale.total_amount)}
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Badge className={getStatusBadgeClass(sale.status)}>
+                                                                            {sale.status}
+                                                                        </Badge>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="flex items-center gap-1">
+                                                                                {sale.confirmed_by_warehouse ? (
+                                                                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                                                                ) : (
+                                                                                    <Clock className="h-4 w-4 text-yellow-600" />
+                                                                                )}
+                                                                                <span className="text-xs">{t('Warehouse')}</span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-1">
+                                                                                {sale.confirmed_by_shop ? (
+                                                                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                                                                ) : (
+                                                                                    <Clock className="h-4 w-4 text-yellow-600" />
+                                                                                )}
+                                                                                <span className="text-xs">{t('Shop')}</span>
+                                                                            </div>
+                                                                        </div>
                                                                     </TableCell>
                                                                     <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                                                                         <div className="flex items-center gap-2">
                                                                             <Calendar className="h-4 w-4" />
-                                                                            {formatDate(sale.sale_date)}
+                                                                            {formatDate(sale.date)}
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
@@ -658,24 +719,24 @@ export default function Sales({ auth, warehouse, sales }) {
                                                             ))
                                                         ) : (
                                                             <TableRow>
-                                                                <TableCell colSpan="7" className="h-32 text-center">
+                                                                <TableCell colSpan="8" className="h-32 text-center">
                                                                     <div className="flex flex-col items-center gap-4">
                                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
                                                                             <Store className="h-8 w-8 text-slate-400" />
                                                                         </div>
                                                                         <div>
                                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-                                                                                {t("No shop moves found")}
+                                                                                {t("No sales found")}
                                                                             </p>
                                                                             <p className="text-sm text-slate-500">
-                                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("Create your first shop move")}
+                                                                                {searchTerm || dateFilter || statusFilter ? t("Try adjusting your filters") : t("Create your first sale")}
                                                                             </p>
                                                                         </div>
-                                                                        {!searchTerm && !dateFilter && (
+                                                                        {!searchTerm && !dateFilter && !statusFilter && (
                                                                             <Link href={route("admin.warehouses.sales.create", warehouse.id)}>
                                                                                 <Button className="gap-2">
                                                                                     <Plus className="h-4 w-4" />
-                                                                                    {t("Move to Shop")}
+                                                                                    {t("Create Sale")}
                                                                                 </Button>
                                                                             </Link>
                                                                         )}

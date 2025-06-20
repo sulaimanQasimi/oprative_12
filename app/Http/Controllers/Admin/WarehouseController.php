@@ -913,7 +913,7 @@ class WarehouseController extends Controller
                 ->with([
                     'customer:id,name,email,phone',
                     'saleItems.product:id,name,barcode,type',
-                    'currency:id,name,code,symbol'
+                    'currency:id,name,code'
                 ])
                 ->orderBy('created_at', 'desc')
                 ->get()
@@ -934,7 +934,6 @@ class WarehouseController extends Controller
                             'id' => $sale->currency->id,
                             'name' => $sale->currency->name,
                             'code' => $sale->currency->code,
-                            'symbol' => $sale->currency->symbol,
                         ] : null,
                         'sale_items' => $sale->saleItems->map(function ($item) {
                             return [
@@ -1010,13 +1009,11 @@ class WarehouseController extends Controller
                         'id' => $item->product->wholesaleUnit->id,
                         'name' => $item->product->wholesaleUnit->name,
                         'code' => $item->product->wholesaleUnit->code,
-                        'symbol' => $item->product->wholesaleUnit->symbol,
                     ] : null,
                     'retailUnit' => $item->product->retailUnit ? [
                         'id' => $item->product->retailUnit->id,
                         'name' => $item->product->retailUnit->name,
                         'code' => $item->product->retailUnit->code,
-                        'symbol' => $item->product->retailUnit->symbol,
                     ] : null,
                 ];
             })->filter(function ($product) {
@@ -1085,46 +1082,70 @@ class WarehouseController extends Controller
             DB::beginTransaction();
 
             // Generate reference number
-            $referenceNumber = 'STORE-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+            $referenceNumber = 'SALE-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
 
             // Calculate total
-            $total = $validated['quantity'] * $validated['price'];
-            // Create warehouse outcome record
+            $totalAmount = $validated['quantity'] * $validated['price'];
+
+            // Create Sale record
+            $sale = \App\Models\Sale::create([
+                'warehouse_id' => $warehouse->id,
+                'customer_id' => $validated['customer_id'],
+                'currency_id' => 1, // Default currency
+                'reference' => $referenceNumber,
+                'status' => 'pending',
+                'date' => now()->toDateString(),
+                'confirmed_by_warehouse' => false,
+                'confirmed_by_shop' => false,
+                'notes' => $validated['notes'] ?? null,
+            ]);
+
+            // Create SaleItem record
+            \App\Models\SaleItem::create([
+                'sale_id' => $sale->id,
+                'product_id' => $validated['product_id'],
+                'quantity' => $validated['quantity'],
+                'unit_price' => $validated['price'],
+                'price' => $validated['price'],
+                'total' => $totalAmount,
+            ]);
+
+            // Create warehouse outcome record for inventory tracking
             \App\Models\WarehouseOutcome::create([
                 'warehouse_id' => $warehouse->id,
                 'product_id' => $validated['product_id'],
                 'reference_number' => $referenceNumber,
                 'quantity' => $validated['quantity'],
                 'price' => $validated['price'],
-                'total' => $total,
+                'total' => $totalAmount,
                 'model_type' => 'customer_sale',
                 'model_id' => $validated['customer_id'],
             ]);
 
-            // Create customer income record
+            // Create customer income record for customer tracking
             \App\Models\CustomerStockIncome::create([
                 'customer_id' => $validated['customer_id'],
                 'product_id' => $validated['product_id'],
                 'reference_number' => $referenceNumber,
                 'quantity' => $validated['quantity'],
                 'price' => $validated['price'],
-                'total' => $total,
+                'total' => $totalAmount,
                 'model_id' => $warehouse->id,
             ]);
 
             DB::commit();
 
             return redirect()->route('admin.warehouses.sales', $warehouse->id)
-                ->with('success', 'Products moved to store successfully');
+                ->with('success', 'Sale created successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
                 ->withErrors($e->errors())
                 ->withInput();
         } catch (\Exception $e) {
             DB::rollback();
-            Log::error('Error moving products to store: ' . $e->getMessage());
+            Log::error('Error creating sale: ' . $e->getMessage());
             return redirect()->back()
-                ->with('error', 'Error moving products to store: ' . $e->getMessage())
+                ->with('error', 'Error creating sale: ' . $e->getMessage())
                 ->withInput();
         }
     }
