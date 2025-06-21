@@ -10,13 +10,63 @@ use Inertia\Inertia;
 class IncomeController extends Controller
 {
     /**
-     * Display a listing of income records.
+     * Display a listing of income records with pagination and filtering.
      */
-    public function index()
+    public function index(Request $request)
     {
         $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
 
-        $income = $warehouse->warehouseIncome()->get()->map(function ($incomeRecord) {
+        $query = $warehouse->warehouseIncome()->with('product');
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('reference_number', 'like', "%{$search}%")
+                  ->orWhere('notes', 'like', "%{$search}%")
+                  ->orWhereHas('product', function($productQuery) use ($search) {
+                      $productQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Apply date filters
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Apply sorting
+        $sortBy = $request->get('sort', 'created_at');
+        $direction = $request->get('direction', 'desc');
+        
+        // Validate sort column
+        $allowedSorts = ['created_at', 'reference_number', 'total', 'quantity', 'price'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+
+        // Validate direction
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'desc';
+        }
+
+        $query->orderBy($sortBy, $direction);
+
+        // Get per page value
+        $perPage = $request->get('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50, 100])) {
+            $perPage = 10;
+        }
+
+        // Paginate results
+        $incomeRecords = $query->paginate($perPage)->withQueryString();
+
+        // Transform the data
+        $income = $incomeRecords->getCollection()->map(function ($incomeRecord) {
             return [
                 'id' => $incomeRecord->id,
                 'reference' => $incomeRecord->reference_number,
@@ -30,8 +80,33 @@ class IncomeController extends Controller
             ];
         });
 
+        // Replace the collection in the paginator
+        $incomeRecords->setCollection($income);
+
+        // Prepare pagination data
+        $pagination = [
+            'current_page' => $incomeRecords->currentPage(),
+            'last_page' => $incomeRecords->lastPage(),
+            'per_page' => $incomeRecords->perPage(),
+            'total' => $incomeRecords->total(),
+            'from' => $incomeRecords->firstItem(),
+            'to' => $incomeRecords->lastItem(),
+        ];
+
+        // Prepare filters data
+        $filters = [
+            'search' => $request->search,
+            'date_from' => $request->date_from,
+            'date_to' => $request->date_to,
+            'sort' => $sortBy,
+            'direction' => $direction,
+            'per_page' => $perPage,
+        ];
+
         return Inertia::render('Warehouse/Income', [
             'income' => $income,
+            'pagination' => $pagination,
+            'filters' => $filters,
         ]);
     }
 
@@ -58,7 +133,7 @@ class IncomeController extends Controller
     {
         $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
 
-        $incomeRecord = $warehouse->warehouseIncome()->findOrFail($id);
+        $incomeRecord = $warehouse->warehouseIncome()->with('product')->findOrFail($id);
 
         $income = [
             'id' => $incomeRecord->id,
