@@ -10,7 +10,7 @@ use Inertia\Inertia;
 class IncomeController extends Controller
 {
     /**
-     * Display a listing of income records with pagination and filtering.
+     * Display a listing of import records with pagination and filtering.
      */
     public function index(Request $request)
     {
@@ -77,6 +77,7 @@ class IncomeController extends Controller
                 'source' => $incomeRecord->product ? $incomeRecord->product->name : 'Unknown',
                 'notes' => $incomeRecord->notes ?? null,
                 'created_at' => $incomeRecord->created_at->diffForHumans(),
+                'created_at_raw' => $incomeRecord->created_at->toISOString(), // For Jalali conversion
             ];
         });
 
@@ -111,23 +112,7 @@ class IncomeController extends Controller
     }
 
     /**
-     * Show the form for creating a new income record.
-     */
-    public function create()
-    {
-        // Implementation for create form
-    }
-
-    /**
-     * Store a newly created income record in storage.
-     */
-    public function store(Request $request)
-    {
-        // Implementation for storing an income record
-    }
-
-    /**
-     * Display the specified income record.
+     * Display the specified import record.
      */
     public function show($id)
     {
@@ -143,6 +128,7 @@ class IncomeController extends Controller
             'price' => (float) $incomeRecord->price,
             'date' => $incomeRecord->created_at->format('Y-m-d'),
             'created_at' => $incomeRecord->created_at->format('Y-m-d H:i:s'),
+            'created_at_raw' => $incomeRecord->created_at->toISOString(), // For Jalali conversion
             'formatted_date' => $incomeRecord->created_at->diffForHumans(),
             'source' => $incomeRecord->product ? $incomeRecord->product->name : 'Unknown',
             'product_id' => $incomeRecord->product ? $incomeRecord->product->id : null,
@@ -162,7 +148,7 @@ class IncomeController extends Controller
             'updated_at' => $incomeRecord->updated_at->diffForHumans(),
         ];
 
-        // Get related income records for the same product
+        // Get related import records for the same product
         $relatedIncome = [];
         if ($incomeRecord->product) {
             $relatedIncome = $warehouse->warehouseIncome()
@@ -179,37 +165,17 @@ class IncomeController extends Controller
                         'quantity' => (float) $record->quantity,
                         'date' => $record->created_at->format('Y-m-d'),
                         'created_at' => $record->created_at->diffForHumans(),
+                        'created_at_raw' => $record->created_at->toISOString(), // For Jalali conversion
                     ];
                 });
         }
 
-        return Inertia::render('Warehouse/IncomeDetails', [
+        return Inertia::render('Warehouse/ImportDetails', [
             'income' => $income,
             'relatedIncome' => $relatedIncome,
         ]);
     }
 
-    /**
-     * Show the form for editing the specified income record.
-     */
-    public function edit($id)
-    {
-        // Implementation for edit form
-    }
-
-    /**
-     * Update the specified income record in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        // Implementation for updating an income record
-    }
-
-    /**
-     * Remove the specified income record from storage.
-     */
-    public function destroy($id)
-    {
-        // Implementation for deleting an income record
-    }
+    // Note: create, store, edit, update, and destroy methods have been removed
+    // as per the requirement to remove edit and delete functionality
 }

@@ -14,7 +14,7 @@ import {
 } from "@/Components/ui/select";
 import {
     Search,
-    TrendingUp,
+    Download,
     ChevronLeft,
     ChevronRight,
     ChevronsLeft,
@@ -30,6 +30,71 @@ import {
 } from "lucide-react";
 import Navigation from "@/Components/Warehouse/Navigation";
 import { motion } from "framer-motion";
+
+// Jalali date conversion utility
+const toJalali = (gregorianDate) => {
+    if (!gregorianDate) return '';
+    
+    const date = new Date(gregorianDate);
+    const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        calendar: 'persian',
+        numberingSystem: 'latn'
+    };
+    
+    try {
+        return new Intl.DateTimeFormat('fa-IR', options).format(date);
+    } catch (error) {
+        // Fallback to basic conversion if Intl.DateTimeFormat fails
+        const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+        const jy = (date.getFullYear() <= 1600) ? 0 : 979;
+        const gy = date.getFullYear() - 1600;
+        const gm = date.getMonth() + 1;
+        const gd = date.getDate();
+        
+        let g_day_no = 365 * gy + Math.floor((gy + 3) / 4) - Math.floor((gy + 99) / 100) + Math.floor((gy + 399) / 400) - 80 + gd + g_d_m[gm - 1];
+        if (gm > 2) g_day_no += Math.floor(gy / 4) - Math.floor(gy / 100) + Math.floor(gy / 400) - Math.floor(1600 / 4) + Math.floor(1600 / 100) - Math.floor(1600 / 400);
+        
+        const j_day_no = g_day_no - 79;
+        const j_np = Math.floor(j_day_no / 12053);
+        const jy_final = 979 + 33 * j_np + 4 * Math.floor((j_day_no % 12053) / 1461) + Math.floor(((j_day_no % 12053) % 1461) / 365);
+        
+        let jp = 0;
+        if ((j_day_no % 12053) % 1461 >= 365) {
+            jp = Math.floor(((j_day_no % 12053) % 1461) / 365);
+        }
+        
+        const jd_remaining = ((j_day_no % 12053) % 1461) % 365;
+        let jm, jd;
+        
+        if (jd_remaining < 186) {
+            jm = 1 + Math.floor(jd_remaining / 31);
+            jd = 1 + (jd_remaining % 31);
+        } else {
+            jm = 7 + Math.floor((jd_remaining - 186) / 30);
+            jd = 1 + ((jd_remaining - 186) % 30);
+        }
+        
+        return `${jy_final + jp}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
+    }
+};
+
+const toJalaliRelative = (dateString) => {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return `${diffInSeconds} ثانیه پیش`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} دقیقه پیش`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ساعت پیش`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} روز پیش`;
+    if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} ماه پیش`;
+    return `${Math.floor(diffInSeconds / 31536000)} سال پیش`;
+};
 
 export default function Income({ auth, income, pagination, filters }) {
     const { t } = useLaravelReactI18n();
@@ -117,7 +182,7 @@ export default function Income({ auth, income, pagination, filters }) {
 
     return (
         <>
-            <Head title={t("Warehouse Income")} />
+            <Head title={t("Import Product")} />
             
             <div className="flex h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-green-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden">
                 <Navigation auth={auth} currentRoute="warehouse.income" />
@@ -140,7 +205,7 @@ export default function Income({ auth, income, pagination, filters }) {
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-600 rounded-2xl blur-lg opacity-60"></div>
                                     <div className="relative bg-gradient-to-br from-emerald-500 via-green-500 to-emerald-600 p-4 rounded-2xl shadow-2xl">
-                                        <TrendingUp className="w-8 h-8 text-white" />
+                                        <Download className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
@@ -160,7 +225,7 @@ export default function Income({ auth, income, pagination, filters }) {
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-emerald-600 via-green-600 to-emerald-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Income Transactions")}
+                                        {t("Import Product")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -169,7 +234,7 @@ export default function Income({ auth, income, pagination, filters }) {
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <Package className="w-4 h-4" />
-                                        {t("Track and manage your income records")}
+                                        {t("Track and manage your import records")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -180,7 +245,7 @@ export default function Income({ auth, income, pagination, filters }) {
                                 className="flex items-center space-x-3"
                             >
                                 <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
-                                    {pagination?.total || 0} {t("transactions")}
+                                    {pagination?.total || 0} {t("imports")}
                                 </Badge>
                             </motion.div>
                         </div>
@@ -333,9 +398,9 @@ export default function Income({ auth, income, pagination, filters }) {
                                     <CardHeader className="bg-gradient-to-r from-emerald-500/20 via-green-500/20 to-emerald-500/20 border-b border-white/30 dark:border-slate-700/50">
                                         <CardTitle className="flex items-center gap-3">
                                             <div className="p-2 bg-gradient-to-br from-emerald-500 to-green-600 rounded-lg">
-                                                <Package className="h-5 w-5 text-white" />
+                                                <Download className="h-5 w-5 text-white" />
                                             </div>
-                                            {t("Income Transactions")}
+                                            {t("Import Product")}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="p-0">
@@ -375,7 +440,7 @@ export default function Income({ auth, income, pagination, filters }) {
                                                                 className="px-6 py-4 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50"
                                                                 onClick={() => handleSort('created_at')}
                                                             >
-                                                                {t("Date")} {getSortIcon('created_at')}
+                                                                {t("Date (Jalali)")} {getSortIcon('created_at')}
                                                             </th>
                                                             <th className="px-6 py-4 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                                 {t("Actions")}
@@ -394,7 +459,7 @@ export default function Income({ auth, income, pagination, filters }) {
                                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                                     <div className="flex items-center">
                                                                         <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mr-3">
-                                                                            <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                                                                            <Download className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                                                                         </div>
                                                                         <div>
                                                                             <div className="text-sm font-medium text-slate-900 dark:text-white">
@@ -427,11 +492,11 @@ export default function Income({ auth, income, pagination, filters }) {
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-6 py-4 whitespace-nowrap text-center">
-                                                                    <div className="text-sm text-slate-900 dark:text-white">
-                                                                        {record.date}
+                                                                    <div className="text-sm text-slate-900 dark:text-white" dir="rtl">
+                                                                        {toJalali(record.date)}
                                                                     </div>
-                                                                    <div className="text-xs text-slate-500 dark:text-slate-400">
-                                                                        {record.created_at}
+                                                                    <div className="text-xs text-slate-500 dark:text-slate-400" dir="rtl">
+                                                                        {toJalaliRelative(record.created_at_raw)}
                                                                     </div>
                                                                 </td>
                                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -451,14 +516,14 @@ export default function Income({ auth, income, pagination, filters }) {
                                             </div>
                                         ) : (
                                             <div className="text-center py-12">
-                                                <TrendingUp className="mx-auto h-12 w-12 text-slate-400" />
+                                                <Download className="mx-auto h-12 w-12 text-slate-400" />
                                                 <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
-                                                    {t("No income records found")}
+                                                    {t("No import records found")}
                                                 </h3>
                                                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                                     {searchTerm 
                                                         ? t("Try adjusting your search criteria.")
-                                                        : t("No income transactions have been recorded yet.")}
+                                                        : t("No import Product have been recorded yet.")}
                                                 </p>
                                             </div>
                                         )}
