@@ -10,13 +10,63 @@ use Inertia\Inertia;
 class OutcomeController extends Controller
 {
     /**
-     * Display a listing of outcome records.
+     * Display a listing of outcome records with pagination and filtering.
      */
-    public function index()
+    public function index(Request $request)
     {
         $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
 
-        $outcome = $warehouse->warehouseOutcome()->get()->map(function ($outcomeRecord) {
+        $query = $warehouse->warehouseOutcome()->with('product');
+
+        // Apply search filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('reference_number', 'like', "%{$search}%")
+                  ->orWhere('notes', 'like', "%{$search}%")
+                  ->orWhereHas('product', function($productQuery) use ($search) {
+                      $productQuery->where('name', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Apply date filters
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Apply sorting
+        $sortBy = $request->get('sort', 'created_at');
+        $direction = $request->get('direction', 'desc');
+        
+        // Validate sort column
+        $allowedSorts = ['created_at', 'reference_number', 'total', 'quantity', 'price'];
+        if (!in_array($sortBy, $allowedSorts)) {
+            $sortBy = 'created_at';
+        }
+
+        // Validate direction
+        if (!in_array($direction, ['asc', 'desc'])) {
+            $direction = 'desc';
+        }
+
+        $query->orderBy($sortBy, $direction);
+
+        // Get per page value
+        $perPage = $request->get('per_page', 10);
+        if (!in_array($perPage, [10, 25, 50, 100])) {
+            $perPage = 10;
+        }
+
+        // Paginate results
+        $outcomeRecords = $query->paginate($perPage)->withQueryString();
+
+        // Transform the data
+        $outcome = $outcomeRecords->getCollection()->map(function ($outcomeRecord) {
             return [
                 'id' => $outcomeRecord->id,
                 'reference' => $outcomeRecord->reference_number,
@@ -27,10 +77,37 @@ class OutcomeController extends Controller
                 'destination' => $outcomeRecord->product ? $outcomeRecord->product->name : 'Unknown',
                 'notes' => $outcomeRecord->notes ?? null,
                 'created_at' => $outcomeRecord->created_at->diffForHumans(),
+                'created_at_raw' => $outcomeRecord->created_at->toISOString(), // For Jalali conversion
             ];
         });
+
+        // Replace the collection in the paginator
+        $outcomeRecords->setCollection($outcome);
+
+        // Prepare pagination data
+        $pagination = [
+            'current_page' => $outcomeRecords->currentPage(),
+            'last_page' => $outcomeRecords->lastPage(),
+            'per_page' => $outcomeRecords->perPage(),
+            'total' => $outcomeRecords->total(),
+            'from' => $outcomeRecords->firstItem(),
+            'to' => $outcomeRecords->lastItem(),
+        ];
+
+        // Prepare filters data
+        $filters = [
+            'search' => $request->search,
+            'date_from' => $request->date_from,
+            'date_to' => $request->date_to,
+            'sort' => $sortBy,
+            'direction' => $direction,
+            'per_page' => $perPage,
+        ];
+
         return Inertia::render('Warehouse/Outcome', [
             'outcome' => $outcome,
+            'pagination' => $pagination,
+            'filters' => $filters,
         ]);
     }
 

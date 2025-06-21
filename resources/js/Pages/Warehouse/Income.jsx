@@ -549,20 +549,41 @@ export default function Income({ auth, income, pagination, filters }) {
                                         </Button>
                                         
                                         {/* Page numbers */}
-                                        {Array.from({ length: Math.min(5, pagination.last_page) }, (_, i) => {
-                                            const page = Math.max(1, Math.min(pagination.current_page - 2 + i, pagination.last_page - 4 + i));
-                                            return (
-                                                <Button
-                                                    key={page}
-                                                    variant={pagination.current_page === page ? "default" : "outline"}
-                                                    size="sm"
-                                                    onClick={() => handlePageChange(page)}
-                                                    className="h-8 w-8 p-0"
-                                                >
-                                                    {page}
-                                                </Button>
-                                            );
-                                        })}
+                                        {(() => {
+                                            const pages = [];
+                                            const totalPages = pagination.last_page;
+                                            const currentPage = pagination.current_page;
+                                            
+                                            // Calculate start and end page numbers
+                                            let startPage = Math.max(1, currentPage - 2);
+                                            let endPage = Math.min(totalPages, currentPage + 2);
+                                            
+                                            // Adjust if we don't have enough pages on one side
+                                            if (endPage - startPage < 4) {
+                                                if (startPage === 1) {
+                                                    endPage = Math.min(totalPages, startPage + 4);
+                                                } else if (endPage === totalPages) {
+                                                    startPage = Math.max(1, endPage - 4);
+                                                }
+                                            }
+                                            
+                                            // Generate page buttons
+                                            for (let i = startPage; i <= endPage; i++) {
+                                                pages.push(
+                                                    <Button
+                                                        key={i}
+                                                        variant={currentPage === i ? "default" : "outline"}
+                                                        size="sm"
+                                                        onClick={() => handlePageChange(i)}
+                                                        className="h-8 w-8 p-0"
+                                                    >
+                                                        {i}
+                                                    </Button>
+                                                );
+                                            }
+                                            
+                                            return pages;
+                                        })()}
                                         
                                         <Button
                                             variant="outline"

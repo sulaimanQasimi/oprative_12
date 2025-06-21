@@ -20,31 +20,29 @@ class WarehousePermissionSeeder extends Seeder
         // Create warehouse permissions
         $warehousePermissions = [
 
-            // Dashboard permissions
-            'warehouse.view_dashboard',
 
             // Product permissions
-            'warehouse.view_products',
+            'warehouse.view_products'=>"مشاهده محصولات",
             // Income permissions
-            'warehouse.view_income',
+            'warehouse.view_income'=>"مشاهده واردات",
 
             // Outcome permissions
-            'warehouse.view_outcome',
+            'warehouse.view_outcome'=>"مشاهده خروجی",
 
             // Sales permissions
-            'warehouse.view_sales',
-            'warehouse.view_sale_details',
-            'warehouse.generate_invoice',
-            'warehouse.confirm_sales',
+            'warehouse.view_sales'=>"مشاهده انتقال به مغازه",
+            'warehouse.view_sale_details'=>"مشاهده جزئیات انتقال به مغازه",
+            'warehouse.generate_invoice'=>"تولید فاکتور",
+            'warehouse.confirm_sales'=>"تایید انتقال به مغازه",
 
             // Profile permissions
-            'warehouse.view_profile',
-            'warehouse.edit_profile',
+            'warehouse.view_profile'=>"مشاهده پروفایل",
+            'warehouse.edit_profile'=>"ویرایش پروفایل",
         ];
 
         // Create all permissions
-        foreach ($warehousePermissions as $permission) {
-            Permission::create(['name' => $permission, 'guard_name' => 'warehouse_user']);
+        foreach ($warehousePermissions as $permission =>$value) {
+            Permission::create(['name' => $permission,'label'=>$value, 'guard_name' => 'warehouse_user']);
         }
     }
 } 
