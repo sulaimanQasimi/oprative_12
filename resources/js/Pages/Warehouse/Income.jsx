@@ -19,7 +19,6 @@ import {
     ChevronRight,
     ChevronsLeft,
     ChevronsRight,
-    Eye,
     RefreshCw,
     Filter,
     Calendar,
@@ -442,9 +441,6 @@ export default function Income({ auth, income, pagination, filters }) {
                                                             >
                                                                 {t("Date (Jalali)")} {getSortIcon('created_at')}
                                                             </th>
-                                                            <th className="px-6 py-4 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                                                {t("Actions")}
-                                                            </th>
                                                         </tr>
                                                     </thead>
                                                     <tbody className="bg-white dark:bg-slate-900 divide-y divide-slate-200 dark:divide-slate-700">
@@ -498,16 +494,6 @@ export default function Income({ auth, income, pagination, filters }) {
                                                                     <div className="text-xs text-slate-500 dark:text-slate-400" dir="rtl">
                                                                         {toJalaliRelative(record.created_at_raw)}
                                                                     </div>
-                                                                </td>
-                                                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                                                    <Link
-                                                                        href={route('warehouse.income.show', record.id)}
-                                                                        className="text-emerald-600 hover:text-emerald-900 dark:text-emerald-400 dark:hover:text-emerald-300"
-                                                                    >
-                                                                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                                                            <Eye className="h-4 w-4" />
-                                                                        </Button>
-                                                                    </Link>
                                                                 </td>
                                                             </motion.tr>
                                                         ))}
