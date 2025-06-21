@@ -20,6 +20,9 @@ import {
     Activity,
     TrendingUp,
     Eye,
+    RotateCcw,
+    XCircle,
+    Filter,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -46,6 +49,10 @@ export default function Index({
     const [searchTerm, setSearchTerm] = useState(filters.search || "");
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
+    const [filterState, setFilterState] = useState(
+        filters.only_trashed ? 'trashed' : 
+        filters.with_trashed ? 'with_trashed' : 'active'
+    );
 
     // Animation effect
     useEffect(() => {
@@ -79,6 +86,34 @@ export default function Index({
         if (confirm(t("Are you sure you want to delete this gate?"))) {
             router.delete(route('admin.gates.destroy', gateId));
         }
+    };
+
+    const handleRestore = (gateId) => {
+        if (confirm(t("Are you sure you want to restore this gate?"))) {
+            router.patch(route('admin.gates.restore', gateId));
+        }
+    };
+
+    const handleForceDelete = (gateId) => {
+        if (confirm(t("Are you sure you want to permanently delete this gate? This action cannot be undone!"))) {
+            router.delete(route('admin.gates.force-delete', gateId));
+        }
+    };
+
+    const handleFilterChange = (newFilter) => {
+        setFilterState(newFilter);
+        const params = { search: searchTerm };
+        
+        if (newFilter === 'trashed') {
+            params.only_trashed = '1';
+        } else if (newFilter === 'with_trashed') {
+            params.with_trashed = '1';
+        }
+        
+        router.get(route('admin.gates.index'), params, {
+            preserveState: true,
+            replace: true,
+        });
     };
 
     // Get gate data array (handle both paginated and non-paginated)
@@ -382,6 +417,59 @@ export default function Index({
                                                     )}
                                                 </div>
                                             </form>
+                                            
+                                            {/* Filter Buttons */}
+                                            {permissions.restore_gate && (
+                                                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                    <div className="flex items-center gap-2">
+                                                        <Filter className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                            {t("Show")}:
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex gap-2 flex-wrap">
+                                                        <Button
+                                                            variant={filterState === 'active' ? 'default' : 'outline'}
+                                                            size="sm"
+                                                            onClick={() => handleFilterChange('active')}
+                                                            className={`gap-2 ${
+                                                                filterState === 'active' 
+                                                                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
+                                                                    : 'hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300'
+                                                            }`}
+                                                        >
+                                                            <Building className="h-3 w-3" />
+                                                            {t("Active Gates")}
+                                                        </Button>
+                                                        <Button
+                                                            variant={filterState === 'with_trashed' ? 'default' : 'outline'}
+                                                            size="sm"
+                                                            onClick={() => handleFilterChange('with_trashed')}
+                                                            className={`gap-2 ${
+                                                                filterState === 'with_trashed' 
+                                                                    ? 'bg-amber-600 hover:bg-amber-700 text-white' 
+                                                                    : 'hover:bg-amber-50 hover:text-amber-600 hover:border-amber-300'
+                                                            }`}
+                                                        >
+                                                            <Eye className="h-3 w-3" />
+                                                            {t("All Gates")}
+                                                        </Button>
+                                                        <Button
+                                                            variant={filterState === 'trashed' ? 'default' : 'outline'}
+                                                            size="sm"
+                                                            onClick={() => handleFilterChange('trashed')}
+                                                            className={`gap-2 ${
+                                                                filterState === 'trashed' 
+                                                                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                                                                    : 'hover:bg-red-50 hover:text-red-600 hover:border-red-300'
+                                                            }`}
+                                                        >
+                                                            <Trash2 className="h-3 w-3" />
+                                                            {t("Deleted Gates")}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </CardContent>
                                     </Card>
                                 </motion.div>
@@ -438,7 +526,14 @@ export default function Index({
                                                                                 <Building className="h-5 w-5 text-indigo-600" />
                                                                             </div>
                                                                             <div>
-                                                                                <div className="font-semibold text-slate-900 dark:text-white">{gate.name}</div>
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <div className="font-semibold text-slate-900 dark:text-white">{gate.name}</div>
+                                                                                    {gate.deleted_at && (
+                                                                                        <Badge variant="destructive" className="text-xs">
+                                                                                            {t("Deleted")}
+                                                                                        </Badge>
+                                                                                    )}
+                                                                                </div>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
@@ -465,7 +560,23 @@ export default function Index({
                                                                     </TableCell>
                                                                     <TableCell className="text-right">
                                                                         <div className="flex items-center justify-end gap-1">
-                                                                            {permissions.update_gate && (
+                                                                            {/* View Button */}
+                                                                            {permissions.view_gate && (
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                                                                                    asChild
+                                                                                >
+                                                                                    <Link href={route('admin.gates.show', gate.id)}>
+                                                                                        <Eye className="h-4 w-4" />
+                                                                                        <span className="sr-only">{t("View")}</span>
+                                                                                    </Link>
+                                                                                </Button>
+                                                                            )}
+                                                                            
+                                                                            {/* Edit Button - only for active gates */}
+                                                                            {permissions.update_gate && !gate.deleted_at && (
                                                                                 <Button
                                                                                     variant="ghost"
                                                                                     size="sm"
@@ -478,7 +589,9 @@ export default function Index({
                                                                                     </Link>
                                                                                 </Button>
                                                                             )}
-                                                                            {permissions.delete_gate && (
+                                                                            
+                                                                            {/* Delete Button - only for active gates */}
+                                                                            {permissions.delete_gate && !gate.deleted_at && (
                                                                                 <Button
                                                                                     variant="ghost"
                                                                                     size="sm"
@@ -487,6 +600,32 @@ export default function Index({
                                                                                 >
                                                                                     <Trash2 className="h-4 w-4" />
                                                                                     <span className="sr-only">{t("Delete")}</span>
+                                                                                </Button>
+                                                                            )}
+                                                                            
+                                                                            {/* Restore Button - only for deleted gates */}
+                                                                            {permissions.restore_gate && gate.deleted_at && (
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
+                                                                                    onClick={() => handleRestore(gate.id)}
+                                                                                >
+                                                                                    <RotateCcw className="h-4 w-4" />
+                                                                                    <span className="sr-only">{t("Restore")}</span>
+                                                                                </Button>
+                                                                            )}
+                                                                            
+                                                                            {/* Force Delete Button - only for deleted gates */}
+                                                                            {permissions.force_delete_gate && gate.deleted_at && (
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                                                                                    onClick={() => handleForceDelete(gate.id)}
+                                                                                >
+                                                                                    <XCircle className="h-4 w-4" />
+                                                                                    <span className="sr-only">{t("Force Delete")}</span>
                                                                                 </Button>
                                                                             )}
                                                                         </div>

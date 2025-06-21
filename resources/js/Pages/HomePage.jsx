@@ -91,6 +91,22 @@ export default function HomePage({ auth }) {
                                         <span className="z-10">ورود مشتری</span>
                                     </Link>
                                 )}
+
+                                <Link href="/attendance-request" className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 text-white flex items-center space-x-2 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 transition-all duration-300 relative overflow-hidden group">
+                                    <div className="absolute inset-0 bg-white/10 w-0 group-hover:w-full transition-all duration-500"></div>
+                                    <svg className="h-5 w-5 z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span className="z-10">درخواست توجیه حضور</span>
+                                </Link>
+
+                                <Link href="/attendance-request/track" className="px-6 py-3 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-600 text-white flex items-center space-x-2 transform hover:scale-105 hover:shadow-lg hover:shadow-teal-500/25 transition-all duration-300 relative overflow-hidden group">
+                                    <div className="absolute inset-0 bg-white/10 w-0 group-hover:w-full transition-all duration-500"></div>
+                                    <svg className="h-5 w-5 z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <span className="z-10">پیگیری درخواست</span>
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -294,7 +310,7 @@ export default function HomePage({ auth }) {
                             <p className="text-gray-300 mb-4">
                                 راه حل هوشمند برای مدیریت حرفه‌ای انبار و کسب و کار شما
                             </p>
-                            <div className="flex justify-center space-x-6">
+                            <div className="flex justify-center space-x-6 flex-wrap gap-y-4">
                                 <Link href="/adminpanel/login" className="text-emerald-400 hover:text-emerald-300 transition-colors flex items-center space-x-2">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -312,6 +328,18 @@ export default function HomePage({ auth }) {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                     </svg>
                                     <span>ورود مشتری</span>
+                                </Link>
+                                <Link href="/attendance-request" className="text-purple-400 hover:text-purple-300 transition-colors flex items-center space-x-2">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>درخواست توجیه حضور</span>
+                                </Link>
+                                <Link href="/attendance-request/track" className="text-teal-400 hover:text-teal-300 transition-colors flex items-center space-x-2">
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <span>پیگیری درخواست</span>
                                 </Link>
                             </div>
                         </div>

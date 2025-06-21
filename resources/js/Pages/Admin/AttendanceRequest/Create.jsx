@@ -4,59 +4,93 @@ import { useLaravelReactI18n } from "laravel-react-i18n";
 import { motion } from "framer-motion";
 import {
     ArrowLeft,
-    Building,
     Save,
     User,
-    Sparkles,
-    CheckCircle,
+    Calendar,
     AlertCircle,
     FileText,
-    Building2,
+    Clock,
+    UserX,
+    CheckCircle,
+    Info,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
+import { Textarea } from "@/Components/ui/textarea";
 import { Badge } from "@/Components/ui/badge";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Create({ auth, users = [], permissions = {} }) {
+export default function Create({ auth, employee, suggestedDate = '', suggestedType = 'absent' }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
 
     const { data, setData, post, processing, errors, reset } = useForm({
-        name: "",
-        user_id: "",
+        date: suggestedDate || '',
+        type: suggestedType || 'absent',
+        reason: '',
     });
-
-    // Get the selected user's name for display
-    const selectedUser = users.find(user => user.id.toString() === data.user_id?.toString());
-    const displayUserName = selectedUser ? selectedUser.name : "";
 
     // Animation effect
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
             setIsAnimated(true);
-        }, 800);
+        }, 300);
+
         return () => clearTimeout(timer);
     }, []);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route("admin.gates.store"), {
+        post(route("admin.attendance-requests.store"), {
             onSuccess: () => {
                 reset();
             },
         });
     };
 
+    const getTypeInfo = (type) => {
+        const typeConfig = {
+            late: {
+                color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+                icon: Clock,
+                description: t("You arrived late to work on this date"),
+                examples: [
+                    t("Traffic jam or transportation issues"),
+                    t("Personal emergency or family matter"),
+                    t("Medical appointment"),
+                    t("Weather conditions"),
+                ]
+            },
+            absent: {
+                color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+                icon: UserX,
+                description: t("You were absent from work on this date"),
+                examples: [
+                    t("Illness or medical condition"),
+                    t("Family emergency"),
+                    t("Personal urgent matter"),
+                    t("Transportation failure"),
+                ]
+            },
+        };
+        return typeConfig[type] || typeConfig.absent;
+    };
+
+    const typeInfo = getTypeInfo(data.type);
+    const TypeIcon = typeInfo.icon;
+
+    // Get today's date for max date validation
+    const today = new Date().toISOString().split('T')[0];
+
     return (
         <>
-            <Head title={t("Add New Gate")}>
+            <Head title={t("Submit Attendance Request")}>
                 <style>{`
                     @keyframes shimmer {
                         0% { background-position: -1000px 0; }
@@ -69,22 +103,8 @@ export default function Create({ auth, users = [], permissions = {} }) {
                     }
 
                     @keyframes pulse-glow {
-                        0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
-                        50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.5); }
-                    }
-
-                    .shimmer {
-                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-                        background-size: 1000px 100%;
-                        animation: shimmer 2s infinite;
-                    }
-
-                    .float-animation {
-                        animation: float 6s ease-in-out infinite;
-                    }
-
-                    .pulse-glow {
-                        animation: pulse-glow 3s ease-in-out infinite;
+                        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5); }
                     }
 
                     .glass-effect {
@@ -101,18 +121,18 @@ export default function Create({ auth, users = [], permissions = {} }) {
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
-                                    linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
+                                    linear-gradient(45deg, #3b82f6, #8b5cf6) border-box;
                         border: 2px solid transparent;
                     }
 
                     .dark .gradient-border {
                         background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
-                                    linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
+                                    linear-gradient(45deg, #3b82f6, #8b5cf6) border-box;
                     }
 
                     .input-glow:focus {
-                        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-                        border-color: #6366f1;
+                        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+                        border-color: #3b82f6;
                     }
                 `}</style>
             </Head>
@@ -122,11 +142,11 @@ export default function Create({ auth, users = [], permissions = {} }) {
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
-                transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+                transition={{ duration: 0.3 }}
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
                 {/* Sidebar */}
-                <Navigation auth={auth} currentRoute="admin.gates" />
+                <Navigation auth={auth} currentRoute="admin.attendance-requests" />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
@@ -145,9 +165,9 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
-                                        <Building className="w-8 h-8 text-white" />
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-blue-500 via-purple-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
+                                        <FileText className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
@@ -156,18 +176,17 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1 flex items-center gap-2"
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1"
                                     >
-                                        <Sparkles className="w-4 h-4" />
-                                        {t("Access Management")}
+                                        {t("Attendance Justification")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Add New Gate")}
+                                        {t("Submit Request")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -175,8 +194,8 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                         transition={{ delay: 0.6, duration: 0.4 }}
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
-                                        <Building2 className="w-4 h-4" />
-                                        {t("Create a new access gate for your system")}
+                                        <User className="w-4 h-4" />
+                                        {employee.first_name} {employee.last_name} - {employee.employee_id}
                                     </motion.p>
                                 </div>
                             </div>
@@ -187,10 +206,10 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route("admin.gates.index")}>
-                                    <Button variant="outline" className="gap-2 border-2 hover:border-indigo-300">
+                                <Link href={route("admin.attendance-requests.my-requests")}>
+                                    <Button variant="outline" className="gap-2 border-2 hover:border-blue-300">
                                         <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Gates")}
+                                        {t("Back to Requests")}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -198,7 +217,7 @@ export default function Create({ auth, users = [], permissions = {} }) {
                     </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-700 scrollbar-track-transparent">
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent">
                         <div className="p-8">
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
@@ -207,20 +226,20 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                 className="max-w-4xl mx-auto"
                             >
                                 <form onSubmit={handleSubmit} className="space-y-8">
-                                    {/* Gate Information Card */}
+                                    {/* Request Information Card */}
                                     <motion.div
                                         initial={{ scale: 0.95, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
                                         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                            <CardHeader className="bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
-                                                        <Building className="h-6 w-6 text-white" />
+                                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl shadow-lg">
+                                                        <FileText className="h-6 w-6 text-white" />
                                                     </div>
-                                                    {t("Gate Information")}
-                                                    <Badge className="ml-auto bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                    {t("Request Details")}
+                                                    <Badge className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                                         {t("Required")}
                                                     </Badge>
                                                 </CardTitle>
@@ -233,32 +252,32 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                         transition={{ delay: 1.0, duration: 0.4 }}
                                                         className="space-y-2"
                                                     >
-                                                        <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                            <Building className="w-4 h-4 text-indigo-600" />
-                                                            {t("Gate Name")} *
+                                                        <Label htmlFor="date" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
+                                                            <Calendar className="w-4 h-4 text-blue-600" />
+                                                            {t("Date")} *
                                                         </Label>
                                                         <Input
-                                                            id="name"
-                                                            type="text"
-                                                            value={data.name}
-                                                            onChange={(e) => setData("name", e.target.value)}
+                                                            id="date"
+                                                            type="date"
+                                                            max={today}
+                                                            value={data.date}
+                                                            onChange={(e) => setData("date", e.target.value)}
                                                             className={`h-12 border-2 transition-all duration-200 input-glow ${
-                                                                errors.name ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300"
+                                                                errors.date ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-blue-300"
                                                             }`}
-                                                            placeholder={t("Enter gate name")}
                                                             required
                                                         />
                                                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                            {t("Gate name must be unique across all gates")}
+                                                            {t("Select the date you were late or absent")}
                                                         </p>
-                                                        {errors.name && (
+                                                        {errors.date && (
                                                             <motion.p
                                                                 initial={{ opacity: 0, y: -10 }}
                                                                 animate={{ opacity: 1, y: 0 }}
                                                                 className="text-red-500 text-sm flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
-                                                                {errors.name}
+                                                                {errors.date}
                                                             </motion.p>
                                                         )}
                                                     </motion.div>
@@ -269,49 +288,52 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                         transition={{ delay: 1.1, duration: 0.4 }}
                                                         className="space-y-2"
                                                     >
-                                                        <Label htmlFor="user_id" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                            <User className="w-4 h-4 text-indigo-600" />
-                                                            {t("Assigned User")} *
+                                                        <Label htmlFor="type" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
+                                                            <TypeIcon className="w-4 h-4 text-blue-600" />
+                                                            {t("Type")} *
                                                         </Label>
                                                         <Select
-                                                            value={data.user_id?.toString() || ""}
-                                                            onValueChange={(value) => setData("user_id", value)}
+                                                            value={data.type}
+                                                            onValueChange={(value) => setData("type", value)}
                                                             required
                                                         >
                                                             <SelectTrigger className={`h-12 border-2 transition-all duration-200 input-glow ${
-                                                                errors.user_id ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300"
+                                                                errors.type ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-blue-300"
                                                             }`}>
-                                                                <SelectValue placeholder={t("Select a user")}>
-                                                                    {displayUserName || <span className="text-gray-500">{t("Select a user")}</span>}
-                                                                </SelectValue>
+                                                                <SelectValue placeholder={t("Select request type")} />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {users.map((user) => (
-                                                                    <SelectItem key={user.id} value={user.id.toString()}>
-                                                                        <div className="flex items-center gap-2 w-full">
-                                                                            <div className="p-1 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded">
-                                                                                <User className="h-3 w-3 text-indigo-600" />
-                                                                            </div>
-                                                                            <div className="flex-1">
-                                                                                <div className="font-medium">{user.name}</div>
-                                                                                <div className="text-sm text-slate-500">{user.email}</div>
-                                                                            </div>
+                                                                <SelectItem value="late">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Clock className="h-4 w-4 text-orange-600" />
+                                                                        <div>
+                                                                            <div className="font-medium">{t("Late Arrival")}</div>
+                                                                            <div className="text-sm text-slate-500">{t("You arrived late to work")}</div>
                                                                         </div>
-                                                                    </SelectItem>
-                                                                ))}
+                                                                    </div>
+                                                                </SelectItem>
+                                                                <SelectItem value="absent">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <UserX className="h-4 w-4 text-red-600" />
+                                                                        <div>
+                                                                            <div className="font-medium">{t("Absence")}</div>
+                                                                            <div className="text-sm text-slate-500">{t("You were absent from work")}</div>
+                                                                        </div>
+                                                                    </div>
+                                                                </SelectItem>
                                                             </SelectContent>
                                                         </Select>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400">
-                                                            {t("Each user can only be assigned to one gate")}
+                                                            {typeInfo.description}
                                                         </p>
-                                                        {errors.user_id && (
+                                                        {errors.type && (
                                                             <motion.p
                                                                 initial={{ opacity: 0, y: -10 }}
                                                                 animate={{ opacity: 1, y: 0 }}
                                                                 className="text-red-500 text-sm flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
-                                                                {errors.user_id}
+                                                                {errors.type}
                                                             </motion.p>
                                                         )}
                                                     </motion.div>
@@ -321,41 +343,60 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                     initial={{ y: 20, opacity: 0 }}
                                                     animate={{ y: 0, opacity: 1 }}
                                                     transition={{ delay: 1.2, duration: 0.4 }}
-                                                    className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg p-4 border border-indigo-200 dark:border-indigo-800"
+                                                    className="space-y-2"
                                                 >
-                                                    <div className="flex items-start gap-3">
-                                                        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-                                                            <CheckCircle className="w-5 h-5 text-indigo-600" />
-                                                        </div>
-                                                        <div>
-                                                            <h4 className="font-semibold text-indigo-700 dark:text-indigo-300 mb-1">
-                                                                {t("Gate Configuration")}
-                                                            </h4>
-                                                            <p className="text-sm text-indigo-600 dark:text-indigo-400 leading-relaxed">
-                                                                {t("The assigned user will have full access to manage this gate and its associated employees. You can modify these settings later from the gate management panel.")}
-                                                            </p>
-                                                        </div>
+                                                    <Label htmlFor="reason" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
+                                                        <FileText className="w-4 h-4 text-blue-600" />
+                                                        {t("Reason for Justification")} *
+                                                    </Label>
+                                                    <Textarea
+                                                        id="reason"
+                                                        value={data.reason}
+                                                        onChange={(e) => setData("reason", e.target.value)}
+                                                        className={`min-h-32 border-2 transition-all duration-200 input-glow resize-none ${
+                                                            errors.reason ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-blue-300"
+                                                        }`}
+                                                        placeholder={t("Please provide a detailed explanation for your absence or late arrival...")}
+                                                        required
+                                                    />
+                                                    <div className="flex justify-between items-center">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                            {t("Minimum 10 characters required")}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                            {data.reason.length}/1000
+                                                        </p>
                                                     </div>
+                                                    {errors.reason && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-red-500 text-sm flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="w-4 h-4" />
+                                                            {errors.reason}
+                                                        </motion.p>
+                                                    )}
                                                 </motion.div>
                                             </CardContent>
                                         </Card>
                                     </motion.div>
 
-                                    {/* Additional Information Card */}
+                                    {/* Guidelines Card */}
                                     <motion.div
                                         initial={{ scale: 0.95, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.3, duration: 0.4 }}
                                     >
                                         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-purple-500/20 via-violet-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-blue-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg">
-                                                        <FileText className="h-6 w-6 text-white" />
+                                                    <div className="p-3 bg-gradient-to-br from-green-500 to-blue-600 rounded-xl shadow-lg">
+                                                        <Info className="h-6 w-6 text-white" />
                                                     </div>
-                                                    {t("Access Information")}
-                                                    <Badge className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                                                        {t("Info")}
+                                                    {t("Justification Guidelines")}
+                                                    <Badge className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                        {t("Tips")}
                                                     </Badge>
                                                 </CardTitle>
                                             </CardHeader>
@@ -366,30 +407,34 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                     transition={{ delay: 1.4, duration: 0.4 }}
                                                     className="space-y-4"
                                                 >
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                        <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-900/20 dark:to-blue-900/20 rounded-lg p-4 border border-indigo-200 dark:border-indigo-800">
-                                                            <div className="flex items-center gap-2 mb-2">
-                                                                <User className="w-4 h-4 text-indigo-600" />
-                                                                <h5 className="font-semibold text-indigo-700 dark:text-indigo-300">
-                                                                    {t("User Assignment")}
-                                                                </h5>
-                                                            </div>
-                                                            <p className="text-sm text-indigo-600 dark:text-indigo-400">
-                                                                {t("Each gate must be assigned to a user who will manage its operations and employee access.")}
-                                                            </p>
-                                                        </div>
+                                                    <div className="bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                                                        <h4 className="font-semibold text-blue-700 dark:text-blue-300 mb-2 flex items-center gap-2">
+                                                            <Badge className={typeInfo.color}>
+                                                                {t(data.type.charAt(0).toUpperCase() + data.type.slice(1))}
+                                                            </Badge>
+                                                            {t("Common Reasons")}
+                                                        </h4>
+                                                        <ul className="text-sm text-blue-600 dark:text-blue-400 space-y-1">
+                                                            {typeInfo.examples.map((example, index) => (
+                                                                <li key={index} className="flex items-center gap-2">
+                                                                    <CheckCircle className="w-3 h-3 flex-shrink-0" />
+                                                                    {example}
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
 
-                                                        <div className="bg-gradient-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
-                                                            <div className="flex items-center gap-2 mb-2">
-                                                                <Building className="w-4 h-4 text-purple-600" />
-                                                                <h5 className="font-semibold text-purple-700 dark:text-purple-300">
-                                                                    {t("Gate Access")}
-                                                                </h5>
-                                                            </div>
-                                                            <p className="text-sm text-purple-600 dark:text-purple-400">
-                                                                {t("Gates control employee access to specific areas and track entry/exit activities.")}
-                                                            </p>
-                                                        </div>
+                                                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-lg p-4 border border-amber-200 dark:border-amber-800">
+                                                        <h4 className="font-semibold text-amber-700 dark:text-amber-300 mb-2 flex items-center gap-2">
+                                                            <AlertCircle className="w-4 h-4" />
+                                                            {t("Important Notes")}
+                                                        </h4>
+                                                        <ul className="text-sm text-amber-600 dark:text-amber-400 space-y-1">
+                                                            <li>• {t("Be honest and specific in your explanation")}</li>
+                                                            <li>• {t("Provide relevant details that support your request")}</li>
+                                                            <li>• {t("Submit requests as soon as possible after the incident")}</li>
+                                                            <li>• {t("Your manager will review and respond to your request")}</li>
+                                                        </ul>
                                                     </div>
                                                 </motion.div>
                                             </CardContent>
@@ -403,7 +448,7 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                         transition={{ delay: 1.5, duration: 0.4 }}
                                         className="flex justify-end space-x-4"
                                     >
-                                        <Link href={route("admin.gates.index")}>
+                                        <Link href={route("admin.attendance-requests.my-requests")}>
                                             <Button
                                                 type="button"
                                                 variant="outline"
@@ -416,17 +461,17 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                         <Button
                                             type="submit"
                                             disabled={processing}
-                                            className="gap-2 h-12 px-8 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 pulse-glow"
+                                            className="gap-2 h-12 px-8 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700 hover:from-blue-700 hover:via-purple-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 pulse-glow"
                                         >
                                             {processing ? (
                                                 <>
                                                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                    {t("Creating...")}
+                                                    {t("Submitting...")}
                                                 </>
                                             ) : (
                                                 <>
                                                     <Save className="h-4 w-4" />
-                                                    {t("Create Gate")}
+                                                    {t("Submit Request")}
                                                 </>
                                             )}
                                         </Button>

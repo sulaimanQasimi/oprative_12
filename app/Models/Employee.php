@@ -93,6 +93,14 @@ class Employee extends Model
     }
 
     /**
+     * Get all attendance requests for this employee
+     */
+    public function attendanceRequests(): HasMany
+    {
+        return $this->hasMany(AttendanceRequest::class);
+    }
+
+    /**
      * Scope a query to only include employees from a specific department.
      */
     public function scopeByDepartment($query, string $department)

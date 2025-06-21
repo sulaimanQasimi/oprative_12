@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { Package, TrendingUp, Settings, Sun, Moon, ShoppingCart, BarChart3, LogOut, FileText } from 'lucide-react';
+import { Package, TrendingUp, Settings, Sun, Moon, ShoppingCart, BarChart3, LogOut, FileText, User } from 'lucide-react';
 import { Link, useForm } from '@inertiajs/react';
+import { useLaravelReactI18n } from 'laravel-react-i18n';
 
 export default function Navigation({ auth, currentRoute }) {
+    const { t } = useLaravelReactI18n();
     const [isDarkMode, setIsDarkMode] = useState(false);
     const { post } = useForm();
 
@@ -38,138 +40,147 @@ export default function Navigation({ auth, currentRoute }) {
         post(route('warehouse.logout'));
     };
 
+    const navigationItems = [
+        {
+            label: t('Dashboard'),
+            route: 'warehouse.dashboard',
+            icon: BarChart3,
+            routeKey: 'warehouse.dashboard'
+        },
+        {
+            label: t('Products'),
+            route: 'warehouse.products',
+            icon: Package,
+            routeKey: 'warehouse.products'
+        },
+        {
+            label: t('Sales'),
+            route: 'warehouse.sales',
+            icon: ShoppingCart,
+            routeKey: 'warehouse.sales'
+        },
+        {
+            label: t('Income'),
+            route: 'warehouse.income',
+            icon: TrendingUp,
+            routeKey: 'warehouse.income'
+        },
+        {
+            label: t('Outcome'),
+            route: 'warehouse.outcome',
+            icon: TrendingUp,
+            routeKey: 'warehouse.outcome',
+            iconProps: { className: "h-5 w-5 rotate-180" }
+        },
+        {
+            label: t('Reports'),
+            route: 'warehouse.reports',
+            icon: FileText,
+            routeKey: 'warehouse.reports'
+        },
+        {
+            label: t('Settings'),
+            route: 'warehouse.profile.edit',
+            icon: Settings,
+            routeKey: 'warehouse.profile.edit'
+        }
+    ];
+
     return (
-        <div className="w-16 flex-shrink-0 bg-white dark:bg-gray-800 shadow-lg z-10">
-            <div className="h-full flex flex-col items-center justify-between py-6">
-                <div className="flex flex-col items-center space-y-8">
-                    <div className="bg-purple-600 text-white p-2 rounded-xl">
-                        <Package className="h-6 w-6" />
+        <div className="w-64 flex-shrink-0 bg-white dark:bg-slate-900 shadow-xl border-r border-slate-200 dark:border-slate-700 z-10">
+            <div className="h-full flex flex-col">
+                {/* Header */}
+                <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center space-x-3">
+                        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white p-3 rounded-xl shadow-lg">
+                            <Package className="h-7 w-7" />
+                        </div>
+                        <div>
+                            <h2 className="text-xl font-bold text-slate-800 dark:text-white">
+                                {t('Warehouse')}
+                            </h2>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                {t('Management System')}
+                            </p>
+                        </div>
                     </div>
-                    <nav className="flex flex-col items-center space-y-8">
-                        <Link href={route('warehouse.dashboard')}>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={`${currentRoute === 'warehouse.dashboard' ?
-                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
-                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
-                                type="button"
-                            >
-                                <BarChart3 className="h-5 w-5" />
-                            </Button>
-                        </Link>
-
-                        <Link href={route('warehouse.products')}>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={`${currentRoute === 'warehouse.products' ?
-                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
-                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
-                                type="button"
-                            >
-                                <Package className="h-5 w-5" />
-                            </Button>
-                        </Link>
-
-                        <Link href={route('warehouse.sales')}>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={`${currentRoute === 'warehouse.sales' ?
-                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
-                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
-                                type="button"
-                            >
-                                <ShoppingCart className="h-5 w-5" />
-                            </Button>
-                        </Link>
-
-                        <Link href={route('warehouse.income')}>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={`${currentRoute === 'warehouse.income' ?
-                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
-                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
-                                type="button"
-                            >
-                                <TrendingUp className="h-5 w-5" />
-                            </Button>
-                        </Link>
-
-                        <Link href={route('warehouse.outcome')}>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={`${currentRoute === 'warehouse.outcome' ?
-                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
-                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
-                                type="button"
-                            >
-                                <TrendingUp className="h-5 w-5 rotate-180" />
-                            </Button>
-                        </Link>
-
-                        <Link href={route('warehouse.reports')}>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={`${currentRoute === 'warehouse.reports' ?
-                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
-                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
-                                type="button"
-                            >
-                                <FileText className="h-5 w-5" />
-                            </Button>
-                        </Link>
-
-                        <Link href={route('warehouse.profile.edit')}>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className={`${currentRoute === 'warehouse.profile.edit' ?
-                                    'text-purple-600 bg-purple-100 dark:bg-purple-900/20' :
-                                    'text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20'}`}
-                                type="button"
-                            >
-                                <Settings className="h-5 w-5" />
-                            </Button>
-                        </Link>
-
-                        {/* Dark Mode Toggle */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={toggleDarkMode}
-                            className="text-gray-500 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20 transition-all duration-200"
-                            type="button"
-                            title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                        >
-                            {isDarkMode ? (
-                                <Sun className="h-5 w-5 text-amber-400" />
-                            ) : (
-                                <Moon className="h-5 w-5 text-slate-700" />
-                            )}
-                        </Button>
-
-                        {/* Logout Button */}
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={handleLogout}
-                            className="text-gray-500 hover:text-red-600 hover:bg-red-100 dark:hover:bg-red-900/20 transition-all duration-200"
-                            type="button"
-                            title="Logout"
-                        >
-                            <LogOut className="h-5 w-5" />
-                        </Button>
-                    </nav>
                 </div>
-                <Avatar className="border-2 border-purple-200 dark:border-purple-900/40">
-                    <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}&background=8b5cf6&color=fff`} />
-                    <AvatarFallback className="bg-purple-600 text-white">{auth.user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
+
+                {/* Navigation Menu */}
+                <nav className="flex-1 p-4 space-y-2">
+                    {navigationItems.map((item) => {
+                        const IconComponent = item.icon;
+                        const isActive = currentRoute === item.routeKey;
+                        
+                        return (
+                            <Link key={item.routeKey} href={route(item.route)}>
+                                <Button
+                                    variant="ghost"
+                                    className={`w-full justify-start h-12 px-4 transition-all duration-200 ${
+                                        isActive
+                                            ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg hover:from-purple-600 hover:to-indigo-700'
+                                            : 'text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-400'
+                                    }`}
+                                    type="button"
+                                >
+                                    <IconComponent 
+                                        className={`h-5 w-5 mr-3 ${item.iconProps?.className || ''}`}
+                                    />
+                                    <span className="font-medium">{item.label}</span>
+                                </Button>
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                {/* Footer Section */}
+                <div className="p-4 border-t border-slate-200 dark:border-slate-700 space-y-2">
+                    {/* Dark Mode Toggle */}
+                    <Button
+                        variant="ghost"
+                        onClick={toggleDarkMode}
+                        className="w-full justify-start h-12 px-4 text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200"
+                        type="button"
+                    >
+                        {isDarkMode ? (
+                            <Sun className="h-5 w-5 mr-3 text-amber-400" />
+                        ) : (
+                            <Moon className="h-5 w-5 mr-3 text-slate-700 dark:text-slate-300" />
+                        )}
+                        <span className="font-medium">
+                            {isDarkMode ? t('Light Mode') : t('Dark Mode')}
+                        </span>
+                    </Button>
+
+                    {/* Logout Button */}
+                    <Button
+                        variant="ghost"
+                        onClick={handleLogout}
+                        className="w-full justify-start h-12 px-4 text-slate-600 dark:text-slate-300 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 transition-all duration-200"
+                        type="button"
+                    >
+                        <LogOut className="h-5 w-5 mr-3" />
+                        <span className="font-medium">{t('Logout')}</span>
+                    </Button>
+
+                    {/* User Profile */}
+                    <div className="flex items-center space-x-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 mt-4">
+                        <Avatar className="border-2 border-purple-200 dark:border-purple-900/40 w-10 h-10">
+                            <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}&background=8b5cf6&color=fff`} />
+                            <AvatarFallback className="bg-purple-600 text-white text-sm">
+                                {auth.user.name.charAt(0)}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-800 dark:text-white truncate">
+                                {auth.user.name}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
+                                {t('Warehouse Staff')}
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -1,62 +1,63 @@
-import React, { createContext, forwardRef, useContext, useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import React, { createContext, forwardRef, useContext, useState } from "react";
+
 import { cn } from "@/lib/utils";
+import { Check, ChevronDown } from "lucide-react";
 
 const SelectContext = createContext({});
 
 const Select = ({ children, value, onValueChange, ...props }) => {
     const [open, setOpen] = useState(false);
-    const [displayValue, setDisplayValue] = useState("");
+
 
     return (
-        <SelectContext.Provider value={{
-            value,
-            onValueChange,
-            open,
-            setOpen,
-            displayValue,
-            setDisplayValue
-        }}>
-            <div className="relative" {...props}>
-                {children}
-            </div>
+        <SelectContext.Provider value={{ value, onValueChange, open, setOpen }}>
+            <div className="relative">{children}</div>
+
+
+
+
+
+
+
+
+
         </SelectContext.Provider>
     );
 };
 
 const SelectTrigger = forwardRef(({ className, children, ...props }, ref) => {
-    const { open, setOpen } = useContext(SelectContext);
-    const triggerRef = useRef(null);
+    const { value, open, setOpen } = useContext(SelectContext);
 
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (triggerRef.current && !triggerRef.current.contains(event.target)) {
-                setOpen(false);
-            }
-        };
 
-        if (open) {
-            document.addEventListener('mousedown', handleClickOutside);
-        }
 
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, [open, setOpen]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     return (
         <button
             type="button"
-            ref={(node) => {
-                triggerRef.current = node;
-                if (ref) {
-                    if (typeof ref === 'function') ref(node);
-                    else ref.current = node;
-                }
-            }}
+            ref={ref}
+
+
+
+
+
+
             onClick={() => setOpen(!open)}
             className={cn(
-                "flex h-10 w-full items-center justify-between rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:ring-offset-gray-900 dark:placeholder:text-gray-400 dark:focus:ring-blue-400",
+                "flex h-10 w-full items-center justify-between rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-950 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus:ring-slate-300",
                 className
             )}
             {...props}
@@ -68,15 +69,15 @@ const SelectTrigger = forwardRef(({ className, children, ...props }, ref) => {
 });
 
 const SelectValue = forwardRef(({ className, placeholder, ...props }, ref) => {
-    const { value, displayValue } = useContext(SelectContext);
+    const { value } = useContext(SelectContext);
 
     return (
-        <span
-            className={cn("block truncate text-left", className)}
-            ref={ref}
-            {...props}
-        >
-            {displayValue || value || <span className="text-gray-500">{placeholder}</span>}
+        <span className={cn("flex truncate", className)} {...props}>
+            {value || placeholder}
+
+
+
+
         </span>
     );
 });
@@ -88,16 +89,17 @@ const SelectContent = forwardRef(({ className, children, ...props }, ref) => {
 
     return (
         <div
+            ref={ref}
             className={cn(
-                "absolute z-50 w-full min-w-[8rem] overflow-hidden rounded-md border bg-white shadow-md animate-in fade-in-80 mt-1 dark:bg-gray-800 dark:border-gray-600",
+                "absolute z-50 min-w-[8rem] overflow-hidden rounded-md border border-slate-200 bg-white text-slate-950 shadow-md animate-in fade-in-80 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50 w-full mt-1",
                 className
             )}
-            ref={ref}
+
             {...props}
         >
-            <div className="max-h-60 overflow-auto p-1">
-                {children}
-            </div>
+            <div className="p-1">{children}</div>
+
+
         </div>
     );
 });
@@ -108,7 +110,7 @@ const SelectItem = forwardRef(
             value: selectedValue,
             onValueChange,
             setOpen,
-            setDisplayValue,
+
         } = useContext(SelectContext);
         const isSelected = selectedValue === value;
 
@@ -116,17 +118,20 @@ const SelectItem = forwardRef(
             <div
                 ref={ref}
                 className={cn(
-                    "relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 px-2 text-sm outline-none hover:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:hover:bg-gray-700",
-                    isSelected ? "bg-gray-100 dark:bg-gray-700" : "",
+                    "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-slate-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:focus:bg-slate-800",
+                    isSelected ? "bg-slate-100 dark:bg-slate-800" : "",
                     className
                 )}
                 onClick={() => {
                     onValueChange(value);
-                    setDisplayValue(children);
+
                     setOpen(false);
                 }}
                 {...props}
             >
+                <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                    {isSelected && <Check className="h-4 w-4" />}
+                </span>
                 {children}
             </div>
         );

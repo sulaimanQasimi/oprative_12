@@ -16,21 +16,32 @@ class ProductController extends Controller
     {
         $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
 
-        $products = $warehouse->products()->get()->map(function ($product) {
+        $products = $warehouse->products()->with(['product.wholesaleUnit', 'product.retailUnit'])->get()->map(function ($product) {
             return [
                 "product_id" => $product->product_id,
-                "product" => collect([$product->product])->map(function ($item) {
-                    return [
-                        "id" => $item->id,
-                        "type" => $item->type,
-                        "name" => $item->name,
-                        "barcode" => $item->barcode,
-                        "purchase_price" => $item->purchase_price,
-                        "wholesale_price" => $item->wholesale_price,
-                        "retail_price" => $item->retail_price,
-                    ];
-                })
-                ->toArray(),
+                "product" => [
+                    "id" => $product->product->id,
+                    "type" => $product->product->type,
+                    "name" => $product->product->name,
+                    "barcode" => $product->product->barcode,
+                    "purchase_price" => $product->product->purchase_price,
+                    "wholesale_price" => $product->product->wholesale_price,
+                    "retail_price" => $product->product->retail_price,
+                    'whole_sale_unit_amount' => $product->product->whole_sale_unit_amount,
+                    'retails_sale_unit_amount' => $product->product->retails_sale_unit_amount,
+                    'wholesaleUnit' => $product->product->wholesaleUnit ? [
+                        'id' => $product->product->wholesaleUnit->id,
+                        'name' => $product->product->wholesaleUnit->name,
+                        'code' => $product->product->wholesaleUnit->code,
+                        'symbol' => $product->product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $product->product->retailUnit ? [
+                        'id' => $product->product->retailUnit->id,
+                        'name' => $product->product->retailUnit->name,
+                        'code' => $product->product->retailUnit->code,
+                        'symbol' => $product->product->retailUnit->symbol,
+                    ] : null,                  
+                ],
                 "income_quantity" => $product->income_quantity,
                 "income_price" => $product->income_price,
                 "income_total" => $product->income_total,

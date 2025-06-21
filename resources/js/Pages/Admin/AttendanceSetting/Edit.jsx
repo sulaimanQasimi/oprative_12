@@ -8,6 +8,7 @@ import {
     Save,
     Calendar,
     Sparkles,
+    Timer,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -55,6 +56,13 @@ export default function Edit({ auth, attendanceSetting, permissions = {} }) {
                         backdrop-filter: blur(10px);
                         border: 1px solid rgba(255, 255, 255, 0.1);
                     }
+                    .float-animation {
+                        animation: float 6s ease-in-out infinite;
+                    }
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                    }
                 `}</style>
             </Head>
 
@@ -84,7 +92,7 @@ export default function Edit({ auth, attendanceSetting, permissions = {} }) {
                                     initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                    className="relative"
+                                    className="relative float-animation"
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
                                     <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
@@ -100,7 +108,7 @@ export default function Edit({ auth, attendanceSetting, permissions = {} }) {
                                         className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
-                                        {t("Attendance Management")}
+                                        {t("Time Management")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
@@ -206,6 +214,30 @@ export default function Edit({ auth, attendanceSetting, permissions = {} }) {
                                                     <p className="text-sm text-red-600 dark:text-red-400">{errors.date}</p>
                                                 )}
                                             </div>
+
+                                            {/* Duration Preview */}
+                                            {data.enter_time && data.exit_time && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, scale: 0.95 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-700"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <Timer className="w-5 h-5 text-indigo-600" />
+                                                        <div>
+                                                            <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("Work Duration")}</p>
+                                                            <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                                                                {(() => {
+                                                                    const enter = new Date(`2000-01-01T${data.enter_time}`);
+                                                                    const exit = new Date(`2000-01-01T${data.exit_time}`);
+                                                                    const duration = Math.abs(exit - enter) / (1000 * 60 * 60);
+                                                                    return `${duration.toFixed(1)} ${t("hours")}`;
+                                                                })()}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </motion.div>
+                                            )}
 
                                             {/* Submit Buttons */}
                                             <div className="flex items-center justify-end space-x-4 pt-6">

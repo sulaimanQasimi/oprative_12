@@ -12,6 +12,7 @@ class Attendance extends Model
         'enter_time',
         'exit_time',
         'date',
+        'state', // P = Present, A = Absent, O = Other/Excused
     ];
 
     protected $casts = [
