@@ -1046,37 +1046,40 @@ class WarehouseController extends Controller
         try {
             $validated = $request->validate([
                 'customer_id' => 'required|exists:customers,id',
-                'product_id' => 'required|exists:products,id',
-                'quantity' => 'required|numeric|min:1',
-                'price' => 'required|numeric|min:0',
+                'sale_items' => 'required|array|min:1',
+                'sale_items.*.product_id' => 'required|exists:products,id',
+                'sale_items.*.quantity' => 'required|numeric|min:1',
+                'sale_items.*.unit_price' => 'required|numeric|min:0',
+                'sale_items.*.total_price' => 'required|numeric|min:0',
                 'notes' => 'nullable|string|max:1000',
             ]);
 
-            // Check if product exists in warehouse and has sufficient stock
-            $warehouseProduct = $warehouse->items()->where('product_id', $validated['product_id'])->first();
+            // Validate stock for all items
+            foreach ($validated['sale_items'] as $index => $item) {
+                $warehouseProduct = $warehouse->items()->where('product_id', $item['product_id'])->first();
 
-            if (!$warehouseProduct) {
-                return redirect()->back()
-                    ->with('error', 'Product not found in this warehouse')
-                    ->withInput()
-                    ->withErrors(['product_id' => 'Product not found in this warehouse']);
-            }
+                if (!$warehouseProduct) {
+                    return redirect()->back()
+                        ->with('error', "Product ID {$item['product_id']} not found in this warehouse")
+                        ->withInput()
+                        ->withErrors(["sale_items.{$index}.product_id" => 'Product not found in this warehouse']);
+                }
 
-            $availableStock = $warehouseProduct->net_quantity ?? 0;
+                $availableStock = $warehouseProduct->net_quantity ?? 0;
 
-            if ($validated['quantity'] > $availableStock) {
-                return redirect()->back()
-                    ->with('error', "Insufficient stock. Available: {$availableStock} units")
-                    ->withInput()
-                    ->withErrors(['quantity' => "Quantity cannot exceed available stock of {$availableStock} units"]);
-            }
+                if ($item['quantity'] > $availableStock) {
+                    return redirect()->back()
+                        ->with('error', "Insufficient stock for product ID {$item['product_id']}. Available: {$availableStock} units")
+                        ->withInput()
+                        ->withErrors(["sale_items.{$index}.quantity" => "Quantity cannot exceed available stock of {$availableStock} units"]);
+                }
 
-            // Additional validation: ensure quantity is not zero or negative
-            if ($validated['quantity'] <= 0) {
-                return redirect()->back()
-                    ->with('error', 'Quantity must be greater than 0')
-                    ->withInput()
-                    ->withErrors(['quantity' => 'Quantity must be greater than 0']);
+                if ($item['quantity'] <= 0) {
+                    return redirect()->back()
+                        ->with('error', 'Quantity must be greater than 0')
+                        ->withInput()
+                        ->withErrors(["sale_items.{$index}.quantity" => 'Quantity must be greater than 0']);
+                }
             }
 
             DB::beginTransaction();
@@ -1084,8 +1087,8 @@ class WarehouseController extends Controller
             // Generate reference number
             $referenceNumber = 'SALE-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
 
-            // Calculate total
-            $totalAmount = $validated['quantity'] * $validated['price'];
+            // Calculate total sale amount
+            $totalSaleAmount = collect($validated['sale_items'])->sum('total_price');
 
             // Create Sale record
             $sale = \App\Models\Sale::create([
@@ -1100,43 +1103,46 @@ class WarehouseController extends Controller
                 'notes' => $validated['notes'] ?? null,
             ]);
 
-            // Create SaleItem record
-            \App\Models\SaleItem::create([
-                'sale_id' => $sale->id,
-                'product_id' => $validated['product_id'],
-                'quantity' => $validated['quantity'],
-                'unit_price' => $validated['price'],
-                'price' => $validated['price'],
-                'total' => $totalAmount,
-            ]);
+            // Create SaleItem records and tracking records for each item
+            foreach ($validated['sale_items'] as $item) {
+                // Create SaleItem record
+                \App\Models\SaleItem::create([
+                    'sale_id' => $sale->id,
+                    'product_id' => $item['product_id'],
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'],
+                    'price' => $item['unit_price'],
+                    'total' => $item['total_price'],
+                ]);
 
-            // Create warehouse outcome record for inventory tracking
-            \App\Models\WarehouseOutcome::create([
-                'warehouse_id' => $warehouse->id,
-                'product_id' => $validated['product_id'],
-                'reference_number' => $referenceNumber,
-                'quantity' => $validated['quantity'],
-                'price' => $validated['price'],
-                'total' => $totalAmount,
-                'model_type' => 'customer_sale',
-                'model_id' => $validated['customer_id'],
-            ]);
+                // Create warehouse outcome record for inventory tracking
+                \App\Models\WarehouseOutcome::create([
+                    'warehouse_id' => $warehouse->id,
+                    'product_id' => $item['product_id'],
+                    'reference_number' => $referenceNumber,
+                    'quantity' => $item['quantity'],
+                    'price' => $item['unit_price'],
+                    'total' => $item['total_price'],
+                    'model_type' => 'customer_sale',
+                    'model_id' => $validated['customer_id'],
+                ]);
 
-            // Create customer income record for customer tracking
-            \App\Models\CustomerStockIncome::create([
-                'customer_id' => $validated['customer_id'],
-                'product_id' => $validated['product_id'],
-                'reference_number' => $referenceNumber,
-                'quantity' => $validated['quantity'],
-                'price' => $validated['price'],
-                'total' => $totalAmount,
-                'model_id' => $warehouse->id,
-            ]);
+                // Create customer income record for customer tracking
+                \App\Models\CustomerStockIncome::create([
+                    'customer_id' => $validated['customer_id'],
+                    'product_id' => $item['product_id'],
+                    'reference_number' => $referenceNumber,
+                    'quantity' => $item['quantity'],
+                    'price' => $item['unit_price'],
+                    'total' => $item['total_price'],
+                    'model_id' => $warehouse->id,
+                ]);
+            }
 
             DB::commit();
 
             return redirect()->route('admin.warehouses.sales', $warehouse->id)
-                ->with('success', 'Sale created successfully');
+                ->with('success', 'Sale with ' . count($validated['sale_items']) . ' items created successfully');
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
                 ->withErrors($e->errors())

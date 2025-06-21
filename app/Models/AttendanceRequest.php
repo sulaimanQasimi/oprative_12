@@ -55,7 +55,7 @@ class AttendanceRequest extends Model
     // Relationships
     public function employee(): BelongsTo
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(related: Employee::class);
     }
 
     public function reviewer(): BelongsTo
