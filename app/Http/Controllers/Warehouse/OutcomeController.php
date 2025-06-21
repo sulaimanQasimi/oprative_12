@@ -10,12 +10,13 @@ use Inertia\Inertia;
 class OutcomeController extends Controller
 {
     /**
-     * Display a listing of outcome records with pagination and filtering.
+     * Display a listing of outcome records with pagination and filtering using optimized queries.
      */
     public function index(Request $request)
     {
         $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
 
+        // Start with base query
         $query = $warehouse->warehouseOutcome()->with('product');
 
         // Apply search filter
@@ -69,7 +70,7 @@ class OutcomeController extends Controller
             $perPage = 10;
         }
 
-        // Paginate results
+        // Paginate results with optimized query
         $outcomeRecords = $query->paginate($perPage)->withQueryString();
 
         // Transform the data
@@ -118,4 +119,6 @@ class OutcomeController extends Controller
             'filters' => $filters,
         ]);
     }
+
+
 }
