@@ -62,19 +62,34 @@ class SaleController extends Controller
                 'customer',
                 'currency',
                 'warehouse',
-                'saleItems.product',
+                'saleItems.product.wholesaleUnit',
+                'saleItems.product.retailUnit',
                 'payments' // Load payment history
             ])
             ->firstOrFail();
 
-        // Transform sale items to include product details
+        // Transform sale items to include product details with wholesale and retail units
         $saleItems = $sale->saleItems->map(function ($item) {
             return [
                 'id' => $item->id,
                 'product' => [
                     'id' => $item->product->id,
                     'name' => $item->product->name,
-                    'barcode' => $item->product->barcode
+                    'barcode' => $item->product->barcode,
+                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount,
+                    'retails_sale_unit_amount' => $item->product->retails_sale_unit_amount,
+                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
+                        'id' => $item->product->wholesaleUnit->id,
+                        'name' => $item->product->wholesaleUnit->name,
+                        'code' => $item->product->wholesaleUnit->code,
+                        'symbol' => $item->product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $item->product->retailUnit ? [
+                        'id' => $item->product->retailUnit->id,
+                        'name' => $item->product->retailUnit->name,
+                        'code' => $item->product->retailUnit->code,
+                        'symbol' => $item->product->retailUnit->symbol,
+                    ] : null,
                 ],
                 'unit' => $item->unit,
                 'quantity' => (float) $item->quantity,
@@ -229,19 +244,34 @@ class SaleController extends Controller
                 'customer',
                 'currency',
                 'warehouse',
-                'saleItems.product',
+                'saleItems.product.wholesaleUnit',
+                'saleItems.product.retailUnit',
                 'payments'
             ])
             ->firstOrFail();
 
-        // Transform sale items to include product details
+        // Transform sale items to include product details with wholesale and retail units
         $saleItems = $sale->saleItems->map(function ($item) {
             return [
                 'id' => $item->id,
                 'product' => [
                     'id' => $item->product->id,
                     'name' => $item->product->name,
-                    'barcode' => $item->product->barcode
+                    'barcode' => $item->product->barcode,
+                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount,
+                    'retails_sale_unit_amount' => $item->product->retails_sale_unit_amount,
+                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
+                        'id' => $item->product->wholesaleUnit->id,
+                        'name' => $item->product->wholesaleUnit->name,
+                        'code' => $item->product->wholesaleUnit->code,
+                        'symbol' => $item->product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $item->product->retailUnit ? [
+                        'id' => $item->product->retailUnit->id,
+                        'name' => $item->product->retailUnit->name,
+                        'code' => $item->product->retailUnit->code,
+                        'symbol' => $item->product->retailUnit->symbol,
+                    ] : null,
                 ],
                 'unit' => $item->unit,
                 'quantity' => (float) $item->quantity,

@@ -23,7 +23,8 @@ import {
     CheckCircle,
     XCircle,
     Truck,
-    Sparkles
+    Sparkles,
+    Store
 } from 'lucide-react';
 import Navigation from '@/Components/Warehouse/Navigation';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -92,9 +93,9 @@ export default function ShowSale({ auth, sale }) {
 
     return (
         <>
-            <Head title={t(`Sale #${sale.reference}`)} />
+            <Head title={t(`Shop Sale #${sale.reference}`)} />
 
-            <div className={`flex h-screen bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 dark:from-gray-900 dark:via-indigo-950 dark:to-blue-950 ${isPrintMode ? 'print-mode' : ''}`}>
+            <div className={`flex h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:via-emerald-950 dark:to-teal-950 ${isPrintMode ? 'print-mode' : ''}`}>
                 {/* Sidebar - Hidden in print mode */}
                 {!isPrintMode && (
                     <Navigation auth={auth} currentRoute="warehouse.sales" />
@@ -108,22 +109,22 @@ export default function ShowSale({ auth, sale }) {
                             initial="hidden"
                             animate="visible"
                             variants={fadeIn}
-                            className="bg-white dark:bg-gray-800 shadow-lg p-4 flex items-center justify-between relative overflow-hidden backdrop-blur-sm flex-shrink-0 border-b border-violet-100 dark:border-violet-900/30"
+                            className="bg-white dark:bg-gray-800 shadow-lg p-4 flex items-center justify-between relative overflow-hidden backdrop-blur-sm flex-shrink-0 border-b border-emerald-100 dark:border-emerald-900/30"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-violet-50/90 via-indigo-50/80 to-white/90 dark:from-violet-950/90 dark:via-indigo-900/80 dark:to-gray-900/90 opacity-90"></div>
+                            <div className="absolute inset-0 bg-gradient-to-r from-emerald-50/90 via-teal-50/80 to-white/90 dark:from-emerald-950/90 dark:via-teal-900/80 dark:to-gray-900/90 opacity-90"></div>
                             <motion.div
                                 variants={slideIn}
                                 className="flex items-center space-x-3 relative z-10"
                             >
-                                <Link href={route('warehouse.sales')} className="flex items-center text-violet-600 hover:text-violet-800 transition-colors hover:scale-105 transform duration-200">
+                                <Link href={route('warehouse.sales')} className="flex items-center text-emerald-600 hover:text-emerald-800 transition-colors hover:scale-105 transform duration-200">
                                     <ArrowLeft className="h-4 w-4 mr-1" />
-                                    <span>{t('Back to Sales')}</span>
+                                    <span>{t('Back to Shop Sales')}</span>
                                 </Link>
-                                <div className="h-4 w-px bg-violet-200 dark:bg-violet-700"></div>
+                                <div className="h-4 w-px bg-emerald-200 dark:bg-emerald-700"></div>
                                 <div className="relative">
                                     <h1 className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
-                                        <ShoppingCart className="h-5 w-5 mr-2 text-violet-600" />
-                                        {t('Sale Detail')}: <span className="text-violet-600 ml-1">{sale.reference}</span>
+                                        <Store className="h-5 w-5 mr-2 text-emerald-600" />
+                                        {t('Shop Sale Detail')}: <span className="text-emerald-600 ml-1">{sale.reference}</span>
                                     </h1>
                                 </div>
                             </motion.div>
@@ -134,7 +135,7 @@ export default function ShowSale({ auth, sale }) {
                                 <Button
                                     size="sm"
                                     variant="outline"
-                                    className="flex items-center gap-1.5 hover:bg-violet-50 hover:text-violet-600 dark:hover:bg-violet-900/30 dark:hover:text-violet-400 transition-all duration-200 shadow-sm hover:scale-105 transform"
+                                    className="flex items-center gap-1.5 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 transition-all duration-200 shadow-sm hover:scale-105 transform border-emerald-200 dark:border-emerald-700"
                                     onClick={handlePrint}
                                 >
                                     <Printer className="h-4 w-4" />
@@ -143,12 +144,12 @@ export default function ShowSale({ auth, sale }) {
                                 {!sale.confirmed_by_warehouse && (
                                     <Button
                                         size="sm"
-                                        className="bg-gradient-to-r from-green-500 to-emerald-400 hover:from-green-600 hover:to-emerald-500 text-white shadow-sm hover:shadow-lg transition-all duration-200 hover:scale-105 transform"
+                                        className="bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-600 hover:to-teal-500 text-white shadow-sm hover:shadow-lg transition-all duration-200 hover:scale-105 transform"
                                         onClick={handleConfirmation}
                                         disabled={processing || loading}
                                     >
                                         <CheckCircle className="h-4 w-4 mr-1.5" />
-                                        <span>{t('Confirm Sale')}</span>
+                                        <span>{t('Confirm Shop Sale')}</span>
                                     </Button>
                                 )}
                             </motion.div>
@@ -160,7 +161,8 @@ export default function ShowSale({ auth, sale }) {
                         <div className="print-header p-4 border-b">
                             <div className="flex justify-between items-center">
                                 <div className="flex items-center">
-                                    <div className="text-3xl font-bold text-gray-900">{t('Company Name')}</div>
+                                    <Store className="h-8 w-8 text-emerald-600 mr-3" />
+                                    <div className="text-3xl font-bold text-gray-900">{t('Shop Invoice')}</div>
                                 </div>
                                 <div className="text-right">
                                     <div className="text-2xl font-bold text-gray-900">{t('INVOICE')}</div>
@@ -175,7 +177,7 @@ export default function ShowSale({ auth, sale }) {
                         initial="hidden"
                         animate="visible"
                         variants={staggerChildren}
-                        className="flex-1 p-6 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 dark:from-gray-900 dark:via-indigo-950 dark:to-blue-950"
+                        className="flex-1 p-6 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 dark:from-gray-900 dark:via-emerald-950 dark:to-teal-950"
                     >
                         {/* Sale Status and Info */}
                         <motion.div variants={fadeIn} className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -184,20 +186,20 @@ export default function ShowSale({ auth, sale }) {
                                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
                                 className="col-span-2"
                             >
-                                <Card className="col-span-2 shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-violet-100 dark:border-violet-900/30 overflow-hidden">
+                                <Card className="col-span-2 shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-emerald-100 dark:border-emerald-900/30 overflow-hidden">
                                     <div className={`h-2 w-full bg-gradient-to-r ${getStatusColor(sale.status)}`}></div>
-                                    <CardHeader className="pb-2 border-b border-violet-100 dark:border-violet-900/30">
+                                    <CardHeader className="pb-2 border-b border-emerald-100 dark:border-emerald-900/30">
                                         <div className="flex items-center justify-between">
                                             <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center">
-                                                <Sparkles className="h-4 w-4 mr-2 text-violet-500" />
-                                                {t('Sale Information')}
+                                                <Sparkles className="h-5 w-5 mr-2 text-emerald-500" />
+                                                {t('Shop Sale Information')}
                                             </CardTitle>
                                             <Badge
                                                 className={`
                                                     ${sale.status === 'completed' ? 'bg-gradient-to-r from-emerald-500 to-green-400 text-white' :
                                                       sale.status === 'pending' ? 'bg-gradient-to-r from-amber-500 to-yellow-400 text-white' :
                                                       'bg-gradient-to-r from-red-500 to-rose-400 text-white'}
-                                                    capitalize shadow-sm px-3
+                                                    capitalize shadow-sm px-3 py-1
                                                 `}
                                             >
                                                 {sale.status}
@@ -209,9 +211,9 @@ export default function ShowSale({ auth, sale }) {
                                             <div className="space-y-4">
                                                 <motion.div
                                                     whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                                                    className="flex items-start p-3 rounded-lg hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-colors"
+                                                    className="flex items-start p-3 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors"
                                                 >
-                                                    <Calendar className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
+                                                    <Calendar className="h-5 w-5 text-emerald-600 mt-0.5 mr-2" />
                                                     <div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">{t('Date')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.date}</p>
@@ -219,9 +221,9 @@ export default function ShowSale({ auth, sale }) {
                                                 </motion.div>
                                                 <motion.div
                                                     whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                                                    className="flex items-start p-3 rounded-lg hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-colors"
+                                                    className="flex items-start p-3 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors"
                                                 >
-                                                    <ShoppingCart className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
+                                                    <Store className="h-5 w-5 text-emerald-600 mt-0.5 mr-2" />
                                                     <div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">{t('Reference')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.reference}</p>
@@ -229,9 +231,9 @@ export default function ShowSale({ auth, sale }) {
                                                 </motion.div>
                                                 <motion.div
                                                     whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                                                    className="flex items-start p-3 rounded-lg hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-colors"
+                                                    className="flex items-start p-3 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors"
                                                 >
-                                                    <CreditCard className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
+                                                    <CreditCard className="h-5 w-5 text-emerald-600 mt-0.5 mr-2" />
                                                     <div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">{t('Currency')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.currency}</p>
@@ -241,9 +243,9 @@ export default function ShowSale({ auth, sale }) {
                                             <div className="space-y-4">
                                                 <motion.div
                                                     whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                                                    className="flex items-start p-3 rounded-lg hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-colors"
+                                                    className="flex items-start p-3 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors"
                                                 >
-                                                    <Clock className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
+                                                    <Clock className="h-5 w-5 text-emerald-600 mt-0.5 mr-2" />
                                                     <div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">{t('Created')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.created_at}</p>
@@ -251,11 +253,11 @@ export default function ShowSale({ auth, sale }) {
                                                 </motion.div>
                                                 <motion.div
                                                     whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                                                    className="flex items-start p-3 rounded-lg hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-colors"
+                                                    className="flex items-start p-3 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors"
                                                 >
-                                                    <Truck className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
+                                                    <Truck className="h-5 w-5 text-emerald-600 mt-0.5 mr-2" />
                                                     <div>
-                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Warehouse Confirmation')}</p>
+                                                        <p className="text-sm text-gray-500 dark:text-gray-400">{t('Shop Confirmation')}</p>
                                                         <div className="font-medium text-gray-900 dark:text-white">
                                                             {sale.confirmed_by_warehouse ? (
                                                                 <motion.span
@@ -280,9 +282,9 @@ export default function ShowSale({ auth, sale }) {
                                                 </motion.div>
                                                 <motion.div
                                                     whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                                                    className="flex items-start p-3 rounded-lg hover:bg-violet-50/50 dark:hover:bg-violet-900/20 transition-colors"
+                                                    className="flex items-start p-3 rounded-lg hover:bg-emerald-50/50 dark:hover:bg-emerald-900/20 transition-colors"
                                                 >
-                                                    <Package className="h-5 w-5 text-violet-600 mt-0.5 mr-2" />
+                                                    <Package className="h-5 w-5 text-emerald-600 mt-0.5 mr-2" />
                                                     <div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">Items Count</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.items_count} {t('items')}</p>
@@ -294,9 +296,12 @@ export default function ShowSale({ auth, sale }) {
                                         {sale.notes && (
                                             <motion.div
                                                 whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-                                                className="mt-4 p-3 bg-violet-50 dark:bg-violet-900/20 rounded-lg border border-violet-100 dark:border-violet-800"
+                                                className="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800"
                                             >
-                                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">{t('Notes')}</p>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 flex items-center">
+                                                    <Sparkles className="h-4 w-4 mr-1 text-emerald-500" />
+                                                    {t('Notes')}
+                                                </p>
                                                 <p className="text-gray-700 dark:text-gray-300">{sale.notes}</p>
                                             </motion.div>
                                         )}
@@ -308,11 +313,11 @@ export default function ShowSale({ auth, sale }) {
                                 variants={slideIn}
                                 whileHover={{ y: -5, transition: { duration: 0.2 } }}
                             >
-                                <Card className="shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-purple-100 dark:border-purple-900/30 overflow-hidden">
-                                    <div className="h-2 w-full bg-gradient-to-r from-purple-500 to-pink-400"></div>
-                                    <CardHeader className="pb-2 border-b border-purple-100 dark:border-purple-900/30">
+                                <Card className="shadow-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-teal-100 dark:border-teal-900/30 overflow-hidden">
+                                    <div className="h-2 w-full bg-gradient-to-r from-teal-500 to-cyan-400"></div>
+                                    <CardHeader className="pb-2 border-b border-teal-100 dark:border-teal-900/30">
                                         <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center">
-                                            <User className="h-4 w-4 mr-2 text-purple-500" />
+                                            <User className="h-5 w-5 mr-2 text-teal-500" />
                                             {t('Customer Information')}
                                         </CardTitle>
                                     </CardHeader>
@@ -321,8 +326,8 @@ export default function ShowSale({ auth, sale }) {
                                             whileHover={{ scale: 1.05, transition: { duration: 0.2 } }}
                                             className="flex items-start mb-4"
                                         >
-                                            <Avatar className="h-10 w-10 mr-3 ring-2 ring-purple-300 dark:ring-purple-700">
-                                                <AvatarFallback className="bg-gradient-to-br from-purple-600 to-pink-600 text-white">
+                                            <Avatar className="h-10 w-10 mr-3 ring-2 ring-teal-300 dark:ring-teal-700">
+                                                <AvatarFallback className="bg-gradient-to-br from-teal-600 to-cyan-600 text-white">
                                                     {sale.customer.name ? sale.customer.name.charAt(0).toUpperCase() : 'C'}
                                                 </AvatarFallback>
                                             </Avatar>
@@ -336,9 +341,9 @@ export default function ShowSale({ auth, sale }) {
                                             {sale.customer.email && (
                                                 <motion.div
                                                     whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                                                    className="flex items-start p-2 rounded-lg hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-colors"
+                                                    className="flex items-start p-2 rounded-lg hover:bg-teal-50/50 dark:hover:bg-teal-900/20 transition-colors"
                                                 >
-                                                    <Mail className="h-4 w-4 text-purple-500 mt-0.5 mr-2" />
+                                                    <Mail className="h-4 w-4 text-teal-500 mt-0.5 mr-2" />
                                                     <div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">{t('Email')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.customer.email}</p>
@@ -349,9 +354,9 @@ export default function ShowSale({ auth, sale }) {
                                             {sale.customer.phone && (
                                                 <motion.div
                                                     whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                                                    className="flex items-start p-2 rounded-lg hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-colors"
+                                                    className="flex items-start p-2 rounded-lg hover:bg-teal-50/50 dark:hover:bg-teal-900/20 transition-colors"
                                                 >
-                                                    <Phone className="h-4 w-4 text-purple-500 mt-0.5 mr-2" />
+                                                    <Phone className="h-4 w-4 text-teal-500 mt-0.5 mr-2" />
                                                     <div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">{t('Phone')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.customer.phone}</p>
@@ -362,9 +367,9 @@ export default function ShowSale({ auth, sale }) {
                                             {sale.customer.address && (
                                                 <motion.div
                                                     whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                                                    className="flex items-start p-2 rounded-lg hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-colors"
+                                                    className="flex items-start p-2 rounded-lg hover:bg-teal-50/50 dark:hover:bg-teal-900/20 transition-colors"
                                                 >
-                                                    <MapPin className="h-4 w-4 text-purple-500 mt-0.5 mr-2" />
+                                                    <MapPin className="h-4 w-4 text-teal-500 mt-0.5 mr-2" />
                                                     <div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">{t('Address')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.customer.address}</p>
@@ -375,9 +380,9 @@ export default function ShowSale({ auth, sale }) {
                                             {sale.customer.tax_number && (
                                                 <motion.div
                                                     whileHover={{ x: 5, transition: { duration: 0.2 } }}
-                                                    className="flex items-start p-2 rounded-lg hover:bg-purple-50/50 dark:hover:bg-purple-900/20 transition-colors"
+                                                    className="flex items-start p-2 rounded-lg hover:bg-teal-50/50 dark:hover:bg-teal-900/20 transition-colors"
                                                 >
-                                                    <Building className="h-4 w-4 text-purple-500 mt-0.5 mr-2" />
+                                                    <Building className="h-4 w-4 text-teal-500 mt-0.5 mr-2" />
                                                     <div>
                                                         <p className="text-sm text-gray-500 dark:text-gray-400">{t('Tax Number')}</p>
                                                         <p className="font-medium text-gray-900 dark:text-white">{sale.customer.tax_number}</p>
@@ -413,6 +418,7 @@ export default function ShowSale({ auth, sale }) {
                                                     <th scope="col" className="px-4 py-3">{t('Product')}</th>
                                                     <th scope="col" className="px-4 py-3 text-center">{t('Unit')}</th>
                                                     <th scope="col" className="px-4 py-3 text-center">{t('Quantity')}</th>
+                                                    <th scope="col" className="px-4 py-3 text-center">{t('Smart Quantity')}</th>
                                                     <th scope="col" className="px-4 py-3 text-center">{t('Unit Price')}</th>
                                                     <th scope="col" className="px-4 py-3 text-right rounded-tr-lg">{t('Total')}</th>
                                                 </tr>
@@ -446,6 +452,33 @@ export default function ShowSale({ auth, sale }) {
                                                             </span>
                                                         </td>
                                                         <td className="px-4 py-3 text-center">
+                                                            <div className="text-sm">
+                                                                <p className={`text-lg font-bold ${parseFloat(item.quantity) < 10 ? "text-amber-600 dark:text-amber-500" : "text-emerald-600 dark:text-emerald-400"}`}>
+                                                                    {(() => {
+                                                                        const netQty = parseFloat(item.quantity) || 0;
+                                                                        const wholesaleAmount = item.product?.whole_sale_unit_amount || 1;
+                                                                        const wholesaleUnits = Math.floor(netQty / wholesaleAmount);
+                                                                        const remainderUnits = netQty % wholesaleAmount;
+                                                                        
+                                                                        let display = "";
+                                                                        if (wholesaleUnits > 0) {
+                                                                            display += `${wholesaleUnits} ${item.product?.wholesaleUnit?.name || t("Units")}`;
+                                                                        }
+                                                                        if (remainderUnits > 0) {
+                                                                            if (display) display += " + ";
+                                                                            display += `${remainderUnits} ${item.product?.retailUnit?.name || t("Units")}`;
+                                                                        }
+                                                                        if (!display) display = `${netQty} ${t("Units")}`;
+                                                                        
+                                                                        // Add actual amount in parentheses
+                                                                        display += ` (${netQty} ${t("total")})`;
+                                                                        
+                                                                        return display;
+                                                                    })()}
+                                                                </p>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">
                                                             <span className="text-gray-800 dark:text-gray-200">
                                                                 {sale.currency} {parseFloat(item.unit_price).toFixed(2)}
                                                             </span>
@@ -460,24 +493,24 @@ export default function ShowSale({ auth, sale }) {
                                             </tbody>
                                             <tfoot>
                                                 <tr className="font-semibold text-gray-900 dark:text-white border-t-2 border-teal-200 dark:border-teal-800">
-                                                    <td colSpan="5" className="px-4 py-3 text-right">{t('Subtotal')}:</td>
+                                                    <td colSpan="6" className="px-4 py-3 text-right">{t('Subtotal')}:</td>
                                                     <td className="px-4 py-3 text-right">{sale.currency} {parseFloat(sale.total_amount).toFixed(2)}</td>
                                                 </tr>
                                                 {sale.tax_percentage > 0 && (
                                                     <tr className="text-gray-900 dark:text-white">
-                                                        <td colSpan="5" className="px-4 py-3 text-right">{t('Tax')} ({sale.tax_percentage}%):</td>
+                                                        <td colSpan="6" className="px-4 py-3 text-right">{t('Tax')} ({sale.tax_percentage}%):</td>
                                                         <td className="px-4 py-3 text-right">{sale.currency} {parseFloat(sale.tax_amount).toFixed(2)}</td>
                                                     </tr>
                                                 )}
                                                 {sale.discount_percentage > 0 && (
                                                     <tr className="text-gray-900 dark:text-white">
-                                                        <td colSpan="5" className="px-4 py-3 text-right">{t('Discount')} ({sale.discount_percentage}%):</td>
+                                                        <td colSpan="6" className="px-4 py-3 text-right">{t('Discount')} ({sale.discount_percentage}%):</td>
                                                         <td className="px-4 py-3 text-right text-pink-600 dark:text-pink-400">-{sale.currency} {parseFloat(sale.discount_amount).toFixed(2)}</td>
                                                     </tr>
                                                 )}
                                                 {sale.shipping_cost > 0 && (
                                                     <tr className="text-gray-900 dark:text-white">
-                                                        <td colSpan="5" className="px-4 py-3 text-right">{t('Shipping')}:</td>
+                                                        <td colSpan="6" className="px-4 py-3 text-right">{t('Shipping')}:</td>
                                                         <td className="px-4 py-3 text-right">{sale.currency} {parseFloat(sale.shipping_cost).toFixed(2)}</td>
                                                     </tr>
                                                 )}
@@ -485,7 +518,7 @@ export default function ShowSale({ auth, sale }) {
                                                     className="font-bold text-gray-900 dark:text-white text-lg border-t-2 border-teal-200 dark:border-teal-800"
                                                     whileHover={{ scale: 1.01 }}
                                                 >
-                                                    <td colSpan="5" className="px-4 py-3 text-right">{t('Total')}:</td>
+                                                    <td colSpan="6" className="px-4 py-3 text-right">{t('Total')}:</td>
                                                     <td className="px-4 py-3 text-right bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/30 dark:to-cyan-900/30 rounded-r">
                                                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-cyan-500 dark:from-teal-400 dark:to-cyan-300">
                                                             {sale.currency} {parseFloat(sale.total_amount).toFixed(2)}
@@ -493,7 +526,7 @@ export default function ShowSale({ auth, sale }) {
                                                     </td>
                                                 </motion.tr>
                                                 <tr className="text-gray-900 dark:text-white">
-                                                    <td colSpan="5" className="px-4 py-3 text-right">{t('Paid Amount')}:</td>
+                                                    <td colSpan="6" className="px-4 py-3 text-right">{t('Paid Amount')}:</td>
                                                     <td className="px-4 py-3 text-right text-emerald-600 dark:text-emerald-400">{sale.currency} {parseFloat(sale.paid_amount).toFixed(2)}</td>
                                                 </tr>
                                                 <motion.tr
@@ -501,7 +534,7 @@ export default function ShowSale({ auth, sale }) {
                                                     animate={{ backgroundColor: ['rgba(20, 184, 166, 0.05)', 'rgba(20, 184, 166, 0.1)', 'rgba(20, 184, 166, 0.05)'] }}
                                                     transition={{ repeat: Infinity, duration: 3 }}
                                                 >
-                                                    <td colSpan="5" className="px-4 py-3 text-right">{t('Due Amount')}:</td>
+                                                    <td colSpan="6" className="px-4 py-3 text-right">{t('Due Amount')}:</td>
                                                     <td className="px-4 py-3 text-right text-amber-600 dark:text-amber-400">{sale.currency} {parseFloat(sale.due_amount).toFixed(2)}</td>
                                                 </motion.tr>
                                             </tfoot>
