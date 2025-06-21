@@ -380,6 +380,7 @@ class WarehouseController extends Controller
                     'model_id' => $income->model_id,
                     'created_at' => $income->created_at,
                     'updated_at' => $income->updated_at,
+                    'persian_created_date' => $income->persian_created_date,
                 ];
             });
 
