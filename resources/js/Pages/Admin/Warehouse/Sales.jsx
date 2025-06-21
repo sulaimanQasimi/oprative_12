@@ -704,9 +704,11 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-2">
-                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300">
-                                                                                <Eye className="h-4 w-4 text-blue-600" />
-                                                                            </Button>
+                                                                            <Link href={route("admin.warehouses.sales.show", [warehouse.id, sale.id])}>
+                                                                                <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300">
+                                                                                    <Eye className="h-4 w-4 text-blue-600" />
+                                                                                </Button>
+                                                                            </Link>
                                                                             <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300">
                                                                                 <Edit className="h-4 w-4 text-green-600" />
                                                                             </Button>

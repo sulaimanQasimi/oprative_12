@@ -282,9 +282,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{warehouse:id}/transfers', [WarehouseController::class, 'storeTransfer'])->name('admin.warehouses.transfers.store');
 
         // Warehouse sales management
-        Route::get('/{warehouse:id}/sales', [WarehouseController::class, 'sales'])->name('admin.warehouses.sales');
-        Route::get('/{warehouse:id}/sales/create', [WarehouseController::class, 'createSale'])->name('admin.warehouses.sales.create');
-        Route::post('/{warehouse:id}/sales', [WarehouseController::class, 'storeSale'])->name('admin.warehouses.sales.store');
+            Route::get('/{warehouse:id}/sales', [WarehouseController::class, 'sales'])->name('admin.warehouses.sales');
+    Route::get('/{warehouse:id}/sales/create', [WarehouseController::class, 'createSale'])->name('admin.warehouses.sales.create');
+    Route::get('/{warehouse:id}/sales/{sale}', [WarehouseController::class, 'showSale'])->name('admin.warehouses.sales.show');
+    Route::post('/{warehouse:id}/sales', [WarehouseController::class, 'storeSale'])->name('admin.warehouses.sales.store');
 
         // Warehouse user management
         Route::get('/{warehouse:id}/users/create', [WarehouseUserController::class, 'create'])->name('admin.warehouses.users.create');

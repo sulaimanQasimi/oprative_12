@@ -1155,4 +1155,36 @@ class WarehouseController extends Controller
                 ->withInput();
         }
     }
+
+    public function showSale(Warehouse $warehouse, $saleId)
+    {
+        try {
+            $sale = \App\Models\Sale::with([
+                'customer:id,name,email,phone',
+                'currency:id,name,code',
+                'saleItems.product:id,name,barcode'
+            ])
+            ->where('warehouse_id', $warehouse->id)
+            ->findOrFail($saleId);
+
+            return Inertia::render('Admin/Warehouse/ShowSale', [
+                'warehouse' => [
+                    'id' => $warehouse->id,
+                    'name' => $warehouse->name,
+                    'code' => $warehouse->code,
+                    'description' => $warehouse->description,
+                    'address' => $warehouse->address,
+                    'is_active' => $warehouse->is_active,
+                ],
+                'sale' => $sale,
+                'auth' => [
+                    'user' => Auth::user()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading sale details: ' . $e->getMessage());
+            return redirect()->route('admin.warehouses.sales', $warehouse->id)
+                ->with('error', 'Sale not found or error loading sale details.');
+        }
+    }
 }
