@@ -66,18 +66,10 @@ trait RegisterRoutes
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_income')
                     ->name('income');
 
-                Route::get('income/{income}', [IncomeController::class, 'show'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_income_details')
-                    ->name('income.show');
-
                 // Outcome management
                 Route::get('outcome', [OutcomeController::class, 'index'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_outcome')
                     ->name('outcome');
-
-                Route::get('outcome/{outcome}', [OutcomeController::class, 'show'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_outcome_details')
-                    ->name('outcome.show');
 
                 // Sales management
                 Route::get('sales', [SaleController::class, 'index'])
