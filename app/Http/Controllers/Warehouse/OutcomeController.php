@@ -31,12 +31,19 @@ class OutcomeController extends Controller
         }
 
         // Apply date filters
-        if ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
         }
 
-        if ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+        if ($request->filled('month') && $request->filled('year')) {
+            $query->whereMonth('created_at', $request->month)
+                  ->whereYear('created_at', $request->year);
+        }
+
+        if ($request->filled('day') && $request->filled('month') && $request->filled('year')) {
+            $query->whereDay('created_at', $request->day)
+                  ->whereMonth('created_at', $request->month)
+                  ->whereYear('created_at', $request->year);
         }
 
         // Apply sorting
@@ -97,8 +104,9 @@ class OutcomeController extends Controller
         // Prepare filters data
         $filters = [
             'search' => $request->search,
-            'date_from' => $request->date_from,
-            'date_to' => $request->date_to,
+            'year' => $request->year,
+            'month' => $request->month,
+            'day' => $request->day,
             'sort' => $sortBy,
             'direction' => $direction,
             'per_page' => $perPage,
@@ -109,107 +117,5 @@ class OutcomeController extends Controller
             'pagination' => $pagination,
             'filters' => $filters,
         ]);
-    }
-
-    /**
-     * Show the form for creating a new outcome record.
-     */
-    public function create()
-    {
-        // Implementation for create form
-    }
-
-    /**
-     * Store a newly created outcome record in storage.
-     */
-    public function store(Request $request)
-    {
-        // Implementation for storing an outcome record
-    }
-
-    /**
-     * Display the specified outcome record.
-     */
-    public function show($id)
-    {
-        $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
-
-        // Get the specific outcome record
-        $outcomeRecord = $warehouse->warehouseOutcome()->findOrFail($id);
-
-        // Format the outcome data
-        $outcome = [
-            'id' => $outcomeRecord->id,
-            'reference' => $outcomeRecord->reference_number,
-            'amount' => (float) $outcomeRecord->total,
-            'quantity' => (float) $outcomeRecord->quantity,
-            'price' => (float) $outcomeRecord->price,
-            'date' => $outcomeRecord->created_at->format('Y-m-d'),
-            'destination' => $outcomeRecord->product ? $outcomeRecord->product->name : 'Unknown',
-            'notes' => $outcomeRecord->notes ?? null,
-            'created_at' => $outcomeRecord->created_at->diffForHumans(),
-            'formatted_date' => $outcomeRecord->created_at->format('d M Y, h:i A'),
-        ];
-
-        // Add product details if available
-        if ($outcomeRecord->product) {
-            $outcome['product_details'] = [
-                'name' => $outcomeRecord->product->name,
-                'sku' => $outcomeRecord->product->sku ?? 'N/A',
-                'category' => $outcomeRecord->product->category->name ?? 'Uncategorized',
-                'current_stock' => $outcomeRecord->product->stock ?? 0,
-                'unit_price' => $outcomeRecord->product->price ?? 0,
-            ];
-        }
-
-        // Get related outcome records (other outcomes for the same product)
-        $relatedOutcome = [];
-        if ($outcomeRecord->product) {
-            $relatedOutcome = $warehouse->warehouseOutcome()
-                ->where('id', '!=', $id)
-                ->where('product_id', $outcomeRecord->product_id)
-                ->latest()
-                ->take(5)
-                ->get()
-                ->map(function ($record) {
-                    return [
-                        'id' => $record->id,
-                        'reference' => $record->reference_number,
-                        'amount' => (float) $record->total,
-                        'quantity' => (float) $record->quantity,
-                        'date' => $record->created_at->format('Y-m-d'),
-                        'created_at' => $record->created_at->diffForHumans(),
-                    ];
-                });
-        }
-
-        return Inertia::render('Warehouse/OutcomeDetails', [
-            'outcome' => $outcome,
-            'relatedOutcome' => $relatedOutcome,
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified outcome record.
-     */
-    public function edit($id)
-    {
-        // Implementation for edit form
-    }
-
-    /**
-     * Update the specified outcome record in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        // Implementation for updating an outcome record
-    }
-
-    /**
-     * Remove the specified outcome record from storage.
-     */
-    public function destroy($id)
-    {
-        // Implementation for deleting an outcome record
     }
 }

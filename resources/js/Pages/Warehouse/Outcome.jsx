@@ -339,13 +339,62 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
                     .jdp-overlay {
                         z-index: 999998 !important;
                     }
+
+                    /* Ensure Select dropdowns appear above all other elements */
+                    [data-radix-popper-content-wrapper] {
+                        z-index: 999999 !important;
+                    }
+                    
+                    [data-radix-select-content] {
+                        z-index: 999999 !important;
+                        position: fixed !important;
+                    }
+                    
+                    [data-radix-select-viewport] {
+                        z-index: 999999 !important;
+                    }
+                    
+                    /* Radix UI Select specific styling */
+                    .radix-select-content {
+                        z-index: 999999 !important;
+                        position: fixed !important;
+                    }
+                    
+                    /* Additional Select component z-index fixes */
+                    [data-state="open"][data-side] {
+                        z-index: 999999 !important;
+                    }
+                    
+                    /* Ensure the dropdown portal has highest z-index */
+                    [data-radix-portal] {
+                        z-index: 999999 !important;
+                    }
+                    
+                    /* Force all select content to appear above cards */
+                    [data-radix-select-content],
+                    [data-radix-popper-content] {
+                        z-index: 999999 !important;
+                        position: fixed !important;
+                        background: white !important;
+                        border: 1px solid #e2e8f0 !important;
+                        border-radius: 0.5rem !important;
+                        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+                    }
+                    
+                    /* Dark mode support for dropdowns */
+                    .dark [data-radix-select-content],
+                    .dark [data-radix-popper-content] {
+                        background: #0f172a !important;
+                        border-color: #334155 !important;
+                        color: white !important;
+                    }
                 `}</style>
             </Head>
             
-            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-rose-50 to-red-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden">
+            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-rose-50 to-red-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-visible">
                 <Navigation auth={auth} currentRoute="warehouse.outcome" />
                 
-                <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-1 flex flex-col overflow-visible">
                     {/* Header */}
                     <motion.header
                         initial={{ y: -20, opacity: 0 }}
@@ -558,7 +607,7 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 1, duration: 0.5 }}
                             >
-                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl overflow-hidden">
+                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl overflow-visible">
                                     <CardHeader className="bg-gradient-to-r from-rose-500/20 via-red-500/20 to-rose-500/20 border-b border-white/30 dark:border-slate-700/50">
                                         <CardTitle className="flex items-center gap-3">
                                             <div className="p-2 bg-gradient-to-br from-rose-500 to-red-600 rounded-lg">
