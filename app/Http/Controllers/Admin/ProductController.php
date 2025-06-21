@@ -8,12 +8,23 @@ use App\Models\Unit;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProductController extends Controller
 {
+    use AuthorizesRequests;
     public function index(Request $request)
     {
+        $this->authorize('view_any_product');
+
         $query = Product::with(['wholesaleUnit', 'retailUnit']);
+
+        // Include trashed products if requested
+        if ($request->input('show_trashed') === 'true') {
+            $query->withTrashed();
+        } elseif ($request->input('show_trashed') === 'only') {
+            $query->onlyTrashed();
+        }
 
         // Apply search filter
         if ($request->has('search')) {
@@ -62,21 +73,36 @@ class ProductController extends Controller
 
         return Inertia::render('Admin/Product/Index', [
             'products' => $products,
-            'filters' => $request->only(['search', 'status', 'type', 'sort_field', 'sort_direction']),
-            'productTypes' => $productTypes
+            'filters' => $request->only(['search', 'status', 'type', 'sort_field', 'sort_direction', 'show_trashed']),
+            'productTypes' => $productTypes,
+            'permissions' => [
+                'create_product' => Auth::user()->can('create_product'),
+                'update_product' => Auth::user()->can('update_product'),
+                'delete_product' => Auth::user()->can('delete_product'),
+                'view_product' => Auth::user()->can('view_product'),
+                'restore_product' => Auth::user()->can('restore_product'),
+                'force_delete_product' => Auth::user()->can('force_delete_product'),
+            ]
         ]);
     }
 
     public function create()
     {
+        $this->authorize('create_product');
+
         $units = Unit::all();
         return Inertia::render('Admin/Product/Create', [
-            'units' => $units
+            'units' => $units,
+            'permissions' => [
+                'create_product' => true, // Already authorized
+            ]
         ]);
     }
 
     public function store(Request $request)
     {
+        $this->authorize('create_product');
+
         $validated = $request->validate([
             'type' => 'required|string',
             'name' => 'required|string|max:255',
@@ -102,18 +128,27 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
+        $this->authorize('view_product', $product);
+
         $units = Unit::all();
         return Inertia::render('Admin/Product/Edit', [
             'product' => $product->load(['wholesaleUnit', 'retailUnit']),
             'units' => $units,
             'auth' => [
                 'user' => Auth::guard('web')->user()
+            ],
+            'permissions' => [
+                'view_product' => true, // Already authorized
+                'update_product' => Auth::user()->can('update_product', $product),
+                'delete_product' => Auth::user()->can('delete_product', $product),
             ]
         ]);
     }
 
     public function update(Request $request, Product $product)
     {
+        $this->authorize('update_product', $product);
+
         $validated = $request->validate([
             'type' => 'required|string',
             'name' => 'required|string|max:255',
@@ -139,9 +174,33 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        $this->authorize('delete_product', $product);
+
         $product->delete();
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $product = Product::withTrashed()->findOrFail($id);
+        $this->authorize('restore_product', $product);
+
+        $product->restore();
+
+        return redirect()->route('admin.products.index')
+            ->with('success', 'Product restored successfully.');
+    }
+
+    public function forceDelete($id)
+    {
+        $product = Product::withTrashed()->findOrFail($id);
+        $this->authorize('force_delete_product', $product);
+
+        $product->forceDelete();
+
+        return redirect()->route('admin.products.index')
+            ->with('success', 'Product permanently deleted.');
     }
 }

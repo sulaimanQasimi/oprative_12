@@ -18,6 +18,7 @@ class AttendanceSetting extends Model
     protected $fillable = [
         'enter_time',
         'exit_time',
+        'date',
     ];
 
     /**
@@ -28,6 +29,7 @@ class AttendanceSetting extends Model
     protected $casts = [
         'enter_time' => 'datetime:H:i:s',
         'exit_time' => 'datetime:H:i:s',
+        'date' => 'date',
     ];
 
     /**

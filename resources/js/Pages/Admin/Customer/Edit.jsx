@@ -41,7 +41,7 @@ import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function EditCustomer({ auth, customer }) {
+export default function EditCustomer({ auth, customer, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);

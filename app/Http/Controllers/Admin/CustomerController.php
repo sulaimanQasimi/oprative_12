@@ -15,6 +15,30 @@ use Spatie\Permission\Models\Role;
 
 class CustomerController extends Controller
 {
+    /**
+     * Constructor to apply middleware for all customer permissions
+     * 
+     * Permissions implemented:
+     * - view_customer: View individual customer details
+     * - view_any_customer: View list of customers and access index
+     * - create_customer: Create new customers
+     * - update_customer: Edit and update customer information
+     * - delete_customer: Soft delete customers
+     * - restore_customer: Restore soft-deleted customers
+     * - force_delete_customer: Permanently delete customers
+     */
+    public function __construct()
+    {
+        // Apply comprehensive middleware protection for all customer operations
+        $this->middleware('permission:view_any_customer')->only(['index']);
+        $this->middleware('permission:view_customer')->only(['show', 'income', 'outcome', 'orders', 'showOrder']);
+        $this->middleware('permission:create_customer')->only(['create', 'store']);
+        $this->middleware('permission:update_customer')->only(['edit', 'update', 'addUser', 'updateUser']);
+        $this->middleware('permission:delete_customer')->only(['destroy']);
+        $this->middleware('permission:restore_customer')->only(['restore']);
+        $this->middleware('permission:force_delete_customer')->only(['forceDelete']);
+    }
+
     public function index(Request $request)
     {
         $query = Customer::with(['users'])->latest();
@@ -40,9 +64,21 @@ class CustomerController extends Controller
         // Append query parameters to pagination links
         $customers->appends($request->query());
 
+        // Pass all 7 customer permissions to frontend for UI control
+        $permissions = [
+            'view_customer' => Auth::user()->can('view_customer'),
+            'view_any_customer' => Auth::user()->can('view_any_customer'),
+            'create_customer' => Auth::user()->can('create_customer'),
+            'update_customer' => Auth::user()->can('update_customer'),
+            'delete_customer' => Auth::user()->can('delete_customer'),
+            'restore_customer' => Auth::user()->can('restore_customer'),
+            'force_delete_customer' => Auth::user()->can('force_delete_customer'),
+        ];
+
         return Inertia::render('Admin/Customer/Index', [
             'customers' => $customers,
             'filters' => $request->only(['search', 'status']),
+            'permissions' => $permissions,
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -51,7 +87,13 @@ class CustomerController extends Controller
 
     public function create()
     {
+        // Pass create permission to frontend
+        $permissions = [
+            'create_customer' => Auth::user()->can('create_customer'),
+        ];
+
         return Inertia::render('Admin/Customer/Create', [
+            'permissions' => $permissions,
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -138,7 +180,19 @@ class CustomerController extends Controller
             });
 
             $roles = Role::where('guard_name', 'customer_user')->with('permissions')->get();
-            $permissions = \Spatie\Permission\Models\Permission::where('guard_name', 'customer_user')->get();
+            $customerUserPermissions = \Spatie\Permission\Models\Permission::where('guard_name', 'customer_user')->get();
+            
+            // Pass all 7 customer permissions to frontend including restore and force_delete
+            $permissions = [
+                'view_customer' => Auth::user()->can('view_customer'),
+                'view_any_customer' => Auth::user()->can('view_any_customer'),
+                'create_customer' => Auth::user()->can('create_customer'),
+                'update_customer' => Auth::user()->can('update_customer'),
+                'delete_customer' => Auth::user()->can('delete_customer'),
+                'restore_customer' => Auth::user()->can('restore_customer'),
+                'force_delete_customer' => Auth::user()->can('force_delete_customer'),
+            ];
+            
             return Inertia::render('Admin/Customer/Show', [
                 'customer' => [
                     'id' => $customer->id,
@@ -156,6 +210,7 @@ class CustomerController extends Controller
                 'accounts_filters' => $request->only(['accounts_search', 'accounts_status']),
                 'roles' => $roles,
                 'permissions' => $permissions,
+                'customerUserPermissions' => $customerUserPermissions,
                 'auth' => [
                     'user' => Auth::guard('web')->user()
                 ]
@@ -169,6 +224,11 @@ class CustomerController extends Controller
 
     public function edit(Customer $customer)
     {
+        // Pass update permission to frontend
+        $permissions = [
+            'update_customer' => Auth::user()->can('update_customer'),
+        ];
+
         return Inertia::render('Admin/Customer/Edit', [
             'customer' => [
                 'id' => $customer->id,
@@ -179,6 +239,7 @@ class CustomerController extends Controller
                 'status' => $customer->status,
                 'notes' => $customer->notes,
             ],
+            'permissions' => $permissions,
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -232,8 +293,57 @@ class CustomerController extends Controller
         }
     }
 
+    /**
+     * Restore a soft-deleted customer
+     * Requires 'restore_customer' permission
+     */
+    public function restore($id)
+    {
+        try {
+            $customer = Customer::withTrashed()->findOrFail($id);
+            $customer->restore();
+
+            return redirect()->route('admin.customers.index')
+                ->with('success', 'Customer restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error restoring customer: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error restoring customer: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Permanently delete a customer
+     * Requires 'force_delete_customer' permission
+     */
+    public function forceDelete($id)
+    {
+        try {
+            $customer = Customer::withTrashed()->findOrFail($id);
+            
+            // Force delete associated users first
+            $customer->users()->forceDelete();
+            
+            // Force delete the customer
+            $customer->forceDelete();
+
+            return redirect()->route('admin.customers.index')
+                ->with('success', 'Customer permanently deleted.');
+        } catch (\Exception $e) {
+            Log::error('Error force deleting customer: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error force deleting customer: ' . $e->getMessage());
+        }
+    }
+
     public function addUser(Request $request, Customer $customer)
     {
+        // Verify user has permission to update customers (and thus manage their users)
+        if (!Auth::user()->can('update_customer')) {
+            return redirect()->route('admin.customers.show', $customer->id)
+                ->with('error', 'You do not have permission to add users to this customer.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:customer_users,email',
@@ -270,6 +380,12 @@ class CustomerController extends Controller
 
     public function updateUser(Request $request, Customer $customer, CustomerUser $user)
     {
+        // Verify user has permission to update customers (and thus manage their users)
+        if (!Auth::user()->can('update_customer')) {
+            return redirect()->route('admin.customers.show', $customer->id)
+                ->with('error', 'You do not have permission to update users for this customer.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:customer_users,email,' . $user->id,
@@ -336,6 +452,11 @@ class CustomerController extends Controller
                 ];
             });
 
+            // Pass view permission to frontend
+            $permissions = [
+                'view_customer' => Auth::user()->can('view_customer'),
+            ];
+
             return Inertia::render('Admin/Customer/Income', [
                 'customer' => [
                     'id' => $customer->id,
@@ -345,6 +466,7 @@ class CustomerController extends Controller
                     'status' => $customer->status,
                 ],
                 'incomes' => $incomes,
+                'permissions' => $permissions,
                 'auth' => [
                     'user' => Auth::user()
                 ]
@@ -385,6 +507,11 @@ class CustomerController extends Controller
                 ];
             });
 
+            // Pass view permission to frontend
+            $permissions = [
+                'view_customer' => Auth::user()->can('view_customer'),
+            ];
+
             return Inertia::render('Admin/Customer/Outcome', [
                 'customer' => [
                     'id' => $customer->id,
@@ -394,6 +521,7 @@ class CustomerController extends Controller
                     'status' => $customer->status,
                 ],
                 'outcomes' => $outcomes,
+                'permissions' => $permissions,
                 'auth' => [
                     'user' => Auth::user()
                 ]
@@ -434,6 +562,11 @@ class CustomerController extends Controller
                 ];
             });
 
+            // Pass view permission to frontend
+            $permissions = [
+                'view_customer' => Auth::user()->can('view_customer'),
+            ];
+
             return Inertia::render('Admin/Customer/Orders/Index', [
                 'customer' => [
                     'id' => $customer->id,
@@ -443,6 +576,7 @@ class CustomerController extends Controller
                     'status' => $customer->status,
                 ],
                 'orders' => $orders,
+                'permissions' => $permissions,
                 'auth' => [
                     'user' => Auth::user()
                 ]
@@ -482,6 +616,11 @@ class CustomerController extends Controller
                 ];
             });
 
+            // Pass view permission to frontend
+            $permissions = [
+                'view_customer' => Auth::user()->can('view_customer'),
+            ];
+
             return Inertia::render('Admin/Customer/Orders/Show', [
                 'customer' => [
                     'id' => $customer->id,
@@ -506,6 +645,7 @@ class CustomerController extends Controller
                     'updated_at' => $order->updated_at,
                 ],
                 'orderItems' => $orderItems,
+                'permissions' => $permissions,
                 'auth' => [
                     'user' => Auth::user()
                 ]

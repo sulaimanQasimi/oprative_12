@@ -27,7 +27,7 @@ import { Badge } from "@/Components/ui/badge";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Payments({ auth, supplier, payments = [] }) {
+export default function Payments({ auth, supplier, payments = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
 
@@ -110,10 +110,12 @@ export default function Payments({ auth, supplier, payments = [] }) {
                                     {t("Back to Supplier")}
                                 </Button>
                             </Link>
-                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                <Plus className="h-4 w-4 mr-2" />
-                                {t("Add Payment")}
-                            </Button>
+                            {permissions.can_create && (
+                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    {t("Add Payment")}
+                                </Button>
+                            )}
                         </div>
                     </header>
 
@@ -200,10 +202,12 @@ export default function Payments({ auth, supplier, payments = [] }) {
                                                 <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
                                                     {t("No payment records found for this supplier. Add your first payment using the button above.")}
                                                 </p>
-                                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                                    <Plus className="h-4 w-4 mr-2" />
-                                                    {t("Add First Payment")}
-                                                </Button>
+                                                {permissions.can_create && (
+                                                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                                        <Plus className="h-4 w-4 mr-2" />
+                                                        {t("Add First Payment")}
+                                                    </Button>
+                                                )}
                                             </div>
                                         )}
                                     </CardContent>

@@ -76,7 +76,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Show({ auth, warehouse, roles, permissions }) {
+export default function Show({ auth, warehouse, roles, permissions, warehousePermissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("overview");
@@ -101,10 +101,7 @@ export default function Show({ auth, warehouse, roles, permissions }) {
         }
     }, [warehouse, roles, permissions]);
 
-    // Filter warehouse-specific permissions
-    const warehousePermissions = permissions?.filter(permission =>
-        permission.guard_name === 'warehouse_user'
-    ) || [];
+
 
     const getPermissionDisplayName = (permissionName) => {
         // Remove 'warehouse.' prefix for display
@@ -236,7 +233,7 @@ export default function Show({ auth, warehouse, roles, permissions }) {
                                         {t("Back to List")}
                                     </Button>
                                 </Link>
-                                {warehouse && (
+                                {warehouse && warehousePermissions.can_update && (
                                     <Link href={route("admin.warehouses.edit", warehouse.id)}>
                                         <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:scale-105 transition-transform">
                                             <Edit className="h-4 w-4 mr-2" />

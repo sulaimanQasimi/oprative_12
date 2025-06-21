@@ -1,29 +1,4 @@
 <?php return array (
-  'althinect/filament-spatie-roles-permissions' => 
-  array (
-    'aliases' => 
-    array (
-      'FilamentSpatieRolesPermissions' => 'Althinect\\FilamentSpatieRolesPermissions\\FilamentSpatieRolesPermissionsFacade',
-    ),
-    'providers' => 
-    array (
-      0 => 'Althinect\\FilamentSpatieRolesPermissions\\FilamentSpatieRolesPermissionsServiceProvider',
-    ),
-  ),
-  'anourvalar/eloquent-serialize' => 
-  array (
-    'aliases' => 
-    array (
-      'EloquentSerialize' => 'AnourValar\\EloquentSerialize\\Facades\\EloquentSerializeFacade',
-    ),
-  ),
-  'ariaieboy/filament-jalali' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Ariaieboy\\FilamentJalali\\FilamentJalaliServiceProvider',
-    ),
-  ),
   'barryvdh/laravel-dompdf' => 
   array (
     'aliases' => 
@@ -36,96 +11,15 @@
       0 => 'Barryvdh\\DomPDF\\ServiceProvider',
     ),
   ),
-  'bezhansalleh/filament-shield' => 
-  array (
-    'aliases' => 
-    array (
-      'FilamentShield' => 'BezhanSalleh\\FilamentShield\\Facades\\FilamentShield',
-    ),
-    'providers' => 
-    array (
-      0 => 'BezhanSalleh\\FilamentShield\\FilamentShieldServiceProvider',
-    ),
-  ),
-  'blade-ui-kit/blade-heroicons' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'BladeUI\\Heroicons\\BladeHeroiconsServiceProvider',
-    ),
-  ),
-  'blade-ui-kit/blade-icons' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'BladeUI\\Icons\\BladeIconsServiceProvider',
-    ),
-  ),
-  'filament/actions' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Filament\\Actions\\ActionsServiceProvider',
-    ),
-  ),
-  'filament/filament' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Filament\\FilamentServiceProvider',
-    ),
-  ),
-  'filament/forms' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Filament\\Forms\\FormsServiceProvider',
-    ),
-  ),
-  'filament/infolists' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Filament\\Infolists\\InfolistsServiceProvider',
-    ),
-  ),
-  'filament/notifications' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Filament\\Notifications\\NotificationsServiceProvider',
-    ),
-  ),
-  'filament/support' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Filament\\Support\\SupportServiceProvider',
-    ),
-  ),
-  'filament/tables' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Filament\\Tables\\TablesServiceProvider',
-    ),
-  ),
-  'filament/widgets' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Filament\\Widgets\\WidgetsServiceProvider',
-    ),
-  ),
   'hekmatinasser/verta' => 
   array (
-    'providers' => 
-    array (
-      0 => 'Hekmatinasser\\Verta\\Laravel\\VertaServiceProvider',
-    ),
     'aliases' => 
     array (
       'Verta' => 'Hekmatinasser\\Verta\\Verta',
+    ),
+    'providers' => 
+    array (
+      0 => 'Hekmatinasser\\Verta\\Laravel\\VertaServiceProvider',
     ),
   ),
   'inertiajs/inertia-laravel' => 
@@ -133,20 +27,6 @@
     'providers' => 
     array (
       0 => 'Inertia\\ServiceProvider',
-    ),
-  ),
-  'joelbutcher/laravel-archivable' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'LaravelArchivable\\LaravelArchivableServiceProvider',
-    ),
-  ),
-  'kirschbaum-development/eloquent-power-joins' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Kirschbaum\\PowerJoins\\PowerJoinsServiceProvider',
     ),
   ),
   'laravel/breeze' => 
@@ -232,57 +112,11 @@
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
     ),
   ),
-  'okeonline/filament-archivable' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Okeonline\\FilamentArchivable\\FilamentArchivableServiceProvider',
-    ),
-  ),
   'pestphp/pest-plugin-laravel' => 
   array (
     'providers' => 
     array (
       0 => 'Pest\\Laravel\\PestServiceProvider',
-    ),
-  ),
-  'pxlrbt/filament-activity-log' => 
-  array (
-    'providers' => 
-    array (
-      0 => '\\pxlrbt\\FilamentActivityLog\\FilamentActivityLogServiceProvider',
-    ),
-  ),
-  'pxlrbt/filament-excel' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'pxlrbt\\FilamentExcel\\FilamentExcelServiceProvider',
-    ),
-  ),
-  'rappasoft/laravel-authentication-log' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Rappasoft\\LaravelAuthenticationLog\\LaravelAuthenticationLogServiceProvider',
-    ),
-  ),
-  'ryangjchandler/blade-capture-directive' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'RyanChandler\\BladeCaptureDirective\\BladeCaptureDirectiveServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'BladeCaptureDirective' => 'RyanChandler\\BladeCaptureDirective\\Facades\\BladeCaptureDirective',
-    ),
-  ),
-  'shuvroroy/filament-spatie-laravel-backup' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'ShuvroRoy\\FilamentSpatieLaravelBackup\\FilamentSpatieLaravelBackupServiceProvider',
     ),
   ),
   'spatie/laravel-activitylog' => 
@@ -292,13 +126,6 @@
       0 => 'Spatie\\Activitylog\\ActivitylogServiceProvider',
     ),
   ),
-  'spatie/laravel-backup' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Spatie\\Backup\\BackupServiceProvider',
-    ),
-  ),
   'spatie/laravel-permission' => 
   array (
     'providers' => 
@@ -306,71 +133,11 @@
       0 => 'Spatie\\Permission\\PermissionServiceProvider',
     ),
   ),
-  'spatie/laravel-signal-aware-command' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Spatie\\SignalAwareCommand\\SignalAwareCommandServiceProvider',
-    ),
-    'aliases' => 
-    array (
-      'Signal' => 'Spatie\\SignalAwareCommand\\Facades\\Signal',
-    ),
-  ),
-  'stephenjude/filament-debugger' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Stephenjude\\FilamentDebugger\\DebuggerServiceProvider',
-    ),
-  ),
-  'tapp/filament-authentication-log' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Tapp\\FilamentAuthenticationLog\\FilamentAuthenticationLogServiceProvider',
-    ),
-  ),
   'tightenco/ziggy' => 
   array (
     'providers' => 
     array (
       0 => 'Tighten\\Ziggy\\ZiggyServiceProvider',
-    ),
-  ),
-  'tomatophp/console-helpers' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'TomatoPHP\\ConsoleHelpers\\ConsoleHelpersServiceProvider',
-    ),
-  ),
-  'tomatophp/filament-api' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'TomatoPHP\\FilamentApi\\FilamentApiServiceProvider',
-    ),
-  ),
-  'tomatophp/filament-language-switcher' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'TomatoPHP\\FilamentLanguageSwitcher\\FilamentLanguageSwitcherServiceProvider',
-    ),
-  ),
-  'tomatophp/filament-users' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'TomatoPHP\\FilamentUsers\\FilamentUsersServiceProvider',
-    ),
-  ),
-  'torgodly/html2media' => 
-  array (
-    'providers' => 
-    array (
-      0 => 'Torgodly\\Html2Media\\Html2MediaServiceProvider',
     ),
   ),
 );

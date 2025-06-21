@@ -9,6 +9,9 @@ use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\EmployeeController;
+use App\Http\Controllers\Admin\BioMetricController;
+use App\Http\Controllers\Admin\AttendanceSettingController;
+use App\Http\Controllers\Admin\GateController;
 use App\Http\Controllers\Admin\WarehouseUserController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\CustomerUserController;
@@ -106,9 +109,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [UnitController::class, 'index'])->name('admin.units.index');
         Route::get('/create', [UnitController::class, 'create'])->name('admin.units.create');
         Route::post('/', [UnitController::class, 'store'])->name('admin.units.store');
-        Route::get('/{id}/edit', [UnitController::class, 'edit'])->name('admin.units.edit');
-        Route::put('/{id}', [UnitController::class, 'update'])->name('admin.units.update');
-        Route::delete('/{id}', [UnitController::class, 'destroy'])->name('admin.units.destroy');
+        Route::get('/{unit}', [UnitController::class, 'show'])->name('admin.units.show');
+        Route::get('/{unit}/edit', [UnitController::class, 'edit'])->name('admin.units.edit');
+        Route::put('/{unit}', [UnitController::class, 'update'])->name('admin.units.update');
+        Route::delete('/{unit}', [UnitController::class, 'destroy'])->name('admin.units.destroy');
+        Route::post('/{unit}/restore', [UnitController::class, 'restore'])->name('admin.units.restore');
+        Route::delete('/{unit}/force-delete', [UnitController::class, 'forceDelete'])->name('admin.units.force-delete');
     });
 
     // Supplier Management
@@ -116,12 +122,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [SupplierController::class, 'index'])->name('admin.suppliers.index');
         Route::get('/create', [SupplierController::class, 'create'])->name('admin.suppliers.create');
         Route::post('/', [SupplierController::class, 'store'])->name('admin.suppliers.store');
-        Route::get('/{id}', [SupplierController::class, 'show'])->name('admin.suppliers.show');
-        Route::get('/{id}/edit', [SupplierController::class, 'edit'])->name('admin.suppliers.edit');
-        Route::put('/{id}', [SupplierController::class, 'update'])->name('admin.suppliers.update');
-        Route::delete('/{id}', [SupplierController::class, 'destroy'])->name('admin.suppliers.destroy');
-        Route::get('/{id}/payments', [SupplierController::class, 'payments'])->name('admin.suppliers.payments');
-        Route::get('/{id}/purchases', [SupplierController::class, 'purchases'])->name('admin.suppliers.purchases');
+        Route::get('/{supplier}', [SupplierController::class, 'show'])->name('admin.suppliers.show');
+        Route::get('/{supplier}/edit', [SupplierController::class, 'edit'])->name('admin.suppliers.edit');
+        Route::put('/{supplier}', [SupplierController::class, 'update'])->name('admin.suppliers.update');
+        Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->name('admin.suppliers.destroy');
+        Route::post('/{supplier}/restore', [SupplierController::class, 'restore'])->name('admin.suppliers.restore')->withTrashed();
+        Route::delete('/{supplier}/force-delete', [SupplierController::class, 'forceDelete'])->name('admin.suppliers.force-delete')->withTrashed();
+        Route::get('/{supplier}/payments', [SupplierController::class, 'payments'])->name('admin.suppliers.payments');
+        Route::get('/{supplier}/purchases', [SupplierController::class, 'purchases'])->name('admin.suppliers.purchases');
     });
 
     // Product Management
@@ -132,6 +140,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{product:id}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
         Route::put('/{product:id}', [ProductController::class, 'update'])->name('admin.products.update');
         Route::delete('/{product:id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
+        Route::patch('/{id}/restore', [ProductController::class, 'restore'])->name('admin.products.restore');
+        Route::delete('/{id}/force', [ProductController::class, 'forceDelete'])->name('admin.products.force-delete');
     });
 
     // Employee Management
@@ -139,10 +149,50 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [EmployeeController::class, 'index'])->name('admin.employees.index');
         Route::get('/create', [EmployeeController::class, 'create'])->name('admin.employees.create');
         Route::post('/', [EmployeeController::class, 'store'])->name('admin.employees.store');
+        Route::get('/verify', [EmployeeController::class, 'verify'])->name('admin.employees.verify');
+        Route::post('/verify-employee', [EmployeeController::class, 'verifyEmployee'])->name('admin.employees.verify-employee');
+        Route::post('/record-attendance', [EmployeeController::class, 'recordAttendance'])->name('admin.attendance.record');
+        Route::get('/today-stats', [EmployeeController::class, 'getTodayStats'])->name('admin.attendance.today-stats');
+        Route::post('/mark-attendance', [EmployeeController::class, 'markAttendance'])->name('admin.employees.mark-attendance');
+
+        // Employee Biometric routes
+        Route::get('/{id}/biometric/create', [BioMetricController::class, 'create'])->name('admin.employees.biometric.create');
+        Route::post('/{id}/biometric', [BioMetricController::class, 'store'])->name('admin.employees.biometric.store');
+        Route::get('/{id}/biometric/edit', [BioMetricController::class, 'edit'])->name('admin.employees.biometric.edit');
+        Route::put('/{id}/biometric', [BioMetricController::class, 'update'])->name('admin.employees.biometric.update');
+        Route::delete('/{id}/biometric', [BioMetricController::class, 'destroy'])->name('admin.employees.biometric.destroy');
+
+        // Employee routes
+        Route::get('/manual-attendance', [EmployeeController::class, 'manualAttendance'])->name('admin.employees.manual-attendance');
+        Route::post('/manual-record-attendance', [EmployeeController::class, 'recordManualAttendance'])->name('admin.attendance.manual-record');
+        Route::get('/attendance-report', [EmployeeController::class, 'attendanceReport'])->name('admin.employees.attendance-report');
         Route::get('/{id}', [EmployeeController::class, 'show'])->name('admin.employees.show');
         Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employees.edit');
         Route::put('/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
         Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
+
+    });
+
+    // Attendance Settings routes
+    Route::prefix('attendance-settings')->group(function () {
+        Route::get('/', [AttendanceSettingController::class, 'index'])->name('admin.attendance-settings.index');
+        Route::get('/create', [AttendanceSettingController::class, 'create'])->name('admin.attendance-settings.create');
+        Route::post('/', [AttendanceSettingController::class, 'store'])->name('admin.attendance-settings.store');
+        Route::get('/{attendanceSetting}', [AttendanceSettingController::class, 'show'])->name('admin.attendance-settings.show');
+        Route::get('/{attendanceSetting}/edit', [AttendanceSettingController::class, 'edit'])->name('admin.attendance-settings.edit');
+        Route::put('/{attendanceSetting}', [AttendanceSettingController::class, 'update'])->name('admin.attendance-settings.update');
+        Route::delete('/{attendanceSetting}', [AttendanceSettingController::class, 'destroy'])->name('admin.attendance-settings.destroy');
+    });
+
+    // Gates routes
+    Route::prefix('gates')->group(function () {
+        Route::get('/', [GateController::class, 'index'])->name('admin.gates.index');
+        Route::get('/create', [GateController::class, 'create'])->name('admin.gates.create');
+        Route::post('/', [GateController::class, 'store'])->name('admin.gates.store');
+        Route::get('/{gate}', [GateController::class, 'show'])->name('admin.gates.show');
+        Route::get('/{gate}/edit', [GateController::class, 'edit'])->name('admin.gates.edit');
+        Route::put('/{gate}', [GateController::class, 'update'])->name('admin.gates.update');
+        Route::delete('/{gate}', [GateController::class, 'destroy'])->name('admin.gates.destroy');
     });
 
     // Customer Management (Store)
@@ -189,6 +239,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{warehouse:id}/edit', [WarehouseController::class, 'edit'])->name('admin.warehouses.edit');
         Route::put('/{warehouse:id}', [WarehouseController::class, 'update'])->name('admin.warehouses.update');
         Route::delete('/{warehouse:id}', [WarehouseController::class, 'destroy'])->name('admin.warehouses.destroy');
+        Route::post('/{warehouse:id}/restore', [WarehouseController::class, 'restore'])->name('admin.warehouses.restore');
+        Route::delete('/{warehouse:id}/force-delete', [WarehouseController::class, 'forceDelete'])->name('admin.warehouses.force-delete');
         Route::get('/{warehouse:id}', [WarehouseController::class, 'show'])->name('admin.warehouses.show');
 
         // Warehouse products

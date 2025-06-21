@@ -28,6 +28,9 @@ import {
     Key,
     Building2,
     X,
+    Clock,
+    Scan,
+    FileText,
 } from "lucide-react";
 
 const Navigation = ({ auth, currentRoute }) => {
@@ -38,6 +41,7 @@ const Navigation = ({ auth, currentRoute }) => {
     const [expandedGroups, setExpandedGroups] = useState({
         inventory: false,
         warehouse: false,
+        attendance: false,
         users: false,
         system: false,
     });
@@ -136,8 +140,20 @@ const Navigation = ({ auth, currentRoute }) => {
                     return "/adminpanel/currencies";
                 case "admin.employees.index":
                     return "/adminpanel/employees";
+                case "admin.employees.verify":
+                    return "/adminpanel/employees/verify";
+                case "admin.employees.manual-attendance":
+                    return "/adminpanel/employees/manual-attendance";
+                case "admin.employees.attendance-report":
+                    return "/adminpanel/employees/attendance-report";
+                case "admin.attendance-settings.index":
+                    return "/adminpanel/attendance-settings";
+                case "admin.gates.index":
+                    return "/adminpanel/gates";
                 case "admin.customers.index":
                     return "/adminpanel/customers";
+                case "admin.customer-users.index":
+                    return "/adminpanel/customer-users";
                 case "admin.accounts.index":
                     return "/adminpanel/accounts";
                 case "admin.purchases.index":
@@ -213,6 +229,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Truck className="w-5 h-5" />,
                     route: "admin.suppliers.index",
                     active: currentRoute?.startsWith("admin.suppliers"),
+                    permission: "view_any_supplier",
                 },
                 {
                     name: t("Stores"),
@@ -221,11 +238,13 @@ const Navigation = ({ auth, currentRoute }) => {
                     active: currentRoute?.startsWith("admin.customers"),
                 },
                 {
-                    name: t("Employees"),
-                    icon: <Users className="w-5 h-5" />,
-                    route: "admin.employees.index",
-                    active: currentRoute?.startsWith("admin.employees"),
+                    name: t("Store Users"),
+                    icon: <UserCheck className="w-5 h-5" />,
+                    route: "admin.customer-users.index",
+                    active: currentRoute?.startsWith("admin.customer-users"),
+                    permission: "view_any_customer_user",
                 },
+
                 {
                     name: t("Accounts"),
                     icon: <CreditCard className="w-5 h-5" />,
@@ -251,6 +270,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Building2 className="w-5 h-5" />,
                     route: "admin.warehouses.index",
                     active: currentRoute === "admin.warehouses.index",
+                    permission: "view_any_warehouse",
                 },
                 {
                     name: t("Shop Sales"),
@@ -275,6 +295,55 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <ArrowRightLeft className="w-5 h-5" />,
                     route: "admin.warehouses.transfers",
                     active: currentRoute?.includes("transfers"),
+                },
+            ],
+        },
+        {
+            title: t("Employee Attendance"),
+            key: "attendance",
+            icon: <Users className="w-4 h-4" />,
+            items: [
+                {
+                    name: t("Employees"),
+                    icon: <Users className="w-5 h-5" />,
+                    route: "admin.employees.index",
+                    active: currentRoute?.startsWith("admin.employees") &&
+                           currentRoute !== "admin.employees.verify" &&
+                           currentRoute !== "admin.employees.manual-attendance" &&
+                           currentRoute !== "admin.employees.attendance-report",
+                },
+                {
+                    name: t("Employee Verification"),
+                    icon: <Scan className="w-5 h-5" />,
+                    route: "admin.employees.verify",
+                    active: currentRoute === "admin.employees.verify",
+                    badge: "Live",
+                },
+                {
+                    name: t("Manual Attendance"),
+                    icon: <Clock className="w-5 h-5" />,
+                    route: "admin.employees.manual-attendance",
+                    active: currentRoute === "admin.employees.manual-attendance",
+                    badge: "New",
+                },
+                {
+                    name: t("Attendance Report"),
+                    icon: <FileText className="w-5 h-5" />,
+                    route: "admin.employees.attendance-report",
+                    active: currentRoute === "admin.employees.attendance-report",
+                    badge: "Hot",
+                },
+                {
+                    name: t("Attendance Settings"),
+                    icon: <Clock className="w-5 h-5" />,
+                    route: "admin.attendance-settings.index",
+                    active: currentRoute?.startsWith("admin.attendance-settings"),
+                },
+                {
+                    name: t("Gates"),
+                    icon: <Building2 className="w-5 h-5" />,
+                    route: "admin.gates.index",
+                    active: currentRoute?.startsWith("admin.gates"),
                 },
             ],
         },
@@ -313,6 +382,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Ruler className="w-5 h-5" />,
                     route: "admin.units.index",
                     active: currentRoute?.startsWith("admin.units"),
+                    permission: "view_any_unit",
                 },
                 {
                     name: t("Currencies"),
@@ -455,8 +525,19 @@ const Navigation = ({ auth, currentRoute }) => {
 
                             {/* Group Items */}
                             {(!group.key || expandedGroups[group.key]) && (
-                                <ul className="space-y-1 px-2 sm:px-2">
-                                    {group.items.map((item, index) => (
+                                <ul className="space-y-1 px-2">
+                                    {group.items
+                                        .filter(item => {
+                                            if (!item.permission) return true;
+
+                                            // Check if user has the required permission
+                                            const hasPermission = auth.user.permissions?.some(permission =>
+                                                permission.name === item.permission
+                                            );
+
+                                            return hasPermission;
+                                        })
+                                        .map((item, index) => (
                                         <li key={index}>
                                             <Link
                                                 href={safeRoute(item.route)}
@@ -465,9 +546,7 @@ const Navigation = ({ auth, currentRoute }) => {
                                                         ? "bg-gradient-to-r from-blue-600/30 to-indigo-600/30 text-white shadow-lg border border-blue-500/30 backdrop-blur-sm"
                                                         : "text-slate-400 hover:text-white hover:bg-slate-800/60"
                                                 }`}
-                                                onClick={() =>
-                                                    setIsMobileMenuOpen(false)
-                                                }
+                                                onClick={() => setIsMobileMenuOpen(false)}
                                             >
                                                 {/* Active indicator */}
                                                 {item.active && (

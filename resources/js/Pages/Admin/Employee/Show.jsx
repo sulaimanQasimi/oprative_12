@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Badge as UIBadge } from "@/Components/ui/badge";
 import Navigation from "@/Components/Admin/Navigation";
 
-export default function Show({ auth, employee, fingerprints = [] }) {
+export default function Show({ auth, employee, fingerprints = [], biometric = null }) {
     const { t } = useLaravelReactI18n();
 
     const formatDate = (dateString) => {
@@ -70,6 +70,21 @@ export default function Show({ auth, employee, fingerprints = [] }) {
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-3">
+                                    {biometric ? (
+                                        <Link href={route("admin.employees.biometric.edit", employee.id)}>
+                                            <Button variant="outline" size="sm" className="text-green-600 border-green-200 hover:bg-green-50">
+                                                <Fingerprint className="h-4 w-4 mr-2" />
+                                                {t("Edit Biometric")}
+                                            </Button>
+                                        </Link>
+                                    ) : (
+                                        <Link href={route("admin.employees.biometric.create", employee.id)}>
+                                            <Button variant="outline" size="sm" className="text-blue-600 border-blue-200 hover:bg-blue-50">
+                                                <Fingerprint className="h-4 w-4 mr-2" />
+                                                {t("Add Biometric")}
+                                            </Button>
+                                        </Link>
+                                    )}
                                     <Link href={route("admin.employees.edit", employee.id)}>
                                         <Button variant="outline" size="sm">
                                             <Edit className="h-4 w-4 mr-2" />

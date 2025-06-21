@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import { motion, AnimatePresence } from "framer-motion";
 import anime from "animejs";
@@ -55,7 +55,7 @@ import {
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Index({ auth, units = [] }) {
+export default function Index({ auth, units = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
@@ -130,8 +130,17 @@ export default function Index({ auth, units = [] }) {
     };
 
     const handleDelete = (unitId) => {
-        // Add delete functionality here
-        console.log(t("Delete unit:"), unitId);
+        if (confirm(t('Are you sure you want to delete this unit?'))) {
+            router.delete(route('admin.units.destroy', unitId), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    // Success message is handled by the backend
+                },
+                onError: (errors) => {
+                    console.error('Error deleting unit:', errors);
+                }
+            });
+        }
     };
 
     return (
@@ -304,12 +313,14 @@ export default function Index({ auth, units = [] }) {
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
-                                <Link href={route("admin.units.create")}>
-                                    <Button className="gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                        <Plus className="h-4 w-4" />
-                                        {t("Add Unit")}
-                                    </Button>
-                                </Link>
+                                {permissions.can_create && (
+                                    <Link href={route("admin.units.create")}>
+                                        <Button className="gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                            <Plus className="h-4 w-4" />
+                                            {t("Add Unit")}
+                                        </Button>
+                                    </Link>
+                                )}
                             </motion.div>
                         </div>
                     </motion.header>
@@ -739,25 +750,29 @@ export default function Index({ auth, units = [] }) {
                                                                         </TableCell>
                                                                         <TableCell className="text-right">
                                                                             <div className="flex items-center justify-end space-x-2">
-                                                                                <Link
-                                                                                    href={route(
-                                                                                        "admin.units.edit",
-                                                                                        unit.id
-                                                                                    )}
-                                                                                    className="p-2 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all duration-200"
-                                                                                >
-                                                                                    <Edit className="h-4 w-4" />
-                                                                                </Link>
-                                                                                <button
-                                                                                    onClick={() =>
-                                                                                        handleDelete(
+                                                                                {permissions.can_update && (
+                                                                                    <Link
+                                                                                        href={route(
+                                                                                            "admin.units.edit",
                                                                                             unit.id
-                                                                                        )
-                                                                                    }
-                                                                                    className="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
-                                                                                >
-                                                                                    <Trash2 className="h-4 w-4" />
-                                                                                </button>
+                                                                                        )}
+                                                                                        className="p-2 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-lg transition-all duration-200"
+                                                                                    >
+                                                                                        <Edit className="h-4 w-4" />
+                                                                                    </Link>
+                                                                                )}
+                                                                                {permissions.can_delete && (
+                                                                                    <button
+                                                                                        onClick={() =>
+                                                                                            handleDelete(
+                                                                                                unit.id
+                                                                                            )
+                                                                                        }
+                                                                                        className="p-2 text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
+                                                                                    >
+                                                                                        <Trash2 className="h-4 w-4" />
+                                                                                    </button>
+                                                                                )}
                                                                             </div>
                                                                         </TableCell>
                                                                     </TableRow>
@@ -789,7 +804,7 @@ export default function Index({ auth, units = [] }) {
                                                                                       )}
                                                                             </p>
                                                                         </div>
-                                                                        {!searchTerm && (
+                                                                        {!searchTerm && permissions.can_create && (
                                                                             <Link
                                                                                 href={route(
                                                                                     "admin.units.create"

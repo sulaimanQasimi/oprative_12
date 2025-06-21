@@ -24,6 +24,7 @@ class Employee extends Model
         'department',
         'contact_info',
         'email',
+        'gate_id',
     ];
 
     /**
@@ -57,6 +58,38 @@ class Employee extends Model
     public function attendanceRecords(): HasMany
     {
         return $this->hasMany(AttendanceRecord::class);
+    }
+
+    /**
+     * Get the gate assigned to this employee
+     */
+    public function gate()
+    {
+        return $this->belongsTo(Gate::class);
+    }
+
+    /**
+     * Get the attendance records for this employee
+     */
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    /**
+     * Get the bio data records for this employee
+     */
+    public function bioDataTables()
+    {
+        return $this->hasMany(BioDataTable::class);
+    }
+
+    /**
+     * Get the biometric record for this employee (should only be one)
+     */
+    public function biometric()
+    {
+        return $this->hasOne(BioDataTable::class);
     }
 
     /**

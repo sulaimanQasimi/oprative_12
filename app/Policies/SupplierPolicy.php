@@ -2,65 +2,93 @@
 
 namespace App\Policies;
 
-use App\Models\Supplier;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use App\Models\Supplier;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class SupplierPolicy
 {
+    use HandlesAuthorization;
+
     /**
-     * Determine whether the user can view any models.
+     * Determine whether the user can view any suppliers.
+     *
+     * @param  \App\Models\User  $user
+     * @return mixed
      */
-    public function viewAny(User $user): bool
+    public function viewAny(User $user)
     {
-        return $user->can('view_any_supplier');
+        return $user->hasPermissionTo('view_any_supplier');
     }
 
     /**
-     * Determine whether the user can view the model.
+     * Determine whether the user can view the supplier.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Supplier  $supplier
+     * @return mixed
      */
-    public function view(User $user, Supplier $supplier): bool
+    public function view(User $user, Supplier $supplier)
     {
-        return $user->can('view_supplier');
+        return $user->hasPermissionTo('view_supplier');
     }
 
     /**
-     * Determine whether the user can create models.
+     * Determine whether the user can create suppliers.
+     *
+     * @param  \App\Models\User  $user
+     * @return mixed
      */
-    public function create(User $user): bool
+    public function create(User $user)
     {
-        return $user->can('create_supplier');
+        return $user->hasPermissionTo('create_supplier');
     }
 
     /**
-     * Determine whether the user can update the model.
+     * Determine whether the user can update the supplier.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Supplier  $supplier
+     * @return mixed
      */
-    public function update(User $user, Supplier $supplier): bool
+    public function update(User $user, Supplier $supplier)
     {
-        return $user->can('update_supplier');
+        return $user->hasPermissionTo('update_supplier');
     }
 
     /**
-     * Determine whether the user can delete the model.
+     * Determine whether the user can delete the supplier.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Supplier  $supplier
+     * @return mixed
      */
-    public function delete(User $user, Supplier $supplier): bool
+    public function delete(User $user, Supplier $supplier)
     {
-        return $user->can('delete_supplier') || $user->can('delete_any_supplier');
+        return $user->hasPermissionTo('delete_supplier');
     }
 
     /**
-     * Determine whether the user can restore the model.
+     * Determine whether the user can restore the supplier.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Supplier  $supplier
+     * @return mixed
      */
-    public function restore(User $user, Supplier $supplier): bool
+    public function restore(User $user, Supplier $supplier)
     {
-        return $user->can('delete_any_supplier');
+        return $user->hasPermissionTo('restore_supplier');
     }
 
     /**
-     * Determine whether the user can permanently delete the model.
+     * Determine whether the user can permanently delete the supplier.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\Supplier  $supplier
+     * @return mixed
      */
-    public function forceDelete(User $user, Supplier $supplier): bool
+    public function forceDelete(User $user, Supplier $supplier)
     {
-        return $user->can('delete_any_supplier');
+        return $user->hasPermissionTo('force_delete_supplier');
     }
 }

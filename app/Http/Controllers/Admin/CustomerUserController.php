@@ -7,11 +7,22 @@ use App\Models\Customer;
 use App\Models\CustomerUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Spatie\Permission\Models\Permission;
 
 class CustomerUserController extends Controller
 {
+    /**
+     * Constructor to apply middleware for customer user permissions
+     */
+    public function __construct()
+    {
+        // Customer user management requires update_customer permission
+        $this->middleware('permission:update_customer')->only(['create', 'store', 'edit', 'update', 'destroy']);
+        $this->middleware('permission:view_customer')->only(['index', 'show']);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -19,8 +30,15 @@ class CustomerUserController extends Controller
     {
         $customerUsers = CustomerUser::with(['customer', 'roles', 'permissions'])->paginate(10);
 
+        // Pass customer permissions to frontend
+        $permissions = [
+            'view_customer' => Auth::user()->can('view_customer'),
+            'update_customer' => Auth::user()->can('update_customer'),
+        ];
+
         return Inertia::render('Admin/CustomerUser/Index', [
             'customerUsers' => $customerUsers,
+            'permissions' => $permissions,
         ]);
     }
 
@@ -33,10 +51,16 @@ class CustomerUserController extends Controller
         $permissions = Permission::where('guard_name', 'customer_user')->get();
         $selectedCustomerId = $request->get('customer_id');
 
+        // Pass customer permissions to frontend
+        $customerPermissions = [
+            'update_customer' => Auth::user()->can('update_customer'),
+        ];
+
         return Inertia::render('Admin/CustomerUser/Create', [
             'customers' => $customers,
             'permissions' => $permissions,
             'selectedCustomerId' => $selectedCustomerId,
+            'customerPermissions' => $customerPermissions,
         ]);
     }
 
@@ -80,8 +104,15 @@ class CustomerUserController extends Controller
     {
         $customerUser->load(['customer', 'permissions']);
 
+        // Pass customer permissions to frontend
+        $permissions = [
+            'view_customer' => Auth::user()->can('view_customer'),
+            'update_customer' => Auth::user()->can('update_customer'),
+        ];
+
         return Inertia::render('Admin/CustomerUser/Show', [
             'customerUser' => $customerUser,
+            'permissions' => $permissions,
         ]);
     }
 

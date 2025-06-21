@@ -27,7 +27,7 @@ import { Badge } from "@/Components/ui/badge";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Purchases({ auth, supplier, purchases = [] }) {
+export default function Purchases({ auth, supplier, purchases = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
 
@@ -110,10 +110,12 @@ export default function Purchases({ auth, supplier, purchases = [] }) {
                                     {t("Back to Supplier")}
                                 </Button>
                             </Link>
-                            <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                <Plus className="h-4 w-4 mr-2" />
-                                {t("New Purchase")}
-                            </Button>
+                            {permissions.can_create && (
+                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    {t("New Purchase")}
+                                </Button>
+                            )}
                         </div>
                     </header>
 
@@ -198,10 +200,12 @@ export default function Purchases({ auth, supplier, purchases = [] }) {
                                                 <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
                                                     {t("No purchase records found for this supplier. Create your first purchase using the button above.")}
                                                 </p>
-                                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                                    <Plus className="h-4 w-4 mr-2" />
-                                                    {t("Create First Purchase")}
-                                                </Button>
+                                                {permissions.can_create && (
+                                                    <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                                                        <Plus className="h-4 w-4 mr-2" />
+                                                        {t("Create First Purchase")}
+                                                    </Button>
+                                                )}
                                             </div>
                                         )}
                                     </CardContent>

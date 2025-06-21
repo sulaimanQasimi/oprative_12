@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
-    protected $fillable = [
+   protected $fillable = [
         'type',
         'name',
         'barcode',

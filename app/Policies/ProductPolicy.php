@@ -53,7 +53,7 @@ class ProductPolicy
      */
     public function restore(User $user, Product $product): bool
     {
-        return $user->can('delete_any_product');
+        return $user->can('restore_product');
     }
 
     /**
@@ -61,6 +61,6 @@ class ProductPolicy
      */
     public function forceDelete(User $user, Product $product): bool
     {
-        return $user->can('delete_any_product');
+        return $user->can('force_delete_product');
     }
 }
