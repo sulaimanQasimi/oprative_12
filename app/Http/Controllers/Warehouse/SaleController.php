@@ -18,21 +18,24 @@ class SaleController extends Controller
         $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
 
         $sales = Sale::where('warehouse_id', $warehouse->id)
-            ->with(['customer', 'currency'])
+            ->with(['customer', 'currency', 'saleItems'])
             ->latest()
             ->get()
             ->map(function ($sale) {
+                // Calculate total from sale items if the sale total is 0
+                $calculatedTotal = $sale->total > 0 ? $sale->total : $sale->saleItems->sum('total');
+                
                 return [
                     'id' => $sale->id,
                     'reference' => $sale->reference,
-                    'amount' => (float) $sale->total,
+                    'amount' => (float) $calculatedTotal,
                     'date' => $sale->date->format('Y-m-d'),
                     'status' => $sale->status,
                     'customer' => $sale->customer ? $sale->customer->name : 'Unknown',
                     'notes' => $sale->notes ?? null,
                     'created_at' => $sale->created_at->diffForHumans(),
                     'currency' => $sale->currency ? $sale->currency->code : null,
-                    'paid_amount' => (float) $sale->total,
+                    'paid_amount' => (float) ($sale->paid_amount ?: $calculatedTotal),
                     'due_amount' => (float) $sale->due_amount,
                     'items_count' => $sale->saleItems->count(),
                     'confirmed_by_warehouse' => (bool) $sale->confirmed_by_warehouse,
@@ -80,9 +83,8 @@ class SaleController extends Controller
             ];
         });
 
-        // Transform payments
-        $payments = $sale->payments
-            ->map(function ($payment) {
+        // Transform payments (if any)
+        $payments = $sale->payments ? $sale->payments->map(function ($payment) {
                 return [
                     'id' => $payment->id,
                     'payment_date' => $payment->payment_date->format('Y-m-d'),
@@ -92,7 +94,7 @@ class SaleController extends Controller
                     'notes' => $payment->notes,
                     'currency' => $payment->currency ? $payment->currency->code : null
                 ];
-            });
+            }) : [];
 
         // Transform customer data
         $customer = [
@@ -101,8 +103,11 @@ class SaleController extends Controller
             'email' => $sale->customer->email,
             'phone' => $sale->customer->phone,
             'address' => $sale->customer->address,
-            'tax_number' => $sale->customer->tax_number
+            'tax_number' => $sale->customer->tax_number ?? null
         ];
+
+        // Calculate total from sale items if the sale total is 0
+        $calculatedTotal = $sale->total > 0 ? $sale->total : $sale->saleItems->sum('total');
 
         // Format sale data for the view
         $saleData = [
@@ -113,14 +118,14 @@ class SaleController extends Controller
             'notes' => $sale->notes,
             'customer' => $customer,
             'currency' => $sale->currency ? $sale->currency->code : null,
-            'total_amount' => (float) $sale->total_amount,
-            'paid_amount' => (float) $sale->paid_amount,
-            'due_amount' => (float) $sale->due_amount,
-            'tax_percentage' => (float) $sale->tax_percentage,
-            'tax_amount' => (float) $sale->tax_amount,
-            'discount_percentage' => (float) $sale->discount_percentage,
-            'discount_amount' => (float) $sale->discount_amount,
-            'shipping_cost' => (float) $sale->shipping_cost,
+            'total_amount' => (float) $calculatedTotal,
+            'paid_amount' => (float) ($sale->paid_amount ?: $calculatedTotal),
+            'due_amount' => 0,
+            'tax_percentage' => 0,
+            'tax_amount' => 0,
+            'discount_percentage' => 0,
+            'discount_amount' => 0,
+            'shipping_cost' => 0,
             'created_at' => $sale->created_at->diffForHumans(),
             'items_count' => $sale->saleItems->count(),
             'sale_items' => $saleItems,
@@ -268,6 +273,9 @@ class SaleController extends Controller
             'tax_number' => $sale->customer->tax_number
         ];
 
+        // Calculate total from sale items if the sale total is 0
+        $calculatedTotal = $sale->total > 0 ? $sale->total : $sale->saleItems->sum('total');
+
         // Format sale data for the view
         $saleData = [
             'id' => $sale->id,
@@ -277,14 +285,14 @@ class SaleController extends Controller
             'notes' => $sale->notes,
             'customer' => $customer,
             'currency' => $sale->currency ? $sale->currency->code : null,
-            'total_amount' => (float) $sale->total_amount,
-            'paid_amount' => (float) $sale->paid_amount,
-            'due_amount' => (float) $sale->due_amount,
-            'tax_percentage' => (float) $sale->tax_percentage,
-            'tax_amount' => (float) $sale->tax_amount,
-            'discount_percentage' => (float) $sale->discount_percentage,
-            'discount_amount' => (float) $sale->discount_amount,
-            'shipping_cost' => (float) $sale->shipping_cost,
+            'total_amount' => (float) $calculatedTotal,
+            'paid_amount' => (float) ($sale->paid_amount ?: $calculatedTotal),
+            'due_amount' => 0,
+            'tax_percentage' => 0,
+            'tax_amount' => 0,
+            'discount_percentage' => 0,
+            'discount_amount' => 0,
+            'shipping_cost' => 0,
             'created_at' => $sale->created_at->diffForHumans(),
             'items_count' => $sale->saleItems->count(),
             'sale_items' => $saleItems,

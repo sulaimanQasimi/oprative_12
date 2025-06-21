@@ -92,12 +92,12 @@ export default function Navigation({ auth, currentRoute }) {
                 {/* Header */}
                 <div className="p-6 border-b border-slate-200 dark:border-slate-700">
                     <div className="flex items-center space-x-3">
-                        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 text-white p-3 rounded-xl shadow-lg">
-                            <Package className="h-7 w-7" />
+                        <div className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-3 rounded-xl shadow-lg">
+                            <ShoppingCart className="h-7 w-7" />
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-slate-800 dark:text-white">
-                                {t('Warehouse')}
+                                {t('Store')}
                             </h2>
                             <p className="text-sm text-slate-500 dark:text-slate-400">
                                 {t('Management System')}
@@ -118,8 +118,8 @@ export default function Navigation({ auth, currentRoute }) {
                                     variant="ghost"
                                     className={`w-full justify-start h-12 px-4 transition-all duration-200 ${
                                         isActive
-                                            ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-lg hover:from-purple-600 hover:to-indigo-700'
-                                            : 'text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-400'
+                                            ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg hover:from-emerald-600 hover:to-teal-700'
+                                            : 'text-slate-600 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-600 dark:hover:text-emerald-400'
                                     }`}
                                     type="button"
                                 >
@@ -136,22 +136,7 @@ export default function Navigation({ auth, currentRoute }) {
                 {/* Footer Section */}
                 <div className="p-4 border-t border-slate-200 dark:border-slate-700 space-y-2">
                     {/* Dark Mode Toggle */}
-                    <Button
-                        variant="ghost"
-                        onClick={toggleDarkMode}
-                        className="w-full justify-start h-12 px-4 text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-800 hover:text-purple-600 dark:hover:text-purple-400 transition-all duration-200"
-                        type="button"
-                    >
-                        {isDarkMode ? (
-                            <Sun className="h-5 w-5 mr-3 text-amber-400" />
-                        ) : (
-                            <Moon className="h-5 w-5 mr-3 text-slate-700 dark:text-slate-300" />
-                        )}
-                        <span className="font-medium">
-                            {isDarkMode ? t('Light Mode') : t('Dark Mode')}
-                        </span>
-                    </Button>
-
+                 
                     {/* Logout Button */}
                     <Button
                         variant="ghost"
@@ -165,9 +150,9 @@ export default function Navigation({ auth, currentRoute }) {
 
                     {/* User Profile */}
                     <div className="flex items-center space-x-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800 mt-4">
-                        <Avatar className="border-2 border-purple-200 dark:border-purple-900/40 w-10 h-10">
-                            <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}&background=8b5cf6&color=fff`} />
-                            <AvatarFallback className="bg-purple-600 text-white text-sm">
+                        <Avatar className="border-2 border-emerald-200 dark:border-emerald-900/40 w-10 h-10">
+                            <AvatarImage src={`https://ui-avatars.com/api/?name=${auth.user.name}&background=10b981&color=fff`} />
+                            <AvatarFallback className="bg-emerald-600 text-white text-sm">
                                 {auth.user.name.charAt(0)}
                             </AvatarFallback>
                         </Avatar>
@@ -176,7 +161,7 @@ export default function Navigation({ auth, currentRoute }) {
                                 {auth.user.name}
                             </p>
                             <p className="text-xs text-slate-500 dark:text-slate-400">
-                                {t('Warehouse Staff')}
+                                {t('Store Staff')}
                             </p>
                         </div>
                     </div>

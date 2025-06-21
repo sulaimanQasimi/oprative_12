@@ -21,7 +21,7 @@ trait RegisterRoutes
         Route::prefix('warehouse')->name('warehouse.')->group(function () {
             // Guest routes
             Route::middleware('guest:warehouse_user')->group(function () {
-                Route::get('login', [AuthController::class, 'showLoginForm'])->name('login');
+                Route::get('login', action: [AuthController::class, 'showLoginForm'])->name('login');
                 Route::post('login', [AuthController::class, 'login']);
             });
 

@@ -11,7 +11,7 @@ import {
     CardFooter,
 } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/Components/ui/tabs";
+
 import {
     Search,
     TrendingUp,
@@ -277,7 +277,6 @@ export default function Sale({ auth, sales }) {
     const { t } = useLaravelReactI18n();
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [view, setView] = useState("grid");
     const [isAnimated, setIsAnimated] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -415,7 +414,7 @@ export default function Sale({ auth, sales }) {
             );
 
             // Animate sales cards or list items with stagger based on view
-            if (view === "grid" && gridItemsRef.current.length > 0) {
+            if (gridItemsRef.current.length > 0) {
                 timelineRef.current.add(
                     {
                         targets: gridItemsRef.current,
@@ -427,7 +426,7 @@ export default function Sale({ auth, sales }) {
                     },
                     "-=500"
                 );
-            } else if (view === "list" && listItemsRef.current.length > 0) {
+            } else if (listItemsRef.current.length > 0) {
                 timelineRef.current.add(
                     {
                         targets: listItemsRef.current,
@@ -442,7 +441,7 @@ export default function Sale({ auth, sales }) {
 
             setIsAnimated(true);
         }
-    }, [isAnimated, view, filteredSales.length]);
+    }, [isAnimated, filteredSales.length]);
 
     // Reset animation state when view changes
     useEffect(() => {
@@ -450,33 +449,7 @@ export default function Sale({ auth, sales }) {
         // Clear refs
         gridItemsRef.current = [];
         listItemsRef.current = [];
-    }, [view, searchTerm]);
-
-    // Animation for view transition
-    const handleViewChange = (newView) => {
-        if (newView === view) return;
-
-        anime({
-            targets: cardsRef.current,
-            opacity: [1, 0],
-            scale: [1, 0.95],
-            duration: 200,
-            easing: "easeInOutQuad",
-            complete: () => {
-                setView(newView);
-                // Force immediate rerender to avoid flash of empty content
-                setTimeout(() => {
-                    anime({
-                        targets: cardsRef.current,
-                        opacity: [0, 1],
-                        scale: [0.95, 1],
-                        duration: 300,
-                        easing: "easeOutQuad",
-                    });
-                }, 50);
-            },
-        });
-    };
+    }, [searchTerm]);
 
     // Animation for hover effects
     const animateHover = (target, enter) => {
@@ -503,7 +476,7 @@ export default function Sale({ auth, sales }) {
 
     return (
         <>
-            <Head title={t("Warehouse Sales")}>
+            <Head title={t("Store Sales")}>
                 <style>{`
                     @keyframes shimmer {
                         0% {
@@ -546,7 +519,7 @@ export default function Sale({ auth, sales }) {
                         <div className="flex items-center space-x-4">
                             <div className="relative flex flex-col">
                                 <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">
-                                    {t("Warehouse Management")}
+                                    {t("Store Management")}
                                 </span>
                                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
                                     {t("Sales Transactions")}
@@ -1036,131 +1009,14 @@ export default function Sale({ auth, sales }) {
                                     animate={{ x: 0, opacity: 1 }}
                                     transition={{ duration: 0.4 }}
                                 >
-                                    <div className="flex items-center gap-4">
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
-                                        >
-                                            <RefreshCw className="h-3.5 w-3.5" />
-                                            <span>{t("Refresh")}</span>
-                                        </Button>
-                                        <Tabs
-                                            defaultValue="grid"
-                                            className="w-auto"
-                                        >
-                                            <TabsList className="p-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
-                                                <TabsTrigger
-                                                    value="grid"
-                                                    active={view === "grid"}
-                                                    onClick={() =>
-                                                        handleViewChange("grid")
-                                                    }
-                                                    className="px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm rounded-md transition-all"
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="16"
-                                                        height="16"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="2"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        className="lucide lucide-layout-grid"
-                                                    >
-                                                        <rect
-                                                            width="7"
-                                                            height="7"
-                                                            x="3"
-                                                            y="3"
-                                                            rx="1"
-                                                        />
-                                                        <rect
-                                                            width="7"
-                                                            height="7"
-                                                            x="14"
-                                                            y="3"
-                                                            rx="1"
-                                                        />
-                                                        <rect
-                                                            width="7"
-                                                            height="7"
-                                                            x="14"
-                                                            y="14"
-                                                            rx="1"
-                                                        />
-                                                        <rect
-                                                            width="7"
-                                                            height="7"
-                                                            x="3"
-                                                            y="14"
-                                                            rx="1"
-                                                        />
-                                                    </svg>
-                                                </TabsTrigger>
-                                                <TabsTrigger
-                                                    value="list"
-                                                    active={view === "list"}
-                                                    onClick={() =>
-                                                        handleViewChange("list")
-                                                    }
-                                                    className="px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm rounded-md transition-all"
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="16"
-                                                        height="16"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="2"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        className="lucide lucide-list"
-                                                    >
-                                                        <line
-                                                            x1="8"
-                                                            x2="21"
-                                                            y1="6"
-                                                            y2="6"
-                                                        />
-                                                        <line
-                                                            x1="8"
-                                                            x2="21"
-                                                            y1="12"
-                                                            y2="12"
-                                                        />
-                                                        <line
-                                                            x1="8"
-                                                            x2="21"
-                                                            y1="18"
-                                                            y2="18"
-                                                        />
-                                                        <line
-                                                            x1="3"
-                                                            x2="3.01"
-                                                            y1="6"
-                                                            y2="6"
-                                                        />
-                                                        <line
-                                                            x1="3"
-                                                            x2="3.01"
-                                                            y1="12"
-                                                            y2="12"
-                                                        />
-                                                        <line
-                                                            x1="3"
-                                                            x2="3.01"
-                                                            y1="18"
-                                                            y2="18"
-                                                        />
-                                                    </svg>
-                                                </TabsTrigger>
-                                            </TabsList>
-                                        </Tabs>
-                                    </div>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
+                                    >
+                                        <RefreshCw className="h-3.5 w-3.5" />
+                                        <span>{t("Refresh")}</span>
+                                    </Button>
                                 </motion.div>
                             </div>
 
@@ -1182,385 +1038,171 @@ export default function Sale({ auth, sales }) {
                                     : t("Recent Transactions")}
                             </h2>
 
-                            {/* Grid and List Views */}
+                            {/* Table View */}
                             <div
                                 ref={cardsRef}
                                 className="transition-opacity duration-300"
                                 style={{ minHeight: "200px" }}
                             >
-                                <TabsContent
-                                    value="grid"
-                                    activeValue={view}
-                                    className="mt-0"
-                                >
-                                    {filteredSales &&
-                                    filteredSales.length > 0 ? (
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredSales &&
+                                filteredSales.length > 0 ? (
+                                    <Card className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden">
+                                        <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 px-5 py-3 grid grid-cols-12 text-sm font-medium text-slate-500 dark:text-slate-400">
+                                            <div className="col-span-4 md:col-span-5 lg:col-span-4 flex items-center gap-2">
+                                                <span>
+                                                    {t("Reference")}
+                                                </span>
+                                            </div>
+                                            <div className="col-span-2 md:col-span-2 lg:col-span-2 text-center hidden md:flex items-center justify-center">
+                                                <span>{t("Date")}</span>
+                                            </div>
+                                            <div className="col-span-3 md:col-span-2 lg:col-span-2 text-center hidden md:flex items-center justify-center">
+                                                <span>{t("Customer")}</span>
+                                            </div>
+                                            <div className="col-span-6 md:col-span-2 lg:col-span-2 text-center flex items-center justify-center">
+                                                <span>{t("Amount")}</span>
+                                            </div>
+                                            <div className="col-span-2 md:col-span-1 lg:col-span-2 text-right">
+                                                <span>{t("Actions")}</span>
+                                            </div>
+                                        </div>
+                                        <div>
                                             {filteredSales.map(
                                                 (record, index) => (
                                                     <motion.div
                                                         key={record.id}
                                                         initial={{
                                                             opacity: 0,
-                                                            y: 20,
+                                                            y: 10,
                                                         }}
                                                         animate={{
                                                             opacity: 1,
                                                             y: 0,
                                                         }}
                                                         transition={{
-                                                            duration: 0.3,
-                                                            delay: index * 0.05,
+                                                            duration: 0.2,
+                                                            delay:
+                                                                index *
+                                                                0.03,
                                                         }}
+                                                        ref={(el) =>
+                                                            (listItemsRef.current[
+                                                                index
+                                                            ] = el)
+                                                        }
+                                                        className="px-5 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 last:border-0 grid grid-cols-12 items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors duration-150 group"
                                                     >
-                                                        <Card
-                                                            ref={(el) =>
-                                                                (gridItemsRef.current[
-                                                                    index
-                                                                ] = el)
-                                                            }
-                                                            className="bg-white dark:bg-slate-900 border-0 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden h-full"
-                                                            onMouseEnter={(e) =>
-                                                                animateHover(
-                                                                    e.currentTarget,
-                                                                    true
-                                                                )
-                                                            }
-                                                            onMouseLeave={(e) =>
-                                                                animateHover(
-                                                                    e.currentTarget,
-                                                                    false
-                                                                )
-                                                            }
-                                                        >
-                                                            <div className="flex justify-between items-start p-5 pb-3">
-                                                                <div className="flex gap-3 items-start">
-                                                                    <div className="h-10 w-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center flex-shrink-0">
-                                                                        <ShoppingCart className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                                                                    </div>
-                                                                    <div>
-                                                                        <h3 className="font-semibold text-slate-900 dark:text-white line-clamp-1">
-                                                                            {
-                                                                                record.reference
-                                                                            }
-                                                                        </h3>
-                                                                        <p className="text-sm text-slate-500 dark:text-slate-400">
-                                                                            {
-                                                                                record.customer
-                                                                            }
-                                                                        </p>
-                                                                    </div>
-                                                                </div>
-                                                                <Badge className="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full font-medium border-0">
-                                                                    {t("Sale")}
-                                                                </Badge>
+                                                        <div className="col-span-4 md:col-span-5 lg:col-span-4 flex items-center gap-3">
+                                                            <div className="h-9 w-9 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0">
+                                                                <ShoppingCart className="h-5 w-5" />
                                                             </div>
-
-                                                            <CardContent className="px-5 pt-0 pb-3">
-                                                                <div className="mt-3 flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                                                    <div>
-                                                                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                                            {t(
-                                                                                "Amount"
-                                                                            )}
-                                                                        </p>
-                                                                        <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                                                                            $
-                                                                            {record.amount.toFixed(
-                                                                                2
-                                                                            )}
-                                                                        </p>
+                                                            <div className="min-w-0">
+                                                                <h3 className="font-medium text-slate-900 dark:text-white truncate">
+                                                                    {
+                                                                        record.reference
+                                                                    }
+                                                                </h3>
+                                                                <div className="mt-0.5 md:hidden">
+                                                                    <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
+                                                                        <Calendar className="h-3 w-3 mr-1" />
+                                                                        {
+                                                                            record.date
+                                                                        }
                                                                     </div>
-                                                                    <div>
-                                                                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                                            {t(
-                                                                                "Date"
-                                                                            )}
-                                                                        </p>
-                                                                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                                            {
-                                                                                record.date
-                                                                            }
-                                                                        </p>
+                                                                    <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                                                        <User className="h-3 w-3 mr-1" />
+                                                                        {
+                                                                            record.customer
+                                                                        }
                                                                     </div>
                                                                 </div>
-
-                                                                {record.notes && (
-                                                                    <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg">
-                                                                        <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                                            {t(
-                                                                                "Notes"
-                                                                            )}
-                                                                        </p>
-                                                                        <p className="text-sm text-slate-700 dark:text-slate-300 line-clamp-2">
-                                                                            {
-                                                                                record.notes
-                                                                            }
-                                                                        </p>
-                                                                    </div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="col-span-2 md:col-span-2 lg:col-span-2 text-center hidden md:block text-sm text-slate-700 dark:text-slate-300">
+                                                            {record.date}
+                                                        </div>
+                                                        <div className="col-span-3 md:col-span-2 lg:col-span-2 text-center hidden md:block text-sm text-slate-700 dark:text-slate-300">
+                                                            {
+                                                                record.customer
+                                                            }
+                                                        </div>
+                                                        <div className="col-span-6 md:col-span-2 lg:col-span-2 text-center font-medium text-emerald-600 dark:text-emerald-400">
+                                                            $
+                                                            {record.amount.toFixed(
+                                                                2
+                                                            )}
+                                                        </div>
+                                                        <div className="col-span-2 md:col-span-1 lg:col-span-2 flex justify-end gap-1">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                <Eye className="h-4 w-4" />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            >
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </Button>
+                                                            <Link
+                                                                href={route(
+                                                                    "warehouse.sales.show",
+                                                                    record.id
                                                                 )}
-
-                                                                <div className="mt-3 grid grid-cols-2 gap-2">
-                                                                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                                                                        <Tag className="h-3 w-3" />
-                                                                        {t(
-                                                                            "ID:"
-                                                                        )}{" "}
-                                                                        {
-                                                                            record.id
-                                                                        }
-                                                                    </div>
-                                                                    <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 justify-end">
-                                                                        <Clock className="h-3 w-3" />
-                                                                        {
-                                                                            record.created_at
-                                                                        }
-                                                                    </div>
-                                                                </div>
-                                                            </CardContent>
-
-                                                            <CardFooter className="px-5 py-3 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-between">
+                                                            >
                                                                 <Button
-                                                                    variant="ghost"
+                                                                    variant="outline"
                                                                     size="sm"
-                                                                    className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 flex items-center gap-1 px-2 h-8"
+                                                                    className="h-8 bg-white dark:bg-transparent dark:text-slate-400 dark:border-slate-700 text-slate-700 flex items-center opacity-0 group-hover:opacity-100 transition-opacity"
                                                                 >
-                                                                    <Eye className="h-3.5 w-3.5" />
                                                                     <span>
                                                                         {t(
-                                                                            "View"
+                                                                            "Details"
                                                                         )}
                                                                     </span>
+                                                                    <ChevronRight className="h-3.5 w-3.5 ml-1" />
                                                                 </Button>
-                                                                <div className="flex gap-1">
-                                                                    <Button
-                                                                        variant="ghost"
-                                                                        size="sm"
-                                                                        className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 w-8 h-8 p-0"
-                                                                    >
-                                                                        <MoreHorizontal className="h-4 w-4" />
-                                                                    </Button>
-                                                                    <Link
-                                                                        href={route(
-                                                                            "warehouse.sales.show",
-                                                                            record.id
-                                                                        )}
-                                                                    >
-                                                                        <Button
-                                                                            variant="default"
-                                                                            size="sm"
-                                                                            className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg h-8"
-                                                                        >
-                                                                            {t(
-                                                                                "Details"
-                                                                            )}
-                                                                        </Button>
-                                                                    </Link>
-                                                                </div>
-                                                            </CardFooter>
-                                                        </Card>
+                                                            </Link>
+                                                        </div>
                                                     </motion.div>
                                                 )
                                             )}
                                         </div>
-                                    ) : (
-                                        <motion.div
-                                            initial={{
-                                                opacity: 0,
-                                                scale: 0.95,
-                                            }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ duration: 0.3 }}
-                                            className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 text-center"
-                                        >
-                                            <div className="inline-flex h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-5">
-                                                <ShoppingCart className="h-8 w-8 text-slate-400" />
-                                            </div>
-                                            <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
-                                                {t("No transactions found")}
-                                            </h3>
-                                            <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
-                                                {searchTerm
-                                                    ? t(
-                                                          "Try adjusting your search criteria or check for typos."
-                                                      )
-                                                    : t(
-                                                          "No sales transactions have been recorded yet. Add your first transaction to get started."
-                                                      )}
-                                            </p>
-                                            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                                                <Plus className="h-4 w-4 mr-2" />
-                                                {t("Add First Transaction")}
-                                            </Button>
-                                        </motion.div>
-                                    )}
-                                </TabsContent>
-
-                                <TabsContent
-                                    value="list"
-                                    activeValue={view}
-                                    className="mt-0"
-                                >
-                                    {filteredSales &&
-                                    filteredSales.length > 0 ? (
-                                        <Card className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden">
-                                            <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 px-5 py-3 grid grid-cols-12 text-sm font-medium text-slate-500 dark:text-slate-400">
-                                                <div className="col-span-4 md:col-span-5 lg:col-span-4 flex items-center gap-2">
-                                                    <span>
-                                                        {t("Reference")}
-                                                    </span>
-                                                </div>
-                                                <div className="col-span-2 md:col-span-2 lg:col-span-2 text-center hidden md:flex items-center justify-center">
-                                                    <span>{t("Date")}</span>
-                                                </div>
-                                                <div className="col-span-3 md:col-span-2 lg:col-span-2 text-center hidden md:flex items-center justify-center">
-                                                    <span>{t("Customer")}</span>
-                                                </div>
-                                                <div className="col-span-6 md:col-span-2 lg:col-span-2 text-center flex items-center justify-center">
-                                                    <span>{t("Amount")}</span>
-                                                </div>
-                                                <div className="col-span-2 md:col-span-1 lg:col-span-2 text-right">
-                                                    <span>{t("Actions")}</span>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                {filteredSales.map(
-                                                    (record, index) => (
-                                                        <motion.div
-                                                            key={record.id}
-                                                            initial={{
-                                                                opacity: 0,
-                                                                y: 10,
-                                                            }}
-                                                            animate={{
-                                                                opacity: 1,
-                                                                y: 0,
-                                                            }}
-                                                            transition={{
-                                                                duration: 0.2,
-                                                                delay:
-                                                                    index *
-                                                                    0.03,
-                                                            }}
-                                                            ref={(el) =>
-                                                                (listItemsRef.current[
-                                                                    index
-                                                                ] = el)
-                                                            }
-                                                            className="px-5 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 last:border-0 grid grid-cols-12 items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors duration-150 group"
-                                                        >
-                                                            <div className="col-span-4 md:col-span-5 lg:col-span-4 flex items-center gap-3">
-                                                                <div className="h-9 w-9 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0">
-                                                                    <ShoppingCart className="h-5 w-5" />
-                                                                </div>
-                                                                <div className="min-w-0">
-                                                                    <h3 className="font-medium text-slate-900 dark:text-white truncate">
-                                                                        {
-                                                                            record.reference
-                                                                        }
-                                                                    </h3>
-                                                                    <div className="mt-0.5 md:hidden">
-                                                                        <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
-                                                                            <Calendar className="h-3 w-3 mr-1" />
-                                                                            {
-                                                                                record.date
-                                                                            }
-                                                                        </div>
-                                                                        <div className="flex items-center text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                                                            <User className="h-3 w-3 mr-1" />
-                                                                            {
-                                                                                record.customer
-                                                                            }
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div className="col-span-2 md:col-span-2 lg:col-span-2 text-center hidden md:block text-sm text-slate-700 dark:text-slate-300">
-                                                                {record.date}
-                                                            </div>
-                                                            <div className="col-span-3 md:col-span-2 lg:col-span-2 text-center hidden md:block text-sm text-slate-700 dark:text-slate-300">
-                                                                {
-                                                                    record.customer
-                                                                }
-                                                            </div>
-                                                            <div className="col-span-6 md:col-span-2 lg:col-span-2 text-center font-medium text-emerald-600 dark:text-emerald-400">
-                                                                $
-                                                                {record.amount.toFixed(
-                                                                    2
-                                                                )}
-                                                            </div>
-                                                            <div className="col-span-2 md:col-span-1 lg:col-span-2 flex justify-end gap-1">
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                >
-                                                                    <Eye className="h-4 w-4" />
-                                                                </Button>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                >
-                                                                    <MoreHorizontal className="h-4 w-4" />
-                                                                </Button>
-                                                                <Link
-                                                                    href={route(
-                                                                        "warehouse.sales.show",
-                                                                        record.id
-                                                                    )}
-                                                                >
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        size="sm"
-                                                                        className="h-8 bg-white dark:bg-transparent dark:text-slate-400 dark:border-slate-700 text-slate-700 flex items-center opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                    >
-                                                                        <span>
-                                                                            {t(
-                                                                                "Details"
-                                                                            )}
-                                                                        </span>
-                                                                        <ChevronRight className="h-3.5 w-3.5 ml-1" />
-                                                                    </Button>
-                                                                </Link>
-                                                            </div>
-                                                        </motion.div>
-                                                    )
-                                                )}
-                                            </div>
-                                        </Card>
-                                    ) : (
-                                        <motion.div
-                                            initial={{
-                                                opacity: 0,
-                                                scale: 0.95,
-                                            }}
-                                            animate={{ opacity: 1, scale: 1 }}
-                                            transition={{ duration: 0.3 }}
-                                            className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 text-center"
-                                        >
-                                            <div className="inline-flex h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-5">
-                                                <ShoppingCart className="h-8 w-8 text-slate-400" />
-                                            </div>
-                                            <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
-                                                {t("No transactions found")}
-                                            </h3>
-                                            <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
-                                                {searchTerm
-                                                    ? t(
-                                                          "Try adjusting your search criteria or check for typos."
-                                                      )
-                                                    : t(
-                                                          "No sales transactions have been recorded yet. Add your first transaction to get started."
-                                                      )}
-                                            </p>
-                                            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
-                                                <Plus className="h-4 w-4 mr-2" />
-                                                {t("Add First Transaction")}
-                                            </Button>
-                                        </motion.div>
-                                    )}
-                                </TabsContent>
+                                    </Card>
+                                ) : (
+                                    <motion.div
+                                        initial={{
+                                            opacity: 0,
+                                            scale: 0.95,
+                                        }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 text-center"
+                                    >
+                                        <div className="inline-flex h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-5">
+                                            <ShoppingCart className="h-8 w-8 text-slate-400" />
+                                        </div>
+                                        <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
+                                            {t("No transactions found")}
+                                        </h3>
+                                        <p className="text-slate-500 dark:text-slate-400 max-w-md mx-auto mb-6">
+                                            {searchTerm
+                                                ? t(
+                                                      "Try adjusting your search criteria or check for typos."
+                                                  )
+                                                : t(
+                                                      "No sales transactions have been recorded yet. Add your first transaction to get started."
+                                                  )}
+                                        </p>
+                                        <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            {t("Add First Transaction")}
+                                        </Button>
+                                    </motion.div>
+                                )}
                             </div>
                         </div>
                     </main>
