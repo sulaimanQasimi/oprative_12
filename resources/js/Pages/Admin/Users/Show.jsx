@@ -91,6 +91,12 @@ export default function ShowUser({ auth, user, can }) {
                 transition={{ duration: 0.5 }}
                 className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
+                {/* Background Effects */}
+                <div className="absolute inset-0 opacity-30">
+                    <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse"></div>
+                    <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"></div>
+                    <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-500"></div>
+                </div>
                 <Navigation auth={auth} currentRoute="admin.users" />
 
                 <div className="flex-1 flex flex-col overflow-hidden">
@@ -106,11 +112,13 @@ export default function ShowUser({ auth, user, can }) {
                                 <motion.div
                                     initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                    transition={{ delay: 0.3, duration: 0.6 }}
-                                    className="relative"
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative float-animation"
                                 >
-                                    <div className="bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600 rounded-2xl blur-lg opacity-75"></div>
+                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 p-4 rounded-2xl shadow-2xl">
                                         <Eye className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
                                 <div>
@@ -118,18 +126,28 @@ export default function ShowUser({ auth, user, can }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1"
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
                                     >
+                                        <Sparkles className="w-4 h-4" />
                                         {t("Admin Panel")} - {t("User Management")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-700 bg-clip-text text-transparent"
                                     >
                                         {t("User Details")}
                                     </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                    >
+                                        <Eye className="w-4 h-4" />
+                                        {t("Viewing profile for")} {user.name}
+                                    </motion.p>
                                 </div>
                             </div>
 
@@ -140,27 +158,27 @@ export default function ShowUser({ auth, user, can }) {
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.users.activity-log", user.id)}>
-                                    <Button variant="outline" className="gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
+                                    <Button variant="outline" className="gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white hover:scale-105 transition-all duration-200 shadow-lg">
                                         <Activity className="h-4 w-4" />
                                         {t("Activity Log")}
                                     </Button>
                                 </Link>
                                 <Link href={route("admin.users.edit", user.id)}>
-                                    <Button className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white">
+                                    <Button className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white hover:scale-105 transition-all duration-200 shadow-lg">
                                         <Edit className="h-4 w-4" />
                                         {t("Edit User")}
                                     </Button>
                                 </Link>
                                 <Button
                                     variant="destructive"
-                                    className="gap-2"
+                                    className="gap-2 hover:scale-105 transition-all duration-200 shadow-lg"
                                     onClick={handleDelete}
                                 >
                                     <Trash2 className="h-4 w-4" />
                                     {t("Delete")}
                                 </Button>
                                 <Link href={route("admin.users.index")}>
-                                    <Button variant="outline" className="gap-2">
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Users")}
                                     </Button>
@@ -184,8 +202,9 @@ export default function ShowUser({ auth, user, can }) {
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
+                                        whileHover={{ y: -5, transition: { duration: 0.2 } }}
                                     >
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                             <CardContent className="p-6 text-center">
                                                 <div className="h-32 w-32 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 flex items-center justify-center mx-auto mb-6 shadow-lg">
                                                     <span className="text-blue-600 dark:text-blue-400 font-bold text-5xl">
@@ -273,17 +292,29 @@ export default function ShowUser({ auth, user, can }) {
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 1.0, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardHeader className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20">
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:shadow-3xl transition-all duration-300 group overflow-hidden relative">
+                                            {/* Card Background Effect */}
+                                            <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 via-pink-50/30 to-purple-50/50 dark:from-purple-900/10 dark:via-pink-900/10 dark:to-purple-900/10 group-hover:opacity-75 transition-opacity"></div>
+                                            
+                                            <CardHeader className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50 relative z-10">
                                                 <CardTitle className="flex items-center gap-3">
-                                                    <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg">
-                                                        <Crown className="h-6 w-6 text-white" />
-                                                    </div>
+                                                    <motion.div
+                                                        whileHover={{ rotate: 15, scale: 1.1 }}
+                                                        className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg relative overflow-hidden"
+                                                    >
+                                                        <Crown className="h-6 w-6 text-white relative z-10" />
+                                                        <div className="absolute inset-0 shimmer-effect"></div>
+                                                    </motion.div>
                                                     <div>
-                                                        <h3 className="text-xl font-bold">{t("User Roles")}</h3>
+                                                        <h3 className="text-xl font-bold bg-gradient-to-r from-purple-700 to-pink-600 bg-clip-text text-transparent">{t("User Roles")}</h3>
                                                         <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
                                                             {t("Assigned roles and their capabilities")}
                                                         </p>
+                                                    </div>
+                                                    <div className="ml-auto">
+                                                        <Badge variant="secondary" className="bg-purple-100 text-purple-700 border-purple-200">
+                                                            {user.roles?.length || 0} {t("roles")}
+                                                        </Badge>
                                                     </div>
                                                 </CardTitle>
                                             </CardHeader>
