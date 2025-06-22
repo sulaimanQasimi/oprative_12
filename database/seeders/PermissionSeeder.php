@@ -235,7 +235,8 @@ class PermissionSeeder extends Seeder
             'guard_name' => 'web',
         ]);
 
-        $adminPermissions = Permission::where('name', 'not like', '%backup%')
+        $adminPermissions = Permission::where(['guard_name' => 'web'])
+            ->where('name', 'not like', '%backup%')
             ->where('name', 'not like', '%restore%')
             ->where('name', 'not like', '%force_delete%')
             ->where('name', 'not like', '%run_maintenance%')
@@ -254,7 +255,7 @@ class PermissionSeeder extends Seeder
 
         foreach ($managerModels as $model) {
             foreach ($managerActions as $action) {
-                $permission = Permission::where('name', "{$action}_{$model}")->first();
+                $permission = Permission::where('name', "{$action}_{$model}")->where('guard_name', 'web')->first();
                 if ($permission) {
                     $manager->givePermissionTo($permission);
                 }
@@ -279,7 +280,7 @@ class PermissionSeeder extends Seeder
 
         foreach ($warehouseModels as $model) {
             foreach ($warehouseActions as $action) {
-                $permission = Permission::where('name', "{$action}_{$model}")->first();
+                $permission = Permission::where('name', "{$action}_{$model}")->where('guard_name', 'web')->first();
                 if ($permission) {
                     $warehouseManager->givePermissionTo($permission);
                 }
@@ -306,7 +307,7 @@ class PermissionSeeder extends Seeder
 
         foreach ($salesModels as $model) {
             foreach ($salesActions as $action) {
-                $permission = Permission::where('name', "{$action}_{$model}")->first();
+                $permission = Permission::where('name', "{$action}_{$model}")->where('guard_name', 'web')->first();
                 if ($permission) {
                     $salesManager->givePermissionTo($permission);
                 }
@@ -328,7 +329,7 @@ class PermissionSeeder extends Seeder
             'guard_name' => 'web',
         ]);
 
-        $employee->givePermissionTo([
+        $employeePermissions = [
             'access_admin_panel',
             'view_dashboard',
             'view_product',
@@ -338,7 +339,10 @@ class PermissionSeeder extends Seeder
             'create_sale',
             'view_sale',
             'view_any_sale',
-        ]);
+        ];
+
+        $permissions = Permission::where('guard_name', 'web')->whereIn('name', $employeePermissions)->get();
+        $employee->givePermissionTo($permissions);
 
         // Customer - Very limited permissions
         $customer = Role::firstOrCreate([
@@ -346,12 +350,15 @@ class PermissionSeeder extends Seeder
             'guard_name' => 'web',
         ]);
 
-        $customer->givePermissionTo([
+        $customerPermissions = [
             'view_product',
             'view_any_product',
             'create_order',
             'view_order',
             'update_order',
-        ]);
+        ];
+
+        $permissions = Permission::where('guard_name', 'web')->whereIn('name', $customerPermissions)->get();
+        $customer->givePermissionTo($permissions);
     }
 }
