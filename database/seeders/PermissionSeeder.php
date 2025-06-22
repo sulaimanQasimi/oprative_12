@@ -224,7 +224,7 @@ class PermissionSeeder extends Seeder
             'name' => 'super_admin',
             'guard_name' => 'web',
         ]);
-        
+
         // Clear existing permissions and assign all web guard permissions
         $webPermissions = Permission::where('guard_name', 'web')->get();
         $superAdmin->syncPermissions($webPermissions);
