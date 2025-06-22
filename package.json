@@ -10,7 +10,7 @@
         "@lottiefiles/lottie-player": "^2.0.12",
         "@majidh1/jalalidatepicker": "^0.9.12",
         "@radix-ui/react-slot": "^1.2.3",
-        "@react-three/drei": "^10.0.5",
+        "@react-three/drei": "10.0.5",
         "@react-three/fiber": "^9.1.0",
         "@tailwindcss/typography": "^0.5.16",
         "@tailwindcss/vite": "^4.0.7",
