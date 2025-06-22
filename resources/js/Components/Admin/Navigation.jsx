@@ -363,6 +363,8 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Shield className="w-5 h-5" />,
                     route: "admin.roles.index",
                     active: currentRoute?.startsWith("admin.roles"),
+                    permission: "view_any_role",
+
                 },
                 {
                     name: t("Permissions"),

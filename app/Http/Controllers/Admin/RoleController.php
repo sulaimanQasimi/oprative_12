@@ -55,6 +55,12 @@ class RoleController extends Controller
             $query->has('permissions', '<=', (int) $request->max_permissions);
         }
 
+        // Handle export
+        if ($request->filled('export') && $request->export === 'true') {
+            $roles = $query->get();
+            return $this->exportRoles($roles, $request);
+        }
+
         // Pagination
         $perPage = $request->get('per_page', 15);
         $roles = $query->paginate($perPage)->withQueryString();
@@ -76,6 +82,56 @@ class RoleController extends Controller
                 ) : 0
             ]
         ]);
+    }
+
+    /**
+     * Export roles to CSV
+     */
+    private function exportRoles($roles, $request)
+    {
+        $filename = 'roles_export_' . date('Y-m-d_H-i-s') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($roles) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for proper UTF-8 encoding in Excel
+            fwrite($file, "\xEF\xBB\xBF");
+            
+            // Add CSV headers
+            fputcsv($file, [
+                'ID',
+                'Role Name',
+                'Guard Name',
+                'Permissions Count',
+                'Permissions',
+                'Created At',
+                'Updated At'
+            ]);
+
+            // Add data rows
+            foreach ($roles as $role) {
+                $permissions = $role->permissions->pluck('name')->join(', ');
+                
+                fputcsv($file, [
+                    $role->id,
+                    $role->name,
+                    $role->guard_name,
+                    $role->permissions->count(),
+                    $permissions,
+                    $role->created_at->format('Y-m-d H:i:s'),
+                    $role->updated_at->format('Y-m-d H:i:s')
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function create()

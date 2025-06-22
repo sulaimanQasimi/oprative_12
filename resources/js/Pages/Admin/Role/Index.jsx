@@ -19,7 +19,13 @@ import {
     Lock,
     Unlock,
     MoreHorizontal,
-    Sparkles
+    Sparkles,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight,
+    Settings,
+    Download
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -45,6 +51,18 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+    DropdownMenuSeparator,
+} from "@/Components/ui/dropdown-menu";
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@/Components/ui/collapsible";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
@@ -83,14 +101,65 @@ const AnimatedCounter = ({
     );
 };
 
-export default function RolesIndex({ auth, roles = [], filters = {} }) {
+// Pagination component
+const Pagination = ({ data, onPageChange }) => {
+    const { t } = useLaravelReactI18n();
+    
+    if (!data.links || data.links.length <= 3) return null;
+
+    return (
+        <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
+            <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                {t("Showing")} <span className="font-medium mx-1">{data.from}</span> {t("to")} <span className="font-medium mx-1">{data.to}</span> {t("of")} <span className="font-medium mx-1">{data.total}</span> {t("results")}
+            </div>
+            <div className="flex items-center space-x-1">
+                {data.links.map((link, index) => {
+                    if (link.url === null) {
+                        return (
+                            <Button
+                                key={index}
+                                variant="ghost"
+                                size="sm"
+                                disabled
+                                className="text-slate-400"
+                            >
+                                {link.label === '&laquo; Previous' ? <ChevronLeft className="w-4 h-4" /> :
+                                 link.label === 'Next &raquo;' ? <ChevronRight className="w-4 h-4" /> :
+                                 link.label}
+                            </Button>
+                        );
+                    }
+
+                    return (
+                        <Button
+                            key={index}
+                            variant={link.active ? "default" : "ghost"}
+                            size="sm"
+                            onClick={() => onPageChange(link.url)}
+                            className={link.active ? "bg-blue-600 text-white" : ""}
+                        >
+                            {link.label === '&laquo; Previous' ? <ChevronLeft className="w-4 h-4" /> :
+                             link.label === 'Next &raquo;' ? <ChevronRight className="w-4 h-4" /> :
+                             link.label}
+                        </Button>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+export default function RolesIndex({ auth, roles, filters = {}, statistics = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
     const [sortBy, setSortBy] = useState(filters?.sort_by || "created_at");
     const [sortOrder, setSortOrder] = useState(filters?.sort_order || "desc");
-    const [filteredRoles, setFilteredRoles] = useState(roles || []);
+    const [perPage, setPerPage] = useState(filters?.per_page || 15);
+    const [minPermissions, setMinPermissions] = useState(filters?.min_permissions || "");
+    const [maxPermissions, setMaxPermissions] = useState(filters?.max_permissions || "");
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
     // Animation effect
     useEffect(() => {
@@ -101,44 +170,18 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Enhanced filtering logic
+    // Check if any advanced filters are active
     useEffect(() => {
-        let filtered = [...(roles || [])];
-
-        // Search filter
-        if (searchTerm) {
-            filtered = filtered.filter(role =>
-                role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                role.permissions?.some(permission => 
-                    permission.name.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-            );
+        if (minPermissions || maxPermissions) {
+            setShowAdvancedFilters(true);
         }
+    }, [minPermissions, maxPermissions]);
 
-        // Sorting
-        filtered.sort((a, b) => {
-            let aValue = a[sortBy];
-            let bValue = b[sortBy];
-
-            if (typeof aValue === 'string') {
-                aValue = aValue.toLowerCase();
-                bValue = bValue.toLowerCase();
-            }
-
-            if (sortOrder === 'asc') {
-                return aValue > bValue ? 1 : -1;
-            } else {
-                return aValue < bValue ? 1 : -1;
-            }
-        });
-
-        setFilteredRoles(filtered);
-    }, [searchTerm, sortBy, sortOrder, roles]);
-
-    // Calculate stats
-    const totalRoles = roles?.length || 0;
-    const totalPermissions = roles?.reduce((total, role) => total + (role.permissions?.length || 0), 0) || 0;
-    const averagePermissions = totalRoles > 0 ? Math.round(totalPermissions / totalRoles) : 0;
+    // Get statistics with fallbacks
+    const totalRoles = statistics?.total_roles || roles?.data?.length || 0;
+    const totalPermissions = statistics?.total_permissions || 0;
+    const averagePermissions = statistics?.average_permissions || 0;
+    const rolesWithPermissions = statistics?.roles_with_permissions || 0;
 
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -154,14 +197,38 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
         setSearchTerm("");
         setSortBy("created_at");
         setSortOrder("desc");
+        setPerPage(15);
+        setMinPermissions("");
+        setMaxPermissions("");
+        setShowAdvancedFilters(false);
+        
+        router.get(route('admin.roles.index'), {}, {
+            preserveState: true,
+            preserveScroll: true,
+        });
     };
 
     const handleSearch = () => {
-        router.get(route('admin.roles.index'), {
-            search: searchTerm,
+        const params = {
+            search: searchTerm || undefined,
             sort_by: sortBy,
             sort_order: sortOrder,
-        }, {
+            per_page: perPage,
+            min_permissions: minPermissions || undefined,
+            max_permissions: maxPermissions || undefined,
+        };
+
+        // Remove undefined values
+        Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+
+        router.get(route('admin.roles.index'), params, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const handlePageChange = (url) => {
+        router.visit(url, {
             preserveState: true,
             preserveScroll: true,
         });
@@ -174,6 +241,30 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
             });
         }
     };
+
+    const handleExport = () => {
+        const params = new URLSearchParams({
+            search: searchTerm || '',
+            sort_by: sortBy,
+            sort_order: sortOrder,
+            min_permissions: minPermissions || '',
+            max_permissions: maxPermissions || '',
+            export: 'true'
+        });
+        
+        window.open(`${route('admin.roles.index')}?${params.toString()}`, '_blank');
+    };
+
+    // Auto-search on filter changes
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            if (searchTerm !== (filters?.search || "")) {
+                handleSearch();
+            }
+        }, 500);
+
+        return () => clearTimeout(timeoutId);
+    }, [searchTerm]);
 
     return (
         <>
@@ -274,12 +365,18 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route('admin.roles.create')}>
-                                    <Button className="gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                        <Plus className="h-4 w-4" />
-                                        {t("Add Role")}
-                                    </Button>
-                                </Link>
+                                <Button onClick={handleExport} variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                    <Download className="h-4 w-4" />
+                                    {t("Export")}
+                                </Button>
+                                {auth.user?.can?.create_role && (
+                                    <Link href={route('admin.roles.create')}>
+                                        <Button className="gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                            <Plus className="h-4 w-4" />
+                                            {t("Add Role")}
+                                        </Button>
+                                    </Link>
+                                )}
                             </motion.div>
                         </div>
                     </motion.header>
@@ -294,7 +391,7 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
                                 className="space-y-8"
                             >
                                 {/* Enhanced Summary Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                     <motion.div
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
@@ -338,7 +435,7 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
                                                             <AnimatedCounter value={totalPermissions} duration={2000} />
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
-                                                            {t("Assigned permissions")}
+                                                            {t("Available permissions")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl">
@@ -375,59 +472,145 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
                                             </CardContent>
                                         </Card>
                                     </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.2, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Active Roles")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-green-600">
+                                                            <AnimatedCounter value={rolesWithPermissions} duration={2000} />
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("With permissions")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
+                                                        <Users className="h-8 w-8 text-green-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
                                 </div>
 
                                 {/* Enhanced Filters and Search */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 1.2, duration: 0.5 }}
+                                    transition={{ delay: 1.3, duration: 0.5 }}
                                 >
                                     <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
                                         <CardContent className="p-6">
-                                            <div className="flex flex-col lg:flex-row gap-4">
-                                                <div className="flex-1">
-                                                    <div className="relative">
-                                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
-                                                        <Input
-                                                            placeholder={t("Search roles or permissions...")}
-                                                            value={searchTerm}
-                                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                                            className="pl-10 bg-white/50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                                            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                                                        />
+                                            <div className="space-y-4">
+                                                {/* Basic Filters */}
+                                                <div className="flex flex-col lg:flex-row gap-4">
+                                                    <div className="flex-1">
+                                                        <div className="relative">
+                                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                                                            <Input
+                                                                placeholder={t("Search roles or permissions...")}
+                                                                value={searchTerm}
+                                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                                className="pl-10 bg-white/50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className="flex gap-2">
+                                                        <Select value={sortBy} onValueChange={setSortBy}>
+                                                            <SelectTrigger className="w-40 bg-white/50 dark:bg-slate-700/50">
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="name">{t("Name")}</SelectItem>
+                                                                <SelectItem value="created_at">{t("Created Date")}</SelectItem>
+                                                                <SelectItem value="updated_at">{t("Updated Date")}</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+
+                                                        <Select value={sortOrder} onValueChange={setSortOrder}>
+                                                            <SelectTrigger className="w-32 bg-white/50 dark:bg-slate-700/50">
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="asc">{t("Ascending")}</SelectItem>
+                                                                <SelectItem value="desc">{t("Descending")}</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+
+                                                        <Select value={perPage.toString()} onValueChange={(value) => setPerPage(parseInt(value))}>
+                                                            <SelectTrigger className="w-24 bg-white/50 dark:bg-slate-700/50">
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="10">10</SelectItem>
+                                                                <SelectItem value="15">15</SelectItem>
+                                                                <SelectItem value="25">25</SelectItem>
+                                                                <SelectItem value="50">50</SelectItem>
+                                                                <SelectItem value="100">100</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+
+                                                        <Collapsible open={showAdvancedFilters} onOpenChange={setShowAdvancedFilters}>
+                                                            <CollapsibleTrigger asChild>
+                                                                <Button variant="outline" className="gap-2">
+                                                                    <Filter className="w-4 h-4" />
+                                                                    {t("Advanced")}
+                                                                    <ChevronDown className={`w-4 h-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
+                                                                </Button>
+                                                            </CollapsibleTrigger>
+                                                        </Collapsible>
+
+                                                        <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700">
+                                                            <Search className="w-4 h-4" />
+                                                        </Button>
+
+                                                        <Button onClick={clearFilters} variant="outline">
+                                                            <X className="w-4 h-4" />
+                                                        </Button>
                                                     </div>
                                                 </div>
-                                                
-                                                <div className="flex gap-2">
-                                                    <Select value={sortBy} onValueChange={setSortBy}>
-                                                        <SelectTrigger className="w-40 bg-white/50 dark:bg-slate-700/50">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="name">{t("Name")}</SelectItem>
-                                                            <SelectItem value="created_at">{t("Created Date")}</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
 
-                                                    <Select value={sortOrder} onValueChange={setSortOrder}>
-                                                        <SelectTrigger className="w-32 bg-white/50 dark:bg-slate-700/50">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="asc">{t("Ascending")}</SelectItem>
-                                                            <SelectItem value="desc">{t("Descending")}</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-
-                                                    <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-700">
-                                                        <Search className="w-4 h-4" />
-                                                    </Button>
-
-                                                    <Button onClick={clearFilters} variant="outline">
-                                                        <X className="w-4 h-4" />
-                                                    </Button>
-                                                </div>
+                                                {/* Advanced Filters */}
+                                                <Collapsible open={showAdvancedFilters} onOpenChange={setShowAdvancedFilters}>
+                                                    <CollapsibleContent className="space-y-4">
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Minimum Permissions")}
+                                                                </label>
+                                                                <Input
+                                                                    type="number"
+                                                                    placeholder="0"
+                                                                    value={minPermissions}
+                                                                    onChange={(e) => setMinPermissions(e.target.value)}
+                                                                    className="bg-white/50 dark:bg-slate-700/50"
+                                                                />
+                                                            </div>
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Maximum Permissions")}
+                                                                </label>
+                                                                <Input
+                                                                    type="number"
+                                                                    placeholder="100"
+                                                                    value={maxPermissions}
+                                                                    onChange={(e) => setMaxPermissions(e.target.value)}
+                                                                    className="bg-white/50 dark:bg-slate-700/50"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </CollapsibleContent>
+                                                </Collapsible>
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -443,10 +626,10 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
                                         <CardHeader>
                                             <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-white">
                                                 <Shield className="w-5 h-5" />
-                                                {t("Roles")} ({filteredRoles.length})
+                                                {t("Roles")} ({roles?.total || 0})
                                             </CardTitle>
                                         </CardHeader>
-                                        <CardContent>
+                                        <CardContent className="p-0">
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
@@ -467,7 +650,7 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
                                                     </TableHeader>
                                                     <TableBody>
                                                         <AnimatePresence>
-                                                            {filteredRoles.map((role, index) => (
+                                                            {roles?.data?.map((role, index) => (
                                                                 <motion.tr
                                                                     key={role.id}
                                                                     initial={{ opacity: 0, x: -20 }}
@@ -484,6 +667,9 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
                                                                             <div>
                                                                                 <p className="font-semibold text-slate-800 dark:text-white">
                                                                                     {role.name}
+                                                                                </p>
+                                                                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                    {role.guard_name} guard
                                                                                 </p>
                                                                             </div>
                                                                         </div>
@@ -516,24 +702,43 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center justify-end gap-2">
-                                                                            <Link href={route('admin.roles.show', role.id)}>
-                                                                                <Button size="sm" variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                                                                                    <Eye className="w-4 h-4" />
-                                                                                </Button>
-                                                                            </Link>
-                                                                            <Link href={route('admin.roles.edit', role.id)}>
-                                                                                <Button size="sm" variant="ghost" className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
-                                                                                    <Edit className="w-4 h-4" />
-                                                                                </Button>
-                                                                            </Link>
-                                                                            <Button
-                                                                                size="sm"
-                                                                                variant="ghost"
-                                                                                onClick={() => handleDelete(role)}
-                                                                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                                            >
-                                                                                <Trash2 className="w-4 h-4" />
-                                                                            </Button>
+                                                                            <DropdownMenu>
+                                                                                <DropdownMenuTrigger asChild>
+                                                                                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                                                                        <MoreHorizontal className="h-4 w-4" />
+                                                                                    </Button>
+                                                                                </DropdownMenuTrigger>
+                                                                                <DropdownMenuContent align="end">
+                                                                                    {auth.user?.can?.view_role && (
+                                                                                        <DropdownMenuItem asChild>
+                                                                                            <Link href={route('admin.roles.show', role.id)} className="flex items-center gap-2">
+                                                                                                <Eye className="w-4 h-4" />
+                                                                                                {t("View")}
+                                                                                            </Link>
+                                                                                        </DropdownMenuItem>
+                                                                                    )}
+                                                                                    {auth.user?.can?.update_role && (
+                                                                                        <DropdownMenuItem asChild>
+                                                                                            <Link href={route('admin.roles.edit', role.id)} className="flex items-center gap-2">
+                                                                                                <Edit className="w-4 h-4" />
+                                                                                                {t("Edit")}
+                                                                                            </Link>
+                                                                                        </DropdownMenuItem>
+                                                                                    )}
+                                                                                    {auth.user?.can?.delete_role && (
+                                                                                        <>
+                                                                                            <DropdownMenuSeparator />
+                                                                                            <DropdownMenuItem
+                                                                                                onClick={() => handleDelete(role)}
+                                                                                                className="text-red-600 focus:text-red-600 flex items-center gap-2"
+                                                                                            >
+                                                                                                <Trash2 className="w-4 h-4" />
+                                                                                                {t("Delete")}
+                                                                                            </DropdownMenuItem>
+                                                                                        </>
+                                                                                    )}
+                                                                                </DropdownMenuContent>
+                                                                            </DropdownMenu>
                                                                         </div>
                                                                     </TableCell>
                                                                 </motion.tr>
@@ -543,7 +748,7 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
                                                 </Table>
                                             </div>
 
-                                            {filteredRoles.length === 0 && (
+                                            {(!roles?.data || roles.data.length === 0) && (
                                                 <div className="text-center py-12">
                                                     <Shield className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
                                                     <h3 className="text-lg font-semibold text-slate-600 dark:text-slate-400 mb-2">
@@ -556,6 +761,11 @@ export default function RolesIndex({ auth, roles = [], filters = {} }) {
                                                         {t("Clear Filters")}
                                                     </Button>
                                                 </div>
+                                            )}
+
+                                            {/* Pagination */}
+                                            {roles?.data && roles.data.length > 0 && (
+                                                <Pagination data={roles} onPageChange={handlePageChange} />
                                             )}
                                         </CardContent>
                                     </Card>
