@@ -19,6 +19,13 @@ class WarehouseIncome extends Model
         'model_id',
     ];
 
+    /**
+     * The attributes that should be appended to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['persian_created_date'];
+
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
@@ -28,5 +35,4 @@ class WarehouseIncome extends Model
     {
         return $this->belongsTo(Product::class);
     }
-
 }

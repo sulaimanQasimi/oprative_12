@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import { Button } from "@/Components/ui/button";
@@ -28,71 +28,65 @@ import {
     Store
 } from "lucide-react";
 import Navigation from "@/Components/Warehouse/Navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
-// Jalali date conversion utility
+// Import Jalali Date Picker CSS
+import '@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css';
+
+// Simple date conversion utilities
 const toJalali = (gregorianDate) => {
-    if (!gregorianDate) return '';
-    
-    const date = new Date(gregorianDate);
-    const options = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        calendar: 'persian',
-        numberingSystem: 'latn'
-    };
+    if (!gregorianDate) return "";
     
     try {
-        return new Intl.DateTimeFormat('fa-IR', options).format(date);
+        const date = new Date(gregorianDate);
+        if (isNaN(date.getTime())) return "";
+        
+        // Simple Jalali conversion (approximate)
+        const gYear = date.getFullYear();
+        const gMonth = date.getMonth() + 1;
+        const gDay = date.getDate();
+        
+        // Approximate conversion (this is a simplified version)
+        let jYear = gYear - 621;
+        if (gMonth < 3 || (gMonth === 3 && gDay < 21)) {
+            jYear--;
+        }
+        
+        const jalaliMonths = [
+            "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+            "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
+        ];
+        
+        // Simple month mapping (approximate)
+        let jMonth = ((gMonth + 9) % 12);
+        let jDay = gDay;
+        
+        return `${jDay} ${jalaliMonths[jMonth]} ${jYear}`;
     } catch (error) {
-        // Fallback to basic conversion if Intl.DateTimeFormat fails
-        const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
-        const jy = (date.getFullYear() <= 1600) ? 0 : 979;
-        const gy = date.getFullYear() - 1600;
-        const gm = date.getMonth() + 1;
-        const gd = date.getDate();
-        
-        let g_day_no = 365 * gy + Math.floor((gy + 3) / 4) - Math.floor((gy + 99) / 100) + Math.floor((gy + 399) / 400) - 80 + gd + g_d_m[gm - 1];
-        if (gm > 2) g_day_no += Math.floor(gy / 4) - Math.floor(gy / 100) + Math.floor(gy / 400) - Math.floor(1600 / 4) + Math.floor(1600 / 100) - Math.floor(1600 / 400);
-        
-        const j_day_no = g_day_no - 79;
-        const j_np = Math.floor(j_day_no / 12053);
-        const jy_final = 979 + 33 * j_np + 4 * Math.floor((j_day_no % 12053) / 1461) + Math.floor(((j_day_no % 12053) % 1461) / 365);
-        
-        let jp = 0;
-        if ((j_day_no % 12053) % 1461 >= 365) {
-            jp = Math.floor(((j_day_no % 12053) % 1461) / 365);
-        }
-        
-        const jd_remaining = ((j_day_no % 12053) % 1461) % 365;
-        let jm, jd;
-        
-        if (jd_remaining < 186) {
-            jm = 1 + Math.floor(jd_remaining / 31);
-            jd = 1 + (jd_remaining % 31);
-        } else {
-            jm = 7 + Math.floor((jd_remaining - 186) / 30);
-            jd = 1 + ((jd_remaining - 186) % 30);
-        }
-        
-        return `${jy_final + jp}/${String(jm).padStart(2, '0')}/${String(jd).padStart(2, '0')}`;
+        console.error('Date conversion error:', error);
+        return "";
     }
 };
 
 const toJalaliRelative = (dateString) => {
-    if (!dateString) return '';
+    if (!dateString) return "";
     
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now - date) / 1000);
-    
-    if (diffInSeconds < 60) return `${diffInSeconds} ثانیه پیش`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} دقیقه پیش`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} ساعت پیش`;
-    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} روز پیش`;
-    if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)} ماه پیش`;
-    return `${Math.floor(diffInSeconds / 31536000)} سال پیش`;
+    try {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 0) return "امروز";
+        if (diffDays === 1) return "دیروز";
+        if (diffDays < 7) return `${diffDays} روز پیش`;
+        if (diffDays < 30) return `${Math.floor(diffDays / 7)} هفته پیش`;
+        if (diffDays < 365) return `${Math.floor(diffDays / 30)} ماه پیش`;
+        
+        return `${Math.floor(diffDays / 365)} سال پیش`;
+    } catch (error) {
+        return dateString;
+    }
 };
 
 export default function Outcome({ auth, outcome, pagination, filters }) {
@@ -105,6 +99,48 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
     const [dateFrom, setDateFrom] = useState(filters?.date_from || "");
     const [dateTo, setDateTo] = useState(filters?.date_to || "");
     const [showFilters, setShowFilters] = useState(false);
+    
+    // Refs for date picker inputs
+    const dateFromRef = useRef(null);
+    const dateToRef = useRef(null);
+
+    // Initialize Jalali Date Picker
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js';
+        script.async = true;
+        script.onload = () => {
+            if (window.jalaliDatepicker) {
+                setTimeout(() => {
+                    window.jalaliDatepicker.startWatch({
+                        date: true,
+                        time: false,
+                        persianDigits: true,
+                        autoShow: true,
+                        autoHide: true,
+                        hideAfterChange: true,
+                        showTodayBtn: true,
+                        showEmptyBtn: true,
+                        zIndex: 999999,
+                        days: ["ش", "ی", "د", "س", "چ", "پ", "ج"],
+                        months: ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور", "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"]
+                    });
+                }, 100);
+            }
+        };
+        
+        if (!document.querySelector('script[src*="jalalidatepicker"]')) {
+            document.head.appendChild(script);
+        }
+        
+        return () => {
+            // Cleanup if needed
+            const existingScript = document.querySelector('script[src*="jalalidatepicker"]');
+            if (existingScript && existingScript.parentNode) {
+                existingScript.parentNode.removeChild(existingScript);
+            }
+        };
+    }, []);
 
     // Handle search with debounce
     useEffect(() => {
@@ -181,12 +217,184 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
 
     return (
         <>
-            <Head title={t("Export Product")} />
+            <Head title={t("Export Product")}>
+                <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css" />
+                <script src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+                <style>{`
+                    /* Custom Jalali Date Picker Styling */
+                    .jdp-container {
+                        font-family: 'Tahoma', 'Arial', sans-serif !important;
+                        direction: rtl !important;
+                        border-radius: 12px !important;
+                        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+                        border: 1px solid #fda4af !important;
+                        overflow: hidden !important;
+                        z-index: 999999 !important;
+                    }
+
+                    .jdp-header {
+                        background: linear-gradient(135deg, #f43f5e 0%, #dc2626 50%, #ef4444 100%) !important;
+                        color: white !important;
+                        padding: 16px !important;
+                        border-bottom: none !important;
+                    }
+
+                    .jdp-month, .jdp-year {
+                        color: white !important;
+                        font-weight: 600 !important;
+                        font-size: 16px !important;
+                    }
+
+                    .jdp-day-name {
+                        color: #64748b !important;
+                        font-weight: 600 !important;
+                        font-size: 14px !important;
+                        padding: 8px !important;
+                        background: #f8fafc !important;
+                    }
+
+                    .jdp-day {
+                        color: #1f2937 !important;
+                        font-size: 14px !important;
+                        padding: 10px !important;
+                        margin: 2px !important;
+                        border-radius: 8px !important;
+                        transition: all 0.2s ease-in-out !important;
+                        cursor: pointer !important;
+                    }
+
+                    .jdp-day:hover {
+                        background: linear-gradient(135deg, #f43f5e 0%, #dc2626 100%) !important;
+                        color: white !important;
+                        transform: scale(1.05) !important;
+                    }
+
+                    .jdp-day.jdp-selected {
+                        background: linear-gradient(135deg, #f43f5e 0%, #dc2626 100%) !important;
+                        color: white !important;
+                        font-weight: 600 !important;
+                        transform: scale(1.05) !important;
+                    }
+
+                    .jdp-day.jdp-today {
+                        background: #fef2f2 !important;
+                        color: #dc2626 !important;
+                        font-weight: 600 !important;
+                        border: 2px solid #fda4af !important;
+                    }
+
+                    .jdp-day.jdp-holiday {
+                        color: #dc2626 !important;
+                        font-weight: 600 !important;
+                    }
+
+                    .jdp-btn {
+                        background: linear-gradient(135deg, #f43f5e 0%, #dc2626 100%) !important;
+                        color: white !important;
+                        border: none !important;
+                        padding: 8px 16px !important;
+                        border-radius: 8px !important;
+                        font-size: 14px !important;
+                        font-weight: 500 !important;
+                        cursor: pointer !important;
+                        transition: all 0.2s ease-in-out !important;
+                        margin: 4px !important;
+                    }
+
+                    .jdp-btn:hover {
+                        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%) !important;
+                        transform: translateY(-1px) !important;
+                        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+                    }
+
+                    .jdp-nav-btn {
+                        background: rgba(255, 255, 255, 0.2) !important;
+                        color: white !important;
+                        border: none !important;
+                        width: 32px !important;
+                        height: 32px !important;
+                        border-radius: 8px !important;
+                        cursor: pointer !important;
+                        transition: all 0.2s ease-in-out !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                    }
+
+                    .jdp-nav-btn:hover {
+                        background: rgba(255, 255, 255, 0.3) !important;
+                        transform: scale(1.1) !important;
+                    }
+
+                    .jdp-footer {
+                        background: #f8fafc !important;
+                        border-top: 1px solid #e2e8f0 !important;
+                        padding: 12px !important;
+                        display: flex !important;
+                        justify-content: center !important;
+                        gap: 8px !important;
+                    }
+
+                    /* Ensure high z-index for proper layering */
+                    .jdp-overlay {
+                        z-index: 999998 !important;
+                    }
+
+                    /* Ensure Select dropdowns appear above all other elements */
+                    [data-radix-popper-content-wrapper] {
+                        z-index: 999999 !important;
+                    }
+                    
+                    [data-radix-select-content] {
+                        z-index: 999999 !important;
+                        position: fixed !important;
+                    }
+                    
+                    [data-radix-select-viewport] {
+                        z-index: 999999 !important;
+                    }
+                    
+                    /* Radix UI Select specific styling */
+                    .radix-select-content {
+                        z-index: 999999 !important;
+                        position: fixed !important;
+                    }
+                    
+                    /* Additional Select component z-index fixes */
+                    [data-state="open"][data-side] {
+                        z-index: 999999 !important;
+                    }
+                    
+                    /* Ensure the dropdown portal has highest z-index */
+                    [data-radix-portal] {
+                        z-index: 999999 !important;
+                    }
+                    
+                    /* Force all select content to appear above cards */
+                    [data-radix-select-content],
+                    [data-radix-popper-content] {
+                        z-index: 999999 !important;
+                        position: fixed !important;
+                        background: white !important;
+                        border: 1px solid #e2e8f0 !important;
+                        border-radius: 0.5rem !important;
+                        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+                    }
+                    
+                    /* Dark mode support for dropdowns */
+                    .dark [data-radix-select-content],
+                    .dark [data-radix-popper-content] {
+                        background: #0f172a !important;
+                        border-color: #334155 !important;
+                        color: white !important;
+                    }
+                `}</style>
+            </Head>
             
-            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-rose-50 to-red-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden">
+            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-rose-50 to-red-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-visible">
                 <Navigation auth={auth} currentRoute="warehouse.outcome" />
                 
-                <div className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-1 flex flex-col overflow-visible">
                     {/* Header */}
                     <motion.header
                         initial={{ y: -20, opacity: 0 }}
@@ -316,22 +524,28 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
                                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                         {t("Date From")}
                                                     </label>
-                                                    <Input
-                                                        type="date"
+                                                    <input
+                                                        type="text"
+                                                        data-jdp
                                                         value={dateFrom}
                                                         onChange={(e) => setDateFrom(e.target.value)}
-                                                        className="h-10"
+                                                        ref={dateFromRef}
+                                                        placeholder="انتخاب تاریخ شروع"
+                                                        className="w-full px-4 py-2.5 text-right bg-gradient-to-r from-rose-50 via-red-50 to-rose-50 dark:from-rose-900/30 dark:via-red-900/30 dark:to-rose-900/30 border border-rose-200 dark:border-rose-800 rounded-lg shadow-sm hover:border-rose-500 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-all duration-200 text-slate-700 dark:text-slate-300"
                                                     />
                                                 </div>
                                                 <div>
                                                     <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                         {t("Date To")}
                                                     </label>
-                                                    <Input
-                                                        type="date"
+                                                    <input
+                                                        type="text"
+                                                        data-jdp
                                                         value={dateTo}
                                                         onChange={(e) => setDateTo(e.target.value)}
-                                                        className="h-10"
+                                                        ref={dateToRef}
+                                                        placeholder="انتخاب تاریخ پایان"
+                                                        className="w-full px-4 py-2.5 text-right bg-gradient-to-r from-rose-50 via-red-50 to-rose-50 dark:from-rose-900/30 dark:via-red-900/30 dark:to-rose-900/30 border border-rose-200 dark:border-rose-800 rounded-lg shadow-sm hover:border-rose-500 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-all duration-200 text-slate-700 dark:text-slate-300"
                                                     />
                                                 </div>
                                                 <div>
@@ -393,7 +607,7 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 1, duration: 0.5 }}
                             >
-                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl overflow-hidden">
+                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl overflow-visible">
                                     <CardHeader className="bg-gradient-to-r from-rose-500/20 via-red-500/20 to-rose-500/20 border-b border-white/30 dark:border-slate-700/50">
                                         <CardTitle className="flex items-center gap-3">
                                             <div className="p-2 bg-gradient-to-br from-rose-500 to-red-600 rounded-lg">
