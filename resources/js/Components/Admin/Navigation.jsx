@@ -536,7 +536,6 @@ const Navigation = ({ auth, currentRoute }) => {
                                             const hasPermission = auth.user.permissions?.some(permission =>
                                                 permission.name === item.permission
                                             );
-
                                             return hasPermission;
                                         })
                                         .map((item, index) => (
