@@ -533,9 +533,7 @@ const Navigation = ({ auth, currentRoute }) => {
                                             if (!item.permission) return true;
 
                                             // Check if user has the required permission
-                                            const hasPermission = auth.user.permissions?.some(permission =>
-                                                permission.name === item.permission
-                                            );
+                                            const hasPermission = auth.user.permissions?.includes(item.permission);
                                             return hasPermission;
                                         })
                                         .map((item, index) => (
