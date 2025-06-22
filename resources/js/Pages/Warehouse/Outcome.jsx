@@ -53,8 +53,8 @@ const toJalali = (gregorianDate) => {
         }
         
         const jalaliMonths = [
-            "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
-            "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند"
+            "حمل", "ثور", "جوزا", "سرطان", "اسد", "سنبله",
+            "میزان", "عقرب", "قوس", "جدی", "دلو", "حوت"
         ];
         
         // Simple month mapping (approximate)
@@ -218,8 +218,8 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
     return (
         <>
             <Head title={t("Export Product")}>
-                <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css" />
-                <script src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+                <link rel="stylesheet" href="/jalalidatepicker/dist/jalalidatepicker.min.css" />
+                <script src="/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
                 <style>{`
                     /* Custom Jalali Date Picker Styling */
                     .jdp-container {
@@ -234,7 +234,7 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
 
                     .jdp-header {
                         background: linear-gradient(135deg, #f43f5e 0%, #dc2626 50%, #ef4444 100%) !important;
-                        color: white !important;
+                        color: blue !important;
                         padding: 16px !important;
                         border-bottom: none !important;
                     }
@@ -388,6 +388,13 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
                         border-color: #334155 !important;
                         color: white !important;
                     }
+                    .jdp-container .jdp-month select, .jdp-container .jdp-time select, .jdp-container .jdp-year select {
+    -webkit-appearance: menulist;
+    -moz-appearance: menulist;
+    cursor: pointer;
+    position: relative;
+    color: cornflowerblue;
+}
                 `}</style>
             </Head>
             
@@ -528,7 +535,7 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
                                                         type="text"
                                                         data-jdp
                                                         value={dateFrom}
-                                                        onChange={(e) => setDateFrom(e.target.value)}
+                                                        onChange={(e) => console.log(e.target.value)}
                                                         ref={dateFromRef}
                                                         placeholder="انتخاب تاریخ شروع"
                                                         className="w-full px-4 py-2.5 text-right bg-gradient-to-r from-rose-50 via-red-50 to-rose-50 dark:from-rose-900/30 dark:via-red-900/30 dark:to-rose-900/30 border border-rose-200 dark:border-rose-800 rounded-lg shadow-sm hover:border-rose-500 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-all duration-200 text-slate-700 dark:text-slate-300"
@@ -542,7 +549,7 @@ export default function Outcome({ auth, outcome, pagination, filters }) {
                                                         type="text"
                                                         data-jdp
                                                         value={dateTo}
-                                                        onChange={(e) => setDateTo(e.target.value)}
+                                                        onChange={(e) => console.log(e.target.value)}
                                                         ref={dateToRef}
                                                         placeholder="انتخاب تاریخ پایان"
                                                         className="w-full px-4 py-2.5 text-right bg-gradient-to-r from-rose-50 via-red-50 to-rose-50 dark:from-rose-900/30 dark:via-red-900/30 dark:to-rose-900/30 border border-rose-200 dark:border-rose-800 rounded-lg shadow-sm hover:border-rose-500 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-all duration-200 text-slate-700 dark:text-slate-300"

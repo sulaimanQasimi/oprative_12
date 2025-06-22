@@ -31,17 +31,26 @@ class OutcomeController extends Controller
             });
         }
 
-        // Apply date filters
-        if ($request->filled('year')) {
+        // Apply date range filters
+        if ($request->filled('from_date')) {
+            $query->whereDate('created_at', '>=', $request->from_date);
+        }
+
+        if ($request->filled('to_date')) {
+            $query->whereDate('created_at', '<=', $request->to_date);
+        }
+
+        // Legacy date filters (keep for backward compatibility)
+        if ($request->filled('year') && !$request->filled('from_date') && !$request->filled('to_date')) {
             $query->whereYear('created_at', $request->year);
         }
 
-        if ($request->filled('month') && $request->filled('year')) {
+        if ($request->filled('month') && $request->filled('year') && !$request->filled('from_date') && !$request->filled('to_date')) {
             $query->whereMonth('created_at', $request->month)
                   ->whereYear('created_at', $request->year);
         }
 
-        if ($request->filled('day') && $request->filled('month') && $request->filled('year')) {
+        if ($request->filled('day') && $request->filled('month') && $request->filled('year') && !$request->filled('from_date') && !$request->filled('to_date')) {
             $query->whereDay('created_at', $request->day)
                   ->whereMonth('created_at', $request->month)
                   ->whereYear('created_at', $request->year);
@@ -105,6 +114,8 @@ class OutcomeController extends Controller
         // Prepare filters data
         $filters = [
             'search' => $request->search,
+            'from_date' => $request->from_date,
+            'to_date' => $request->to_date,
             'year' => $request->year,
             'month' => $request->month,
             'day' => $request->day,
