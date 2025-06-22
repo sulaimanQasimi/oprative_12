@@ -33,7 +33,7 @@ import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function ShowUser({ auth, user }) {
+export default function ShowUser({ auth, user, can }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -139,6 +139,12 @@ export default function ShowUser({ auth, user }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
+                                <Link href={route("admin.users.activity-log", user.id)}>
+                                    <Button variant="outline" className="gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white">
+                                        <Activity className="h-4 w-4" />
+                                        {t("Activity Log")}
+                                    </Button>
+                                </Link>
                                 <Link href={route("admin.users.edit", user.id)}>
                                     <Button className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white">
                                         <Edit className="h-4 w-4" />

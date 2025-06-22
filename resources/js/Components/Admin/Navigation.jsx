@@ -357,6 +357,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Users className="w-5 h-5" />,
                     route: "admin.users.index",
                     active: currentRoute?.startsWith("admin.users"),
+                    permission: "view_any_user",
                 },
                 {
                     name: t("Roles"),

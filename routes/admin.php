@@ -67,12 +67,22 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('admin.users.index');
         Route::get('/create', [UserController::class, 'create'])->name('admin.users.create');
         Route::post('/', [UserController::class, 'store'])->name('admin.users.store');
+        Route::get('/import', [UserController::class, 'importForm'])->name('admin.users.import.form');
+        Route::post('/import', [UserController::class, 'import'])->name('admin.users.import');
+        Route::get('/export', [UserController::class, 'export'])->name('admin.users.export');
+        Route::post('/stop-impersonating', [UserController::class, 'stopImpersonating'])->name('admin.users.stop-impersonating');
         Route::get('/{user:id}', [UserController::class, 'show'])->name('admin.users.show');
         Route::get('/{user:id}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
         Route::put('/{user:id}', [UserController::class, 'update'])->name('admin.users.update');
         Route::delete('/{user:id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+        Route::post('/{user:id}/restore', [UserController::class, 'restore'])->name('admin.users.restore')->withTrashed();
+        Route::delete('/{user:id}/force-delete', [UserController::class, 'forceDelete'])->name('admin.users.force-delete')->withTrashed();
         Route::post('/{user:id}/assign-role', [UserController::class, 'assignRole'])->name('admin.users.assign-role');
         Route::delete('/{user:id}/remove-role/{role}', [UserController::class, 'removeRole'])->name('admin.users.remove-role');
+        Route::post('/{user:id}/assign-permissions', [UserController::class, 'assignPermissions'])->name('admin.users.assign-permissions');
+        Route::delete('/{user:id}/remove-permissions', [UserController::class, 'removePermissions'])->name('admin.users.remove-permissions');
+        Route::post('/{user:id}/impersonate', [UserController::class, 'impersonate'])->name('admin.users.impersonate');
+        Route::get('/{user:id}/activity-log', [UserController::class, 'activityLog'])->name('admin.users.activity-log');
     });
 
     // Role Management

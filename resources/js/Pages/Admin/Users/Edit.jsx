@@ -34,7 +34,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function EditUser({ auth, user, roles, permissions }) {
+export default function EditUser({ auth, user, roles, permissions, can }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
