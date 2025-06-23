@@ -223,6 +223,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.products.index",
                     active: currentRoute?.startsWith("admin.products"),
                     badge: "Hot",
+                    permission: "view_any_product",
                 },
                 {
                     name: t("Suppliers"),
@@ -236,6 +237,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <ShoppingCart className="w-5 h-5" />,
                     route: "admin.customers.index",
                     active: currentRoute?.startsWith("admin.customers"),
+                    permission: "view_any_customer",
                 },
                 {
                     name: t("Store Users"),
@@ -250,6 +252,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <CreditCard className="w-5 h-5" />,
                     route: "admin.accounts.index",
                     active: currentRoute?.startsWith("admin.accounts"),
+                    permission: "view_any_account",
                 },
                 {
                     name: t("Purchases"),
@@ -257,6 +260,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.purchases.index",
                     active: currentRoute?.startsWith("admin.purchases"),
                     badge: "New",
+                    permission: "view_any_purchase",
                 },
             ],
         },
@@ -277,24 +281,28 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Store className="w-5 h-5" />,
                     route: "admin.warehouses.sales",
                     active: currentRoute?.includes("sales"),
+                    permission: "view_any_sale",
                 },
                 {
                     name: t("Income"),
                     icon: <ArrowDownRight className="w-5 h-5" />,
                     route: "admin.warehouses.income",
                     active: currentRoute?.includes("income"),
+                    permission: "view_any_income",
                 },
                 {
                     name: t("Outcome"),
                     icon: <ArrowUpRight className="w-5 h-5" />,
                     route: "admin.warehouses.outcome",
                     active: currentRoute?.includes("outcome"),
+                    permission: "view_any_outcome",
                 },
                 {
                     name: t("Transfers"),
                     icon: <ArrowRightLeft className="w-5 h-5" />,
                     route: "admin.warehouses.transfers",
-                    active: currentRoute?.includes("transfers"),
+                    active: currentRoute?.includes("transfers"),    
+                    permission: "view_any_transfer",
                 },
             ],
         },
@@ -311,6 +319,7 @@ const Navigation = ({ auth, currentRoute }) => {
                            currentRoute !== "admin.employees.verify" &&
                            currentRoute !== "admin.employees.manual-attendance" &&
                            currentRoute !== "admin.employees.attendance-report",
+                    permission: "view_any_employee",
                 },
                 {
                     name: t("Employee Verification"),
@@ -318,6 +327,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.employees.verify",
                     active: currentRoute === "admin.employees.verify",
                     badge: "Live",
+                    permission: "view_any_employee",
                 },
                 {
                     name: t("Manual Attendance"),
@@ -325,6 +335,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.employees.manual-attendance",
                     active: currentRoute === "admin.employees.manual-attendance",
                     badge: "New",
+                    permission: "view_any_employee",
                 },
                 {
                     name: t("Attendance Report"),
@@ -332,18 +343,21 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.employees.attendance-report",
                     active: currentRoute === "admin.employees.attendance-report",
                     badge: "Hot",
+                    permission: "view_any_employee",
                 },
                 {
                     name: t("Attendance Settings"),
                     icon: <Clock className="w-5 h-5" />,
                     route: "admin.attendance-settings.index",
                     active: currentRoute?.startsWith("admin.attendance-settings"),
+                    permission: "view_any_employee",
                 },
                 {
                     name: t("Gates"),
                     icon: <Building2 className="w-5 h-5" />,
                     route: "admin.gates.index",
                     active: currentRoute?.startsWith("admin.gates"),
+                    permission: "view_any_gate",
                 },
             ],
         },
@@ -358,6 +372,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.users.index",
                     active: currentRoute?.startsWith("admin.users"),
                     permission: "view_any_user",
+                    badge: "New",
                 },
                 {
                     name: t("Roles"),
@@ -372,6 +387,8 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Key className="w-5 h-5" />,
                     route: "admin.permissions.index",
                     active: currentRoute?.startsWith("admin.permissions"),
+                    permission: "view_any_permission",
+                    badge: "Hot",
                 },
             ],
         },
@@ -392,6 +409,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     icon: <Globe className="w-5 h-5" />,
                     route: "admin.currencies.index",
                     active: currentRoute?.startsWith("admin.currencies"),
+                    permission: "view_any_currency",
                 },
             ],
         },
