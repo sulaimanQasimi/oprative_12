@@ -2640,5 +2640,14 @@
   "No specific date": "بدون تاریخ مشخص",
   "Enter Time": "زمان ورود",
   "No recent warehouses": "هیچ انباری اخیر یافت نشد",
-  "No recent products": "هیچ محصولی اخیر یافت نشد"
+  "No recent products": "هیچ محصولی اخیر یافت نشد",
+  "Permissions Management": "مدیریت صلاحیت‌ها",
+  "Manage system permissions and access controls": "مدیریت صلاحیت‌ها و کنترل دسترسی‌ها",
+  "API Guard": "گارد API",
+  "API permissions": "صلاحیت‌های API",
+  "Web permissions": "صلاحیت‌های وب",
+  "Web Guard": "گارد وب",
+  "Total Permissions": "کل صلاحیت‌ها",
+  "System permissions": "صلاحیت‌های سیستم",
+  "permissions in this group": "صلاحیت‌های در این گروه"
 }
