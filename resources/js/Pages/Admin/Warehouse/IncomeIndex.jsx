@@ -762,10 +762,7 @@ export default function IncomeIndex({
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-2">
-                                                                            <Button size="sm" variant="outline" className="gap-2 px-3 hover:bg-green-50 hover:border-green-300">
-                                                                                <Eye className="h-4 w-4 text-green-600" />
-                                                                                <span className="text-sm">{t("View Details")}</span>
-                                                                            </Button>
+                                                                            {/* Actions can be added here if needed */}
                                                                         </div>
                                                                     </TableCell>
                                                                 </TableRow>
