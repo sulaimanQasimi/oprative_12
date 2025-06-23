@@ -81,6 +81,9 @@ export default function SalesIndex({
     const [minAmount, setMinAmount] = useState(filters.min_amount || "");
     const [maxAmount, setMaxAmount] = useState(filters.max_amount || "");
     const [showFilters, setShowFilters] = useState(false);
+    const [sortBy, setSortBy] = useState("created_at");
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [filteredSales, setFilteredSales] = useState(sales?.data || []);
 
     // Animation effect
     useEffect(() => {
@@ -93,13 +96,94 @@ export default function SalesIndex({
 
     // Enhanced filtering logic
     useEffect(() => {
-        // Any client-side filtering logic if needed
-    }, [searchTerm, warehouseFilter, customerFilter, statusFilter, dateFrom, dateTo, minAmount, maxAmount, sales]);
+        let filtered = [...(sales?.data || [])];
 
-    // Calculate totals from actual data
-    const totalSales = sales?.data?.length || 0;
-    const totalAmount = sales?.data?.reduce((sum, sale) => sum + (sale.total || 0), 0) || 0;
-    const totalItems = sales?.data?.reduce((sum, sale) => sum + (sale.items?.length || 0), 0) || 0;
+        // Search filter
+        if (searchTerm) {
+            filtered = filtered.filter(sale =>
+                (sale.reference && sale.reference.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (sale.customer?.name && sale.customer.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (sale.customer?.email && sale.customer.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (sale.items?.some(item => 
+                    (item.product?.name && item.product.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                    (item.product?.barcode && item.product.barcode.toLowerCase().includes(searchTerm.toLowerCase()))
+                ))
+            );
+        }
+
+        // Warehouse filter
+        if (warehouseFilter) {
+            filtered = filtered.filter(sale => sale.warehouse_id && sale.warehouse_id.toString() === warehouseFilter);
+        }
+
+        // Customer filter
+        if (customerFilter) {
+            filtered = filtered.filter(sale => sale.customer_id && sale.customer_id.toString() === customerFilter);
+        }
+
+        // Date filter
+        if (dateFrom) {
+            const filterDate = new Date(dateFrom);
+            filtered = filtered.filter(sale => {
+                const saleDate = new Date(sale.created_at);
+                return saleDate >= filterDate;
+            });
+        }
+
+        if (dateTo) {
+            const filterDate = new Date(dateTo);
+            filtered = filtered.filter(sale => {
+                const saleDate = new Date(sale.created_at);
+                return saleDate <= filterDate;
+            });
+        }
+
+        // Amount filters
+        if (minAmount) {
+            filtered = filtered.filter(sale => (sale.total || 0) >= parseFloat(minAmount));
+        }
+
+        if (maxAmount) {
+            filtered = filtered.filter(sale => (sale.total || 0) <= parseFloat(maxAmount));
+        }
+
+        // Status filter
+        if (statusFilter) {
+            filtered = filtered.filter(sale => sale.status === statusFilter);
+        }
+
+        // Sorting
+        filtered.sort((a, b) => {
+            let aValue = a[sortBy];
+            let bValue = b[sortBy];
+
+            if (sortBy === 'customer.name') {
+                aValue = a.customer?.name || '';
+                bValue = b.customer?.name || '';
+            } else if (sortBy === 'warehouse.name') {
+                aValue = a.warehouse?.name || '';
+                bValue = b.warehouse?.name || '';
+            }
+
+            if (typeof aValue === 'string') {
+                aValue = aValue.toLowerCase();
+                bValue = bValue.toLowerCase();
+            }
+
+            if (sortOrder === 'asc') {
+                return aValue > bValue ? 1 : -1;
+            } else {
+                return aValue < bValue ? 1 : -1;
+            }
+        });
+
+        setFilteredSales(filtered);
+    }, [searchTerm, warehouseFilter, customerFilter, statusFilter, dateFrom, dateTo, minAmount, maxAmount, sortBy, sortOrder, sales]);
+
+    // Calculate totals from filtered data
+    const totalSales = filteredSales?.length || 0;
+    const totalAmount = filteredSales?.reduce((sum, sale) => sum + (sale.total || 0), 0) || 0;
+    const totalItems = filteredSales?.reduce((sum, sale) => sum + (sale.items?.length || 0), 0) || 0;
     const avgSaleValue = totalSales > 0 ? totalAmount / totalSales : 0;
 
     const handleSearch = () => {
@@ -542,12 +626,55 @@ export default function SalesIndex({
 
                                                         <div>
                                                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                                                {t("Date Filter")}
+                                                                {t("Date From")}
                                                             </label>
                                                             <Input
                                                                 type="date"
                                                                 value={dateFrom}
                                                                 onChange={(e) => setDateFrom(e.target.value)}
+                                                                placeholder="YYYY/MM/DD"
+                                                                className="h-10"
+                                                            />
+                                                        </div>
+
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                {t("Date To")}
+                                                            </label>
+                                                            <Input
+                                                                type="date"
+                                                                value={dateTo}
+                                                                onChange={(e) => setDateTo(e.target.value)}
+                                                                placeholder="YYYY/MM/DD"
+                                                                className="h-10"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Amount Filters */}
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                {t("Min Amount")}
+                                                            </label>
+                                                            <Input
+                                                                type="number"
+                                                                value={minAmount}
+                                                                onChange={(e) => setMinAmount(e.target.value)}
+                                                                placeholder="0"
+                                                                className="h-10"
+                                                            />
+                                                        </div>
+
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                {t("Max Amount")}
+                                                            </label>
+                                                            <Input
+                                                                type="number"
+                                                                value={maxAmount}
+                                                                onChange={(e) => setMaxAmount(e.target.value)}
+                                                                placeholder="999999"
                                                                 className="h-10"
                                                             />
                                                         </div>
@@ -593,7 +720,7 @@ export default function SalesIndex({
                                                 </div>
                                                 {t("Shop Movement Records")}
                                                 <Badge variant="secondary" className="ml-auto">
-                                                    {sales?.data?.length || 0} {t("of")} {sales?.total || 0}
+                                                    {filteredSales?.length || 0} {t("of")} {sales?.total || 0}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
@@ -632,8 +759,8 @@ export default function SalesIndex({
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {sales?.data?.length > 0 ? (
-                                                            sales.data.map((sale, index) => (
+                                                        {filteredSales?.length > 0 ? (
+                                                            filteredSales.map((sale, index) => (
                                                                 <TableRow
                                                                     key={sale.id}
                                                                     className="hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors"
@@ -714,17 +841,12 @@ export default function SalesIndex({
                                                                         <div className="flex items-center gap-2">
                                                                             {can.view_sale && (
                                                                                 <Link href={route("admin.warehouses.sales.show", [sale.warehouse_id, sale.id])}>
-                                                                                    <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300">
+                                                                                    <Button size="sm" variant="outline" className="gap-2 px-3 hover:bg-green-50 hover:border-green-300">
                                                                                         <Store className="h-4 w-4 text-green-600" />
+                                                                                        <span className="text-sm">{t("Move to shop")}</span>
                                                                                     </Button>
                                                                                 </Link>
                                                                             )}
-                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300">
-                                                                                <Eye className="h-4 w-4 text-blue-600" />
-                                                                            </Button>
-                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-300">
-                                                                                <Trash2 className="h-4 w-4 text-red-600" />
-                                                                            </Button>
                                                                         </div>
                                                                     </TableCell>
                                                                 </TableRow>
