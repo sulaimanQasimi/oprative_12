@@ -124,7 +124,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
     };
 
     const formatTime = (dateString) => {
-        if (!dateString) return "N/A";
+        if (!dateString) return t("N/A");
         return new Date(dateString).toLocaleTimeString("en-US", {
             hour: "2-digit",
             minute: "2-digit",
@@ -132,7 +132,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
     };
 
     const formatDate = (dateString) => {
-        if (!dateString) return "N/A";
+        if (!dateString) return t("N/A");
         return new Date(dateString).toLocaleDateString("en-US", {
             year: "numeric",
             month: "short",
@@ -142,11 +142,11 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
 
     const getStatusBadge = (attendance) => {
         if (!attendance.enter_time) {
-            return <Badge variant="secondary" className="bg-gray-100 text-gray-800">Absent</Badge>;
+            return <Badge variant="secondary" className="bg-gray-100 text-gray-800">{t("Absent")}</Badge>;
         } else if (attendance.exit_time) {
-            return <Badge variant="default" className="bg-green-100 text-green-800">Complete</Badge>;
+            return <Badge variant="default" className="bg-green-100 text-green-800">{t("Complete")}</Badge>;
         } else {
-            return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">Checked In</Badge>;
+            return <Badge variant="outline" className="bg-yellow-100 text-yellow-800">{t("Checked In")}</Badge>;
         }
     };
 
