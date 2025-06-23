@@ -42,7 +42,7 @@ export default function Dashboard({ auth }) {
             transition={{ duration: 0.4 }}
             whileHover={{ scale: 1.02 }}
         >
-            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:shadow-3xl transition-all duration-300 group">
+            <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div className="space-y-2">
@@ -81,20 +81,20 @@ export default function Dashboard({ auth }) {
     const RecentItem = ({ title, subtitle, date, icon }) => (
         <motion.div
             whileHover={{ scale: 1.02 }}
-            className="flex items-center p-4 bg-gray-50 hover:bg-gray-100 dark:bg-slate-700/50 dark:hover:bg-slate-600/50 rounded-lg transition-all duration-200 group cursor-pointer border border-gray-200 dark:border-slate-600"
+            className="flex items-center p-4 bg-slate-50 hover:bg-slate-100 dark:bg-slate-700/50 dark:hover:bg-slate-600/50 rounded-lg transition-all duration-200 group cursor-pointer border border-slate-200 dark:border-slate-600"
         >
-            <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
+            <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200 shadow-sm">
                 {icon}
             </div>
             <div className="flex-1">
-                <h4 className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                <h4 className="font-medium text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {title}
                 </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-300">
+                <p className="text-sm text-slate-500 dark:text-slate-300">
                     {subtitle}
                 </p>
             </div>
-            <div className="text-sm text-gray-400 dark:text-gray-400">
+            <div className="text-sm text-slate-400 dark:text-slate-400">
                 {new Date(date).toLocaleDateString()}
             </div>
         </motion.div>
@@ -176,7 +176,7 @@ export default function Dashboard({ auth }) {
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700 py-6 px-8 sticky top-0 z-30"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -324,10 +324,10 @@ export default function Dashboard({ auth }) {
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800 backdrop-blur-xl">
-                                            <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                                <CardTitle className="flex items-center gap-3">
-                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                        <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
+                                            <CardHeader className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 dark:from-blue-500/20 dark:via-indigo-500/20 dark:to-blue-500/20 border-b border-slate-200 dark:border-slate-700">
+                                                <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
+                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
                                                         <Package className="h-5 w-5 text-white" />
                                                     </div>
                                                     {t("Recent Products")}
@@ -335,7 +335,7 @@ export default function Dashboard({ auth }) {
                                                         href={route(
                                                             "admin.products.index"
                                                         )}
-                                                        className="ml-auto text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                                        className="ml-auto text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
                                                     >
                                                         {t("View all")}
                                                     </Link>
@@ -359,13 +359,13 @@ export default function Dashboard({ auth }) {
                                                                     product.created_at
                                                                 }
                                                                 icon={
-                                                                    <Package className="w-5 h-5 text-blue-600" />
+                                                                    <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                                                                 }
                                                             />
                                                         )
                                                     )
                                                 ) : (
-                                                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                                                    <p className="text-slate-500 dark:text-slate-400 text-center py-4">
                                                         {t(
                                                             "No recent products"
                                                         )}
@@ -384,10 +384,10 @@ export default function Dashboard({ auth }) {
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                                <CardTitle className="flex items-center gap-3">
-                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                        <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
+                                            <CardHeader className="bg-gradient-to-r from-green-500/10 via-emerald-500/10 to-green-500/10 dark:from-green-500/20 dark:via-emerald-500/20 dark:to-green-500/20 border-b border-slate-200 dark:border-slate-700">
+                                                <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
+                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-lg">
                                                         <Warehouse className="h-5 w-5 text-white" />
                                                     </div>
                                                     {t("Recent Warehouses")}
@@ -395,7 +395,7 @@ export default function Dashboard({ auth }) {
                                                         href={route(
                                                             "admin.warehouses.index"
                                                         )}
-                                                        className="ml-auto text-green-600 hover:text-green-800 text-sm font-medium"
+                                                        className="ml-auto text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 text-sm font-medium"
                                                     >
                                                         {t("View all")}
                                                     </Link>
@@ -421,13 +421,13 @@ export default function Dashboard({ auth }) {
                                                                     warehouse.created_at
                                                                 }
                                                                 icon={
-                                                                    <Warehouse className="w-5 h-5 text-green-600" />
+                                                                    <Warehouse className="w-5 h-5 text-green-600 dark:text-green-400" />
                                                                 }
                                                             />
                                                         )
                                                     )
                                                 ) : (
-                                                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                                                    <p className="text-slate-500 dark:text-slate-400 text-center py-4">
                                                         {t(
                                                             "No recent warehouses"
                                                         )}
@@ -446,10 +446,10 @@ export default function Dashboard({ auth }) {
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardHeader className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                                <CardTitle className="flex items-center gap-3">
-                                                    <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
+                                        <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
+                                            <CardHeader className="bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-purple-500/10 dark:from-purple-500/20 dark:via-pink-500/20 dark:to-purple-500/20 border-b border-slate-200 dark:border-slate-700">
+                                                <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
+                                                    <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg shadow-lg">
                                                         <ShoppingCart className="h-5 w-5 text-white" />
                                                     </div>
                                                     {t("Recent Shops")}
@@ -457,7 +457,7 @@ export default function Dashboard({ auth }) {
                                                         href={route(
                                                             "admin.customers.index"
                                                         )}
-                                                        className="ml-auto text-purple-600 hover:text-purple-800 text-sm font-medium"
+                                                        className="ml-auto text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 text-sm font-medium"
                                                     >
                                                         {t("View all")}
                                                     </Link>
@@ -482,13 +482,13 @@ export default function Dashboard({ auth }) {
                                                                     customer.created_at
                                                                 }
                                                                 icon={
-                                                                    <Users className="w-5 h-5 text-purple-600" />
+                                                                    <Users className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                                                                 }
                                                             />
                                                         )
                                                     )
                                                 ) : (
-                                                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">
+                                                    <p className="text-slate-500 dark:text-slate-400 text-center py-4">
                                                         {t("No recent shops")}
                                                     </p>
                                                 )}
@@ -503,10 +503,10 @@ export default function Dashboard({ auth }) {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                            <CardTitle className="flex items-center gap-3">
-                                                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
+                                    <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/10 dark:from-indigo-500/20 dark:via-purple-500/20 dark:to-indigo-500/20 border-b border-slate-200 dark:border-slate-700">
+                                            <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
+                                                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
                                                     <TrendingUp className="h-5 w-5 text-white" />
                                                 </div>
                                                 {t("Quick Actions")}
@@ -521,7 +521,7 @@ export default function Dashboard({ auth }) {
                                                     className="bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 p-4 rounded-lg border border-blue-200 dark:border-blue-700 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
-                                                        <div className="bg-blue-600 p-2 rounded-lg mr-3 group-hover:bg-blue-700 transition-colors">
+                                                        <div className="bg-blue-600 p-2 rounded-lg mr-3 group-hover:bg-blue-700 transition-colors shadow-sm">
                                                             <Plus className="w-5 h-5 text-white" />
                                                         </div>
                                                         <span className="font-medium text-blue-900 dark:text-blue-100">
@@ -537,7 +537,7 @@ export default function Dashboard({ auth }) {
                                                     className="bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30 p-4 rounded-lg border border-green-200 dark:border-green-700 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
-                                                        <div className="bg-green-600 p-2 rounded-lg mr-3 group-hover:bg-green-700 transition-colors">
+                                                        <div className="bg-green-600 p-2 rounded-lg mr-3 group-hover:bg-green-700 transition-colors shadow-sm">
                                                             <Plus className="w-5 h-5 text-white" />
                                                         </div>
                                                         <span className="font-medium text-green-900 dark:text-green-100">
@@ -553,7 +553,7 @@ export default function Dashboard({ auth }) {
                                                     className="bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30 p-4 rounded-lg border border-purple-200 dark:border-purple-700 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
-                                                        <div className="bg-purple-600 p-2 rounded-lg mr-3 group-hover:bg-purple-700 transition-colors">
+                                                        <div className="bg-purple-600 p-2 rounded-lg mr-3 group-hover:bg-purple-700 transition-colors shadow-sm">
                                                             <Plus className="w-5 h-5 text-white" />
                                                         </div>
                                                         <span className="font-medium text-purple-900 dark:text-purple-100">
@@ -569,7 +569,7 @@ export default function Dashboard({ auth }) {
                                                     className="bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-900/30 p-4 rounded-lg border border-orange-200 dark:border-orange-700 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
-                                                        <div className="bg-orange-600 p-2 rounded-lg mr-3 group-hover:bg-orange-700 transition-colors">
+                                                        <div className="bg-orange-600 p-2 rounded-lg mr-3 group-hover:bg-orange-700 transition-colors shadow-sm">
                                                             <Plus className="w-5 h-5 text-white" />
                                                         </div>
                                                         <span className="font-medium text-orange-900 dark:text-orange-100">

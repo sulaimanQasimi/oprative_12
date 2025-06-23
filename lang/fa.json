@@ -2638,5 +2638,7 @@
   "Duration": "مدت زمان",
   "Default": "پیش‌فرض",
   "No specific date": "بدون تاریخ مشخص",
-  "Enter Time": "زمان ورود"
+  "Enter Time": "زمان ورود",
+  "No recent warehouses": "هیچ انباری اخیر یافت نشد",
+  "No recent products": "هیچ محصولی اخیر یافت نشد"
 }
