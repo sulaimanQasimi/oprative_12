@@ -2,31 +2,34 @@ import React, { useState, useEffect } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
-    ShoppingCart,
-    Plus,
+    ArrowLeft,
+    Store,
+    Package,
+    TrendingUp,
+    DollarSign,
+    Calendar,
     Search,
-    Filter,
-    Download,
     Eye,
     Edit,
     Trash2,
-    Calendar,
-    DollarSign,
-    TrendingUp,
-    Users,
-    Building2,
+    Plus,
+    Filter,
+    Download,
+    RefreshCw,
+    BarChart3,
+    Sparkles,
     ChevronDown,
     ChevronUp,
     X,
-    FileText,
-    Sparkles,
-    BarChart3,
+    User,
     CheckCircle,
     Clock,
     XCircle,
     ChevronLeft,
     ChevronRight,
-    MoreHorizontal
+    Building2,
+    Users,
+    FileText
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -52,12 +55,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/Components/ui/select";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/Components/ui/dropdown-menu";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
@@ -66,6 +63,7 @@ export default function SalesIndex({
     auth, 
     sales, 
     warehouses = [], 
+    customers = [],
     filters = {}, 
     sort = {}, 
     stats = {},
@@ -74,12 +72,15 @@ export default function SalesIndex({
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [showFilters, setShowFilters] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters.search || "");
     const [warehouseFilter, setWarehouseFilter] = useState(filters.warehouse_id || "");
+    const [customerFilter, setCustomerFilter] = useState(filters.customer_id || "");
     const [statusFilter, setStatusFilter] = useState(filters.status || "");
     const [dateFrom, setDateFrom] = useState(filters.date_from || "");
     const [dateTo, setDateTo] = useState(filters.date_to || "");
+    const [minAmount, setMinAmount] = useState(filters.min_amount || "");
+    const [maxAmount, setMaxAmount] = useState(filters.max_amount || "");
+    const [showFilters, setShowFilters] = useState(false);
 
     // Animation effect
     useEffect(() => {
@@ -90,13 +91,27 @@ export default function SalesIndex({
         return () => clearTimeout(timer);
     }, []);
 
+    // Enhanced filtering logic
+    useEffect(() => {
+        // Any client-side filtering logic if needed
+    }, [searchTerm, warehouseFilter, customerFilter, statusFilter, dateFrom, dateTo, minAmount, maxAmount, sales]);
+
+    // Calculate totals from actual data
+    const totalSales = sales?.data?.length || 0;
+    const totalAmount = sales?.data?.reduce((sum, sale) => sum + (sale.total || 0), 0) || 0;
+    const totalItems = sales?.data?.reduce((sum, sale) => sum + (sale.items?.length || 0), 0) || 0;
+    const avgSaleValue = totalSales > 0 ? totalAmount / totalSales : 0;
+
     const handleSearch = () => {
         router.get(route('admin.sales.index'), {
             search: searchTerm,
             warehouse_id: warehouseFilter,
+            customer_id: customerFilter,
             status: statusFilter,
             date_from: dateFrom,
             date_to: dateTo,
+            min_amount: minAmount,
+            max_amount: maxAmount,
         }, {
             preserveState: true,
             preserveScroll: true,
@@ -111,57 +126,120 @@ export default function SalesIndex({
         }).format(amount || 0);
     };
 
-    const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
+    // Utility function to convert Gregorian to Jalali date
+    const formatJalaliDate = (dateString) => {
+        const date = new Date(dateString);
+        
+        // Convert to Jalali date using Persian calendar
+        const jalaliDate = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
             year: 'numeric',
-            month: 'short',
-            day: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        }).format(date);
+        
+        const time = date.toLocaleTimeString('fa-IR', {
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            hour12: false
         });
+        
+        return `${jalaliDate} ${time}`;
     };
 
-    const getStatusIcon = (status) => {
+    const formatDate = (dateString) => {
+        return formatJalaliDate(dateString);
+    };
+
+    const getStatusBadgeClass = (status) => {
         switch (status) {
             case 'completed':
-                return <CheckCircle className="h-4 w-4 text-green-500" />;
+                return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300';
             case 'pending':
-                return <Clock className="h-4 w-4 text-yellow-500" />;
+                return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300';
             case 'cancelled':
-                return <XCircle className="h-4 w-4 text-red-500" />;
+                return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300';
             default:
-                return <Clock className="h-4 w-4 text-gray-500" />;
+                return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300';
         }
     };
 
-    const getStatusBadge = (status) => {
-        const config = {
-            completed: { label: t('Completed'), class: 'bg-green-100 text-green-800 border-green-200' },
-            pending: { label: t('Pending'), class: 'bg-yellow-100 text-yellow-800 border-yellow-200' },
-            cancelled: { label: t('Cancelled'), class: 'bg-red-100 text-red-800 border-red-200' },
-        };
-
-        const statusConfig = config[status] || config.pending;
-        
-        return (
-            <Badge className={`${statusConfig.class} flex items-center gap-1`}>
-                {getStatusIcon(status)}
-                {statusConfig.label}
-            </Badge>
-        );
+    const clearFilters = () => {
+        setSearchTerm("");
+        setWarehouseFilter("");
+        setCustomerFilter("");
+        setStatusFilter("");
+        setDateFrom("");
+        setDateTo("");
+        setMinAmount("");
+        setMaxAmount("");
+        router.get(route('admin.sales.index'));
     };
 
     return (
         <>
-            <Head title={t("Sales Management")} />
+            <Head title={t("Shop Movement Management")}>
+                <style>{`
+                    @keyframes shimmer {
+                        0% { background-position: -1000px 0; }
+                        100% { background-position: 1000px 0; }
+                    }
 
-            <PageLoader isVisible={loading} icon={ShoppingCart} color="blue" />
+                    @keyframes float {
+                        0%, 100% { transform: translateY(0px); }
+                        50% { transform: translateY(-10px); }
+                    }
+
+                    @keyframes pulse-glow {
+                        0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.6); }
+                    }
+
+                    .shimmer {
+                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+                        background-size: 1000px 100%;
+                        animation: shimmer 2s infinite;
+                    }
+
+                    .float-animation {
+                        animation: float 6s ease-in-out infinite;
+                    }
+
+                    .pulse-glow {
+                        animation: pulse-glow 2s ease-in-out infinite;
+                    }
+
+                    .glass-effect {
+                        background: rgba(255, 255, 255, 0.1);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                    }
+
+                    .dark .glass-effect {
+                        background: rgba(0, 0, 0, 0.2);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
+                    }
+
+                    .gradient-border {
+                        background: linear-gradient(white, white) padding-box,
+                                    linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                        border: 2px solid transparent;
+                    }
+
+                    .dark .gradient-border {
+                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                                    linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                    }
+                `}</style>
+            </Head>
+
+            <PageLoader isVisible={loading} icon={Store} color="green" />
 
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.sales" />
@@ -173,397 +251,572 @@ export default function SalesIndex({
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-700 py-6 px-8 sticky top-0 z-30"
+                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <div className="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-2xl">
-                                    <ShoppingCart className="w-8 h-8 text-white" />
-                                </div>
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative float-animation"
+                                >
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
+                                        <Store className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
+                                    </div>
+                                </motion.div>
                                 <div>
-                                    <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent">
-                                        {t("Sales Management")}
-                                    </h1>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
+                                    >
+                                        <Sparkles className="w-4 h-4" />
+                                        {t("Shop Movement Management")}
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
+                                    >
+                                        {t("Shop Movements")}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                    >
                                         <BarChart3 className="w-4 h-4" />
-                                        {t("Monitor and manage all sales transactions")}
-                                    </p>
+                                        {t("Track and manage warehouse to shop movements")}
+                                    </motion.p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center space-x-3">
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
+                            >
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                    <Download className="h-4 w-4" />
+                                    {t("Export")}
+                                </Button>
                                 <Button
                                     variant="outline"
                                     onClick={() => setShowFilters(!showFilters)}
-                                    className="gap-2"
+                                    className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20"
                                 >
                                     <Filter className="h-4 w-4" />
-                                    {t("Filters")}
-                                    {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                    {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                    <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
                                 </Button>
-                                
-                            </div>
+                            </motion.div>
                         </div>
-
-                        {/* Filters */}
-                        <AnimatePresence>
-                            {showFilters && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    className="mt-6"
-                                >
-                                    <Card>
-                                        <CardContent className="p-6">
-                                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium">{t("Search")}</label>
-                                                    <div className="relative">
-                                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                                                        <Input
-                                                            placeholder={t("Search sales...")}
-                                                            value={searchTerm}
-                                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                                            className="pl-10"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium">{t("Warehouse")}</label>
-                                                    <Select value={warehouseFilter} onValueChange={setWarehouseFilter}>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder={t("All warehouses")} />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="">{t("All warehouses")}</SelectItem>
-                                                            {warehouses.map((warehouse) => (
-                                                                <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
-                                                                    {warehouse.name}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium">{t("Status")}</label>
-                                                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder={t("All statuses")} />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="">{t("All statuses")}</SelectItem>
-                                                            <SelectItem value="pending">{t("Pending")}</SelectItem>
-                                                            <SelectItem value="completed">{t("Completed")}</SelectItem>
-                                                            <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium">{t("Date From")}</label>
-                                                    <Input
-                                                        type="date"
-                                                        value={dateFrom}
-                                                        onChange={(e) => setDateFrom(e.target.value)}
-                                                    />
-                                                </div>
-
-                                                <div className="space-y-2">
-                                                    <label className="text-sm font-medium">{t("Date To")}</label>
-                                                    <Input
-                                                        type="date"
-                                                        value={dateTo}
-                                                        onChange={(e) => setDateTo(e.target.value)}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div className="flex justify-between mt-6">
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() => {
-                                                        setSearchTerm("");
-                                                        setWarehouseFilter("");
-                                                        setStatusFilter("");
-                                                        setDateFrom("");
-                                                        setDateTo("");
-                                                        router.get(route('admin.sales.index'));
-                                                    }}
-                                                    className="gap-2"
-                                                >
-                                                    <X className="h-4 w-4" />
-                                                    {t("Clear Filters")}
-                                                </Button>
-                                                <Button onClick={handleSearch} className="gap-2">
-                                                    <Search className="h-4 w-4" />
-                                                    {t("Apply Filters")}
-                                                </Button>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
                     </motion.header>
 
-                    {/* Main Content */}
-                    <main className="flex-1 overflow-auto p-8">
-                        <div className="space-y-8">
-                            {/* Statistics Cards */}
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                <motion.div whileHover={{ scale: 1.02 }}>
-                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">{t("Total Sales")}</p>
-                                                    <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">{stats.total_sales?.toLocaleString() || 0}</p>
-                                                    <p className="text-xs text-blue-500 mt-1">{t("All time")}</p>
-                                                </div>
-                                                <div className="p-3 bg-blue-500 rounded-xl">
-                                                    <ShoppingCart className="h-8 w-8 text-white" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                                
-                                <motion.div whileHover={{ scale: 1.02 }}>
-                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm text-green-600 dark:text-green-400 font-medium">{t("Total Revenue")}</p>
-                                                    <p className="text-3xl font-bold text-green-700 dark:text-green-300">{formatCurrency(stats.total_amount || 0)}</p>
-                                                    <p className="text-xs text-green-500 mt-1">{t("All time")}</p>
-                                                </div>
-                                                <div className="p-3 bg-green-500 rounded-xl">
-                                                    <DollarSign className="h-8 w-8 text-white" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                                
-                                <motion.div whileHover={{ scale: 1.02 }}>
-                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">{t("Today's Sales")}</p>
-                                                    <p className="text-3xl font-bold text-purple-700 dark:text-purple-300">{stats.today_sales?.toLocaleString() || 0}</p>
-                                                    <p className="text-xs text-purple-500 mt-1">{t("Today")}</p>
-                                                </div>
-                                                <div className="p-3 bg-purple-500 rounded-xl">
-                                                    <Calendar className="h-8 w-8 text-white" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                                
-                                <motion.div whileHover={{ scale: 1.02 }}>
-                                    <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">{t("Today's Revenue")}</p>
-                                                    <p className="text-3xl font-bold text-orange-700 dark:text-orange-300">{formatCurrency(stats.today_amount || 0)}</p>
-                                                    <p className="text-xs text-orange-500 mt-1">{t("Today")}</p>
-                                                </div>
-                                                <div className="p-3 bg-orange-500 rounded-xl">
-                                                    <TrendingUp className="h-8 w-8 text-white" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
-                            </div>
-
-                            {/* Sales Table */}
+                    {/* Main Content Container */}
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-green-300 dark:scrollbar-thumb-green-700 scrollbar-track-transparent">
+                        <div className="p-8">
                             <motion.div
-                                initial={{ scale: 0.95, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ delay: 0.3, duration: 0.5 }}
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="space-y-8"
                             >
-                                <Card className="border-0 shadow-xl bg-white dark:bg-gray-800">
-                                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-b">
-                                        <CardTitle className="flex items-center gap-3">
-                                            <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                                                <ShoppingCart className="h-6 w-6 text-white" />
-                                            </div>
-                                            {t("Sales List")}
-                                            <Badge variant="secondary" className="ml-auto">
-                                                {sales?.total || 0} {t("total")}
-                                            </Badge>
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-0">
-                                        <div className="overflow-x-auto">
-                                            <Table>
-                                                <TableHeader>
-                                                    <TableRow className="border-b bg-gray-50 dark:bg-gray-900">
-                                                        <TableHead className="py-4 font-semibold">{t("ID")}</TableHead>
-                                                        <TableHead className="py-4 font-semibold">{t("Customer")}</TableHead>
-                                                        <TableHead className="py-4 font-semibold">{t("Warehouse")}</TableHead>
-                                                        <TableHead className="py-4 font-semibold">{t("Total Amount")}</TableHead>
-                                                        <TableHead className="py-4 font-semibold">{t("Status")}</TableHead>
-                                                        <TableHead className="py-4 font-semibold">{t("Date")}</TableHead>
-                                                        <TableHead className="text-center py-4 font-semibold">{t("Actions")}</TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {sales?.data?.length > 0 ? (
-                                                        sales.data.map((sale, index) => (
-                                                            <motion.tr
-                                                                key={sale.id}
-                                                                initial={{ opacity: 0, y: 20 }}
-                                                                animate={{ opacity: 1, y: 0 }}
-                                                                transition={{ delay: index * 0.1 }}
-                                                                className="border-b hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
-                                                            >
-                                                                <TableCell className="py-4">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                                                                            <FileText className="h-4 w-4 text-blue-600" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <div className="font-semibold">#{sale.id}</div>
-                                                                            <div className="text-sm text-gray-500">
-                                                                                {sale.reference_number || `SALE-${sale.id}`}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </TableCell>
-                                                                <TableCell className="py-4">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                                                                            <Users className="h-4 w-4 text-green-600" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <div className="font-semibold">{sale.customer?.name || t('Unknown Customer')}</div>
-                                                                            <div className="text-sm text-gray-500">{sale.customer?.email}</div>
-                                                                        </div>
-                                                                    </div>
-                                                                </TableCell>
-                                                                <TableCell className="py-4">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <Building2 className="h-4 w-4 text-purple-600" />
-                                                                        <div>
-                                                                            <div className="font-semibold">{sale.warehouse?.name || t('Unknown Warehouse')}</div>
-                                                                            <div className="text-sm text-gray-500">{sale.warehouse?.code}</div>
-                                                                        </div>
-                                                                    </div>
-                                                                </TableCell>
-                                                                <TableCell className="py-4">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <DollarSign className="h-4 w-4 text-green-600" />
-                                                                        <div>
-                                                                                                                                                         <div className="font-bold text-green-600 text-lg">
-                                                                                {formatCurrency(sale.total)}
-                                                                             </div>
-                                                                            <div className="text-sm text-gray-500">
-                                                                                {sale.items?.length || 0} {t('items')}
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </TableCell>
-                                                                <TableCell className="py-4">
-                                                                    {getStatusBadge(sale.status)}
-                                                                </TableCell>
-                                                                <TableCell className="py-4">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <Calendar className="h-4 w-4 text-gray-400" />
-                                                                        <div className="text-sm">{formatDate(sale.created_at)}</div>
-                                                                    </div>
-                                                                </TableCell>
-                                                                <TableCell className="py-4">
-                                                                    <div className="flex justify-center">
-                                                                        <DropdownMenu>
-                                                                            <DropdownMenuTrigger asChild>
-                                                                                <Button variant="ghost" size="sm" className="hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                                                                    <MoreHorizontal className="h-4 w-4" />
-                                                                                </Button>
-                                                                            </DropdownMenuTrigger>
-                                                                            <DropdownMenuContent align="end" className="w-48">
-                                                                                {can.view_sale && (
-                                                                                    <DropdownMenuItem 
-                                                                                        className="flex items-center gap-2 cursor-pointer"
-                                                                                        onClick={() => router.visit(route('admin.warehouses.sales.show', { warehouse: sale.warehouse_id, sale: sale.id }))}
-                                                                                    >
-                                                                                        <Eye className="h-4 w-4" />
-                                                                                        {t("View Details")}
-                                                                                    </DropdownMenuItem>
-                                                                                )}
-                                                                            </DropdownMenuContent>
-                                                                        </DropdownMenu>
-                                                                    </div>
-                                                                </TableCell>
-                                                            </motion.tr>
-                                                        ))
-                                                    ) : (
-                                                        <TableRow>
-                                                            <TableCell colSpan={7} className="text-center py-12">
-                                                                <div className="flex flex-col items-center gap-4">
-                                                                    <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-full">
-                                                                        <ShoppingCart className="h-12 w-12 text-gray-400" />
-                                                                    </div>
-                                                                    <div>
-                                                                        <h3 className="text-lg font-semibold text-gray-600 dark:text-gray-400 mb-2">
-                                                                            {t("No sales found")}
-                                                                        </h3>
-                                                                        <p className="text-gray-500 mb-4">
-                                                                            {t("Get started by creating your first sale.")}
-                                                                        </p>
-                                                                        {can.create_sale && (
-                                                                            <Link href={route("admin.sales.create")}>
-                                                                                <Button className="gap-2">
-                                                                                    <Plus className="h-4 w-4" />
-                                                                                    {t("Create Sale")}
-                                                                                </Button>
-                                                                            </Link>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    )}
-                                                </TableBody>
-                                            </Table>
-                                        </div>
+                                {/* Enhanced Summary Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.9, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Shop Movements")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-green-600">
+                                                            {stats.total_sales?.toLocaleString() || "0"}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Orders")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
+                                                        <Store className="h-8 w-8 text-green-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
 
-                                        {/* Pagination */}
-                                        {sales?.last_page > 1 && (
-                                            <div className="flex items-center justify-between px-6 py-4 border-t bg-gray-50 dark:bg-gray-900">
-                                                <div className="text-sm text-gray-500">
-                                                    {t("Showing")} {sales.from} {t("to")} {sales.to} {t("of")} {sales.total} {t("results")}
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.0, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Items")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-blue-600">
+                                                            {totalItems.toLocaleString()}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Products moved")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
+                                                        <Package className="h-8 w-8 text-blue-600" />
+                                                    </div>
                                                 </div>
-                                                <div className="flex items-center space-x-2">
-                                                    {sales.prev_page_url && (
-                                                        <Link href={sales.prev_page_url}>
-                                                            <Button variant="outline" size="sm" className="gap-2">
-                                                                <ChevronLeft className="h-4 w-4" />
-                                                                {t("Previous")}
-                                                            </Button>
-                                                        </Link>
-                                                    )}
-                                                    
-                                                    {sales.next_page_url && (
-                                                        <Link href={sales.next_page_url}>
-                                                            <Button variant="outline" size="sm" className="gap-2">
-                                                                {t("Next")}
-                                                                <ChevronRight className="h-4 w-4" />
-                                                            </Button>
-                                                        </Link>
-                                                    )}
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.1, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Revenue")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-purple-600">
+                                                            {formatCurrency(stats.total_amount || 0)}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Movement value")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
+                                                        <DollarSign className="h-8 w-8 text-purple-600" />
+                                                    </div>
                                                 </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.2, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Average Movement")}
+                                                        </p>
+                                                        <p className="text-3xl font-bold text-orange-600">
+                                                            {formatCurrency(avgSaleValue)}
+                                                        </p>
+                                                        <p className="text-xs text-slate-500 mt-1">
+                                                            {t("Per order")}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
+                                                        <TrendingUp className="h-8 w-8 text-orange-600" />
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                </div>
+
+                                {/* Advanced Filters */}
+                                <AnimatePresence>
+                                    {showFilters && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="overflow-hidden"
+                                        >
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                                <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                                    <CardTitle className="flex items-center gap-3">
+                                                        <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                            <Filter className="h-5 w-5 text-white" />
+                                                        </div>
+                                                        {t("Search & Filter")}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-6">
+                                                    {/* Search Bar */}
+                                                    <div className="mb-4">
+                                                        <div className="relative">
+                                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                            <Input
+                                                                placeholder={t("Search by reference, customer, or product...")}
+                                                                value={searchTerm}
+                                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                                className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
+                                                            />
+                                                            {searchTerm && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() => setSearchTerm("")}
+                                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                                >
+                                                                    <X className="h-4 w-4" />
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Advanced Filters */}
+                                                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                {t("Warehouse")}
+                                                            </label>
+                                                            <Select value={warehouseFilter} onValueChange={setWarehouseFilter}>
+                                                                <SelectTrigger className="h-10">
+                                                                    <SelectValue placeholder={t("All Warehouses")} />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="">{t("All Warehouses")}</SelectItem>
+                                                                    {warehouses.map((warehouse) => (
+                                                                        <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
+                                                                            {warehouse.name}
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </div>
+
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                {t("Customer")}
+                                                            </label>
+                                                            <Select value={customerFilter} onValueChange={setCustomerFilter}>
+                                                                <SelectTrigger className="h-10">
+                                                                    <SelectValue placeholder={t("All Customers")} />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="">{t("All Customers")}</SelectItem>
+                                                                    {customers.map((customer) => (
+                                                                        <SelectItem key={customer.id} value={customer.id.toString()}>
+                                                                            {customer.name}
+                                                                        </SelectItem>
+                                                                    ))}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </div>
+
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                {t("Status")}
+                                                            </label>
+                                                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                                                <SelectTrigger className="h-10">
+                                                                    <SelectValue placeholder={t("All Statuses")} />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="">{t("All Statuses")}</SelectItem>
+                                                                    <SelectItem value="pending">{t("Pending")}</SelectItem>
+                                                                    <SelectItem value="completed">{t("Completed")}</SelectItem>
+                                                                    <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </div>
+
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                {t("Date Filter")}
+                                                            </label>
+                                                            <Input
+                                                                type="date"
+                                                                value={dateFrom}
+                                                                onChange={(e) => setDateFrom(e.target.value)}
+                                                                className="h-10"
+                                                            />
+                                                        </div>
+
+                                                        <div className="flex items-end">
+                                                            <Button
+                                                                variant="outline"
+                                                                onClick={clearFilters}
+                                                                className="w-full h-10 gap-2"
+                                                            >
+                                                                <RefreshCw className="h-4 w-4" />
+                                                                {t("Clear Filters")}
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="flex justify-end mt-6">
+                                                        <Button 
+                                                            onClick={handleSearch} 
+                                                            className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white"
+                                                        >
+                                                            <Search className="h-4 w-4" />
+                                                            {t("Apply Filters")}
+                                                        </Button>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+
+                                {/* Shop Movement Table */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.4, duration: 0.4 }}
+                                >
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                            <CardTitle className="flex items-center gap-3">
+                                                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                    <BarChart3 className="h-5 w-5 text-white" />
+                                                </div>
+                                                {t("Shop Movement Records")}
+                                                <Badge variant="secondary" className="ml-auto">
+                                                    {sales?.data?.length || 0} {t("of")} {sales?.total || 0}
+                                                </Badge>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
+                                            <div className="overflow-x-auto">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Reference")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Customer")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Warehouse")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Items")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Total Amount")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Status")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Confirmations")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Date")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Actions")}
+                                                            </TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {sales?.data?.length > 0 ? (
+                                                            sales.data.map((sale, index) => (
+                                                                <TableRow
+                                                                    key={sale.id}
+                                                                    className="hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors"
+                                                                >
+                                                                    <TableCell>
+                                                                        <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                                                                            {sale.reference || `SHOP-${sale.id}`}
+                                                                        </span>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
+                                                                                <User className="h-4 w-4 text-blue-600" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <p className="font-semibold text-slate-800 dark:text-white">{sale.customer?.name || t('Unknown Customer')}</p>
+                                                                                <p className="text-sm text-slate-500">{sale.customer?.email || ''}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Building2 className="h-4 w-4 text-purple-600" />
+                                                                            <div>
+                                                                                <div className="font-semibold text-slate-800 dark:text-white">{sale.warehouse?.name || t('Unknown Warehouse')}</div>
+                                                                                <div className="text-sm text-slate-500">{sale.warehouse?.code}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex flex-col gap-1">
+                                                                            <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 w-fit">
+                                                                                {sale.items?.length || 0} {t('items')}
+                                                                            </Badge>
+                                                                            {sale.items && sale.items.length > 0 && (
+                                                                                <span className="text-xs text-slate-500">
+                                                                                    {sale.items[0].product?.name}
+                                                                                    {sale.items.length > 1 && ` +${sale.items.length - 1} more`}
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="font-bold text-green-600">
+                                                                        {formatCurrency(sale.total)}
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Badge className={getStatusBadgeClass(sale.status)}>
+                                                                            {sale.status}
+                                                                        </Badge>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="flex items-center gap-1">
+                                                                                {sale.confirmed_by_warehouse ? (
+                                                                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                                                                ) : (
+                                                                                    <Clock className="h-4 w-4 text-yellow-600" />
+                                                                                )}
+                                                                                <span className="text-xs">{t('Warehouse')}</span>
+                                                                            </div>
+                                                                            <div className="flex items-center gap-1">
+                                                                                {sale.confirmed_by_shop ? (
+                                                                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                                                                ) : (
+                                                                                    <Clock className="h-4 w-4 text-yellow-600" />
+                                                                                )}
+                                                                                <span className="text-xs">{t('Shop')}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Calendar className="h-4 w-4" />
+                                                                            {formatDate(sale.created_at)}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {can.view_sale && (
+                                                                                <Link href={route("admin.warehouses.sales.show", [sale.warehouse_id, sale.id])}>
+                                                                                    <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300">
+                                                                                        <Store className="h-4 w-4 text-green-600" />
+                                                                                    </Button>
+                                                                                </Link>
+                                                                            )}
+                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300">
+                                                                                <Eye className="h-4 w-4 text-blue-600" />
+                                                                            </Button>
+                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-300">
+                                                                                <Trash2 className="h-4 w-4 text-red-600" />
+                                                                            </Button>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))
+                                                        ) : (
+                                                            <TableRow>
+                                                                <TableCell colSpan="9" className="h-32 text-center">
+                                                                    <div className="flex flex-col items-center gap-4">
+                                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                                            <Store className="h-8 w-8 text-slate-400" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                                {t("No shop movements found")}
+                                                                            </p>
+                                                                            <p className="text-sm text-slate-500">
+                                                                                {searchTerm || warehouseFilter || customerFilter || statusFilter ? t("Try adjusting your filters") : t("Create your first shop movement")}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        )}
+                                                    </TableBody>
+                                                </Table>
                                             </div>
-                                        )}
-                                    </CardContent>
-                                </Card>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                {/* Enhanced Pagination */}
+                                {sales?.links && sales.links.length > 3 && (
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.5, duration: 0.4 }}
+                                        className="flex items-center justify-center space-x-2"
+                                    >
+                                        <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
+                                            {sales.links.map((link, index) => {
+                                                if (link.label.includes('Previous')) {
+                                                    return (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url || '#'}
+                                                            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                link.url 
+                                                                    ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30' 
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                            }`}
+                                                        >
+                                                            <ChevronLeft className="h-4 w-4" />
+                                                            <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                        </Link>
+                                                    );
+                                                }
+                                                
+                                                if (link.label.includes('Next')) {
+                                                    return (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url || '#'}
+                                                            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                link.url 
+                                                                    ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30' 
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                            }`}
+                                                        >
+                                                            <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                            <ChevronRight className="h-4 w-4" />
+                                                        </Link>
+                                                    );
+                                                }
+                                                
+                                                return (
+                                                    <Link
+                                                        key={index}
+                                                        href={link.url || '#'}
+                                                        className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                            link.active 
+                                                                ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg' 
+                                                                : link.url 
+                                                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30' 
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                        }`}
+                                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    </motion.div>
+                                )}
                             </motion.div>
                         </div>
                     </main>
