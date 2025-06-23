@@ -88,42 +88,7 @@ class SalesController extends Controller
         $perPage = $request->get('per_page', 15);   
         $perPage = in_array($perPage, [10, 15, 25, 50, 100]) ? $perPage : 15;
         
-        $sales = $query->paginate($perPage)->withQueryString()->through(function ($sale) {
-            return [
-                'id' => $sale->id,
-                'reference' => $sale->reference,
-                'total' => $sale->total,
-                'status' => $sale->status,
-                'date' => $sale->date ? $sale->date->format('Y-m-d') : $sale->created_at->format('Y-m-d'),
-                'created_at' => $sale->created_at->format('Y-m-d H:i:s'),
-                'warehouse_id' => $sale->warehouse_id,
-                'customer' => $sale->customer ? [
-                    'id' => $sale->customer->id,
-                    'name' => $sale->customer->name,
-                    'email' => $sale->customer->email,
-                    'phone' => $sale->customer->phone,
-                ] : null,
-                'warehouse' => $sale->warehouse ? [
-                    'id' => $sale->warehouse->id,
-                    'name' => $sale->warehouse->name,
-                    'code' => $sale->warehouse->code,
-                ] : null,
-                'items_count' => $sale->saleItems->count(),
-                'items' => $sale->saleItems->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'quantity' => $item->quantity,
-                        'unit_price' => $item->unit_price,
-                        'total' => $item->total,
-                        'product' => $item->product ? [
-                            'id' => $item->product->id,
-                            'name' => $item->product->name,
-                            'barcode' => $item->product->barcode,
-                        ] : null,
-                    ];
-                }),
-            ];
-        });
+        $sales = $query->paginate($perPage);
 
         // Get warehouses for filter dropdown
         $warehouses = Warehouse::where('is_active', true)

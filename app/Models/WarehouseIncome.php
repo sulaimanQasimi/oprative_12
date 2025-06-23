@@ -24,7 +24,7 @@ class WarehouseIncome extends Model
      *
      * @var array
      */
-    protected $appends = ['persian_created_date'];
+    protected $appends = [];
 
     public function warehouse(): BelongsTo
     {

@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\SalesController;
+use App\Http\Controllers\Admin\IncomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -370,5 +371,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Sales Management
     Route::prefix('sales')->group(function () {
         Route::get('/', [SalesController::class, 'index'])->name('admin.sales.index');
+    });
+
+    // Warehouse Income Management
+    Route::prefix('incomes')->group(function () {
+        Route::get('/', [IncomeController::class, 'index'])->name('admin.incomes.index');
     });
 });
