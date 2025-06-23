@@ -3,9 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\WarehouseOutcome;
-use App\Models\Warehouse;
-use App\Models\Product;
+use App\Models\{WarehouseOutcome,Warehouse,Product};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
