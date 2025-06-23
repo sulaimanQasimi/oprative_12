@@ -277,7 +277,7 @@ const Navigation = ({ auth, currentRoute }) => {
                     permission: "view_any_warehouse",
                 },
                 {
-                    name: t("Shop Sales"),
+                    name: t("Move to shop"),
                     icon: <Store className="w-5 h-5" />,
                     route: "admin.warehouses.sales",
                     active: currentRoute?.includes("sales"),

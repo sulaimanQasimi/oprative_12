@@ -2649,5 +2649,9 @@
   "Web Guard": "گارد وب",
   "Total Permissions": "کل صلاحیت‌ها",
   "System permissions": "صلاحیت‌های سیستم",
-  "permissions in this group": "صلاحیت‌های در این گروه"
+    "permissions in this group": "صلاحیت‌های در این گروه",
+    "Manage Products":"مدیرت محصولات",
+  "View Imports": "مشاهده واردات",
+  "View Exports": "مشاهده صادرات",
+  "View Sales": "مشاهده انتقال به مغازه"
 }

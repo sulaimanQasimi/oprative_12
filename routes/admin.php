@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\SalesController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -292,10 +293,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{warehouse:id}/transfers', [WarehouseController::class, 'storeTransfer'])->name('admin.warehouses.transfers.store');
 
         // Warehouse sales management
-            Route::get('/{warehouse:id}/sales', [WarehouseController::class, 'sales'])->name('admin.warehouses.sales');
-    Route::get('/{warehouse:id}/sales/create', [WarehouseController::class, 'createSale'])->name('admin.warehouses.sales.create');
-    Route::get('/{warehouse:id}/sales/{sale}', [WarehouseController::class, 'showSale'])->name('admin.warehouses.sales.show');
-    Route::post('/{warehouse:id}/sales', [WarehouseController::class, 'storeSale'])->name('admin.warehouses.sales.store');
+        Route::get('/{warehouse:id}/sales', [WarehouseController::class, 'sales'])->name('admin.warehouses.sales');
+        Route::get('/{warehouse:id}/sales/create', [WarehouseController::class, 'createSale'])->name('admin.warehouses.sales.create');
+        Route::get('/{warehouse:id}/sales/{sale}', [WarehouseController::class, 'showSale'])->name('admin.warehouses.sales.show');
+        Route::post('/{warehouse:id}/sales', [WarehouseController::class, 'storeSale'])->name('admin.warehouses.sales.store');
 
         // Warehouse user management
         Route::get('/{warehouse:id}/users/create', [WarehouseUserController::class, 'create'])->name('admin.warehouses.users.create');
@@ -364,5 +365,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Purchase Warehouse Transfer Management
         Route::get('/{purchase:id}/warehouse-transfer', [PurchaseController::class, 'warehouseTransfer'])->name('admin.purchases.warehouse-transfer');
         Route::post('/{purchase:id}/warehouse-transfer', [PurchaseController::class, 'storeWarehouseTransfer'])->name('admin.purchases.warehouse-transfer.store');
+    });
+
+    // Sales Management
+    Route::prefix('sales')->group(function () {
+        Route::get('/', [SalesController::class, 'index'])->name('admin.sales.index');
     });
 });
