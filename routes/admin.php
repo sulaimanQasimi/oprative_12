@@ -24,7 +24,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\SalesController;
-use App\Http\Controllers\Admin\{IncomeController,OutcomeController};
+use App\Http\Controllers\Admin\{IncomeController,OutcomeController, TransferController};
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -382,5 +382,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Warehouse Income Management
     Route::prefix('outcomes')->group(function () {
         Route::get('/', [OutcomeController::class, 'index'])->name('admin.outcomes.index');
+    });
+    // Warehouse Income Management
+    Route::prefix('transfer')->group(function () {
+        Route::get('/', [TransferController::class, 'index'])->name('admin.transfers.index');
     });
 });

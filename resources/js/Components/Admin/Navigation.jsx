@@ -300,7 +300,7 @@ const Navigation = ({ auth, currentRoute }) => {
                 {
                     name: t("Transfers"),
                     icon: <ArrowRightLeft className="w-5 h-5" />,
-                    route: "admin.warehouses.transfers",
+                    route: "admin.transfers.index",
                     active: currentRoute?.includes("transfers"),    
                     permission: "view_any_transfer",
                 },
