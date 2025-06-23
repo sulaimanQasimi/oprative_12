@@ -7,7 +7,6 @@ import PageLoader from "@/Components/Admin/PageLoader";
 import {
     Search,
     Plus,
-    Users,
     TrendingUp,
     TrendingDown,
     Eye,
@@ -236,7 +235,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700 py-6 px-8 sticky top-0 z-30"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -244,7 +243,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                     initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                    className="relative float-animation"
+                                    className="relative"
                                 >
                                     <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
                                     <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
@@ -288,7 +287,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-200 hover:border-blue-300 hover:bg-blue-50 dark:border-slate-600 dark:hover:border-blue-400 dark:hover:bg-blue-900/20">
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
@@ -317,23 +316,24 @@ export default function Index({ accounts, customers, filters, auth }) {
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Total Accounts")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-blue-600">
+                                                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                                                             {totalAccounts}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Customer accounts")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
-                                                        <CreditCard className="h-8 w-8 text-blue-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl shadow-lg">
+                                                        <CreditCard className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -344,23 +344,24 @@ export default function Index({ accounts, customers, filters, auth }) {
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.0, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Active Accounts")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-green-600">
+                                                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                                                             {activeAccounts}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Currently active")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
-                                                        <CheckCircle className="h-8 w-8 text-green-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl shadow-lg">
+                                                        <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -371,23 +372,24 @@ export default function Index({ accounts, customers, filters, auth }) {
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.1, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Total Income")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-green-600">
+                                                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                                                             {formatCurrency(totalIncome)}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("All accounts")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
-                                                        <TrendingUp className="h-8 w-8 text-green-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl shadow-lg">
+                                                        <TrendingUp className="h-8 w-8 text-green-600 dark:text-green-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -398,23 +400,24 @@ export default function Index({ accounts, customers, filters, auth }) {
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.2, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Total Outcome")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-red-600">
+                                                        <p className="text-3xl font-bold text-red-600 dark:text-red-400">
                                                             {formatCurrency(totalOutcome)}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("All accounts")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-2xl">
-                                                        <TrendingDown className="h-8 w-8 text-red-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-2xl shadow-lg">
+                                                        <TrendingDown className="h-8 w-8 text-red-600 dark:text-red-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -428,11 +431,11 @@ export default function Index({ accounts, customers, filters, auth }) {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                    <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 dark:from-blue-500/20 dark:via-indigo-500/20 dark:to-blue-500/20 border-b border-slate-200 dark:border-slate-700">
                                             <div className="flex items-center justify-between">
-                                                <CardTitle className="flex items-center gap-3">
-                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
+                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
                                                         <Filter className="h-5 w-5 text-white" />
                                                     </div>
                                                     {t("Search & Filter")}
@@ -440,7 +443,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => setShowFilters(!showFilters)}
-                                                    className="gap-2"
+                                                    className="gap-2 border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400"
                                                 >
                                                     <Filter className="h-4 w-4" />
                                                     {showFilters ? t("Hide Filters") : t("Show Filters")}
@@ -457,7 +460,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                         placeholder={t("Search by account name, number, ID, or customer...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-12 h-12 text-lg border-2 border-blue-200 focus:border-blue-500 rounded-xl"
+                                                        className="pl-12 h-12 text-lg border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 dark:border-slate-600 dark:hover:border-blue-400 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-white rounded-xl"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -488,10 +491,10 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                     {t("Status")}
                                                                 </label>
                                                                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 dark:border-slate-600 dark:hover:border-blue-400 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-white">
                                                                         <SelectValue placeholder={t("All Statuses")} />
                                                                     </SelectTrigger>
-                                                                    <SelectContent className="fixed top-0">
+                                                                    <SelectContent>
                                                                         <SelectItem value="">{t("All Statuses")}</SelectItem>
                                                                         <SelectItem value="pending">{t("Pending")}</SelectItem>
                                                                         <SelectItem value="active">{t("Active")}</SelectItem>
@@ -506,10 +509,10 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                     {t("Customer")}
                                                                 </label>
                                                                 <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 dark:border-slate-600 dark:hover:border-blue-400 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-white">
                                                                         <SelectValue placeholder={t("All Customers")} />
                                                                     </SelectTrigger>
-                                                                    <SelectContent className="fixed top-50 right-0">
+                                                                    <SelectContent>
                                                                         <SelectItem value="">{t("All Customers")}</SelectItem>
                                                                         {customers.map(customer => (
                                                                             <SelectItem key={customer.id} value={customer.id.toString()}>
@@ -524,7 +527,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                 <Button
                                                                     onClick={handleSearch}
                                                                     disabled={loading}
-                                                                    className="w-full h-10 gap-2 bg-blue-600 hover:bg-blue-700"
+                                                                    className="w-full h-10 gap-2 bg-blue-600 hover:bg-blue-700 text-white"
                                                                 >
                                                                     <Search className="h-4 w-4" />
                                                                     {loading ? t('Searching...') : t('Search')}
@@ -535,7 +538,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                 <Button
                                                                     variant="outline"
                                                                     onClick={clearFilters}
-                                                                    className="w-full h-10 gap-2"
+                                                                    className="w-full h-10 gap-2 border-slate-200 hover:border-slate-300 dark:border-slate-600 dark:hover:border-slate-500"
                                                                 >
                                                                     <RefreshCw className="h-4 w-4" />
                                                                     {t("Clear Filters")}
@@ -555,14 +558,14 @@ export default function Index({ accounts, customers, filters, auth }) {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                            <CardTitle className="flex items-center gap-3">
-                                                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                    <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 dark:from-blue-500/20 dark:via-indigo-500/20 dark:to-blue-500/20 border-b border-slate-200 dark:border-slate-700">
+                                            <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
+                                                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
                                                 </div>
                                                 {t("Account Records")}
-                                                <Badge variant="secondary" className="ml-auto">
+                                                <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                                     {accountsData.length} {t("of")} {totalAccounts}
                                                 </Badge>
                                             </CardTitle>
@@ -571,7 +574,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                        <TableRow className="bg-slate-100 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Account")}
                                                             </TableHead>
@@ -595,25 +598,25 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                             </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
-                                                    <TableBody>
+                                                    <TableBody className="bg-white dark:bg-slate-800">
                                                         {accountsData.length > 0 ? (
-                                                            accountsData.map((account) => (
+                                                            accountsData.map((account, index) => (
                                                                 <TableRow
                                                                     key={account.id}
-                                                                    className="hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
+                                                                    className={`hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-slate-50 dark:bg-slate-700/50'}`}
                                                                 >
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-3">
-                                                                            <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
-                                                                                <CreditCard className="h-4 w-4 text-blue-600" />
+                                                                            <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg shadow-sm">
+                                                                                <CreditCard className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                                                             </div>
                                                                             <div>
                                                                                 <p className="font-semibold text-slate-800 dark:text-white">{account.name}</p>
-                                                                                <p className="text-sm text-slate-500 flex items-center gap-1">
-                                                                                    <Badge variant="outline" className="text-xs">
+                                                                                <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                                                                    <Badge variant="outline" className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600">
                                                                                         ID: {account.id_number}
                                                                                     </Badge>
-                                                                                    <Badge variant="outline" className="text-xs">
+                                                                                    <Badge variant="outline" className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-600">
                                                                                         Acc: {account.account_number}
                                                                                     </Badge>
                                                                                 </p>
@@ -622,41 +625,41 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-2">
-                                                                            <Building2 className="h-4 w-4 text-slate-400" />
+                                                                            <Building2 className="h-4 w-4 text-slate-400 dark:text-slate-500" />
                                                                             <span className="font-medium text-slate-800 dark:text-white">{account.customer.name}</span>
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         {getStatusBadge(account.status)}
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-green-600">
+                                                                    <TableCell className="font-bold text-green-600 dark:text-green-400">
                                                                         {formatCurrency(account.total_income)}
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-red-600">
+                                                                    <TableCell className="font-bold text-red-600 dark:text-red-400">
                                                                         {formatCurrency(account.total_outcome)}
                                                                     </TableCell>
-                                                                    <TableCell className={`font-bold ${account.net_balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                                                    <TableCell className={`font-bold ${account.net_balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
                                                                         {formatCurrency(account.net_balance)}
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-2">
-                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300" asChild>
+                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300 dark:hover:bg-blue-900/20 dark:hover:border-blue-400" asChild>
                                                                                 <Link href={route('admin.accounts.show', account.id)}>
-                                                                                    <Eye className="h-4 w-4 text-blue-600" />
+                                                                                    <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                                                                 </Link>
                                                                             </Button>
-                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300" asChild>
+                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300 dark:hover:bg-green-900/20 dark:hover:border-green-400" asChild>
                                                                                 <Link href={route('admin.accounts.edit', account.id)}>
-                                                                                    <Edit className="h-4 w-4 text-green-600" />
+                                                                                    <Edit className="h-4 w-4 text-green-600 dark:text-green-400" />
                                                                                 </Link>
                                                                             </Button>
                                                                             <Button
                                                                                 size="sm"
                                                                                 variant="outline"
-                                                                                className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-300"
+                                                                                className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-900/20 dark:hover:border-red-400"
                                                                                 onClick={() => handleDelete(account)}
                                                                             >
-                                                                                <Trash2 className="h-4 w-4 text-red-600" />
+                                                                                <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                                                                             </Button>
                                                                         </div>
                                                                     </TableCell>
@@ -667,13 +670,13 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                 <TableCell colSpan="7" className="h-32 text-center">
                                                                     <div className="flex flex-col items-center gap-4">
                                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                                            <CreditCard className="h-8 w-8 text-slate-400" />
+                                                                            <CreditCard className="h-8 w-8 text-slate-400 dark:text-slate-500" />
                                                                         </div>
                                                                         <div>
                                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
                                                                                 {t("No accounts found")}
                                                                             </p>
-                                                                            <p className="text-sm text-slate-500">
+                                                                            <p className="text-sm text-slate-500 dark:text-slate-500">
                                                                                 {searchTerm || selectedStatus || selectedCustomer ? t("Try adjusting your filters") : t("Create your first account")}
                                                                             </p>
                                                                         </div>
@@ -704,7 +707,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                         transition={{ delay: 1.5, duration: 0.4 }}
                                         className="flex justify-center"
                                     >
-                                        <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <Card className="border-0 shadow-lg bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
                                             <CardContent className="p-4">
                                                 <div className="flex items-center justify-between gap-4">
                                                     <div className="text-sm text-slate-600 dark:text-slate-400">
@@ -720,7 +723,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                         variant="outline"
                                                                         size="sm"
                                                                         disabled
-                                                                        className="w-10 h-10 p-0"
+                                                                        className="w-10 h-10 p-0 border-slate-200 dark:border-slate-600"
                                                                     >
                                                                         {link.label === '&laquo; Previous' ? <ChevronLeft className="h-4 w-4" /> :
                                                                          link.label === 'Next &raquo;' ? <ChevronRight className="h-4 w-4" /> :
@@ -734,7 +737,7 @@ export default function Index({ accounts, customers, filters, auth }) {
                                                                     key={index}
                                                                     variant={link.active ? "default" : "outline"}
                                                                     size="sm"
-                                                                    className="w-10 h-10 p-0"
+                                                                    className={`w-10 h-10 p-0 ${link.active ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400'}`}
                                                                     onClick={() => {
                                                                         setLoading(true);
                                                                         router.get(link.url, {}, {

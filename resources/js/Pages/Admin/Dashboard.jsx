@@ -46,20 +46,20 @@ export default function Dashboard({ auth }) {
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                            <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
                                 {t(title)}
                             </p>
-                            <p className={`text-3xl font-bold ${color}`}>
+                            <p className={`text-3xl font-bold ${color} dark:text-white`}>
                                 {typeof value === "number"
                                     ? value.toLocaleString()
                                     : value}
                             </p>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
                                 {t(description)}
                             </p>
                         </div>
                         <div
-                            className={`p-4 bg-gradient-to-br rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}
+                            className={`p-4 bg-gradient-to-br rounded-2xl shadow-lg group-hover:scale-110 transition-transform duration-300 dark:bg-slate-700/50`}
                         >
                             {icon}
                         </div>
@@ -67,7 +67,7 @@ export default function Dashboard({ auth }) {
                     {link && (
                         <Link
                             href={route(link)}
-                            className="mt-4 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors group-hover:translate-x-1 duration-200"
+                            className="mt-4 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors group-hover:translate-x-1 duration-200"
                         >
                             {t("View all")}
                             <ArrowUpRight className="w-4 h-4 ml-1" />
@@ -78,10 +78,10 @@ export default function Dashboard({ auth }) {
         </motion.div>
     );
 
-    const RecentItem = ({ title, subtitle, date, icon, link }) => (
+    const RecentItem = ({ title, subtitle, date, icon }) => (
         <motion.div
             whileHover={{ scale: 1.02 }}
-            className="flex items-center p-4 bg-gray-50 hover:bg-gray-100 dark:bg-slate-700/50 dark:hover:bg-slate-700/80 rounded-lg transition-all duration-200 group cursor-pointer"
+            className="flex items-center p-4 bg-gray-50 hover:bg-gray-100 dark:bg-slate-700/50 dark:hover:bg-slate-600/50 rounded-lg transition-all duration-200 group cursor-pointer border border-gray-200 dark:border-slate-600"
         >
             <div className="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg mr-3 group-hover:scale-110 transition-transform duration-200">
                 {icon}
@@ -90,11 +90,11 @@ export default function Dashboard({ auth }) {
                 <h4 className="font-medium text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {title}
                 </h4>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-500 dark:text-gray-300">
                     {subtitle}
                 </p>
             </div>
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-gray-400 dark:text-gray-400">
                 {new Date(date).toLocaleDateString()}
             </div>
         </motion.div>
@@ -324,7 +324,7 @@ export default function Dashboard({ auth }) {
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800 backdrop-blur-xl">
                                             <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
                                                 <CardTitle className="flex items-center gap-3">
                                                     <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
@@ -365,7 +365,7 @@ export default function Dashboard({ auth }) {
                                                         )
                                                     )
                                                 ) : (
-                                                    <p className="text-gray-500 text-center py-4">
+                                                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">
                                                         {t(
                                                             "No recent products"
                                                         )}
@@ -427,7 +427,7 @@ export default function Dashboard({ auth }) {
                                                         )
                                                     )
                                                 ) : (
-                                                    <p className="text-gray-500 text-center py-4">
+                                                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">
                                                         {t(
                                                             "No recent warehouses"
                                                         )}
@@ -488,7 +488,7 @@ export default function Dashboard({ auth }) {
                                                         )
                                                     )
                                                 ) : (
-                                                    <p className="text-gray-500 text-center py-4">
+                                                    <p className="text-gray-500 dark:text-gray-400 text-center py-4">
                                                         {t("No recent shops")}
                                                     </p>
                                                 )}
@@ -518,7 +518,7 @@ export default function Dashboard({ auth }) {
                                                     href={route(
                                                         "admin.products.create"
                                                     )}
-                                                    className="bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 p-4 rounded-lg border border-blue-200 dark:border-blue-800 transition-all duration-200 group hover:scale-105"
+                                                    className="bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 p-4 rounded-lg border border-blue-200 dark:border-blue-700 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
                                                         <div className="bg-blue-600 p-2 rounded-lg mr-3 group-hover:bg-blue-700 transition-colors">
@@ -534,7 +534,7 @@ export default function Dashboard({ auth }) {
                                                     href={route(
                                                         "admin.warehouses.create"
                                                     )}
-                                                    className="bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30 p-4 rounded-lg border border-green-200 dark:border-green-800 transition-all duration-200 group hover:scale-105"
+                                                    className="bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/30 p-4 rounded-lg border border-green-200 dark:border-green-700 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
                                                         <div className="bg-green-600 p-2 rounded-lg mr-3 group-hover:bg-green-700 transition-colors">
@@ -550,7 +550,7 @@ export default function Dashboard({ auth }) {
                                                     href={route(
                                                         "admin.customers.create"
                                                     )}
-                                                    className="bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30 p-4 rounded-lg border border-purple-200 dark:border-purple-800 transition-all duration-200 group hover:scale-105"
+                                                    className="bg-purple-50 hover:bg-purple-100 dark:bg-purple-900/20 dark:hover:bg-purple-900/30 p-4 rounded-lg border border-purple-200 dark:border-purple-700 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
                                                         <div className="bg-purple-600 p-2 rounded-lg mr-3 group-hover:bg-purple-700 transition-colors">
@@ -566,7 +566,7 @@ export default function Dashboard({ auth }) {
                                                     href={route(
                                                         "admin.units.create"
                                                     )}
-                                                    className="bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-900/30 p-4 rounded-lg border border-orange-200 dark:border-orange-800 transition-all duration-200 group hover:scale-105"
+                                                    className="bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 dark:hover:bg-orange-900/30 p-4 rounded-lg border border-orange-200 dark:border-orange-700 transition-all duration-200 group hover:scale-105"
                                                 >
                                                     <div className="flex items-center">
                                                         <div className="bg-orange-600 p-2 rounded-lg mr-3 group-hover:bg-orange-700 transition-colors">

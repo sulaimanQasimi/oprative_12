@@ -305,7 +305,7 @@ export default function Index({
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.2, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                    <Card className="border-0 shadow-xl bg-white dark:bg-slate-800 backdrop-blur-xl">
                                         <CardHeader>
                                             <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
                                                 <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
@@ -327,7 +327,7 @@ export default function Index({
                                                         placeholder={t("Search by date, enter time, or exit time...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-10 h-12 border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 transition-colors"
+                                                        className="pl-10 h-12 border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 dark:border-slate-600 dark:hover:border-indigo-400 dark:focus:border-indigo-400 dark:bg-slate-700 dark:text-white bg-white transition-colors"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -353,7 +353,7 @@ export default function Index({
                                                             type="button"
                                                             variant="outline"
                                                             onClick={clearFilters}
-                                                            className="gap-2 h-12 border-2 hover:border-indigo-300"
+                                                            className="gap-2 h-12 border-2 hover:border-indigo-300 dark:border-slate-600 dark:hover:border-indigo-400"
                                                         >
                                                             <RefreshCw className="h-4 w-4" />
                                                             {t("Clear")}
@@ -371,8 +371,8 @@ export default function Index({
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                        <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                    <Card className="border-0 shadow-2xl bg-white dark:bg-slate-800 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/10 dark:from-indigo-500/20 dark:via-purple-500/20 dark:to-indigo-500/20 border-b border-slate-200 dark:border-slate-700 rounded-t-xl">
                                             <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                 <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
                                                     <Clock className="h-6 w-6 text-white" />
@@ -393,7 +393,7 @@ export default function Index({
                                                 <div className="overflow-x-auto">
                                                     <Table>
                                                         <TableHeader>
-                                                            <TableRow className="border-b border-slate-200 dark:border-slate-700">
+                                                            <TableRow className="border-b border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-700">
                                                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Date")}</TableHead>
                                                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Enter Time")}</TableHead>
                                                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Exit Time")}</TableHead>
@@ -410,12 +410,12 @@ export default function Index({
                                                                         animate={{ opacity: 1, y: 0 }}
                                                                         exit={{ opacity: 0, y: -20 }}
                                                                         transition={{ delay: index * 0.05 }}
-                                                                        className="border-b border-slate-100 dark:border-slate-700 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-colors"
+                                                                        className="border-b border-slate-100 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600/50 transition-colors"
                                                                     >
                                                                         <TableCell>
                                                                             <div className="flex items-center space-x-3">
                                                                                 <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg">
-                                                                                    <Calendar className="h-5 w-5 text-indigo-600" />
+                                                                                    <Calendar className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                                                                 </div>
                                                                                 <div>
                                                                                     <div className="font-semibold text-slate-900 dark:text-white">
@@ -504,14 +504,14 @@ export default function Index({
                                             ) : (
                                                 <div className="text-center py-12">
                                                     <div className="flex flex-col items-center gap-4">
-                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                        <div className="p-4 bg-slate-100 dark:bg-slate-700 rounded-full">
                                                             <Clock className="h-8 w-8 text-slate-400" />
                                                         </div>
                                                         <div className="text-center">
                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
                                                                 {searchTerm ? t("No settings found") : t("No attendance settings created yet")}
                                                             </p>
-                                                            <p className="text-sm text-slate-500">
+                                                            <p className="text-sm text-slate-500 dark:text-slate-400">
                                                                 {searchTerm ? t("Try adjusting your search") : t("Create your first attendance setting to get started.")}
                                                             </p>
                                                         </div>
