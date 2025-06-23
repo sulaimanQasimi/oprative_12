@@ -113,7 +113,7 @@ export default function Verify({ auth }) {
         // Simple SecuGen matchScore function without license
         window.matchScore = function(succFunction, failFunction) {
             if (window.template_1 == "" || window.template_2 == "") {
-                alert("Please scan two fingers to verify!!");
+                alert(t("Please scan two fingers to verify!!"));
                 return;
             }
             var uri = "https://localhost:8443/SGIMatchScore";
@@ -182,7 +182,7 @@ export default function Verify({ auth }) {
                 setTodayStats(data);
             }
         } catch (err) {
-            console.error("Failed to load today's stats:", err);
+            console.error(t("Failed to load today's stats:"), err);
         }
     };
 
@@ -200,7 +200,7 @@ export default function Verify({ auth }) {
     // Auto-trigger SecuGen scan when employee verified and no attendance for today
     useEffect(() => {
         if (employee && !currentAttendance && scannerConnected && !autoScanTriggered && fingerprintStatus === "idle") {
-            console.log("Auto-triggering scan for employee:", employee.employee_id, "Current attendance:", currentAttendance);
+            console.log(t("Auto-triggering scan for employee:"), employee.employee_id, t("Current attendance:"), currentAttendance);
             setAutoScanTriggered(true);
             setTimeout(() => {
                 // Double-check state before starting scan
@@ -249,13 +249,13 @@ export default function Verify({ auth }) {
             const data = await response.json();
 
             if (data.success) {
-                console.log("Employee verification successful:", data);
+                console.log(t("Employee verification successful:"), data);
                 setEmployee(data.employee);
                 setCurrentAttendance(data.current_attendance || null);
                 setAttendanceHistory(data.attendance_history || []);
                 setError("");
                 setLastVerified(new Date());
-                console.log("Current attendance set to:", data.current_attendance);
+                console.log(t("Current attendance set to:"), data.current_attendance);
             } else {
                 setEmployee(null);
                 setCurrentAttendance(null);
@@ -263,8 +263,8 @@ export default function Verify({ auth }) {
                 setError(data.message || t("Employee not found"));
             }
         } catch (err) {
-            console.error("Attendance request error:", err);
-            setError(t("Error recording attendance") + ": " + (err.message || "Unknown error"));
+            console.error(t("Attendance request error:"), err);
+            setError(t("Error recording attendance") + ": " + (err.message || t("Unknown error")));
             setFingerprintStatus("failed");
             // Reset auto-scan trigger on error too
             setAutoScanTriggered(false);
@@ -276,11 +276,11 @@ export default function Verify({ auth }) {
     const startSecuGenScan = () => {
         // Prevent concurrent scans
         if (fingerprintStatus === "scanning") {
-            console.log("Scan already in progress, ignoring new scan request");
+            console.log(t("Scan already in progress, ignoring new scan request"));
             return;
         }
 
-        console.log("Starting SecuGen scan for employee:", employee?.employee_id);
+        console.log(t("Starting SecuGen scan for employee:"), employee?.employee_id);
         setFingerprintStatus("scanning");
         setError("");
         setSecugenScore(0);
@@ -290,13 +290,13 @@ export default function Verify({ auth }) {
                               (employee.biometric && employee.biometric.TemplateBase64);
 
         if (!employee || !storedTemplate) {
-            console.error("No biometric template found for employee");
+            console.error(t("No biometric template found for employee"));
             setFingerprintStatus("failed");
             setError(t("No biometric template registered for this employee."));
             return;
         }
 
-        console.log("Using stored template:", storedTemplate.substring(0, 50) + "...");
+        console.log(t("Using stored template:"), storedTemplate.substring(0, 50) + "...");
 
         // Set stored template for comparison
         window.template_1 = storedTemplate;
@@ -304,17 +304,17 @@ export default function Verify({ auth }) {
         // Capture fingerprint using SecuGen
         window.CallSGIFPGetData(
             function(result) {
-                console.log("SecuGen capture result:", result);
+                console.log(t("SecuGen capture result:"), result);
                 // Success - fingerprint captured
                 if (result.ErrorCode == 0) {
-                    // Set captured template
+                    // Set captured template 
                     window.template_2 = result.TemplateBase64;
-                    console.log("Captured template:", result.TemplateBase64.substring(0, 50) + "...");
+                    console.log(t("Captured template:"), result.TemplateBase64.substring(0, 50) + "...");
 
                     // Now match with stored template
                     window.matchScore(
                         function(matchResult) {
-                            console.log("Match result:", matchResult);
+                            console.log(t("Match result:"), matchResult);
                             // Success - matching completed
                             const score = matchResult.MatchingScore;
                             setSecugenScore(score);
@@ -328,20 +328,20 @@ export default function Verify({ auth }) {
                             }
                         },
                         function(error) {
-                            console.error("Error during fingerprint matching:", error);
+                            console.error(t("Error during fingerprint matching:"), error);
                             // Error in matching
                             setFingerprintStatus("failed");
                             setError(t("Error during fingerprint matching. Please try again."));
                         }
                     );
                 } else {
-                    console.error("SecuGen capture failed with error code:", result.ErrorCode);
+                    console.error(t("SecuGen capture failed with error code:"), result.ErrorCode);
                     setFingerprintStatus("failed");
                     setError(t(`SecuGen capture failed. Error code: ${result.ErrorCode}`));
                 }
             },
             function(status) {
-                console.error("SecuGen capture failed with status:", status);
+                console.error(t("SecuGen capture failed with status:"), status);
                 // Error in capture
                 setFingerprintStatus("failed");
                 setError(t("Check if SGIBIOSRV is running. Unable to connect to fingerprint device."));
@@ -369,9 +369,9 @@ export default function Verify({ auth }) {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content");
 
             // Debug CSRF token and route
-            console.log("CSRF Token:", csrfToken);
-            console.log("Route URL:", route("admin.attendance.record"));
-            console.log("Current URL:", window.location.href);
+            console.log(t("CSRF Token:"), csrfToken);
+            console.log(t("Route URL:"), route("admin.attendance.record"));
+            console.log(t("Current URL:"), window.location.href);
 
             const requestData = {
                 employee_id: employee.id,
@@ -380,7 +380,7 @@ export default function Verify({ auth }) {
                 fingerprint_score: secugenScore,
             };
 
-            console.log("Sending attendance request:", requestData);
+            console.log(t("Sending attendance request:"), requestData);
 
             const response = await fetch(route("admin.attendance.record"), {
                 method: "POST",
@@ -392,20 +392,20 @@ export default function Verify({ auth }) {
                 body: JSON.stringify(requestData),
             });
 
-            console.log("Response status:", response.status);
-            console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+            console.log(t("Response status:"), response.status);
+            console.log(t("Response headers:"), Object.fromEntries(response.headers.entries()));
             
             // Get the response text first to see what we're actually receiving
             const responseText = await response.text();
-            console.log("Raw response:", responseText);
+            console.log(t("Raw response:"), responseText);
 
             let data;
             try {
                 data = JSON.parse(responseText);
-                console.log("Parsed attendance response:", data);
+                console.log(t("Parsed attendance response:"), data);
             } catch (parseError) {
-                console.error("JSON parsing failed:", parseError);
-                console.error("Response was not valid JSON:", responseText.substring(0, 200));
+                console.error(t("JSON parsing failed:"), parseError);
+                console.error(t("Response was not valid JSON:"), responseText.substring(0, 200));
                 setError(t("Server returned invalid response. Check console for details."));
                 setFingerprintStatus("failed");
                 setAutoScanTriggered(false);
@@ -413,7 +413,7 @@ export default function Verify({ auth }) {
             }
 
             if (data.success) {
-                console.log("Attendance recorded successfully, updating state");
+                console.log(t("Attendance recorded successfully, updating state"));
                 setCurrentAttendance(data.attendance);
                 setAttendanceHistory([data.attendance, ...attendanceHistory]);
                 
@@ -426,18 +426,18 @@ export default function Verify({ auth }) {
                 // Show success message and then reset status
                 setTimeout(() => {
                     setFingerprintStatus("idle");
-                    console.log("Fingerprint status reset to idle");
+                    console.log(t("Fingerprint status reset to idle"));
                 }, 2000);
             } else {
-                console.error("Attendance recording failed:", data);
+                console.error(t("Attendance recording failed:"), data);
                 setError(data.message || t("Failed to record attendance"));
                 setFingerprintStatus("failed");
                 // Reset auto-scan trigger on failure too
                 setAutoScanTriggered(false);
             }
         } catch (err) {
-            console.error("Attendance request error:", err);
-            setError(t("Error recording attendance") + ": " + (err.message || "Unknown error"));
+            console.error(t("Attendance request error:"), err);
+            setError(t("Error recording attendance") + ": " + (err.message || t("Unknown error")));
             setFingerprintStatus("failed");
             // Reset auto-scan trigger on error too
             setAutoScanTriggered(false);
@@ -657,16 +657,16 @@ export default function Verify({ auth }) {
 
                                                     <div className="flex items-center justify-center gap-6 mt-6 text-sm text-slate-500 dark:text-slate-400">
                                                         <div className="flex items-center gap-2">
-                                                            <kbd className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs font-medium">Enter</kbd>
+                                                            <kbd className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs font-medium">{t("Enter")}</kbd>
                                                             <span>{t("to search")}</span>
                                                         </div>
                                                         <div className="flex items-center gap-2">
-                                                            <kbd className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs font-medium">Esc</kbd>
+                                                            <kbd className="px-3 py-1 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs font-medium">{t("Esc")}</kbd>
                                                             <span>{t("to clear")}</span>
                                                         </div>
                                                         {employee && scannerConnected && (
                                                             <div className="flex items-center gap-2">
-                                                                <kbd className="px-3 py-1 bg-green-100 dark:bg-green-700 rounded-lg text-xs font-medium">F1</kbd>
+                                                                <kbd className="px-3 py-1 bg-green-100 dark:bg-green-700 rounded-lg text-xs font-medium">{t("F1")}</kbd>
                                                                 <span>{t("SecuGen scan")}</span>
                                                             </div>
                                                         )}
@@ -736,12 +736,12 @@ export default function Verify({ auth }) {
                                                             <h2 className="text-3xl font-bold text-white mb-2">
                                                                 {currentAttendance ? t("Already Checked In") : t("Ready for Check-In")}
                                                             </h2>
-                                                                                                        <p className="text-white/90 text-lg">
-                                                {currentAttendance
-                                                    ? `${t("Checked in at")}: ${formatPersianTime(currentAttendance.check_in)}`
-                                                    : t("Place finger on SecuGen scanner to continue")
-                                                }
-                                            </p>
+                                                            <p className="text-white/90 text-lg">
+                                                                {currentAttendance
+                                                                    ? `${t("Checked in at")}: ${formatPersianTime(currentAttendance.check_in)}`
+                                                                    : t("Place finger on SecuGen scanner to continue")
+                                                                }
+                                                            </p>
                                                         </div>
                                                         {currentAttendance && (
                                                             <div className="text-right">
@@ -962,17 +962,17 @@ export default function Verify({ auth }) {
                                                             {scannerConnected ? t("SecuGen Online") : t("SecuGen Offline")}
                                                         </p>
                                                         <p className="text-sm text-slate-600 dark:text-slate-400">
-                                                            {deviceCount > 0 ? `${deviceCount} device(s)` : "No devices"}
+                                                            {deviceCount > 0 ? `${deviceCount} ${t("device(s)")}` : t("No devices")}
                                                         </p>
                                                     </div>
                                                 </div>
                                                 {lastVerified && (
-                                                                                                            <div className="text-right">
-                                                            <div className="text-xs text-slate-500">{t("Last verified")}</div>
-                                                            <div className="text-sm font-medium text-slate-900 dark:text-white">
-                                                                {formatPersianTime(lastVerified)}
-                                                            </div>
+                                                    <div className="text-right">
+                                                        <div className="text-xs text-slate-500">{t("Last verified")}</div>
+                                                        <div className="text-sm font-medium text-slate-900 dark:text-white">
+                                                            {formatPersianTime(lastVerified)}
                                                         </div>
+                                                    </div>
                                                 )}
                                             </div>
                                         </CardContent>
@@ -1035,7 +1035,7 @@ export default function Verify({ auth }) {
                                                                 {employee.department}
                                                             </p>
                                                             <UIBadge variant="secondary" className="mt-1">
-                                                                ID: {employee.employee_id}
+                                                                {t("ID")}: {employee.employee_id}
                                                             </UIBadge>
                                                         </div>
                                                     </div>
@@ -1047,7 +1047,7 @@ export default function Verify({ auth }) {
                                                                 <span className="text-sm text-slate-600 dark:text-slate-400">{t("Email")}</span>
                                                             </div>
                                                             <span className="text-sm font-medium text-slate-900 dark:text-white">
-                                                                {employee.email || "N/A"}
+                                                                {employee.email || t("N/A")}
                                                             </span>
                                                         </div>
 
