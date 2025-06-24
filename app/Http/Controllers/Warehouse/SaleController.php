@@ -160,57 +160,6 @@ class SaleController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified sale.
-     */
-    public function edit($id)
-    {
-        $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
-
-        $sale = Sale::where('id', $id)
-            ->where('warehouse_id', $warehouse->id)
-            ->with(['customer', 'currency', 'saleItems.product'])
-            ->firstOrFail();
-
-        return Inertia::render('Warehouse/EditSale', [
-            'sale' => $sale,
-        ]);
-    }
-
-    /**
-     * Update the specified sale in storage.
-     */
-    public function update(Request $request, $id)
-    {
-        // Implementation for updating a sale
-        $validated = $request->validate([
-            'customer_id' => 'required|exists:customers,id',
-            'reference' => 'required|string|max:255',
-            'date' => 'required|date',
-            'notes' => 'nullable|string',
-            'status' => 'required|in:pending,completed,cancelled',
-        ]);
-
-        // Implementation for updating the sale record
-        return redirect()->route('warehouse.sales')->with('success', 'Sale updated successfully.');
-    }
-
-    /**
-     * Remove the specified sale from storage.
-     */
-    public function destroy($id)
-    {
-        $warehouse = Auth::guard('warehouse_user')->user()->warehouse;
-
-        $sale = Sale::where('id', $id)
-            ->where('warehouse_id', $warehouse->id)
-            ->firstOrFail();
-
-        // Delete the sale
-        $sale->delete();
-
-        return redirect()->route('warehouse.sales')->with('success', 'Sale deleted successfully.');
-    }
 
     /**
      * Confirm a sale by warehouse.
