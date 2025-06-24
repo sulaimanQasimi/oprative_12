@@ -380,7 +380,7 @@ export default function Edit({ auth, warehouse, user, permissions }) {
                                                             >
                                                                 <h4 className="font-bold text-lg text-purple-700 dark:text-purple-300 capitalize flex items-center gap-2">
                                                                     <Shield className="h-5 w-5 flex-shrink-0" />
-                                                                    <span className="truncate">{t(category.replace(/[._]/g, ' '))}</span>
+                                                                    <span className="truncate">{categoryPermissions[0]?.label || getPermissionDisplayName(categoryPermissions[0]?.name)}</span>
                                                                 </h4>
                                                                 <div className="space-y-4">
                                                                     {categoryPermissions.map((permission) => (
