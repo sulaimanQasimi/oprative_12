@@ -356,9 +356,6 @@ class AccountController extends Controller
             ],
             'outcomes' => $outcomes,
             'filters' => $request->only(['search', 'status', 'date_from', 'date_to']),
-            'auth' => [
-                'user' => Auth::user()
-            ]
         ]);
     }
 }
