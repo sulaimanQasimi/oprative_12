@@ -39,10 +39,12 @@ import {
     Hash,
     Search,
     Filter,
-    RefreshCw
+    RefreshCw,
+    ArrowUpCircle,
+    ArrowDownCircle
 } from 'lucide-react';
 
-export default function Show({ account, auth, incomes, outcomes, filters }) {
+export default function Show({ account, auth, incomes, outcomes, filters, permissions }) {
     const { t } = useLaravelReactI18n();
     const [activeTab, setActiveTab] = useState('overview');
     const [loading, setLoading] = useState(true);
@@ -299,21 +301,25 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-5"
                             >
-                                <Link href={route('admin.accounts.edit', account.id)}>
-                                    <Button className="relative group bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300">
-                                        <Edit className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
-                                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
-                                    </Button>
-                                </Link>
+                                {permissions?.update_account && (
+                                    <Link href={route('admin.accounts.edit', account.id)}>
+                                        <Button className="relative group bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300">
+                                            <Edit className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
+                                        </Button>
+                                    </Link>
+                                )}
 
-                                <Button
-                                    onClick={handleDelete}
-                                    disabled={loading}
-                                    className="relative group bg-gradient-to-r from-rose-500 via-pink-500 to-red-500 hover:from-rose-600 hover:via-pink-600 hover:to-red-600 text-white shadow-2xl hover:shadow-rose-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
-                                >
-                                    <Trash2 className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
-                                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-rose-400/20 to-red-400/20 blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
-                                </Button>
+                                {permissions?.delete_account && (
+                                    <Button
+                                        onClick={handleDelete}
+                                        disabled={loading}
+                                        className="relative group bg-gradient-to-r from-rose-500 via-pink-500 to-red-500 hover:from-rose-600 hover:via-pink-600 hover:to-red-600 text-white shadow-2xl hover:shadow-rose-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:translate-y-0"
+                                    >
+                                        <Trash2 className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-rose-400/20 to-red-400/20 blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
+                                    </Button>
+                                )}
 
                                 <Link href={route('admin.accounts.index')}>
                                     <Button className="relative group bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500 hover:from-indigo-600 hover:via-purple-600 hover:to-violet-600 text-white shadow-2xl hover:shadow-indigo-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300">
@@ -345,13 +351,13 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                         <CardContent className="p-6">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">{t("Total Income")}</p>
+                                                    <p className="text-sm font-medium text-green-600 dark:text-green-400">{t("Total Repayments")}</p>
                                                     <p className="text-3xl font-bold text-green-700 dark:text-green-300">
                                                         {formatCurrency(account.total_income)}
                                                     </p>
                                                 </div>
                                                 <div className="p-3 bg-green-500 rounded-xl">
-                                                    <TrendingUp className="w-6 h-6 text-white" />
+                                                    <ArrowUpCircle className="w-6 h-6 text-white" />
                                                 </div>
                                             </div>
                                         </CardContent>
@@ -361,13 +367,13 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                         <CardContent className="p-6">
                                             <div className="flex items-center justify-between">
                                                 <div>
-                                                    <p className="text-sm font-medium text-red-600 dark:text-red-400">{t("Total Outcome")}</p>
+                                                    <p className="text-sm font-medium text-red-600 dark:text-red-400">{t("Total Loans")}</p>
                                                     <p className="text-3xl font-bold text-red-700 dark:text-red-300">
                                                         {formatCurrency(account.total_outcome)}
                                                     </p>
                                                 </div>
                                                 <div className="p-3 bg-red-500 rounded-xl">
-                                                    <TrendingDown className="w-6 h-6 text-white" />
+                                                    <ArrowDownCircle className="w-6 h-6 text-white" />
                                                 </div>
                                             </div>
                                         </CardContent>
@@ -500,10 +506,10 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                                 {t("Overview")}
                                             </TabsTrigger>
                                             <TabsTrigger value="incomes" className="h-12 text-sm font-semibold">
-                                                {t("Incomes")} ({account.recent_incomes?.length || 0})
+                                                {t("Repayments")} ({account.recent_incomes?.length || 0})
                                             </TabsTrigger>
                                             <TabsTrigger value="outcomes" className="h-12 text-sm font-semibold">
-                                                {t("Outcomes")} ({account.recent_outcomes?.length || 0})
+                                                {t("Loans")} ({account.recent_outcomes?.length || 0})
                                             </TabsTrigger>
                                         </TabsList>
 
@@ -513,8 +519,8 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                                 <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                                     <CardHeader className="flex flex-row items-center justify-between">
                                                         <CardTitle className="flex items-center gap-2">
-                                                            <TrendingUp className="w-5 h-5 text-green-600" />
-                                                            {t("Recent Incomes")}
+                                                            <ArrowUpCircle className="w-5 h-5 text-green-600" />
+                                                            {t("Recent Repayments")}
                                                         </CardTitle>
                                                     </CardHeader>
                                                     <CardContent>
@@ -548,8 +554,8 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                                             </Table>
                                                         ) : (
                                                             <div className="text-center py-6">
-                                                                <TrendingUp className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                                                                <p className="text-gray-500">{t("No income transactions yet")}</p>
+                                                                <ArrowUpCircle className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                                                                <p className="text-gray-500">{t("No repayment transactions yet")}</p>
                                                             </div>
                                                         )}
                                                     </CardContent>
@@ -559,8 +565,8 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                                 <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                                     <CardHeader className="flex flex-row items-center justify-between">
                                                         <CardTitle className="flex items-center gap-2">
-                                                            <TrendingDown className="w-5 h-5 text-red-600" />
-                                                            {t("Recent Outcomes")}
+                                                            <ArrowDownCircle className="w-5 h-5 text-red-600" />
+                                                            {t("Recent Loans")}
                                                         </CardTitle>
                                                     </CardHeader>
                                                     <CardContent>
@@ -594,8 +600,8 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                                             </Table>
                                                         ) : (
                                                             <div className="text-center py-6">
-                                                                <TrendingDown className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                                                                <p className="text-gray-500">{t("No outcome transactions yet")}</p>
+                                                                <ArrowDownCircle className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                                                                <p className="text-gray-500">{t("No loan transactions yet")}</p>
                                                             </div>
                                                         )}
                                                     </CardContent>
@@ -607,8 +613,8 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                                 <CardHeader>
                                                     <CardTitle className="flex items-center gap-2">
-                                                        <TrendingUp className="w-5 h-5 text-green-600" />
-                                                        {t("Income Transactions")}
+                                                        <ArrowUpCircle className="w-5 h-5 text-green-600" />
+                                                        {t("Repayment Transactions")}
                                                     </CardTitle>
                                                 </CardHeader>
                                                 <CardContent>
@@ -746,11 +752,11 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                                             )}
                                                         </div>
                                                     ) : (
-                                                        <div className="text-center py-12">
-                                                            <TrendingUp className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t("No income transactions found")}</h3>
-                                                            <p className="text-gray-500 mb-4">{t("No transactions match your current filters.")}</p>
-                                                        </div>
+                                                                                                            <div className="text-center py-12">
+                                                        <ArrowUpCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t("No repayment transactions found")}</h3>
+                                                        <p className="text-gray-500 mb-4">{t("No transactions match your current filters.")}</p>
+                                                    </div>
                                                     )}
                                                 </CardContent>
                                             </Card>
@@ -760,8 +766,8 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                                 <CardHeader>
                                                     <CardTitle className="flex items-center gap-2">
-                                                        <TrendingDown className="w-5 h-5 text-red-600" />
-                                                        {t("Outcome Transactions")}
+                                                        <ArrowDownCircle className="w-5 h-5 text-red-600" />
+                                                        {t("Loan Transactions")}
                                                     </CardTitle>
                                                 </CardHeader>
                                                 <CardContent>
@@ -899,11 +905,11 @@ export default function Show({ account, auth, incomes, outcomes, filters }) {
                                                             )}
                                                         </div>
                                                     ) : (
-                                                        <div className="text-center py-12">
-                                                            <TrendingDown className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                                                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t("No outcome transactions found")}</h3>
-                                                            <p className="text-gray-500 mb-4">{t("No transactions match your current filters.")}</p>
-                                                        </div>
+                                                                                                            <div className="text-center py-12">
+                                                        <ArrowDownCircle className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">{t("No loan transactions found")}</h3>
+                                                        <p className="text-gray-500 mb-4">{t("No transactions match your current filters.")}</p>
+                                                    </div>
                                                     )}
                                                 </CardContent>
                                             </Card>

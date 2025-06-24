@@ -15,6 +15,30 @@ use Illuminate\Support\Facades\DB;
 
 class AccountController extends Controller
 {
+    /**
+     * Constructor to apply middleware for all account permissions
+     *
+     * Permissions implemented:
+     * - view_account: View individual account details
+     * - view_any_account: View list of accounts and access index
+     * - create_account: Create new accounts
+     * - update_account: Edit and update account information
+     * - delete_account: Soft delete accounts
+     * - restore_account: Restore soft-deleted accounts
+     * - force_delete_account: Permanently delete accounts
+     */
+    public function __construct()
+    {
+        // Apply comprehensive middleware protection for all account operations
+        $this->middleware('permission:view_any_account')->only(['index']);
+        $this->middleware('permission:view_account')->only(['show']);
+        $this->middleware('permission:create_account')->only(['create', 'store']);
+        $this->middleware('permission:update_account')->only(['edit', 'update']);
+        $this->middleware('permission:delete_account')->only(['destroy']);
+        $this->middleware('permission:restore_account')->only(['restore']);
+        $this->middleware('permission:force_delete_account')->only(['forceDelete']);
+    }
+
     public function index(Request $request)
     {
         $query = Account::with(['customer', 'incomes', 'outcomes']);
@@ -85,6 +109,17 @@ class AccountController extends Controller
 
         $customers = Customer::select('id', 'name')->orderBy('name')->get();
 
+        // Pass all 7 account permissions to frontend for UI control
+        $permissions = [
+            'view_account' => Auth::user()->can('view_account'),
+            'view_any_account' => Auth::user()->can('view_any_account'),
+            'create_account' => Auth::user()->can('create_account'),
+            'update_account' => Auth::user()->can('update_account'),
+            'delete_account' => Auth::user()->can('delete_account'),
+            'restore_account' => Auth::user()->can('restore_account'),
+            'force_delete_account' => Auth::user()->can('force_delete_account'),
+        ];
+
         return Inertia::render('Admin/Account/Index', [
             'accounts' => $accounts,
             'customers' => $customers,
@@ -93,6 +128,7 @@ class AccountController extends Controller
                 'status' => $request->get('status'),
                 'customer_id' => $request->get('customer_id'),
             ],
+            'permissions' => $permissions,
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -104,9 +140,15 @@ class AccountController extends Controller
         $customers = Customer::select('id', 'name')->orderBy('name')->get();
         $selectedCustomerId = $request->customer_id;
 
+        // Pass create permission to frontend
+        $permissions = [
+            'create_account' => Auth::user()->can('create_account'),
+        ];
+
         return Inertia::render('Admin/Account/Create', [
             'customers' => $customers,
             'selectedCustomerId' => $selectedCustomerId,
+            'permissions' => $permissions,
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -221,6 +263,17 @@ class AccountController extends Controller
             $outcomes = $outcomesQuery->latest('date')->paginate(10, ['*'], 'outcomes_page');
             $outcomes->appends($request->query());
 
+            // Pass all 7 account permissions to frontend for UI control
+            $permissions = [
+                'view_account' => Auth::user()->can('view_account'),
+                'view_any_account' => Auth::user()->can('view_any_account'),
+                'create_account' => Auth::user()->can('create_account'),
+                'update_account' => Auth::user()->can('update_account'),
+                'delete_account' => Auth::user()->can('delete_account'),
+                'restore_account' => Auth::user()->can('restore_account'),
+                'force_delete_account' => Auth::user()->can('force_delete_account'),
+            ];
+
             return Inertia::render('Admin/Account/Show', [
                 'account' => [
                     'id' => $account->id,
@@ -272,6 +325,7 @@ class AccountController extends Controller
                     'outcome_date_from' => $request->get('outcome_date_from'),
                     'outcome_date_to' => $request->get('outcome_date_to'),
                 ],
+                'permissions' => $permissions,
                 'auth' => [
                     'user' => Auth::user()
                 ]
@@ -287,6 +341,11 @@ class AccountController extends Controller
     {
         $customers = Customer::select('id', 'name')->orderBy('name')->get();
 
+        // Pass update permission to frontend
+        $permissions = [
+            'update_account' => Auth::user()->can('update_account'),
+        ];
+
         return Inertia::render('Admin/Account/Edit', [
             'account' => [
                 'id' => $account->id,
@@ -298,6 +357,7 @@ class AccountController extends Controller
                 'status' => $account->status,
             ],
             'customers' => $customers,
+            'permissions' => $permissions,
             'auth' => [
                 'user' => Auth::guard('web')->user()
             ]
@@ -352,6 +412,43 @@ class AccountController extends Controller
             Log::error('Error deleting account: ' . $e->getMessage());
             return redirect()->back()
                 ->with('error', 'Error deleting account: ' . $e->getMessage());
+        }
+    }
+
+    public function restore($id)
+    {
+        try {
+            $account = Account::withTrashed()->findOrFail($id);
+            $account->restore();
+
+            return redirect()->route('admin.accounts.index')
+                ->with('success', 'Account restored successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error restoring account: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error restoring account: ' . $e->getMessage());
+        }
+    }
+
+    public function forceDelete($id)
+    {
+        try {
+            $account = Account::withTrashed()->findOrFail($id);
+
+            // Check if account has any transactions
+            if ($account->incomes()->count() > 0 || $account->outcomes()->count() > 0) {
+                return redirect()->back()
+                    ->with('error', 'Cannot permanently delete account with existing transactions.');
+            }
+
+            $account->forceDelete();
+
+            return redirect()->route('admin.accounts.index')
+                ->with('success', 'Account permanently deleted.');
+        } catch (\Exception $e) {
+            Log::error('Error force deleting account: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Error force deleting account: ' . $e->getMessage());
         }
     }
 }
