@@ -15,18 +15,6 @@ use Spatie\Permission\Models\Role;
 
 class CustomerController extends Controller
 {
-    /**
-     * Constructor to apply middleware for all customer permissions
-     * 
-     * Permissions implemented:
-     * - view_customer: View individual customer details
-     * - view_any_customer: View list of customers and access index
-     * - create_customer: Create new customers
-     * - update_customer: Edit and update customer information
-     * - delete_customer: Soft delete customers
-     * - restore_customer: Restore soft-deleted customers
-     * - force_delete_customer: Permanently delete customers
-     */
     public function __construct()
     {
         // Apply comprehensive middleware protection for all customer operations
@@ -78,10 +66,7 @@ class CustomerController extends Controller
         return Inertia::render('Admin/Customer/Index', [
             'customers' => $customers,
             'filters' => $request->only(['search', 'status']),
-            'permissions' => $permissions,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
+            'permissions' => $permissions
         ]);
     }
 
