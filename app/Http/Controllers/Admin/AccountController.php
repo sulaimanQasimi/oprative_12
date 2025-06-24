@@ -58,7 +58,8 @@ class AccountController extends Controller
         ];
         
         // Transform each account
-        $accounts['data'] = collect($accounts['data'])->map(function ($account) {
+        $accounts['data'] = collect($accounts['data'])
+        ->map(function ($account) {
             $totalIncome = $account->approvedIncomes()->sum('amount');
             $totalOutcome = $account->approvedOutcomes()->sum('amount');
             $netBalance = $totalIncome - $totalOutcome;
@@ -93,9 +94,6 @@ class AccountController extends Controller
                 'search' => $request->get('search'),
                 'status' => $request->get('status'),
                 'customer_id' => $request->get('customer_id'),
-            ],
-            'auth' => [
-                'user' => Auth::guard('web')->user()
             ]
         ]);
     }

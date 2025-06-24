@@ -56,6 +56,11 @@ class AccountIncome extends Model
         return $this->belongsTo(User::class, 'approved_by');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
     public function getStatusBadgeAttribute()
     {
         return match($this->status) {
