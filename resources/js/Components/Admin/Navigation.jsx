@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 
 const Navigation = ({ auth, currentRoute }) => {
+    console.log(auth.user.permissions);
     const { t } = useLaravelReactI18n();
     const { url } = usePage();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
