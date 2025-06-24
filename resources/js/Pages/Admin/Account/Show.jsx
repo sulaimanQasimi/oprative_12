@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Head, Link, router } from '@inertiajs/react';
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import { motion, AnimatePresence } from "framer-motion";
+import moment from 'moment-jalaali';
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
@@ -91,13 +92,15 @@ export default function Show({ account, auth, incomes, outcomes, filters, permis
     };
 
     const formatDate = (date) => {
-        return new Date(date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        const momentDate = moment(date);
+        // Always use Jalali calendar (Persian dates)
+        return momentDate.format('jYYYY/jMM/jDD HH:mm');
+    };
+
+    const formatDateShort = (date) => {
+        const momentDate = moment(date);
+        // Always use Jalali calendar (Persian dates)
+        return momentDate.format('jYYYY/jMM/jDD');
     };
 
     const getStatusBadge = (status) => {
