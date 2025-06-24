@@ -172,7 +172,7 @@ class AccountController extends Controller
                 ->toArray();
 
             // Build incomes query with filters
-            $incomesQuery = $account->incomes()->with(['user']);
+            $incomesQuery = $account->incomes()->with(['approvedBy']);
 
             if ($request->filled('income_search')) {
                 $search = $request->income_search;
@@ -237,7 +237,7 @@ class AccountController extends Controller
                     'pending_outcome' => $account->pendingOutcomes()->sum('amount'),
                     'monthly_income' => $monthlyIncome,
                     'monthly_outcome' => $monthlyOutcome,
-                    'recent_incomes' => $account->incomes()->with('user')->latest()->take(5)->get(),
+                    'recent_incomes' => $account->incomes()->with('approvedBy')->latest()->take(5)->get(),
                     'recent_outcomes' => $account->outcomes()->with('user')->latest()->take(5)->get(),
                     'created_at' => $account->created_at,
                     'updated_at' => $account->updated_at,
