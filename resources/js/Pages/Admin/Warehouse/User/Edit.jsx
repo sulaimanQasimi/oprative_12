@@ -380,7 +380,7 @@ export default function Edit({ auth, warehouse, user, permissions }) {
                                                             >
                                                                 <h4 className="font-bold text-lg text-purple-700 dark:text-purple-300 capitalize flex items-center gap-2">
                                                                     <Shield className="h-5 w-5 flex-shrink-0" />
-                                                                    <span className="truncate">{category.replace(/[._]/g, ' ')}</span>
+                                                                    <span className="truncate">{t(category.replace(/[._]/g, ' '))}</span>
                                                                 </h4>
                                                                 <div className="space-y-4">
                                                                     {categoryPermissions.map((permission) => (
@@ -395,7 +395,7 @@ export default function Edit({ auth, warehouse, user, permissions }) {
                                                                                 htmlFor={`permission-${permission.id}`}
                                                                                 className="text-sm text-slate-700 dark:text-slate-300 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 transition-colors leading-relaxed font-medium"
                                                                             >
-                                                                                {getPermissionDisplayName(permission.name)}
+                                                                                {permission.label || getPermissionDisplayName(permission.name)}
                                                                             </Label>
                                                                         </div>
                                                                     ))}
