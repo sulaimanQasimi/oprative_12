@@ -42,7 +42,6 @@ trait RegisterRoutes
 
                     // Dashboard route
                     Route::get('dashboard', [DashboardController::class, 'index'])
-                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_dashboard')
                         ->name('dashboard');
 
                     // Dashboard product search
