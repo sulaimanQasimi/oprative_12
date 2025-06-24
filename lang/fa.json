@@ -2654,5 +2654,20 @@
   "View Imports": "مشاهده واردات",
   "View Exports": "مشاهده صادرات",
   "View Sales": "مشاهده انتقال به مغازه",
-  "Access granted":"دسترسی داده شد"
+  "Access granted":"دسترسی داده شد",
+  "Import Product": "واردات محصول",
+  "Export Product": "صادرات محصول",
+  "Import Product": "واردات محصول",
+  "Track and manage your import records": "پیگیری و مدیریت واردات ها",
+  "Track and manage your export records": "پیگیری و مدیریت صادرات ها",
+  "Import Records": "سوابق واردات",
+  "Export Records": "سوابق صادرات",
+  "Import History": "سوابق واردات",
+  "Export History": "سوابق صادرات",
+  "Import History": "سوابق واردات",
+  "imports":"واردات",
+  "exports":"صادرات",
+  "Import":"واردات",
+  "Store Staff":"کارمندان فروشگاه",
+  "Move to Shop":"انتقال به فروشگاه"
 }
