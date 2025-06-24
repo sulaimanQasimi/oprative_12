@@ -29,11 +29,11 @@ class AccountController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('account_number', 'like', "%{$search}%")
-                  ->orWhere('id_number', 'like', "%{$search}%")
-                  ->orWhereHas('customer', function ($customerQuery) use ($search) {
-                      $customerQuery->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhere('account_number', 'like', "%{$search}%")
+                    ->orWhere('id_number', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($customerQuery) use ($search) {
+                        $customerQuery->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -44,7 +44,7 @@ class AccountController extends Controller
 
         $paginatedAccounts = $query->latest()->paginate(10);
         $paginatedAccounts->appends($request->query());
-        
+
         // Transform the paginated data
         $accounts = [
             'data' => $paginatedAccounts->items(),
@@ -54,9 +54,8 @@ class AccountController extends Controller
             'total' => $paginatedAccounts->total(),
             'from' => $paginatedAccounts->firstItem(),
             'to' => $paginatedAccounts->lastItem(),
-            'links' => $paginatedAccounts->linkCollection(),
         ];
-        
+
         // Transform each account
         $accounts['data'] = collect($accounts['data'])->map(function ($account) {
             $totalIncome = $account->approvedIncomes()->sum('amount');
@@ -126,7 +125,7 @@ class AccountController extends Controller
         ]);
 
         try {
-            $account = Account::create([
+            Account::create([
                 'name' => $validated['name'],
                 'id_number' => $validated['id_number'],
                 'account_number' => $validated['account_number'],
@@ -146,10 +145,10 @@ class AccountController extends Controller
         }
     }
 
-    public function show(Account $account)
+    public function show(Request $request, Account $account)
     {
         try {
-            $account->load(['customer', 'incomes.user', 'outcomes.user']);
+            $account->load(['customer']);
 
             $totalIncome = $account->approvedIncomes()->sum('amount');
             $totalOutcome = $account->approvedOutcomes()->sum('amount');
@@ -172,6 +171,56 @@ class AccountController extends Controller
                 ->pluck('total', 'month')
                 ->toArray();
 
+            // Build incomes query with filters
+            $incomesQuery = $account->incomes()->with(['user']);
+
+            if ($request->filled('income_search')) {
+                $search = $request->income_search;
+                $incomesQuery->where(function ($q) use ($search) {
+                    $q->where('description', 'like', "%{$search}%")
+                        ->orWhere('reference_number', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('income_status')) {
+                $incomesQuery->where('status', $request->income_status);
+            }
+
+            if ($request->filled('income_date_from')) {
+                $incomesQuery->whereDate('date', '>=', $request->income_date_from);
+            }
+            if ($request->filled('income_date_to')) {
+                $incomesQuery->whereDate('date', '<=', $request->income_date_to);
+            }
+
+            $incomes = $incomesQuery->latest('date')->paginate(10, ['*'], 'incomes_page');
+            $incomes->appends($request->query());
+
+            // Build outcomes query with filters
+            $outcomesQuery = $account->outcomes()->with(['user']);
+
+            if ($request->filled('outcome_search')) {
+                $search = $request->outcome_search;
+                $outcomesQuery->where(function ($q) use ($search) {
+                    $q->where('description', 'like', "%{$search}%")
+                        ->orWhere('reference_number', 'like', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('outcome_status')) {
+                $outcomesQuery->where('status', $request->outcome_status);
+            }
+
+            if ($request->filled('outcome_date_from')) {
+                $outcomesQuery->whereDate('date', '>=', $request->outcome_date_from);
+            }
+            if ($request->filled('outcome_date_to')) {
+                $outcomesQuery->whereDate('date', '<=', $request->outcome_date_to);
+            }
+
+            $outcomes = $outcomesQuery->latest('date')->paginate(10, ['*'], 'outcomes_page');
+            $outcomes->appends($request->query());
+
             return Inertia::render('Admin/Account/Show', [
                 'account' => [
                     'id' => $account->id,
@@ -192,6 +241,36 @@ class AccountController extends Controller
                     'recent_outcomes' => $account->outcomes()->with('user')->latest()->take(5)->get(),
                     'created_at' => $account->created_at,
                     'updated_at' => $account->updated_at,
+                ],
+                'incomes' => [
+                    'data' => $incomes->items(),
+                    'current_page' => $incomes->currentPage(),
+                    'last_page' => $incomes->lastPage(),
+                    'per_page' => $incomes->perPage(),
+                    'total' => $incomes->total(),
+                    'from' => $incomes->firstItem(),
+                    'to' => $incomes->lastItem(),
+                    'links' => $incomes->toArray()['links'] ?? [],
+                ],
+                'outcomes' => [
+                    'data' => $outcomes->items(),
+                    'current_page' => $outcomes->currentPage(),
+                    'last_page' => $outcomes->lastPage(),
+                    'per_page' => $outcomes->perPage(),
+                    'total' => $outcomes->total(),
+                    'from' => $outcomes->firstItem(),
+                    'to' => $outcomes->lastItem(),
+                    'links' => $outcomes->toArray()['links'] ?? [],
+                ],
+                'filters' => [
+                    'income_search' => $request->get('income_search'),
+                    'income_status' => $request->get('income_status'),
+                    'income_date_from' => $request->get('income_date_from'),
+                    'income_date_to' => $request->get('income_date_to'),
+                    'outcome_search' => $request->get('outcome_search'),
+                    'outcome_status' => $request->get('outcome_status'),
+                    'outcome_date_from' => $request->get('outcome_date_from'),
+                    'outcome_date_to' => $request->get('outcome_date_to'),
                 ],
                 'auth' => [
                     'user' => Auth::user()
@@ -274,91 +353,5 @@ class AccountController extends Controller
             return redirect()->back()
                 ->with('error', 'Error deleting account: ' . $e->getMessage());
         }
-    }
-
-    public function incomes(Request $request, Account $account)
-    {
-        $query = $account->incomes()->with(['user']);
-
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('description', 'like', "%{$search}%")
-                  ->orWhere('reference_number', 'like', "%{$search}%");
-            });
-        }
-
-        // Status filter
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        // Date range filter
-        if ($request->has('date_from') && $request->date_from) {
-            $query->whereDate('date', '>=', $request->date_from);
-        }
-        if ($request->has('date_to') && $request->date_to) {
-            $query->whereDate('date', '<=', $request->date_to);
-        }
-
-        $incomes = $query->latest('date')->get();
-
-        return Inertia::render('Admin/Account/Income', [
-            'account' => [
-                'id' => $account->id,
-                'name' => $account->name,
-                'account_number' => $account->account_number,
-                'customer' => $account->customer,
-            ],
-            'incomes' => $incomes,
-            'filters' => $request->only(['search', 'status', 'date_from', 'date_to']),
-            'auth' => [
-                'user' => Auth::user()
-            ]
-        ]);
-    }
-
-    public function outcomes(Request $request, Account $account)
-    {
-        $query = $account->outcomes()->with(['user']);
-
-        // Search functionality
-        if ($request->has('search') && $request->search) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('description', 'like', "%{$search}%")
-                  ->orWhere('reference_number', 'like', "%{$search}%");
-            });
-        }
-
-        // Status filter
-        if ($request->has('status') && $request->status) {
-            $query->where('status', $request->status);
-        }
-
-        // Date range filter
-        if ($request->has('date_from') && $request->date_from) {
-            $query->whereDate('date', '>=', $request->date_from);
-        }
-        if ($request->has('date_to') && $request->date_to) {
-            $query->whereDate('date', '<=', $request->date_to);
-        }
-
-        $outcomes = $query->latest('date')->get();
-
-        return Inertia::render('Admin/Account/Outcome', [
-            'account' => [
-                'id' => $account->id,
-                'name' => $account->name,
-                'account_number' => $account->account_number,
-                'customer' => $account->customer,
-            ],
-            'outcomes' => $outcomes,
-            'filters' => $request->only(['search', 'status', 'date_from', 'date_to']),
-            'auth' => [
-                'user' => Auth::user()
-            ]
-        ]);
     }
 }
