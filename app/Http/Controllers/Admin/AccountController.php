@@ -129,9 +129,6 @@ class AccountController extends Controller
                 'customer_id' => $request->get('customer_id'),
             ],
             'permissions' => $permissions,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -149,9 +146,6 @@ class AccountController extends Controller
             'customers' => $customers,
             'selectedCustomerId' => $selectedCustomerId,
             'permissions' => $permissions,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -326,9 +320,6 @@ class AccountController extends Controller
                     'outcome_date_to' => $request->get('outcome_date_to'),
                 ],
                 'permissions' => $permissions,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading account: ' . $e->getMessage());
@@ -358,9 +349,6 @@ class AccountController extends Controller
             ],
             'customers' => $customers,
             'permissions' => $permissions,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
