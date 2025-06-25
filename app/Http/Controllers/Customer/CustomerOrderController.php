@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 
 class CustomerOrderController extends Controller
 {
@@ -206,9 +207,19 @@ class CustomerOrderController extends Controller
                 ->with(['items' => function($query) {
                     $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
                 }, 'items.product' => function($query) {
-                    $query->select('id', 'name', 'barcode', 'stock');
+                    $query->select('id', 'name', 'barcode');
                 }])
                 ->findOrFail($id);
+
+            // Get stock information from customer_stock_product_movements
+            $order->items->each(function($item) use ($customer) {
+                $stockInfo = DB::table('customer_stock_product_movements')
+                    ->where('customer_id', $customer->id)
+                    ->where('product_id', $item->product_id)
+                    ->first();
+                
+                $item->product->current_stock = $stockInfo ? $stockInfo->net_quantity : 0;
+            });
 
             return response()->json($order);
         } catch (ModelNotFoundException $e) {
@@ -296,18 +307,24 @@ class CustomerOrderController extends Controller
                 ->with(['items' => function($query) {
                     $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
                 }, 'items.product' => function($query) {
-                    $query->select('id', 'name', 'stock');
+                    $query->select('id', 'name');
                 }])
                 ->findOrFail($id);
 
-            $items = $order->items->map(function($item) {
+            $items = $order->items->map(function($item) use ($customer) {
+                // Get stock information from customer_stock_product_movements
+                $stockInfo = DB::table('customer_stock_product_movements')
+                    ->where('customer_id', $customer->id)
+                    ->where('product_id', $item->product_id)
+                    ->first();
+
                 return [
                     'id' => $item->id,
                     'quantity' => (float)$item->quantity,
                     'price' => (float)$item->unit_price,
                     'product' => [
                         'name' => htmlspecialchars($item->product->name),
-                        'stock' => (int)$item->product->stock
+                        'current_stock' => $stockInfo ? (int)$stockInfo->net_quantity : 0
                     ]
                 ];
             });
@@ -354,13 +371,23 @@ class CustomerOrderController extends Controller
                 ->with(['items' => function($query) {
                     $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
                 }, 'items.product' => function($query) {
-                    $query->select('id', 'name', 'barcode', 'stock');
+                    $query->select('id', 'name', 'barcode');
                 }])
                 ->findOrFail($id);
 
+            // Get stock information from customer_stock_product_movements
+            $order->items->each(function($item) use ($customer) {
+                $stockInfo = DB::table('customer_stock_product_movements')
+                    ->where('customer_id', $customer->id)
+                    ->where('product_id', $item->product_id)
+                    ->first();
+                
+                $item->product->current_stock = $stockInfo ? $stockInfo->net_quantity : 0;
+            });
+
             // Calculate values with proper type casting
             $totalAmount = (float)$order->total_amount;
-            $tax = (float)($order->tax ?? 0);
+            $tax = (float)($order->tax_amount ?? 0);
             $subtotal = $totalAmount - $tax;
 
             return response()->json([
@@ -368,7 +395,7 @@ class CustomerOrderController extends Controller
                 'subtotal' => number_format($subtotal, 2),
                 'tax' => number_format($tax, 2),
                 'total' => number_format($totalAmount, 2),
-                'is_paid' => (bool)$order->is_paid,
+                'is_paid' => (bool)($order->payment_status === 'paid'),
                 'order_number' => $order->order_number ?? '#' . str_pad($order->id, 6, '0', STR_PAD_LEFT)
             ]);
         } catch (ModelNotFoundException $e) {
@@ -417,7 +444,7 @@ class CustomerOrderController extends Controller
 
             // Calculate values with proper type casting
             $totalAmount = (float)$order->total_amount;
-            $tax = (float)($order->tax ?? 0);
+            $tax = (float)($order->tax_amount ?? 0);
             $subtotal = $totalAmount - $tax;
 
             return view('customer.orders.thermal-print', [
