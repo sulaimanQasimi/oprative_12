@@ -433,6 +433,7 @@ class MarketOrderController extends Controller
                     'product_id' => $item['product_id'],
                     'quantity' => $storeQuantity, // Store actual individual units (e.g., 14)
                     'unit_price' => $storeUnitPrice, // Price per individual unit (calculated or from DB)
+                    'price' => $storeUnitPrice,
                     'subtotal' => $calculatedSubtotal, // Use validated/frontend subtotal
                     'discount_amount' => 0
                 ]);
@@ -443,7 +444,7 @@ class MarketOrderController extends Controller
                     'customer_id' => $this->getCustomerId(),
                     'product_id' => $item['product_id'],
                     'quantity' => $actualUnitsNeeded, // Use the actual units consumed
-                    'price' => $item['price'],
+                    'price' => $storeUnitPrice,
                     'total' => $item['total'],
                     'model_type' => MarketOrder::class,
                     'model_id' => $order->id
