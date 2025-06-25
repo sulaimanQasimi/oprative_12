@@ -69,7 +69,7 @@ class CustomerOrderController extends Controller
             // Build the query with security measures
             $query = MarketOrder::where('customer_id', $customer->id)
                 ->with(['items' => function($query) {
-                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
+                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'unit_type', 'is_wholesale', 'discount_amount', 'notes', 'unit_id', 'unit_amount', 'unit_name', 'created_at', 'updated_at');
                 }, 'items.product' => function($query) {
                     $query->select('id', 'name', 'barcode');
                 }]);
@@ -205,7 +205,7 @@ class CustomerOrderController extends Controller
             // Find order with security check for customer ownership
             $order = MarketOrder::where('customer_id', $customer->id)
                 ->with(['items' => function($query) {
-                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
+                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'unit_type', 'is_wholesale', 'discount_amount', 'notes', 'unit_id', 'unit_amount', 'unit_name', 'created_at', 'updated_at');
                 }, 'items.product' => function($query) {
                     $query->select('id', 'name', 'barcode');
                 }])
@@ -305,7 +305,7 @@ class CustomerOrderController extends Controller
 
             $order = MarketOrder::where('customer_id', $customer->id)
                 ->with(['items' => function($query) {
-                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
+                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'unit_type', 'is_wholesale', 'discount_amount', 'notes', 'unit_id', 'unit_amount', 'unit_name', 'created_at', 'updated_at');
                 }, 'items.product' => function($query) {
                     $query->select('id', 'name');
                 }])
@@ -320,8 +320,20 @@ class CustomerOrderController extends Controller
 
                 return [
                     'id' => $item->id,
+                    'market_order_id' => $item->market_order_id,
+                    'product_id' => $item->product_id,
                     'quantity' => (float)$item->quantity,
-                    'price' => (float)$item->unit_price,
+                    'unit_price' => (float)$item->unit_price,
+                    'subtotal' => (float)$item->subtotal,
+                    'unit_type' => $item->unit_type,
+                    'is_wholesale' => (bool)$item->is_wholesale,
+                    'discount_amount' => (float)($item->discount_amount ?? 0),
+                    'notes' => $item->notes,
+                    'unit_id' => $item->unit_id,
+                    'unit_amount' => (float)($item->unit_amount ?? 1),
+                    'unit_name' => $item->unit_name,
+                    'created_at' => $item->created_at,
+                    'updated_at' => $item->updated_at,
                     'product' => [
                         'name' => htmlspecialchars($item->product->name),
                         'current_stock' => $stockInfo ? (int)$stockInfo->net_quantity : 0
@@ -369,7 +381,7 @@ class CustomerOrderController extends Controller
 
             $order = MarketOrder::where('customer_id', $customer->id)
                 ->with(['items' => function($query) {
-                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
+                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'unit_type', 'is_wholesale', 'discount_amount', 'notes', 'unit_id', 'unit_amount', 'unit_name', 'created_at', 'updated_at');
                 }, 'items.product' => function($query) {
                     $query->select('id', 'name', 'barcode');
                 }])
