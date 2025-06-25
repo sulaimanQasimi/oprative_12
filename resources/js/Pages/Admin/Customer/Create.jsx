@@ -106,31 +106,69 @@ export default function Create({ auth, permissions = {} }) {
                     }
 
                     .glass-effect {
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
                     }
 
                     .dark .glass-effect {
-                        background: rgba(0, 0, 0, 0.2);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        background: rgba(15, 23, 42, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
                     }
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
                                     linear-gradient(45deg, #10b981, #059669) border-box;
-                        border: 2px solid transparent;
+                        border: 1px solid transparent;
                     }
 
                     .dark .gradient-border {
-                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                        background: linear-gradient(rgb(15 23 42), rgb(15 23 42)) padding-box,
                                     linear-gradient(45deg, #10b981, #059669) border-box;
                     }
 
-                    .input-glow:focus {
-                        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+                    .form-card {
+                        background: rgba(255, 255, 255, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+                    }
+
+                    .dark .form-card {
+                        background: rgba(15, 23, 42, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                    }
+
+                    .input-field {
+                        background: rgba(255, 255, 255, 1);
+                        border: 1px solid rgba(226, 232, 240, 1);
+                        transition: all 0.2s ease-in-out;
+                    }
+
+                    .dark .input-field {
+                        background: rgba(30, 41, 59, 1);
+                        border: 1px solid rgba(51, 65, 85, 1);
+                    }
+
+                    .input-field:focus {
                         border-color: #10b981;
+                        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+                    }
+
+                    .dark .input-field:focus {
+                        border-color: #34d399;
+                        box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+                    }
+
+                    .input-field:hover {
+                        border-color: #a7f3d0;
+                    }
+
+                    .dark .input-field:hover {
+                        border-color: #475569;
                     }
                 `}</style>
             </Head>
@@ -153,7 +191,7 @@ export default function Create({ auth, permissions = {} }) {
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -174,7 +212,7 @@ export default function Create({ auth, permissions = {} }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
+                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-300 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
                                         {t("Store Management")}
@@ -183,7 +221,7 @@ export default function Create({ auth, permissions = {} }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-green-600 to-slate-900 dark:from-white dark:via-green-300 dark:to-white bg-clip-text text-transparent"
                                     >
                                         {t("Add New Store")}
                                     </motion.h1>
@@ -191,7 +229,7 @@ export default function Create({ auth, permissions = {} }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <Building2 className="w-4 h-4" />
                                         {t("Create a new retail store account")}
@@ -206,7 +244,7 @@ export default function Create({ auth, permissions = {} }) {
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.customers.index")}>
-                                    <Button variant="outline" className="gap-2 border-2 hover:border-green-300">
+                                    <Button variant="outline" className="gap-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Stores")}
                                     </Button>
@@ -231,14 +269,14 @@ export default function Create({ auth, permissions = {} }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                        <Card className="form-card">
+                                            <CardHeader className="bg-gradient-to-r from-green-500/15 via-emerald-500/15 to-green-500/15 dark:from-green-500/25 dark:via-emerald-500/25 dark:to-green-500/25 border-b border-slate-200/60 dark:border-slate-600/60 rounded-t-xl">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                     <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
                                                         <User className="h-6 w-6 text-white" />
                                                     </div>
                                                     {t("Store Information")}
-                                                    <Badge className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                    <Badge className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-700">
                                                         {t("Required")}
                                                     </Badge>
                                                 </CardTitle>
@@ -251,8 +289,8 @@ export default function Create({ auth, permissions = {} }) {
                                                         transition={{ delay: 1.0, duration: 0.4 }}
                                                         className="space-y-2"
                                                     >
-                                                        <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                            <Store className="w-4 h-4 text-green-600" />
+                                                        <Label htmlFor="name" className="text-slate-700 dark:text-slate-200 font-semibold flex items-center gap-2">
+                                                            <Store className="w-4 h-4 text-green-600 dark:text-green-400" />
                                                             {t("Store Name")} *
                                                         </Label>
                                                         <Input
@@ -260,8 +298,8 @@ export default function Create({ auth, permissions = {} }) {
                                                             type="text"
                                                             value={data.name}
                                                             onChange={(e) => setData("name", e.target.value)}
-                                                            className={`h-12 border-2 transition-all duration-200 input-glow ${
-                                                                errors.name ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-green-300"
+                                                            className={`input-field h-12 transition-all duration-200 ${
+                                                                errors.name ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800" : ""
                                                             }`}
                                                             placeholder={t("Enter store name")}
                                                             required
@@ -270,7 +308,7 @@ export default function Create({ auth, permissions = {} }) {
                                                             <motion.p
                                                                 initial={{ opacity: 0, y: -10 }}
                                                                 animate={{ opacity: 1, y: 0 }}
-                                                                className="text-red-500 text-sm flex items-center gap-1"
+                                                                className="text-red-600 dark:text-red-400 text-sm flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {errors.name}
@@ -284,8 +322,8 @@ export default function Create({ auth, permissions = {} }) {
                                                         transition={{ delay: 1.1, duration: 0.4 }}
                                                         className="space-y-2"
                                                     >
-                                                        <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                            <Mail className="w-4 h-4 text-green-600" />
+                                                        <Label htmlFor="email" className="text-slate-700 dark:text-slate-200 font-semibold flex items-center gap-2">
+                                                            <Mail className="w-4 h-4 text-green-600 dark:text-green-400" />
                                                             {t("Email Address")}
                                                         </Label>
                                                         <Input
@@ -293,8 +331,8 @@ export default function Create({ auth, permissions = {} }) {
                                                             type="email"
                                                             value={data.email}
                                                             onChange={(e) => setData("email", e.target.value)}
-                                                            className={`h-12 border-2 transition-all duration-200 input-glow ${
-                                                                errors.email ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-green-300"
+                                                            className={`input-field h-12 transition-all duration-200 ${
+                                                                errors.email ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800" : ""
                                                             }`}
                                                             placeholder={t("Enter email address")}
                                                         />
@@ -302,7 +340,7 @@ export default function Create({ auth, permissions = {} }) {
                                                             <motion.p
                                                                 initial={{ opacity: 0, y: -10 }}
                                                                 animate={{ opacity: 1, y: 0 }}
-                                                                className="text-red-500 text-sm flex items-center gap-1"
+                                                                className="text-red-600 dark:text-red-400 text-sm flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {errors.email}
@@ -316,8 +354,8 @@ export default function Create({ auth, permissions = {} }) {
                                                         transition={{ delay: 1.2, duration: 0.4 }}
                                                         className="space-y-2"
                                                     >
-                                                        <Label htmlFor="phone" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                            <Phone className="w-4 h-4 text-green-600" />
+                                                        <Label htmlFor="phone" className="text-slate-700 dark:text-slate-200 font-semibold flex items-center gap-2">
+                                                            <Phone className="w-4 h-4 text-green-600 dark:text-green-400" />
                                                             {t("Phone Number")}
                                                         </Label>
                                                         <Input
@@ -325,8 +363,8 @@ export default function Create({ auth, permissions = {} }) {
                                                             type="tel"
                                                             value={data.phone}
                                                             onChange={(e) => setData("phone", e.target.value)}
-                                                            className={`h-12 border-2 transition-all duration-200 input-glow ${
-                                                                errors.phone ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-green-300"
+                                                            className={`input-field h-12 transition-all duration-200 ${
+                                                                errors.phone ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800" : ""
                                                             }`}
                                                             placeholder={t("Enter phone number")}
                                                         />
@@ -334,7 +372,7 @@ export default function Create({ auth, permissions = {} }) {
                                                             <motion.p
                                                                 initial={{ opacity: 0, y: -10 }}
                                                                 animate={{ opacity: 1, y: 0 }}
-                                                                className="text-red-500 text-sm flex items-center gap-1"
+                                                                className="text-red-600 dark:text-red-400 text-sm flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {errors.phone}
@@ -349,16 +387,16 @@ export default function Create({ auth, permissions = {} }) {
                                                     transition={{ delay: 1.4, duration: 0.4 }}
                                                     className="space-y-2"
                                                 >
-                                                    <Label htmlFor="address" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                        <MapPin className="w-4 h-4 text-green-600" />
+                                                    <Label htmlFor="address" className="text-slate-700 dark:text-slate-200 font-semibold flex items-center gap-2">
+                                                        <MapPin className="w-4 h-4 text-green-600 dark:text-green-400" />
                                                         {t("Address")}
                                                     </Label>
                                                     <Textarea
                                                         id="address"
                                                         value={data.address}
                                                         onChange={(e) => setData("address", e.target.value)}
-                                                        className={`min-h-[100px] border-2 transition-all duration-200 input-glow ${
-                                                            errors.address ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-green-300"
+                                                        className={`input-field min-h-[100px] transition-all duration-200 ${
+                                                            errors.address ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800" : ""
                                                         }`}
                                                         placeholder={t("Enter store address")}
                                                     />
@@ -366,7 +404,7 @@ export default function Create({ auth, permissions = {} }) {
                                                         <motion.p
                                                             initial={{ opacity: 0, y: -10 }}
                                                             animate={{ opacity: 1, y: 0 }}
-                                                            className="text-red-500 text-sm flex items-center gap-1"
+                                                            className="text-red-600 dark:text-red-400 text-sm flex items-center gap-1"
                                                         >
                                                             <AlertCircle className="w-4 h-4" />
                                                             {errors.address}
@@ -380,15 +418,15 @@ export default function Create({ auth, permissions = {} }) {
                                                     transition={{ delay: 1.4, duration: 0.4 }}
                                                     className="space-y-2"
                                                 >
-                                                    <Label htmlFor="status" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                        <CheckCircle className="w-4 h-4 text-green-600" />
+                                                    <Label htmlFor="status" className="text-slate-700 dark:text-slate-200 font-semibold flex items-center gap-2">
+                                                        <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
                                                         {t("Status")}
                                                     </Label>
                                                     <Select value={data.status} onValueChange={(value) => setData("status", value)}>
-                                                        <SelectTrigger className="h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 transition-colors">
+                                                        <SelectTrigger className="input-field h-12 transition-colors">
                                                             <SelectValue placeholder={t("Select status")} />
                                                         </SelectTrigger>
-                                                        <SelectContent>
+                                                        <SelectContent className="z-50">
                                                             <SelectItem value="active">{t("Active")}</SelectItem>
                                                             <SelectItem value="inactive">{t("Inactive")}</SelectItem>
                                                             <SelectItem value="pending">{t("Pending")}</SelectItem>
@@ -398,7 +436,7 @@ export default function Create({ auth, permissions = {} }) {
                                                         <motion.p
                                                             initial={{ opacity: 0, y: -10 }}
                                                             animate={{ opacity: 1, y: 0 }}
-                                                            className="text-red-500 text-sm flex items-center gap-1"
+                                                            className="text-red-600 dark:text-red-400 text-sm flex items-center gap-1"
                                                         >
                                                             <AlertCircle className="w-4 h-4" />
                                                             {errors.status}
@@ -415,14 +453,14 @@ export default function Create({ auth, permissions = {} }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.5, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-purple-500/20 via-violet-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                        <Card className="form-card">
+                                            <CardHeader className="bg-gradient-to-r from-purple-500/15 via-violet-500/15 to-purple-500/15 dark:from-purple-500/25 dark:via-violet-500/25 dark:to-purple-500/25 border-b border-slate-200/60 dark:border-slate-600/60 rounded-t-xl">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                     <div className="p-3 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg">
                                                         <FileText className="h-6 w-6 text-white" />
                                                     </div>
                                                     {t("Additional Information")}
-                                                    <Badge className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                                    <Badge className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-700">
                                                         {t("Optional")}
                                                     </Badge>
                                                 </CardTitle>
@@ -434,16 +472,16 @@ export default function Create({ auth, permissions = {} }) {
                                                     transition={{ delay: 1.6, duration: 0.4 }}
                                                     className="space-y-2"
                                                 >
-                                                    <Label htmlFor="notes" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                        <FileText className="w-4 h-4 text-purple-600" />
+                                                    <Label htmlFor="notes" className="text-slate-700 dark:text-slate-200 font-semibold flex items-center gap-2">
+                                                        <FileText className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                                                         {t("Notes")}
                                                     </Label>
                                                     <Textarea
                                                         id="notes"
                                                         value={data.notes}
                                                         onChange={(e) => setData("notes", e.target.value)}
-                                                        className={`min-h-[120px] border-2 transition-all duration-200 input-glow ${
-                                                            errors.notes ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-purple-300"
+                                                        className={`input-field min-h-[120px] transition-all duration-200 ${
+                                                            errors.notes ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800" : ""
                                                         }`}
                                                         placeholder={t("Enter any additional notes about this store...")}
                                                     />
@@ -451,7 +489,7 @@ export default function Create({ auth, permissions = {} }) {
                                                         <motion.p
                                                             initial={{ opacity: 0, y: -10 }}
                                                             animate={{ opacity: 1, y: 0 }}
-                                                            className="text-red-500 text-sm flex items-center gap-1"
+                                                            className="text-red-600 dark:text-red-400 text-sm flex items-center gap-1"
                                                         >
                                                             <AlertCircle className="w-4 h-4" />
                                                             {errors.notes}
@@ -473,7 +511,7 @@ export default function Create({ auth, permissions = {} }) {
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                className="gap-2 h-12 px-8 border-2 hover:border-slate-300"
+                                                className="gap-2 h-12 px-8 border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800"
                                             >
                                                 <ArrowLeft className="h-4 w-4" />
                                                 {t("Cancel")}
@@ -482,7 +520,7 @@ export default function Create({ auth, permissions = {} }) {
                                         <Button
                                             type="submit"
                                             disabled={processing}
-                                            className="gap-2 h-12 px-8 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 pulse-glow"
+                                            className="gap-2 h-12 px-8 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                                         >
                                             {processing ? (
                                                 <>

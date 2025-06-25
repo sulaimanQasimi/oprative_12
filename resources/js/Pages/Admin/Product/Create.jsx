@@ -109,26 +109,69 @@ export default function Create({ auth, units = [], permissions = {} }) {
                     }
 
                     .glass-effect {
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
                     }
 
                     .dark .glass-effect {
-                        background: rgba(0, 0, 0, 0.2);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        background: rgba(15, 23, 42, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
                     }
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
-                                    linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
-                        border: 2px solid transparent;
+                                    linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4) border-box;
+                        border: 1px solid transparent;
                     }
 
                     .dark .gradient-border {
-                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
-                                    linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
+                        background: linear-gradient(rgb(15 23 42), rgb(15 23 42)) padding-box,
+                                    linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4) border-box;
+                    }
+
+                    .form-card {
+                        background: rgba(255, 255, 255, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+                    }
+
+                    .dark .form-card {
+                        background: rgba(15, 23, 42, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                    }
+
+                    .input-field {
+                        background: rgba(255, 255, 255, 1);
+                        border: 1px solid rgba(226, 232, 240, 1);
+                        transition: all 0.2s ease-in-out;
+                    }
+
+                    .dark .input-field {
+                        background: rgba(30, 41, 59, 1);
+                        border: 1px solid rgba(51, 65, 85, 1);
+                    }
+
+                    .input-field:focus {
+                        border-color: #6366f1;
+                        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+                    }
+
+                    .dark .input-field:focus {
+                        border-color: #818cf8;
+                        box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+                    }
+
+                    .input-field:hover {
+                        border-color: #c7d2fe;
+                    }
+
+                    .dark .input-field:hover {
+                        border-color: #475569;
                     }
                 `}</style>
             </Head>
@@ -139,7 +182,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.products" />
@@ -151,7 +194,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -174,8 +217,8 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                     }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-700 p-4 rounded-2xl shadow-2xl">
                                         <Package className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
@@ -188,7 +231,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                             delay: 0.4,
                                             duration: 0.4,
                                         }}
-                                        className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1 flex items-center gap-2"
+                                        className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-300 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
                                         {t("Product Management")}
@@ -200,7 +243,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                             delay: 0.5,
                                             duration: 0.4,
                                         }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-indigo-600 to-slate-900 dark:from-white dark:via-indigo-300 dark:to-white bg-clip-text text-transparent"
                                     >
                                         {t("Create Product")}
                                     </motion.h1>
@@ -211,7 +254,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                             delay: 0.6,
                                             duration: 0.4,
                                         }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
                                         {t(
@@ -230,7 +273,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                 <Link href={route("admin.products.index")}>
                                     <Button
                                         variant="outline"
-                                        className="gap-2 hover:scale-105 transition-all duration-200 border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                        className="gap-2 hover:scale-105 transition-all duration-200 border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800"
                                     >
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Products")}
@@ -259,27 +302,27 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                             duration: 0.5,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
-                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
+                                        <Card className="form-card relative overflow-hidden">
+                                            <CardHeader className="relative bg-gradient-to-r from-slate-50 to-indigo-50/50 dark:from-slate-800 dark:to-slate-700 border-b border-slate-200 dark:border-slate-600 rounded-t-xl">
+                                                <CardTitle className="text-slate-900 dark:text-slate-100 flex items-center gap-3 text-xl font-bold">
+                                                    <div className="p-3 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl shadow-lg">
                                                         <Package className="h-6 w-6 text-white" />
                                                     </div>
                                                     {t("Product Details")}
                                                     <Badge
                                                         variant="secondary"
-                                                        className="ml-auto bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                                        className="ml-auto bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-700"
                                                     >
                                                         {t("Required")}
                                                     </Badge>
                                                 </CardTitle>
-                                                <CardDescription className="text-slate-600 dark:text-slate-400">
+                                                <CardDescription className="text-slate-600 dark:text-slate-300 font-medium">
                                                     {t(
                                                         "Fill in the details for the new product with proper validation"
                                                     )}
                                                 </CardDescription>
                                             </CardHeader>
-                                            <CardContent className="p-8 space-y-8">
+                                            <CardContent className="relative p-8 space-y-8">
                                                 {/* Error Alert */}
                                                 <AnimatePresence>
                                                     {Object.keys(errors)
@@ -298,9 +341,9 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 y: -10,
                                                             }}
                                                         >
-                                                            <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 pulse-glow">
-                                                                <AlertCircle className="h-5 w-5 text-red-600" />
-                                                                <AlertDescription className="text-red-700 dark:text-red-400 font-medium">
+                                                            <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800">
+                                                                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                                                                <AlertDescription className="text-red-700 dark:text-red-300 font-medium">
                                                                     {t(
                                                                         "Please correct the errors below and try again."
                                                                     )}
@@ -329,9 +372,9 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="type"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
-                                                            <Tag className="w-5 h-5 text-indigo-500" />
+                                                            <Tag className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                             {t("Product Type")}{" "}
                                                             *
                                                         </Label>
@@ -349,11 +392,11 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`h-14 text-lg border-2 transition-all duration-200 ${
+                                                            className={`input-field h-14 text-lg transition-all duration-200 ${
                                                                 errors.type
-                                                                    ? "border-red-500 ring-2 ring-red-200"
-                                                                    : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500"
-                                                            } bg-white dark:bg-slate-800`}
+                                                                    ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
+                                                                    : ""
+                                                            }`}
                                                         />
                                                         {errors.type && (
                                                             <motion.p
@@ -363,7 +406,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {errors.type}
@@ -388,9 +431,9 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="name"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
-                                                            <Package className="w-5 h-5 text-indigo-500" />
+                                                            <Package className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                             {t("Product Name")}{" "}
                                                             *
                                                         </Label>
@@ -408,11 +451,11 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`h-14 text-lg border-2 transition-all duration-200 ${
+                                                            className={`input-field h-14 text-lg transition-all duration-200 ${
                                                                 errors.name
-                                                                    ? "border-red-500 ring-2 ring-red-200"
-                                                                    : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500"
-                                                            } bg-white dark:bg-slate-800`}
+                                                                    ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
+                                                                    : ""
+                                                            }`}
                                                         />
                                                         {errors.name && (
                                                             <motion.p
@@ -422,7 +465,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {errors.name}
@@ -449,13 +492,13 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                 >
                                                     <Label
                                                         htmlFor="barcode"
-                                                        className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                        className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                     >
-                                                        <Barcode className="w-5 h-5 text-indigo-500" />
+                                                        <Barcode className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                         {t("Barcode")}
                                                         <Badge
                                                             variant="secondary"
-                                                            className="text-xs"
+                                                            className="text-xs bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
                                                         >
                                                             {t("Optional")}
                                                         </Badge>
@@ -473,11 +516,11 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 e.target.value
                                                             )
                                                         }
-                                                        className={`h-14 text-lg border-2 transition-all duration-200 ${
+                                                        className={`input-field h-14 text-lg transition-all duration-200 ${
                                                             errors.barcode
-                                                                ? "border-red-500 ring-2 ring-red-200"
-                                                                : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500"
-                                                        } bg-white dark:bg-slate-800`}
+                                                                ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
+                                                                : ""
+                                                        }`}
                                                     />
                                                     {errors.barcode && (
                                                         <motion.p
@@ -487,7 +530,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                             animate={{
                                                                 opacity: 1,
                                                             }}
-                                                            className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                            className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                         >
                                                             <AlertCircle className="w-4 h-4" />
                                                             {errors.barcode}
@@ -514,9 +557,9 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="purchase_price"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
-                                                            <DollarSign className="w-5 h-5 text-green-500" />
+                                                            <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
                                                             {t(
                                                                 "Purchase Price"
                                                             )}{" "}
@@ -539,11 +582,11 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                             .value
                                                                     )
                                                                 }
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${
+                                                                className={`input-field pl-12 h-14 text-lg transition-all duration-200 ${
                                                                     errors.purchase_price
-                                                                        ? "border-red-500 ring-2 ring-red-200"
-                                                                        : "border-slate-200 hover:border-green-300 focus:border-green-500"
-                                                                } bg-white dark:bg-slate-800`}
+                                                                        ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
+                                                                        : ""
+                                                                }`}
                                                             />
                                                         </div>
                                                         {errors.purchase_price && (
@@ -554,7 +597,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {
@@ -581,9 +624,9 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="wholesale_price"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
-                                                            <DollarSign className="w-5 h-5 text-blue-500" />
+                                                            <DollarSign className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                                                             {t(
                                                                 "Wholesale Price"
                                                             )}{" "}
@@ -606,11 +649,11 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                             .value
                                                                     )
                                                                 }
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${
+                                                                className={`input-field pl-12 h-14 text-lg transition-all duration-200 ${
                                                                     errors.wholesale_price
-                                                                        ? "border-red-500 ring-2 ring-red-200"
-                                                                        : "border-slate-200 hover:border-blue-300 focus:border-blue-500"
-                                                                } bg-white dark:bg-slate-800`}
+                                                                        ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
+                                                                        : ""
+                                                                }`}
                                                             />
                                                         </div>
                                                         {errors.wholesale_price && (
@@ -621,7 +664,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {
@@ -648,9 +691,9 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="retail_price"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
-                                                            <DollarSign className="w-5 h-5 text-purple-500" />
+                                                            <DollarSign className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                                                             {t("Retail Price")}{" "}
                                                             *
                                                         </Label>
@@ -671,11 +714,11 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                             .value
                                                                     )
                                                                 }
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${
+                                                                className={`input-field pl-12 h-14 text-lg transition-all duration-200 ${
                                                                     errors.retail_price
-                                                                        ? "border-red-500 ring-2 ring-red-200"
-                                                                        : "border-slate-200 hover:border-purple-300 focus:border-purple-500"
-                                                                } bg-white dark:bg-slate-800`}
+                                                                        ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
+                                                                        : ""
+                                                                }`}
                                                             />
                                                         </div>
                                                         {errors.retail_price && (
@@ -686,7 +729,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {
@@ -716,9 +759,9 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="wholesale_unit_id"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
-                                                            <Scale className="w-5 h-5 text-indigo-500" />
+                                                            <Scale className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                             {t(
                                                                 "Wholesale Unit"
                                                             )}{" "}
@@ -738,11 +781,11 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                             }
                                                         >
                                                             <SelectTrigger
-                                                                className={`h-14 text-lg border-2 transition-all duration-200 ${
+                                                                className={`input-field h-14 text-lg transition-all duration-200 ${
                                                                     errors.wholesale_unit_id
-                                                                        ? "border-red-500 ring-2 ring-red-200"
-                                                                        : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500"
-                                                                } bg-white dark:bg-slate-800`}
+                                                                        ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
+                                                                        : ""
+                                                                }`}
                                                             >
                                                                 <SelectValue
                                                                     placeholder={t(
@@ -775,7 +818,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {
@@ -802,9 +845,9 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="retail_unit_id"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
-                                                            <Scale className="w-5 h-5 text-indigo-500" />
+                                                            <Scale className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                             {t("Retail Unit")} *
                                                         </Label>
                                                         <Select
@@ -821,11 +864,11 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                             }
                                                         >
                                                             <SelectTrigger
-                                                                className={`h-14 text-lg border-2 transition-all duration-200 ${
+                                                                className={`input-field h-14 text-lg transition-all duration-200 ${
                                                                     errors.retail_unit_id
-                                                                        ? "border-red-500 ring-2 ring-red-200"
-                                                                        : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500"
-                                                                } bg-white dark:bg-slate-800`}
+                                                                        ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
+                                                                        : ""
+                                                                }`}
                                                             >
                                                                 <SelectValue
                                                                     placeholder={t(
@@ -858,7 +901,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {
@@ -888,9 +931,9 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="whole_sale_unit_amount"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
-                                                            <Activity className="w-5 h-5 text-indigo-500" />
+                                                            <Activity className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                             {t(
                                                                 "Wholesale Unit Amount"
                                                             )}{" "}
@@ -911,11 +954,11 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`h-14 text-lg border-2 transition-all duration-200 ${
+                                                            className={`input-field h-14 text-lg transition-all duration-200 ${
                                                                 errors.whole_sale_unit_amount
-                                                                    ? "border-red-500 ring-2 ring-red-200"
-                                                                    : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500"
-                                                            } bg-white dark:bg-slate-800`}
+                                                                    ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
+                                                                    : ""
+                                                            }`}
                                                         />
                                                         {errors.whole_sale_unit_amount && (
                                                             <motion.p
@@ -925,7 +968,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {
@@ -952,9 +995,9 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="retails_sale_unit_amount"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
-                                                            <Activity className="w-5 h-5 text-indigo-500" />
+                                                            <Activity className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                             {t(
                                                                 "Retail Unit Amount"
                                                             )}{" "}
@@ -975,11 +1018,11 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`h-14 text-lg border-2 transition-all duration-200 ${
+                                                            className={`input-field h-14 text-lg transition-all duration-200 ${
                                                                 errors.retails_sale_unit_amount
-                                                                    ? "border-red-500 ring-2 ring-red-200"
-                                                                    : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500"
-                                                            } bg-white dark:bg-slate-800`}
+                                                                    ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
+                                                                    : ""
+                                                            }`}
                                                         />
                                                         {errors.retails_sale_unit_amount && (
                                                             <motion.p
@@ -989,7 +1032,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {
@@ -1034,7 +1077,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                             />
                                                             <Label
                                                                 htmlFor="is_activated"
-                                                                className="text-slate-700 dark:text-slate-300 font-medium"
+                                                                className="text-slate-700 dark:text-slate-200 font-medium"
                                                             >
                                                                 {t(
                                                                     "Activate Product"
@@ -1058,7 +1101,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                             />
                                                             <Label
                                                                 htmlFor="is_in_stock"
-                                                                className="text-slate-700 dark:text-slate-300 font-medium"
+                                                                className="text-slate-700 dark:text-slate-200 font-medium"
                                                             >
                                                                 {t("In Stock")}
                                                             </Label>
@@ -1097,7 +1140,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                             />
                                                             <Label
                                                                 htmlFor="is_shipped"
-                                                                className="text-slate-700 dark:text-slate-300 font-medium"
+                                                                className="text-slate-700 dark:text-slate-200 font-medium"
                                                             >
                                                                 {t("Shipped")}
                                                             </Label>
@@ -1119,7 +1162,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                             />
                                                             <Label
                                                                 htmlFor="is_trend"
-                                                                className="text-slate-700 dark:text-slate-300 font-medium"
+                                                                className="text-slate-700 dark:text-slate-200 font-medium"
                                                             >
                                                                 {t("Trending")}
                                                             </Label>
@@ -1154,7 +1197,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                         <Button
                                             type="submit"
                                             disabled={processing}
-                                            className="px-8 py-4 text-lg shadow-2xl transition-all duration-200 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 hover:scale-105 hover:shadow-3xl text-white"
+                                            className="px-8 py-4 text-lg shadow-lg transition-all duration-200 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 hover:scale-105 text-white font-semibold"
                                         >
                                             {processing ? (
                                                 <>

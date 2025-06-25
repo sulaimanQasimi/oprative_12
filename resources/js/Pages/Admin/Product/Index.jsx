@@ -419,24 +419,24 @@ export default function Index({
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                                                             {t(
                                                                 "Total Products"
                                                             )}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-indigo-600">
+                                                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
                                                             {stats.total}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                             {t("In inventory")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl">
-                                                        <Package className="h-8 w-8 text-indigo-600" />
+                                                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                                        <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -451,26 +451,26 @@ export default function Index({
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                                                             {t(
                                                                 "Active Products"
                                                             )}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-green-600">
+                                                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
                                                             {stats.active}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                             {t(
                                                                 "Currently active"
                                                             )}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
-                                                        <CheckCircle className="h-8 w-8 text-green-600" />
+                                                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                                        <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -485,22 +485,22 @@ export default function Index({
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                                                             {t("In Stock")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-blue-600">
+                                                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
                                                             {stats.inStock}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                             {t("Available")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
-                                                        <ShoppingCart className="h-8 w-8 text-blue-600" />
+                                                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                                                        <ShoppingCart className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -515,25 +515,25 @@ export default function Index({
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                                                             {t("Total Value")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-purple-600">
+                                                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
                                                             $
                                                             {stats.totalValue.toLocaleString()}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                             {t(
                                                                 "Inventory value"
                                                             )}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
-                                                        <DollarSign className="h-8 w-8 text-purple-600" />
+                                                    <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                                                        <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -547,12 +547,12 @@ export default function Index({
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                                             <div className="flex items-center justify-between">
-                                                <CardTitle className="flex items-center gap-3">
-                                                    <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
-                                                        <Filter className="h-5 w-5 text-white" />
+                                                <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
+                                                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                                        <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                                                     </div>
                                                     {t("Search & Filter")}
                                                 </CardTitle>
@@ -563,7 +563,7 @@ export default function Index({
                                                             !showFilters
                                                         )
                                                     }
-                                                    className="gap-2"
+                                                    className="gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                                 >
                                                     <Filter className="h-4 w-4" />
                                                     {showFilters
@@ -583,7 +583,7 @@ export default function Index({
                                             {/* Search Bar */}
                                             <div className="mb-4">
                                                 <div className="relative w-full">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                                                     <Input
                                                         placeholder={t(
                                                             "Search by name, barcode, or type..."
@@ -594,7 +594,7 @@ export default function Index({
                                                                 e.target.value
                                                             )
                                                         }
-                                                        className="pl-12 h-12 text-lg border-2 border-indigo-200 focus:border-indigo-500 rounded-xl w-full"
+                                                        className="pl-12 h-12 text-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -605,7 +605,7 @@ export default function Index({
                                                                     ""
                                                                 )
                                                             }
-                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </Button>
@@ -634,9 +634,9 @@ export default function Index({
                                                         }}
                                                         className="relative"
                                                     >
-                                                        <div className=" grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                                                             <div className="relative">
-                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                     {t(
                                                                         "Status"
                                                                     )}
@@ -649,8 +649,8 @@ export default function Index({
                                                                         setFilterStatus
                                                                     }
                                                                 >
-                                                                    <SelectTrigger className="h-10 w-full">
-                                                                        <SelectValue>
+                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                                        <SelectValue className="">
                                                                             {statusOptions.find(
                                                                                 (
                                                                                     option
@@ -666,17 +666,7 @@ export default function Index({
                                                                     </SelectTrigger>
                                                                     <SelectContent
                                                                         position="popper"
-                                                                        sideOffset={
-                                                                            5
-                                                                        }
-                                                                        className="z-[9999]"
-                                                                        style={{
-                                                                            position:
-                                                                                "fixed",
-                                                                            bottom: 0,
-                                                                            width: "var(--radix-select-trigger-width)",
-                                                                            zIndex: 9999,
-                                                                        }}
+                                                                        sideOffset={5}
                                                                     >
                                                                         {statusOptions.map(
                                                                             (
@@ -689,6 +679,7 @@ export default function Index({
                                                                                     value={
                                                                                         option.value
                                                                                     }
+                                                                                    className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                                                                                 >
                                                                                     {
                                                                                         option.label
@@ -701,7 +692,7 @@ export default function Index({
                                                             </div>
 
                                                             <div className="relative">
-                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                     {t("Type")}
                                                                 </label>
                                                                 <Select
@@ -712,7 +703,7 @@ export default function Index({
                                                                         setFilterType
                                                                     }
                                                                 >
-                                                                    <SelectTrigger className="h-10 w-full">
+                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                                                                         <SelectValue>
                                                                             {filterType ===
                                                                             "all"
@@ -727,19 +718,12 @@ export default function Index({
                                                                     </SelectTrigger>
                                                                     <SelectContent
                                                                         position="popper"
-                                                                        sideOffset={
-                                                                            5
-                                                                        }
-                                                                        className="z-[9999]"
-                                                                        style={{
-                                                                            position:
-                                                                                "fixed",
-                                                                            bottom: 0,
-                                                                            width: "var(--radix-select-trigger-width)",
-                                                                            zIndex: 9999,
-                                                                        }}
+                                                                        sideOffset={5}
                                                                     >
-                                                                        <SelectItem value="all">
+                                                                        <SelectItem 
+                                                                            value="all"
+                                                                            className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                        >
                                                                             {t(
                                                                                 "All Types"
                                                                             )}
@@ -758,6 +742,7 @@ export default function Index({
                                                                                         value={
                                                                                             type
                                                                                         }
+                                                                                        className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
                                                                                     >
                                                                                         {
                                                                                             type
@@ -783,7 +768,7 @@ export default function Index({
                                                                             ""
                                                                         );
                                                                     }}
-                                                                    className="w-full h-10 gap-2"
+                                                                    className="w-full h-10 gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                                                 >
                                                                     <RefreshCw className="h-4 w-4" />
                                                                     {t(

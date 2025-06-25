@@ -91,11 +91,14 @@ export default function Create({ auth, permissions = {} }) {
                             linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
                     }
                     .glass-effect {
-                        backdrop-filter: blur(20px);
-                        background: rgba(255, 255, 255, 0.8);
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
                     }
                     .dark .glass-effect {
-                        background: rgba(15, 23, 42, 0.8);
+                        background: rgba(15, 23, 42, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
                     }
                     .form-section {
                         transition: all 0.3s ease;
@@ -112,14 +115,14 @@ export default function Create({ auth, permissions = {} }) {
 
             <PageLoader isVisible={loading} />
 
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 bg-grid-pattern overflow-hidden">
+            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 bg-grid-pattern overflow-hidden">
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.suppliers" />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Enhanced Header */}
-                    <header className="glass-effect border-b border-slate-200/50 dark:border-slate-800/50 py-6 px-8 sticky top-0 z-40">
+                    <header className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
                                 <div className="relative">
@@ -130,18 +133,18 @@ export default function Create({ auth, permissions = {} }) {
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                                        <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
                                             {t("Supply Chain Management")}
                                         </span>
-                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700">
                                             <Sparkles className="h-3 w-3 mr-1" />
                                             {t("New Supplier")}
                                         </Badge>
                                     </div>
-                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-indigo-600 to-slate-900 dark:from-white dark:via-indigo-300 dark:to-white bg-clip-text text-transparent">
                                         {t("Add New Supplier")}
                                     </h1>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                    <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
                                         {t("Create a new supplier profile and manage their information")}
                                     </p>
                                 </div>
@@ -149,7 +152,7 @@ export default function Create({ auth, permissions = {} }) {
 
                             <div className="flex items-center space-x-3">
                                 <Link href={route("admin.suppliers.index")}>
-                                    <Button variant="outline" className="shadow-sm">
+                                    <Button variant="outline" className="shadow-sm border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800">
                                         <ArrowLeft className="h-4 w-4 mr-2" />
                                         {t("Back to List")}
                                     </Button>

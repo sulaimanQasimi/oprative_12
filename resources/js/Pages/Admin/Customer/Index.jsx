@@ -153,26 +153,69 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                     }
 
                     .glass-effect {
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
                     }
 
                     .dark .glass-effect {
-                        background: rgba(0, 0, 0, 0.2);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        background: rgba(15, 23, 42, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
                     }
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
                                     linear-gradient(45deg, #10b981, #059669) border-box;
-                        border: 2px solid transparent;
+                        border: 1px solid transparent;
                     }
 
                     .dark .gradient-border {
-                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                        background: linear-gradient(rgb(15 23 42), rgb(15 23 42)) padding-box,
                                     linear-gradient(45deg, #10b981, #059669) border-box;
+                    }
+
+                    .content-card {
+                        background: rgba(255, 255, 255, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+                    }
+
+                    .dark .content-card {
+                        background: rgba(15, 23, 42, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                    }
+
+                    .search-input {
+                        background: rgba(255, 255, 255, 1);
+                        border: 1px solid rgba(226, 232, 240, 1);
+                        transition: all 0.2s ease-in-out;
+                    }
+
+                    .dark .search-input {
+                        background: rgba(30, 41, 59, 1);
+                        border: 1px solid rgba(51, 65, 85, 1);
+                    }
+
+                    .search-input:focus {
+                        border-color: #10b981;
+                        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+                    }
+
+                    .dark .search-input:focus {
+                        border-color: #34d399;
+                        box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+                    }
+
+                    .search-input:hover {
+                        border-color: #a7f3d0;
+                    }
+
+                    .dark .search-input:hover {
+                        border-color: #475569;
                     }
                 `}</style>
             </Head>
@@ -195,7 +238,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -216,7 +259,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
+                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-300 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
                                         {t("Store Management")}
@@ -225,7 +268,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-green-600 to-slate-900 dark:from-white dark:via-green-300 dark:to-white bg-clip-text text-transparent"
                                     >
                                         {t("Stores")}
                                     </motion.h1>
@@ -233,7 +276,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <Building2 className="w-4 h-4" />
                                         {t("Manage your retail stores and customer accounts")}
@@ -366,8 +409,9 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
+                                    className="relative z-40"
                                 >
-                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                    <Card className="content-card">
                                         <CardHeader>
                                             <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
                                                 <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-lg">
@@ -375,7 +419,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                 </div>
                                                 {t("Search & Filter")}
                                                 {(searchTerm || statusFilter) && (
-                                                    <Badge variant="secondary" className="ml-auto">
+                                                    <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
                                                         {t("Filtered")}
                                                     </Badge>
                                                 )}
@@ -389,7 +433,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                         placeholder={t("Search stores by name, email, phone, or address...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-10 h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 transition-colors"
+                                                        className="search-input pl-10 h-12 transition-colors"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -397,7 +441,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => setSearchTerm("")}
-                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </Button>
@@ -406,10 +450,10 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
 
                                                 <div className="flex gap-2">
                                                     <Select value={statusFilter} onValueChange={handleStatusFilter}>
-                                                        <SelectTrigger className="w-48 h-12 border-2 border-slate-200 hover:border-green-300 focus:border-green-500">
+                                                        <SelectTrigger className="w-48 h-12 search-input">
                                                             <SelectValue placeholder={t("Filter by status")} />
                                                         </SelectTrigger>
-                                                        <SelectContent className="fixed top-0 w-20 ">
+                                                        <SelectContent className="z-50">
                                                             <SelectItem value="">{t("All Status")}</SelectItem>
                                                             <SelectItem value="active">{t("Active")}</SelectItem>
                                                             <SelectItem value="inactive">{t("Inactive")}</SelectItem>
@@ -427,7 +471,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                             type="button"
                                                             variant="outline"
                                                             onClick={clearFilters}
-                                                            className="gap-2 h-12 border-2 hover:border-green-300"
+                                                            className="gap-2 h-12 border-slate-200 hover:border-green-300 dark:border-slate-600 dark:hover:border-green-400"
                                                         >
                                                             <RefreshCw className="h-4 w-4" />
                                                             {t("Clear")}
@@ -445,14 +489,14 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                    <Card className="content-card overflow-hidden">
+                                        <CardHeader className="bg-gradient-to-r from-green-500/15 via-emerald-500/15 to-green-500/15 dark:from-green-500/25 dark:via-emerald-500/25 dark:to-green-500/25 border-b border-slate-200/60 dark:border-slate-600/60 rounded-t-xl">
                                             <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                 <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
                                                     <ShoppingBag className="h-6 w-6 text-white" />
                                                 </div>
                                                 {t("Stores List")}
-                                                <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-700">
                                                     {customerData.length} {t("stores")}
                                                     {customers.total && (
                                                         <span className="ml-1">
@@ -467,12 +511,12 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="border-b border-slate-200 dark:border-slate-700">
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Store")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Contact")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Status")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Users")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">{t("Actions")}</TableHead>
+                                                        <TableRow className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Store")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Contact")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Status")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Users")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200 text-right">{t("Actions")}</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -489,12 +533,12 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                                     <TableCell>
                                                                         <div className="flex items-center space-x-3">
                                                                             <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
-                                                                                <Store className="h-5 w-5 text-green-600" />
+                                                                                <Store className="h-5 w-5 text-green-600 dark:text-green-400" />
                                                                             </div>
                                                                             <div>
                                                                                 <div className="font-semibold text-slate-900 dark:text-white">{customer.name}</div>
                                                                                 {customer.address && (
-                                                                                    <div className="text-sm text-slate-500 flex items-center gap-1">
+                                                                                    <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
                                                                                         <MapPin className="w-3 h-3" />
                                                                                         {customer.address}
                                                                                     </div>
@@ -522,7 +566,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                                         {getStatusBadge(customer.status)}
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <Badge variant="outline" className="gap-1">
+                                                                        <Badge variant="outline" className="gap-1 border-slate-200 dark:border-slate-600">
                                                                             <Users className="w-3 h-3" />
                                                                             {customer.users_count}
                                                                         </Badge>
@@ -604,13 +648,13 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                 <div className="text-center py-12">
                                                     <div className="flex flex-col items-center gap-4">
                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                            <Store className="h-8 w-8 text-slate-400" />
+                                                            <Store className="h-8 w-8 text-slate-400 dark:text-slate-500" />
                                                         </div>
                                                         <div className="text-center">
                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
                                                                 {searchTerm || statusFilter ? t("No stores found") : t("No stores created yet")}
                                                             </p>
-                                                            <p className="text-sm text-slate-500">
+                                                            <p className="text-sm text-slate-500 dark:text-slate-400">
                                                                 {searchTerm || statusFilter ? t("Try adjusting your search or filters") : t("Create your first store to get started.")}
                                                             </p>
                                                         </div>
@@ -637,10 +681,10 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                         transition={{ delay: 1.5, duration: 0.4 }}
                                         className="flex justify-center"
                                     >
-                                        <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <Card className="content-card">
                                             <CardContent className="p-4">
                                                 <div className="flex items-center justify-between gap-4">
-                                                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                    <div className="text-sm text-slate-600 dark:text-slate-300">
                                                         {t("Showing")} {customers.from} {t("to")} {customers.to} {t("of")} {customers.total} {t("stores")}
                                                     </div>
 
@@ -653,7 +697,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                                         variant="outline"
                                                                         size="sm"
                                                                         disabled
-                                                                        className="w-10 h-10 p-0"
+                                                                        className="w-10 h-10 p-0 border-slate-200 dark:border-slate-600"
                                                                     >
                                                                         {link.label === '&laquo; Previous' ? (
                                                                             <ChevronLeft className="h-4 w-4" />
@@ -679,7 +723,7 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                                         className={`w-10 h-10 p-0 ${
                                                                             link.active
                                                                                 ? 'bg-green-600 hover:bg-green-700 text-white'
-                                                                                : 'hover:bg-green-50 hover:border-green-300'
+                                                                                : 'border-slate-200 hover:bg-green-50 hover:border-green-300 dark:border-slate-600 dark:hover:bg-green-900/20 dark:hover:border-green-400'
                                                                         }`}
                                                                     >
                                                                         {link.label === '&laquo; Previous' ? (
