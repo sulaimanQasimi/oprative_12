@@ -435,7 +435,14 @@ class MarketOrderController extends Controller
                     'unit_price' => $storeUnitPrice, // Price per individual unit (calculated or from DB)
                     'price' => $storeUnitPrice,
                     'subtotal' => $calculatedSubtotal, // Use validated/frontend subtotal
-                    'discount_amount' => 0
+                    'discount_amount' => 0,
+                    'unit_type' => $isWholesale ? 'wholesale' : 'retail',
+                    'is_wholesale' => $isWholesale,
+                    'unit_id' => $isWholesale ? $stockProduct->product->wholesale_unit_id : $stockProduct->product->retail_unit_id,
+                    'unit_amount' => $unitAmount,
+                    'unit_name' => $isWholesale ? 
+                        ($stockProduct->product->wholesaleUnit->name ?? 'Wholesale Unit') : 
+                        ($stockProduct->product->retailUnit->name ?? 'Retail Unit')
                 ]);
 
                 // Use actual units for stock outcome

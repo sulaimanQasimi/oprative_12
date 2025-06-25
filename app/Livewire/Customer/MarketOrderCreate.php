@@ -576,7 +576,12 @@ class MarketOrderCreate extends Component
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['price'],
                     'subtotal' => $item['total'],
-                    'discount_amount' => 0
+                    'discount_amount' => 0,
+                    'unit_type' => isset($item['is_wholesale']) && $item['is_wholesale'] ? 'wholesale' : 'retail',
+                    'is_wholesale' => isset($item['is_wholesale']) ? $item['is_wholesale'] : false,
+                    'unit_id' => isset($item['unit_id']) ? $item['unit_id'] : null,
+                    'unit_amount' => isset($item['unit_amount']) ? $item['unit_amount'] : 1,
+                    'unit_name' => isset($item['unit_name']) ? $item['unit_name'] : 'Unit'
                 ]);
 
                 CustomerStockOutcome::create([

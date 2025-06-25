@@ -13,7 +13,12 @@ class MarketOrderItem extends Model
         'unit_price',
         'subtotal',
         'discount_amount',
-        'notes'
+        'notes',
+        'unit_type',
+        'is_wholesale',
+        'unit_id',
+        'unit_amount',
+        'unit_name'
     ];
 
     public function order()
@@ -24,5 +29,10 @@ class MarketOrderItem extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
     }
 }
