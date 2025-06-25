@@ -448,7 +448,11 @@ class CustomerOrderController extends Controller
             $customer = $user->customer;
 
             $order = MarketOrder::where('customer_id', $customer->id)
-                ->with(['items.product'])
+                ->with(['items' => function($query) {
+                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'unit_type', 'is_wholesale', 'discount_amount', 'notes', 'unit_id', 'unit_amount', 'unit_name', 'created_at', 'updated_at');
+                }, 'items.product' => function($query) {
+                    $query->select('id', 'name', 'barcode');
+                }])
                 ->findOrFail($id);
 
             // Format order number safely
