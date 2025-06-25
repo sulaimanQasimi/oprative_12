@@ -7,12 +7,7 @@ import {
     Search,
     Plus,
     Truck,
-    ChevronRight,
-    Edit,
-    Trash2,
     CheckCircle,
-    XCircle,
-    Eye,
     AlertCircle,
     Filter,
     ArrowUpDown,
@@ -29,6 +24,10 @@ import {
     Zap,
     RefreshCw,
     Settings,
+    XCircle,
+    Eye,
+    Edit,
+    Trash2,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -200,11 +199,11 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
     }, []);
 
     const StatCard = ({ icon: Icon, title, value, subtitle, color = "indigo" }) => (
-        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 hover:shadow-xl transition-all duration-300">
+        <Card className="stat-card relative overflow-hidden hover:shadow-xl transition-all duration-300">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                     <div className="space-y-2">
-                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
                             {title}
                         </p>
                         <p className={`text-3xl font-bold text-${color}-600 dark:text-${color}-400`}>
@@ -249,11 +248,14 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                             linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
                     }
                     .glass-effect {
-                        backdrop-filter: blur(20px);
-                        background: rgba(255, 255, 255, 0.8);
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
                     }
                     .dark .glass-effect {
-                        background: rgba(15, 23, 42, 0.8);
+                        background: rgba(15, 23, 42, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
                     }
                     .table-row {
                         transition: all 0.3s ease;
@@ -267,12 +269,53 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                     .dark .table-row:hover {
                         background: linear-gradient(to right, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
                     }
+                    .stat-card {
+                        background: rgba(255, 255, 255, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+                    }
+                    .dark .stat-card {
+                        background: rgba(15, 23, 42, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                    }
+                    .content-card {
+                        background: rgba(255, 255, 255, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+                    }
+                    .dark .content-card {
+                        background: rgba(15, 23, 42, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                    }
+                    .search-input {
+                        background: rgba(255, 255, 255, 1);
+                        border: 1px solid rgba(226, 232, 240, 1);
+                        transition: all 0.2s ease-in-out;
+                    }
+                    .dark .search-input {
+                        background: rgba(30, 41, 59, 1);
+                        border: 1px solid rgba(51, 65, 85, 1);
+                    }
+                    .search-input:focus {
+                        border-color: #6366f1;
+                        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+                    }
+                    .dark .search-input:focus {
+                        border-color: #818cf8;
+                        box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+                    }
                 `}</style>
             </Head>
 
             <PageLoader isVisible={loading} />
 
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 bg-grid-pattern overflow-hidden">
+            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 bg-grid-pattern overflow-hidden">
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.suppliers" />
 
@@ -281,7 +324,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                     {/* Enhanced Header */}
                     <header
                         ref={headerRef}
-                        className="glass-effect border-b border-slate-200/50 dark:border-slate-800/50 py-6 px-8 sticky top-0 z-40"
+                        className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
@@ -293,17 +336,17 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                 </div>
                                 <div>
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                                        <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
                                             {t("Supply Chain Management")}
                                         </span>
-                                        <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800">
+                                        <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700">
                                             Live
                                         </Badge>
                                     </div>
-                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-indigo-600 to-slate-900 dark:from-white dark:via-indigo-300 dark:to-white bg-clip-text text-transparent">
                                         {t("Supplier Management")}
                                     </h1>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                    <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
                                         {t("Manage your supplier network and relationships")}
                                     </p>
                                 </div>
@@ -365,7 +408,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                             </div>
 
                             {/* Enhanced Filters and Search */}
-                            <Card className="border-0 shadow-lg">
+                            <Card className="content-card">
                                 <CardContent className="p-6">
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                                         {/* Search */}
@@ -375,13 +418,13 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                                 <input
                                                     type="text"
                                                     placeholder={t("Search suppliers, contacts, emails...")}
-                                                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border-0 focus:ring-2 focus:ring-indigo-500/30 transition-all duration-200"
+                                                    className="search-input w-full pl-10 pr-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500/30 transition-all duration-200"
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
                                                 />
                                                 {searchTerm && (
                                                     <button
-                                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                                                         onClick={() => setSearchTerm("")}
                                                     >
                                                         <XCircle className="h-4 w-4" />
@@ -413,7 +456,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                     </div>
 
                                     {/* Results Summary */}
-                                    <div className="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+                                    <div className="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
                                         <div>
                                             {t("Showing")} <span className="font-medium">{sortedSuppliers.length}</span> {t("of")} <span className="font-medium">{suppliers?.length || 0}</span> {t("suppliers")}
                                         </div>
@@ -430,7 +473,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                             </Card>
 
                             {/* Enhanced Suppliers Table */}
-                            <Card ref={tableRef} className="border-0 shadow-xl overflow-hidden">
+                            <Card ref={tableRef} className="content-card overflow-hidden">
                                 <div className="overflow-x-auto">
                                     <table className="w-full">
                                         <thead>
@@ -440,11 +483,11 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                                         type="checkbox"
                                                         checked={selectedSuppliers.length === sortedSuppliers.length && sortedSuppliers.length > 0}
                                                         onChange={handleSelectAll}
-                                                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 scale-110"
+                                                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:focus:ring-indigo-400 scale-110"
                                                     />
                                                 </th>
                                                 <th
-                                                    className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
+                                                    className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
                                                     onClick={() => handleSort("name")}
                                                 >
                                                     <div className="flex items-center gap-2">
@@ -454,7 +497,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                                     </div>
                                                 </th>
                                                 <th
-                                                    className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
+                                                    className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
                                                     onClick={() => handleSort("contact_name")}
                                                 >
                                                     <div className="flex items-center gap-2">
@@ -511,7 +554,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                                                 type="checkbox"
                                                                 checked={selectedSuppliers.includes(supplier.id)}
                                                                 onChange={() => handleSelectSupplier(supplier.id)}
-                                                                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 scale-110"
+                                                                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:focus:ring-indigo-400 scale-110"
                                                             />
                                                         </td>
                                                         <td className="px-6 py-5">
@@ -574,7 +617,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                                                         <Button
                                                                             variant="outline"
                                                                             size="sm"
-                                                                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 dark:hover:bg-blue-900/30 shadow-sm"
+                                                                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 dark:hover:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700 shadow-sm"
                                                                         >
                                                                             <Eye className="h-4 w-4" />
                                                                         </Button>
@@ -585,7 +628,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                                                         <Button
                                                                             variant="outline"
                                                                             size="sm"
-                                                                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200 dark:hover:bg-indigo-900/30 shadow-sm"
+                                                                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200 dark:hover:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-700 shadow-sm"
                                                                         >
                                                                             <Edit className="h-4 w-4" />
                                                                         </Button>
@@ -596,7 +639,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => handleDelete(supplier.id)}
-                                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 shadow-sm"
+                                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 dark:text-red-400 dark:border-red-700 shadow-sm"
                                                                     >
                                                                         <Trash2 className="h-4 w-4" />
                                                                     </Button>
@@ -615,7 +658,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                         <div className="relative inline-block">
                                             <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full blur opacity-25"></div>
                                             <div className="relative bg-white dark:bg-slate-900 p-6 rounded-full">
-                                                <Truck className="h-16 w-16 text-slate-400 mx-auto" />
+                                                <Truck className="h-16 w-16 text-slate-400 dark:text-slate-500 mx-auto" />
                                             </div>
                                         </div>
                                         <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 mt-6">

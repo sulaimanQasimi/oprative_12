@@ -2682,5 +2682,6 @@
   "Manage the permissions this user has within this warehouse":"مدیریت صلاحیت های این کاربر در این انبار",
   "Only enter a new password if you want to change it":"تنها پس از تغییر رمز عبور، آن را وارد کنید",
   "Update the user's basic information and account details":"به‌روزرسانی اطلاعات پایه و جزئیات حساب کاربر",
-  "confirm sales":"تایید انتقال به فروشگاه"
+  "confirm sales":"تایید انتقال به فروشگاه",
+  "Contact":"شخص "
 }
