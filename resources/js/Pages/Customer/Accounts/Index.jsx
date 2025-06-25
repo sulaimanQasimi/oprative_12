@@ -574,7 +574,7 @@ export default function AccountsIndex({ accounts, search_id_number, search_accou
                                                             <td className="px-6 py-6 whitespace-nowrap">
                                                                 <div className="text-sm font-mono bg-indigo-50/80 text-indigo-800 py-2 px-4 rounded-md border border-indigo-100 shadow-sm group-hover:shadow-md group-hover:bg-indigo-100 inline-flex items-center transition-all duration-300">
                                                                     <DollarSign className="h-4 w-4 mr-2 text-indigo-500" />
-                                                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(account.balance || 0)}
+                                                                    {new Intl.NumberFormat('fa-AF', { style: 'currency', currency: 'AFN' }).format(account.balance || 0)}
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">

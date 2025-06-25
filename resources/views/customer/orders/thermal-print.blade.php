@@ -11,8 +11,8 @@
         }
         body {
             font-family: 'Courier New', monospace;
-            font-size: 12px;
-            line-height: 1.2;
+            font-size: 10px;
+            line-height: 1.1;
             width: 80mm; /* Standard thermal paper width */
             margin: 0 auto;
             padding: 5px;
@@ -26,7 +26,7 @@
             padding-bottom: 5px;
         }
         .store-name {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
         }
         .info {
@@ -41,9 +41,11 @@
             text-align: right;
             border-bottom: 1px solid #000;
             font-weight: bold;
+            font-size: 9px;
         }
         .items td, .items th {
-            padding: 3px 0;
+            padding: 2px 0;
+            font-size: 9px;
         }
         .price {
             text-align: left;
@@ -60,11 +62,24 @@
             text-align: center;
             border-top: 1px dashed #000;
             padding-top: 5px;
-            font-size: 10px;
+            font-size: 8px;
         }
         .divider {
             border-bottom: 1px dashed #000;
             margin: 5px 0;
+        }
+        .unit-type {
+            font-size: 8px;
+            color: #666;
+        }
+        .notes {
+            font-size: 8px;
+            color: #666;
+            font-style: italic;
+        }
+        .discount {
+            font-size: 8px;
+            color: #28a745;
         }
         @media print {
             body {
@@ -86,7 +101,7 @@
         <div><strong>{{ __('Order') }}:</strong> {{ $orderNumber }}</div>
         <div><strong>{{ __('Date') }}:</strong> {{ $order->created_at->format('Y-m-d H:i') }}</div>
         <div><strong>{{ __('Status') }}:</strong> {{ ucfirst($order->order_status) }}</div>
-        <div><strong>{{ __('Payment Status') }}:</strong> {{ $order->is_paid ? __('Paid') : __('Pending') }}</div>
+        <div><strong>{{ __('Payment Status') }}:</strong> {{ $order->payment_status === 'paid' ? __('Paid') : __('Pending') }}</div>
     </div>
     
     <div class="divider"></div>
@@ -95,7 +110,8 @@
         <thead>
             <tr>
                 <th>{{ __('Product') }}</th>
-                <th>{{ __('Quantity') }}</th>
+                <th>{{ __('Type') }}</th>
+                <th>{{ __('Qty') }}</th>
                 <th class="price">{{ __('Price') }}</th>
                 <th class="price">{{ __('Total') }}</th>
             </tr>
@@ -103,10 +119,34 @@
         <tbody>
             @foreach($order->items as $item)
                 <tr>
-                    <td>{{ $item->product->name ?? __('Unknown Product') }}</td>
-                    <td>{{ $item->quantity }}</td>
-                    <td class="price">{{ number_format($item->unit_price, 2) }}</td>
-                    <td class="price">{{ number_format($item->unit_price * $item->quantity, 2) }}</td>
+                    <td>
+                        {{ $item->product->name ?? __('Unknown Product') }}
+                        @if($item->notes)
+                            <div class="notes">{{ $item->notes }}</div>
+                        @endif
+                    </td>
+                    <td>
+                        <div>{{ $item->unit_type === 'wholesale' ? __('Wholesale') : __('Retail') }}</div>
+                        <div class="unit-type">{{ $item->unit_name ?? __('Unit') }}</div>
+                    </td>
+                    <td>
+                        @if($item->unit_type === 'wholesale')
+                            {{ number_format($item->quantity / ($item->unit_amount ?? 1), 2) }}
+                            <div class="unit-type">({{ $item->quantity }} {{ __('pieces') }})</div>
+                        @else
+                            {{ $item->quantity }}
+                        @endif
+                    </td>
+                    <td class="price">
+                        {{ number_format($item->unit_price, 2) }}
+                        <div class="unit-type">per {{ $item->unit_type === 'wholesale' ? ($item->unit_name ?? __('unit')) : __('piece') }}</div>
+                    </td>
+                    <td class="price">
+                        {{ number_format($item->subtotal, 2) }}
+                        @if($item->discount_amount > 0)
+                            <div class="discount">-{{ number_format($item->discount_amount, 2) }}</div>
+                        @endif
+                    </td>
                 </tr>
             @endforeach
         </tbody>

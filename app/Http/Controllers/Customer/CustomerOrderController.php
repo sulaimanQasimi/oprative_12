@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\DB;
 
 class CustomerOrderController extends Controller
 {
@@ -68,7 +69,7 @@ class CustomerOrderController extends Controller
             // Build the query with security measures
             $query = MarketOrder::where('customer_id', $customer->id)
                 ->with(['items' => function($query) {
-                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
+                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'unit_type', 'is_wholesale', 'discount_amount', 'notes', 'unit_id', 'unit_amount', 'unit_name', 'created_at', 'updated_at');
                 }, 'items.product' => function($query) {
                     $query->select('id', 'name', 'barcode');
                 }]);
@@ -204,11 +205,21 @@ class CustomerOrderController extends Controller
             // Find order with security check for customer ownership
             $order = MarketOrder::where('customer_id', $customer->id)
                 ->with(['items' => function($query) {
-                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
+                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'unit_type', 'is_wholesale', 'discount_amount', 'notes', 'unit_id', 'unit_amount', 'unit_name', 'created_at', 'updated_at');
                 }, 'items.product' => function($query) {
-                    $query->select('id', 'name', 'barcode', 'stock');
+                    $query->select('id', 'name', 'barcode');
                 }])
                 ->findOrFail($id);
+
+            // Get stock information from customer_stock_product_movements
+            $order->items->each(function($item) use ($customer) {
+                $stockInfo = DB::table('customer_stock_product_movements')
+                    ->where('customer_id', $customer->id)
+                    ->where('product_id', $item->product_id)
+                    ->first();
+                
+                $item->product->current_stock = $stockInfo ? $stockInfo->net_quantity : 0;
+            });
 
             return response()->json($order);
         } catch (ModelNotFoundException $e) {
@@ -294,20 +305,38 @@ class CustomerOrderController extends Controller
 
             $order = MarketOrder::where('customer_id', $customer->id)
                 ->with(['items' => function($query) {
-                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
+                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'unit_type', 'is_wholesale', 'discount_amount', 'notes', 'unit_id', 'unit_amount', 'unit_name', 'created_at', 'updated_at');
                 }, 'items.product' => function($query) {
-                    $query->select('id', 'name', 'stock');
+                    $query->select('id', 'name');
                 }])
                 ->findOrFail($id);
 
-            $items = $order->items->map(function($item) {
+            $items = $order->items->map(function($item) use ($customer) {
+                // Get stock information from customer_stock_product_movements
+                $stockInfo = DB::table('customer_stock_product_movements')
+                    ->where('customer_id', $customer->id)
+                    ->where('product_id', $item->product_id)
+                    ->first();
+
                 return [
                     'id' => $item->id,
+                    'market_order_id' => $item->market_order_id,
+                    'product_id' => $item->product_id,
                     'quantity' => (float)$item->quantity,
-                    'price' => (float)$item->unit_price,
+                    'unit_price' => (float)$item->unit_price,
+                    'subtotal' => (float)$item->subtotal,
+                    'unit_type' => $item->unit_type,
+                    'is_wholesale' => (bool)$item->is_wholesale,
+                    'discount_amount' => (float)($item->discount_amount ?? 0),
+                    'notes' => $item->notes,
+                    'unit_id' => $item->unit_id,
+                    'unit_amount' => (float)($item->unit_amount ?? 1),
+                    'unit_name' => $item->unit_name,
+                    'created_at' => $item->created_at,
+                    'updated_at' => $item->updated_at,
                     'product' => [
                         'name' => htmlspecialchars($item->product->name),
-                        'stock' => (int)$item->product->stock
+                        'current_stock' => $stockInfo ? (int)$stockInfo->net_quantity : 0
                     ]
                 ];
             });
@@ -352,15 +381,25 @@ class CustomerOrderController extends Controller
 
             $order = MarketOrder::where('customer_id', $customer->id)
                 ->with(['items' => function($query) {
-                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price');
+                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'unit_type', 'is_wholesale', 'discount_amount', 'notes', 'unit_id', 'unit_amount', 'unit_name', 'created_at', 'updated_at');
                 }, 'items.product' => function($query) {
-                    $query->select('id', 'name', 'barcode', 'stock');
+                    $query->select('id', 'name', 'barcode');
                 }])
                 ->findOrFail($id);
 
+            // Get stock information from customer_stock_product_movements
+            $order->items->each(function($item) use ($customer) {
+                $stockInfo = DB::table('customer_stock_product_movements')
+                    ->where('customer_id', $customer->id)
+                    ->where('product_id', $item->product_id)
+                    ->first();
+                
+                $item->product->current_stock = $stockInfo ? $stockInfo->net_quantity : 0;
+            });
+
             // Calculate values with proper type casting
             $totalAmount = (float)$order->total_amount;
-            $tax = (float)($order->tax ?? 0);
+            $tax = (float)($order->tax_amount ?? 0);
             $subtotal = $totalAmount - $tax;
 
             return response()->json([
@@ -368,7 +407,7 @@ class CustomerOrderController extends Controller
                 'subtotal' => number_format($subtotal, 2),
                 'tax' => number_format($tax, 2),
                 'total' => number_format($totalAmount, 2),
-                'is_paid' => (bool)$order->is_paid,
+                'is_paid' => (bool)($order->payment_status === 'paid'),
                 'order_number' => $order->order_number ?? '#' . str_pad($order->id, 6, '0', STR_PAD_LEFT)
             ]);
         } catch (ModelNotFoundException $e) {
@@ -409,7 +448,11 @@ class CustomerOrderController extends Controller
             $customer = $user->customer;
 
             $order = MarketOrder::where('customer_id', $customer->id)
-                ->with(['items.product'])
+                ->with(['items' => function($query) {
+                    $query->select('id', 'market_order_id', 'product_id', 'quantity', 'unit_price', 'subtotal', 'unit_type', 'is_wholesale', 'discount_amount', 'notes', 'unit_id', 'unit_amount', 'unit_name', 'created_at', 'updated_at');
+                }, 'items.product' => function($query) {
+                    $query->select('id', 'name', 'barcode');
+                }])
                 ->findOrFail($id);
 
             // Format order number safely
@@ -417,7 +460,7 @@ class CustomerOrderController extends Controller
 
             // Calculate values with proper type casting
             $totalAmount = (float)$order->total_amount;
-            $tax = (float)($order->tax ?? 0);
+            $tax = (float)($order->tax_amount ?? 0);
             $subtotal = $totalAmount - $tax;
 
             return view('customer.orders.thermal-print', [

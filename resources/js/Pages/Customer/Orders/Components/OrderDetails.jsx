@@ -81,7 +81,7 @@ export default function OrderDetails({ order }) {
                                         </svg>
                                         {order.order_status ? order.order_status.charAt(0).toUpperCase() + order.order_status.slice(1) : 'Unknown'}
                                     </span>
-                                    {order.is_paid && (
+                                    {order.payment_status === 'paid' && (
                                         <span className="inline-flex items-center px-3 py-1.5 rounded-lg text-sm font-medium bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm">
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 rtl:ml-1.5 rtl:mr-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -126,7 +126,15 @@ export default function OrderDetails({ order }) {
                                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
                                                 </svg>
-                                                Quantity
+                                                Unit Type
+                                            </div>
+                                        </th>
+                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                            <div className="flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+                                                </svg>
+                                                Quantity (Units)
                                             </div>
                                         </th>
                                         <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
@@ -143,6 +151,22 @@ export default function OrderDetails({ order }) {
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
                                                 </svg>
                                                 Total
+                                            </div>
+                                        </th>
+                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                            <div className="flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                                                </svg>
+                                                Stock
+                                            </div>
+                                        </th>
+                                        <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">
+                                            <div className="flex items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                                                </svg>
+                                                Notes
                                             </div>
                                         </th>
                                     </tr>
@@ -163,22 +187,80 @@ export default function OrderDetails({ order }) {
                                                     </span>
                                                     <div>
                                                         <div className="font-medium text-gray-900">{item.product ? item.product.name : 'Unknown Product'}</div>
-                                                        {item.product && item.product.stock !== undefined && (
-                                                            <div className="text-gray-500 text-xs">Stock: {item.product.stock}</div>
+                                                        {item.product && item.product.current_stock !== undefined && (
+                                                            <div className="text-gray-500 text-xs">Stock: {item.product.current_stock > 10 ? 'In Stock' : item.product.current_stock > 0 ? 'Low Stock' : 'Out of Stock'}</div>
                                                         )}
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm">
-                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                                    {item.quantity}
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                    item.unit_type === 'wholesale' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'
+                                                }`}>
+                                                    {item.unit_type === 'wholesale' ? 'Wholesale' : 'Retail'}
                                                 </span>
                                             </td>
+                                            <td className="whitespace-nowrap px-3 py-4 text-sm">
+                                                <div className="flex flex-col">
+                                                    <span className="text-gray-900">
+                                                        {item.unit_type === 'wholesale' 
+                                                            ? `${(item.quantity / (item.unit_amount || 1)).toFixed(2)} ${item.unit_name || 'units'}`
+                                                            : `${item.quantity} ${item.unit_name || 'pieces'}`
+                                                        }
+                                                    </span>
+                                                    {item.unit_type === 'wholesale' && (
+                                                        <span className="text-gray-500 text-xs">
+                                                            ({item.quantity} individual pieces)
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                <span className="text-gray-900">${Number(item.unit_price).toFixed(2)}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-gray-900">؋{Number(item.unit_price).toFixed(2)}</span>
+                                                    <span className="text-gray-500 text-xs">
+                                                        per {item.unit_type === 'wholesale' ? item.unit_name : 'piece'}
+                                                    </span>
+                                                </div>
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm font-medium">
-                                                <span className="text-indigo-600">${(Number(item.unit_price) * Number(item.quantity)).toFixed(2)}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-indigo-600">؋{Number(item.subtotal).toFixed(2)}</span>
+                                                    {item.discount_amount > 0 && (
+                                                        <span className="text-green-600 text-xs">
+                                                            -؋{Number(item.discount_amount).toFixed(2)} discount
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3 text-sm">
+                                                <div className="flex items-center">
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                                        item.product.current_stock > 10 
+                                                            ? 'bg-green-100 text-green-800' 
+                                                            : item.product.current_stock > 0 
+                                                                ? 'bg-yellow-100 text-yellow-800' 
+                                                                : 'bg-red-100 text-red-800'
+                                                    }`}>
+                                                        {item.product.current_stock > 10 
+                                                            ? 'In Stock' 
+                                                            : item.product.current_stock > 0 
+                                                                ? 'Low Stock' 
+                                                                : 'Out of Stock'
+                                                        }
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-4 py-3 text-sm">
+                                                <div className="text-gray-600">
+                                                    {item.notes ? (
+                                                        <span className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-gray-100 text-gray-700">
+                                                            {item.notes}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-gray-400 text-xs">No notes</span>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}
@@ -187,19 +269,19 @@ export default function OrderDetails({ order }) {
                                     <tr>
                                         <th scope="row" colSpan="3" className="pl-4 pr-3 pt-4 text-right text-sm font-semibold text-gray-900">Subtotal</th>
                                         <td className="pl-3 pr-4 pt-4 text-right text-sm font-medium text-gray-900">
-                                            ${(Number(order.total_amount) - (Number(order.tax) || 0)).toFixed(2)}
+                                            ؋{(Number(order.total_amount) - (Number(order.tax_amount) || 0)).toFixed(2)}
                                         </td>
                                     </tr>
                                     <tr>
                                         <th scope="row" colSpan="3" className="pl-4 pr-3 py-2 text-right text-sm font-semibold text-gray-900">Tax</th>
                                         <td className="pl-3 pr-4 py-2 text-right text-sm text-gray-900">
-                                            ${(Number(order.tax) || 0).toFixed(2)}
+                                            ؋{(Number(order.tax_amount) || 0).toFixed(2)}
                                         </td>
                                     </tr>
                                     <tr className="border-t border-gray-200">
                                         <th scope="row" colSpan="3" className="pl-4 pr-3 pt-4 pb-4 text-right text-base font-bold text-gray-900">Total</th>
                                         <td className="pl-3 pr-4 pt-4 pb-4 text-right text-base font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
-                                            ${Number(order.total_amount).toFixed(2)}
+                                            ؋{Number(order.total_amount).toFixed(2)}
                                         </td>
                                     </tr>
                                 </tfoot>

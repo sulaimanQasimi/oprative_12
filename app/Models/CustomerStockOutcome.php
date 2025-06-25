@@ -18,6 +18,7 @@ class CustomerStockOutcome extends Model
         'quantity',
         'reason',
         'total',
+        'price',
         'status'
     ];
 

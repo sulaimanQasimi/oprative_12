@@ -705,13 +705,12 @@ export default function Index({ auth, stats }) {
                                             <span>{t('Refresh')}</span>
                                         </Button>
                                         <Tabs
-                                            defaultValue="grid"
+                                            value={view}
                                             className="w-auto"
                                         >
                                             <TabsList className="p-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
                                                 <TabsTrigger
                                                     value="grid"
-                                                    active={view === "grid"}
                                                     onClick={() =>
                                                         handleViewChange("grid")
                                                     }
@@ -761,7 +760,6 @@ export default function Index({ auth, stats }) {
                                                 </TabsTrigger>
                                                 <TabsTrigger
                                                     value="list"
-                                                    active={view === "list"}
                                                     onClick={() =>
                                                         handleViewChange("list")
                                                     }

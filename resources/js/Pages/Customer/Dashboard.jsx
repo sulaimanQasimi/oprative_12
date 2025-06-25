@@ -119,7 +119,7 @@ export default function CustomerDashboard({ auth, stats = {} }) {
     const formatCurrency = (value) => {
         return new Intl.NumberFormat("en-US", {
             style: "currency",
-            currency: "USD",
+                                    currency: "AFN",
             minimumFractionDigits: 2,
         }).format(value);
     };
