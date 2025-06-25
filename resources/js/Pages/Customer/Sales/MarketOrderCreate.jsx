@@ -83,10 +83,12 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
     const [notification, setNotification] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [accountSearchLoading, setAccountSearchLoading] = useState(false);
+    const [showKeyboardHelp, setShowKeyboardHelp] = useState(false);
 
     // Refs
     const searchInputRef = useRef(null);
     const accountSearchInputRef = useRef(null);
+    const amountPaidRef = useRef(null);
 
     // Add CSS keyframes for animations
     const animationStyles = `
@@ -140,10 +142,140 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
         }
     `;
 
+    // Keyboard shortcuts for quick payment
+    const handleKeyboardShortcuts = (e) => {
+        // Only handle shortcuts when not typing in input fields
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            return;
+        }
+
+        // Ctrl/Cmd + P: Set amount paid to total (exact payment)
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+            e.preventDefault();
+            setExactPayment();
+        }
+
+        // Ctrl/Cmd + T: Focus on amount paid input
+        if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+            e.preventDefault();
+            focusAmountPaid();
+        }
+
+        // F1: Set common amount shortcuts
+        if (e.key === 'F1') {
+            e.preventDefault();
+            setCommonAmounts();
+        }
+
+        // F2: Clear amount paid
+        if (e.key === 'F2') {
+            e.preventDefault();
+            clearAmountPaid();
+        }
+
+        // F3: Add 5 to amount paid
+        if (e.key === 'F3') {
+            e.preventDefault();
+            addToAmountPaid(5);
+        }
+
+        // F4: Add 10 to amount paid
+        if (e.key === 'F4') {
+            e.preventDefault();
+            addToAmountPaid(10);
+        }
+
+        // F5: Add 20 to amount paid
+        if (e.key === 'F5') {
+            e.preventDefault();
+            addToAmountPaid(20);
+        }
+
+        // F6: Add 50 to amount paid
+        if (e.key === 'F6') {
+            e.preventDefault();
+            addToAmountPaid(50);
+        }
+
+        // F7: Add 100 to amount paid
+        if (e.key === 'F7') {
+            e.preventDefault();
+            addToAmountPaid(100);
+        }
+
+        // Enter: Complete order (when amount is sufficient)
+        if (e.key === 'Enter' && orderItems.length > 0 && (amountPaid >= total || selectedAccount)) {
+            e.preventDefault();
+            completeOrder();
+        }
+
+        // F12: Show/hide keyboard shortcuts help
+        if (e.key === 'F12') {
+            e.preventDefault();
+            setShowKeyboardHelp(!showKeyboardHelp);
+        }
+    };
+
+    // Set exact payment (amount paid = total)
+    const setExactPayment = () => {
+        if (total > 0) {
+            setAmountPaid(total);
+            updateChangeDue();
+            showSuccess(t('Amount set to exact total: ') + formatMoney(total));
+        }
+    };
+
+    // Focus on amount paid input
+    const focusAmountPaid = () => {
+        if (amountPaidRef.current) {
+            amountPaidRef.current.focus();
+            amountPaidRef.current.select();
+        }
+    };
+
+    // Set common amounts quickly
+    const setCommonAmounts = () => {
+        // Round up to nearest 5, 10, 20, 50, or 100
+        const roundedAmounts = [
+            Math.ceil(total / 5) * 5,
+            Math.ceil(total / 10) * 10,
+            Math.ceil(total / 20) * 20,
+            Math.ceil(total / 50) * 50,
+            Math.ceil(total / 100) * 100
+        ].filter(amount => amount > total);
+
+        if (roundedAmounts.length > 0) {
+            setAmountPaid(roundedAmounts[0]);
+            updateChangeDue();
+            showSuccess(t('Amount set to: ') + formatMoney(roundedAmounts[0]));
+        }
+    };
+
+    // Clear amount paid
+    const clearAmountPaid = () => {
+        setAmountPaid(0);
+        updateChangeDue();
+        showSuccess(t('Amount cleared'));
+    };
+
+    // Add specific amount to current amount paid
+    const addToAmountPaid = (amount) => {
+        const newAmount = amountPaid + amount;
+        setAmountPaid(newAmount);
+        updateChangeDue();
+        showSuccess(t('Added ') + formatMoney(amount) + t(' - Total: ') + formatMoney(newAmount));
+    };
+
     // On component mount
     useEffect(() => {
-        // Initialize any required data
-    }, []);
+        // Add keyboard event listeners
+        document.addEventListener('keydown', handleKeyboardShortcuts);
+
+        // Cleanup
+        return () => {
+            document.removeEventListener('keydown', handleKeyboardShortcuts);
+        };
+    }, [total, amountPaid, orderItems, selectedAccount]);
 
     // Calculate totals whenever order items change
     useEffect(() => {
@@ -1188,7 +1320,17 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                     </div>
 
                                                     <div className="mb-4">
-                                                        <label htmlFor="amountPaid" className="block text-sm font-medium text-gray-700 mb-1">{t('Amount Received')}</label>
+                                                        <div className="flex justify-between items-center mb-1">
+                                                            <label htmlFor="amountPaid" className="block text-sm font-medium text-gray-700">{t('Amount Received')}</label>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setShowKeyboardHelp(true)}
+                                                                className="text-xs text-gray-500 hover:text-gray-700 underline"
+                                                                title="F12"
+                                                            >
+                                                                {t('Shortcuts')}
+                                                            </button>
+                                                        </div>
                                                         <div className="relative rounded-md shadow-sm">
                                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                                                 <span className="text-gray-500 sm:text-sm">{defaultCurrency.symbol}</span>
@@ -1197,6 +1339,7 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                 type="number"
                                                                 name="amount_paid"
                                                                 id="amountPaid"
+                                                                ref={amountPaidRef}
                                                                 value={amountPaid}
                                                                 onChange={(e) => {
                                                                     setAmountPaid(parseFloat(e.target.value) || 0);
@@ -1211,6 +1354,52 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                             <div className="mt-2 flex justify-between text-gray-600">
                                                                 <span>{t('Change')}</span>
                                                                 <span className="font-medium">{formatMoney(changeDue)}</span>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Quick Payment Buttons */}
+                                                        {total > 0 && (
+                                                            <div className="mt-3">
+                                                                <div className="text-xs font-medium text-gray-700 mb-2">{t('Quick Payment')}</div>
+                                                                <div className="grid grid-cols-3 gap-2">
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={setExactPayment}
+                                                                        className="px-2 py-1 text-xs bg-green-100 text-green-700 rounded hover:bg-green-200 transition-colors"
+                                                                        title="Ctrl+P"
+                                                                    >
+                                                                        {t('Exact')}
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={setCommonAmounts}
+                                                                        className="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors"
+                                                                        title="F1"
+                                                                    >
+                                                                        {t('Round')}
+                                                                    </button>
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={clearAmountPaid}
+                                                                        className="px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                                                                        title="F2"
+                                                                    >
+                                                                        {t('Clear')}
+                                                                    </button>
+                                                                </div>
+                                                                <div className="grid grid-cols-4 gap-1 mt-2">
+                                                                    {[5, 10, 20, 50].map((amount) => (
+                                                                        <button
+                                                                            key={amount}
+                                                                            type="button"
+                                                                            onClick={() => addToAmountPaid(amount)}
+                                                                            className="px-2 py-1 text-xs bg-orange-100 text-orange-700 rounded hover:bg-orange-200 transition-colors"
+                                                                            title={`F${amount === 5 ? '3' : amount === 10 ? '4' : amount === 20 ? '5' : '6'}`}
+                                                                        >
+                                                                            +{defaultCurrency.symbol}{amount}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
                                                             </div>
                                                         )}
 
@@ -1343,6 +1532,83 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                         <X className="h-5 w-5" />
                     )}
                     <span>{notification.message}</span>
+                </div>
+            )}
+
+            {/* Keyboard Shortcuts Help Modal */}
+            {showKeyboardHelp && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full mx-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-gray-800">{t('Keyboard Shortcuts')}</h3>
+                            <button
+                                onClick={() => setShowKeyboardHelp(false)}
+                                className="text-gray-500 hover:text-gray-700"
+                            >
+                                <X className="h-5 w-5" />
+                            </button>
+                        </div>
+                        <div className="space-y-3 text-sm">
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <h4 className="font-semibold text-gray-700 mb-2">{t('Payment Shortcuts')}</h4>
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">Ctrl+P</span>
+                                            <span className="text-gray-600">{t('Exact Payment')}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">Ctrl+T</span>
+                                            <span className="text-gray-600">{t('Focus Amount')}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">F1</span>
+                                            <span className="text-gray-600">{t('Round Up')}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">F2</span>
+                                            <span className="text-gray-600">{t('Clear Amount')}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">Enter</span>
+                                            <span className="text-gray-600">{t('Complete Order')}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-gray-700 mb-2">{t('Quick Add')}</h4>
+                                    <div className="space-y-1">
+                                        <div className="flex justify-between">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">F3</span>
+                                            <span className="text-gray-600">+{defaultCurrency.symbol}5</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">F4</span>
+                                            <span className="text-gray-600">+{defaultCurrency.symbol}10</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">F5</span>
+                                            <span className="text-gray-600">+{defaultCurrency.symbol}20</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">F6</span>
+                                            <span className="text-gray-600">+{defaultCurrency.symbol}50</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="bg-gray-100 px-2 py-1 rounded text-xs">F7</span>
+                                            <span className="text-gray-600">+{defaultCurrency.symbol}100</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="pt-3 border-t border-gray-200">
+                                <div className="flex justify-between">
+                                    <span className="bg-gray-100 px-2 py-1 rounded text-xs">F12</span>
+                                    <span className="text-gray-600">{t('Toggle This Help')}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
         </>
