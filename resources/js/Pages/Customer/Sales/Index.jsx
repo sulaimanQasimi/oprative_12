@@ -377,6 +377,137 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                         max-width: 100%;
                         overflow-x: hidden;
                     }
+
+                    /* Dark mode fixes for cards */
+                    .dark .bg-white {
+                        background-color: rgb(15 23 42) !important;
+                    }
+
+                    .dark .border-gray-100 {
+                        border-color: rgb(51 65 85) !important;
+                    }
+
+                    .dark .text-gray-900 {
+                        color: rgb(248 250 252) !important;
+                    }
+
+                    .dark .text-gray-700 {
+                        color: rgb(203 213 225) !important;
+                    }
+
+                    .dark .text-gray-500 {
+                        color: rgb(148 163 184) !important;
+                    }
+
+                    .dark .text-gray-400 {
+                        color: rgb(148 163 184) !important;
+                    }
+
+                    .dark .bg-gray-50 {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .bg-gray-100 {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .border-gray-200 {
+                        border-color: rgb(51 65 85) !important;
+                    }
+
+                    .dark .border-gray-300 {
+                        border-color: rgb(71 85 105) !important;
+                    }
+
+                    .dark .divide-gray-200 {
+                        border-color: rgb(51 65 85) !important;
+                    }
+
+                    .dark .divide-gray-100 {
+                        border-color: rgb(51 65 85) !important;
+                    }
+
+                    .dark .hover\:bg-gray-50:hover {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .hover\:border-gray-300:hover {
+                        border-color: rgb(71 85 105) !important;
+                    }
+
+                    .dark .focus\:border-gray-300:focus {
+                        border-color: rgb(71 85 105) !important;
+                    }
+
+                    .dark .focus\:ring-gray-200:focus {
+                        --tw-ring-color: rgb(51 65 85) !important;
+                    }
+
+                    .dark .shadow-md {
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+                    }
+
+                    .dark .shadow-lg {
+                        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+                    }
+
+                    /* Additional dark mode fixes */
+                    .dark .bg-white\/80 {
+                        background-color: rgba(15, 23, 42, 0.8) !important;
+                    }
+
+                    .dark .bg-white\/10 {
+                        background-color: rgba(15, 23, 42, 0.1) !important;
+                    }
+
+                    .dark .border-white\/20 {
+                        border-color: rgba(255, 255, 255, 0.2) !important;
+                    }
+
+                    .dark .border-white\/30 {
+                        border-color: rgba(255, 255, 255, 0.3) !important;
+                    }
+
+                    .dark .text-white\/80 {
+                        color: rgba(255, 255, 255, 0.8) !important;
+                    }
+
+                    .dark .text-white\/10 {
+                        color: rgba(255, 255, 255, 0.1) !important;
+                    }
+
+                    /* Ensure all form elements have proper dark mode styling */
+                    .dark input[type="text"],
+                    .dark input[type="email"],
+                    .dark input[type="password"],
+                    .dark input[type="number"],
+                    .dark input[type="tel"],
+                    .dark input[type="url"],
+                    .dark input[type="search"],
+                    .dark select,
+                    .dark textarea {
+                        background-color: rgb(30, 41, 59) !important;
+                        border-color: rgb(51, 65, 85) !important;
+                        color: rgb(248, 250, 252) !important;
+                    }
+
+                    .dark input[type="text"]:focus,
+                    .dark input[type="email"]:focus,
+                    .dark input[type="password"]:focus,
+                    .dark input[type="number"]:focus,
+                    .dark input[type="tel"]:focus,
+                    .dark input[type="url"]:focus,
+                    .dark input[type="search"]:focus,
+                    .dark select:focus,
+                    .dark textarea:focus {
+                        border-color: rgb(99, 102, 241) !important;
+                        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+                    }
+
+                    .dark input::placeholder,
+                    .dark textarea::placeholder {
+                        color: rgb(148, 163, 184) !important;
+                    }
                 `}</style>
             </Head>
 
@@ -434,11 +565,11 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                 {/* Stats Cards */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                                     {/* Total Orders */}
-                                    <div className="group relative bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-indigo-100 dark:hover:border-indigo-800 transform hover:-translate-y-1">
+                                    <div className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-indigo-100 dark:hover:border-indigo-700 transform hover:-translate-y-1">
                                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/30 dark:to-purple-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                         <div className="relative flex items-center justify-between">
                                             <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{t('Total Orders')}</p>
+                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{t('Total Orders')}</p>
                                                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{sales?.total || 0}</p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">{t('All time orders')}</p>
                                             </div>
@@ -449,11 +580,11 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                     </div>
 
                                     {/* Completed Orders */}
-                                    <div className="group relative bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-green-100 dark:hover:border-green-800 transform hover:-translate-y-1">
+                                    <div className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-green-100 dark:hover:border-green-700 transform hover:-translate-y-1">
                                         <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-900/30 dark:to-emerald-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                         <div className="relative flex items-center justify-between">
                                             <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-green-600 dark:group-hover:text-green-400">{t('Completed Orders')}</p>
+                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors duration-300 group-hover:text-green-600 dark:group-hover:text-green-400">{t('Completed Orders')}</p>
                                                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{completedSales}</p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">{t('Successfully delivered')}</p>
                                             </div>
@@ -464,11 +595,11 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                     </div>
 
                                     {/* Pending Orders */}
-                                    <div className="group relative bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-amber-100 dark:hover:border-amber-800 transform hover:-translate-y-1">
+                                    <div className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-amber-100 dark:hover:border-amber-700 transform hover:-translate-y-1">
                                         <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-yellow-50/50 dark:from-amber-900/30 dark:to-yellow-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                         <div className="relative flex items-center justify-between">
                                             <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-amber-600 dark:group-hover:text-amber-400">{t('Pending Orders')}</p>
+                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors duration-300 group-hover:text-amber-600 dark:group-hover:text-amber-400">{t('Pending Orders')}</p>
                                                 <p className="text-2xl font-bold text-gray-900 dark:text-white">{pendingSales}</p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">{t('In transit')}</p>
                                             </div>
@@ -480,7 +611,7 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                 </div>
 
                                 {/* Quick Filters */}
-                                <div className="mb-8 bg-white dark:bg-slate-900 p-6 rounded-xl shadow-md border border-gray-100 dark:border-slate-800 transition-all duration-300">
+                                <div className="mb-8 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border border-gray-100 dark:border-slate-700 transition-all duration-300">
                                     <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-4 flex items-center">
                                         <Filter className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
                                         {t('Quick Filters')}
@@ -488,33 +619,33 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
 
                                     <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-3">
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('Reference')}</label>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('Reference')}</label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Search className="h-5 w-5 text-gray-400" />
+                                                    <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                                 </div>
                                                 <input
                                                     type="text"
                                                     name="search"
                                                     value={data.search}
                                                     onChange={e => setData('search', e.target.value)}
-                                                    className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                    className="pl-10 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:ring-opacity-50"
                                                     placeholder={t('Search by reference')}
                                                 />
                                             </div>
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('Status')}</label>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('Status')}</label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <FileText className="h-5 w-5 text-gray-400" />
+                                                    <FileText className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                                 </div>
                                                 <select
                                                     name="status"
                                                     value={data.status}
                                                     onChange={e => setData('status', e.target.value)}
-                                                    className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                    className="pl-10 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:ring-opacity-50"
                                                 >
                                                     <option value="">{t('All Statuses')}</option>
                                                     <option value="completed">{t('Completed')}</option>
@@ -525,16 +656,16 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('Warehouse Confirmation')}</label>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('Warehouse Confirmation')}</label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Building2 className="h-5 w-5 text-gray-400" />
+                                                    <Building2 className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                                 </div>
                                                 <select
                                                     name="confirmedByWarehouse"
                                                     value={data.confirmedByWarehouse}
                                                     onChange={e => setData('confirmedByWarehouse', e.target.value)}
-                                                    className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                    className="pl-10 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:ring-opacity-50"
                                                 >
                                                     <option value="">{t('All')}</option>
                                                     <option value="1">{t('Yes')}</option>
@@ -544,16 +675,16 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                         </div>
 
                                         <div>
-                                            <label className="block text-sm font-medium text-gray-700 mb-1">{t('Shop Confirmation')}</label>
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('Shop Confirmation')}</label>
                                             <div className="relative">
                                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <ShoppingBag className="h-5 w-5 text-gray-400" />
+                                                    <ShoppingBag className="h-5 w-5 text-gray-400 dark:text-gray-500" />
                                                 </div>
                                                 <select
                                                     name="confirmedByShop"
                                                     value={data.confirmedByShop}
                                                     onChange={e => setData('confirmedByShop', e.target.value)}
-                                                    className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+                                                    className="pl-10 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:ring-opacity-50"
                                                 >
                                                     <option value="">{t('All')}</option>
                                                     <option value="1">{t('Yes')}</option>
@@ -593,8 +724,8 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                 </div>
 
                                 {/* Sales Table */}
-                                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden mb-8">
-                                    <div className="px-8 py-6 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-800 dark:to-slate-900">
+                                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden mb-8">
+                                    <div className="px-8 py-6 border-b border-gray-100 dark:border-slate-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-700 dark:to-slate-800">
                                         <h3 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
                                             <Truck className="h-6 w-6 mr-2 text-indigo-600 dark:text-indigo-400" />
                                             {t('Your Orders')}
@@ -604,71 +735,71 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                     <div className="overflow-x-auto">
                                         <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
                                             <thead>
-                                                <tr className="bg-gradient-to-r from-gray-50 to-gray-100">
-                                                    <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                <tr className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-700 dark:to-slate-800">
+                                                    <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                                         {t('Reference')}
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                                         {t('Date')}
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                                         {t('Total Amount')}
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                                         {t('Status')}
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider pr-8">
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider pr-8">
                                                         {t('Actions')}
                                                     </th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-white divide-y divide-gray-100">
+                                            <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-slate-700">
                                                 {sales?.data?.map((sale) => (
-                                                    <tr key={sale.id} className="hover:bg-indigo-50/30 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md">
+                                                    <tr key={sale.id} className="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/20 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md">
                                                         <td className="px-8 py-5 whitespace-nowrap">
                                                             <div className="flex items-center">
                                                                 <div className="mx-6 flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md">
                                                                     <Receipt className="h-6 w-6" />
                                                                 </div>
                                                                 <div className="ml-4">
-                                                                    <div className="text-base font-medium text-gray-900">{sale.reference}</div>
-                                                                    <div className="text-sm text-gray-500 mt-1 flex items-center">
-                                                                        <User className="h-4 w-4 mr-1 text-gray-400" />
+                                                                    <div className="text-base font-medium text-gray-900 dark:text-white">{sale.reference}</div>
+                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center">
+                                                                        <User className="h-4 w-4 mr-1 text-gray-400 dark:text-gray-500" />
                                                                         {sale.customer?.name || 'N/A'}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className="text-sm text-gray-900 bg-gray-50 py-1.5 px-3 rounded-md inline-flex items-center float-right">
-                                                                <Calendar className="h-4 w-4 mr-1.5 text-gray-500" />
+                                                            <div className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-slate-700 py-1.5 px-3 rounded-md inline-flex items-center float-right">
+                                                                <Calendar className="h-4 w-4 mr-1.5 text-gray-500 dark:text-gray-400" />
                                                                 {new Date(sale.date).toLocaleDateString()}
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className="text-sm font-mono bg-indigo-50 text-indigo-800 py-1.5 px-3 rounded-md border border-indigo-100 shadow-sm inline-flex items-center float-right">
-                                                                <DollarSign className="h-4 w-4 mr-1.5 text-indigo-500" />
+                                                            <div className="text-sm font-mono bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200 py-1.5 px-3 rounded-md border border-indigo-100 dark:border-indigo-800 shadow-sm inline-flex items-center float-right">
+                                                                <DollarSign className="h-4 w-4 mr-1.5 text-indigo-500 dark:text-indigo-400" />
                                                                 {sale.total}
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right">
                                                             <div className="flex justify-end">
                                                                 {sale.status === 'completed' ? (
-                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border border-green-200 shadow-sm">
+                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700 shadow-sm">
                                                                         <span className="flex items-center justify-center h-5 w-5 bg-green-500 rounded-full mr-1.5 shadow-inner">
                                                                             <CheckCircle className="h-3 w-3 text-white" />
                                                                         </span>
                                                                         Completed
                                                                     </span>
                                                                 ) : sale.status === 'cancelled' ? (
-                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-red-50 to-pink-50 text-red-800 border border-red-200 shadow-sm">
+                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700 shadow-sm">
                                                                         <span className="flex items-center justify-center h-5 w-5 bg-red-500 rounded-full mr-1.5 shadow-inner">
                                                                             <XCircle className="h-3 w-3 text-white" />
                                                                         </span>
                                                                         Cancelled
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border border-amber-200 shadow-sm">
+                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/30 dark:to-yellow-900/30 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-700 shadow-sm">
                                                                         <span className="flex items-center justify-center h-5 w-5 bg-amber-500 rounded-full mr-1.5 shadow-inner">
                                                                             <Clock className="h-3 w-3 text-white" />
                                                                         </span>
@@ -696,20 +827,20 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                         </table>
                                     </div>
 
-                                    <div className="px-8 py-6 border-t border-indigo-100 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+                                    <div className="px-8 py-6 border-t border-indigo-100 dark:border-indigo-800 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-700 dark:via-slate-800 dark:to-slate-900">
                                         {/* RTL Pagination */}
                                         <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-4 rtl:flex-row-reverse">
                                             {/* Records Info */}
-                                            <div className="text-sm text-gray-600 rtl:text-right">
+                                            <div className="text-sm text-gray-600 dark:text-gray-300 rtl:text-right">
                                                 <div className="flex items-center gap-2 rtl:flex-row-reverse">
-                                                    <span className="bg-indigo-100 text-indigo-600 px-2 py-1 rounded-md rtl:font-semibold">
+                                                    <span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 px-2 py-1 rounded-md rtl:font-semibold">
                                                         RTL {t('Support')}
                                                     </span>
                                                     {sales?.total > 0 ? (
                                                         <p>
-                                                            {t('Showing')} <span className="font-medium text-indigo-600">{sales.from}</span> {t('to')}{' '}
-                                                            <span className="font-medium text-indigo-600">{sales.to}</span> {t('of')}{' '}
-                                                            <span className="font-medium text-indigo-600">{sales.total}</span> {t('records')}
+                                                            {t('Showing')} <span className="font-medium text-indigo-600 dark:text-indigo-400">{sales.from}</span> {t('to')}{' '}
+                                                            <span className="font-medium text-indigo-600 dark:text-indigo-400">{sales.to}</span> {t('of')}{' '}
+                                                            <span className="font-medium text-indigo-600 dark:text-indigo-400">{sales.total}</span> {t('records')}
                                                         </p>
                                                     ) : (
                                                         <p>{t('No records found')}</p>
@@ -730,9 +861,9 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                                             href={sales.first_page_url}
                                                             className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
                                                                 sales.current_page === 1
-                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                                    : 'bg-white text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'
-                                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 rtl:border-r-0 rtl:border-l`}
+                                                                    ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                                                    : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300'
+                                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l`}
                                                             disabled={sales.current_page === 1}
                                                         >
                                                             <span className="sr-only">{t('First Page')}</span>
@@ -746,9 +877,9 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                                             href={sales.prev_page_url}
                                                             className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
                                                                 sales.prev_page_url === null
-                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                                    : 'bg-white text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'
-                                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 rtl:border-r-0 rtl:border-l`}
+                                                                    ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                                                    : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300'
+                                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l`}
                                                             disabled={sales.prev_page_url === null}
                                                         >
                                                             <span className="sr-only">{t('Previous')}</span>
@@ -762,10 +893,10 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                                             <Link
                                                                 key={index}
                                                                 href={link.url}
-                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out border-r border-indigo-100 rtl:border-r-0 rtl:border-l ${
+                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l ${
                                                                     link.active
                                                                         ? 'z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-md transform scale-105'
-                                                                        : 'bg-white text-gray-700 hover:bg-indigo-50 hover:text-indigo-600'
+                                                                        : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400'
                                                                 }`}
                                                             >
                                                                 {link.label.replace(/&laquo;|&raquo;/g, '')}
@@ -780,9 +911,9 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                                             href={sales.next_page_url}
                                                             className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
                                                                 sales.next_page_url === null
-                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                                    : 'bg-white text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'
-                                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 rtl:border-r-0 rtl:border-l`}
+                                                                    ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                                                    : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300'
+                                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l`}
                                                             disabled={sales.next_page_url === null}
                                                         >
                                                             <span className="sr-only">{t('Next')}</span>
@@ -796,8 +927,8 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                                             href={sales.last_page_url}
                                                             className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
                                                                 sales.current_page === sales.last_page
-                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                                    : 'bg-white text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700'
+                                                                    ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                                                                    : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300'
                                                             } transition-colors duration-200 ease-in-out rtl:rotate-180`}
                                                             disabled={sales.current_page === sales.last_page}
                                                         >
@@ -815,7 +946,7 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                         {sales.last_page > 1 && (
                                             <div className="mt-4 sm:hidden">
                                                 <div className="flex items-center justify-between gap-2 rtl:flex-row-reverse">
-                                                    <div className="text-sm text-gray-600">{t('Go to page')}:</div>
+                                                    <div className="text-sm text-gray-600 dark:text-gray-300">{t('Go to page')}:</div>
                                                     <select
                                                         value={sales.current_page}
                                                         onChange={(e) => {
@@ -825,7 +956,7 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                                                 page,
                                                             });
                                                         }}
-                                                        className="form-select block w-full md:w-32 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+                                                        className="form-select block w-full md:w-32 pl-3 pr-10 py-2 text-base border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 sm:text-sm rounded-md"
                                                     >
                                                         {[...Array(sales.last_page)].map((_, i) => (
                                                             <option key={i + 1} value={i + 1}>

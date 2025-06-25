@@ -192,11 +192,11 @@ export default function SalesIndex({
             whileHover={{ scale: 1.02, y: -2 }}
             transition={{ duration: 0.2 }}
         >
-            <Card className="border-0 shadow-lg bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 overflow-hidden">
+            <Card className="stat-card border-0 shadow-lg overflow-hidden">
                 <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                         <div className="space-y-2">
-                            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{title}</p>
+                            <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{title}</p>
                             <p className={`text-3xl font-bold text-${color}-600 dark:text-${color}-400`}>{value}</p>
                             {subtitle && (
                                 <p className="text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>
@@ -209,8 +209,8 @@ export default function SalesIndex({
                     {trend && (
                         <div className="mt-4 flex items-center text-sm">
                             <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-                            <span className="text-green-600 font-medium">{trend}</span>
-                            <span className="text-gray-500 ml-1">{t('vs last period')}</span>
+                            <span className="text-green-600 dark:text-green-400 font-medium">{trend}</span>
+                            <span className="text-gray-500 dark:text-gray-400 ml-1">{t('vs last period')}</span>
                         </div>
                     )}
                 </CardContent>
@@ -252,26 +252,135 @@ export default function SalesIndex({
                     }
 
                     .glass-effect {
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
                     }
 
                     .dark .glass-effect {
-                        background: rgba(0, 0, 0, 0.2);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        background: rgba(15, 23, 42, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
                     }
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
                                     linear-gradient(45deg, #3b82f6, #6366f1) border-box;
-                        border: 2px solid transparent;
+                        border: 1px solid transparent;
                     }
 
                     .dark .gradient-border {
-                        background: linear-gradient(rgb(17 24 39), rgb(17 24 39)) padding-box,
+                        background: linear-gradient(rgb(15 23 42), rgb(15 23 42)) padding-box,
                                     linear-gradient(45deg, #3b82f6, #6366f1) border-box;
+                    }
+
+                    .stat-card {
+                        background: rgba(255, 255, 255, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+                    }
+
+                    .dark .stat-card {
+                        background: rgba(15, 23, 42, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                    }
+
+                    .content-card {
+                        background: rgba(255, 255, 255, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+                    }
+
+                    .dark .content-card {
+                        background: rgba(15, 23, 42, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                    }
+
+                    /* Dark mode fixes for cards */
+                    .dark .bg-white {
+                        background-color: rgb(15 23 42) !important;
+                    }
+
+                    .dark .bg-white\/50 {
+                        background-color: rgba(15, 23, 42, 0.5) !important;
+                    }
+
+                    .dark .bg-white\/80 {
+                        background-color: rgba(15, 23, 42, 0.8) !important;
+                    }
+
+                    .dark .border-white\/20 {
+                        border-color: rgba(255, 255, 255, 0.2) !important;
+                    }
+
+                    .dark .border-white\/30 {
+                        border-color: rgba(255, 255, 255, 0.3) !important;
+                    }
+
+                    .dark .text-gray-800 {
+                        color: rgb(248 250 252) !important;
+                    }
+
+                    .dark .text-gray-700 {
+                        color: rgb(203 213 225) !important;
+                    }
+
+                    .dark .text-gray-600 {
+                        color: rgb(148 163 184) !important;
+                    }
+
+                    .dark .text-gray-500 {
+                        color: rgb(100 116 139) !important;
+                    }
+
+                    .dark .text-gray-400 {
+                        color: rgb(148 163 184) !important;
+                    }
+
+                    .dark .border-gray-200 {
+                        border-color: rgb(51 65 85) !important;
+                    }
+
+                    .dark .border-gray-700 {
+                        border-color: rgb(71 85 105) !important;
+                    }
+
+                    .dark .border-gray-800 {
+                        border-color: rgb(51 65 85) !important;
+                    }
+
+                    .dark .bg-gray-50 {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .bg-gray-100 {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .bg-gray-800 {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .bg-gray-800\/50 {
+                        background-color: rgba(30, 41, 59, 0.5) !important;
+                    }
+
+                    .dark .hover\:bg-blue-50:hover {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .hover\:bg-blue-900\/20:hover {
+                        background-color: rgba(30, 41, 59, 0.8) !important;
+                    }
+
+                    .dark .hover\:bg-blue-900\/10:hover {
+                        background-color: rgba(30, 41, 59, 0.6) !important;
                     }
                 `}</style>
             </Head>
@@ -294,7 +403,7 @@ export default function SalesIndex({
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-gray-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30 bg-white/95 dark:bg-slate-900/95"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -315,7 +424,7 @@ export default function SalesIndex({
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-300 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
                                         {t("Sales Management")}
@@ -324,7 +433,7 @@ export default function SalesIndex({
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-900 via-blue-600 to-slate-900 dark:from-white dark:via-blue-300 dark:to-white bg-clip-text text-transparent"
                                     >
                                         {t("Sales Overview")}
                                     </motion.h1>
@@ -332,7 +441,7 @@ export default function SalesIndex({
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2"
+                                        className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
                                         {t("Monitor and manage all sales transactions")}
@@ -349,7 +458,7 @@ export default function SalesIndex({
                                 <Button
                                     variant="outline"
                                     onClick={() => setShowFilters(!showFilters)}
-                                    className="gap-2 hover:scale-105 transition-all duration-200"
+                                    className="gap-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800 hover:scale-105 transition-all duration-200"
                                 >
                                     <Filter className="h-4 w-4" />
                                     {t("Filters")}
@@ -358,7 +467,7 @@ export default function SalesIndex({
                                 
                                 <Button
                                     variant="outline"
-                                    className="gap-2 hover:scale-105 transition-all duration-200"
+                                    className="gap-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800 hover:scale-105 transition-all duration-200"
                                 >
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
@@ -385,29 +494,29 @@ export default function SalesIndex({
                                     transition={{ duration: 0.3 }}
                                     className="mt-6 overflow-hidden"
                                 >
-                                    <Card className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm border-0 shadow-lg">
+                                    <Card className="content-card backdrop-blur-sm border-0 shadow-lg">
                                         <CardContent className="p-6">
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("Search")}</label>
+                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-200">{t("Search")}</label>
                                                     <div className="relative">
-                                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4" />
                                                         <Input
                                                             placeholder={t("Search sales...")}
                                                             value={searchTerm}
                                                             onChange={(e) => setSearchTerm(e.target.value)}
-                                                            className="pl-10"
+                                                            className="pl-10 bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white"
                                                         />
                                                     </div>
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("Warehouse")}</label>
+                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-200">{t("Warehouse")}</label>
                                                     <Select value={warehouseFilter} onValueChange={setWarehouseFilter}>
-                                                        <SelectTrigger>
+                                                        <SelectTrigger className="bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white">
                                                             <SelectValue placeholder={t("All warehouses")} />
                                                         </SelectTrigger>
-                                                        <SelectContent>
+                                                        <SelectContent className="z-50">
                                                             <SelectItem value="">{t("All warehouses")}</SelectItem>
                                                             {warehouses.map((warehouse) => (
                                                                 <SelectItem key={warehouse.id} value={warehouse.id.toString()}>
@@ -419,12 +528,12 @@ export default function SalesIndex({
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("Status")}</label>
+                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-200">{t("Status")}</label>
                                                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                                        <SelectTrigger>
+                                                        <SelectTrigger className="bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white">
                                                             <SelectValue placeholder={t("All statuses")} />
                                                         </SelectTrigger>
-                                                        <SelectContent>
+                                                        <SelectContent className="z-50">
                                                             <SelectItem value="">{t("All statuses")}</SelectItem>
                                                             <SelectItem value="pending">{t("Pending")}</SelectItem>
                                                             <SelectItem value="completed">{t("Completed")}</SelectItem>
@@ -434,20 +543,22 @@ export default function SalesIndex({
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("Date From")}</label>
+                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-200">{t("Date From")}</label>
                                                     <Input
                                                         type="date"
                                                         value={dateFrom}
                                                         onChange={(e) => setDateFrom(e.target.value)}
+                                                        className="bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white"
                                                     />
                                                 </div>
 
                                                 <div className="space-y-2">
-                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{t("Date To")}</label>
+                                                    <label className="text-sm font-medium text-gray-700 dark:text-gray-200">{t("Date To")}</label>
                                                     <Input
                                                         type="date"
                                                         value={dateTo}
                                                         onChange={(e) => setDateTo(e.target.value)}
+                                                        className="bg-white dark:bg-slate-700 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-white"
                                                     />
                                                 </div>
                                             </div>
@@ -456,7 +567,7 @@ export default function SalesIndex({
                                                 <Button
                                                     variant="outline"
                                                     onClick={clearFilters}
-                                                    className="gap-2"
+                                                    className="gap-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800"
                                                 >
                                                     <X className="h-4 w-4" />
                                                     {t("Clear Filters")}
@@ -527,18 +638,18 @@ export default function SalesIndex({
                                     animate={{ scale: 1, opacity: 1 }}
                                     transition={{ delay: 1.0, duration: 0.5 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl gradient-border">
-                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-gray-700/50 rounded-t-xl">
-                                            <CardTitle className="text-gray-800 dark:text-gray-200 flex items-center gap-3 text-xl">
+                                    <Card className="content-card border-0 shadow-2xl backdrop-blur-xl gradient-border">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/15 via-indigo-500/15 to-blue-500/15 dark:from-blue-500/25 dark:via-indigo-500/25 dark:to-blue-500/25 border-b border-slate-200/60 dark:border-slate-600/60 rounded-t-xl">
+                                            <CardTitle className="text-gray-800 dark:text-white flex items-center gap-3 text-xl">
                                                 <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
                                                     <ShoppingCart className="h-6 w-6 text-white" />
                                                 </div>
                                                 {t("Sales List")}
-                                                <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-700">
                                                     {sales.total} {t("total")}
                                                 </Badge>
                                             </CardTitle>
-                                            <CardDescription className="text-gray-600 dark:text-gray-400">
+                                            <CardDescription className="text-gray-600 dark:text-gray-300">
                                                 {t("Manage and monitor all sales transactions")}
                                             </CardDescription>
                                         </CardHeader>

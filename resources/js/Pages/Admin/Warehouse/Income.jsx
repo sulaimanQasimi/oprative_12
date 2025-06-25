@@ -2,21 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
-    Building2,
     ArrowLeft,
     TrendingUp,
     Search,
     Plus,
-    Edit,
-    Trash2,
-    Eye,
     Package,
     Calendar,
-    FileText,
     DollarSign,
-    Hash,
-    CheckCircle,
-    AlertCircle,
     Filter,
     Download,
     RefreshCw,
@@ -24,7 +16,6 @@ import {
     Sparkles,
     ChevronDown,
     X,
-    Info
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -32,7 +23,6 @@ import {
     CardContent,
     CardHeader,
     CardTitle,
-    CardDescription,
 } from "@/Components/ui/card";
 import {
     Table,
@@ -189,26 +179,131 @@ export default function Income({ auth, warehouse, incomes }) {
                     }
 
                     .glass-effect {
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
                     }
 
                     .dark .glass-effect {
-                        background: rgba(0, 0, 0, 0.2);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        background: rgba(15, 23, 42, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
                     }
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
                                     linear-gradient(45deg, #22c55e, #16a34a) border-box;
-                        border: 2px solid transparent;
+                        border: 1px solid transparent;
                     }
 
                     .dark .gradient-border {
-                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                        background: linear-gradient(rgb(15 23 42), rgb(15 23 42)) padding-box,
                                     linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                    }
+
+                    .stat-card {
+                        background: rgba(255, 255, 255, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+                    }
+
+                    .dark .stat-card {
+                        background: rgba(15, 23, 42, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                    }
+
+                    .content-card {
+                        background: rgba(255, 255, 255, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+                    }
+
+                    .dark .content-card {
+                        background: rgba(15, 23, 42, 0.98);
+                        backdrop-filter: blur(16px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
+                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                    }
+
+                    /* Dark mode fixes for cards */
+                    .dark .bg-white {
+                        background-color: rgb(15 23 42) !important;
+                    }
+
+                    .dark .bg-white\/50 {
+                        background-color: rgba(15, 23, 42, 0.5) !important;
+                    }
+
+                    .dark .bg-white\/80 {
+                        background-color: rgba(15, 23, 42, 0.8) !important;
+                    }
+
+                    .dark .border-white\/20 {
+                        border-color: rgba(255, 255, 255, 0.2) !important;
+                    }
+
+                    .dark .border-white\/30 {
+                        border-color: rgba(255, 255, 255, 0.3) !important;
+                    }
+
+                    .dark .text-slate-800 {
+                        color: rgb(248 250 252) !important;
+                    }
+
+                    .dark .text-slate-700 {
+                        color: rgb(203 213 225) !important;
+                    }
+
+                    .dark .text-slate-600 {
+                        color: rgb(148 163 184) !important;
+                    }
+
+                    .dark .text-slate-500 {
+                        color: rgb(100 116 139) !important;
+                    }
+
+                    .dark .text-slate-400 {
+                        color: rgb(148 163 184) !important;
+                    }
+
+                    .dark .border-slate-200 {
+                        border-color: rgb(51 65 85) !important;
+                    }
+
+                    .dark .border-slate-700 {
+                        border-color: rgb(71 85 105) !important;
+                    }
+
+                    .dark .bg-slate-50 {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .bg-slate-100 {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .bg-slate-800 {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .bg-slate-800\/80 {
+                        background-color: rgba(30, 41, 59, 0.8) !important;
+                    }
+
+                    .dark .hover\:bg-green-50:hover {
+                        background-color: rgb(30 41 59) !important;
+                    }
+
+                    .dark .hover\:bg-green-900\/20:hover {
+                        background-color: rgba(30, 41, 59, 0.8) !important;
+                    }
+
+                    .dark .hover\:bg-green-900\/10:hover {
+                        background-color: rgba(30, 41, 59, 0.6) !important;
                     }
                 `}</style>
             </Head>
@@ -319,7 +414,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="stat-card border-0 shadow-2xl backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -329,7 +424,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                         <p className="text-3xl font-bold text-green-600">
                                                             {totalImports}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Transactions")}
                                                         </p>
                                                     </div>
@@ -346,7 +441,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.0, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="stat-card border-0 shadow-2xl backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -356,7 +451,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                         <p className="text-3xl font-bold text-blue-600">
                                                             {totalQuantity.toLocaleString()}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Units imported")}
                                                         </p>
                                                     </div>
@@ -373,7 +468,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.1, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="stat-card border-0 shadow-2xl backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -383,7 +478,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                         <p className="text-3xl font-bold text-purple-600">
                                                             {formatCurrency(totalValue)}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Import value")}
                                                         </p>
                                                     </div>
@@ -400,7 +495,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.2, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="stat-card border-0 shadow-2xl backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -410,7 +505,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                         <p className="text-3xl font-bold text-orange-600">
                                                             {formatCurrency(avgImportValue)}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Per transaction")}
                                                         </p>
                                                     </div>
@@ -429,10 +524,10 @@ export default function Income({ auth, warehouse, incomes }) {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                    <Card className="content-card border-0 shadow-2xl backdrop-blur-xl">
                                         <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
                                             <div className="flex items-center justify-between">
-                                                <CardTitle className="flex items-center gap-3">
+                                                <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
                                                     <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
                                                         <Filter className="h-5 w-5 text-white" />
                                                     </div>
@@ -553,9 +648,9 @@ export default function Income({ auth, warehouse, incomes }) {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                    <Card className="content-card border-0 shadow-2xl backdrop-blur-xl">
                                         <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                            <CardTitle className="flex items-center gap-3">
+                                            <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
                                                 <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
                                                 </div>
