@@ -39,7 +39,7 @@ import { Textarea } from "@/Components/ui/textarea";
 import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { Badge } from "@/Components/ui/badge";
 
-export default function Edit({ account, customers, auth }) {
+export default function Edit({ account, customers, auth, permissions }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);

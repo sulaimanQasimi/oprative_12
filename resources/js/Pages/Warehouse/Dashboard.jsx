@@ -281,7 +281,7 @@ const PageLoader = ({ isVisible }) => {
     );
 };
 
-export default function Dashboard({ auth, stats }) {
+export default function Dashboard({ auth = {}, stats = {} }) {
     const { t } = useLaravelReactI18n();
 
     // State for loading and animations
@@ -317,8 +317,8 @@ export default function Dashboard({ auth, stats }) {
     // Simplified pie chart data from top-selling products
     const pieData =
         stats?.top_selling_products?.map((product) => ({
-            name: product.name,
-            value: product.qty_sold,
+            name: product?.name || 'Unknown Product',
+            value: product?.qty_sold || 0,
         })) || [];
 
     // Reset refs when items change
@@ -457,12 +457,14 @@ export default function Dashboard({ auth, stats }) {
                                 </span>
                                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
                                     {t("Dashboard Overview")}
-                                    <Badge
-                                        variant="outline"
-                                        className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800 rounded-full"
-                                    >
-                                        {auth.user.warehouse.name}
-                                    </Badge>
+                                    {auth?.user?.warehouse?.name && (
+                                        <Badge
+                                            variant="outline"
+                                            className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800 rounded-full"
+                                        >
+                                            {auth.user.warehouse.name}
+                                        </Badge>
+                                    )}
                                 </h1>
                             </div>
                         </div>
@@ -1121,21 +1123,21 @@ export default function Dashboard({ auth, stats }) {
                                                                         <div className="flex-1">
                                                                             <div className="font-medium text-slate-900 dark:text-white break-words line-clamp-1">
                                                                                 {
-                                                                                    product.name
+                                                                                    product?.name || 'Unknown Product'
                                                                                 }
                                                                             </div>
                                                                             <div className="flex items-center flex-wrap gap-2 mt-1">
                                                                                 <span className="text-xs text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 py-1 px-2 rounded-full">
                                                                                     <ArrowUp className="inline h-3 w-3 mr-0.5" />
                                                                                     {
-                                                                                        product.qty_sold
+                                                                                        product?.qty_sold || 0
                                                                                     }{" "}
                                                                                     units
                                                                                 </span>
                                                                                 <span className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 py-1 px-2 rounded-full">
                                                                                     <ArrowDown className="inline h-3 w-3 mr-0.5" />
                                                                                     {formatCurrency(
-                                                                                        product.revenue
+                                                                                        product?.revenue || 0
                                                                                     )}
                                                                                 </span>
                                                                             </div>
@@ -1306,7 +1308,7 @@ export default function Dashboard({ auth, stats }) {
                                                                     <div className="flex-1">
                                                                         <p className="font-medium text-slate-900 dark:text-white">
                                                                             {
-                                                                                product.name
+                                                                                product?.name || 'Unknown Product'
                                                                             }
                                                                         </p>
                                                                         <div className="flex items-center flex-wrap gap-3 mt-1">
@@ -1314,20 +1316,20 @@ export default function Dashboard({ auth, stats }) {
                                                                                 <ArrowUp className="inline h-3 w-3 mr-0.5" />
                                                                                 In:{" "}
                                                                                 {
-                                                                                    product.income_quantity
+                                                                                    product?.income_quantity || 0
                                                                                 }
                                                                             </span>
                                                                             <span className="text-xs text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-900/20 py-1 px-2 rounded-full">
                                                                                 <ArrowDown className="inline h-3 w-3 mr-0.5" />
                                                                                 Out:{" "}
                                                                                 {
-                                                                                    product.outcome_quantity
+                                                                                    product?.outcome_quantity || 0
                                                                                 }
                                                                             </span>
                                                                             <span className="text-xs text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 py-1 px-2 rounded-full">
                                                                                 Stock:{" "}
                                                                                 {
-                                                                                    product.net_quantity
+                                                                                    product?.net_quantity || 0
                                                                                 }
                                                                             </span>
                                                                         </div>
@@ -1335,7 +1337,7 @@ export default function Dashboard({ auth, stats }) {
                                                                     <div className="text-xs text-slate-500 dark:text-slate-400 flex items-center gap-1">
                                                                         <Clock className="h-3 w-3" />
                                                                         {
-                                                                            product.last_updated
+                                                                            product?.last_updated || 'N/A'
                                                                         }
                                                                     </div>
                                                                 </div>
@@ -1416,13 +1418,13 @@ export default function Dashboard({ auth, stats }) {
                                                                 >
                                                                     <div
                                                                         className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                                                            activity.type ===
+                                                                            activity?.type ===
                                                                             "income"
                                                                                 ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400"
                                                                                 : "bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400"
                                                                         }`}
                                                                     >
-                                                                        {activity.type ===
+                                                                        {activity?.type ===
                                                                         "income" ? (
                                                                             <TrendingUp className="h-5 w-5" />
                                                                         ) : (
@@ -1432,50 +1434,50 @@ export default function Dashboard({ auth, stats }) {
                                                                     <div className="flex-1 min-w-0">
                                                                         <p className="font-medium text-slate-900 dark:text-white truncate">
                                                                             {
-                                                                                activity.title
+                                                                                activity?.title || 'Unknown Activity'
                                                                             }
                                                                         </p>
                                                                         <div className="flex items-center flex-wrap gap-3 mt-1 text-xs">
                                                                             <span className="flex items-center text-slate-500 dark:text-slate-400">
                                                                                 <Tag className="h-3 w-3 mr-1" />
                                                                                 Ref:{" "}
-                                                                                {activity.reference ||
+                                                                                {activity?.reference ||
                                                                                     "N/A"}
                                                                             </span>
                                                                             <span className="flex items-center text-slate-500 dark:text-slate-400">
                                                                                 <Package className="h-3 w-3 mr-1" />
                                                                                 Items:{" "}
-                                                                                {activity.items ||
+                                                                                {activity?.items ||
                                                                                     0}
                                                                             </span>
                                                                             <span className="flex items-center text-slate-500 dark:text-slate-400">
                                                                                 <Clock className="h-3 w-3 mr-1" />
                                                                                 {
-                                                                                    activity.time
+                                                                                    activity?.time || 'N/A'
                                                                                 }
                                                                             </span>
                                                                         </div>
                                                                     </div>
                                                                     <div
                                                                         className={`text-sm font-semibold ${
-                                                                            activity.type ===
+                                                                            activity?.type ===
                                                                             "income"
                                                                                 ? "text-emerald-600 dark:text-emerald-400"
                                                                                 : "text-rose-600 dark:text-rose-400"
                                                                         }`}
                                                                     >
-                                                                        {activity.type ===
+                                                                        {activity?.type ===
                                                                         "income"
                                                                             ? "+"
                                                                             : "-"}
                                                                         {formatCurrency(
-                                                                            activity.amount
+                                                                            activity?.amount || 0
                                                                         )}
                                                                     </div>
-                                                                    {activity.id && (
+                                                                    {activity?.id && (
                                                                         <Link
                                                                             href={route(
-                                                                                `warehouse.${activity.type}.show`,
+                                                                                `warehouse.${activity?.type}.show`,
                                                                                 activity.id
                                                                             )}
                                                                             className="opacity-0 group-hover:opacity-100 transition-opacity"

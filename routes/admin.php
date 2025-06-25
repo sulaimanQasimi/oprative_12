@@ -220,7 +220,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/bulk-approve', [AttendanceRequestController::class, 'bulkApprove'])->name('admin.attendance-requests.bulk-approve');
         Route::post('/bulk-reject', [AttendanceRequestController::class, 'bulkReject'])->name('admin.attendance-requests.bulk-reject');
         Route::get('/api/pending-count', [AttendanceRequestController::class, 'getPendingCount'])->name('admin.attendance-requests.pending-count');
-        
+
         // Employee routes
         Route::get('/my/requests', [AttendanceRequestController::class, 'myRequests'])->name('admin.attendance-requests.my-requests');
         Route::get('/my/create', [AttendanceRequestController::class, 'create'])->name('admin.attendance-requests.create');
@@ -315,10 +315,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{account:id}/edit', [AccountController::class, 'edit'])->name('admin.accounts.edit');
         Route::put('/{account:id}', [AccountController::class, 'update'])->name('admin.accounts.update');
         Route::delete('/{account:id}', [AccountController::class, 'destroy'])->name('admin.accounts.destroy');
-
-        // Account Income/Outcome management
-        Route::get('/{account:id}/incomes', [AccountController::class, 'incomes'])->name('admin.accounts.incomes');
-        Route::get('/{account:id}/outcomes', [AccountController::class, 'outcomes'])->name('admin.accounts.outcomes');
+        Route::post('/{id}/restore', [AccountController::class, 'restore'])->name('admin.accounts.restore')->withTrashed();
+        Route::delete('/{id}/force-delete', [AccountController::class, 'forceDelete'])->name('admin.accounts.force-delete')->withTrashed();
     });
 
     // Account Income CRUD routes
@@ -378,7 +376,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [IncomeController::class, 'index'])->name('admin.incomes.index');
     });
 
-    
+
     // Warehouse Income Management
     Route::prefix('outcomes')->group(function () {
         Route::get('/', [OutcomeController::class, 'index'])->name('admin.outcomes.index');

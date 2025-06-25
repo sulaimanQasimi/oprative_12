@@ -9,6 +9,11 @@ use Inertia\Inertia;
 
 class OutcomeController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:warehouse.view_outcome');
+    }
+
     /**
      * Display a listing of outcome records with pagination and filtering using optimized queries.
      */

@@ -55,7 +55,7 @@ export default function Navigation({ auth, currentRoute }) {
             routeKey: 'warehouse.products'
         },
         {
-            label: t('Shop'),
+            label: t('Move to Shop'),
             route: 'warehouse.sales',
             icon: Store,
             routeKey: 'warehouse.sales'

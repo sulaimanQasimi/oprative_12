@@ -273,7 +273,7 @@ const PageLoader = ({ isVisible }) => {
     );
 };
 
-export default function Sale({ auth, sales }) {
+export default function Sale({ auth, sales, permissions = {} }) {
     const { t } = useLaravelReactI18n();
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -1090,18 +1090,44 @@ export default function Sale({ auth, sales }) {
                                                                 index
                                                             ] = el)
                                                         }
-                                                        className="px-5 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 last:border-0 grid grid-cols-12 items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors duration-150 group"
+                                                        className={`px-5 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 last:border-0 grid grid-cols-12 items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors duration-150 group ${permissions?.view_sale_details ? 'cursor-pointer' : 'cursor-default'}`}
+                                                        onClick={(e) => {
+                                                            // Only allow navigation if user has permission
+                                                            if (!permissions?.view_sale_details) return;
+                                                            
+                                                            // Prevent navigation if clicking on buttons or links
+                                                            if (e.target.closest('button') || e.target.closest('a')) {
+                                                                return;
+                                                            }
+                                                            window.location.href = route("warehouse.sales.show", record.id);
+                                                        }}
                                                     >
                                                         <div className="col-span-4 md:col-span-5 lg:col-span-4 flex items-center gap-3">
                                                             <div className="h-9 w-9 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0">
                                                                 <ShoppingCart className="h-5 w-5" />
                                                             </div>
                                                             <div className="min-w-0">
-                                                                <h3 className="font-medium text-slate-900 dark:text-white truncate">
-                                                                    {
-                                                                        record.reference
-                                                                    }
-                                                                </h3>
+                                                                {permissions?.view_sale_details ? (
+                                                                    <Link 
+                                                                        href={route(
+                                                                            "warehouse.sales.show",
+                                                                            record.id
+                                                                        )}
+                                                                        className="hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors duration-200"
+                                                                    >
+                                                                        <h3 className="font-medium text-slate-900 dark:text-white truncate cursor-pointer">
+                                                                            {
+                                                                                record.reference
+                                                                            }
+                                                                        </h3>
+                                                                    </Link>
+                                                                ) : (
+                                                                    <h3 className="font-medium text-slate-900 dark:text-white truncate">
+                                                                        {
+                                                                            record.reference
+                                                                        }
+                                                                    </h3>
+                                                                )}
                                                                 <div className="mt-0.5 md:hidden">
                                                                     <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
                                                                         <Calendar className="h-3 w-3 mr-1" />
@@ -1133,39 +1159,67 @@ export default function Sale({ auth, sales }) {
                                                             )}
                                                         </div>
                                                         <div className="col-span-2 md:col-span-1 lg:col-span-2 flex justify-end gap-1">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                            >
-                                                                <Eye className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                            >
-                                                                <MoreHorizontal className="h-4 w-4" />
-                                                            </Button>
-                                                            <Link
-                                                                href={route(
-                                                                    "warehouse.sales.show",
-                                                                    record.id
-                                                                )}
-                                                            >
-                                                                <Button
-                                                                    variant="outline"
-                                                                    size="sm"
-                                                                    className="h-8 bg-white dark:bg-transparent dark:text-slate-400 dark:border-slate-700 text-slate-700 flex items-center opacity-0 group-hover:opacity-100 transition-opacity"
+                                                            {permissions?.generate_invoice && (
+                                                                <Link
+                                                                    href={route(
+                                                                        "warehouse.sales.invoice",
+                                                                        record.id
+                                                                    )}
+                                                                    title={t("Generate Invoice")}
                                                                 >
-                                                                    <span>
-                                                                        {t(
-                                                                            "Details"
-                                                                        )}
-                                                                    </span>
-                                                                    <ChevronRight className="h-3.5 w-3.5 ml-1" />
-                                                                </Button>
-                                                            </Link>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-200 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                    >
+                                                                        <Download className="h-4 w-4" />
+                                                                    </Button>
+                                                                </Link>
+                                                            )}
+                                                            {permissions?.confirm_sales && !record.confirmed_by_warehouse && (
+                                                                <form
+                                                                    method="POST"
+                                                                    action={route("warehouse.sales.confirm", record.id)}
+                                                                    onSubmit={(e) => {
+                                                                        e.preventDefault();
+                                                                        if (confirm(t("Are you sure you want to confirm this sale?"))) {
+                                                                            e.target.submit();
+                                                                        }
+                                                                    }}
+                                                                    className="inline"
+                                                                >
+                                                                    <Button
+                                                                        type="submit"
+                                                                        variant="ghost"
+                                                                        size="sm"
+                                                                        className="h-8 w-8 p-0 text-green-500 hover:text-green-700 dark:text-green-400 dark:hover:text-green-200 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                        title={t("Confirm Sale")}
+                                                                    >
+                                                                        <UserCheck className="h-4 w-4" />
+                                                                    </Button>
+                                                                </form>
+                                                            )}
+                                                            {permissions?.view_sale_details && (
+                                                                <Link
+                                                                    href={route(
+                                                                        "warehouse.sales.show",
+                                                                        record.id
+                                                                    )}
+                                                                >
+                                                                    <Button
+                                                                        variant="outline"
+                                                                        size="sm"
+                                                                        className="h-8 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:hover:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-700 flex items-center opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                                                    >
+                                                                        <span>
+                                                                            {t(
+                                                                                "Details"
+                                                                            )}
+                                                                        </span>
+                                                                        <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                                                                    </Button>
+                                                                </Link>
+                                                            )}
                                                         </div>
                                                     </motion.div>
                                                 )

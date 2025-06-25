@@ -9,6 +9,11 @@ use Inertia\Inertia;
 
 class IncomeController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:warehouse.view_income');
+    }
+
     /**
      * Display a listing of import records with pagination and filtering.
      */

@@ -38,7 +38,7 @@ import { Textarea } from "@/Components/ui/textarea";
 import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { Badge } from "@/Components/ui/badge";
 
-export default function Create({ customers, selectedCustomerId, auth }) {
+export default function Create({ customers, selectedCustomerId, auth, permissions }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);

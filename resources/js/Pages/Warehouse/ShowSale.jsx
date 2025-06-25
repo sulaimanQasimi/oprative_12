@@ -50,7 +50,7 @@ const staggerChildren = {
     }
 };
 
-export default function ShowSale({ auth, sale }) {
+export default function ShowSale({ auth, sale, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(false);
     const [isPrintMode, setIsPrintMode] = useState(false);
@@ -132,16 +132,18 @@ export default function ShowSale({ auth, sale }) {
                                 variants={slideIn}
                                 className="relative z-10 flex space-x-2"
                             >
-                                <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="flex items-center gap-1.5 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 transition-all duration-200 shadow-sm hover:scale-105 transform border-emerald-200 dark:border-emerald-700"
-                                    onClick={handlePrint}
-                                >
-                                    <Printer className="h-4 w-4" />
-                                    <span>{t('Print Invoice')}</span>
-                                </Button>
-                                {!sale.confirmed_by_warehouse && (
+                                {permissions?.generate_invoice && (
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="flex items-center gap-1.5 hover:bg-emerald-50 hover:text-emerald-600 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-400 transition-all duration-200 shadow-sm hover:scale-105 transform border-emerald-200 dark:border-emerald-700"
+                                        onClick={handlePrint}
+                                    >
+                                        <Printer className="h-4 w-4" />
+                                        <span>{t('Print Invoice')}</span>
+                                    </Button>
+                                )}
+                                {permissions?.confirm_sales && !sale.confirmed_by_warehouse && (
                                     <Button
                                         size="sm"
                                         className="bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-600 hover:to-teal-500 text-white shadow-sm hover:shadow-lg transition-all duration-200 hover:scale-105 transform"
