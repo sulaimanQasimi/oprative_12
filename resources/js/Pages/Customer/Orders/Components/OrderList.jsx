@@ -105,12 +105,13 @@ const getOrderStatusBadge = (status) => {
 
 export default function OrderList({
     orders,
-    activeTab,
-    setActiveTab,
     onOrderSelect,
     loading,
     pagination,
     onPageChange,
+    view,
+    filters,
+    onFilterChange,
 }) {
     const { t } = useLaravelReactI18n();
 
@@ -129,11 +130,6 @@ export default function OrderList({
         );
     };
 
-    // Filter orders by active tab (filtering is handled on the server, but we still filter locally for tab view)
-    const filteredOrders = orders.filter(
-        (order) => activeTab === "all" || order.order_status === activeTab
-    );
-
     if (loading) {
         return (
             <div className="h-64 flex items-center justify-center">
@@ -144,93 +140,9 @@ export default function OrderList({
 
     return (
         <>
-            {/* Filter Tabs */}
-            <div className="sticky top-4 z-10 bg-white/80 backdrop-blur-xl rounded-xl p-2 shadow-sm border border-gray-100 mb-6">
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => setActiveTab("all")}
-                        className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-[1.02] ${
-                            activeTab === "all"
-                                ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md scale-[1.02]"
-                                : "hover:bg-gray-50"
-                        }`}
-                    >
-                        <div className="flex items-center justify-center">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 mr-1 rtl:mr-0 rtl:ml-1"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M4 6h16M4 10h16M4 14h16M4 18h16"
-                                />
-                            </svg>
-                            {t("All Orders")}
-                        </div>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("pending")}
-                        className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-[1.02] ${
-                            activeTab === "pending"
-                                ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-md scale-[1.02]"
-                                : "hover:bg-gray-50"
-                        }`}
-                    >
-                        <div className="flex items-center justify-center">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 mr-1 rtl:mr-0 rtl:ml-1"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
-                            {t("Pending")}
-                        </div>
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("completed")}
-                        className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 transform hover:scale-[1.02] ${
-                            activeTab === "completed"
-                                ? "bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-md scale-[1.02]"
-                                : "hover:bg-gray-50"
-                        }`}
-                    >
-                        <div className="flex items-center justify-center">
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-4 w-4 mr-1 rtl:mr-0 rtl:ml-1"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M5 13l4 4L19 7"
-                                />
-                            </svg>
-                            {t("Completed")}
-                        </div>
-                    </button>
-                </div>
-            </div>
-
             {/* Orders Table */}
             <div className="overflow-x-auto rounded-xl shadow-sm">
-                {filteredOrders.length === 0 ? (
+                {orders.length === 0 ? (
                     <div className="bg-white rounded-xl p-12 text-center text-gray-500 border border-dashed border-gray-300">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -420,7 +332,7 @@ export default function OrderList({
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredOrders.map((order, index) => (
+                            {orders.map((order, index) => (
                                 <tr
                                     key={order.id}
                                     className="hover:bg-indigo-50/30 transition-colors duration-150 group"
@@ -477,10 +389,9 @@ export default function OrderList({
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                         <div className="flex items-center justify-end">
                                             <span className="bg-green-100 text-green-700 py-1 px-2.5 rounded-lg group-hover:bg-green-200 transition-colors duration-150">
-                                                $
                                                 {Number(
                                                     order.total_amount
-                                                ).toFixed(2)}
+                                                ).toFixed(2)} ؋
                                             </span>
                                         </div>
                                     </td>
@@ -531,7 +442,7 @@ export default function OrderList({
                                                         d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                                                     />
                                                 </svg>
-                                                View Details
+                                                {t('View Details')}
                                             </button>
                                         </div>
                                     </td>

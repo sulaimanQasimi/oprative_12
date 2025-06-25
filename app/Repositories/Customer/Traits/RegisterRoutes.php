@@ -120,6 +120,14 @@ trait RegisterRoutes
                             ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
                             ->name('orders.index');
 
+                        Route::get('orders/filter-options', [CustomerOrderController::class, 'getFilterOptions'])
+                            ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
+                            ->name('orders.filter-options');
+
+                        Route::post('orders/clear-filters', [CustomerOrderController::class, 'clearFilters'])
+                            ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
+                            ->name('orders.clear-filters');
+
                         Route::get('orders/{id}', [CustomerOrderController::class, 'show'])
                             ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_orders')
                             ->name('orders.show');

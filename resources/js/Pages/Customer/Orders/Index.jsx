@@ -49,7 +49,9 @@ import {
     Sliders,
     Package,
     UserCheck,
-    Check
+    Check,
+    X,
+    FilterX
 } from "lucide-react";
 
 export default function Index({ auth, stats }) {
@@ -60,30 +62,54 @@ export default function Index({ auth, stats }) {
     const [pagination, setPagination] = useState({
         current_page: 1,
         last_page: 1,
-        per_page: 4,
-        total: 0
+        per_page: 10,
+        total: 0,
+        has_more_pages: false,
+        has_previous_pages: false
     });
     const [stats_data, setStats] = useState({
         total_orders: 0,
         total_amount: 0,
+        average_amount: 0,
         pending_orders: 0,
-        completed_orders: 0
+        processing_orders: 0,
+        completed_orders: 0,
+        cancelled_orders: 0,
+        paid_orders: 0,
+        partial_orders: 0,
+        pending_payment_orders: 0
     });
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [showOrderDetails, setShowOrderDetails] = useState(false);
     const [filters, setFilters] = useState({
         searchQuery: '',
         statusFilter: 'all',
+        payment_status: 'all',
         dateRange: 'all',
+        start_date: '',
+        end_date: '',
         sortField: 'created_at',
         sortDirection: 'desc',
-        page: 1
+        page: 1,
+        per_page: 10,
+        min_amount: '',
+        max_amount: ''
     });
-    const [activeTab, setActiveTab] = useState('all');
+    const [filterOptions, setFilterOptions] = useState({
+        order_statuses: [],
+        payment_statuses: [],
+        amount_range: { min: 0, max: 0 },
+        date_range: { earliest: null, latest: null },
+        popular_products: [],
+        sort_options: [],
+        per_page_options: [5, 10, 15, 20, 25, 50]
+    });
+    const [activeFilters, setActiveFilters] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [view, setView] = useState("grid");
     const [isAnimated, setIsAnimated] = useState(false);
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
 
     // Refs for animation targets
     const headerRef = useRef(null);
@@ -95,29 +121,87 @@ export default function Index({ auth, stats }) {
     // Animation timeline
     const timelineRef = useRef(null);
 
+    // Fetch filter options
+    const fetchFilterOptions = async () => {
+        try {
+            const response = await axios.get(route('customer.api.orders.filter-options'));
+            setFilterOptions(response.data);
+        } catch (error) {
+            console.error('Error fetching filter options:', error);
+        }
+    };
+
     // Fetch orders data based on current filters
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(route('customer.api.orders.index'), {
-                params: {
-                    search: filters.searchQuery,
-                    status: filters.statusFilter,
-                    dateRange: filters.dateRange,
-                    sortField: filters.sortField,
-                    sortDirection: filters.sortDirection,
-                    page: filters.page
+            const params = {
+                search: filters.searchQuery,
+                status: filters.statusFilter,
+                payment_status: filters.payment_status,
+                dateRange: filters.dateRange,
+                start_date: filters.start_date,
+                end_date: filters.end_date,
+                sortField: filters.sortField,
+                sortDirection: filters.sortDirection,
+                page: filters.page,
+                per_page: filters.per_page,
+                min_amount: filters.min_amount,
+                max_amount: filters.max_amount
+            };
+
+            // Remove empty parameters
+            Object.keys(params).forEach(key => {
+                if (params[key] === '' || params[key] === 'all') {
+                    delete params[key];
                 }
             });
+
+            const response = await axios.get(route('customer.api.orders.index'), { params });
+            
             setOrders(response.data.orders);
             setPagination(response.data.pagination);
             setStats(response.data.stats);
+            setActiveFilters(response.data.filters?.active || []);
         } catch (error) {
             console.error('Error fetching orders:', error);
         } finally {
             setLoading(false);
         }
     };
+
+    // Clear all filters
+    const clearAllFilters = async () => {
+        const resetFilters = {
+            searchQuery: '',
+            statusFilter: 'all',
+            payment_status: 'all',
+            dateRange: 'all',
+            start_date: '',
+            end_date: '',
+            sortField: 'created_at',
+            sortDirection: 'desc',
+            page: 1,
+            per_page: 10,
+            min_amount: '',
+            max_amount: ''
+        };
+        
+        setFilters(resetFilters);
+        
+        try {
+            const response = await axios.post(route('customer.api.orders.clear-filters'));
+            setStats(response.data.stats);
+            setActiveFilters([]);
+        } catch (error) {
+            console.error('Error clearing filters:', error);
+        }
+    };
+
+    // Initialize filter options on component mount
+    useEffect(() => {
+        fetchFilterOptions();
+    }, []);
 
     // Initialize animations
     useEffect(() => {
@@ -271,23 +355,23 @@ export default function Index({ auth, stats }) {
         }
     };
 
-    // Handle tab change
-    const handleTabChange = (tab) => {
-        setActiveTab(tab);
-        // Update status filter when tab changes
-        if (tab !== 'all') {
-            setFilters(prev => ({
-                ...prev,
-                statusFilter: tab,
-                page: 1 // Reset to page 1 when tab changes
-            }));
-        } else {
-            setFilters(prev => ({
-                ...prev,
-                statusFilter: 'all',
-                page: 1 // Reset to page 1 when tab changes
-            }));
-        }
+    // Handle per page change
+    const handlePerPageChange = (perPage) => {
+        setFilters(prev => ({
+            ...prev,
+            per_page: perPage,
+            page: 1 // Reset to page 1 when per page changes
+        }));
+    };
+
+    // Remove individual filter
+    const removeFilter = (filterKey, filterValue) => {
+        setFilters(prev => ({
+            ...prev,
+            [filterKey]: filterKey === 'statusFilter' || filterKey === 'payment_status' ? 'all' : 
+                        filterKey === 'dateRange' ? 'all' : '',
+            page: 1
+        }));
     };
 
     // Add useEffect to handle page loading
@@ -622,6 +706,15 @@ export default function Index({ auth, stats }) {
                         <div className="flex items-center space-x-3">
                             <Button
                                 size="sm"
+                                variant="outline"
+                                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                                className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
+                            >
+                                <Sliders className="h-3.5 w-3.5" />
+                                <span>{showAdvancedFilters ? t('Hide Filters') : t('Advanced Filters')}</span>
+                            </Button>
+                            <Button
+                                size="sm"
                                 onClick={() => fetchOrders()}
                                 className="bg-blue-600 hover:bg-blue-700 text-white"
                             >
@@ -672,19 +765,7 @@ export default function Index({ auth, stats }) {
                                             className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-500"
                                             onClick={() => handleFilterChange('searchQuery', '')}
                                         >
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-4 w-4"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="2"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                            >
-                                                <path d="M18 6 6 18"></path>
-                                                <path d="m6 6 12 12"></path>
-                                            </svg>
+                                            <X className="h-4 w-4" />
                                         </button>
                                     )}
                                 </motion.div>
@@ -821,6 +902,51 @@ export default function Index({ auth, stats }) {
                                 </motion.div>
                             </div>
 
+                            {/* Active Filters Display */}
+                            {Object.keys(activeFilters).length > 0 && (
+                                <div className="mb-6">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                            {t('Active Filters')} ({Object.keys(activeFilters).length})
+                                        </h3>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            onClick={clearAllFilters}
+                                            className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                                        >
+                                            <FilterX className="h-3 w-3 mr-1" />
+                                            {t('Clear All')}
+                                        </Button>
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {Object.entries(activeFilters).map(([key, value]) => (
+                                            <Badge
+                                                key={key}
+                                                variant="secondary"
+                                                className="flex items-center gap-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
+                                            >
+                                                <span className="text-xs font-medium">
+                                                    {key === 'search' ? t('Search') :
+                                                     key === 'status' ? t('Status') :
+                                                     key === 'payment_status' ? t('Payment') :
+                                                     key === 'date_range' ? t('Date Range') :
+                                                     key === 'min_amount' ? t('Min Amount') :
+                                                     key === 'max_amount' ? t('Max Amount') : key}:
+                                                </span>
+                                                <span className="text-xs">{value}</span>
+                                                <button
+                                                    onClick={() => removeFilter(key, value)}
+                                                    className="ml-1 hover:text-red-600"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </button>
+                                            </Badge>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             {filters.searchQuery && (
                                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 animate-pulse">
                                     <div className="h-2 w-2 rounded-full bg-blue-500"></div>
@@ -842,14 +968,44 @@ export default function Index({ auth, stats }) {
                                 </Badge>
                             </h2>
 
-                            {/* Filters Section */}
-                            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl p-5 mb-6">
-                                <OrderFilters
-                                    filters={filters}
-                                    onFilterChange={handleFilterChange}
-                                    onSortChange={handleSortChange}
-                                />
-                            </div>
+                            {/* Pagination Info */}
+                            {pagination.total > 0 && (
+                                <div className="flex items-center justify-between mb-4 text-sm text-slate-600 dark:text-slate-400">
+                                    <div className="flex items-center gap-4">
+                                        <span>
+                                            {t('Showing')} {((pagination.current_page - 1) * pagination.per_page) + 1} - {Math.min(pagination.current_page * pagination.per_page, pagination.total)} {t('of')} {pagination.total} {t('orders')}
+                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <span>{t('Per page:')}</span>
+                                            <select
+                                                value={filters.per_page}
+                                                onChange={(e) => handlePerPageChange(parseInt(e.target.value))}
+                                                className="px-2 py-1 border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-sm"
+                                            >
+                                                {filterOptions.per_page_options.map(option => (
+                                                    <option key={option} value={option}>{option}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <span>{t('Page')} {pagination.current_page} {t('of')} {pagination.last_page}</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Advanced Filters Section */}
+                            {showAdvancedFilters && (
+                                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl p-5 mb-6">
+                                    <OrderFilters
+                                        filters={filters}
+                                        filterOptions={filterOptions}
+                                        onFilterChange={handleFilterChange}
+                                        onSortChange={handleSortChange}
+                                        onPerPageChange={handlePerPageChange}
+                                    />
+                                </div>
+                            )}
 
                             {/* Grid and List Views */}
                             <div
@@ -857,17 +1013,18 @@ export default function Index({ auth, stats }) {
                                 className="transition-opacity duration-300"
                                 style={{ minHeight: "200px" }}
                             >
-                                {/* Orders list component */}
+                                {/* Orders Table */}
                                 <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden mb-6">
                                     <div className="p-5">
                                         <OrderList
                                             orders={orders}
-                                            activeTab={activeTab}
-                                            setActiveTab={handleTabChange}
                                             onOrderSelect={handleOrderSelect}
                                             loading={loading}
                                             pagination={pagination}
                                             onPageChange={handlePageChange}
+                                            view={view}
+                                            filters={filters}
+                                            onFilterChange={handleFilterChange}
                                         />
                                     </div>
                                 </div>
