@@ -193,26 +193,313 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                     }
 
                     .glass-effect {
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        background: rgba(255, 255, 255, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(226, 232, 240, 0.8);
                     }
 
                     .dark .glass-effect {
-                        background: rgba(0, 0, 0, 0.2);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
+                        background: rgba(15, 23, 42, 0.95);
+                        backdrop-filter: blur(12px);
+                        border: 1px solid rgba(51, 65, 85, 0.8);
                     }
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
                                     linear-gradient(45deg, #3b82f6, #1d4ed8) border-box;
-                        border: 2px solid transparent;
+                        border: 1px solid transparent;
                     }
 
                     .dark .gradient-border {
-                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
+                        background: linear-gradient(rgb(15 23 42), rgb(15 23 42)) padding-box,
                                     linear-gradient(45deg, #3b82f6, #1d4ed8) border-box;
+                    }
+
+                    /* Comprehensive dropdown positioning fixes */
+                    [data-radix-popper-content-wrapper] {
+                        z-index: 999999 !important;
+                        position: absolute !important;
+                        top: auto !important;
+                        left: auto !important;
+                        transform: none !important;
+                    }
+
+                    [data-radix-select-content] {
+                        z-index: 999999 !important;
+                        position: absolute !important;
+                        top: auto !important;
+                        left: auto !important;
+                        transform: none !important;
+                        max-height: 200px !important;
+                        overflow-y: auto !important;
+                    }
+
+                    [role="listbox"] {
+                        z-index: 999999 !important;
+                        position: absolute !important;
+                        top: auto !important;
+                        left: auto !important;
+                        transform: none !important;
+                    }
+
+                    /* Force proper positioning for all Radix components */
+                    [data-radix-popper-content-wrapper],
+                    [data-radix-select-content],
+                    [role="listbox"],
+                    [data-radix-select-viewport] {
+                        position: absolute !important;
+                        z-index: 999999 !important;
+                        top: auto !important;
+                        left: auto !important;
+                        right: auto !important;
+                        bottom: auto !important;
+                        transform: none !important;
+                    }
+
+                    /* Ensure proper stacking context for containers */
+                    .relative {
+                        position: relative !important;
+                        z-index: 1;
+                    }
+
+                    /* Specific fixes for Select components */
+                    .select-container {
+                        position: relative !important;
+                        z-index: 50 !important;
+                    }
+
+                    /* Override any inline styles that might interfere */
+                    [data-radix-popper-content-wrapper][style] {
+                        position: absolute !important;
+                        z-index: 999999 !important;
+                        top: auto !important;
+                        left: auto !important;
+                        transform: none !important;
+                    }
+
+                    [data-radix-select-content][style] {
+                        position: absolute !important;
+                        z-index: 999999 !important;
+                        top: auto !important;
+                        left: auto !important;
+                        transform: none !important;
+                    }
+
+                    /* Ensure dropdowns are visible */
+                    [data-state="open"] {
+                        z-index: 999999 !important;
+                        visibility: visible !important;
+                        opacity: 1 !important;
+                    }
+
+                    /* Fix for any overflow issues */
+                    .overflow-hidden {
+                        overflow: visible !important;
+                    }
+
+                    /* Ensure proper background for dropdowns */
+                    [data-radix-select-content] {
+                        background: white !important;
+                        border: 1px solid #e2e8f0 !important;
+                        border-radius: 0.5rem !important;
+                        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+                    }
+
+                    .dark [data-radix-select-content] {
+                        background: #1e293b !important;
+                        border: 1px solid #475569 !important;
+                        color: white !important;
+                    }
+
+                    /* Fix for SelectItem hover states */
+                    [data-radix-select-item] {
+                        cursor: pointer !important;
+                        padding: 0.5rem 1rem !important;
+                    }
+
+                    [data-radix-select-item]:hover {
+                        background: #f1f5f9 !important;
+                    }
+
+                    .dark [data-radix-select-item]:hover {
+                        background: #334155 !important;
+                    }
+
+                    /* Ensure proper positioning context */
+                    .card-content {
+                        position: relative !important;
+                        z-index: 1 !important;
+                    }
+
+                    /* Override any transform that might interfere */
+                    [data-radix-popper-content-wrapper][style*="transform"] {
+                        transform: none !important;
+                    }
+
+                    /* Additional z-index fixes for all possible dropdown elements */
+                    [data-radix-portal] {
+                        z-index: 999999 !important;
+                    }
+
+                    [data-radix-popper-content] {
+                        z-index: 999999 !important;
+                    }
+
+                    /* Ensure the card doesn't interfere with dropdowns */
+                    .card {
+                        z-index: 1 !important;
+                    }
+
+                    /* Force highest z-index for any dropdown-related element */
+                    [class*="select"],
+                    [class*="dropdown"],
+                    [class*="popover"],
+                    [class*="menu"] {
+                        z-index: 999999 !important;
+                    }
+
+                    /* Specific fix for the filters card */
+                    .filters-card {
+                        z-index: 1 !important;
+                    }
+
+                    /* Ensure proper stacking for the entire page */
+                    body {
+                        z-index: 0 !important;
+                    }
+
+                    /* Force dropdowns to be on top of everything */
+                    [data-radix-popper-content-wrapper],
+                    [data-radix-select-content],
+                    [role="listbox"],
+                    [data-radix-select-viewport],
+                    [data-radix-portal],
+                    [data-radix-popper-content] {
+                        z-index: 999999 !important;
+                        position: absolute !important;
+                    }
+
+                    /* Specific fixes for SelectItems and dropdown content */
+                    [data-radix-select-item] {
+                        z-index: 999999 !important;
+                        position: relative !important;
+                    }
+
+                    [data-radix-select-viewport] {
+                        z-index: 999999 !important;
+                        position: relative !important;
+                    }
+
+                    /* Override table z-index to be lower */
+                    .table,
+                    [role="table"],
+                    [data-radix-table] {
+                        z-index: 1 !important;
+                        position: relative !important;
+                    }
+
+                    /* Ensure table cells don't interfere */
+                    [role="cell"],
+                    [data-radix-table-cell] {
+                        z-index: 1 !important;
+                        position: relative !important;
+                    }
+
+                    /* Force all dropdown-related elements to be on top */
+                    [data-radix-popper-content-wrapper] *,
+                    [data-radix-select-content] *,
+                    [role="listbox"] *,
+                    [data-radix-select-viewport] *,
+                    [data-radix-portal] *,
+                    [data-radix-popper-content] * {
+                        z-index: 999999 !important;
+                    }
+
+                    /* Specific override for any table-related elements */
+                    .table-container,
+                    .table-wrapper,
+                    [class*="table"] {
+                        z-index: 1 !important;
+                    }
+
+                    /* Ensure the main content area doesn't interfere */
+                    .main-content,
+                    .content-area {
+                        z-index: 1 !important;
+                    }
+
+                    /* Force dropdowns to render above everything */
+                    [data-radix-popper-content-wrapper],
+                    [data-radix-select-content],
+                    [role="listbox"],
+                    [data-radix-select-viewport],
+                    [data-radix-portal],
+                    [data-radix-popper-content],
+                    [data-radix-select-item],
+                    [data-radix-select-viewport] * {
+                        z-index: 999999 !important;
+                        position: absolute !important;
+                        top: auto !important;
+                        left: auto !important;
+                        right: auto !important;
+                        bottom: auto !important;
+                        transform: none !important;
+                    }
+
+                    /* Additional specificity for SelectContent */
+                    div[data-radix-select-content] {
+                        z-index: 999999 !important;
+                        position: absolute !important;
+                    }
+
+                    /* Force all children of SelectContent to have high z-index */
+                    div[data-radix-select-content] * {
+                        z-index: 999999 !important;
+                    }
+
+                    /* Override any potential table overflow issues */
+                    .overflow-x-auto,
+                    .overflow-y-auto {
+                        z-index: 1 !important;
+                    }
+
+                    /* Ensure the card containing the table has lower z-index */
+                    .card {
+                        z-index: 1 !important;
+                        position: relative !important;
+                    }
+
+                    /* Force dropdowns to be rendered in a portal-like manner */
+                    [data-radix-popper-content-wrapper],
+                    [data-radix-select-content] {
+                        z-index: 999999 !important;
+                        position: fixed !important;
+                        top: auto !important;
+                        left: auto !important;
+                        right: auto !important;
+                        bottom: auto !important;
+                    }
+
+                    /* Specific fix for table card */
+                    .table-card {
+                        z-index: 1 !important;
+                        position: relative !important;
+                    }
+
+                    .table-card * {
+                        z-index: 1 !important;
+                    }
+
+                    /* Ensure table elements don't interfere with dropdowns */
+                    .table-card .table,
+                    .table-card [role="table"],
+                    .table-card [data-radix-table] {
+                        z-index: 1 !important;
+                    }
+
+                    .table-card [role="cell"],
+                    .table-card [data-radix-table-cell] {
+                        z-index: 1 !important;
                     }
                 `}</style>
             </Head>
@@ -488,7 +775,7 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                                         className="overflow-hidden"
                                                     >
                                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                                            <div>
+                                                            <div className="select-container relative z-50">
                                                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                                     {t("Status")}
                                                                 </label>
@@ -496,7 +783,7 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                                                     <SelectTrigger className="h-10 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 dark:border-slate-600 dark:hover:border-blue-400 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-white">
                                                                         <SelectValue placeholder={t("All Statuses")} />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
+                                                                    <SelectContent position="popper" side="bottom" align="start" className="z-[999999]">
                                                                         <SelectItem value="">{t("All Statuses")}</SelectItem>
                                                                         <SelectItem value="pending">{t("Pending")}</SelectItem>
                                                                         <SelectItem value="active">{t("Active")}</SelectItem>
@@ -506,7 +793,7 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                                                 </Select>
                                                             </div>
 
-                                                            <div>
+                                                            <div className="select-container relative z-50">
                                                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                                     {t("Customer")}
                                                                 </label>
@@ -514,7 +801,7 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                                                     <SelectTrigger className="h-10 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 dark:border-slate-600 dark:hover:border-blue-400 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-white">
                                                                         <SelectValue placeholder={t("All Customers")} />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
+                                                                    <SelectContent position="popper" side="bottom" align="start" className="z-[999999] fixed top-0">
                                                                         <SelectItem value="">{t("All Customers")}</SelectItem>
                                                                         {customers.map(customer => (
                                                                             <SelectItem key={customer.id} value={customer.id.toString()}>
@@ -560,7 +847,7 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
+                                    <Card className="table-card border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
                                         <CardHeader className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 dark:from-blue-500/20 dark:via-indigo-500/20 dark:to-blue-500/20 border-b border-slate-200 dark:border-slate-700">
                                             <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
                                                 <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
