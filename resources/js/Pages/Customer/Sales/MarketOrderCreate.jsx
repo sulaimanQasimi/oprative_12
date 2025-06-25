@@ -264,11 +264,18 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
         // Use product_id if available, otherwise use id
         const productId = product.product_id || product.id;
 
+        // Always start with retail pricing and units
+        const unitPrice = parseFloat(product.price || product.retail_price);
+        const unitAmount = 1;
+
         const existingItemIndex = orderItems.findIndex(item => item.product_id === productId);
 
         if (existingItemIndex !== -1) {
             // Check if there's enough stock
-            if (orderItems[existingItemIndex].quantity >= product.stock) {
+            const currentTotalUnits = orderItems[existingItemIndex].quantity * orderItems[existingItemIndex].unit_amount;
+            const newTotalUnits = currentTotalUnits + unitAmount;
+            
+            if (newTotalUnits > product.stock) {
                 showError(t('No more stock available for this product'));
                 return;
             }
@@ -279,27 +286,92 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                 updatedItems[existingItemIndex].quantity * updatedItems[existingItemIndex].price;
             setOrderItems(updatedItems);
         } else {
+            // Check if there's enough stock for the new item
+            if (unitAmount > product.stock) {
+                showError(t('No more stock available for this product'));
+                return;
+            }
+
             setOrderItems([
                 ...orderItems,
                 {
                     product_id: productId,
                     name: product.name,
-                    price: parseFloat(product.price || product.retail_price),
+                    price: unitPrice,
                     quantity: 1,
-                    total: parseFloat(product.price || product.retail_price),
-                    max_stock: product.stock
+                    total: unitPrice,
+                    max_stock: product.stock,
+                    unit_amount: unitAmount,
+                    is_wholesale: false,
+                    wholesale_price: parseFloat(product.wholesale_price || 0),
+                    retail_price: parseFloat(product.price || product.retail_price),
+                    whole_sale_unit_amount: parseFloat(product.whole_sale_unit_amount || 1),
+                    wholesaleUnit: product.wholesaleUnit || null,
+                    retailUnit: product.retailUnit || null,
+                    unit_type: product.retailUnit?.name || t('Retail Unit')
                 }
             ]);
         }
+    };
+
+    // Toggle wholesale mode for an item
+    const toggleWholesale = (index) => {
+        if (!orderItems[index]) return;
+
+        const updatedItems = [...orderItems];
+        const item = updatedItems[index];
+        const newIsWholesale = !item.is_wholesale;
+
+        if (newIsWholesale) {
+            // Switch to wholesale
+            const wholesaleUnitsAvailable = Math.floor(item.max_stock / item.whole_sale_unit_amount);
+            if (item.quantity > wholesaleUnitsAvailable) {
+                showError(t('Cannot switch to wholesale: Not enough stock for current quantity'));
+                return;
+            }
+            
+            updatedItems[index] = {
+                ...item,
+                is_wholesale: true,
+                price: item.wholesale_price,
+                unit_amount: item.whole_sale_unit_amount,
+                total: item.quantity * item.wholesale_price,
+                unit_type: item.wholesaleUnit?.name || t('Wholesale Unit')
+            };
+        } else {
+            // Switch to retail
+            const totalUnitsRequired = item.quantity * item.whole_sale_unit_amount;
+            if (totalUnitsRequired > item.max_stock) {
+                showError(t('Cannot switch to retail: Not enough stock for current quantity'));
+                return;
+            }
+            
+            updatedItems[index] = {
+                ...item,
+                is_wholesale: false,
+                price: item.retail_price,
+                unit_amount: 1,
+                total: item.quantity * item.retail_price,
+                unit_type: item.retailUnit?.name || t('Retail Unit')
+            };
+        }
+
+        setOrderItems(updatedItems);
     };
 
     // Update quantity of an item
     const updateQuantity = (index, change) => {
         if (!orderItems[index]) return;
 
-        const newQuantity = orderItems[index].quantity + change;
+        const item = orderItems[index];
+        const newQuantity = item.quantity + change;
+        
+        // Calculate max quantity based on wholesale/retail mode
+        const maxQuantity = item.is_wholesale 
+            ? Math.floor(item.max_stock / item.whole_sale_unit_amount)
+            : item.max_stock;
 
-        if (newQuantity > orderItems[index].max_stock) {
+        if (newQuantity > maxQuantity) {
             showError(t('No more stock available for this product'));
             return;
         }
@@ -385,7 +457,9 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                 product_id: item.product_id,
                 quantity: item.quantity,
                 price: item.price,
-                total: item.total
+                total: item.total,
+                unit_amount: item.unit_amount || 1,
+                is_wholesale: item.is_wholesale || false
             })),
             subtotal,
             total,
@@ -720,7 +794,7 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                 <p className="text-xs text-gray-500 mb-4">{t('Scan a barcode or type a product name and press Enter')}</p>
                                             </div>
 
-                                            {/* Order Items Section */}
+                                                                                            {/* Order Items Section */}
                                             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-md p-5 mb-6">
                                                 <div className="flex items-center justify-between mb-4">
                                                     <h3 className="text-lg font-bold text-gray-800 flex items-center">
@@ -744,46 +818,92 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                     </div>
                                                 </div>
 
-                                                {/* Quick Stats Cards */}
-                                                <div className="grid grid-cols-3 gap-4 mb-6">
-                                                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 shadow-sm border border-green-100">
-                                                        <div className="flex items-center justify-between">
+                                                {/* Order Summary Row */}
+                                                {orderItems.length > 0 && (
+                                                    <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
+                                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                                                             <div>
-                                                                <p className="text-green-700 text-sm font-medium">{t('Items')}</p>
-                                                                <h4 className="text-2xl font-bold text-green-800">{orderItems.length}</h4>
+                                                                <p className="text-xs text-blue-700 font-medium">{t('Retail Items')}</p>
+                                                                <p className="text-lg font-bold text-blue-800">
+                                                                    {orderItems.filter(item => !item.is_wholesale).length}
+                                                                </p>
                                                             </div>
-                                                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                                                                <Package className="h-6 w-6 text-green-500" />
+                                                            <div>
+                                                                <p className="text-xs text-blue-700 font-medium">{t('Wholesale Items')}</p>
+                                                                <p className="text-lg font-bold text-blue-800">
+                                                                    {orderItems.filter(item => item.is_wholesale).length}
+                                                                </p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs text-blue-700 font-medium">{t('Total Units')}</p>
+                                                                <p className="text-lg font-bold text-blue-800">
+                                                                    {orderItems.reduce((sum, item) => sum + (item.quantity * item.unit_amount), 0)}
+                                                                </p>
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs text-blue-700 font-medium">{t('Order Value')}</p>
+                                                                <p className="text-lg font-bold text-blue-800">
+                                                                    {formatMoney(total)}
+                                                                </p>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                )}
 
-                                                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 shadow-sm border border-blue-100">
-                                                        <div className="flex items-center justify-between">
-                                                            <div>
-                                                                <p className="text-blue-700 text-sm font-medium">{t('Quantity')}</p>
-                                                                <h4 className="text-2xl font-bold text-blue-800">
-                                                                    {orderItems.reduce((sum, item) => sum + item.quantity, 0)}
-                                                                </h4>
-                                                            </div>
-                                                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                                                                <Package className="h-6 w-6 text-blue-500" />
-                                                            </div>
+                                                                                            {/* Quick Stats Cards */}
+                                            <div className="grid grid-cols-4 gap-4 mb-6">
+                                                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 shadow-sm border border-green-100">
+                                                    <div className="flex items-center justify-between">
+                                                        <div>
+                                                            <p className="text-green-700 text-sm font-medium">{t('Items')}</p>
+                                                            <h4 className="text-2xl font-bold text-green-800">{orderItems.length}</h4>
                                                         </div>
-                                                    </div>
-
-                                                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 shadow-sm border border-purple-100">
-                                                        <div className="flex items-center justify-between">
-                                                            <div>
-                                                                <p className="text-purple-700 text-sm font-medium">{t('Total')}</p>
-                                                                <h4 className="text-2xl font-bold text-purple-800">{formatMoney(total)}</h4>
-                                                            </div>
-                                                            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
-                                                                <DollarSign className="h-6 w-6 text-purple-500" />
-                                                            </div>
+                                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                                            <Package className="h-6 w-6 text-green-500" />
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 shadow-sm border border-blue-100">
+                                                    <div className="flex items-center justify-between">
+                                                        <div>
+                                                            <p className="text-blue-700 text-sm font-medium">{t('Total Units')}</p>
+                                                            <h4 className="text-2xl font-bold text-blue-800">
+                                                                {orderItems.reduce((sum, item) => sum + (item.quantity * item.unit_amount), 0)}
+                                                            </h4>
+                                                        </div>
+                                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                                            <Package className="h-6 w-6 text-blue-500" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 shadow-sm border border-amber-100">
+                                                    <div className="flex items-center justify-between">
+                                                        <div>
+                                                            <p className="text-amber-700 text-sm font-medium">{t('Wholesale Items')}</p>
+                                                            <h4 className="text-2xl font-bold text-amber-800">
+                                                                {orderItems.filter(item => item.is_wholesale).length}
+                                                            </h4>
+                                                        </div>
+                                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                                            <ShoppingBag className="h-6 w-6 text-amber-500" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-4 shadow-sm border border-purple-100">
+                                                    <div className="flex items-center justify-between">
+                                                        <div>
+                                                            <p className="text-purple-700 text-sm font-medium">{t('Total')}</p>
+                                                            <h4 className="text-2xl font-bold text-purple-800">{formatMoney(total)}</h4>
+                                                        </div>
+                                                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm">
+                                                            <DollarSign className="h-6 w-6 text-purple-500" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
                                                 {/* Order Items List - Larger View */}
                                                 <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 max-h-[calc(100vh-20rem)] overflow-y-auto scrollbar-thin">
@@ -823,13 +943,82 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
 
                                                                         {/* Product info - flexible width */}
                                                                         <div className="flex-1 min-w-0">
-                                                                            <h4 className="font-bold text-gray-800 text-sm truncate group-hover:text-green-800 transition-all duration-300">{item.name}</h4>
-                                                                            <div className="flex items-center text-xs gap-1">
-                                                                                <span className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent font-medium">{formatMoney(item.price)}</span>
-                                                                                <span className="text-gray-400">×</span>
-                                                                                <span className="font-medium text-gray-600">{item.quantity}</span>
-                                                                                <span className="text-gray-400">=</span>
-                                                                                <span className="font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{formatMoney(item.price * item.quantity)}</span>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <h4 className="font-bold text-gray-800 text-sm truncate group-hover:text-green-800 transition-all duration-300">{item.name}</h4>
+                                                                                {item.is_wholesale ? (
+                                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                                                        <ShoppingBag className="h-3 w-3 mr-1" />
+                                                                                        {t('Wholesale')}
+                                                                                    </span>
+                                                                                ) : (
+                                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                                                                                        <Package className="h-3 w-3 mr-1" />
+                                                                                        {t('Retail')}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                            
+                                                                            {/* Pricing and Quantity Info */}
+                                                                            <div className="space-y-1">
+                                                                                <div className="flex items-center text-xs gap-1">
+                                                                                    <span className="text-gray-500">{t('Price')}:</span>
+                                                                                    <span className="inline-block bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent font-medium">{formatMoney(item.price)}</span>
+                                                                                    <span className="text-gray-400">per {
+                                                                                        item.is_wholesale 
+                                                                                            ? (item.wholesaleUnit?.name || t('wholesale unit'))
+                                                                                            : (item.retailUnit?.name || t('retail unit'))
+                                                                                    }</span>
+                                                                                </div>
+                                                                                
+                                                                                <div className="flex items-center text-xs gap-1">
+                                                                                    <span className="text-gray-500">{t('Quantity')}:</span>
+                                                                                    <span className="font-medium text-gray-700">{item.quantity}</span>
+                                                                                    <span className="text-gray-400">×</span>
+                                                                                    <span className="text-gray-500">{item.unit_amount} {
+                                                                                        item.retailUnit?.name || t('units')
+                                                                                    } {t('each')}</span>
+                                                                                    <span className="text-gray-400">=</span>
+                                                                                    <span className="font-medium text-blue-600">{item.quantity * item.unit_amount} {
+                                                                                        item.retailUnit?.name || t('units')
+                                                                                    } {t('total')}</span>
+                                                                                </div>
+                                                                                
+                                                                                <div className="flex items-center text-xs gap-1">
+                                                                                    <span className="text-gray-500">{t('Total')}:</span>
+                                                                                    <span className="font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent text-sm">{formatMoney(item.price * item.quantity)}</span>
+                                                                                </div>
+                                                                            </div>
+
+                                                                            {/* Wholesale checkbox with pricing info */}
+                                                                            <div className="mt-2 p-2 bg-gray-50 rounded-lg border">
+                                                                                <label className="flex items-center justify-between cursor-pointer">
+                                                                                    <div className="flex items-center">
+                                                                                        <input
+                                                                                            type="checkbox"
+                                                                                            checked={item.is_wholesale}
+                                                                                            onChange={() => toggleWholesale(index)}
+                                                                                            className="w-3 h-3 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-1"
+                                                                                        />
+                                                                                        <span className="ml-2 text-xs font-medium text-gray-700">
+                                                                                            {t('Wholesale Mode')}
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div className="text-right">
+                                                                                        <div className="text-xs text-gray-600">
+                                                                                            {item.whole_sale_unit_amount} {item.retailUnit?.name || t('units')} @ {formatMoney(item.wholesale_price)}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </label>
+                                                                                
+                                                                                {/* Show comparison */}
+                                                                                <div className="mt-1 flex justify-between text-xs">
+                                                                                    <span className="text-gray-500">
+                                                                                        {t('Retail')}: {formatMoney(item.retail_price)} / {item.retailUnit?.name || t('unit')}
+                                                                                    </span>
+                                                                                    <span className="text-blue-600 font-medium">
+                                                                                        {t('Wholesale')}: {formatMoney(item.wholesale_price)} / {item.retailUnit?.name || t('unit')}
+                                                                                    </span>
+                                                                                </div>
                                                                             </div>
 
                                                                             {/* Stock indicator */}
@@ -837,23 +1026,49 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                                 <div className="w-full bg-gray-200 rounded-full h-1.5 mr-2">
                                                                                     <div
                                                                                         className={`h-1.5 rounded-full ${
-                                                                                            (item.max_stock - item.quantity) / item.max_stock > 0.6
-                                                                                            ? 'bg-green-500'
-                                                                                            : (item.max_stock - item.quantity) / item.max_stock > 0.3
-                                                                                            ? 'bg-yellow-500'
-                                                                                            : 'bg-red-500'
+                                                                                            (() => {
+                                                                                                const availableUnits = item.is_wholesale 
+                                                                                                    ? Math.floor((item.max_stock - (item.quantity * item.unit_amount)) / item.whole_sale_unit_amount)
+                                                                                                    : item.max_stock - (item.quantity * item.unit_amount);
+                                                                                                const maxUnits = item.is_wholesale 
+                                                                                                    ? Math.floor(item.max_stock / item.whole_sale_unit_amount)
+                                                                                                    : item.max_stock;
+                                                                                                const ratio = availableUnits / maxUnits;
+                                                                                                return ratio > 0.6 ? 'bg-green-500' : ratio > 0.3 ? 'bg-yellow-500' : 'bg-red-500';
+                                                                                            })()
                                                                                         }`}
-                                                                                        style={{ width: `${Math.min(100, ((item.max_stock - item.quantity) / item.max_stock) * 100)}%` }}
+                                                                                        style={{ 
+                                                                                            width: `${Math.min(100, (() => {
+                                                                                                const availableUnits = item.is_wholesale 
+                                                                                                    ? Math.floor((item.max_stock - (item.quantity * item.unit_amount)) / item.whole_sale_unit_amount)
+                                                                                                    : item.max_stock - (item.quantity * item.unit_amount);
+                                                                                                const maxUnits = item.is_wholesale 
+                                                                                                    ? Math.floor(item.max_stock / item.whole_sale_unit_amount)
+                                                                                                    : item.max_stock;
+                                                                                                return (availableUnits / maxUnits) * 100;
+                                                                                            })())}%` 
+                                                                                        }}
                                                                                     ></div>
                                                                                 </div>
                                                                                 <span className={`text-xs font-medium ${
-                                                                                    (item.max_stock - item.quantity) / item.max_stock > 0.6
-                                                                                    ? 'text-green-600'
-                                                                                    : (item.max_stock - item.quantity) / item.max_stock > 0.3
-                                                                                    ? 'text-yellow-600'
-                                                                                    : 'text-red-600'
+                                                                                    (() => {
+                                                                                        const availableUnits = item.is_wholesale 
+                                                                                            ? Math.floor((item.max_stock - (item.quantity * item.unit_amount)) / item.whole_sale_unit_amount)
+                                                                                            : item.max_stock - (item.quantity * item.unit_amount);
+                                                                                        const maxUnits = item.is_wholesale 
+                                                                                            ? Math.floor(item.max_stock / item.whole_sale_unit_amount)
+                                                                                            : item.max_stock;
+                                                                                        const ratio = availableUnits / maxUnits;
+                                                                                        return ratio > 0.6 ? 'text-green-600' : ratio > 0.3 ? 'text-yellow-600' : 'text-red-600';
+                                                                                    })()
                                                                                 }`}>
-                                                                                    {item.max_stock - item.quantity} {t('left')}
+                                                                                    {item.is_wholesale 
+                                                                                        ? Math.floor((item.max_stock - (item.quantity * item.unit_amount)) / item.whole_sale_unit_amount)
+                                                                                        : item.max_stock - (item.quantity * item.unit_amount)
+                                                                                    } {item.is_wholesale 
+                                                                                        ? `${item.wholesaleUnit?.name || t('wholesale units')} ${t('left')}`
+                                                                                        : `${item.retailUnit?.name || t('units')} ${t('left')}`
+                                                                                    }
                                                                                 </span>
                                                                             </div>
                                                                         </div>
@@ -869,9 +1084,19 @@ export default function MarketOrderCreate({ auth, products, paymentMethods, tax_
                                                                             <span className="w-8 text-center font-medium py-1.5 px-1 bg-white text-sm">{item.quantity}</span>
                                                                             <button
                                                                                 onClick={() => updateQuantity(index, 1)}
-                                                                                disabled={item.quantity >= item.max_stock}
+                                                                                disabled={(() => {
+                                                                                    const maxQuantity = item.is_wholesale 
+                                                                                        ? Math.floor(item.max_stock / item.whole_sale_unit_amount)
+                                                                                        : item.max_stock;
+                                                                                    return item.quantity >= maxQuantity;
+                                                                                })()}
                                                                                 className={`p-1.5 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700 transition-all duration-300 ${
-                                                                                    item.quantity >= item.max_stock
+                                                                                    (() => {
+                                                                                        const maxQuantity = item.is_wholesale 
+                                                                                            ? Math.floor(item.max_stock / item.whole_sale_unit_amount)
+                                                                                            : item.max_stock;
+                                                                                        return item.quantity >= maxQuantity;
+                                                                                    })()
                                                                                     ? 'opacity-50 cursor-not-allowed'
                                                                                     : 'hover:from-green-50 hover:to-green-100 hover:text-green-600 active:bg-green-200'
                                                                                 }`}

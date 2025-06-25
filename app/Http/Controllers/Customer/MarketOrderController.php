@@ -15,18 +15,18 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
+use Log;
 
 class MarketOrderController extends Controller
 {
     /**
      * Display the form for creating a new market order.
      *
-     * @return \Illuminate\Http\Response
      */
     public function create()
     {
         // Get products in customer's stock
-        $products = CustomerStockProduct::with('product')
+        $products = CustomerStockProduct::with(['product.wholesaleUnit', 'product.retailUnit'])
             ->where('customer_id', $this->getCustomerId())
             ->where('net_quantity', '>', 0)
             ->get()
@@ -35,7 +35,22 @@ class MarketOrderController extends Controller
                     'id' => $item->product_id,
                     'name' => $item->product->name,
                     'price' => $item->product->retail_price,
-                    'stock' => $item->net_quantity
+                    'retail_price' => $item->product->retail_price,
+                    'wholesale_price' => $item->product->wholesale_price,
+                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount ?: 1,
+                    'stock' => $item->net_quantity,
+                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
+                        'id' => $item->product->wholesaleUnit->id,
+                        'name' => $item->product->wholesaleUnit->name,
+                        'code' => $item->product->wholesaleUnit->code,
+                        'symbol' => $item->product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $item->product->retailUnit ? [
+                        'id' => $item->product->retailUnit->id,
+                        'name' => $item->product->retailUnit->name,
+                        'code' => $item->product->retailUnit->code,
+                        'symbol' => $item->product->retailUnit->symbol,
+                    ] : null,
                 ];
             });
 
@@ -116,8 +131,8 @@ class MarketOrderController extends Controller
         $searchResults = CustomerStockProduct::with(['product' => function($query) {
                 $query->select('id', 'name', 'barcode', 'purchase_price', 'wholesale_price', 'retail_price',
                              'purchase_profit', 'wholesale_profit', 'retail_profit', 'is_activated',
-                             'is_in_stock', 'is_shipped', 'is_trend', 'type');
-            }])
+                             'is_in_stock', 'is_shipped', 'is_trend', 'type', 'wholesale_unit_id', 'retail_unit_id');
+            }, 'product.wholesaleUnit', 'product.retailUnit'])
             ->where('customer_id', $this->getCustomerId())
             ->where('net_quantity', '>', 0)
             ->where(function($q) use ($query) {
@@ -144,7 +159,20 @@ class MarketOrderController extends Controller
                     'is_shipped' => $item->product->is_shipped,
                     'is_trend' => $item->product->is_trend,
                     'type' => $item->product->type,
+                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount ?: 1,
                     'stock' => $item->net_quantity,
+                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
+                        'id' => $item->product->wholesaleUnit->id,
+                        'name' => $item->product->wholesaleUnit->name,
+                        'code' => $item->product->wholesaleUnit->code,
+                        'symbol' => $item->product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $item->product->retailUnit ? [
+                        'id' => $item->product->retailUnit->id,
+                        'name' => $item->product->retailUnit->name,
+                        'code' => $item->product->retailUnit->code,
+                        'symbol' => $item->product->retailUnit->symbol,
+                    ] : null,
                 ];
             })
             ->toArray();
@@ -169,7 +197,7 @@ class MarketOrderController extends Controller
             ], 400);
         }
 
-        $customerStockProduct = CustomerStockProduct::with('product')
+        $customerStockProduct = CustomerStockProduct::with(['product.wholesaleUnit', 'product.retailUnit'])
             ->where('customer_id', $this->getCustomerId())
             ->whereHas('product', function($query) use ($barcode) {
                 $query->where('barcode', $barcode);
@@ -183,7 +211,22 @@ class MarketOrderController extends Controller
                     'product_id' => $customerStockProduct->product_id,
                     'name' => $customerStockProduct->product->name,
                     'price' => $customerStockProduct->product->retail_price,
-                    'stock' => $customerStockProduct->net_quantity
+                    'retail_price' => $customerStockProduct->product->retail_price,
+                    'wholesale_price' => $customerStockProduct->product->wholesale_price,
+                    'whole_sale_unit_amount' => $customerStockProduct->product->whole_sale_unit_amount ?: 1,
+                    'stock' => $customerStockProduct->net_quantity,
+                    'wholesaleUnit' => $customerStockProduct->product->wholesaleUnit ? [
+                        'id' => $customerStockProduct->product->wholesaleUnit->id,
+                        'name' => $customerStockProduct->product->wholesaleUnit->name,
+                        'code' => $customerStockProduct->product->wholesaleUnit->code,
+                        'symbol' => $customerStockProduct->product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $customerStockProduct->product->retailUnit ? [
+                        'id' => $customerStockProduct->product->retailUnit->id,
+                        'name' => $customerStockProduct->product->retailUnit->name,
+                        'code' => $customerStockProduct->product->retailUnit->code,
+                        'symbol' => $customerStockProduct->product->retailUnit->symbol,
+                    ] : null,
                 ]
             ]);
         }
@@ -244,6 +287,8 @@ class MarketOrderController extends Controller
             'items.*.quantity' => 'required|numeric|min:1',
             'items.*.price' => 'required|numeric|min:0',
             'items.*.total' => 'required|numeric|min:0',
+            'items.*.unit_amount' => 'nullable|numeric|min:1',
+            'items.*.is_wholesale' => 'nullable|boolean',
             'subtotal' => 'required|numeric|min:0',
             'total' => 'required|numeric|min:0',
             'payment_method' => 'required|in:cash,card,bank_transfer',
@@ -331,30 +376,73 @@ class MarketOrderController extends Controller
 
             // Process each order item
             foreach ($items as $item) {
-                // Verify product exists and has sufficient stock
-                $stockProduct = CustomerStockProduct::where('customer_id', $this->getCustomerId())
+                // First get the product to access wholesale unit amount
+                $stockProduct = CustomerStockProduct::with('product')
+                    ->where('customer_id', $this->getCustomerId())
                     ->where('product_id', $item['product_id'])
-                    ->where('net_quantity', '>=', $item['quantity'])
                     ->first();
 
                 if (!$stockProduct) {
-                    throw new \Exception('Insufficient stock for product: ' . $item['name']);
+                    $product = Product::find($item['product_id']);
+                    $productName = $product ? $product->name : 'Unknown Product';
+                    throw new \Exception("Product not found: {$productName}");
+                }
+
+                // Calculate actual units needed (for wholesale items)
+                $isWholesale = isset($item['is_wholesale']) && $item['is_wholesale'];
+                $unitAmount = $isWholesale ? ($stockProduct->product->whole_sale_unit_amount ?: 1) : 1;
+                $actualUnitsNeeded = $item['quantity'] * $unitAmount;
+                
+                // Verify sufficient stock
+                if ($stockProduct->net_quantity < $actualUnitsNeeded) {
+                    $productName = $stockProduct->product->name;
+                    throw new \Exception("Insufficient stock for product: {$productName}. Required: {$actualUnitsNeeded}, Available: {$stockProduct->net_quantity}");
+                }
+
+                // Log for debugging
+                Log::info("Processing item: Product ID {$item['product_id']}, Wholesale: " . ($isWholesale ? 'Yes' : 'No') . ", Quantity: {$item['quantity']}, Unit Amount: {$unitAmount}, Actual Units: {$actualUnitsNeeded}");
+                
+                $storeQuantity = $actualUnitsNeeded; // Always store actual units consumed
+                $frontendTotal = floatval($item['total']); // What the frontend calculated and customer saw
+                
+                if ($isWholesale) {
+                    // For wholesale: Use frontend total and calculate unit price per individual unit
+                    $storeUnitPrice = $stockProduct->product->wholesale_price;
+                    $calculatedSubtotal = $item['quantity'] * $storeUnitPrice; // Use what customer actually paid
+                } else {
+                    // For retail: Use database price and calculate total
+                    $storeUnitPrice = $stockProduct->product->retail_price;
+                    $calculatedSubtotal = $storeQuantity * $storeUnitPrice;
+                    
+                    // Validate against frontend total with small tolerance
+                    $tolerance = 0.01; // 1 cent tolerance
+                    if (abs($calculatedSubtotal - $frontendTotal) > $tolerance) {
+                        Log::warning("Retail price mismatch - using frontend total", [
+                            'product_id' => $item['product_id'],
+                            'calculated' => $calculatedSubtotal,
+                            'frontend' => $frontendTotal,
+                            'difference' => abs($calculatedSubtotal - $frontendTotal)
+                        ]);
+                        $calculatedSubtotal = $frontendTotal;
+                        $storeUnitPrice = $storeQuantity > 0 ? ($frontendTotal / $storeQuantity) : $storeUnitPrice;
+                    }
                 }
 
                 MarketOrderItem::create([
                     'market_order_id' => $order->id,
                     'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['price'],
-                    'subtotal' => $item['total'],
+                    'quantity' => $storeQuantity, // Store actual individual units (e.g., 14)
+                    'unit_price' => $storeUnitPrice, // Price per individual unit (calculated or from DB)
+                    'subtotal' => $calculatedSubtotal, // Use validated/frontend subtotal
                     'discount_amount' => 0
                 ]);
 
+                // Use actual units for stock outcome
                 CustomerStockOutcome::create([
                     'reference_number' => $order->order_number,
                     'customer_id' => $this->getCustomerId(),
                     'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
+                    'quantity' => $actualUnitsNeeded, // Use the actual units consumed
                     'price' => $item['price'],
                     'total' => $item['total'],
                     'model_type' => MarketOrder::class,
