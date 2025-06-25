@@ -51,9 +51,6 @@ class WarehouseController extends Controller
         return Inertia::render('Admin/Warehouse/Index', [
             'warehouses' => $warehouses,
             'permissions' => $permissions,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -65,9 +62,6 @@ class WarehouseController extends Controller
 
         return Inertia::render('Admin/Warehouse/Create', [
             'permissions' => $permissions,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -108,9 +102,6 @@ class WarehouseController extends Controller
             'warehouse' => $warehouse,
             'roles' => $roles,
             'permissions' => $permissions,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -210,9 +201,6 @@ class WarehouseController extends Controller
             'roles' => $roles,
             'permissions' => $permissions,
             'warehousePermissions' => $warehousePermissions,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse: ' . $e->getMessage());
@@ -343,9 +331,6 @@ class WarehouseController extends Controller
                     'is_active' => $warehouse->is_active,
                 ],
                 'products' => $products,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse products: ' . $e->getMessage());
@@ -393,9 +378,6 @@ class WarehouseController extends Controller
                     'is_active' => $warehouse->is_active,
                 ],
                 'incomes' => $incomes,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse income: ' . $e->getMessage());
@@ -446,9 +428,6 @@ class WarehouseController extends Controller
                     'is_active' => $warehouse->is_active,
                 ],
                 'products' => $products,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading create income page: ' . $e->getMessage());
@@ -543,9 +522,6 @@ class WarehouseController extends Controller
                     'is_active' => $warehouse->is_active,
                 ],
                 'outcomes' => $outcomes,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse outcome: ' . $e->getMessage());
@@ -604,9 +580,6 @@ class WarehouseController extends Controller
                     'is_active' => $warehouse->is_active,
                 ],
                 'products' => $products,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading create outcome page: ' . $e->getMessage());
@@ -750,9 +723,7 @@ class WarehouseController extends Controller
                 'transfers' => $transfers,
                 'availableWarehouses' => $availableWarehouses,
                 'products' => $products,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
+               
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse transfers: ' . $e->getMessage());
@@ -810,9 +781,7 @@ class WarehouseController extends Controller
                 ],
                 'warehouses' => $availableWarehouses,
                 'warehouseProducts' => $warehouseProducts,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
+               
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading create transfer page: ' . $e->getMessage());
@@ -974,9 +943,7 @@ class WarehouseController extends Controller
                     'is_active' => $warehouse->is_active,
                 ],
                 'sales' => $sales,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
+               
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse sales: ' . $e->getMessage());
@@ -1032,9 +999,7 @@ class WarehouseController extends Controller
                 ],
                 'customers' => $customers,
                 'warehouseProducts' => $warehouseProducts,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
+               
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading create store movement page: ' . $e->getMessage());
@@ -1178,9 +1143,6 @@ class WarehouseController extends Controller
                     'is_active' => $warehouse->is_active,
                 ],
                 'sale' => $sale,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading sale details: ' . $e->getMessage());
