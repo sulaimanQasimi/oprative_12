@@ -79,9 +79,6 @@ class CustomerController extends Controller
 
         return Inertia::render('Admin/Customer/Create', [
             'permissions' => $permissions,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
