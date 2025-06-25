@@ -66,9 +66,9 @@ class MarketOrderController extends Controller
         
         // Define default currency
         $defaultCurrency = (object)[
-            'symbol' => '$',
-            'code' => 'USD',
-            'name' => 'US Dollar'
+            'symbol' => '؋',
+            'code' => 'AFN',
+            'name' => 'Afghan Afghani'
         ];
 
         return Inertia::render("Customer/Sales/MarketOrderCreate", compact('products', 'paymentMethods', 'tax_percentage', 'defaultCurrency'));

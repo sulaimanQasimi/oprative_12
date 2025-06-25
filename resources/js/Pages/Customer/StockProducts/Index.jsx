@@ -347,7 +347,7 @@ export default function StockProductsIndex({ stockProducts, search, isFilterOpen
                                             <div className="space-y-1">
                                                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-green-600 dark:group-hover:text-green-400">{t('Total Stock Value')}</p>
                                                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(stockProducts.data.reduce((sum, product) => sum + product.net_total, 0))}
+                                                                                                                        {new Intl.NumberFormat('fa-AF', { style: 'currency', currency: 'AFN' }).format(stockProducts.data.reduce((sum, product) => sum + product.net_total, 0))}
                                                 </p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">{t('Current inventory value')}</p>
                                             </div>
@@ -364,7 +364,7 @@ export default function StockProductsIndex({ stockProducts, search, isFilterOpen
                                             <div className="space-y-1">
                                                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-purple-600 dark:group-hover:text-purple-400">{t('Total Profit')}</p>
                                                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(stockProducts.data.reduce((sum, product) => sum + product.profit, 0))}
+                                                                                                                        {new Intl.NumberFormat('fa-AF', { style: 'currency', currency: 'AFN' }).format(stockProducts.data.reduce((sum, product) => sum + product.profit, 0))}
                                                 </p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">{t('From all transactions')}</p>
                                             </div>
@@ -480,7 +480,7 @@ export default function StockProductsIndex({ stockProducts, search, isFilterOpen
                                                             <td className="px-6 py-4 whitespace-nowrap">
                                                                 <div className="text-sm font-mono bg-indigo-50/80 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 py-1.5 px-3 rounded-md border border-indigo-100 dark:border-indigo-800 shadow-sm group-hover:shadow-md group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/50 inline-flex items-center transition-all duration-300">
                                                                     <DollarSign className="h-4 w-4 mr-2 text-indigo-500 dark:text-indigo-400" />
-                                                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.net_total)}
+                                                                    {new Intl.NumberFormat('fa-AF', { style: 'currency', currency: 'AFN' }).format(product.net_total)}
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap">
@@ -494,7 +494,7 @@ export default function StockProductsIndex({ stockProducts, search, isFilterOpen
                                                                     ) : (
                                                                         <TrendingDown className="h-4 w-4 mr-2 text-red-500 dark:text-red-400" />
                                                                     )}
-                                                                    {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.profit)}
+                                                                    {new Intl.NumberFormat('fa-AF', { style: 'currency', currency: 'AFN' }).format(product.profit)}
                                                                 </div>
                                                             </td>
                                                         </tr>

@@ -807,7 +807,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                                     required
                                                 />
                                                 <div className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 pr-3 rtl:pr-0 rtl:pl-3 flex items-center pointer-events-none">
-                                                    <span className="text-indigo-500 font-medium sm:text-sm bg-indigo-50 px-2 py-1 rounded-md">USD</span>
+                                                    <span className="text-indigo-500 font-medium sm:text-sm bg-indigo-50 px-2 py-1 rounded-md">AFN</span>
                                                 </div>
                                             </div>
                                             {errors.amount && (
@@ -974,7 +974,7 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                                     required
                                                 />
                                                 <div className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 pr-3 rtl:pr-0 rtl:pl-3 flex items-center pointer-events-none">
-                                                    <span className="text-pink-500 font-medium sm:text-sm bg-pink-50 px-2 py-1 rounded-md">USD</span>
+                                                    <span className="text-pink-500 font-medium sm:text-sm bg-pink-50 px-2 py-1 rounded-md">AFN</span>
                                                 </div>
                                             </div>
                                             {outcomeForm.errors.amount && (

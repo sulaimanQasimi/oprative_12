@@ -175,10 +175,10 @@ export default function OrderDetails({ order }) {
                                                 </span>
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                                                <span className="text-gray-900">${Number(item.unit_price).toFixed(2)}</span>
+                                                <span className="text-gray-900">؋{Number(item.unit_price).toFixed(2)}</span>
                                             </td>
                                             <td className="whitespace-nowrap px-3 py-4 text-sm font-medium">
-                                                <span className="text-indigo-600">${(Number(item.unit_price) * Number(item.quantity)).toFixed(2)}</span>
+                                                <span className="text-indigo-600">؋{(Number(item.unit_price) * Number(item.quantity)).toFixed(2)}</span>
                                             </td>
                                         </tr>
                                     ))}
@@ -187,19 +187,19 @@ export default function OrderDetails({ order }) {
                                     <tr>
                                         <th scope="row" colSpan="3" className="pl-4 pr-3 pt-4 text-right text-sm font-semibold text-gray-900">Subtotal</th>
                                         <td className="pl-3 pr-4 pt-4 text-right text-sm font-medium text-gray-900">
-                                            ${(Number(order.total_amount) - (Number(order.tax) || 0)).toFixed(2)}
+                                            ؋{(Number(order.total_amount) - (Number(order.tax) || 0)).toFixed(2)}
                                         </td>
                                     </tr>
                                     <tr>
                                         <th scope="row" colSpan="3" className="pl-4 pr-3 py-2 text-right text-sm font-semibold text-gray-900">Tax</th>
                                         <td className="pl-3 pr-4 py-2 text-right text-sm text-gray-900">
-                                            ${(Number(order.tax) || 0).toFixed(2)}
+                                            ؋{(Number(order.tax) || 0).toFixed(2)}
                                         </td>
                                     </tr>
                                     <tr className="border-t border-gray-200">
                                         <th scope="row" colSpan="3" className="pl-4 pr-3 pt-4 pb-4 text-right text-base font-bold text-gray-900">Total</th>
                                         <td className="pl-3 pr-4 pt-4 pb-4 text-right text-base font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-transparent bg-clip-text">
-                                            ${Number(order.total_amount).toFixed(2)}
+                                            ؋{Number(order.total_amount).toFixed(2)}
                                         </td>
                                     </tr>
                                 </tfoot>

@@ -21,7 +21,7 @@ export default function OrderStats({ stats }) {
                             <span className="text-indigo-100 text-sm">Total Orders</span>
                         </div>
                         <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 flex-1 min-w-[160px] hover:bg-white/20 transition-colors duration-200">
-                            <span className="block text-2xl font-bold text-white mb-1">${Number(stats.total_amount).toFixed(2)}</span>
+                            <span className="block text-2xl font-bold text-white mb-1">؋{Number(stats.total_amount).toFixed(2)}</span>
                             <span className="text-indigo-100 text-sm">Total Spent</span>
                         </div>
                     </div>
