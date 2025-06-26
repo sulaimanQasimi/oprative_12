@@ -134,14 +134,85 @@ export default function Income({ auth, warehouse, incomes }) {
         }).format(amount || 0);
     };
 
+    // Persian date conversion function
+    const toPersianDate = (gregorianDate) => {
+        const date = new Date(gregorianDate);
+        const gy = date.getFullYear();
+        const gm = date.getMonth() + 1;
+        const gd = date.getDate();
+        
+        // Check for leap year
+        const isLeap = (gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0);
+        
+        // Days in each Gregorian month
+        const gdm = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        
+        // Calculate number of days passed since start of Gregorian year
+        let days = gd;
+        for (let i = 0; i < gm - 1; i++) {
+            days += gdm[i];
+        }
+        
+        // Calculate the Persian year and day offset from March 21
+        const marchDay = isLeap ? 80 : 79;
+        let jy, jm, jd;
+        
+        if (days > marchDay) {
+            jy = gy - 621;
+            days = days - marchDay;
+        } else {
+            jy = gy - 622;
+            const prevYearLeap = ((gy - 1) % 4 === 0 && (gy - 1) % 100 !== 0) || ((gy - 1) % 400 === 0);
+            days = days + (prevYearLeap ? 286 : 285);
+        }
+        
+        // Convert days into Persian month/day
+        if (days <= 186) {
+            jm = Math.floor((days - 1) / 31) + 1;
+            jd = days - ((jm - 1) * 31);
+        } else {
+            days = days - 186;
+            jm = Math.floor((days - 1) / 30) + 7;
+            jd = days - ((jm - 7) * 30);
+        }
+        
+        return {
+            year: jy,
+            month: jm,
+            day: jd
+        };
+    };
+
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
+        const date = new Date(dateString);
+        const persianDate = toPersianDate(dateString);
+        
+        
+        const time = date.toLocaleTimeString('en-US', {
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            hour12: false
         });
+        
+        return `${persianDate.year}/${persianDate.month.toString().padStart(2, '0')}/${persianDate.day.toString().padStart(2, '0')} - ${time}`;
+    };
+
+    const formatPersianDateWithName = (dateString) => {
+        const date = new Date(dateString);
+        const persianDate = toPersianDate(dateString);
+        
+              // Persian month names
+              const persianMonths = [
+                "حمل","ثور","جوزا","سرطان","اسد","سنبله","میزان","عقرب","قوس","جدی","دلو","حوت"
+            ];
+      
+        const time = date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        
+        return `${persianDate.day} ${persianMonths[persianDate.month - 1]} ${persianDate.year} - ${time}`;
     };
 
     const clearFilters = () => {
@@ -766,7 +837,14 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                     <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                                                                         <div className="flex items-center gap-2">
                                                                             <Calendar className="h-4 w-4" />
-                                                                            {formatDate(income.created_at)}
+                                                                            <div className="flex flex-col">
+                                                                                <span className="font-medium" title={formatDate(income.created_at)}>
+                                                                                    {formatPersianDateWithName(income.created_at)}
+                                                                                </span>
+                                                                                <span className="text-xs text-slate-400 dark:text-slate-500">
+                                                                                    {formatDate(income.created_at)}
+                                                                                </span>
+                                                                            </div>
                                                                         </div>
                                                                     </TableCell>
 
