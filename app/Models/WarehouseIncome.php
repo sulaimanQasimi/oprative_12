@@ -17,6 +17,11 @@ class WarehouseIncome extends Model
         'total',
         'model_type',
         'model_id',
+        'unit_type',
+        'is_wholesale',
+        'unit_id',
+        'unit_amount',
+        'unit_name',
     ];
 
     /**
