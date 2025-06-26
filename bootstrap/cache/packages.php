@@ -11,6 +11,13 @@
       0 => 'Barryvdh\\DomPDF\\ServiceProvider',
     ),
   ),
+  'bavix/laravel-wallet' => 
+  array (
+    'providers' => 
+    array (
+      0 => 'Bavix\\Wallet\\WalletServiceProvider',
+    ),
+  ),
   'hekmatinasser/verta' => 
   array (
     'aliases' => 

@@ -168,6 +168,7 @@ trait OutcomeController
                 $unitId = $product->wholesaleUnit->id;
                 $unitAmount = $product->whole_sale_unit_amount;
                 $unitName = $product->wholesaleUnit->name;
+ 
             } elseif (!$isWholesale && $product->retailUnit) {
                 // For retail unit
                 $unitId = $product->retailUnit->id;
@@ -184,7 +185,7 @@ trait OutcomeController
                     ->withErrors(['quantity' => "Requested quantity ({$requestedQuantity}) cannot exceed available stock of {$availableUnits} {$unitTypeName}"]);
             }
 
-            $total = $actualQuantity * $unitPrice;
+            $total = $validated['quantity'] * $unitPrice;
 
             // Generate reference number
             $referenceNumber = 'OUT-' . $warehouse->code . '-' . date('YmdHis') . '-' . rand(100, 999);
