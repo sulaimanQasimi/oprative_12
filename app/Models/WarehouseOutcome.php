@@ -14,7 +14,12 @@ class WarehouseOutcome extends Model
         'price',
         'total',
         'model_type',
-        'model_id'
+        'model_id',
+        'unit_type',
+        'is_wholesale',
+        'unit_id',
+        'unit_amount',
+        'unit_name',
     ];
 
     public function warehouse()

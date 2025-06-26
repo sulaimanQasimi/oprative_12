@@ -598,7 +598,8 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                                     {t("Actual Quantity")}
                                                                 </p>
                                                                 <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                                                                    {calculatedQuantity.toLocaleString()}
+                                                                    {/* {calculatedQuantity.toLocaleString()} */}
+                                                                    {data.quantity}
                                                                 </p>
                                                                 <p className="text-xs text-slate-500 mt-1">{t("units")}</p>
                                                             </motion.div>
@@ -623,7 +624,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                                     {t("Total Value")}
                                                                 </p>
                                                                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                                                                    {formatCurrency(calculatedTotal)}
+                                                                    {formatCurrency(data.price * data.quantity)}
                                                                 </p>
                                                             </motion.div>
                                                         </div>

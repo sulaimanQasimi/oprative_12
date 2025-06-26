@@ -116,7 +116,13 @@ export default function Income({ auth, warehouse, incomes }) {
 
     // Calculate totals
     const totalImports = filteredIncomes.length;
-    const totalQuantity = filteredIncomes.reduce((sum, income) => sum + (income.quantity || 0), 0);
+    const totalQuantity = filteredIncomes.reduce((sum, income) => {
+        // For wholesale items, show the actual wholesale quantity (not the converted retail units)
+        if (income.is_wholesale && income.unit_amount) {
+            return sum + (income.quantity / income.unit_amount);
+        }
+        return sum + (income.quantity || 0);
+    }, 0);
     const totalValue = filteredIncomes.reduce((sum, income) => sum + (income.total || 0), 0);
     const avgImportValue = totalImports > 0 ? totalValue / totalImports : 0;
 
@@ -128,14 +134,85 @@ export default function Income({ auth, warehouse, incomes }) {
         }).format(amount || 0);
     };
 
+    // Persian date conversion function
+    const toPersianDate = (gregorianDate) => {
+        const date = new Date(gregorianDate);
+        const gy = date.getFullYear();
+        const gm = date.getMonth() + 1;
+        const gd = date.getDate();
+        
+        // Check for leap year
+        const isLeap = (gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0);
+        
+        // Days in each Gregorian month
+        const gdm = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+        
+        // Calculate number of days passed since start of Gregorian year
+        let days = gd;
+        for (let i = 0; i < gm - 1; i++) {
+            days += gdm[i];
+        }
+        
+        // Calculate the Persian year and day offset from March 21
+        const marchDay = isLeap ? 80 : 79;
+        let jy, jm, jd;
+        
+        if (days > marchDay) {
+            jy = gy - 621;
+            days = days - marchDay;
+        } else {
+            jy = gy - 622;
+            const prevYearLeap = ((gy - 1) % 4 === 0 && (gy - 1) % 100 !== 0) || ((gy - 1) % 400 === 0);
+            days = days + (prevYearLeap ? 286 : 285);
+        }
+        
+        // Convert days into Persian month/day
+        if (days <= 186) {
+            jm = Math.floor((days - 1) / 31) + 1;
+            jd = days - ((jm - 1) * 31);
+        } else {
+            days = days - 186;
+            jm = Math.floor((days - 1) / 30) + 7;
+            jd = days - ((jm - 7) * 30);
+        }
+        
+        return {
+            year: jy,
+            month: jm,
+            day: jd
+        };
+    };
+
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
+        const date = new Date(dateString);
+        const persianDate = toPersianDate(dateString);
+        
+        
+        const time = date.toLocaleTimeString('en-US', {
             hour: '2-digit',
-            minute: '2-digit'
+            minute: '2-digit',
+            hour12: false
         });
+        
+        return `${persianDate.year}/${persianDate.month.toString().padStart(2, '0')}/${persianDate.day.toString().padStart(2, '0')} - ${time}`;
+    };
+
+    const formatPersianDateWithName = (dateString) => {
+        const date = new Date(dateString);
+        const persianDate = toPersianDate(dateString);
+        
+              // Persian month names
+              const persianMonths = [
+                "حمل","ثور","جوزا","سرطان","اسد","سنبله","میزان","عقرب","قوس","جدی","دلو","حوت"
+            ];
+      
+        const time = date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        });
+        
+        return `${persianDate.day} ${persianMonths[persianDate.month - 1]} ${persianDate.year} - ${time}`;
     };
 
     const clearFilters = () => {
@@ -675,6 +752,9 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                 {t("Quantity")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Unit Type")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Unit Price")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
@@ -717,8 +797,35 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                                                                            {income.quantity?.toLocaleString() || 0}
+                                                                        <div className="flex flex-col gap-1">
+                                                                            <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 w-fit">
+                                                                                {income.is_wholesale 
+                                                                                    ? `${(income.quantity / (income.unit_amount || 1)).toLocaleString()}`
+                                                                                    : income.quantity?.toLocaleString() || 0
+                                                                                }
+                                                                                {income.unit_name && (
+                                                                                    <span className="ml-1 text-xs opacity-75">
+                                                                                        {income.unit_name}
+                                                                                    </span>
+                                                                                )}
+                                                                            </Badge>
+                                                                            {income.is_wholesale && (
+                                                                                <span className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                    ({income.quantity?.toLocaleString() || 0} units total)
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Badge 
+                                                                            variant={income.is_wholesale ? "default" : "outline"}
+                                                                            className={
+                                                                                income.is_wholesale 
+                                                                                    ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+                                                                                    : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                                                            }
+                                                                        >
+                                                                            {income.unit_type === 'wholesale' ? t('Wholesale') : t('Retail')}
                                                                         </Badge>
                                                                     </TableCell>
                                                                     <TableCell className="font-medium">
@@ -730,7 +837,14 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                     <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                                                                         <div className="flex items-center gap-2">
                                                                             <Calendar className="h-4 w-4" />
-                                                                            {formatDate(income.created_at)}
+                                                                            <div className="flex flex-col">
+                                                                                <span className="font-medium" title={formatDate(income.created_at)}>
+                                                                                    {formatPersianDateWithName(income.created_at)}
+                                                                                </span>
+                                                                                <span className="text-xs text-slate-400 dark:text-slate-500">
+                                                                                    {formatDate(income.created_at)}
+                                                                                </span>
+                                                                            </div>
                                                                         </div>
                                                                     </TableCell>
 
@@ -738,7 +852,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                             ))
                                                         ) : (
                                                             <TableRow>
-                                                                <TableCell colSpan="6" className="h-32 text-center">
+                                                                <TableCell colSpan="7" className="h-32 text-center">
                                                                     <div className="flex flex-col items-center gap-4">
                                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
                                                                             <TrendingUp className="h-8 w-8 text-slate-400" />
