@@ -310,6 +310,14 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                         border-color: #818cf8;
                         box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
                     }
+                    .supplier-dropdown {
+                        position: absolute !important;
+                        z-index: 50 !important;
+                        width: 10rem !important;
+                        top: 100% !important;
+                        left: 0 !important;
+                        margin-top: 0.25rem !important;
+                    }
                 `}</style>
             </Head>
 
@@ -408,8 +416,8 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                             </div>
 
                             {/* Enhanced Filters and Search */}
-                            <Card className="content-card">
-                                <CardContent className="p-6">
+                            <Card className="content-card overflow-visible">
+                                <CardContent className="p-6 overflow-visible">
                                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
                                         {/* Search */}
                                         <div className="flex-1 max-w-md">
@@ -435,20 +443,22 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
 
                                         {/* Filters */}
                                         <div className="flex items-center gap-3">
-                                            <Select value={filterStatus} onValueChange={setFilterStatus}>
-                                                <SelectTrigger className="w-40">
-                                                    <SelectValue placeholder={t("Status")} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="all">{t("All Status")}</SelectItem>
-                                                    <SelectItem value="active">{t("Active")}</SelectItem>
-                                                    <SelectItem value="inactive">{t("Inactive")}</SelectItem>
-                                                    <SelectItem value="with_purchases">{t("With Purchases")}</SelectItem>
-                                                    <SelectItem value="pending">{t("Pending Payments")}</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <div className="relative z-50">
+                                                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                                                    <SelectTrigger className="w-40 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                                                        <SelectValue placeholder={t("Status")} />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="supplier-dropdown bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg">
+                                                        <SelectItem value="all">{t("All Status")}</SelectItem>
+                                                        <SelectItem value="active">{t("Active")}</SelectItem>
+                                                        <SelectItem value="inactive">{t("Inactive")}</SelectItem>
+                                                        <SelectItem value="with_purchases">{t("With Purchases")}</SelectItem>
+                                                        <SelectItem value="pending">{t("Pending Payments")}</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
 
-                                            <Button variant="outline" size="sm">
+                                            <Button variant="outline" size="sm" className="bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700">
                                                 <RefreshCw className="h-4 w-4 mr-2" />
                                                 {t("Refresh")}
                                             </Button>
