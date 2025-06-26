@@ -14,7 +14,6 @@ class CreateFunShamsiDateFunction extends Migration
      */
     public function up()
     {
-        // First, create the funShamsiDate function
         $sql = "
         CREATE FUNCTION `funShamsiDate`(g_date DATETIME) RETURNS varchar(10) CHARSET utf8mb4
         DETERMINISTIC
