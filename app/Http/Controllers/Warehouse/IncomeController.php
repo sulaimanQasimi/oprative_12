@@ -83,8 +83,7 @@ class IncomeController extends Controller
                 'notes' => $incomeRecord->notes ?? null,
                 'created_at' => $incomeRecord->created_at->diffForHumans(),
                 'created_at_raw' => $incomeRecord->created_at->toISOString(), // For Jalali conversion
-                'persian_created_date' => $incomeRecord->persian_created_date, // Persian date virtual column
-            ];
+               ];
         });
 
         // Replace the collection in the paginator

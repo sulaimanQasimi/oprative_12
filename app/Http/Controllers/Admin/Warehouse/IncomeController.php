@@ -10,6 +10,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\WarehouseIncome;
+use PhpOffice\PhpSpreadsheet\Calculation\Financial\Securities\Price;
 
 trait IncomeController
 {
@@ -38,8 +39,7 @@ trait IncomeController
                     'model_type' => $income->model_type,
                     'model_id' => $income->model_id,
                     'created_at' => $income->created_at,
-                    'updated_at' => $income->updated_at,
-                    'persian_created_date' => $income->persian_created_date,
+                    'updated_at' => $income->updated_at,    
                 ];
             });
 
@@ -127,18 +127,33 @@ trait IncomeController
             // Calculate actual quantity and total based on unit type
             $actualQuantity = $validated['quantity'];
             $unitPrice = $validated['price'];
+            $isWholesale = $validated['unit_type'] === 'wholesale';
+            $unitId = null;
+            $unitAmount = 1;
+            $unitName = null;
 
-            if ($validated['unit_type'] === 'wholesale' && $product->whole_sale_unit_amount) {
+            if ($isWholesale && $product->wholesaleUnit) {
                 // If wholesale unit is selected, multiply by unit amount
+                
                 $actualQuantity = $validated['quantity'] * $product->whole_sale_unit_amount;
-            }
+                $unitId = $product->wholesaleUnit->id;
+                $unitAmount = $product->whole_sale_unit_amount;
+                $unitName = $product->wholesaleUnit->name;
 
-            $total = $actualQuantity * $unitPrice;
+                $total = $validated['quantity'] * $unitPrice;
+            } elseif (!$isWholesale && $product->retailUnit) {
+                // For retail unit
+                $unitId = $product->retailUnit->id;
+                $unitAmount = $product->retails_sale_unit_amount ?? 1;
+                $unitName = $product->retailUnit->name;
+
+                $total = $actualQuantity * $unitPrice;
+            }
 
             // Generate reference number
             $referenceNumber = 'INC-' . $warehouse->code . '-' . date('YmdHis') . '-' . rand(100, 999);
 
-            // Create the income record (only with fields that exist in the table)
+            // Create the income record with all the new columns
             $income = WarehouseIncome::create([
                 'reference_number' => $referenceNumber,
                 'warehouse_id' => $warehouse->id,
@@ -146,6 +161,11 @@ trait IncomeController
                 'quantity' => $actualQuantity,
                 'price' => $unitPrice,
                 'total' => $total,
+                'unit_type' => $validated['unit_type'],
+                'is_wholesale' => $isWholesale,
+                'unit_id' => $unitId,
+                'unit_amount' => $unitAmount,
+                'unit_name' => $unitName,
             ]);
 
             return redirect()->route('admin.warehouses.income', $warehouse->id)
