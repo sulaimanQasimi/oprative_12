@@ -29,20 +29,18 @@ trait RegisterRoutes
             Route::middleware('auth:warehouse_user')->group(function () {
                 // Dashboard
                 Route::get('dashboard', [DashboardController::class, 'index'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_dashboard')
                     ->name('dashboard');
 
                 // Products management
                 Route::get('products', [ProductController::class, 'index'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_products')
                     ->name('products');
 
                 Route::get('products/create', [ProductController::class, 'create'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.create_products')
+                    // ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.create_products')
                     ->name('products.create');
 
                 Route::post('products', [ProductController::class, 'store'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.create_products')
+                    // ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.create_products')
                     ->name('products.store');
 
                 Route::get('products/{product}', [ProductController::class, 'show'])
