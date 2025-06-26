@@ -35,6 +35,11 @@ trait OutcomeController
                     'quantity' => $outcome->quantity,
                     'price' => $outcome->price,
                     'total' => $outcome->total,
+                    'unit_type' => $outcome->unit_type ?? 'retail',
+                    'is_wholesale' => $outcome->is_wholesale ?? false,
+                    'unit_id' => $outcome->unit_id,
+                    'unit_amount' => $outcome->unit_amount ?? 1,
+                    'unit_name' => $outcome->unit_name,
                     'model_type' => $outcome->model_type,
                     'model_id' => $outcome->model_id,
                     'created_at' => $outcome->created_at,
@@ -143,17 +148,31 @@ trait OutcomeController
 
             $availableStock = $warehouseProduct->net_quantity ?? 0;
 
+            // Initialize variables
+            $isWholesale = $validated['unit_type'] === 'wholesale';
+            $unitId = null;
+            $unitAmount = 1;
+            $unitName = null;
+
             // Calculate actual quantity and available units based on unit type
             $requestedQuantity = $validated['quantity'];
             $actualQuantity = $requestedQuantity;
             $unitPrice = $validated['price'];
             $availableUnits = $availableStock;
 
-            if ($validated['unit_type'] === 'wholesale' && $product->whole_sale_unit_amount) {
+            if ($isWholesale && $product->wholesaleUnit) {
                 // If wholesale unit is selected, multiply by unit amount for actual quantity
                 $actualQuantity = $requestedQuantity * $product->whole_sale_unit_amount;
                 // For validation, check how many wholesale units are available
                 $availableUnits = floor($availableStock / $product->whole_sale_unit_amount);
+                $unitId = $product->wholesaleUnit->id;
+                $unitAmount = $product->whole_sale_unit_amount;
+                $unitName = $product->wholesaleUnit->name;
+            } elseif (!$isWholesale && $product->retailUnit) {
+                // For retail unit
+                $unitId = $product->retailUnit->id;
+                $unitAmount = $product->retails_sale_unit_amount ?? 1;
+                $unitName = $product->retailUnit->name;
             }
 
             // Check if requested quantity exceeds available units for the selected unit type
@@ -172,7 +191,7 @@ trait OutcomeController
 
             DB::beginTransaction();
 
-            // Create the outcome record
+            // Create the outcome record with all the new columns
             $outcome = WarehouseOutcome::create([
                 'reference_number' => $referenceNumber,
                 'warehouse_id' => $warehouse->id,
@@ -180,6 +199,11 @@ trait OutcomeController
                 'quantity' => $actualQuantity,
                 'price' => $unitPrice,
                 'total' => $total,
+                'unit_type' => $validated['unit_type'],
+                'is_wholesale' => $isWholesale,
+                'unit_id' => $unitId,
+                'unit_amount' => $unitAmount,
+                'unit_name' => $unitName,
                 'model_type' => 'manual_export',
                 'model_id' => null,
             ]);
