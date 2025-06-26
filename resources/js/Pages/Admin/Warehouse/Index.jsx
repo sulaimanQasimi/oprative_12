@@ -242,10 +242,13 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                     }
                     .glass-effect {
                         backdrop-filter: blur(20px);
-                        background: rgba(255, 255, 255, 0.8);
+                        background: rgba(255, 255, 255, 0.9);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
                     }
                     .dark .glass-effect {
-                        background: rgba(15, 23, 42, 0.8);
+                        background: rgba(2, 6, 23, 0.98);
+                        border: 1px solid rgba(148, 163, 184, 0.15);
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
                     }
                     .warehouse-card {
                         transition: all 0.3s ease;
@@ -256,6 +259,28 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                     }
                     .dark .warehouse-card:hover {
                         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                    }
+                    .header-icon-container {
+                        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+                        border: 1px solid rgba(148, 163, 184, 0.15);
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+                    }
+                    .dark .header-icon-container {
+                        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                        border: 1px solid rgba(148, 163, 184, 0.25);
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+                    }
+                    .header-glow {
+                        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+                        opacity: 0.3;
+                    }
+                    .dark .header-glow {
+                        background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%);
+                        opacity: 0.4;
+                    }
+                    .dropdown-content {
+                        position: fixed !important;
+                        z-index: 999999 !important;
                     }
                 `}</style>
             </Head>
@@ -269,12 +294,12 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Enhanced Header */}
-                    <header ref={headerRef} className="glass-effect border-b border-slate-200/50 dark:border-slate-800/50 py-6 px-8 sticky top-0 z-40">
+                    <header ref={headerRef} className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-40 bg-white/95 dark:bg-slate-900">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
                                 <div className="relative">
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-25"></div>
-                                    <div className="relative bg-white dark:bg-slate-900 p-3 rounded-lg">
+                                    <div className="absolute -inset-1 header-glow rounded-lg blur"></div>
+                                    <div className="relative header-icon-container p-3 rounded-lg shadow-sm">
                                         <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                                     </div>
                                 </div>
@@ -283,28 +308,31 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                         <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
                                             {t("Warehouse Management")}
                                         </span>
-                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">
+                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700 shadow-sm">
                                             <Activity className="h-3 w-3 mr-1" />
                                             {stats.total} {t("Total")}
                                         </Badge>
                                     </div>
-                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                                         {t("Warehouses")}
                                     </h1>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                    <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
                                         {t("Manage your warehouse facilities and storage locations")}
                                     </p>
                                 </div>
                             </div>
 
                             <div className="flex items-center space-x-3">
-                                <Button variant="outline" className="shadow-sm">
+                                <Button 
+                                    variant="outline" 
+                                    className="shadow-sm border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                                >
                                     <RefreshCw className="h-4 w-4 mr-2" />
                                     {t("Refresh")}
                                 </Button>
                                 {permissions.can_create && (
                                     <Link href={route("admin.warehouses.create")}>
-                                        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg">
+                                        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-blue-500 dark:to-indigo-500 dark:hover:from-blue-600 dark:hover:to-indigo-600 text-white shadow-lg">
                                             <Plus className="h-4 w-4 mr-2" />
                                             {t("Add Warehouse")}
                                         </Button>
@@ -357,9 +385,9 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                             </div>
 
                             {/* Filters and Search */}
-                            <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm">
-                                <CardContent className="p-6">
-                                    <div className="flex flex-col lg:flex-row gap-4">
+                            <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm overflow-visible">
+                                <CardContent className="p-6 overflow-visible">
+                                    <div className="flex flex-col lg:flex-row gap-4 overflow-visible">
                                         <div className="relative flex-1">
                                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                                             <Input
@@ -370,24 +398,26 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                                 className="pl-10 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
                                             />
                                         </div>
-                                        <div className="flex gap-3">
-                                            <Select value={filterStatus} onValueChange={setFilterStatus}>
-                                                <SelectTrigger className="w-48 bg-white/50 dark:bg-slate-800/50">
-                                                    <Filter className="h-4 w-4 mr-2" />
-                                                    <SelectValue placeholder={t("Filter by status")} />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="all">{t("All Warehouses")}</SelectItem>
-                                                    <SelectItem value="active">{t("Active Only")}</SelectItem>
-                                                    <SelectItem value="inactive">{t("Inactive Only")}</SelectItem>
-                                                    <SelectItem value="with_users">{t("With Users")}</SelectItem>
-                                                    <SelectItem value="with_products">{t("With Products")}</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                        <div className="flex gap-3 relative">
+                                            <div className="relative">
+                                                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                                                    <SelectTrigger className="w-48 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
+                                                        <Filter className="h-4 w-4 mr-2" />
+                                                        <SelectValue placeholder={t("Filter by status")} />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="z-[9999] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl max-h-60 overflow-auto relative">
+                                                        <SelectItem value="all">{t("All Warehouses")}</SelectItem>
+                                                        <SelectItem value="active">{t("Active Only")}</SelectItem>
+                                                        <SelectItem value="inactive">{t("Inactive Only")}</SelectItem>
+                                                        <SelectItem value="with_users">{t("With Users")}</SelectItem>
+                                                        <SelectItem value="with_products">{t("With Products")}</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
                                             <Button
                                                 variant="outline"
                                                 onClick={() => handleSort("name")}
-                                                className="bg-white/50 dark:bg-slate-800/50"
+                                                className="bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800"
                                             >
                                                 <ArrowUpDown className="h-4 w-4 mr-2" />
                                                 {t("Sort")}

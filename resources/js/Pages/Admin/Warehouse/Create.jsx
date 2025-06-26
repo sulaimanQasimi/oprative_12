@@ -115,10 +115,13 @@ export default function Create({ auth, permissions = {} }) {
                     }
                     .glass-effect {
                         backdrop-filter: blur(20px);
-                        background: rgba(255, 255, 255, 0.8);
+                        background: rgba(255, 255, 255, 0.9);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
                     }
                     .dark .glass-effect {
-                        background: rgba(15, 23, 42, 0.8);
+                        background: rgba(2, 6, 23, 0.98);
+                        border: 1px solid rgba(148, 163, 184, 0.15);
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
                     }
                     .form-card {
                         transition: all 0.3s ease;
@@ -129,6 +132,33 @@ export default function Create({ auth, permissions = {} }) {
                     }
                     .dark .form-card:hover {
                         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                    }
+                    .header-icon-container {
+                        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+                        border: 1px solid rgba(148, 163, 184, 0.15);
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+                    }
+                    .dark .header-icon-container {
+                        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                        border: 1px solid rgba(148, 163, 184, 0.25);
+                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+                    }
+                    .header-glow {
+                        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+                        opacity: 0.3;
+                    }
+                    .dark .header-glow {
+                        background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%);
+                        opacity: 0.4;
+                    }
+                    .form-section {
+                        transition: all 0.2s ease;
+                    }
+                    .form-section:hover {
+                        background: rgba(248, 250, 252, 0.5);
+                    }
+                    .dark .form-section:hover {
+                        background: rgba(15, 23, 42, 0.3);
                     }
                 `}</style>
             </Head>
@@ -144,13 +174,13 @@ export default function Create({ auth, permissions = {} }) {
                     {/* Enhanced Header */}
                     <header
                         ref={headerRef}
-                        className="glass-effect border-b border-slate-200/50 dark:border-slate-800/50 py-6 px-8 sticky top-0 z-40"
+                        className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-40 bg-white/95 dark:bg-slate-900"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
                                 <div className="relative">
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-25"></div>
-                                    <div className="relative bg-white dark:bg-slate-900 p-3 rounded-lg">
+                                    <div className="absolute -inset-1 header-glow rounded-lg blur"></div>
+                                    <div className="relative header-icon-container p-3 rounded-lg shadow-sm">
                                         <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                                     </div>
                                 </div>
@@ -161,16 +191,16 @@ export default function Create({ auth, permissions = {} }) {
                                         </span>
                                         <Badge
                                             variant="outline"
-                                            className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800"
+                                            className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700 shadow-sm"
                                         >
                                             <Activity className="h-3 w-3 mr-1" />
                                             {t("Create Mode")}
                                         </Badge>
                                     </div>
-                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">
+                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                                         {t("Create Warehouse")}
                                     </h1>
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                    <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
                                         {t(
                                             "Add a new warehouse facility to your system"
                                         )}
@@ -182,7 +212,7 @@ export default function Create({ auth, permissions = {} }) {
                                 <Link href={route("admin.warehouses.index")}>
                                     <Button
                                         variant="outline"
-                                        className="shadow-sm"
+                                        className="shadow-sm border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
                                     >
                                         <ArrowLeft className="h-4 w-4 mr-2" />
                                         {t("Back to List")}
@@ -201,7 +231,7 @@ export default function Create({ auth, permissions = {} }) {
                             >
                                 {/* Form Card */}
                                 <Card className="form-card border-0 shadow-xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 overflow-hidden">
-                                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-b border-slate-200/50 dark:border-slate-700/50 pb-6">
+                                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border-b border-slate-200/50 dark:border-slate-700/50 pb-6">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center space-x-4">
                                                 <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
@@ -213,7 +243,7 @@ export default function Create({ auth, permissions = {} }) {
                                                             "Warehouse Information"
                                                         )}
                                                     </CardTitle>
-                                                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                                    <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
                                                         {t(
                                                             "Fill in the details for your new warehouse facility"
                                                         )}
@@ -222,7 +252,7 @@ export default function Create({ auth, permissions = {} }) {
                                             </div>
                                             <Badge
                                                 variant="outline"
-                                                className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800"
+                                                className="bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:border-blue-700 shadow-sm"
                                             >
                                                 <Info className="h-3 w-3 mr-1" />
                                                 {t("Required Fields")}
@@ -236,8 +266,8 @@ export default function Create({ auth, permissions = {} }) {
                                         >
                                             {/* Basic Information Section */}
                                             <div className="space-y-6">
-                                                <div className="flex items-center space-x-2 mb-4">
-                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                <div className="flex items-center space-x-2 mb-4 p-3 rounded-lg form-section">
+                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-sm">
                                                         <FileText className="h-4 w-4 text-white" />
                                                     </div>
                                                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -274,7 +304,7 @@ export default function Create({ auth, permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`transition-all duration-200 ${
+                                                            className={`transition-all duration-200 bg-white/50 dark:bg-slate-800/50 ${
                                                                 errors.name
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                                                                     : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
@@ -325,7 +355,7 @@ export default function Create({ auth, permissions = {} }) {
                                                                     e.target.value.toUpperCase()
                                                                 )
                                                             }
-                                                            className={`transition-all duration-200 font-mono ${
+                                                            className={`transition-all duration-200 font-mono bg-white/50 dark:bg-slate-800/50 ${
                                                                 errors.code
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                                                                     : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
@@ -374,7 +404,7 @@ export default function Create({ auth, permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`transition-all duration-200 ${
+                                                            className={`transition-all duration-200 bg-white/50 dark:bg-slate-800/50 ${
                                                                 errors.location
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                                                                     : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
@@ -427,7 +457,7 @@ export default function Create({ auth, permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`transition-all duration-200 ${
+                                                            className={`transition-all duration-200 bg-white/50 dark:bg-slate-800/50 ${
                                                                 errors.capacity
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                                                                     : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
@@ -476,7 +506,7 @@ export default function Create({ auth, permissions = {} }) {
                                                             )
                                                         }
                                                         rows={4}
-                                                        className={`transition-all duration-200 resize-none ${
+                                                        className={`transition-all duration-200 resize-none bg-white/50 dark:bg-slate-800/50 ${
                                                             errors.description
                                                                 ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                                                                 : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
@@ -501,12 +531,12 @@ export default function Create({ auth, permissions = {} }) {
                                                 </div>
                                             </div>
 
-                                            <Separator className="my-8" />
+                                            <Separator className="my-8 bg-slate-200 dark:bg-slate-700" />
 
                                             {/* Settings Section */}
                                             <div className="space-y-6">
-                                                <div className="flex items-center space-x-2 mb-4">
-                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                <div className="flex items-center space-x-2 mb-4 p-3 rounded-lg form-section">
+                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-sm">
                                                         <Settings className="h-4 w-4 text-white" />
                                                     </div>
                                                     <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
@@ -525,7 +555,7 @@ export default function Create({ auth, permissions = {} }) {
                                                         <Activity className="h-4 w-4 text-green-500" />
                                                         {t("Warehouse Status")}
                                                     </Label>
-                                                    <div className="flex items-center space-x-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                                    <div className="flex items-center space-x-4 p-4 bg-slate-50/80 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700 backdrop-blur-sm">
                                                         <div className="flex items-center space-x-4">
                                                             <Checkbox
                                                                 id="is_active"
@@ -582,7 +612,7 @@ export default function Create({ auth, permissions = {} }) {
                                                 </div>
                                             </div>
 
-                                            <Separator className="my-8" />
+                                            <Separator className="my-8 bg-slate-200 dark:bg-slate-700" />
 
                                             {/* Action Buttons */}
                                             <div className="flex items-center justify-between pt-6">
@@ -593,7 +623,7 @@ export default function Create({ auth, permissions = {} }) {
                                                 >
                                                     <Button
                                                         variant="outline"
-                                                        className="shadow-sm"
+                                                        className="shadow-sm border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
                                                     >
                                                         <ArrowLeft className="h-4 w-4 mr-2" />
                                                         {t("Cancel")}
@@ -602,7 +632,7 @@ export default function Create({ auth, permissions = {} }) {
                                                 <Button
                                                     type="submit"
                                                     disabled={processing}
-                                                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg min-w-[120px]"
+                                                    className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-blue-500 dark:to-indigo-500 dark:hover:from-blue-600 dark:hover:to-indigo-600 text-white shadow-lg min-w-[120px]"
                                                 >
                                                     {processing ? (
                                                         <div className="flex items-center space-x-2">

@@ -2701,5 +2701,8 @@
   "Confirmations": "تأییدیه‌ها",
   "Warehouse Income Management": "مدیریت درآمد انبار",
   "Track and manage warehouse income records": "پیگیری و مدیریت سوابق درآمد انبار",
-  "Start tracking warehouse income": "شروع به پیگیری درآمد انبار کنید"
+  "Start tracking warehouse income": "شروع به پیگیری درآمد انبار کنید",
+   "No warehouses yet": "هنوز هیچ انباری وجود ندارد",
+  "Get started by creating your first warehouse": "با ایجاد اولین انبار خود شروع کنید",
+  "Add First Warehouse": "افزودن اولین انبار"
 }
