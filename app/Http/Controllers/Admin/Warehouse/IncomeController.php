@@ -22,7 +22,7 @@ trait IncomeController
                 'warehouseIncome.product'
             ])->findOrFail($warehouse->id);
 
-            // Get warehouse income records
+                        // Get warehouse income records
             $incomes = $warehouse->warehouseIncome->map(function ($income) {
                 return [
                     'id' => $income->id,
@@ -36,10 +36,15 @@ trait IncomeController
                     'quantity' => $income->quantity,
                     'price' => $income->price,
                     'total' => $income->total,
+                    'unit_type' => $income->unit_type ?? 'retail',
+                    'is_wholesale' => $income->is_wholesale ?? false,
+                    'unit_id' => $income->unit_id,
+                    'unit_amount' => $income->unit_amount ?? 1,
+                    'unit_name' => $income->unit_name,
                     'model_type' => $income->model_type,
                     'model_id' => $income->model_id,
                     'created_at' => $income->created_at,
-                    'updated_at' => $income->updated_at,    
+                    'updated_at' => $income->updated_at,
                 ];
             });
 

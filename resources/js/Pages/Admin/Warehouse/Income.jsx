@@ -116,7 +116,13 @@ export default function Income({ auth, warehouse, incomes }) {
 
     // Calculate totals
     const totalImports = filteredIncomes.length;
-    const totalQuantity = filteredIncomes.reduce((sum, income) => sum + (income.quantity || 0), 0);
+    const totalQuantity = filteredIncomes.reduce((sum, income) => {
+        // For wholesale items, show the actual wholesale quantity (not the converted retail units)
+        if (income.is_wholesale && income.unit_amount) {
+            return sum + (income.quantity / income.unit_amount);
+        }
+        return sum + (income.quantity || 0);
+    }, 0);
     const totalValue = filteredIncomes.reduce((sum, income) => sum + (income.total || 0), 0);
     const avgImportValue = totalImports > 0 ? totalValue / totalImports : 0;
 
@@ -675,6 +681,9 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                 {t("Quantity")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Unit Type")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Unit Price")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
@@ -717,8 +726,35 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                                                                            {income.quantity?.toLocaleString() || 0}
+                                                                        <div className="flex flex-col gap-1">
+                                                                            <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 w-fit">
+                                                                                {income.is_wholesale 
+                                                                                    ? `${(income.quantity / (income.unit_amount || 1)).toLocaleString()}`
+                                                                                    : income.quantity?.toLocaleString() || 0
+                                                                                }
+                                                                                {income.unit_name && (
+                                                                                    <span className="ml-1 text-xs opacity-75">
+                                                                                        {income.unit_name}
+                                                                                    </span>
+                                                                                )}
+                                                                            </Badge>
+                                                                            {income.is_wholesale && (
+                                                                                <span className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                    ({income.quantity?.toLocaleString() || 0} units total)
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Badge 
+                                                                            variant={income.is_wholesale ? "default" : "outline"}
+                                                                            className={
+                                                                                income.is_wholesale 
+                                                                                    ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+                                                                                    : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                                                            }
+                                                                        >
+                                                                            {income.unit_type === 'wholesale' ? t('Wholesale') : t('Retail')}
                                                                         </Badge>
                                                                     </TableCell>
                                                                     <TableCell className="font-medium">
@@ -738,7 +774,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                             ))
                                                         ) : (
                                                             <TableRow>
-                                                                <TableCell colSpan="6" className="h-32 text-center">
+                                                                <TableCell colSpan="7" className="h-32 text-center">
                                                                     <div className="flex flex-col items-center gap-4">
                                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
                                                                             <TrendingUp className="h-8 w-8 text-slate-400" />
