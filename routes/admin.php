@@ -304,6 +304,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{warehouse:id}/users', [WarehouseUserController::class, 'store'])->name('admin.warehouses.users.store');
         Route::get('/{warehouse:id}/users/{warehouseUser}/edit', [WarehouseUserController::class, 'edit'])->name('admin.warehouses.users.edit');
         Route::put('/{warehouse:id}/users/{warehouseUser}', [WarehouseUserController::class, 'update'])->name('admin.warehouses.users.update');
+
+        // Warehouse wallet management
+        Route::get('/{warehouse:id}/wallet', [WarehouseController::class, 'wallet'])->name('admin.warehouses.wallet');
+        Route::get('/{warehouse:id}/wallet/deposit', [WarehouseController::class, 'createDeposit'])->name('admin.warehouses.wallet.deposit');
+        Route::post('/{warehouse:id}/wallet/deposit', [WarehouseController::class, 'storeDeposit'])->name('admin.warehouses.wallet.deposit.store');
+        Route::get('/{warehouse:id}/wallet/withdraw', [WarehouseController::class, 'createWithdraw'])->name('admin.warehouses.wallet.withdraw');
+        Route::post('/{warehouse:id}/wallet/withdraw', [WarehouseController::class, 'storeWithdraw'])->name('admin.warehouses.wallet.withdraw.store');
     });
 
     // Accounts Management

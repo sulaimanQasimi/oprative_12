@@ -26,7 +26,8 @@ import {
     ShoppingCart,
     Store,
     Sparkles,
-    ChevronDown
+    ChevronDown,
+    Wallet
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -807,6 +808,26 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Add and manage warehouse users")}</p>
                                                         <div className="flex items-center justify-center gap-2 mt-6 text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
                                                             {t("Manage Users")}
+                                                            <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </Link>
+
+                                            <Link href={route("admin.warehouses.wallet", warehouse.id)}>
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-yellow-50 via-amber-50 to-yellow-100 dark:from-yellow-900/20 dark:via-amber-900/20 dark:to-yellow-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                    <CardContent className="p-8 text-center">
+                                                        <div className="relative">
+                                                            <div className="absolute -inset-2 bg-gradient-to-r from-yellow-500 via-amber-500 to-yellow-600 rounded-3xl blur-lg opacity-30"></div>
+                                                            <div className="relative p-6 bg-gradient-to-br from-yellow-500 via-amber-500 to-yellow-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                <Wallet className="w-10 h-10 text-white" />
+                                                                <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                            </div>
+                                                        </div>
+                                                        <h3 className="text-xl font-bold text-yellow-700 dark:text-yellow-300 mb-3">{t("Wallet Management")}</h3>
+                                                        <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Manage warehouse financial transactions")}</p>
+                                                        <div className="flex items-center justify-center gap-2 mt-6 text-sm text-yellow-600 dark:text-yellow-400 font-semibold">
+                                                            {t("Manage Wallet")}
                                                             <ChevronDown className="w-4 h-4 rotate-[-90deg]" />
                                                         </div>
                                                     </CardContent>

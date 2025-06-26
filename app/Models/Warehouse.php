@@ -110,4 +110,13 @@ class Warehouse extends Model implements Wallet
     {
         return $this->hasMany(WareHouseUser::class);
     }
+
+    /**
+     * Get the wallet for this warehouse.
+     */
+    public function wallet()
+    {
+        return $this->hasOne(\Bavix\Wallet\Models\Wallet::class, 'holder_id')
+            ->where('holder_type', self::class);
+    }
 }
