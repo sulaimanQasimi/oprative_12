@@ -135,6 +135,8 @@ trait RegisterRoutes
                 Route::post('wallet/deposit', [WalletController::class, 'deposit'])->name('wallet.deposit');
                 Route::get('wallet/withdraw', [WalletController::class, 'withdrawForm'])->name('wallet.withdraw.form');
                 Route::post('wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
+                Route::get('wallet/export', [WalletController::class, 'exportTransactions'])->name('wallet.export');
+                Route::get('wallet/transaction/{transaction}', [WalletController::class, 'getTransaction'])->name('wallet.transaction');
             });
 
             // Redirect root warehouse path to dashboard if authenticated, otherwise to login

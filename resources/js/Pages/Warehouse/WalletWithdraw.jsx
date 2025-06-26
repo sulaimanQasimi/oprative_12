@@ -1,10 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Button } from '@/Components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/Components/ui/card';
-import { Wallet as WalletIcon, ArrowDownRight } from 'lucide-react';
+import { Badge } from '@/Components/ui/badge';
+import { Wallet as WalletIcon, ArrowDownRight, DollarSign, CreditCard, ArrowLeft, RefreshCw, AlertTriangle } from 'lucide-react';
 import Navigation from '@/Components/Warehouse/Navigation';
 import { motion } from 'framer-motion';
+import anime from 'animejs';
+import { useLaravelReactI18n } from "laravel-react-i18n";
+
+// Safe querySelector utility function
+const safeQuerySelector = (element, selector) => {
+    if (!element || !selector) return null;
+    try {
+        return element.querySelector(selector);
+    } catch (error) {
+        console.error("Error in querySelector:", error);
+        return null;
+    }
+};
 
 const PageLoader = ({ isVisible }) => (
     <motion.div
@@ -56,18 +70,79 @@ const PageLoader = ({ isVisible }) => (
 );
 
 export default function WalletWithdraw({ auth, warehouse, wallet }) {
+    const { t } = useLaravelReactI18n();
     const { data, setData, post, processing, errors } = useForm({ amount: '', description: '' });
     const [loading, setLoading] = useState(true);
-    useEffect(() => { const timer = setTimeout(() => setLoading(false), 1200); return () => clearTimeout(timer); }, []);
     const [success, setSuccess] = useState(null);
+    const [isAnimated, setIsAnimated] = useState(false);
+
+    // Refs for animation targets
+    const headerRef = useRef(null);
+    const formCardRef = useRef(null);
+    const timelineRef = useRef(null);
+
+    useEffect(() => {
+        const timer = setTimeout(() => setLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Initialize animations
+    useEffect(() => {
+        if (!isAnimated && !loading) {
+            timelineRef.current = anime.timeline({
+                easing: "easeOutExpo",
+                duration: 800,
+            });
+
+            timelineRef.current.add({
+                targets: headerRef.current,
+                opacity: [0, 1],
+                translateY: [-20, 0],
+                duration: 600,
+            });
+
+            timelineRef.current.add(
+                {
+                    targets: formCardRef.current,
+                    opacity: [0, 1],
+                    translateY: [30, 0],
+                    scale: [0.95, 1],
+                    duration: 700,
+                },
+                "-=400"
+            );
+
+            setIsAnimated(true);
+        }
+    }, [isAnimated, loading]);
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('warehouse.wallet.withdraw'), { onSuccess: () => setSuccess('Withdrawal successful!') });
+        post(route('warehouse.wallet.withdraw'), {
+            onSuccess: () => setSuccess('Withdrawal successful!'),
+            onError: () => {
+                // Add shake animation on error
+                if (formCardRef.current) {
+                    anime({
+                        targets: formCardRef.current,
+                        translateX: [0, -10, 10, -10, 10, 0],
+                        duration: 500,
+                        easing: "easeInOutQuart",
+                    });
+                }
+            }
+        });
     };
+
     return (
         <>
             <Head title={`Withdraw from ${warehouse.name} Wallet`}>
                 <style>{`
+                    @keyframes shimmer {
+                        0% { transform: translateX(-100%); }
+                        100% { transform: translateX(100%); }
+                    }
+                    .animate-shimmer { animation: shimmer 3s infinite; }
                     .bg-grid-pattern {
                         background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
                             linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
@@ -83,44 +158,236 @@ export default function WalletWithdraw({ auth, warehouse, wallet }) {
             <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">
                 <Navigation auth={auth} currentRoute="warehouse.wallet" />
                 <div className="flex-1 flex flex-col overflow-hidden">
-                    <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
+                    <header ref={headerRef} className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
                         <div className="flex items-center space-x-4">
                             <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">Wallet</span>
+                                <span className="text-xs font-semibold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5">Wallet Management</span>
                                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
                                     Withdraw from {warehouse.name} Wallet
+                                    <Badge variant="outline" className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800 rounded-full">
+                                        Balance: {wallet.balance} AFN
+                                    </Badge>
                                 </h1>
                             </div>
                         </div>
+                        <div className="flex gap-2">
+                            <Link href={route('warehouse.wallet')}>
+                                <Button variant="outline" className="border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg flex items-center gap-2">
+                                    <ArrowLeft className="h-4 w-4" />
+                                    Back to Wallet
+                                </Button>
+                            </Link>
+                            <Button size="sm" variant="outline" className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg">
+                                <RefreshCw className="h-3.5 w-3.5" />
+                                Refresh
+                            </Button>
+                        </div>
                     </header>
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                        <div className="p-6 max-w-xl mx-auto">
-                            <Card className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden">
-                                <CardHeader className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800 px-5 py-3">
-                                    <CardTitle className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                                        <ArrowDownRight className="h-5 w-5 text-red-500" /> Withdraw
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <form onSubmit={handleSubmit} className="space-y-6 mt-2">
-                                        <div>
-                                            <label className="block mb-1 font-medium">Amount (AFN)</label>
-                                            <input type="number" min="0.01" step="0.01" className="w-full border rounded px-3 py-2" value={data.amount} onChange={e => setData('amount', e.target.value)} required />
-                                            {errors.amount && <div className="text-red-600 text-xs mt-1">{errors.amount}</div>}
+                        {/* Background decoration */}
+                        <div className="absolute inset-0 pointer-events-none">
+                            <div className="absolute -left-40 -top-40 w-96 h-96 bg-rose-200/20 dark:bg-rose-900/10 rounded-full filter blur-3xl animate-pulse"></div>
+                            <div className="absolute right-20 top-10 w-72 h-72 bg-red-200/20 dark:bg-red-900/10 rounded-full filter blur-3xl animate-pulse" style={{ animationDuration: "15s" }}></div>
+                        </div>
+
+                        <div className="p-6 max-w-2xl mx-auto relative z-10">
+                            {/* Current Balance Card */}
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
+                                className="mb-8"
+                            >
+                                <Card className="bg-gradient-to-br from-rose-500 to-red-600 text-white border-0 rounded-2xl shadow-lg overflow-hidden relative group">
+                                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent backdrop-blur-[1px] opacity-50"></div>
+                                    <div className="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-bl-full transform rotate-12 -translate-y-8 translate-x-8"></div>
+                                    <motion.div
+                                        initial={{ opacity: 0.1, scale: 0.8 }}
+                                        animate={{ opacity: [0.1, 0.15, 0.1], scale: [0.8, 0.9, 0.8] }}
+                                        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                                        className="absolute right-4 bottom-4"
+                                    >
+                                        <CreditCard className="h-16 w-16" />
+                                    </motion.div>
+                                    <CardContent className="p-6 relative z-10">
+                                        <div className="flex justify-between items-center mb-4">
+                                            <span className="font-medium text-lg">Available Balance</span>
+                                            <div className="p-2.5 bg-white/20 rounded-lg shadow-inner backdrop-blur-sm border border-white/10">
+                                                <WalletIcon className="h-6 w-6" />
+                                            </div>
                                         </div>
-                                        <div>
-                                            <label className="block mb-1 font-medium">Description</label>
-                                            <input type="text" className="w-full border rounded px-3 py-2" value={data.description} onChange={e => setData('description', e.target.value)} />
-                                            {errors.description && <div className="text-red-600 text-xs mt-1">{errors.description}</div>}
+                                        <div className="text-3xl font-bold">{wallet.balance} AFN</div>
+                                        <div className="mt-4 text-sm flex items-center text-white/90 backdrop-blur-sm bg-white/10 py-1.5 px-3 rounded-lg w-fit border border-white/10">
+                                            <span>Available for withdrawal</span>
                                         </div>
-                                        <Button type="submit" disabled={processing}>Withdraw</Button>
-                                        {success && <div className="text-green-600 mt-2">{success}</div>}
-                                    </form>
-                                    <div className="mt-4">
-                                        <Link href={route('warehouse.wallet')} className="text-blue-600">Back to Wallet</Link>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
+
+                            {/* Withdrawal Form */}
+                            <motion.div
+                                ref={formCardRef}
+                                className="relative"
+                                onHoverStart={(e) => {
+                                    try {
+                                        anime({
+                                            targets: e.currentTarget,
+                                            boxShadow: ["0 4px 12px rgba(0,0,0,0.1)", "0 20px 40px rgba(0,0,0,0.15)"],
+                                            translateY: [0, -5],
+                                            duration: 300,
+                                            easing: "easeOutQuint",
+                                        });
+                                        const shineElement = safeQuerySelector(e.currentTarget, ".card-shine");
+                                        if (shineElement) {
+                                            anime({
+                                                targets: shineElement,
+                                                translateX: ["0%", "100%"],
+                                                duration: 1200,
+                                                easing: "easeInOutQuart",
+                                            });
+                                        }
+                                    } catch (error) {
+                                        console.error("Error in onHoverStart:", error);
+                                    }
+                                }}
+                                onHoverEnd={(e) => {
+                                    try {
+                                        anime({
+                                            targets: e.currentTarget,
+                                            boxShadow: ["0 20px 40px rgba(0,0,0,0.15)", "0 4px 12px rgba(0,0,0,0.1)"],
+                                            translateY: [-5, 0],
+                                            duration: 300,
+                                            easing: "easeOutQuint",
+                                        });
+                                    } catch (error) {
+                                        console.error("Error in onHoverEnd:", error);
+                                    }
+                                }}
+                            >
+                                <Card className="border border-slate-200 dark:border-slate-800 shadow-sm rounded-2xl overflow-hidden relative">
+                                    <div className="card-shine absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full pointer-events-none"></div>
+                                    <CardHeader className="bg-gradient-to-r from-rose-50 via-white to-rose-50 dark:from-slate-800/50 dark:via-slate-900 dark:to-slate-800/50 border-b border-slate-200 dark:border-slate-800 px-6 py-4 relative">
+                                        <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]"></div>
+                                        <CardTitle className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3 relative z-10">
+                                            <div className="p-2 bg-rose-500 rounded-lg shadow-lg">
+                                                <ArrowDownRight className="h-6 w-6 text-white" />
+                                            </div>
+                                            Withdraw Funds
+                                        </CardTitle>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 relative z-10">
+                                            Withdraw funds from your wallet (ensure sufficient balance)
+                                        </p>
+                                    </CardHeader>
+                                    <CardContent className="p-6">
+                                        <form onSubmit={handleSubmit} className="space-y-6">
+                                            <motion.div
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ duration: 0.4, delay: 0.3 }}
+                                            >
+                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                    Amount (AFN) <span className="text-red-500">*</span>
+                                                </label>
+                                                <div className="relative">
+                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <DollarSign className="h-5 w-5 text-slate-400" />
+                                                    </div>
+                                                    <input
+                                                        type="number"
+                                                        min="0.01"
+                                                        step="0.01"
+                                                        max={wallet.balance}
+                                                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-all duration-200 text-lg font-medium"
+                                                        placeholder="Enter amount to withdraw"
+                                                        value={data.amount}
+                                                        onChange={e => setData('amount', e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                {errors.amount && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="text-red-600 text-sm mt-2 flex items-center gap-1"
+                                                    >
+                                                        <span className="h-1 w-1 rounded-full bg-red-500"></span>
+                                                        {errors.amount}
+                                                    </motion.div>
+                                                )}
+                                                <div className="text-sm text-slate-500 dark:text-slate-400 mt-2 flex items-center gap-1">
+                                                    <AlertTriangle className="h-3 w-3" />
+                                                    Available balance: {wallet.balance} AFN
+                                                </div>
+                                            </motion.div>
+
+                                            <motion.div
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ duration: 0.4, delay: 0.4 }}
+                                            >
+                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                    Description (Optional)
+                                                </label>
+                                                <textarea
+                                                    rows={3}
+                                                    className="w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-rose-500/30 focus:border-rose-500 transition-all duration-200 resize-none"
+                                                    placeholder="Enter a description for this withdrawal..."
+                                                    value={data.description}
+                                                    onChange={e => setData('description', e.target.value)}
+                                                />
+                                                {errors.description && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        className="text-red-600 text-sm mt-2 flex items-center gap-1"
+                                                    >
+                                                        <span className="h-1 w-1 rounded-full bg-red-500"></span>
+                                                        {errors.description}
+                                                    </motion.div>
+                                                )}
+                                            </motion.div>
+
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                transition={{ duration: 0.4, delay: 0.5 }}
+                                                className="flex items-center gap-3 pt-4"
+                                            >
+                                                <Button
+                                                    type="submit"
+                                                    disabled={processing || Number(data.amount) > wallet.balance}
+                                                    className="flex-1 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white font-medium py-3 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                                                >
+                                                    {processing ? (
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                            Processing...
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center gap-2">
+                                                            <ArrowDownRight className="h-5 w-5" />
+                                                            Withdraw Funds
+                                                        </div>
+                                                    )}
+                                                </Button>
+                                            </motion.div>
+
+                                            {success && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, scale: 0.95 }}
+                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4"
+                                                >
+                                                    <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                                                        <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                                                        <span className="font-medium">{success}</span>
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </form>
+                                    </CardContent>
+                                </Card>
+                            </motion.div>
                         </div>
                     </main>
                 </div>
