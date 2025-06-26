@@ -13,7 +13,7 @@ use Bavix\Wallet\Interfaces\Wallet;
 class Warehouse extends Model implements Wallet
 {
     use SoftDeletes;
-    use HasWallet       ;
+    use HasWallet;
 
     protected $fillable = [
         'name',
