@@ -669,7 +669,7 @@ export default function CreateOutcome({ auth, warehouse, products, errors }) {
                                                                     {t("Actual Quantity")}
                                                                 </p>
                                                                 <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                                                                    {calculatedQuantity.toLocaleString()}
+                                                                    {data.quantity}
                                                                 </p>
                                                                 <p className="text-xs text-slate-500 mt-1">{t("units")}</p>
                                                             </motion.div>
@@ -694,7 +694,7 @@ export default function CreateOutcome({ auth, warehouse, products, errors }) {
                                                                     {t("Total Value")}
                                                                 </p>
                                                                 <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                                                                    {formatCurrency(calculatedTotal)}
+                                                                    {formatCurrency(data.price * data.quantity)}
                                                                 </p>
                                                             </motion.div>
                                                         </div>
