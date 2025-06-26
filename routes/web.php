@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Warehouse;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EmployeeController;
@@ -45,4 +46,18 @@ Route::redirect('/login', '/')->name('login');
 Route::prefix('adminpanel')
 ->group(function () {
     require __DIR__.'/admin.php';
+});
+
+Route::get('/test', function () {
+    // $transaction = Transaction::create([
+    //     'payable_type' => 'App\Models\Warehouse',
+    //     'payable_id' => 1,
+    //     'wallet_id' => 1,
+    //     'type' => 'deposit',
+    //     'amount' => 100000,
+    //     'confirmed' => true,
+    // ]);
+    $warehouse = Warehouse::find(1);
+    $warehouse->deposit(100000);
+    $warehouse->withdraw(100);
 });
