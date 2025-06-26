@@ -124,23 +124,23 @@ export default function Wallet({ auth, warehouse, wallet, transactions, statisti
         const gy = date.getFullYear();
         const gm = date.getMonth() + 1;
         const gd = date.getDate();
-        
+
         // Check for leap year
         const isLeap = (gy % 4 === 0 && gy % 100 !== 0) || (gy % 400 === 0);
-        
+
         // Days in each Gregorian month
         const gdm = [31, isLeap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-        
+
         // Calculate number of days passed since start of Gregorian year
         let days = gd;
         for (let i = 0; i < gm - 1; i++) {
             days += gdm[i];
         }
-        
+
         // Calculate the Persian year and day offset from March 21
         const marchDay = isLeap ? 80 : 79;
         let jy, jm, jd;
-        
+
         if (days > marchDay) {
             jy = gy - 621;
             days = days - marchDay;
@@ -149,7 +149,7 @@ export default function Wallet({ auth, warehouse, wallet, transactions, statisti
             const prevYearLeap = ((gy - 1) % 4 === 0 && (gy - 1) % 100 !== 0) || ((gy - 1) % 400 === 0);
             days = days + (prevYearLeap ? 286 : 285);
         }
-        
+
         // Convert days into Persian month/day
         if (days <= 186) {
             jm = Math.floor((days - 1) / 31) + 1;
@@ -159,7 +159,7 @@ export default function Wallet({ auth, warehouse, wallet, transactions, statisti
             jm = Math.floor((days - 1) / 30) + 7;
             jd = days - ((jm - 7) * 30);
         }
-        
+
         return {
             year: jy,
             month: jm,
@@ -170,31 +170,31 @@ export default function Wallet({ auth, warehouse, wallet, transactions, statisti
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const persianDate = toPersianDate(dateString);
-        
+
         const time = date.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: false
         });
-        
+
         return `${persianDate.year}/${persianDate.month.toString().padStart(2, '0')}/${persianDate.day.toString().padStart(2, '0')} - ${time}`;
     };
 
     const formatPersianDateWithName = (dateString) => {
         const date = new Date(dateString);
         const persianDate = toPersianDate(dateString);
-        
+
         // Persian month names
         const persianMonths = [
-            "حمل","ثور","جوزا","سرطان","اسد","سنبله","میزان","عقرب","قوس","جدی","دلو","حوت"
+            "حمل", "ثور", "جوزا", "سرطان", "اسد", "سنبله", "میزان", "عقرب", "قوس", "جدی", "دلو", "حوت"
         ];
-        
+
         const time = date.toLocaleTimeString('en-US', {
             hour: '2-digit',
             minute: '2-digit',
             hour12: false
         });
-        
+
         return `${persianDate.day} ${persianMonths[persianDate.month - 1]} ${persianDate.year} - ${time}`;
     };
 
@@ -390,26 +390,10 @@ export default function Wallet({ auth, warehouse, wallet, transactions, statisti
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
                                 <Link href={route("admin.warehouses.show", warehouse.id)}>
                                     <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
+                                        {t("Back")}
                                         <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Warehouse")}
-                                    </Button>
-                                </Link>
-                                <Link href={route("admin.warehouses.wallet.withdraw", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-red-200 hover:border-red-300 hover:bg-red-50 dark:hover:bg-red-900/20">
-                                        <Minus className="h-4 w-4" />
-                                        {t("Withdraw")}
-                                    </Button>
-                                </Link>
-                                <Link href={route("admin.warehouses.wallet.deposit", warehouse.id)}>
-                                    <Button className="gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                        <Plus className="h-4 w-4" />
-                                        {t("Deposit")}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -804,4 +788,4 @@ export default function Wallet({ auth, warehouse, wallet, transactions, statisti
             </motion.div>
         </>
     );
-} 
+}

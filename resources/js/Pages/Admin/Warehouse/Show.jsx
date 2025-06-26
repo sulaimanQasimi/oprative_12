@@ -226,14 +226,8 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                 initial={{ x: 20, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-3"
+                                className="flex items-center space-x-2"
                             >
-                                <Link href={route("admin.warehouses.index")}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to List")}
-                                    </Button>
-                                </Link>
                                 {warehouse && warehousePermissions.can_update && (
                                     <Link href={route("admin.warehouses.edit", warehouse.id)}>
                                         <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:scale-105 transition-transform">
@@ -242,6 +236,13 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                         </Button>
                                     </Link>
                                 )}
+
+                                <Link href={route("admin.warehouses.index")} >
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform">
+                                        {t("Back")}
+                                        <ArrowLeft className="h-4 w-4" />
+                                    </Button>
+                                </Link>
 
                             </motion.div>
                         </div>
@@ -494,7 +495,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                                 className={`text-sm font-bold ${warehouse?.is_active
                                                                     ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
                                                                     : 'bg-gradient-to-r from-gray-500 to-slate-600 text-white'
-                                                                }`}
+                                                                    }`}
                                                             >
                                                                 {warehouse?.is_active ? t("Active") : t("Inactive")}
                                                             </Badge>

@@ -24,7 +24,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\SalesController;
-use App\Http\Controllers\Admin\{IncomeController,OutcomeController, TransferController};
+use App\Http\Controllers\Admin\{IncomeController, OutcomeController, TransferController};
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -183,7 +183,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employees.edit');
         Route::put('/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
         Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
-
     });
 
     // Attendance Settings routes
@@ -307,10 +306,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Warehouse wallet management
         Route::get('/{warehouse:id}/wallet', [WarehouseController::class, 'wallet'])->name('admin.warehouses.wallet');
-        Route::get('/{warehouse:id}/wallet/deposit', [WarehouseController::class, 'createDeposit'])->name('admin.warehouses.wallet.deposit');
-        Route::post('/{warehouse:id}/wallet/deposit', [WarehouseController::class, 'storeDeposit'])->name('admin.warehouses.wallet.deposit.store');
-        Route::get('/{warehouse:id}/wallet/withdraw', [WarehouseController::class, 'createWithdraw'])->name('admin.warehouses.wallet.withdraw');
-        Route::post('/{warehouse:id}/wallet/withdraw', [WarehouseController::class, 'storeWithdraw'])->name('admin.warehouses.wallet.withdraw.store');
     });
 
     // Accounts Management

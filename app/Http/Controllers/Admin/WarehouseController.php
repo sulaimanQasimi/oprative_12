@@ -398,7 +398,7 @@ class WarehouseController extends Controller
                 'transfers' => $transfers,
                 'availableWarehouses' => $availableWarehouses,
                 'products' => $products,
-               
+
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse transfers: ' . $e->getMessage());
@@ -456,7 +456,7 @@ class WarehouseController extends Controller
                 ],
                 'warehouses' => $availableWarehouses,
                 'warehouseProducts' => $warehouseProducts,
-               
+
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading create transfer page: ' . $e->getMessage());
@@ -618,7 +618,7 @@ class WarehouseController extends Controller
                     'is_active' => $warehouse->is_active,
                 ],
                 'sales' => $sales,
-               
+
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse sales: ' . $e->getMessage());
@@ -674,7 +674,7 @@ class WarehouseController extends Controller
                 ],
                 'customers' => $customers,
                 'warehouseProducts' => $warehouseProducts,
-               
+
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading create store movement page: ' . $e->getMessage());
@@ -831,28 +831,7 @@ class WarehouseController extends Controller
     {
         try {
             // Get wallet balance and transactions using direct approach
-            $wallet = \Bavix\Wallet\Models\Wallet::where('holder_type', Warehouse::class)
-                ->where('holder_id', $warehouse->id)
-                ->first();
-            
-            if (!$wallet) {
-                try {
-                    // Create wallet if it doesn't exist
-                    $wallet = $warehouse->createWallet([
-                        'name' => $warehouse->name . ' Wallet',
-                        'slug' => 'warehouse-' . $warehouse->id,
-                    ]);
-                } catch (\Exception $e) {
-                    Log::error('Error creating wallet: ' . $e->getMessage());
-                    throw new \Exception('Failed to create wallet: ' . $e->getMessage());
-                }
-            }
-
-            // Ensure wallet exists and is properly loaded
-            if (!$wallet) {
-                throw new \Exception('Failed to create or load wallet for warehouse');
-            }
-
+            $wallet = $warehouse->wallet;
             // Get recent transactions with error handling
             $transactions = collect();
             try {
@@ -893,7 +872,7 @@ class WarehouseController extends Controller
             } catch (\Exception $e) {
                 Log::warning('Error calculating transaction statistics: ' . $e->getMessage());
             }
-            
+
             $currentBalance = $wallet->balance;
 
             return Inertia::render('Admin/Warehouse/Wallet', [
@@ -925,153 +904,6 @@ class WarehouseController extends Controller
             Log::error('Error loading warehouse wallet: ' . $e->getMessage());
             return redirect()->route('admin.warehouses.show', $warehouse->id)
                 ->with('error', 'Error loading warehouse wallet: ' . $e->getMessage());
-        }
-    }
-
-    public function createDeposit(Warehouse $warehouse)
-    {
-        try {
-            $wallet = $warehouse->wallet;
-            
-            if (!$wallet) {
-                $wallet = $warehouse->createWallet([
-                    'name' => $warehouse->name . ' Wallet',
-                    'slug' => 'warehouse-' . $warehouse->id,
-                ]);
-            }
-
-            return Inertia::render('Admin/Warehouse/CreateDeposit', [
-                'warehouse' => [
-                    'id' => $warehouse->id,
-                    'name' => $warehouse->name,
-                    'code' => $warehouse->code,
-                    'description' => $warehouse->description,
-                    'is_active' => $warehouse->is_active,
-                ],
-                'wallet' => [
-                    'id' => $wallet->id,
-                    'name' => $wallet->name,
-                    'balance' => $wallet->balance,
-                    'balance_formatted' => number_format($wallet->balance, 2),
-                ],
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error loading create deposit page: ' . $e->getMessage());
-            return redirect()->route('admin.warehouses.wallet', $warehouse->id)
-                ->with('error', 'Error loading create deposit page: ' . $e->getMessage());
-        }
-    }
-
-    public function storeDeposit(Request $request, Warehouse $warehouse)
-    {
-        try {
-            $validated = $request->validate([
-                'amount' => 'required|numeric|min:0.01',
-                'description' => 'nullable|string|max:1000',
-                'reference' => 'nullable|string|max:255',
-            ]);
-
-            $wallet = $warehouse->wallet;
-            
-            if (!$wallet) {
-                $wallet = $warehouse->createWallet([
-                    'name' => $warehouse->name . ' Wallet',
-                    'slug' => 'warehouse-' . $warehouse->id,
-                ]);
-            }
-
-            // Create deposit transaction
-            $transaction = $wallet->deposit($validated['amount'], [
-                'description' => $validated['description'] ?? 'Manual deposit',
-                'reference' => $validated['reference'] ?? 'DEP-' . date('YmdHis') . '-' . rand(100, 999),
-                'created_by' => Auth::id(),
-                'warehouse_id' => $warehouse->id,
-            ]);
-
-            return redirect()->route('admin.warehouses.wallet', $warehouse->id)
-                ->with('success', 'Deposit of ' . number_format($validated['amount'], 2) . ' AFN completed successfully.');
-        } catch (\Exception $e) {
-            Log::error('Error creating deposit: ' . $e->getMessage());
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Error creating deposit: ' . $e->getMessage()]);
-        }
-    }
-
-    public function createWithdraw(Warehouse $warehouse)
-    {
-        try {
-            $wallet = $warehouse->wallet;
-            
-            if (!$wallet) {
-                $wallet = $warehouse->createWallet([
-                    'name' => $warehouse->name . ' Wallet',
-                    'slug' => 'warehouse-' . $warehouse->id,
-                ]);
-            }
-
-            return Inertia::render('Admin/Warehouse/CreateWithdraw', [
-                'warehouse' => [
-                    'id' => $warehouse->id,
-                    'name' => $warehouse->name,
-                    'code' => $warehouse->code,
-                    'description' => $warehouse->description,
-                    'is_active' => $warehouse->is_active,
-                ],
-                'wallet' => [
-                    'id' => $wallet->id,
-                    'name' => $wallet->name,
-                    'balance' => $wallet->balance,
-                    'balance_formatted' => number_format($wallet->balance, 2),
-                ],
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error loading create withdraw page: ' . $e->getMessage());
-            return redirect()->route('admin.warehouses.wallet', $warehouse->id)
-                ->with('error', 'Error loading create withdraw page: ' . $e->getMessage());
-        }
-    }
-
-    public function storeWithdraw(Request $request, Warehouse $warehouse)
-    {
-        try {
-            $validated = $request->validate([
-                'amount' => 'required|numeric|min:0.01',
-                'description' => 'nullable|string|max:1000',
-                'reference' => 'nullable|string|max:255',
-            ]);
-
-            $wallet = $warehouse->wallet;
-            
-            if (!$wallet) {
-                $wallet = $warehouse->createWallet([
-                    'name' => $warehouse->name . ' Wallet',
-                    'slug' => 'warehouse-' . $warehouse->id,
-                ]);
-            }
-
-            // Check if sufficient balance
-            if ($wallet->balance < $validated['amount']) {
-                return redirect()->back()
-                    ->withInput()
-                    ->withErrors(['amount' => 'Insufficient balance. Available: ' . number_format($wallet->balance, 2) . ' AFN']);
-            }
-
-            // Create withdrawal transaction
-            $transaction = $wallet->withdraw($validated['amount'], [
-                'description' => $validated['description'] ?? 'Manual withdrawal',
-                'reference' => $validated['reference'] ?? 'WTH-' . date('YmdHis') . '-' . rand(100, 999),
-                'created_by' => Auth::id(),
-                'warehouse_id' => $warehouse->id,
-            ]);
-
-            return redirect()->route('admin.warehouses.wallet', $warehouse->id)
-                ->with('success', 'Withdrawal of ' . number_format($validated['amount'], 2) . ' AFN completed successfully.');
-        } catch (\Exception $e) {
-            Log::error('Error creating withdrawal: ' . $e->getMessage());
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Error creating withdrawal: ' . $e->getMessage()]);
         }
     }
 }
