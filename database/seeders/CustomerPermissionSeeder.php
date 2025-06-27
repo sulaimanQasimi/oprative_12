@@ -21,10 +21,10 @@ class CustomerPermissionSeeder extends Seeder
         $customerPermissions = [
             
             //Wallet permissions
-            'warehouse.view_wallet'=>"مشاهده کیف پول",
-            'warehouse.withdraw_wallet'=>"برداشت از کیف پول",
-            'warehouse.deposit_wallet'=>"واریز در کیف پول",
-            
+            'customer.view_wallet'=>"مشاهده کیف پول",
+            'customer.withdraw_wallet'=>"برداشت از کیف پول",
+            'customer.deposit_wallet'=>"واریز در کیف پول",
+
             "customer.view_stock"=>"دیدن موجودی",
             // Orders permissions
             'customer.view_orders'=>"دیدن سفارشات",

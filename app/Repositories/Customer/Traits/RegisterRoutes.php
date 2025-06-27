@@ -216,6 +216,35 @@ trait RegisterRoutes
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.manage_sales')
                         ->name('sales.confirm');
 
+                    // Customer Wallet routes
+                    Route::get('/wallet', [\App\Http\Controllers\Customer\WalletController::class, 'wallet'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_wallet')
+                        ->name('wallet');
+
+                    Route::get('/wallet/deposit', [\App\Http\Controllers\Customer\WalletController::class, 'depositForm'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.deposit_wallet')
+                        ->name('wallet.deposit.form');
+
+                    Route::post('/wallet/deposit', [\App\Http\Controllers\Customer\WalletController::class, 'deposit'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.deposit_wallet')
+                        ->name('wallet.deposit');
+
+                    Route::get('/wallet/withdraw', [\App\Http\Controllers\Customer\WalletController::class, 'withdrawForm'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.withdraw_wallet')
+                        ->name('wallet.withdraw.form');
+
+                    Route::post('/wallet/withdraw', [\App\Http\Controllers\Customer\WalletController::class, 'withdraw'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.withdraw_wallet')
+                        ->name('wallet.withdraw');
+
+                    Route::get('/wallet/export', [\App\Http\Controllers\Customer\WalletController::class, 'exportTransactions'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_wallet')
+                        ->name('wallet.export');
+
+                    Route::get('/wallet/transaction/{transactionId}', [\App\Http\Controllers\Customer\WalletController::class, 'getTransaction'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_wallet')
+                        ->name('wallet.transaction');
+
                     // Customer Reports route
                     Route::get('/reports', [\App\Http\Controllers\Customer\ReportsController::class, 'index'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_reports')
