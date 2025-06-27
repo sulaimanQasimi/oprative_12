@@ -857,86 +857,130 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                                         style={{ boxShadow: '0 4px 20px -2px rgba(103, 58, 183, 0.15)' }}
                                                     >
                                                         {/* First Page Button */}
-                                                        <Link
-                                                            href={sales.first_page_url}
-                                                            className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
-                                                                sales.current_page === 1
-                                                                    ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                                                                    : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300'
-                                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l`}
-                                                            disabled={sales.current_page === 1}
-                                                        >
-                                                            <span className="sr-only">{t('First Page')}</span>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                                                            </svg>
-                                                        </Link>
+                                                        {sales.first_page_url && sales.current_page !== 1 ? (
+                                                            <Link
+                                                                href={sales.first_page_url}
+                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
+                                                            >
+                                                                <span className="sr-only">{t('First Page')}</span>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </Link>
+                                                        ) : (
+                                                            <button
+                                                                disabled
+                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
+                                                            >
+                                                                <span className="sr-only">{t('First Page')}</span>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </button>
+                                                        )}
 
                                                         {/* Previous Page Button */}
-                                                        <Link
-                                                            href={sales.prev_page_url}
-                                                            className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
-                                                                sales.prev_page_url === null
-                                                                    ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                                                                    : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300'
-                                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l`}
-                                                            disabled={sales.prev_page_url === null}
-                                                        >
-                                                            <span className="sr-only">{t('Previous')}</span>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                            </svg>
-                                                        </Link>
+                                                        {sales.prev_page_url ? (
+                                                            <Link
+                                                                href={sales.prev_page_url}
+                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
+                                                            >
+                                                                <span className="sr-only">{t('Previous')}</span>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </Link>
+                                                        ) : (
+                                                            <button
+                                                                disabled
+                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
+                                                            >
+                                                                <span className="sr-only">{t('Previous')}</span>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </button>
+                                                        )}
 
                                                         {/* Page Numbers */}
                                                         {sales.links.slice(1, -1).map((link, index) => (
-                                                            <Link
-                                                                key={index}
-                                                                href={link.url}
-                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l ${
-                                                                    link.active
-                                                                        ? 'z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-md transform scale-105'
-                                                                        : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400'
-                                                                }`}
-                                                            >
-                                                                {link.label.replace(/&laquo;|&raquo;/g, '')}
-                                                                {link.active && (
-                                                                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full transform translate-y-1/2 opacity-60"></span>
-                                                                )}
-                                                            </Link>
+                                                            link.url ? (
+                                                                <Link
+                                                                    key={index}
+                                                                    href={link.url}
+                                                                    className={`relative inline-flex items-center px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l ${
+                                                                        link.active
+                                                                            ? 'z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-md transform scale-105'
+                                                                            : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400'
+                                                                    }`}
+                                                                >
+                                                                    {link.label.replace(/&laquo;|&raquo;/g, '')}
+                                                                    {link.active && (
+                                                                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full transform translate-y-1/2 opacity-60"></span>
+                                                                    )}
+                                                                </Link>
+                                                            ) : (
+                                                                <span
+                                                                    key={index}
+                                                                    className={`relative inline-flex items-center px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l ${
+                                                                        link.active
+                                                                            ? 'z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-md transform scale-105'
+                                                                            : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300'
+                                                                    }`}
+                                                                >
+                                                                    {link.label.replace(/&laquo;|&raquo;/g, '')}
+                                                                    {link.active && (
+                                                                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full transform translate-y-1/2 opacity-60"></span>
+                                                                    )}
+                                                                </span>
+                                                            )
                                                         ))}
 
                                                         {/* Next Page Button */}
-                                                        <Link
-                                                            href={sales.next_page_url}
-                                                            className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
-                                                                sales.next_page_url === null
-                                                                    ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                                                                    : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300'
-                                                            } transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l`}
-                                                            disabled={sales.next_page_url === null}
-                                                        >
-                                                            <span className="sr-only">{t('Next')}</span>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                                            </svg>
-                                                        </Link>
+                                                        {sales.next_page_url ? (
+                                                            <Link
+                                                                href={sales.next_page_url}
+                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
+                                                            >
+                                                                <span className="sr-only">{t('Next')}</span>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </Link>
+                                                        ) : (
+                                                            <button
+                                                                disabled
+                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
+                                                            >
+                                                                <span className="sr-only">{t('Next')}</span>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </button>
+                                                        )}
 
                                                         {/* Last Page Button */}
-                                                        <Link
-                                                            href={sales.last_page_url}
-                                                            className={`relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium ${
-                                                                sales.current_page === sales.last_page
-                                                                    ? 'bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                                                                    : 'bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300'
-                                                            } transition-colors duration-200 ease-in-out rtl:rotate-180`}
-                                                            disabled={sales.current_page === sales.last_page}
-                                                        >
-                                                            <span className="sr-only">{t('Last Page')}</span>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 6.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0zm6 0a1 1 0 010-1.414L14.586 10l-4.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                                            </svg>
-                                                        </Link>
+                                                        {sales.last_page_url && sales.current_page !== sales.last_page ? (
+                                                            <Link
+                                                                href={sales.last_page_url}
+                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-200 ease-in-out rtl:rotate-180"
+                                                            >
+                                                                <span className="sr-only">{t('Last Page')}</span>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 6.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0zm6 0a1 1 0 010-1.414L14.586 10l-4.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </Link>
+                                                        ) : (
+                                                            <button
+                                                                disabled
+                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed transition-colors duration-200 ease-in-out rtl:rotate-180"
+                                                            >
+                                                                <span className="sr-only">{t('Last Page')}</span>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                                                    <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 6.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0zm6 0a1 1 0 010-1.414L14.586 10l-4.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                                                                </svg>
+                                                            </button>
+                                                        )}
                                                     </nav>
                                                 </div>
                                             )}
