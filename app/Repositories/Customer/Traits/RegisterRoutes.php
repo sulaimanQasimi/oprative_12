@@ -46,7 +46,6 @@ trait RegisterRoutes
 
                     // Dashboard product search
                     Route::get('dashboard/search-products', [DashboardController::class, 'searchProducts'])
-                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_dashboard')
                         ->name('dashboard.search-products');
 
                     // Market Order routes (controller-based)
@@ -77,12 +76,10 @@ trait RegisterRoutes
 
                     // Stock Products route
                     Route::get('stock-products', [\App\Http\Controllers\Customer\StockProductsController::class, 'index'])
-                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
                         ->name('stock-products');
 
                     // Stock Incomes and Outcomes routes
                     Route::get('stock-incomes', [\App\Http\Controllers\Customer\StockIncomeController::class, 'index'])
-                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
                         ->name('stock-incomes.index');
 
                     Route::get('stock-incomes/create', [\App\Http\Controllers\Customer\StockIncomeController::class, 'create'])

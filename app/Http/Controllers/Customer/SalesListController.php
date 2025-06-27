@@ -13,8 +13,6 @@ use Inertia\Inertia;
 
 class SalesListController extends Controller
 {
-
-
     public function index(Request $request)
     {
         $request->validate([
@@ -146,10 +144,7 @@ class SalesListController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'message' => __('Sale confirmed successfully.'),
-                'success' => true
-            ]);
+            return redirect()->back();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
