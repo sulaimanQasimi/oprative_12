@@ -13,6 +13,7 @@ use App\Models\AccountOutcome;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log as FacadesLog;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia;
 use Log;
@@ -373,6 +374,8 @@ class MarketOrderController extends Controller
                 'order_status' => 'completed',
                 'notes' => $notes
             ]);
+            //
+            $order->customer->deposit($subtotal,['description'=>$order->order_number]);
 
             // Process each order item
             foreach ($items as $item) {
@@ -400,7 +403,7 @@ class MarketOrderController extends Controller
                 }
 
                 // Log for debugging
-                Log::info("Processing item: Product ID {$item['product_id']}, Wholesale: " . ($isWholesale ? 'Yes' : 'No') . ", Quantity: {$item['quantity']}, Unit Amount: {$unitAmount}, Actual Units: {$actualUnitsNeeded}");
+                FacadesLog::info("Processing item: Product ID {$item['product_id']}, Wholesale: " . ($isWholesale ? 'Yes' : 'No') . ", Quantity: {$item['quantity']}, Unit Amount: {$unitAmount}, Actual Units: {$actualUnitsNeeded}");
                 
                 $storeQuantity = $actualUnitsNeeded; // Always store actual units consumed
                 $frontendTotal = floatval($item['total']); // What the frontend calculated and customer saw
@@ -417,7 +420,7 @@ class MarketOrderController extends Controller
                     // Validate against frontend total with small tolerance
                     $tolerance = 0.01; // 1 cent tolerance
                     if (abs($calculatedSubtotal - $frontendTotal) > $tolerance) {
-                        Log::warning("Retail price mismatch - using frontend total", [
+                        FacadesLog::warning("Retail price mismatch - using frontend total", [
                             'product_id' => $item['product_id'],
                             'calculated' => $calculatedSubtotal,
                             'frontend' => $frontendTotal,
