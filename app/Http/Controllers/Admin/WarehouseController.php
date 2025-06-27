@@ -38,6 +38,7 @@ class WarehouseController extends Controller
         $this->middleware('permission:delete_warehouse')->only(['destroy']);
         $this->middleware('permission:restore_warehouse')->only(['restore']);
         $this->middleware('permission:force_delete_warehouse')->only(['forceDelete']);
+        
     }
     public function index()
     {
@@ -821,6 +822,7 @@ class WarehouseController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading sale details: ' . $e->getMessage());
+            
             return redirect()->route('admin.warehouses.sales', $warehouse->id)
                 ->with('error', 'Sale not found or error loading sale details.');
         }

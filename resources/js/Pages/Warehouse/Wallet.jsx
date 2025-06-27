@@ -165,6 +165,7 @@ const Pagination = ({ data, onPageChange }) => {
 };
 
 export default function Wallet({ auth, warehouse, wallet, transactions, statistics, filters }) {
+
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -349,18 +350,29 @@ export default function Wallet({ auth, warehouse, wallet, transactions, statisti
                             </div>
                         </div>
                         <div className="flex gap-2">
-                            <Link href={route('warehouse.wallet.deposit.form')}>
-                                <Button className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2">
-                                    <Plus className="h-4 w-4" />
-                                    Deposit
-                                </Button>
-                            </Link>
-                            <Link href={route('warehouse.wallet.withdraw.form')}>
-                                <Button variant="outline" className="border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg flex items-center gap-2">
-                                    <ArrowDownRight className="h-4 w-4" />
-                                    Withdraw
-                                </Button>
-                            </Link>
+                            {
+                                (warehouse.permissions.withdraw_wallet) && (
+
+                                    <Link href={route('warehouse.wallet.withdraw.form')}>
+                                        <Button variant="outline" className="border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg flex items-center gap-2">
+                                            <ArrowDownRight className="h-4 w-4" />
+                                            Withdraw
+                                        </Button>
+                                    </Link>
+                                )
+
+                            }
+
+
+                            {(warehouse.permissions.deposit_wallet) && (
+
+                                <Link href={route('warehouse.wallet.deposit.form')}>
+                                    <Button className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-2">
+                                        <Plus className="h-4 w-4" />
+                                        Deposit
+                                    </Button>
+                                </Link>
+                            )}
                             <Button
                                 size="sm"
                                 variant="outline"
@@ -690,8 +702,8 @@ export default function Wallet({ auth, warehouse, wallet, transactions, statisti
                                                             <span>Transaction</span>
                                                             {sortBy === 'type' && (
                                                                 sortOrder === 'asc' ?
-                                                                <SortAsc className="h-3 w-3 ml-1" /> :
-                                                                <SortDesc className="h-3 w-3 ml-1" />
+                                                                    <SortAsc className="h-3 w-3 ml-1" /> :
+                                                                    <SortDesc className="h-3 w-3 ml-1" />
                                                             )}
                                                         </Button>
                                                     </div>
@@ -705,8 +717,8 @@ export default function Wallet({ auth, warehouse, wallet, transactions, statisti
                                                             <span>Amount</span>
                                                             {sortBy === 'amount' && (
                                                                 sortOrder === 'asc' ?
-                                                                <SortAsc className="h-3 w-3 ml-1" /> :
-                                                                <SortDesc className="h-3 w-3 ml-1" />
+                                                                    <SortAsc className="h-3 w-3 ml-1" /> :
+                                                                    <SortDesc className="h-3 w-3 ml-1" />
                                                             )}
                                                         </Button>
                                                     </div>
@@ -723,8 +735,8 @@ export default function Wallet({ auth, warehouse, wallet, transactions, statisti
                                                             <span>Date & Time</span>
                                                             {sortBy === 'created_at' && (
                                                                 sortOrder === 'asc' ?
-                                                                <SortAsc className="h-3 w-3 ml-1" /> :
-                                                                <SortDesc className="h-3 w-3 ml-1" />
+                                                                    <SortAsc className="h-3 w-3 ml-1" /> :
+                                                                    <SortDesc className="h-3 w-3 ml-1" />
                                                             )}
                                                         </Button>
                                                     </div>

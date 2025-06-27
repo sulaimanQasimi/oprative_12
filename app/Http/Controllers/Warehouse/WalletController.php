@@ -13,9 +13,18 @@ use Carbon\Carbon;
 
 class WalletController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('permission:warehouse.view_wallet')->only(['wallet']);
+        $this->middleware('permission:warehouse.withdraw_wallet')->only(['withdrawForm', 'withdraw']);
+        $this->middleware('permission:warehouse.deposit_wallet')->only(['depositForm', 'deposit']);
+        // dd(5);;
+    }
     public function wallet(Request $request)
     {
         $warehouse = Auth::user()->warehouse ?? null;
+
         if (!$warehouse) {
             return redirect()->route('warehouse.dashboard')->with('error', 'No warehouse assigned.');
         }
@@ -50,8 +59,8 @@ class WalletController extends Controller
             ->when($search, function ($query) use ($search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('meta->description', 'like', "%{$search}%")
-                      ->orWhere('amount', 'like', "%{$search}%")
-                      ->orWhere('id', 'like', "%{$search}%");
+                        ->orWhere('amount', 'like', "%{$search}%")
+                        ->orWhere('id', 'like', "%{$search}%");
                 });
             })
             ->when($type, function ($query) use ($type) {
@@ -128,11 +137,17 @@ class WalletController extends Controller
                 'id' => $warehouse->id,
                 'name' => $warehouse->name,
                 'code' => $warehouse->code,
+                'permissions' => [
+                    'view_wallet' => Auth::user()->can('warehouse.view_wallet'),
+                    'withdraw_wallet' => Auth::user()->can('warehouse.withdraw_wallet'),
+                    'deposit_wallet' => Auth::user()->can('warehouse.deposit_wallet'),
+                ]
             ],
             'wallet' => [
                 'id' => $wallet->id,
                 'name' => $wallet->name,
                 'balance' => $currentBalance,
+
             ],
             'transactions' => $transactions,
             'statistics' => [
@@ -234,7 +249,6 @@ class WalletController extends Controller
 
             return redirect()->route('warehouse.wallet')
                 ->with('success', 'Deposit of ' . number_format($validated['amount'], 2) . ' AFN completed successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -334,7 +348,6 @@ class WalletController extends Controller
 
             return redirect()->route('warehouse.wallet')
                 ->with('success', 'Withdrawal of ' . number_format($validated['amount'], 2) . ' AFN completed successfully.');
-
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -373,7 +386,7 @@ class WalletController extends Controller
             ->when($search, function ($query) use ($search) {
                 return $query->where(function ($q) use ($search) {
                     $q->where('meta->description', 'like', "%{$search}%")
-                      ->orWhere('amount', 'like', "%{$search}%");
+                        ->orWhere('amount', 'like', "%{$search}%");
                 });
             })
             ->when($type, function ($query) use ($type) {
@@ -395,7 +408,7 @@ class WalletController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
 
-        $callback = function() use ($transactions) {
+        $callback = function () use ($transactions) {
             $file = fopen('php://output', 'w');
 
             // CSV Headers

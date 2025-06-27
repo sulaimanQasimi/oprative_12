@@ -45,7 +45,7 @@ class WarehousePermissionSeeder extends Seeder
 
         // Create all permissions
         foreach ($warehousePermissions as $permission =>$value) {
-            Permission::create(['name' => $permission,'label'=>$value, 'guard_name' => 'warehouse_user']);
+            Permission::updateOrCreate(['name' => $permission,],['label'=>$value, 'guard_name' => 'warehouse_user']);
         }
     }
 }

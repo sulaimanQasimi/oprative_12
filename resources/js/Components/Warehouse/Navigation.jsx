@@ -58,25 +58,29 @@ export default function Navigation({ auth, currentRoute }) {
             label: t('Move to Shop'),
             route: 'warehouse.sales',
             icon: Store,
-            routeKey: 'warehouse.sales'
+            routeKey: 'warehouse.sales',
+            permission:'warehouse.view_sales'
         },
         {
             label: t('Import'),
             route: 'warehouse.income',
             icon: Download,
-            routeKey: 'warehouse.income'
+            routeKey: 'warehouse.income',
+            permission:'warehouse.view_income'
         },
         {
             label: t('Export'),
             route: 'warehouse.outcome',
             icon: Upload,
-            routeKey: 'warehouse.outcome'
+            routeKey: 'warehouse.outcome',
+            permission:'warehouse.view_outcome'
         },
         {
             label: t('Wallet'),
             route: 'warehouse.wallet',
             icon: Wallet,
-            routeKey: 'warehouse.wallet'
+            routeKey: 'warehouse.wallet',
+            permission:'warehouse.view_wallet'
         }
     ];
 
@@ -136,7 +140,16 @@ export default function Navigation({ auth, currentRoute }) {
 
                     {/* Navigation Menu */}
                     <nav className="flex-1 p-4 lg:p-3 xl:p-4 space-y-1">
-                        {navigationItems.map((item) => {
+                        {navigationItems
+                        .filter(item=>{
+                            if(!item.permission)return true;
+                            
+                                            // Check if user has the required permission
+                                            const hasPermission = auth.user.permissions?.includes(item.permission);
+                                            return hasPermission;
+                        })
+                        
+                        .map((item) => {
                             const IconComponent = item.icon;
                             const isActive = currentRoute === item.routeKey;
 
