@@ -41,6 +41,7 @@ import { Checkbox } from "@/Components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Edit({ auth, customerUser, customers, permissions, customerPermissions = {}, errors }) {
     const { t } = useLaravelReactI18n();
@@ -210,13 +211,8 @@ export default function Edit({ auth, customerUser, customers, permissions, custo
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route("admin.customer-users.index")}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Users")}
-                                    </Button>
-                                </Link>
-                            </motion.div>
+                                <BackButton link={route("admin.customer-users.index")} />
+                             </motion.div>
                         </div>
                     </motion.header>
 
@@ -249,7 +245,7 @@ export default function Edit({ auth, customerUser, customers, permissions, custo
                                                 <Link href={route("admin.customer-users.index")}>
                                                     <Button variant="outline" className="gap-2">
                                                         <ArrowLeft className="h-4 w-4" />
-                                                        {t("Back to Users")}
+                                                        {t("Back")}
                                                     </Button>
                                                 </Link>
                                             </CardContent>

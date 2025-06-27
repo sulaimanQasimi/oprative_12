@@ -3,14 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Warehouse;
-use App\Models\WareHouseUser;
+use App\Models\{Warehouse, WareHouseUser, Product};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\{Auth,Gate,Hash,Log,DB};
+use Illuminate\Support\Facades\{Auth, Gate, Hash, Log, DB};
 use Spatie\Permission\Models\Role;
-use App\Models\Product;
-use App\Http\Controllers\Admin\Warehouse\{OutcomeController,IncomeController,SaleController};
+use App\Http\Controllers\Admin\Warehouse\{OutcomeController, IncomeController, SaleController};
 
 class WarehouseController extends Controller
 {
@@ -18,9 +16,6 @@ class WarehouseController extends Controller
     use OutcomeController;
 
     use SaleController;
-    /**
-     * Constructor to apply middleware
-     */
     public function __construct()
     {
         $this->middleware('permission:view_any_warehouse')->only(['index']);
