@@ -29,8 +29,9 @@ import { Badge } from "@/Components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import PageHeader from "@/Components/PageHeader";
 
-export default function Show({ auth, customerUser }) {
+export default function Show({ auth = {}, customerUser = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -45,7 +46,7 @@ export default function Show({ auth, customerUser }) {
     }, []);
 
     const handleDeleteUser = () => {
-        if (confirm(t("Are you sure you want to delete this user?"))) {
+        if (customerUser?.id && confirm(t("Are you sure you want to delete this user?"))) {
             router.delete(route('admin.customer-users.destroy', customerUser.id));
         }
     };
@@ -62,7 +63,7 @@ export default function Show({ auth, customerUser }) {
 
     return (
         <>
-            <Head title={`${customerUser.name} - ${t("User Details")}`}>
+            <Head title={`${customerUser?.name || t("Customer User")} - ${t("User Details")}`}>
                 <style>{`
                     @keyframes shimmer {
                         0% { background-position: -1000px 0; }
@@ -132,68 +133,21 @@ export default function Show({ auth, customerUser }) {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
-                    <motion.header
-                        initial={{ y: -20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
-                    >
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <motion.div
-                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
-                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                    className="relative float-animation"
-                                >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
-                                        <User className="w-8 h-8 text-white" />
-                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
-                                    </div>
-                                </motion.div>
-                                <div>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
-                                    >
-                                        <Sparkles className="w-4 h-4" />
-                                        {t("Customer User Details")}
-                                    </motion.p>
-                                    <motion.h1
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
-                                    >
-                                        {customerUser.name}
-                                    </motion.h1>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
-                                    >
-                                        <Building2 className="w-4 h-4" />
-                                        {t("Complete user information and management")}
-                                    </motion.p>
-                                </div>
-                            </div>
-
-                            <motion.div
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-3"
-                            >
-                                <Link href={route("admin.customer-users.edit", customerUser.id)}>
-                                    <Button className="gap-2 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-700 hover:via-amber-700 hover:to-orange-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
-                                        <Edit className="h-4 w-4" />
-                                        {t("Edit User")}
-                                    </Button>
-                                </Link>
+                    <PageHeader
+                        category={t("Customer User Details")}
+                        title={customerUser?.name || t("Customer User")}
+                        subtitle={t("Complete user information and management")}
+                        icon={User}
+                        actions={
+                            <>
+                                {customerUser?.id && (
+                                    <Link href={route("admin.customer-users.edit", customerUser.id)}>
+                                        <Button className="gap-2 bg-gradient-to-r from-orange-600 via-amber-600 to-orange-700 hover:from-orange-700 hover:via-amber-700 hover:to-orange-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+                                            <Edit className="h-4 w-4" />
+                                            {t("Edit User")}
+                                        </Button>
+                                    </Link>
+                                )}
                                 <Button
                                     onClick={handleDeleteUser}
                                     variant="destructive"
@@ -208,9 +162,9 @@ export default function Show({ auth, customerUser }) {
                                         {t("Back to Users")}
                                     </Button>
                                 </Link>
-                            </motion.div>
-                        </div>
-                    </motion.header>
+                            </>
+                        }
+                    />
 
                     {/* Main Content Container */}
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent">
