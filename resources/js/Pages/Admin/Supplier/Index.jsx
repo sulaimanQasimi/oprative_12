@@ -32,6 +32,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Download,
+    MapPin,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -41,6 +42,14 @@ import {
     CardTitle,
     CardFooter,
 } from "@/Components/ui/card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/Components/ui/table";
 import { Badge } from "@/Components/ui/badge";
 import {
     Select,
@@ -52,6 +61,7 @@ import {
 import { Separator } from "@/Components/ui/separator";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import { Input } from "@/Components/ui/input";
 
 export default function Index({ auth, suppliers = {}, filters = {}, permissions = {} }) {
     const { t } = useLaravelReactI18n();
@@ -285,6 +295,12 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                         border-color: #38bdf8;
                         box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
                     }
+                    .search-input:hover {
+                        border-color: #a7f3d0;
+                    }
+                    .dark .search-input:hover {
+                        border-color: #475569;
+                    }
                     .supplier-dropdown {
                         position: absolute !important;
                         z-index: 50 !important;
@@ -369,19 +385,10 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setShowFilters(!showFilters)}
-                                    className="gap-2 hover:scale-105 transition-all duration-200 border-sky-200 hover:border-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/20"
-                                >
-                                    <Filter className="h-4 w-4" />
-                                    {showFilters ? t("Hide Filters") : t("Show Filters")}
-                                    <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
-                                </Button>
                                 {permissions.can_create && (
                                     <Link href={route("admin.suppliers.create")}>
-                                        <Button className="bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white shadow-lg">
-                                            <Plus className="h-4 w-4 mr-2" />
+                                        <Button className="gap-2 bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-700 hover:from-sky-700 hover:via-cyan-700 hover:to-sky-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+                                            <Plus className="h-4 w-4" />
                                             {t("Add Supplier")}
                                         </Button>
                                     </Link>
@@ -399,315 +406,356 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                                 transition={{ delay: 0.8, duration: 0.5 }}
                                 className="space-y-8"
                             >
-                                {/* Summary Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                        {t("Total Suppliers")}
-                                                    </p>
-                                                    <p className="text-3xl font-bold text-sky-600">
-                                                        {stats.total?.toLocaleString() || "0"}
-                                                    </p>
-                                                    <p className="text-xs text-slate-500 mt-1">
-                                                        {t("Records")}
-                                                    </p>
+                                {/* Stats Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.9, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
+                                    >
+                                        <Card className="border-0 shadow-lg bg-gradient-to-br from-sky-50 to-cyan-100 dark:from-sky-900/20 dark:to-cyan-900/30">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-sky-600 dark:text-sky-400">{t("Total Suppliers")}</p>
+                                                        <p className="text-3xl font-bold text-sky-700 dark:text-sky-300">{stats.total?.toLocaleString() || "0"}</p>
+                                                    </div>
+                                                    <div className="p-3 bg-sky-500 rounded-xl">
+                                                        <Building className="w-6 h-6 text-white" />
+                                                    </div>
                                                 </div>
-                                                <div className="p-4 bg-gradient-to-br from-sky-100 to-cyan-100 dark:from-sky-900/30 dark:to-cyan-900/30 rounded-2xl">
-                                                    <Building className="h-8 w-8 text-sky-600" />
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.0, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
+                                    >
+                                        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/30">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-green-600 dark:text-green-400">{t("Active Suppliers")}</p>
+                                                        <p className="text-3xl font-bold text-green-700 dark:text-green-300">
+                                                            {stats.active?.toLocaleString() || "0"}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-3 bg-green-500 rounded-xl">
+                                                        <CheckCircle className="w-6 h-6 text-white" />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                        {t("Active Suppliers")}
-                                                    </p>
-                                                    <p className="text-3xl font-bold text-green-600">
-                                                        {stats.active?.toLocaleString() || "0"}
-                                                    </p>
-                                                    <p className="text-xs text-slate-500 mt-1">
-                                                        {t("Currently working with")}
-                                                    </p>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.1, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
+                                    >
+                                        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/30">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-blue-600 dark:text-blue-400">{t("With Purchases")}</p>
+                                                        <p className="text-3xl font-bold text-blue-700 dark:text-blue-300">
+                                                            {stats.withPurchases?.toLocaleString() || "0"}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-3 bg-blue-500 rounded-xl">
+                                                        <ShoppingBag className="w-6 h-6 text-white" />
+                                                    </div>
                                                 </div>
-                                                <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
-                                                    <CheckCircle className="h-8 w-8 text-green-600" />
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
+                                    <motion.div
+                                        initial={{ scale: 0.9, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 1.2, duration: 0.4 }}
+                                        whileHover={{ scale: 1.02 }}
+                                    >
+                                        <Card className="border-0 shadow-lg bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/20 dark:to-amber-900/30">
+                                            <CardContent className="p-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="text-sm font-medium text-orange-600 dark:text-orange-400">{t("Displaying")}</p>
+                                                        <p className="text-3xl font-bold text-orange-700 dark:text-orange-300">
+                                                            {suppliers?.data?.length || 0}
+                                                        </p>
+                                                    </div>
+                                                    <div className="p-3 bg-orange-500 rounded-xl">
+                                                        <Eye className="w-6 h-6 text-white" />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                        {t("With Purchases")}
-                                                    </p>
-                                                    <p className="text-3xl font-bold text-blue-600">
-                                                        {stats.withPurchases?.toLocaleString() || "0"}
-                                                    </p>
-                                                    <p className="text-xs text-slate-500 mt-1">
-                                                        {t("Have purchase history")}
-                                                    </p>
-                                                </div>
-                                                <div className="p-4 bg-gradient-to-br from-blue-100 to-sky-100 dark:from-blue-900/30 dark:to-sky-900/30 rounded-2xl">
-                                                    <ShoppingBag className="h-8 w-8 text-blue-600" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                        {t("Pending Payments")}
-                                                    </p>
-                                                    <p className="text-3xl font-bold text-orange-600">
-                                                        {stats.pending?.toLocaleString() || "0"}
-                                                    </p>
-                                                    <p className="text-xs text-slate-500 mt-1">
-                                                        {t("Outstanding balances")}
-                                                    </p>
-                                                </div>
-                                                <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
-                                                    <AlertCircle className="h-8 w-8 text-orange-600" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
-                                        <CardContent className="p-6">
-                                            <div className="flex items-center justify-between">
-                                                <div>
-                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                        {t("Total Value")}
-                                                    </p>
-                                                    <p className="text-3xl font-bold text-emerald-600">
-                                                        ${stats.totalValue?.toLocaleString() || "0"}
-                                                    </p>
-                                                    <p className="text-xs text-slate-500 mt-1">
-                                                        {t("Total purchase value")}
-                                                    </p>
-                                                </div>
-                                                <div className="p-4 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 rounded-2xl">
-                                                    <DollarSign className="h-8 w-8 text-emerald-600" />
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
                                 </div>
-                                {/* Advanced Filters */}
-                                <AnimatePresence>
-                                    {showFilters && (
-                                        <motion.div
-                                            initial={{ height: 0, opacity: 0 }}
-                                            animate={{ height: "auto", opacity: 1 }}
-                                            exit={{ height: 0, opacity: 0 }}
-                                            transition={{ duration: 0.3 }}
-                                            className="overflow-hidden"
-                                        >
-                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                                <CardHeader className="bg-gradient-to-r from-sky-500/20 via-cyan-500/20 to-sky-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                                    <CardTitle className="flex items-center gap-3">
-                                                        <div className="p-2 bg-gradient-to-br from-sky-500 to-cyan-600 rounded-lg">
-                                                            <Filter className="h-5 w-5 text-white" />
-                                                        </div>
-                                                        {t("Search & Filter")}
-                                                    </CardTitle>
-                                                </CardHeader>
-                                                <CardContent className="p-6">
-                                                    {/* Search Bar */}
-                                                    <div className="mb-4">
-                                                        <div className="relative">
-                                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                            <input
-                                                                placeholder={t("Search by name, contact, email...")}
-                                                                value={searchTerm}
-                                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                                                className="pl-12 h-12 text-lg border-2 border-sky-200 focus:border-sky-500 rounded-xl w-full"
-                                                            />
-                                                            {searchTerm && (
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() => setSearchTerm("")}
-                                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                                                                >
-                                                                    <X className="h-4 w-4" />
-                                                                </Button>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    {/* Status Filter */}
-                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                                        <div>
-                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                                                {t("Status")}
-                                                            </label>
-                                                            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                                                <SelectTrigger className="h-10">
-                                                                    <SelectValue placeholder={t("All Statuses")} />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectItem value="all">{t("All Statuses")}</SelectItem>
-                                                                    <SelectItem value="active">{t("Active")}</SelectItem>
-                                                                    <SelectItem value="inactive">{t("Inactive")}</SelectItem>
-                                                                    <SelectItem value="with_purchases">{t("With Purchases")}</SelectItem>
-                                                                    <SelectItem value="pending">{t("Pending Payments")}</SelectItem>
-                                                                </SelectContent>
-                                                            </Select>
-                                                        </div>
-                                                        <div className="flex items-end">
-                                                            <Button
-                                                                variant="outline"
-                                                                onClick={clearFilters}
-                                                                className="w-full h-10 gap-2"
-                                                            >
-                                                                <RefreshCw className="h-4 w-4" />
-                                                                {t("Clear Filters")}
-                                                            </Button>
-                                                        </div>
-                                                        <div className="flex items-end">
-                                                            <Button
-                                                                onClick={handleSearch}
-                                                                className="w-full h-10 gap-2 bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-700 hover:from-sky-700 hover:via-cyan-700 hover:to-sky-800 text-white"
-                                                            >
-                                                                <Search className="h-4 w-4" />
-                                                                {t("Apply Filters")}
-                                                            </Button>
-                                                        </div>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
-                                        </motion.div>
-                                    )}
-                                </AnimatePresence>
+                                {/* Search and Filter */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.3, duration: 0.4 }}
+                                    className="relative z-40"
+                                >
+                                    <Card className="content-card">
+                                        <CardHeader>
+                                            <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                                                <div className="p-2 bg-gradient-to-br from-sky-500 to-cyan-600 rounded-lg shadow-lg">
+                                                    <Search className="h-5 w-5 text-white" />
+                                                </div>
+                                                {t("Search & Filter")}
+                                                {(searchTerm || statusFilter !== "all") && (
+                                                    <Badge variant="secondary" className="ml-auto bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">
+                                                        {t("Filtered")}
+                                                    </Badge>
+                                                )}
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="space-y-4">
+                                            <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex flex-col lg:flex-row gap-4">
+                                                <div className="relative flex-1">
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                                    <Input
+                                                        placeholder={t("Search suppliers by name, contact, email, or phone...")}
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        className="search-input pl-10 h-12 transition-colors"
+                                                    />
+                                                    {searchTerm && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => setSearchTerm("")}
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+
+                                                <div className="flex gap-2">
+                                                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                                        <SelectTrigger className="w-48 h-12 search-input">
+                                                            <SelectValue placeholder={t("Filter by status")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="z-50">
+                                                            <SelectItem value="all">{t("All Status")}</SelectItem>
+                                                            <SelectItem value="active">{t("Active")}</SelectItem>
+                                                            <SelectItem value="inactive">{t("Inactive")}</SelectItem>
+                                                            <SelectItem value="with_purchases">{t("With Purchases")}</SelectItem>
+                                                            <SelectItem value="pending">{t("Pending Payments")}</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+
+                                                    <Button type="submit" className="gap-2 h-12 bg-sky-600 hover:bg-sky-700">
+                                                        <Search className="h-4 w-4" />
+                                                        {t("Search")}
+                                                    </Button>
+
+                                                    {(searchTerm || statusFilter !== "all") && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            onClick={clearFilters}
+                                                            className="gap-2 h-12 border-slate-200 hover:border-sky-300 dark:border-slate-600 dark:hover:border-sky-400"
+                                                        >
+                                                            <RefreshCw className="h-4 w-4" />
+                                                            {t("Clear")}
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </form>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
                                 {/* Supplier Table */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-sky-500/20 via-cyan-500/20 to-sky-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                            <CardTitle className="flex items-center gap-3">
-                                                <div className="p-2 bg-gradient-to-br from-sky-500 to-cyan-600 rounded-lg">
-                                                    <Building className="h-5 w-5 text-white" />
+                                    <Card className="content-card overflow-hidden">
+                                        <CardHeader className="bg-gradient-to-r from-sky-500/15 via-cyan-500/15 to-sky-500/15 dark:from-sky-500/25 dark:via-cyan-500/25 dark:to-sky-500/25 border-b border-slate-200/60 dark:border-slate-600/60 rounded-t-xl">
+                                            <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                <div className="p-3 bg-gradient-to-br from-sky-500 to-cyan-600 rounded-xl shadow-lg">
+                                                    <Building className="h-6 w-6 text-white" />
                                                 </div>
                                                 {t("Supplier Records")}
-                                                <Badge variant="secondary" className="ml-auto">
-                                                    {suppliers?.data?.length || 0} {t("of")} {suppliers?.total || 0}
+                                                <Badge variant="secondary" className="ml-auto bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300 border border-sky-200 dark:border-sky-700">
+                                                    {suppliers?.data?.length || 0} {t("suppliers")}
+                                                    {suppliers?.total && (
+                                                        <span className="ml-1">
+                                                            {t("of")} {suppliers.total}
+                                                        </span>
+                                                    )}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-0">
+                                            {suppliers?.data?.length > 0 ? (
                                             <div className="overflow-x-auto">
-                                                <table className="w-full">
-                                                    <thead>
-                                                        <tr className="bg-slate-50 dark:bg-slate-900/50">
-                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Supplier")}</th>
-                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Contact")}</th>
-                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Email")}</th>
-                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Phone")}</th>
-                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("ID Number")}</th>
-                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Status")}</th>
-                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Actions")}</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {suppliers?.data?.length > 0 ? (
-                                                            suppliers.data.map((supplier) => (
-                                                                <tr key={supplier.id} className="hover:bg-sky-50 dark:hover:bg-sky-900/10 transition-colors">
-                                                                    <td>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <Building className="h-4 w-4 text-sky-600" />
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Supplier")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Contact")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Status")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("ID Number")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200 text-right">{t("Actions")}</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        <AnimatePresence>
+                                                            {suppliers.data.map((supplier, index) => (
+                                                                <motion.tr
+                                                                    key={supplier.id}
+                                                                    initial={{ opacity: 0, y: 20 }}
+                                                                    animate={{ opacity: 1, y: 0 }}
+                                                                    exit={{ opacity: 0, y: -20 }}
+                                                                    transition={{ delay: index * 0.05 }}
+                                                                    className="border-b border-slate-100 dark:border-slate-700 hover:bg-sky-50/50 dark:hover:bg-sky-900/10 transition-colors"
+                                                                >
+                                                                    <TableCell>
+                                                                        <div className="flex items-center space-x-3">
+                                                                            <div className="p-2 bg-gradient-to-br from-sky-100 to-cyan-100 dark:from-sky-900/30 dark:to-cyan-900/30 rounded-lg">
+                                                                                <Building className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                                                                            </div>
                                                                             <div>
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{supplier.name}</div>
-                                                                                <div className="text-sm text-slate-500">{supplier.city}, {supplier.country}</div>
+                                                                                <div className="font-semibold text-slate-900 dark:text-white">{supplier.name}</div>
+                                                                                {(supplier.city || supplier.country) && (
+                                                                                    <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                                                                                        <MapPin className="w-3 h-3" />
+                                                                                        {supplier.city}{supplier.city && supplier.country && ', '}{supplier.country}
+                                                                                    </div>
+                                                                                )}
                                                                             </div>
                                                                         </div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div className="font-medium text-slate-900 dark:text-white">{supplier.contact_name || "—"}</div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div className="text-slate-600 dark:text-slate-400">{supplier.email || "—"}</div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div className="text-slate-600 dark:text-slate-400">{supplier.phone || "—"}</div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div className="font-mono text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg shadow-inner">{supplier.id_number || "—"}</div>
-                                                                    </td>
-                                                                    <td>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="space-y-1">
+                                                                            {supplier.contact_name && (
+                                                                                <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                                                                    <Users className="w-3 h-3" />
+                                                                                    {supplier.contact_name}
+                                                                                </div>
+                                                                            )}
+                                                                            {supplier.email && (
+                                                                                <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                                                                    <Mail className="w-3 h-3" />
+                                                                                    {supplier.email}
+                                                                                </div>
+                                                                            )}
+                                                                            {supplier.phone && (
+                                                                                <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
+                                                                                    <Phone className="w-3 h-3" />
+                                                                                    {supplier.phone}
+                                                                                </div>
+                                                                            )}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
                                                                         <div className="flex flex-wrap gap-2">
                                                                             {supplier.is_active !== false && (
-                                                                                <Badge className="bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-green-300 dark:from-green-900/30 dark:to-green-800/30 dark:text-green-400 dark:border-green-700 shadow-sm">
+                                                                                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-0">
                                                                                     <CheckCircle className="h-3 w-3 mr-1" />
                                                                                     {t("Active")}
                                                                                 </Badge>
                                                                             )}
                                                                             {(supplier.purchases_count || 0) > 0 && (
-                                                                                <Badge className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300 dark:from-blue-900/30 dark:to-blue-800/30 dark:text-blue-400 dark:border-blue-700 shadow-sm">
+                                                                                <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-0">
                                                                                     <ShoppingBag className="h-3 w-3 mr-1" />
                                                                                     {t("Has Orders")}
                                                                                 </Badge>
                                                                             )}
                                                                         </div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div className="flex items-center gap-2">
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Badge variant="outline" className="gap-1 border-slate-200 dark:border-slate-600">
+                                                                            <FileText className="w-3 h-3" />
+                                                                            {supplier.id_number || "—"}
+                                                                        </Badge>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        <div className="flex items-center justify-end gap-1">
                                                                             {permissions.can_view && (
-                                                                                <Link href={route("admin.suppliers.show", supplier.id)}>
-                                                                                    <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 dark:hover:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700 shadow-sm">
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                                                                                    asChild
+                                                                                >
+                                                                                    <Link href={route('admin.suppliers.show', supplier.id)}>
                                                                                         <Eye className="h-4 w-4" />
-                                                                                    </Button>
-                                                                                </Link>
+                                                                                        <span className="sr-only">{t("View Details")}</span>
+                                                                                    </Link>
+                                                                                </Button>
                                                                             )}
                                                                             {permissions.can_update && (
-                                                                                <Link href={route("admin.suppliers.edit", supplier.id)}>
-                                                                                    <Button variant="outline" size="sm" className="text-sky-600 hover:text-sky-700 hover:bg-sky-50 border-sky-200 dark:hover:bg-sky-900/30 dark:text-sky-400 dark:border-sky-700 shadow-sm">
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-900/20 dark:hover:text-sky-400 transition-colors"
+                                                                                    asChild
+                                                                                >
+                                                                                    <Link href={route('admin.suppliers.edit', supplier.id)}>
                                                                                         <Edit className="h-4 w-4" />
-                                                                                    </Button>
-                                                                                </Link>
+                                                                                        <span className="sr-only">{t("Edit")}</span>
+                                                                                    </Link>
+                                                                                </Button>
                                                                             )}
                                                                             {permissions.can_delete && (
-                                                                                <Button variant="outline" size="sm" onClick={() => handleDelete(supplier.id)} className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 dark:text-red-400 dark:border-red-700 shadow-sm">
+                                                                                <Button
+                                                                                    variant="ghost"
+                                                                                    size="sm"
+                                                                                    className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                                                                                    onClick={() => handleDelete(supplier.id)}
+                                                                                >
                                                                                     <Trash2 className="h-4 w-4" />
+                                                                                    <span className="sr-only">{t("Delete")}</span>
                                                                                 </Button>
                                                                             )}
                                                                         </div>
-                                                                    </td>
-                                                                </tr>
-                                                            ))
-                                                        ) : (
-                                                            <tr>
-                                                                <td colSpan="7" className="h-32 text-center">
-                                                                    <div className="flex flex-col items-center gap-4">
-                                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                                            <Truck className="h-8 w-8 text-slate-400" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-                                                                                {t("No supplier records found")}
-                                                                            </p>
-                                                                            <p className="text-sm text-slate-500">
-                                                                                {searchTerm || statusFilter !== "all" ? t("Try adjusting your filters") : t("Start tracking suppliers")}
-                                                                            </p>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        )}
-                                                    </tbody>
-                                                </table>
+                                                                    </TableCell>
+                                                                </motion.tr>
+                                                            ))}
+                                                        </AnimatePresence>
+                                                    </TableBody>
+                                                </Table>
                                             </div>
+                                            ) : (
+                                                <div className="text-center py-12">
+                                                    <div className="flex flex-col items-center gap-4">
+                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                            <Truck className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+                                                        </div>
+                                                        <div className="text-center">
+                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                {searchTerm || statusFilter !== "all" ? t("No suppliers found") : t("No suppliers created yet")}
+                                                            </p>
+                                                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                                                {searchTerm || statusFilter !== "all" ? t("Try adjusting your search or filters") : t("Create your first supplier to get started.")}
+                                                            </p>
+                                                        </div>
+                                                        {!(searchTerm || statusFilter !== "all") && permissions.can_create && (
+                                                            <Link href={route("admin.suppliers.create")}>
+                                                                <Button className="gap-2">
+                                                                    <Plus className="w-4 h-4" />
+                                                                    {t("Create First Supplier")}
+                                                                </Button>
+                                                            </Link>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
                                         </CardContent>
                                     </Card>
                                 </motion.div>
