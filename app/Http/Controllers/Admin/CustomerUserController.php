@@ -18,7 +18,8 @@ class CustomerUserController extends Controller
      */
     public function index()
     {
-        $this->authorize('viewAny', CustomerUser::class);
+        $this->authorize('viewAny', Customer::class);
+        
 
         $customerUsers = CustomerUser::with(['customer', 'roles', 'permissions'])->paginate(10);
 
