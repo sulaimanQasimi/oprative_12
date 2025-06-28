@@ -3,55 +3,46 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Supplier\StoreSupplierRequest;
+use App\Http\Requests\Admin\Supplier\UpdateSupplierRequest;
 use App\Models\Supplier;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
-use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Supplier Controller with comprehensive permissions implementation
- * 
+ *
  * This controller implements 7 core permissions for supplier management:
- * 
+ *
  * 1. view_any_supplier - View the supplier list/index page
  * 2. view_supplier - View individual supplier details, payments, and purchases
  * 3. create_supplier - Create new suppliers
- * 4. update_supplier - Edit/update existing suppliers  
+ * 4. update_supplier - Edit/update existing suppliers
  * 5. delete_supplier - Soft delete suppliers
  * 6. restore_supplier - Restore soft-deleted suppliers
  * 7. force_delete_supplier - Permanently delete suppliers
- * 
+ *
  * All methods are protected by middleware and pass appropriate permissions to frontend
  */
 class SupplierController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('can:view_any_supplier')->only(['index']);
-        $this->middleware('can:view_supplier,supplier')->only(['show', 'payments', 'purchases']);
-        $this->middleware('can:create_supplier')->only(['create', 'store']);
-        $this->middleware('can:update_supplier,supplier')->only(['edit', 'update']);
-        $this->middleware('can:delete_supplier,supplier')->only(['destroy']);
-        $this->middleware('can:restore_supplier,supplier')->only(['restore']);
-        $this->middleware('can:force_delete_supplier,supplier')->only(['forceDelete']);
-    }
     /**
-     * Display the supplier management page
-     *
-     * @return \Inertia\Response
+     * Display a listing of the resource.
      */
-    public function index()
+    public function index(): Response
     {
-        // Get all suppliers
+        $this->authorize('view_any_supplier');
         $suppliers = Supplier::orderBy('name')->get();
 
-        // Pass all permissions to the frontend
         $permissions = [
             'can_view_any' => Gate::allows('view_any_supplier'),
             'can_view' => Gate::allows('view_supplier', Supplier::class),
@@ -69,12 +60,11 @@ class SupplierController extends Controller
     }
 
     /**
-     * Display the create supplier page
-     *
-     * @return \Inertia\Response
+     * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
+        $this->authorize('create_supplier');
         $permissions = [
             'can_create' => Gate::allows('create_supplier'),
             'can_view_any' => Gate::allows('view_any_supplier'),
@@ -86,49 +76,18 @@ class SupplierController extends Controller
     }
 
     /**
-     * Store a newly created supplier
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreSupplierRequest $request): RedirectResponse
     {
+        $this->authorize('create_supplier');
         try {
-            // Validate request data
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'contact_name' => 'nullable|string|max:255',
-                'email' => 'nullable|email|max:255',
-                'phone' => 'nullable|string|max:255',
-                'address' => 'nullable|string|max:500',
-                'city' => 'nullable|string|max:255',
-                'state' => 'nullable|string|max:255',
-                'country' => 'nullable|string|max:255',
-                'postal_code' => 'nullable|string|max:50',
-                'id_number' => 'nullable|string|max:255',
-            ]);
+            $validated = $request->validated();
 
-            if ($validator->fails()) {
-                return redirect()->back()->withErrors($validator)->withInput();
-            }
+            Supplier::create($validated);
 
-            // Create new supplier
-            $supplier = new Supplier();
-            $supplier->name = $request->name;
-            $supplier->contact_name = $request->contact_name;
-            $supplier->email = $request->email;
-            $supplier->phone = $request->phone;
-            $supplier->address = $request->address;
-            $supplier->city = $request->city;
-            $supplier->state = $request->state;
-            $supplier->country = $request->country;
-            $supplier->postal_code = $request->postal_code;
-            $supplier->id_number = $request->id_number;
-            $supplier->save();
-
-            return redirect()->route('admin.suppliers.index')->with('success', 'Supplier created successfully.');
-        } catch (ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput();
+            return redirect()->route('admin.suppliers.index')
+                ->with('success', 'Supplier created successfully.');
         } catch (\Exception $e) {
             Log::error('Error creating supplier', [
                 'message' => $e->getMessage(),
@@ -136,18 +95,18 @@ class SupplierController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
-            return redirect()->back()->with('error', 'An error occurred while creating the supplier.')->withInput();
+            return redirect()->back()
+                ->with('error', 'An error occurred while creating the supplier.')
+                ->withInput();
         }
     }
 
     /**
-     * Display the supplier details page
-     *
-     * @param Supplier $supplier
-     * @return \Inertia\Response
+     * Display the specified resource.
      */
-    public function show(Supplier $supplier)
+    public function show(Supplier $supplier): Response
     {
+        $this->authorize('view_supplier', $supplier);
         // Get paginated purchases with essential data only
         $purchases = $supplier->purchases()
             ->select('id', 'supplier_id', 'invoice_number', 'invoice_date', 'status', 'created_at')
@@ -155,7 +114,7 @@ class SupplierController extends Controller
             ->orderBy('invoice_date', 'desc')
             ->paginate(10, ['*'], 'purchases_page');
 
-        // Get paginated payments with essential data only  
+        // Get paginated payments with essential data only
         $payments = $supplier->payments()
             ->select('id', 'supplier_id', 'amount', 'payment_method', 'reference_number', 'bank_name', 'payment_date', 'notes')
             ->orderBy('payment_date', 'desc')
@@ -186,13 +145,11 @@ class SupplierController extends Controller
     }
 
     /**
-     * Display the edit supplier page
-     *
-     * @param Supplier $supplier
-     * @return \Inertia\Response
+     * Show the form for editing the specified resource.
      */
-    public function edit(Supplier $supplier)
+    public function edit(Supplier $supplier): Response
     {
+        $this->authorize('update_supplier', $supplier);
         $permissions = [
             'can_update' => Gate::allows('update_supplier', $supplier),
             'can_view' => Gate::allows('view_supplier', $supplier),
@@ -206,52 +163,18 @@ class SupplierController extends Controller
     }
 
     /**
-     * Update the specified supplier
-     *
-     * @param Request $request
-     * @param Supplier $supplier
-     * @return \Illuminate\Http\RedirectResponse
+     * Update the specified resource in storage.
      */
-    public function update(Request $request, Supplier $supplier)
+    public function update(UpdateSupplierRequest $request, Supplier $supplier): RedirectResponse
     {
+        $this->authorize('update_supplier', $supplier);
         try {
+            $validated = $request->validated();
 
-            // Validate request data
-            $validator = Validator::make($request->all(), [
-                'name' => 'required|string|max:255',
-                'contact_name' => 'nullable|string|max:255',
-                'email' => 'nullable|email|max:255',
-                'phone' => 'nullable|string|max:255',
-                'address' => 'nullable|string|max:500',
-                'city' => 'nullable|string|max:255',
-                'state' => 'nullable|string|max:255',
-                'country' => 'nullable|string|max:255',
-                'postal_code' => 'nullable|string|max:50',
-                'id_number' => 'nullable|string|max:255',
-            ]);
+            $supplier->update($validated);
 
-            if ($validator->fails()) {
-                return redirect()->back()->withErrors($validator)->withInput();
-            }
-
-            // Update supplier
-            $supplier->name = $request->name;
-            $supplier->contact_name = $request->contact_name;
-            $supplier->email = $request->email;
-            $supplier->phone = $request->phone;
-            $supplier->address = $request->address;
-            $supplier->city = $request->city;
-            $supplier->state = $request->state;
-            $supplier->country = $request->country;
-            $supplier->postal_code = $request->postal_code;
-            $supplier->id_number = $request->id_number;
-            $supplier->save();
-
-            return redirect()->route('admin.suppliers.index')->with('success', 'Supplier updated successfully.');
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('admin.suppliers.index')->with('error', 'Supplier not found.');
-        } catch (ValidationException $e) {
-            return redirect()->back()->withErrors($e->errors())->withInput();
+            return redirect()->route('admin.suppliers.index')
+                ->with('success', 'Supplier updated successfully.');
         } catch (\Exception $e) {
             Log::error('Error updating supplier', [
                 'supplier_id' => $supplier->id,
@@ -260,22 +183,23 @@ class SupplierController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
-            return redirect()->back()->with('error', 'An error occurred while updating the supplier.')->withInput();
+            return redirect()->back()
+                ->with('error', 'An error occurred while updating the supplier.')
+                ->withInput();
         }
     }
 
     /**
-     * Delete the specified supplier
-     *
-     * @param Supplier $supplier
-     * @return \Illuminate\Http\RedirectResponse
+     * Remove the specified resource from storage.
      */
-    public function destroy(Supplier $supplier)
+    public function destroy(Supplier $supplier): RedirectResponse
     {
+        $this->authorize('delete_supplier', $supplier);
         try {
             $supplier->delete();
 
-            return redirect()->route('admin.suppliers.index')->with('success', 'Supplier deleted successfully.');
+            return redirect()->route('admin.suppliers.index')
+                ->with('success', 'Supplier deleted successfully.');
         } catch (\Exception $e) {
             Log::error('Error deleting supplier', [
                 'supplier_id' => $supplier->id,
@@ -284,22 +208,22 @@ class SupplierController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
-            return redirect()->route('admin.suppliers.index')->with('error', 'An error occurred while deleting the supplier.');
+            return redirect()->route('admin.suppliers.index')
+                ->with('error', 'An error occurred while deleting the supplier.');
         }
     }
 
     /**
-     * Restore the specified supplier
-     *
-     * @param Supplier $supplier
-     * @return \Illuminate\Http\RedirectResponse
+     * Restore the specified soft deleted resource.
      */
-    public function restore(Supplier $supplier)
+    public function restore(Supplier $supplier): RedirectResponse
     {
+        $this->authorize('restore_supplier', $supplier);
         try {
             $supplier->restore();
 
-            return redirect()->route('admin.suppliers.index')->with('success', 'Supplier restored successfully.');
+            return redirect()->route('admin.suppliers.index')
+                ->with('success', 'Supplier restored successfully.');
         } catch (\Exception $e) {
             Log::error('Error restoring supplier', [
                 'supplier_id' => $supplier->id,
@@ -308,22 +232,22 @@ class SupplierController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
-            return redirect()->route('admin.suppliers.index')->with('error', 'An error occurred while restoring the supplier.');
+            return redirect()->route('admin.suppliers.index')
+                ->with('error', 'An error occurred while restoring the supplier.');
         }
     }
 
     /**
-     * Force delete the specified supplier
-     *
-     * @param Supplier $supplier
-     * @return \Illuminate\Http\RedirectResponse
+     * Permanently delete the specified resource.
      */
-    public function forceDelete(Supplier $supplier)
+    public function forceDelete(Supplier $supplier): RedirectResponse
     {
+        $this->authorize('force_delete_supplier', $supplier);
         try {
             $supplier->forceDelete();
 
-            return redirect()->route('admin.suppliers.index')->with('success', 'Supplier permanently deleted.');
+            return redirect()->route('admin.suppliers.index')
+                ->with('success', 'Supplier permanently deleted.');
         } catch (\Exception $e) {
             Log::error('Error force deleting supplier', [
                 'supplier_id' => $supplier->id,
@@ -332,19 +256,20 @@ class SupplierController extends Controller
                 'user_id' => Auth::id(),
             ]);
 
-            return redirect()->route('admin.suppliers.index')->with('error', 'An error occurred while permanently deleting the supplier.');
+            return redirect()->route('admin.suppliers.index')
+                ->with('error', 'An error occurred while permanently deleting the supplier.');
         }
     }
 
     /**
-     * Display the supplier payments page
-     *
-     * @param Supplier $supplier
-     * @return \Inertia\Response
+     * Display the supplier payments page.
      */
-    public function payments(Supplier $supplier)
+    public function payments(Supplier $supplier): Response
     {
-        $payments = $supplier->payments()->orderBy('payment_date', 'desc')->get();
+        $this->authorize('view_supplier', $supplier);
+        $payments = $supplier->payments()
+            ->orderBy('payment_date', 'desc')
+            ->get();
 
         $permissions = [
             'can_view' => Gate::allows('view_supplier', $supplier),
@@ -359,14 +284,14 @@ class SupplierController extends Controller
     }
 
     /**
-     * Display the supplier purchases page
-     *
-     * @param Supplier $supplier
-     * @return \Inertia\Response
+     * Display the supplier purchases page.
      */
-    public function purchases(Supplier $supplier)
+    public function purchases(Supplier $supplier): Response
     {
-        $purchases = $supplier->purchases()->orderBy('invoice_date', 'desc')->get();
+        $this->authorize('view_supplier', $supplier);
+        $purchases = $supplier->purchases()
+            ->orderBy('invoice_date', 'desc')
+            ->get();
 
         $permissions = [
             'can_view' => Gate::allows('view_supplier', $supplier),
