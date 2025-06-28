@@ -28,6 +28,8 @@ import {
     Eye,
     Edit,
     Trash2,
+    X,
+    ChevronDown,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -48,6 +50,7 @@ import {
 import { Separator } from "@/Components/ui/separator";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import { Input } from "@/Components/ui/input";
 
 export default function Index({ auth, suppliers = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
@@ -58,6 +61,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
     const [sortDirection, setSortDirection] = useState("asc");
     const [filterStatus, setFilterStatus] = useState("all");
     const [selectedSuppliers, setSelectedSuppliers] = useState([]);
+    const [showFilters, setShowFilters] = useState(false);
 
     // Refs for animation targets
     const headerRef = useRef(null);
@@ -310,14 +314,7 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                         border-color: #818cf8;
                         box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
                     }
-                    .supplier-dropdown {
-                        position: absolute !important;
-                        z-index: 50 !important;
-                        width: 10rem !important;
-                        top: 100% !important;
-                        left: 0 !important;
-                        margin-top: 0.25rem !important;
-                    }
+                    
                 `}</style>
             </Head>
 
@@ -415,55 +412,134 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                                 />
                             </div>
 
-                            {/* Enhanced Filters and Search */}
-                            <Card className="content-card overflow-visible">
-                                <CardContent className="p-6 overflow-visible">
-                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                                        {/* Search */}
-                                        <div className="flex-1 max-w-md">
-                                            <div className="relative">
-                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                <input
-                                                    type="text"
-                                                    placeholder={t("Search suppliers, contacts, emails...")}
-                                                    className="search-input w-full pl-10 pr-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500/30 transition-all duration-200"
-                                                    value={searchTerm}
-                                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                                />
-                                                {searchTerm && (
-                                                    <button
-                                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                                                        onClick={() => setSearchTerm("")}
-                                                    >
-                                                        <XCircle className="h-4 w-4" />
-                                                    </button>
-                                                )}
+                            {/* Enhanced Search & Filter Card */}
+                            <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
+                                            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                                <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                                             </div>
-                                        </div>
-
-                                        {/* Filters */}
-                                        <div className="flex items-center gap-3">
-                                            <div className="relative z-50">
-                                                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                                                    <SelectTrigger className="w-40 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
-                                                        <SelectValue placeholder={t("Status")} />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="supplier-dropdown bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg">
-                                                        <SelectItem value="all">{t("All Status")}</SelectItem>
-                                                        <SelectItem value="active">{t("Active")}</SelectItem>
-                                                        <SelectItem value="inactive">{t("Inactive")}</SelectItem>
-                                                        <SelectItem value="with_purchases">{t("With Purchases")}</SelectItem>
-                                                        <SelectItem value="pending">{t("Pending Payments")}</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <Button variant="outline" size="sm" className="bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700">
-                                                <RefreshCw className="h-4 w-4 mr-2" />
-                                                {t("Refresh")}
-                                            </Button>
+                                            {t("Search & Filter")}
+                                        </CardTitle>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setShowFilters(!showFilters)}
+                                            className="gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                        >
+                                            <Filter className="h-4 w-4" />
+                                            {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                            <ChevronDown
+                                                className={`h-4 w-4 transition-transform ${
+                                                    showFilters ? "rotate-180" : ""
+                                                }`}
+                                            />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    {/* Search Bar */}
+                                    <div className="mb-4">
+                                        <div className="relative w-full">
+                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                                            <Input
+                                                placeholder={t("Search suppliers, contacts, emails...")}
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="pl-12 h-12 text-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                                            />
+                                            {searchTerm && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => setSearchTerm("")}
+                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            )}
                                         </div>
                                     </div>
+
+                                    {/* Advanced Filters */}
+                                    <AnimatePresence>
+                                        {showFilters && (
+                                            <motion.div
+                                                initial={{
+                                                    height: 0,
+                                                    opacity: 0,
+                                                }}
+                                                animate={{
+                                                    height: "auto",
+                                                    opacity: 1,
+                                                }}
+                                                exit={{
+                                                    height: 0,
+                                                    opacity: 0,
+                                                }}
+                                                transition={{
+                                                    duration: 0.3,
+                                                }}
+                                                className="relative"
+                                            >
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                                    <div className="relative">
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                            {t("Status")}
+                                                        </label>
+                                                        <Select value={filterStatus} onValueChange={setFilterStatus}>
+                                                            <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                                <SelectValue>
+                                                                    {filterStatus === "all" 
+                                                                        ? t("All Status") 
+                                                                        : filterStatus === "active" 
+                                                                        ? t("Active") 
+                                                                        : filterStatus === "inactive" 
+                                                                        ? t("Inactive") 
+                                                                        : filterStatus === "with_purchases" 
+                                                                        ? t("With Purchases") 
+                                                                        : filterStatus === "pending" 
+                                                                        ? t("Pending Payments") 
+                                                                        : t("Select status")}
+                                                                </SelectValue>
+                                                            </SelectTrigger>
+                                                            <SelectContent position="popper" sideOffset={5}>
+                                                                <SelectItem value="all" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                    {t("All Status")}
+                                                                </SelectItem>
+                                                                <SelectItem value="active" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                    {t("Active")}
+                                                                </SelectItem>
+                                                                <SelectItem value="inactive" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                    {t("Inactive")}
+                                                                </SelectItem>
+                                                                <SelectItem value="with_purchases" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                    {t("With Purchases")}
+                                                                </SelectItem>
+                                                                <SelectItem value="pending" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                    {t("Pending Payments")}
+                                                                </SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+
+                                                    <div className="flex items-end">
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                                setFilterStatus("all");
+                                                                setSearchTerm("");
+                                                            }}
+                                                            className="w-full h-10 gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                        >
+                                                            <RefreshCw className="h-4 w-4" />
+                                                            {t("Clear Filters")}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
 
                                     {/* Results Summary */}
                                     <div className="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">

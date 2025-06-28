@@ -720,19 +720,19 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 dark:from-blue-500/20 dark:via-indigo-500/20 dark:to-blue-500/20 border-b border-slate-200 dark:border-slate-700">
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                                             <div className="flex items-center justify-between">
-                                                <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
-                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-lg">
-                                                        <Filter className="h-5 w-5 text-white" />
+                                                <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
+                                                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                                        <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                                                     </div>
                                                     {t("Search & Filter")}
                                                 </CardTitle>
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => setShowFilters(!showFilters)}
-                                                    className="gap-2 border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400"
+                                                    className="gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                                 >
                                                     <Filter className="h-4 w-4" />
                                                     {showFilters ? t("Hide Filters") : t("Show Filters")}
@@ -743,20 +743,20 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                         <CardContent className="p-6">
                                             {/* Search Bar */}
                                             <div className="mb-4">
-                                                <div className="relative">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                <div className="relative w-full">
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                                                     <Input
                                                         placeholder={t("Search by account name, number, ID, or customer...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-12 h-12 text-lg border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 dark:border-slate-600 dark:hover:border-blue-400 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-white rounded-xl"
+                                                        className="pl-12 h-12 text-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                                                     />
                                                     {searchTerm && (
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => setSearchTerm("")}
-                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </Button>
@@ -768,43 +768,86 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                             <AnimatePresence>
                                                 {showFilters && (
                                                     <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ duration: 0.3 }}
-                                                        className="overflow-hidden"
+                                                        initial={{
+                                                            height: 0,
+                                                            opacity: 0,
+                                                        }}
+                                                        animate={{
+                                                            height: "auto",
+                                                            opacity: 1,
+                                                        }}
+                                                        exit={{
+                                                            height: 0,
+                                                            opacity: 0,
+                                                        }}
+                                                        transition={{
+                                                            duration: 0.3,
+                                                        }}
+                                                        className="relative"
                                                     >
-                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                                            <div className="select-container relative z-50">
-                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                                            <div className="relative z-50">
+                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                     {t("Status")}
                                                                 </label>
                                                                 <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                                                                    <SelectTrigger className="h-10 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 dark:border-slate-600 dark:hover:border-blue-400 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-white">
-                                                                        <SelectValue placeholder={t("All Statuses")} />
+                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                                        <SelectValue>
+                                                                            {selectedStatus === "" 
+                                                                                ? t("All Statuses") 
+                                                                                : selectedStatus === "pending" 
+                                                                                ? t("Pending") 
+                                                                                : selectedStatus === "active" 
+                                                                                ? t("Active") 
+                                                                                : selectedStatus === "suspended" 
+                                                                                ? t("Suspended") 
+                                                                                : selectedStatus === "closed" 
+                                                                                ? t("Closed") 
+                                                                                : t("Select status")}
+                                                                        </SelectValue>
                                                                     </SelectTrigger>
-                                                                    <SelectContent position="popper" side="bottom" align="start" className="z-[999999]">
-                                                                        <SelectItem value="">{t("All Statuses")}</SelectItem>
-                                                                        <SelectItem value="pending">{t("Pending")}</SelectItem>
-                                                                        <SelectItem value="active">{t("Active")}</SelectItem>
-                                                                        <SelectItem value="suspended">{t("Suspended")}</SelectItem>
-                                                                        <SelectItem value="closed">{t("Closed")}</SelectItem>
+                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+                                                                        <SelectItem value="" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("All Statuses")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="pending" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Pending")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="active" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Active")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="suspended" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Suspended")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="closed" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Closed")}
+                                                                        </SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
 
-                                                            <div className="select-container relative z-50">
-                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            <div className="relative z-50">
+                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                     {t("Customer")}
                                                                 </label>
                                                                 <Select value={selectedCustomer} onValueChange={setSelectedCustomer}>
-                                                                    <SelectTrigger className="h-10 border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 dark:border-slate-600 dark:hover:border-blue-400 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-white">
-                                                                        <SelectValue placeholder={t("All Customers")} />
+                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                                        <SelectValue>
+                                                                            {selectedCustomer === "" 
+                                                                                ? t("All Customers") 
+                                                                                : customers.find(c => c.id.toString() === selectedCustomer)?.name || t("Select customer")}
+                                                                        </SelectValue>
                                                                     </SelectTrigger>
-                                                                    <SelectContent position="popper" side="bottom" align="start" className="z-[999999] fixed top-0">
-                                                                        <SelectItem value="">{t("All Customers")}</SelectItem>
+                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+                                                                        <SelectItem value="" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("All Customers")}
+                                                                        </SelectItem>
                                                                         {customers.map(customer => (
-                                                                            <SelectItem key={customer.id} value={customer.id.toString()}>
+                                                                            <SelectItem 
+                                                                                key={customer.id} 
+                                                                                value={customer.id.toString()}
+                                                                                className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                                            >
                                                                                 {customer.name}
                                                                             </SelectItem>
                                                                         ))}
@@ -827,7 +870,7 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                                                 <Button
                                                                     variant="outline"
                                                                     onClick={clearFilters}
-                                                                    className="w-full h-10 gap-2 border-slate-200 hover:border-slate-300 dark:border-slate-600 dark:hover:border-slate-500"
+                                                                    className="w-full h-10 gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                                                 >
                                                                     <RefreshCw className="h-4 w-4" />
                                                                     {t("Clear Filters")}

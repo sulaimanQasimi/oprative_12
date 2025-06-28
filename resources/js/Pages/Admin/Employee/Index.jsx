@@ -216,23 +216,23 @@ export default function Index({ auth, employees = [], departments = [], filters 
     }, []);
 
     const StatCard = ({ icon: Icon, title, value, subtitle, color = "indigo" }) => (
-        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 hover:shadow-xl transition-all duration-300">
+        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                     <div className="space-y-2">
-                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
                             {title}
                         </p>
-                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
+                        <p className="text-3xl font-bold text-slate-900 dark:text-white">
                             {value}
                         </p>
                         {subtitle && (
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                            <p className="text-xs text-slate-500 dark:text-slate-400">
                                 {subtitle}
                             </p>
                         )}
                     </div>
-                    <div className={`p-3 rounded-full bg-${color}-100 dark:bg-${color}-900/20`}>
+                    <div className={`p-3 rounded-full bg-${color}-50 dark:bg-${color}-900/20`}>
                         <Icon className={`h-6 w-6 text-${color}-600 dark:text-${color}-400`} />
                     </div>
                 </div>
@@ -248,14 +248,14 @@ export default function Index({ auth, employees = [], departments = [], filters 
         <>
             <Head title={t("Employee Management")} />
 
-            <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
+            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
                 <Navigation auth={auth} currentRoute="admin.employees" />
 
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
                     <header
                         ref={headerRef}
-                        className="bg-white dark:bg-gray-900 shadow border-b border-gray-200 dark:border-gray-800"
+                        className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm border-b border-slate-200 dark:border-slate-700"
                     >
                         <div className="px-6 py-4">
                             <div className="flex items-center justify-between">
@@ -264,10 +264,10 @@ export default function Index({ auth, employees = [], departments = [], filters 
                                         <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                     </div>
                                     <div>
-                                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
                                             {t("Employee Management")}
                                         </h1>
-                                        <p className="text-gray-600 dark:text-gray-400">
+                                        <p className="text-slate-600 dark:text-slate-400">
                                             {t("Manage your organization's employees")}
                                         </p>
                                     </div>
@@ -317,18 +317,18 @@ export default function Index({ auth, employees = [], departments = [], filters 
                             </div>
 
                             {/* Filters and Search */}
-                            <Card className="shadow-sm">
+                            <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg">
                                 <CardContent className="p-6">
                                     <div className="flex flex-col md:flex-row gap-4">
                                         <div className="flex-1">
                                             <div className="relative">
-                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                                                 <input
                                                     type="text"
                                                     placeholder={t("Search employees...")}
                                                     value={searchTerm}
                                                     onChange={(e) => handleSearch(e.target.value)}
-                                                    className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
+                                                    className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-white"
                                                 />
                                             </div>
                                         </div>
@@ -352,13 +352,13 @@ export default function Index({ auth, employees = [], departments = [], filters 
                             </Card>
 
                             {/* Employee Table */}
-                            <Card ref={tableRef} className="shadow-sm">
+                            <Card ref={tableRef} className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg">
                                 <CardHeader>
                                     <CardTitle className="flex items-center justify-between">
                                         <span>{t("Employees")} ({sortedEmployees.length})</span>
                                         {selectedEmployees.length > 0 && (
                                             <div className="flex items-center gap-2">
-                                                <span className="text-sm text-gray-600 dark:text-gray-400">
+                                                <span className="text-sm text-slate-600 dark:text-slate-400">
                                                     {selectedEmployees.length} {t("selected")}
                                                 </span>
                                                 <Button variant="outline" size="sm">
@@ -371,66 +371,66 @@ export default function Index({ auth, employees = [], departments = [], filters 
                                 <CardContent className="p-0">
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
-                                            <thead className="bg-gray-50 dark:bg-gray-800">
+                                            <thead className="bg-slate-50 dark:bg-slate-900/50">
                                                 <tr>
                                                     <th className="px-6 py-3 text-left">
                                                         <input
                                                             type="checkbox"
                                                             checked={selectedEmployees.length === sortedEmployees.length && sortedEmployees.length > 0}
                                                             onChange={handleSelectAll}
-                                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                            className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600"
                                                         />
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                         <button
                                                             onClick={() => handleSort("first_name")}
-                                                            className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
+                                                            className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-300"
                                                         >
                                                             {t("Employee")}
                                                             <ArrowUpDown className="h-3 w-3" />
                                                         </button>
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                         <button
                                                             onClick={() => handleSort("employee_id")}
-                                                            className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
+                                                            className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-300"
                                                         >
                                                             {t("Employee ID")}
                                                             <ArrowUpDown className="h-3 w-3" />
                                                         </button>
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                         <button
                                                             onClick={() => handleSort("department")}
-                                                            className="flex items-center gap-1 hover:text-gray-700 dark:hover:text-gray-300"
+                                                            className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-300"
                                                         >
                                                             {t("Department")}
                                                             <ArrowUpDown className="h-3 w-3" />
                                                         </button>
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                         {t("Contact")}
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                         {t("Fingerprints")}
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                                                         {t("Actions")}
                                                     </th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
+                                            <tbody className="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
                                                 {sortedEmployees.map((employee) => (
                                                     <tr
                                                         key={employee.id}
-                                                        className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                                                        className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                                                     >
                                                         <td className="px-6 py-4">
                                                             <input
                                                                 type="checkbox"
                                                                 checked={selectedEmployees.includes(employee.id)}
                                                                 onChange={() => handleSelectEmployee(employee.id)}
-                                                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600"
                                                             />
                                                         </td>
                                                         <td className="px-6 py-4">
@@ -443,40 +443,40 @@ export default function Index({ auth, employees = [], departments = [], filters 
                                                                             alt={employee.first_name}
                                                                         />
                                                                     ) : (
-                                                                        <div className="h-10 w-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
-                                                                            <User className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                                                                        <div className="h-10 w-10 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center">
+                                                                            <User className="h-5 w-5 text-slate-500 dark:text-slate-400" />
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div className="ml-4">
-                                                                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                                    <div className="text-sm font-medium text-slate-900 dark:text-white">
                                                                         {employee.first_name} {employee.last_name}
                                                                     </div>
-                                                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                                    <div className="text-sm text-slate-500 dark:text-slate-400">
                                                                         {employee.taskra_id}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <UIBadge variant="outline">
+                                                            <UIBadge variant="outline" className="border-slate-300 dark:border-slate-600">
                                                                 {employee.employee_id}
                                                             </UIBadge>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <UIBadge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                                            <UIBadge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
                                                                 {employee.department}
                                                             </UIBadge>
                                                         </td>
                                                         <td className="px-6 py-4">
                                                             <div className="space-y-1">
-                                                                <div className="flex items-center text-sm text-gray-900 dark:text-white">
-                                                                    <Mail className="h-3 w-3 mr-1 text-gray-400" />
+                                                                <div className="flex items-center text-sm text-slate-900 dark:text-white">
+                                                                    <Mail className="h-3 w-3 mr-1 text-slate-400" />
                                                                     {employee.email}
                                                                 </div>
                                                                 {employee.contact_info?.phone && (
-                                                                    <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-                                                                        <Phone className="h-3 w-3 mr-1 text-gray-400" />
+                                                                    <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
+                                                                        <Phone className="h-3 w-3 mr-1 text-slate-400" />
                                                                         {employee.contact_info.phone}
                                                                     </div>
                                                                 )}
@@ -484,8 +484,8 @@ export default function Index({ auth, employees = [], departments = [], filters 
                                                         </td>
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center">
-                                                                <Fingerprint className="h-4 w-4 mr-1 text-gray-400" />
-                                                                <span className="text-sm text-gray-900 dark:text-white">
+                                                                <Fingerprint className="h-4 w-4 mr-1 text-slate-400" />
+                                                                <span className="text-sm text-slate-900 dark:text-white">
                                                                     {employee.fingerprints?.length || 0}
                                                                 </span>
                                                             </div>
@@ -520,11 +520,11 @@ export default function Index({ auth, employees = [], departments = [], filters 
 
                                     {sortedEmployees.length === 0 && (
                                         <div className="text-center py-12">
-                                            <Users className="mx-auto h-12 w-12 text-gray-400" />
-                                            <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">
+                                            <Users className="mx-auto h-12 w-12 text-slate-400" />
+                                            <h3 className="mt-2 text-sm font-medium text-slate-900 dark:text-white">
                                                 {t("No employees found")}
                                             </h3>
-                                            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                                                 {t("Get started by adding a new employee.")}
                                             </p>
                                             <div className="mt-6">

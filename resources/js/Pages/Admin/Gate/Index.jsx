@@ -361,7 +361,7 @@ export default function Index({
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-blue-900 backdrop-blur-xl gradient-border">
                                         <CardHeader>
                                             <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
                                                 <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">

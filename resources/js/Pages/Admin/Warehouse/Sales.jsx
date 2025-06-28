@@ -443,22 +443,22 @@ export default function Sales({ auth, warehouse, sales }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
-                                        <Card className="stat-card border-0 shadow-2xl backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800 hover:shadow-xl transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                                                             {t("Total Sales")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-green-600">
+                                                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                                                             {totalSales}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                             {t("Orders")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
-                                                        <Store className="h-8 w-8 text-green-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl shadow-lg">
+                                                        <Store className="h-8 w-8 text-green-600 dark:text-green-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -470,22 +470,22 @@ export default function Sales({ auth, warehouse, sales }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.0, duration: 0.4 }}
                                     >
-                                        <Card className="stat-card border-0 shadow-2xl backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800 hover:shadow-xl transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                                                             {t("Total Items")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-blue-600">
+                                                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                                                             {totalItems.toLocaleString()}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                             {t("Products sold")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
-                                                        <Package className="h-8 w-8 text-blue-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl shadow-lg">
+                                                        <Package className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -497,22 +497,22 @@ export default function Sales({ auth, warehouse, sales }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.1, duration: 0.4 }}
                                     >
-                                        <Card className="stat-card border-0 shadow-2xl backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800 hover:shadow-xl transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                                                             {t("Total Revenue")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-purple-600">
+                                                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
                                                             {formatCurrency(totalAmount)}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                             {t("Sales value")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
-                                                        <DollarSign className="h-8 w-8 text-purple-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl shadow-lg">
+                                                        <DollarSign className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -524,22 +524,22 @@ export default function Sales({ auth, warehouse, sales }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.2, duration: 0.4 }}
                                     >
-                                        <Card className="stat-card border-0 shadow-2xl backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800 hover:shadow-xl transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
                                                             {t("Average Sale")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-orange-600">
+                                                        <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
                                                             {formatCurrency(avgSaleValue)}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                                             {t("Per order")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
-                                                        <TrendingUp className="h-8 w-8 text-orange-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl shadow-lg">
+                                                        <TrendingUp className="h-8 w-8 text-orange-600 dark:text-orange-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -547,25 +547,25 @@ export default function Sales({ auth, warehouse, sales }) {
                                     </motion.div>
                                 </div>
 
-                                {/* Advanced Filters */}
+                                {/* Enhanced Search & Filter Card */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="content-card border-0 shadow-2xl backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
                                             <div className="flex items-center justify-between">
-                                                <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
-                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                                                        <Filter className="h-5 w-5 text-white" />
+                                                <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
+                                                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                                        <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                                                     </div>
                                                     {t("Search & Filter")}
                                                 </CardTitle>
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => setShowFilters(!showFilters)}
-                                                    className="gap-2"
+                                                    className="gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                                 >
                                                     <Filter className="h-4 w-4" />
                                                     {showFilters ? t("Hide Filters") : t("Show Filters")}
@@ -576,20 +576,20 @@ export default function Sales({ auth, warehouse, sales }) {
                                         <CardContent className="p-6">
                                             {/* Search Bar */}
                                             <div className="mb-4">
-                                                <div className="relative">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                <div className="relative w-full">
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                                                     <Input
                                                         placeholder={t("Search by reference, customer, or product...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
+                                                        className="pl-12 h-12 text-lg border border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-500/20 dark:focus:ring-green-400/20 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                                                     />
                                                     {searchTerm && (
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => setSearchTerm("")}
-                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </Button>
@@ -601,71 +601,104 @@ export default function Sales({ auth, warehouse, sales }) {
                                             <AnimatePresence>
                                                 {showFilters && (
                                                     <motion.div
-                                                        initial={{ height: 0, opacity: 0 }}
-                                                        animate={{ height: "auto", opacity: 1 }}
-                                                        exit={{ height: 0, opacity: 0 }}
-                                                        transition={{ duration: 0.3 }}
-                                                        className="overflow-hidden"
+                                                        initial={{
+                                                            height: 0,
+                                                            opacity: 0,
+                                                        }}
+                                                        animate={{
+                                                            height: "auto",
+                                                            opacity: 1,
+                                                        }}
+                                                        exit={{
+                                                            height: 0,
+                                                            opacity: 0,
+                                                        }}
+                                                        transition={{
+                                                            duration: 0.3,
+                                                        }}
+                                                        className="relative"
                                                     >
-                                                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                                            <div className="relative">
+                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                     {t("Date Filter")}
                                                                 </label>
                                                                 <Input
                                                                     type="date"
                                                                     value={dateFilter}
                                                                     onChange={(e) => setDateFilter(e.target.value)}
-                                                                    className="h-10"
+                                                                    className="h-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
                                                                 />
                                                             </div>
 
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            <div className="relative z-50">
+                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                     {t("Status")}
                                                                 </label>
                                                                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                                                                         <SelectValue placeholder={t("All Statuses")} />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="">{t("All Statuses")}</SelectItem>
-                                                                        <SelectItem value="pending">{t("Pending")}</SelectItem>
-                                                                        <SelectItem value="completed">{t("Completed")}</SelectItem>
-                                                                        <SelectItem value="cancelled">{t("Cancelled")}</SelectItem>
+                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+                                                                        <SelectItem value="" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("All Statuses")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="pending" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Pending")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="completed" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Completed")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="cancelled" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Cancelled")}
+                                                                        </SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
 
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            <div className="relative z-50">
+                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                     {t("Sort By")}
                                                                 </label>
                                                                 <Select value={sortBy} onValueChange={setSortBy}>
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="created_at">{t("Date Created")}</SelectItem>
-                                                                        <SelectItem value="reference">{t("Reference")}</SelectItem>
-                                                                        <SelectItem value="customer.name">{t("Customer")}</SelectItem>
-                                                                        <SelectItem value="total_amount">{t("Total Amount")}</SelectItem>
-                                                                        <SelectItem value="status">{t("Status")}</SelectItem>
+                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+                                                                        <SelectItem value="created_at" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Date Created")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="reference" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Reference")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="customer.name" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Customer")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="total_amount" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Total Amount")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="status" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Status")}
+                                                                        </SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
 
-                                                            <div>
-                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                            <div className="relative z-50">
+                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                                                     {t("Sort Order")}
                                                                 </label>
                                                                 <Select value={sortOrder} onValueChange={setSortOrder}>
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="desc">{t("Descending")}</SelectItem>
-                                                                        <SelectItem value="asc">{t("Ascending")}</SelectItem>
+                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+                                                                        <SelectItem value="desc" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Descending")}
+                                                                        </SelectItem>
+                                                                        <SelectItem value="asc" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                            {t("Ascending")}
+                                                                        </SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
@@ -674,7 +707,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                 <Button
                                                                     variant="outline"
                                                                     onClick={clearFilters}
-                                                                    className="w-full h-10 gap-2"
+                                                                    className="w-full h-10 gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                                                 >
                                                                     <RefreshCw className="h-4 w-4" />
                                                                     {t("Clear Filters")}
@@ -684,24 +717,31 @@ export default function Sales({ auth, warehouse, sales }) {
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
+
+                                            {/* Results Summary */}
+                                            <div className="mt-4 flex items-center justify-between text-sm text-gray-600 dark:text-gray-300">
+                                                <div>
+                                                    {t("Showing")} <span className="font-medium">{filteredSales.length}</span> {t("of")} <span className="font-medium">{sales.length}</span> {t("sales")}
+                                                </div>
+                                            </div>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
 
-                                {/* Sales Table */}
+                                {/* Enhanced Sales Table */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="content-card border-0 shadow-2xl backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                            <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
-                                                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                                                    <BarChart3 className="h-5 w-5 text-white" />
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800">
+                                        <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                                            <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
+                                                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                                    <BarChart3 className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                                                 </div>
                                                 {t("Sales Records")}
-                                                <Badge variant="secondary" className="ml-auto">
+                                                <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                                     {filteredSales.length} {t("of")} {sales.length}
                                                 </Badge>
                                             </CardTitle>
@@ -710,53 +750,53 @@ export default function Sales({ auth, warehouse, sales }) {
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50">
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                        <TableRow className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                                                                 {t("Reference")}
                                                             </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                                                                 {t("Customer")}
                                                             </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                                                                 {t("Items")}
                                                             </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                                                                 {t("Total Amount")}
                                                             </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                                                                 {t("Status")}
                                                             </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                                                                 {t("Confirmations")}
                                                             </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                                                                 {t("Date")}
                                                             </TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                                                                 {t("Actions")}
                                                             </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
-                                                    <TableBody>
+                                                    <TableBody className="bg-white dark:bg-gray-800">
                                                         {filteredSales.length > 0 ? (
                                                             filteredSales.map((sale, index) => (
                                                                 <TableRow
                                                                     key={sale.id}
-                                                                    className="hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors"
+                                                                    className={`hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700/50'}`}
                                                                 >
                                                                     <TableCell>
-                                                                        <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                                                                        <span className="font-mono text-sm bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg text-gray-700 dark:text-gray-300">
                                                                             {sale.reference}
                                                                         </span>
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-3">
                                                                             <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
-                                                                                <User className="h-4 w-4 text-blue-600" />
+                                                                                <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                                                             </div>
                                                                             <div>
-                                                                                <p className="font-semibold text-slate-800 dark:text-white">{sale.customer?.name || 'N/A'}</p>
-                                                                                <p className="text-sm text-slate-500">{sale.customer?.email || ''}</p>
+                                                                                <p className="font-semibold text-gray-900 dark:text-white">{sale.customer?.name || 'N/A'}</p>
+                                                                                <p className="text-sm text-gray-500 dark:text-gray-400">{sale.customer?.email || ''}</p>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
@@ -766,14 +806,14 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                                 {sale.sale_items?.length || 0} {t('items')}
                                                                             </Badge>
                                                                             {sale.sale_items && sale.sale_items.length > 0 && (
-                                                                                <span className="text-xs text-slate-500">
+                                                                                <span className="text-xs text-gray-500 dark:text-gray-400">
                                                                                     {sale.sale_items[0].product?.name}
                                                                                     {sale.sale_items.length > 1 && ` +${sale.sale_items.length - 1} more`}
                                                                                 </span>
                                                                             )}
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-green-600">
+                                                                    <TableCell className="font-bold text-green-600 dark:text-green-400">
                                                                         {formatCurrency(sale.total_amount)}
                                                                     </TableCell>
                                                                     <TableCell>
@@ -785,23 +825,23 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                         <div className="flex items-center gap-2">
                                                                             <div className="flex items-center gap-1">
                                                                                 {sale.confirmed_by_warehouse ? (
-                                                                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                                                                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
                                                                                 ) : (
-                                                                                    <Clock className="h-4 w-4 text-yellow-600" />
+                                                                                    <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                                                                                 )}
-                                                                                <span className="text-xs">{t('Warehouse')}</span>
+                                                                                <span className="text-xs text-gray-600 dark:text-gray-400">{t('Warehouse')}</span>
                                                                             </div>
                                                                             <div className="flex items-center gap-1">
                                                                                 {sale.confirmed_by_shop ? (
-                                                                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                                                                    <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
                                                                                 ) : (
-                                                                                    <Clock className="h-4 w-4 text-yellow-600" />
+                                                                                    <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                                                                                 )}
-                                                                                <span className="text-xs">{t('Shop')}</span>
+                                                                                <span className="text-xs text-gray-600 dark:text-gray-400">{t('Shop')}</span>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+                                                                    <TableCell className="text-sm text-gray-600 dark:text-gray-400">
                                                                         <div className="flex items-center gap-2">
                                                                             <Calendar className="h-4 w-4" />
                                                                             {formatDate(sale.date)}
@@ -810,15 +850,15 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-2">
                                                                             <Link href={route("admin.warehouses.sales.show", [warehouse.id, sale.id])}>
-                                                                                <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300">
-                                                                                    <Eye className="h-4 w-4 text-blue-600" />
+                                                                                <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300 dark:hover:bg-blue-900/20 dark:hover:border-blue-400">
+                                                                                    <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                                                                 </Button>
                                                                             </Link>
-                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300">
-                                                                                <Edit className="h-4 w-4 text-green-600" />
+                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300 dark:hover:bg-green-900/20 dark:hover:border-green-400">
+                                                                                <Edit className="h-4 w-4 text-green-600 dark:text-green-400" />
                                                                             </Button>
-                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-300">
-                                                                                <Trash2 className="h-4 w-4 text-red-600" />
+                                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-900/20 dark:hover:border-red-400">
+                                                                                <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                                                                             </Button>
                                                                         </div>
                                                                     </TableCell>
@@ -828,14 +868,14 @@ export default function Sales({ auth, warehouse, sales }) {
                                                             <TableRow>
                                                                 <TableCell colSpan="8" className="h-32 text-center">
                                                                     <div className="flex flex-col items-center gap-4">
-                                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                                            <Store className="h-8 w-8 text-slate-400" />
+                                                                        <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-full">
+                                                                            <Store className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                                                                         </div>
                                                                         <div>
-                                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                            <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
                                                                                 {t("No sales found")}
                                                                             </p>
-                                                                            <p className="text-sm text-slate-500">
+                                                                            <p className="text-sm text-gray-500 dark:text-gray-400">
                                                                                 {searchTerm || dateFilter || statusFilter ? t("Try adjusting your filters") : t("Create your first sale")}
                                                                             </p>
                                                                         </div>
