@@ -28,6 +28,10 @@ import {
     Eye,
     Edit,
     Trash2,
+    ChevronDown,
+    ChevronLeft,
+    ChevronRight,
+    Download,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -49,96 +53,55 @@ import { Separator } from "@/Components/ui/separator";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Index({ auth, suppliers = [], permissions = {} }) {
+export default function Index({ auth, suppliers = {}, filters = {}, permissions = {} }) {
     const { t } = useLaravelReactI18n();
-    const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [sortField, setSortField] = useState("name");
-    const [sortDirection, setSortDirection] = useState("asc");
-    const [filterStatus, setFilterStatus] = useState("all");
-    const [selectedSuppliers, setSelectedSuppliers] = useState([]);
+    const [searchTerm, setSearchTerm] = useState(filters.search || "");
+    const [statusFilter, setStatusFilter] = useState(filters.status || "all");
+    const [sortField, setSortField] = useState(filters.sort_field || "name");
+    const [sortDirection, setSortDirection] = useState(filters.sort_direction || "asc");
+    const [showFilters, setShowFilters] = useState(false);
+    const [perPage, setPerPage] = useState(filters.per_page || 10);
 
     // Refs for animation targets
     const headerRef = useRef(null);
     const statsRef = useRef(null);
     const tableRef = useRef(null);
 
-    // Calculate statistics
-    const stats = {
-        total: suppliers?.length || 0,
-        active: suppliers?.filter(s => s.is_active !== false)?.length || 0,
-        withPurchases: suppliers?.filter(s => s.purchases_count > 0)?.length || 0,
-        pending: suppliers?.filter(s => s.pending_payments > 0)?.length || 0,
-        totalValue: suppliers?.reduce((sum, s) => sum + (parseFloat(s.total_purchases) || 0), 0) || 0,
+    // Animation effect
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+            setIsAnimated(true);
+        }, 800);
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Handle search/filter
+    const handleSearch = () => {
+        router.get(route('admin.suppliers.index'), {
+            search: searchTerm,
+            status: statusFilter,
+            sort_field: sortField,
+            sort_direction: sortDirection,
+            per_page: perPage,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
     };
 
-    // Filter suppliers based on search term and filters
-    const filteredSuppliers = suppliers
-        ? suppliers.filter((supplier) => {
-              const matchesSearch =
-                  (supplier?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  (supplier?.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  (supplier?.phone || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  (supplier?.contact_name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  (supplier?.id_number || "").toLowerCase().includes(searchTerm.toLowerCase());
-
-              const matchesStatus = filterStatus === "all" ||
-                  (filterStatus === "active" && supplier.is_active !== false) ||
-                  (filterStatus === "inactive" && supplier.is_active === false) ||
-                  (filterStatus === "with_purchases" && supplier.purchases_count > 0) ||
-                  (filterStatus === "pending" && supplier.pending_payments > 0);
-
-              return matchesSearch && matchesStatus;
-          })
-        : [];
-
-    // Sort suppliers
-    const sortedSuppliers = [...filteredSuppliers].sort((a, b) => {
-        const aValue = a[sortField] || "";
-        const bValue = b[sortField] || "";
-
-        if (typeof aValue === 'number' && typeof bValue === 'number') {
-            return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
-        }
-
-        if (aValue < bValue) {
-            return sortDirection === "asc" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-            return sortDirection === "asc" ? 1 : -1;
-        }
-        return 0;
-    });
-
-    // Sort handler
-    const handleSort = (field) => {
-        if (field === sortField) {
-            setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-        } else {
-            setSortField(field);
-            setSortDirection("asc");
-        }
+    const clearFilters = () => {
+        setSearchTerm("");
+        setStatusFilter("all");
+        setSortField("name");
+        setSortDirection("asc");
+        setPerPage(10);
+        router.get(route('admin.suppliers.index'));
     };
 
-    // Bulk actions
-    const handleSelectAll = () => {
-        if (selectedSuppliers.length === sortedSuppliers.length) {
-            setSelectedSuppliers([]);
-        } else {
-            setSelectedSuppliers(sortedSuppliers.map(s => s.id));
-        }
-    };
-
-    const handleSelectSupplier = (supplierId) => {
-        setSelectedSuppliers(prev =>
-            prev.includes(supplierId)
-                ? prev.filter(id => id !== supplierId)
-                : [...prev, supplierId]
-        );
-    };
-
-    // Delete handler
+    // Handle delete
     const handleDelete = (supplierId) => {
         if (confirm(t("Are you sure you want to delete this supplier?"))) {
             router.delete(route("admin.suppliers.destroy", supplierId), {
@@ -153,77 +116,89 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
         }
     };
 
-    // Initialize animations
-    useEffect(() => {
-        if (!isAnimated) {
-            // Animate header
-            anime({
-                targets: headerRef.current,
-                opacity: [0, 1],
-                translateY: [-30, 0],
-                duration: 800,
-                easing: "easeOutExpo",
-            });
+    // Stats
+    const stats = {
+        total: suppliers?.total || 0,
+        active: suppliers?.data?.filter(s => s.is_active !== false)?.length || 0,
+        withPurchases: suppliers?.data?.filter(s => s.purchases_count > 0)?.length || 0,
+        pending: suppliers?.data?.filter(s => s.pending_payments > 0)?.length || 0,
+        totalValue: suppliers?.data?.reduce((sum, s) => sum + (parseFloat(s.total_purchases) || 0), 0) || 0,
+    };
 
-            // Animate stats
-            anime({
-                targets: statsRef.current?.children,
-                opacity: [0, 1],
-                translateY: [20, 0],
-                delay: anime.stagger(100),
-                duration: 600,
-                easing: "easeOutExpo",
-            });
+    // Table columns
+    const columns = [
+        { key: 'name', label: t('Supplier'), icon: Building },
+        { key: 'contact_name', label: t('Contact'), icon: Users },
+        { key: 'email', label: t('Email'), icon: Mail },
+        { key: 'phone', label: t('Phone'), icon: Phone },
+        { key: 'id_number', label: t('ID Number'), icon: FileText },
+        { key: 'status', label: t('Status'), icon: Activity },
+        { key: 'actions', label: t('Actions'), icon: Settings },
+    ];
 
-            // Animate table
-            anime({
-                targets: tableRef.current,
-                opacity: [0, 1],
-                translateY: [30, 0],
-                duration: 700,
-                easing: "easeOutExpo",
-                delay: 400,
-            });
-
-            setIsAnimated(true);
-        }
-    }, [isAnimated]);
-
-    // Simulate loading delay
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setLoading(false);
-        }, 1200);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    const StatCard = ({ icon: Icon, title, value, subtitle, color = "indigo" }) => (
-        <Card className="stat-card relative overflow-hidden hover:shadow-xl transition-all duration-300">
-            <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                    <div className="space-y-2">
-                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                            {title}
-                        </p>
-                        <p className={`text-3xl font-bold text-${color}-600 dark:text-${color}-400`}>
-                            {typeof value === 'number' && title.includes('Value')
-                                ? `$${value.toLocaleString()}`
-                                : value.toLocaleString()}
-                        </p>
-                        {subtitle && (
-                            <p className="text-xs text-slate-500 dark:text-slate-400">
-                                {subtitle}
-                            </p>
-                        )}
-                    </div>
-                    <div className={`p-3 rounded-xl bg-${color}-100 dark:bg-${color}-900/30`}>
-                        <Icon className={`h-6 w-6 text-${color}-600 dark:text-${color}-400`} />
-                    </div>
+    // Pagination
+    const renderPagination = () => {
+        if (!suppliers?.links || suppliers.links.length <= 3) return null;
+        return (
+            <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 1.5, duration: 0.4 }}
+                className="flex items-center justify-center space-x-2"
+            >
+                <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-sky-100 dark:border-sky-900/30">
+                    {suppliers.links.map((link, index) => {
+                        if (link.label.includes('Previous')) {
+                            return (
+                                <Link
+                                    key={index}
+                                    href={link.url || '#'}
+                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                        link.url
+                                            ? 'text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/30'
+                                            : 'text-gray-400 cursor-not-allowed'
+                                    }`}
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                    <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                </Link>
+                            );
+                        }
+                        if (link.label.includes('Next')) {
+                            return (
+                                <Link
+                                    key={index}
+                                    href={link.url || '#'}
+                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                        link.url
+                                            ? 'text-sky-600 hover:bg-sky-50 dark:hover:bg-sky-900/30'
+                                            : 'text-gray-400 cursor-not-allowed'
+                                    }`}
+                                >
+                                    <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                    <ChevronRight className="h-4 w-4" />
+                                </Link>
+                            );
+                        }
+                        return (
+                            <Link
+                                key={index}
+                                href={link.url || '#'}
+                                className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                    link.active
+                                        ? 'bg-gradient-to-r from-sky-500 to-cyan-400 text-white shadow-lg'
+                                        : link.url
+                                            ? 'text-gray-700 dark:text-gray-300 hover:bg-sky-50 dark:hover:bg-sky-900/30'
+                                            : 'text-gray-400 cursor-not-allowed'
+                                }`}
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                            />
+                        );
+                    })}
                 </div>
-            </CardContent>
-        </Card>
-    );
+            </motion.div>
+        );
+    };
 
     return (
         <>
@@ -262,12 +237,12 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                         background: linear-gradient(to right, transparent, transparent);
                     }
                     .table-row:hover {
-                        background: linear-gradient(to right, rgba(99, 102, 241, 0.05), rgba(168, 85, 247, 0.05));
+                        background: linear-gradient(to right, rgba(14, 165, 233, 0.05), rgba(6, 182, 212, 0.05));
                         transform: translateX(4px);
                         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
                     }
                     .dark .table-row:hover {
-                        background: linear-gradient(to right, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1));
+                        background: linear-gradient(to right, rgba(14, 165, 233, 0.1), rgba(6, 182, 212, 0.1));
                     }
                     .stat-card {
                         background: rgba(255, 255, 255, 0.98);
@@ -303,12 +278,12 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
                         border: 1px solid rgba(51, 65, 85, 1);
                     }
                     .search-input:focus {
-                        border-color: #6366f1;
-                        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+                        border-color: #0ea5e9;
+                        box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
                     }
                     .dark .search-input:focus {
-                        border-color: #818cf8;
-                        box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+                        border-color: #38bdf8;
+                        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
                     }
                     .supplier-dropdown {
                         position: absolute !important;
@@ -323,377 +298,426 @@ export default function Index({ auth, suppliers = [], permissions = {} }) {
 
             <PageLoader isVisible={loading} />
 
-            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 bg-grid-pattern overflow-hidden">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isAnimated ? 1 : 0 }}
+                transition={{ duration: 0.5 }}
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-sky-50 to-cyan-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+            >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.suppliers" />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
-                    {/* Enhanced Header */}
-                    <header
-                        ref={headerRef}
-                        className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95"
+                    {/* Header */}
+                    <motion.header
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
                     >
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-6">
-                                <div className="relative">
-                                    <div className="absolute -inset-1 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg blur opacity-25"></div>
-                                    <div className="relative bg-white dark:bg-slate-900 p-3 rounded-lg">
-                                        <Truck className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+                            <div className="flex items-center space-x-4">
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative float-animation"
+                                >
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-sky-500 via-cyan-500 to-sky-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-sky-500 via-cyan-500 to-sky-600 p-4 rounded-2xl shadow-2xl">
+                                        <Truck className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
-                                </div>
+                                </motion.div>
                                 <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-300">
-                                            {t("Supply Chain Management")}
-                                        </span>
-                                        <Badge variant="outline" className="bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-300 dark:border-indigo-700">
-                                            Live
-                                        </Badge>
-                                    </div>
-                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-indigo-600 to-slate-900 dark:from-white dark:via-indigo-300 dark:to-white bg-clip-text text-transparent">
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400 mb-1 flex items-center gap-2"
+                                    >
+                                        <Zap className="w-4 h-4" />
                                         {t("Supplier Management")}
-                                    </h1>
-                                    <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
-                                        {t("Manage your supplier network and relationships")}
-                                    </p>
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-4xl font-bold bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-700 bg-clip-text text-transparent"
+                                    >
+                                        {t("Suppliers")}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                    >
+                                        <Activity className="w-4 h-4" />
+                                        {t("Track and manage supplier records")}
+                                    </motion.p>
                                 </div>
                             </div>
-
-                            <div className="flex items-center space-x-3">
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
+                            >
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-sky-200 hover:border-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/20">
+                                    <Download className="h-4 w-4" />
+                                    {t("Export")}
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setShowFilters(!showFilters)}
+                                    className="gap-2 hover:scale-105 transition-all duration-200 border-sky-200 hover:border-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/20"
+                                >
+                                    <Filter className="h-4 w-4" />
+                                    {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                    <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                                </Button>
                                 {permissions.can_create && (
                                     <Link href={route("admin.suppliers.create")}>
-                                        <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg">
+                                        <Button className="bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 text-white shadow-lg">
                                             <Plus className="h-4 w-4 mr-2" />
                                             {t("Add Supplier")}
                                         </Button>
                                     </Link>
                                 )}
-                            </div>
+                            </motion.div>
                         </div>
-                    </header>
+                    </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                        <div className="p-8 space-y-8">
-                            {/* Statistics Cards */}
-                            <div ref={statsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                                <StatCard
-                                    icon={Building}
-                                    title={t("Total Suppliers")}
-                                    value={stats.total}
-                                    subtitle={t("All registered suppliers")}
-                                    color="indigo"
-                                />
-                                <StatCard
-                                    icon={CheckCircle}
-                                    title={t("Active Suppliers")}
-                                    value={stats.active}
-                                    subtitle={t("Currently working with")}
-                                    color="green"
-                                />
-                                <StatCard
-                                    icon={ShoppingBag}
-                                    title={t("With Purchases")}
-                                    value={stats.withPurchases}
-                                    subtitle={t("Have purchase history")}
-                                    color="blue"
-                                />
-                                <StatCard
-                                    icon={AlertCircle}
-                                    title={t("Pending Payments")}
-                                    value={stats.pending}
-                                    subtitle={t("Outstanding balances")}
-                                    color="orange"
-                                />
-                                <StatCard
-                                    icon={DollarSign}
-                                    title={t("Total Value")}
-                                    value={stats.totalValue}
-                                    subtitle={t("Total purchase value")}
-                                    color="emerald"
-                                />
-                            </div>
-
-                            {/* Enhanced Filters and Search */}
-                            <Card className="content-card overflow-visible">
-                                <CardContent className="p-6 overflow-visible">
-                                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                                        {/* Search */}
-                                        <div className="flex-1 max-w-md">
-                                            <div className="relative">
-                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                                                <input
-                                                    type="text"
-                                                    placeholder={t("Search suppliers, contacts, emails...")}
-                                                    className="search-input w-full pl-10 pr-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500/30 transition-all duration-200"
-                                                    value={searchTerm}
-                                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                                />
-                                                {searchTerm && (
-                                                    <button
-                                                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                                                        onClick={() => setSearchTerm("")}
-                                                    >
-                                                        <XCircle className="h-4 w-4" />
-                                                    </button>
-                                                )}
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-sky-300 dark:scrollbar-thumb-sky-700 scrollbar-track-transparent">
+                        <div className="p-8">
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.8, duration: 0.5 }}
+                                className="space-y-8"
+                            >
+                                {/* Summary Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        {t("Total Suppliers")}
+                                                    </p>
+                                                    <p className="text-3xl font-bold text-sky-600">
+                                                        {stats.total?.toLocaleString() || "0"}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500 mt-1">
+                                                        {t("Records")}
+                                                    </p>
+                                                </div>
+                                                <div className="p-4 bg-gradient-to-br from-sky-100 to-cyan-100 dark:from-sky-900/30 dark:to-cyan-900/30 rounded-2xl">
+                                                    <Building className="h-8 w-8 text-sky-600" />
+                                                </div>
                                             </div>
-                                        </div>
-
-                                        {/* Filters */}
-                                        <div className="flex items-center gap-3">
-                                            <div className="relative z-50">
-                                                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                                                    <SelectTrigger className="w-40 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
-                                                        <SelectValue placeholder={t("Status")} />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="supplier-dropdown bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg">
-                                                        <SelectItem value="all">{t("All Status")}</SelectItem>
-                                                        <SelectItem value="active">{t("Active")}</SelectItem>
-                                                        <SelectItem value="inactive">{t("Inactive")}</SelectItem>
-                                                        <SelectItem value="with_purchases">{t("With Purchases")}</SelectItem>
-                                                        <SelectItem value="pending">{t("Pending Payments")}</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        {t("Active Suppliers")}
+                                                    </p>
+                                                    <p className="text-3xl font-bold text-green-600">
+                                                        {stats.active?.toLocaleString() || "0"}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500 mt-1">
+                                                        {t("Currently working with")}
+                                                    </p>
+                                                </div>
+                                                <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
+                                                    <CheckCircle className="h-8 w-8 text-green-600" />
+                                                </div>
                                             </div>
-
-                                            <Button variant="outline" size="sm" className="bg-white/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700">
-                                                <RefreshCw className="h-4 w-4 mr-2" />
-                                                {t("Refresh")}
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                    {/* Results Summary */}
-                                    <div className="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
-                                        <div>
-                                            {t("Showing")} <span className="font-medium">{sortedSuppliers.length}</span> {t("of")} <span className="font-medium">{suppliers?.length || 0}</span> {t("suppliers")}
-                                        </div>
-                                        {selectedSuppliers.length > 0 && (
-                                            <div className="flex items-center gap-2">
-                                                <span>{selectedSuppliers.length} {t("selected")}</span>
-                                                <Button variant="outline" size="sm">
-                                                    {t("Bulk Actions")}
-                                                </Button>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        {t("With Purchases")}
+                                                    </p>
+                                                    <p className="text-3xl font-bold text-blue-600">
+                                                        {stats.withPurchases?.toLocaleString() || "0"}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500 mt-1">
+                                                        {t("Have purchase history")}
+                                                    </p>
+                                                </div>
+                                                <div className="p-4 bg-gradient-to-br from-blue-100 to-sky-100 dark:from-blue-900/30 dark:to-sky-900/30 rounded-2xl">
+                                                    <ShoppingBag className="h-8 w-8 text-blue-600" />
+                                                </div>
                                             </div>
-                                        )}
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Enhanced Suppliers Table */}
-                            <Card ref={tableRef} className="content-card overflow-hidden">
-                                <div className="overflow-x-auto">
-                                    <table className="w-full">
-                                        <thead>
-                                            <tr className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700 border-b-2 border-slate-200 dark:border-slate-600">
-                                                <th className="px-6 py-5 text-left">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedSuppliers.length === sortedSuppliers.length && sortedSuppliers.length > 0}
-                                                        onChange={handleSelectAll}
-                                                        className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:focus:ring-indigo-400 scale-110"
-                                                    />
-                                                </th>
-                                                <th
-                                                    className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
-                                                    onClick={() => handleSort("name")}
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        <Building className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                                                        <span>{t("Supplier")}</span>
-                                                        <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
-                                                    </div>
-                                                </th>
-                                                <th
-                                                    className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors group"
-                                                    onClick={() => handleSort("contact_name")}
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        <Users className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                                                        <span>{t("Contact")}</span>
-                                                        <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
-                                                    </div>
-                                                </th>
-                                                <th className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                                                    <div className="flex items-center gap-2">
-                                                        <Mail className="h-4 w-4" />
-                                                        <span>{t("Email")}</span>
-                                                    </div>
-                                                </th>
-                                                <th className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                                                    <div className="flex items-center gap-2">
-                                                        <Phone className="h-4 w-4" />
-                                                        <span>{t("Phone")}</span>
-                                                    </div>
-                                                </th>
-                                                <th className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                                                    <div className="flex items-center gap-2">
-                                                        <FileText className="h-4 w-4" />
-                                                        <span>{t("ID Number")}</span>
-                                                    </div>
-                                                </th>
-                                                <th className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                                                    <div className="flex items-center gap-2">
-                                                        <Activity className="h-4 w-4" />
-                                                        <span>{t("Status")}</span>
-                                                    </div>
-                                                </th>
-                                                <th className="px-6 py-5 text-center text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <Settings className="h-4 w-4" />
-                                                        <span>{t("Actions")}</span>
-                                                    </div>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                            <AnimatePresence>
-                                                {sortedSuppliers.map((supplier, index) => (
-                                                    <motion.tr
-                                                        key={supplier.id}
-                                                        initial={{ opacity: 0, y: 20 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        exit={{ opacity: 0, y: -20 }}
-                                                        transition={{ duration: 0.3, delay: index * 0.05 }}
-                                                        className="table-row rounded-lg"
-                                                    >
-                                                        <td className="px-6 py-5">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={selectedSuppliers.includes(supplier.id)}
-                                                                onChange={() => handleSelectSupplier(supplier.id)}
-                                                                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600 dark:focus:ring-indigo-400 scale-110"
-                                                            />
-                                                        </td>
-                                                        <td className="px-6 py-5">
-                                                            <div className="flex items-center gap-4">
-                                                                <div className="relative">
-                                                                    <div className="h-14 w-14 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-xl flex items-center justify-center shadow-md">
-                                                                        <Truck className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
-                                                                    </div>
-                                                                </div>
-                                                                <div>
-                                                                    <div className="font-bold text-slate-900 dark:text-white text-lg">
-                                                                        {supplier.name}
-                                                                    </div>
-                                                                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                        {supplier.city}, {supplier.country}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5">
-                                                            <div className="font-medium text-slate-900 dark:text-white">
-                                                                {supplier.contact_name || "—"}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5">
-                                                            <div className="text-slate-600 dark:text-slate-400">
-                                                                {supplier.email || "—"}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5">
-                                                            <div className="text-slate-600 dark:text-slate-400">
-                                                                {supplier.phone || "—"}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5">
-                                                            <div className="font-mono text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg shadow-inner">
-                                                                {supplier.id_number || "—"}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5">
-                                                            <div className="flex flex-wrap gap-2">
-                                                                {supplier.is_active !== false && (
-                                                                    <Badge className="bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-green-300 dark:from-green-900/30 dark:to-green-800/30 dark:text-green-400 dark:border-green-700 shadow-sm">
-                                                                        <CheckCircle className="h-3 w-3 mr-1" />
-                                                                        {t("Active")}
-                                                                    </Badge>
-                                                                )}
-                                                                {(supplier.purchases_count || 0) > 0 && (
-                                                                    <Badge className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300 dark:from-blue-900/30 dark:to-blue-800/30 dark:text-blue-400 dark:border-blue-700 shadow-sm">
-                                                                        <ShoppingBag className="h-3 w-3 mr-1" />
-                                                                        {t("Has Orders")}
-                                                                    </Badge>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5">
-                                                            <div className="flex items-center justify-center gap-2">
-                                                                {permissions.can_view && (
-                                                                    <Link href={route("admin.suppliers.show", supplier.id)}>
-                                                                        <Button
-                                                                            variant="outline"
-                                                                            size="sm"
-                                                                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 dark:hover:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700 shadow-sm"
-                                                                        >
-                                                                            <Eye className="h-4 w-4" />
-                                                                        </Button>
-                                                                    </Link>
-                                                                )}
-                                                                {permissions.can_update && (
-                                                                    <Link href={route("admin.suppliers.edit", supplier.id)}>
-                                                                        <Button
-                                                                            variant="outline"
-                                                                            size="sm"
-                                                                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200 dark:hover:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-700 shadow-sm"
-                                                                        >
-                                                                            <Edit className="h-4 w-4" />
-                                                                        </Button>
-                                                                    </Link>
-                                                                )}
-                                                                {permissions.can_delete && (
-                                                                    <Button
-                                                                        variant="outline"
-                                                                        size="sm"
-                                                                        onClick={() => handleDelete(supplier.id)}
-                                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 dark:text-red-400 dark:border-red-700 shadow-sm"
-                                                                    >
-                                                                        <Trash2 className="h-4 w-4" />
-                                                                    </Button>
-                                                                )}
-                                                            </div>
-                                                        </td>
-                                                    </motion.tr>
-                                                ))}
-                                            </AnimatePresence>
-                                        </tbody>
-                                    </table>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        {t("Pending Payments")}
+                                                    </p>
+                                                    <p className="text-3xl font-bold text-orange-600">
+                                                        {stats.pending?.toLocaleString() || "0"}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500 mt-1">
+                                                        {t("Outstanding balances")}
+                                                    </p>
+                                                </div>
+                                                <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
+                                                    <AlertCircle className="h-8 w-8 text-orange-600" />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div>
+                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        {t("Total Value")}
+                                                    </p>
+                                                    <p className="text-3xl font-bold text-emerald-600">
+                                                        ${stats.totalValue?.toLocaleString() || "0"}
+                                                    </p>
+                                                    <p className="text-xs text-slate-500 mt-1">
+                                                        {t("Total purchase value")}
+                                                    </p>
+                                                </div>
+                                                <div className="p-4 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 rounded-2xl">
+                                                    <DollarSign className="h-8 w-8 text-emerald-600" />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
                                 </div>
-
-                                {sortedSuppliers.length === 0 && (
-                                    <div className="text-center py-16">
-                                        <div className="relative inline-block">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full blur opacity-25"></div>
-                                            <div className="relative bg-white dark:bg-slate-900 p-6 rounded-full">
-                                                <Truck className="h-16 w-16 text-slate-400 dark:text-slate-500 mx-auto" />
+                                {/* Advanced Filters */}
+                                <AnimatePresence>
+                                    {showFilters && (
+                                        <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: "auto", opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            transition={{ duration: 0.3 }}
+                                            className="overflow-hidden"
+                                        >
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                                <CardHeader className="bg-gradient-to-r from-sky-500/20 via-cyan-500/20 to-sky-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                                    <CardTitle className="flex items-center gap-3">
+                                                        <div className="p-2 bg-gradient-to-br from-sky-500 to-cyan-600 rounded-lg">
+                                                            <Filter className="h-5 w-5 text-white" />
+                                                        </div>
+                                                        {t("Search & Filter")}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-6">
+                                                    {/* Search Bar */}
+                                                    <div className="mb-4">
+                                                        <div className="relative">
+                                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                            <input
+                                                                placeholder={t("Search by name, contact, email...")}
+                                                                value={searchTerm}
+                                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                                className="pl-12 h-12 text-lg border-2 border-sky-200 focus:border-sky-500 rounded-xl w-full"
+                                                            />
+                                                            {searchTerm && (
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() => setSearchTerm("")}
+                                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                                >
+                                                                    <X className="h-4 w-4" />
+                                                                </Button>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    {/* Status Filter */}
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                        <div>
+                                                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                {t("Status")}
+                                                            </label>
+                                                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                                                <SelectTrigger className="h-10">
+                                                                    <SelectValue placeholder={t("All Statuses")} />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="all">{t("All Statuses")}</SelectItem>
+                                                                    <SelectItem value="active">{t("Active")}</SelectItem>
+                                                                    <SelectItem value="inactive">{t("Inactive")}</SelectItem>
+                                                                    <SelectItem value="with_purchases">{t("With Purchases")}</SelectItem>
+                                                                    <SelectItem value="pending">{t("Pending Payments")}</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </div>
+                                                        <div className="flex items-end">
+                                                            <Button
+                                                                variant="outline"
+                                                                onClick={clearFilters}
+                                                                className="w-full h-10 gap-2"
+                                                            >
+                                                                <RefreshCw className="h-4 w-4" />
+                                                                {t("Clear Filters")}
+                                                            </Button>
+                                                        </div>
+                                                        <div className="flex items-end">
+                                                            <Button
+                                                                onClick={handleSearch}
+                                                                className="w-full h-10 gap-2 bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-700 hover:from-sky-700 hover:via-cyan-700 hover:to-sky-800 text-white"
+                                                            >
+                                                                <Search className="h-4 w-4" />
+                                                                {t("Apply Filters")}
+                                                            </Button>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                                {/* Supplier Table */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.4, duration: 0.4 }}
+                                >
+                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-sky-500/20 via-cyan-500/20 to-sky-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                            <CardTitle className="flex items-center gap-3">
+                                                <div className="p-2 bg-gradient-to-br from-sky-500 to-cyan-600 rounded-lg">
+                                                    <Building className="h-5 w-5 text-white" />
+                                                </div>
+                                                {t("Supplier Records")}
+                                                <Badge variant="secondary" className="ml-auto">
+                                                    {suppliers?.data?.length || 0} {t("of")} {suppliers?.total || 0}
+                                                </Badge>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-0">
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full">
+                                                    <thead>
+                                                        <tr className="bg-slate-50 dark:bg-slate-900/50">
+                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Supplier")}</th>
+                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Contact")}</th>
+                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Email")}</th>
+                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Phone")}</th>
+                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("ID Number")}</th>
+                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Status")}</th>
+                                                            <th className="font-semibold text-slate-700 dark:text-slate-300">{t("Actions")}</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {suppliers?.data?.length > 0 ? (
+                                                            suppliers.data.map((supplier) => (
+                                                                <tr key={supplier.id} className="hover:bg-sky-50 dark:hover:bg-sky-900/10 transition-colors">
+                                                                    <td>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Building className="h-4 w-4 text-sky-600" />
+                                                                            <div>
+                                                                                <div className="font-semibold text-slate-800 dark:text-white">{supplier.name}</div>
+                                                                                <div className="text-sm text-slate-500">{supplier.city}, {supplier.country}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div className="font-medium text-slate-900 dark:text-white">{supplier.contact_name || "—"}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div className="text-slate-600 dark:text-slate-400">{supplier.email || "—"}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div className="text-slate-600 dark:text-slate-400">{supplier.phone || "—"}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div className="font-mono text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg shadow-inner">{supplier.id_number || "—"}</div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div className="flex flex-wrap gap-2">
+                                                                            {supplier.is_active !== false && (
+                                                                                <Badge className="bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-green-300 dark:from-green-900/30 dark:to-green-800/30 dark:text-green-400 dark:border-green-700 shadow-sm">
+                                                                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                                                                    {t("Active")}
+                                                                                </Badge>
+                                                                            )}
+                                                                            {(supplier.purchases_count || 0) > 0 && (
+                                                                                <Badge className="bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-blue-300 dark:from-blue-900/30 dark:to-blue-800/30 dark:text-blue-400 dark:border-blue-700 shadow-sm">
+                                                                                    <ShoppingBag className="h-3 w-3 mr-1" />
+                                                                                    {t("Has Orders")}
+                                                                                </Badge>
+                                                                            )}
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {permissions.can_view && (
+                                                                                <Link href={route("admin.suppliers.show", supplier.id)}>
+                                                                                    <Button variant="outline" size="sm" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 border-blue-200 dark:hover:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700 shadow-sm">
+                                                                                        <Eye className="h-4 w-4" />
+                                                                                    </Button>
+                                                                                </Link>
+                                                                            )}
+                                                                            {permissions.can_update && (
+                                                                                <Link href={route("admin.suppliers.edit", supplier.id)}>
+                                                                                    <Button variant="outline" size="sm" className="text-sky-600 hover:text-sky-700 hover:bg-sky-50 border-sky-200 dark:hover:bg-sky-900/30 dark:text-sky-400 dark:border-sky-700 shadow-sm">
+                                                                                        <Edit className="h-4 w-4" />
+                                                                                    </Button>
+                                                                                </Link>
+                                                                            )}
+                                                                            {permissions.can_delete && (
+                                                                                <Button variant="outline" size="sm" onClick={() => handleDelete(supplier.id)} className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 dark:text-red-400 dark:border-red-700 shadow-sm">
+                                                                                    <Trash2 className="h-4 w-4" />
+                                                                                </Button>
+                                                                            )}
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))
+                                                        ) : (
+                                                            <tr>
+                                                                <td colSpan="7" className="h-32 text-center">
+                                                                    <div className="flex flex-col items-center gap-4">
+                                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                                            <Truck className="h-8 w-8 text-slate-400" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                                {t("No supplier records found")}
+                                                                            </p>
+                                                                            <p className="text-sm text-slate-500">
+                                                                                {searchTerm || statusFilter !== "all" ? t("Try adjusting your filters") : t("Start tracking suppliers")}
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
                                             </div>
-                                        </div>
-                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 mt-6">
-                                            {t("No suppliers found")}
-                                        </h3>
-                                        <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto">
-                                            {searchTerm || filterStatus !== "all"
-                                                ? t("Try adjusting your search or filters to find what you're looking for")
-                                                : t("Get started by adding your first supplier to the system")}
-                                        </p>
-                                        {(!searchTerm && filterStatus === "all" && permissions.can_create) && (
-                                            <Link href={route("admin.suppliers.create")}>
-                                                <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg">
-                                                    <Plus className="h-4 w-4 mr-2" />
-                                                    {t("Add Your First Supplier")}
-                                                </Button>
-                                            </Link>
-                                        )}
-                                    </div>
-                                )}
-                            </Card>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                                {/* Pagination */}
+                                {renderPagination()}
+                            </motion.div>
                         </div>
                     </main>
                 </div>
-            </div>
+            </motion.div>
         </>
     );
 }
