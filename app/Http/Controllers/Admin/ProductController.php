@@ -110,9 +110,9 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request): RedirectResponse
     {
-        $this->authorize('create_product');
+        $validated = $request->validated();
 
-        Product::create($request->validated());
+        Product::create($validated);
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product created successfully.');
@@ -130,12 +130,9 @@ class ProductController extends Controller
         return Inertia::render('Admin/Product/Edit', [
             'product' => $product->load(['wholesaleUnit', 'retailUnit']),
             'units' => $units,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ],
             'permissions' => [
-                'view_product' => true, // Already authorized
-                'update_product' => Auth::user()->can('update_product', $product),
+                'view_product' => Auth::user()->can('view_product', $product),
+                'update_product' => true, // Already authorized
                 'delete_product' => Auth::user()->can('delete_product', $product),
             ]
         ]);
@@ -146,9 +143,9 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
-        $this->authorize('update_product', $product);
+        $validated = $request->validated();
 
-        $product->update($request->validated());
+        $product->update($validated);
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product updated successfully.');
