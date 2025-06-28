@@ -88,4 +88,58 @@ class CustomerPolicy
     {
         return $user->can('view_customer');
     }
+
+    // ============================================================================
+    // CUSTOMER USER POLICY METHODS
+    // ============================================================================
+
+    /**
+     * Determine whether the user can view any customer users.
+     * 
+     * Users who can view any customers can also view any customer users.
+     */
+    public function viewAnyCustomerUser(User $user): bool
+    {
+        return $user->can('view_any_customer');
+    }
+
+    /**
+     * Determine whether the user can view a specific customer user.
+     * 
+     * Viewing customer users requires view_customer permission.
+     */
+    public function viewCustomerUser(User $user): bool
+    {
+        return $user->can('view_customer');
+    }
+
+    /**
+     * Determine whether the user can create customer users.
+     * 
+     * Creating customer users requires create_customer permission.
+     */
+    public function createCustomerUser(User $user): bool
+    {
+        return $user->can('create_customer');
+    }
+
+    /**
+     * Determine whether the user can update customer users.
+     * 
+     * Updating customer users requires view_customer permission.
+     */
+    public function updateCustomerUser(User $user): bool
+    {
+        return $user->can('view_customer');
+    }
+
+    /**
+     * Determine whether the user can delete customer users.
+     * 
+     * Deleting customer users requires view_customer permission.
+     */
+    public function deleteCustomerUser(User $user): bool
+    {
+        return $user->can('view_customer');
+    }
 }

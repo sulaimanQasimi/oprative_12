@@ -417,9 +417,9 @@ class CustomerController extends Controller
      * Display customer income records.
      * 
      * @param Customer $customer
-     * @return Response
+     * @return Response|RedirectResponse
      */
-    public function income(Customer $customer): Response
+    public function income(Customer $customer): Response|RedirectResponse
     {
         try {
             $customer->load(['customerStockIncome.product']);
@@ -460,9 +460,9 @@ class CustomerController extends Controller
      * Display customer outcome records.
      * 
      * @param Customer $customer
-     * @return Response
+     * @return Response|RedirectResponse
      */
-    public function outcome(Customer $customer): Response
+    public function outcome(Customer $customer): Response|RedirectResponse
     {
         try {
             $customer->load(['customerStockOutcome.product']);
@@ -503,9 +503,9 @@ class CustomerController extends Controller
      * Display customer market orders.
      * 
      * @param Customer $customer
-     * @return Response
+     * @return Response|RedirectResponse
      */
-    public function orders(Customer $customer): Response
+    public function orders(Customer $customer): Response|RedirectResponse
     {
         try {
             $customer->load(['marketOrders.items.product']);
@@ -552,9 +552,9 @@ class CustomerController extends Controller
      * 
      * @param Customer $customer
      * @param string $orderId
-     * @return Response
+     * @return Response|RedirectResponse
      */
-    public function showOrder(Customer $customer, string $orderId): Response
+    public function showOrder(Customer $customer, string $orderId): Response|RedirectResponse
     {
         try {
             $order = \App\Models\MarketOrder::with(['items.product', 'customer'])
