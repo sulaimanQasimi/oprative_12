@@ -12,23 +12,116 @@ import {
     ShoppingBag,
     FileText,
     ClipboardList,
-    Search
+    Search,
+    Weight,
+    Calculator,
+    CheckCircle,
+    AlertCircle,
+    Package2
 } from 'lucide-react';
 
 export default function CreateStockIncome({ auth, products, reference }) {
     const { t } = useLaravelReactI18n();
     const [calculatedTotal, setCalculatedTotal] = useState(0);
+    const [calculatedQuantity, setCalculatedQuantity] = useState(0);
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showDropdown, setShowDropdown] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState(null);
 
     const { data, setData, post, processing, errors } = useForm({
         product_id: '',
         reference_number: reference || '',
+        unit_type: '',
         quantity: 1,
         price: '',
+        notes: '',
     });
+
+    // Update selected product when product_id changes
+    useEffect(() => {
+        if (data.product_id) {
+            const product = products.find(p => p.id === parseInt(data.product_id));
+            setSelectedProduct(product);
+        } else {
+            setSelectedProduct(null);
+        }
+    }, [data.product_id, products]);
+
+    // Calculate actual quantity and total (similar to warehouse logic)
+    useEffect(() => {
+        if (selectedProduct && data.unit_type && data.quantity && data.price) {
+            let actualQuantity = parseFloat(data.quantity) || 0;
+
+            if (data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount) {
+                actualQuantity = (parseFloat(data.quantity) || 0) * selectedProduct.whole_sale_unit_amount;
+            }
+
+            const total = actualQuantity * (parseFloat(data.price) || 0);
+
+            setCalculatedQuantity(actualQuantity);
+            setCalculatedTotal(total);
+        } else {
+            setCalculatedQuantity(0);
+            setCalculatedTotal(0);
+        }
+    }, [selectedProduct, data.unit_type, data.quantity, data.price]);
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'AFN',
+            minimumFractionDigits: 0,
+        }).format(amount || 0);
+    };
+
+    const getUnitPrice = (product, unitType) => {
+        if (!product) return 0;
+
+        switch (unitType) {
+            case 'wholesale':
+                return product.wholesale_price || 0;
+            case 'retail':
+                return product.retail_price || 0;
+            default:
+                return 0;
+        }
+    };
+
+    const handleUnitTypeChange = (unitType) => {
+        setData('unit_type', unitType);
+
+        // Auto-fill price based on unit type
+        if (selectedProduct) {
+            const price = getUnitPrice(selectedProduct, unitType);
+            setData('price', price.toString());
+        }
+    };
+
+    const getAvailableUnits = (product) => {
+        const units = [];
+
+        if (product?.wholesaleUnit && product.whole_sale_unit_amount) {
+            units.push({
+                type: 'wholesale',
+                label: `${product.wholesaleUnit.name} (${product.wholesaleUnit.symbol})`,
+                amount: product.whole_sale_unit_amount,
+                price: product.wholesale_price
+            });
+        }
+
+        if (product?.retailUnit) {
+            units.push({
+                type: 'retail',
+                label: `${product.retailUnit.name} (${product.retailUnit.symbol})`,
+                amount: 1,
+                price: product.retail_price
+            });
+        }
+
+        return units;
+    };
 
     // Handle input changes
     const handleChange = (e) => {
@@ -75,16 +168,6 @@ export default function CreateStockIncome({ auth, products, reference }) {
     const handleProductSelect = (product) => {
         setData('product_id', product.id);
         setSearchTerm(product.name);
-
-        if (product.retail_price) {
-            setData('price', product.retail_price);
-            setCalculatedTotal(product.retail_price * data.quantity);
-        } else if (product.purchase_price) {
-            // Fallback to purchase price if retail price is not available
-            setData('price', product.purchase_price);
-            setCalculatedTotal(product.purchase_price * data.quantity);
-        }
-
         setShowDropdown(false);
     };
 
@@ -278,6 +361,35 @@ export default function CreateStockIncome({ auth, products, reference }) {
                                                 {errors.product_id && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.product_id}</p>}
                                             </div>
 
+                                            {/* Unit Type Selection */}
+                                            <div>
+                                                <label htmlFor="unit_type" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    {t('Unit Type')} *
+                                                </label>
+                                                <div className="relative">
+                                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                        <Weight className="h-5 w-5 text-gray-400" />
+                                                    </div>
+                                                    <select
+                                                        id="unit_type"
+                                                        name="unit_type"
+                                                        value={data.unit_type}
+                                                        onChange={(e) => handleUnitTypeChange(e.target.value)}
+                                                        disabled={!selectedProduct}
+                                                        className={`pl-10 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 ${errors.unit_type ? 'border-red-500 dark:border-red-700' : ''} ${!selectedProduct ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    >
+                                                        <option value="">{selectedProduct ? t("Select unit type") : t("Select product first")}</option>
+                                                        {selectedProduct && getAvailableUnits(selectedProduct).map((unit) => (
+                                                            <option key={unit.type} value={unit.type}>
+                                                                {unit.label} - {formatCurrency(unit.price)} per unit
+                                                                {unit.amount > 1 && ` (${unit.amount} pieces)`}
+                                                            </option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                {errors.unit_type && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.unit_type}</p>}
+                                            </div>
+
                                             {/* Quantity and Price */}
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                 <div>
@@ -330,14 +442,100 @@ export default function CreateStockIncome({ auth, products, reference }) {
                                                 </div>
                                             </div>
 
-                                            {/* Total Amount (Calculated) */}
-                                            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-900">
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-gray-700 dark:text-gray-300 font-medium">{t('Total Amount:')}</span>
-                                                    <span className="text-xl text-blue-700 dark:text-blue-400 font-bold">${calculatedTotal.toFixed(2)}</span>
+                                            {/* Notes */}
+                                            <div>
+                                                <label htmlFor="notes" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                                    {t('Notes')}
+                                                    <span className="text-xs text-gray-500 ml-2">({t('Optional')})</span>
+                                                </label>
+                                                <div className="relative">
+                                                    <div className="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+                                                        <Package2 className="h-5 w-5 text-gray-400" />
+                                                    </div>
+                                                    <textarea
+                                                        id="notes"
+                                                        name="notes"
+                                                        rows={4}
+                                                        value={data.notes}
+                                                        onChange={handleChange}
+                                                        className={`pl-10 block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-slate-800 dark:text-white shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50 resize-none ${errors.notes ? 'border-red-500 dark:border-red-700' : ''}`}
+                                                        placeholder={t('Enter any additional notes about this stock income...')}
+                                                    />
                                                 </div>
+                                                {errors.notes && <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.notes}</p>}
                                             </div>
 
+                                            {/* Enhanced Total Amount Calculation */}
+                                            {selectedProduct && data.unit_type && data.quantity && data.price && (
+                                                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 p-6 rounded-xl border-2 border-blue-200 dark:border-blue-700">
+                                                    <div className="flex items-center gap-3 mb-4">
+                                                        <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                            <Calculator className="h-5 w-5 text-white" />
+                                                        </div>
+                                                        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                                                            {t('Stock Income Summary')}
+                                                        </h3>
+                                                        <div className="ml-auto flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-3 py-1 rounded-full text-sm">
+                                                            <CheckCircle className="w-3 h-3" />
+                                                            {t('Valid')}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        <div className="text-center p-4 bg-white/70 dark:bg-slate-800/70 rounded-lg border border-blue-200/50 dark:border-blue-700/50">
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 flex items-center justify-center gap-2">
+                                                                <Hash className="w-4 h-4" />
+                                                                {t("Actual Quantity")}
+                                                            </p>
+                                                            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                                                {data.quantity}
+                                                            </p>
+                                                            <p className="text-xs text-gray-500 mt-1">{t("units")}</p>
+                                                        </div>
+                                                        
+                                                        <div className="text-center p-4 bg-white/70 dark:bg-slate-800/70 rounded-lg border border-blue-200/50 dark:border-blue-700/50">
+                                                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 flex items-center justify-center gap-2">
+                                                                <DollarSign className="w-4 h-4" />
+                                                                {t("Price per Unit")}
+                                                            </p>
+                                                            <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                                                                {formatCurrency(parseFloat(data.price) || 0)}
+                                                            </p>
+                                                        </div>
+                                                        
+                                                        <div className="text-center p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg border-2 border-green-300 dark:border-green-700">
+                                                            <p className="text-sm text-green-700 dark:text-green-400 mb-2 flex items-center justify-center gap-2">
+                                                                <Calculator className="w-4 h-4" />
+                                                                {t("Total Value")}
+                                                            </p>
+                                                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                                                {formatCurrency(data.price * data.quantity)}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount > 1 && (
+                                                        <div className="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                                                            <div className="flex items-center gap-2 text-green-700 dark:text-green-400">
+                                                                <Package2 className="h-5 w-5" />
+                                                                <span className="font-medium">
+                                                                    <strong>{t("Wholesale unit multiplier applied")}:</strong> {data.quantity} × {selectedProduct.whole_sale_unit_amount} = {calculatedQuantity} {t("units")}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Total Amount (Simplified for when calculation summary is not shown) */}
+                                            {(!selectedProduct || !data.unit_type || !data.quantity || !data.price) && (
+                                                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-900">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-gray-700 dark:text-gray-300 font-medium">{t('Total Amount:')}</span>
+                                                        <span className="text-xl text-blue-700 dark:text-blue-400 font-bold">{formatCurrency(calculatedTotal)}</span>
+                                                    </div>
+                                                </div>
+                                            )}
 
                                             {/* Submit Button */}
                                             <div className="flex justify-end space-x-4 mt-8">

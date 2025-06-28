@@ -155,6 +155,26 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
         });
     };
 
+    // Calculate totals
+    const totalImports = stockIncomes.data.length;
+    const totalQuantity = stockIncomes.data.reduce((sum, income) => {
+        // For wholesale items, show the actual wholesale quantity (not the converted retail units)
+        if (income.is_wholesale && income.unit_amount) {
+            return sum + (income.quantity / income.unit_amount);
+        }
+        return sum + (income.quantity || 0);
+    }, 0);
+    const totalValue = stockIncomes.data.reduce((sum, income) => sum + (income.total || 0), 0);
+    const avgImportValue = totalImports > 0 ? totalValue / totalImports : 0;
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'AFN',
+            minimumFractionDigits: 0,
+        }).format(amount || 0);
+    };
+
     return (
         <>
             <Head title={t('Stock Incomes')}>
@@ -262,7 +282,7 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
                                         <div className="relative flex items-center justify-between">
                                             <div className="space-y-1">
                                                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-green-600 dark:group-hover:text-green-400">{t('Total Quantity')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{statistics.total_quantity || 0}</p>
+                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{totalQuantity.toFixed(2)}</p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">{t('Units received')}</p>
                                             </div>
                                             <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
@@ -277,7 +297,7 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
                                         <div className="relative flex items-center justify-between">
                                             <div className="space-y-1">
                                                 <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-purple-600 dark:group-hover:text-purple-400">{t('Total Value')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">${statistics.total_value?.toFixed(2) || '0.00'}</p>
+                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(totalValue)}</p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">{t('Value of stock incomes')}</p>
                                             </div>
                                             <div className="bg-gradient-to-br from-purple-100 to-violet-100 dark:from-purple-900 dark:to-violet-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
@@ -419,6 +439,9 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
                                                         {t('Quantity')}
                                                     </th>
                                                     <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                                        {t('Unit Type')}
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                                         {t('Price')}
                                                     </th>
                                                     <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
@@ -453,21 +476,50 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
                                                             <div className="text-sm text-gray-900 dark:text-white">{income.product?.name || 'N/A'}</div>
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className="text-sm font-mono bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 py-1.5 px-3 rounded-md border border-blue-100 dark:border-blue-900 shadow-sm inline-flex items-center float-right">
-                                                                <Package className="h-4 w-4 mr-1.5 text-blue-500 dark:text-blue-400" />
-                                                                {income.quantity}
+                                                            <div className="flex flex-col gap-1">
+                                                                <div className="text-sm font-mono bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 py-1.5 px-3 rounded-md border border-blue-100 dark:border-blue-900 shadow-sm inline-flex items-center float-right">
+                                                                    <Package className="h-4 w-4 mr-1.5 text-blue-500 dark:text-blue-400" />
+                                                                    {income.is_wholesale 
+                                                                        ? `${(income.quantity / (income.unit_amount || 1)).toLocaleString()}`
+                                                                        : income.quantity?.toLocaleString() || 0
+                                                                    }
+                                                                    {income.unit_name && (
+                                                                        <span className="ml-1 text-xs opacity-75">
+                                                                            {income.unit_name}
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                                {income.is_wholesale && (
+                                                                    <span className="text-xs text-slate-500 dark:text-slate-400 float-right">
+                                                                        ({income.quantity?.toLocaleString() || 0} units total)
+                                                                    </span>
+                                                                )}
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className="text-sm font-mono bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 py-1.5 px-3 rounded-md border border-indigo-100 dark:border-indigo-900 shadow-sm inline-flex items-center float-right">
-                                                                <DollarSign className="h-4 w-4 mr-1.5 text-indigo-500 dark:text-indigo-400" />
-                                                                {income.price}
+                                                            <div className={`text-sm font-mono py-1.5 px-3 rounded-md border shadow-sm inline-flex items-center float-right ${
+                                                                income.unit_type === 'wholesale' 
+                                                                    ? "bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-100 dark:border-purple-900"
+                                                                    : "bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-100 dark:border-blue-900"
+                                                            }`}>
+                                                                <Package className={`h-4 w-4 mr-1.5 ${
+                                                                    income.unit_type === 'wholesale' 
+                                                                        ? "text-purple-500 dark:text-purple-400"
+                                                                        : "text-blue-500 dark:text-blue-400"
+                                                                }`} />
+                                                                {income.unit_type === 'wholesale' ? t('Wholesale') : t('Retail')}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-5 whitespace-nowrap text-right">
+                                                            <div className="text-sm font-mono bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 py-1.5 px-3 rounded-md border border-purple-100 dark:border-purple-900 shadow-sm inline-flex items-center float-right">
+                                                                <DollarSign className="h-4 w-4 mr-1.5 text-purple-500 dark:text-purple-400" />
+                                                                {formatCurrency(income.price)}
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right">
                                                             <div className="text-sm font-mono bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 py-1.5 px-3 rounded-md border border-purple-100 dark:border-purple-900 shadow-sm inline-flex items-center float-right">
                                                                 <CircleDollarSign className="h-4 w-4 mr-1.5 text-purple-500 dark:text-purple-400" />
-                                                                {income.total}
+                                                                {formatCurrency(income.total)}
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-5 whitespace-nowrap text-right">
@@ -494,7 +546,7 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
 
                                                 {stockIncomes?.data?.length === 0 && (
                                                     <tr>
-                                                        <td colSpan="7" className="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
+                                                        <td colSpan="8" className="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
                                                             <div className="flex flex-col items-center justify-center">
                                                                 <Package className="h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
                                                                 <p className="text-lg font-medium">{t('No stock incomes found')}</p>
