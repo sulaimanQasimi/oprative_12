@@ -311,14 +311,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Accounts Management
     Route::prefix('accounts')->group(function () {
         Route::get('/', [AccountController::class, 'index'])->name('admin.accounts.index');
-        Route::get('/create', [AccountController::class, 'create'])->name('admin.accounts.create');
-        Route::post('/', [AccountController::class, 'store'])->name('admin.accounts.store');
         Route::get('/{account:id}', [AccountController::class, 'show'])->name('admin.accounts.show');
-        Route::get('/{account:id}/edit', [AccountController::class, 'edit'])->name('admin.accounts.edit');
-        Route::put('/{account:id}', [AccountController::class, 'update'])->name('admin.accounts.update');
-        Route::delete('/{account:id}', [AccountController::class, 'destroy'])->name('admin.accounts.destroy');
-        Route::post('/{id}/restore', [AccountController::class, 'restore'])->name('admin.accounts.restore')->withTrashed();
-        Route::delete('/{id}/force-delete', [AccountController::class, 'forceDelete'])->name('admin.accounts.force-delete')->withTrashed();
     });
 
     // Account Income CRUD routes
