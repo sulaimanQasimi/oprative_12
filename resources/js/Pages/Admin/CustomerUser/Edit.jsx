@@ -50,7 +50,7 @@ export default function Edit({ auth = {}, customerUser = {}, customers = [], per
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-    const { data, setData, patch, processing, errors: formErrors } = useForm({
+    const { data, setData, put, processing, errors: formErrors } = useForm({
         name: customerUser?.name || '',
         email: customerUser?.email || '',
         password: '',
@@ -70,7 +70,7 @@ export default function Edit({ auth = {}, customerUser = {}, customers = [], per
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        patch(route('admin.customer-users.update', customerUser.id));
+        put(route('admin.customer-users.update', customerUser.id));
     };
 
     const handlePermissionChange = (permissionId, checked) => {
