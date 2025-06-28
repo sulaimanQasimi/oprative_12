@@ -36,12 +36,39 @@ use Illuminate\Support\Facades\DB;
 class SupplierController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the resource with filtering and pagination.
      */
-    public function index(): Response
+    public function index(Request $request): Response
     {
         $this->authorize('view_any_supplier');
-        $suppliers = Supplier::orderBy('name')->get();
+
+        $query = Supplier::query();
+
+        // Filtering
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Status filter (active, trashed, all)
+        $status = $request->input('status', 'active');
+        if ($status === 'trashed') {
+            $query->onlyTrashed();
+        } elseif ($status === 'all') {
+            $query->withTrashed();
+        }
+        // else default is active (no trashed)
+
+        // Sorting
+        $sortField = $request->input('sort_field', 'name');
+        $sortDirection = $request->input('sort_direction', 'asc');
+        $query->orderBy($sortField, $sortDirection);
+
+        // Pagination
+        $perPage = $request->input('per_page', 10);
+        $suppliers = $query->paginate($perPage);
 
         $permissions = [
             'can_view_any' => Gate::allows('view_any_supplier'),
@@ -55,6 +82,7 @@ class SupplierController extends Controller
 
         return Inertia::render('Admin/Supplier/Index', [
             'suppliers' => $suppliers,
+            'filters' => $request->only(['search', 'status', 'sort_field', 'sort_direction', 'per_page']),
             'permissions' => $permissions,
         ]);
     }
