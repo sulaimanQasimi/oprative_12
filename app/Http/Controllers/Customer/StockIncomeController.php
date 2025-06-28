@@ -26,7 +26,7 @@ class StockIncomeController extends Controller
         $customer = Auth::guard('customer_user')->user()->customer;
 
         $query = CustomerStockIncome::where('customer_id', $customer->id)
-            ->with(['product'])
+            ->with(['product', 'unit'])
             ->latest();
 
         // Apply filters
@@ -66,6 +66,13 @@ class StockIncomeController extends Controller
                     'unit_id' => $income->unit_id,
                     'unit_amount' => $income->unit_amount ?? 1,
                     'unit_name' => $income->unit_name,
+                    'unit' => $income->unit ? [
+                        'id' => $income->unit->id,
+                        'name' => $income->unit->name,
+                        'code' => $income->unit->code,
+                        'symbol' => $income->unit->symbol,
+                    ] : null,
+                    'notes' => $income->notes,
                     'created_at' => $income->created_at,
                     'updated_at' => $income->updated_at,
                 ];
@@ -102,7 +109,7 @@ class StockIncomeController extends Controller
         }
 
         // Load relationships
-        $stockIncome->load(['product', 'model']);
+        $stockIncome->load(['product', 'unit']);
 
         return Inertia::render('Customer/StockIncomes/Show', [
             'stockIncome' => $stockIncome
