@@ -332,4 +332,113 @@ class SupplierController extends Controller
             'permissions' => $permissions,
         ]);
     }
+
+    /**
+     * Display the supplier activity log.
+     */
+    public function activityLog(Supplier $supplier): Response
+    {
+        $this->authorize('view_supplier', $supplier);
+
+        // Get activity logs for this supplier with pagination
+        $activities = $supplier->activities()
+            ->with('causer:id,name,email') // Load the user who performed the action
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        // Transform the activities to include more readable information
+        $activities->getCollection()->transform(function ($activity) {
+            return [
+                'id' => $activity->id,
+                'log_name' => $activity->log_name,
+                'description' => $activity->description,
+                'subject_type' => $activity->subject_type,
+                'subject_id' => $activity->subject_id,
+                'causer_type' => $activity->causer_type,
+                'causer_id' => $activity->causer_id,
+                'causer' => $activity->causer ? [
+                    'id' => $activity->causer->id,
+                    'name' => $activity->causer->name,
+                    'email' => $activity->causer->email,
+                ] : null,
+                'properties' => $activity->properties,
+                'created_at' => $activity->created_at,
+                'updated_at' => $activity->updated_at,
+                // Add human-readable changes
+                'changes' => $this->formatActivityChanges($activity),
+            ];
+        });
+
+        $permissions = [
+            'can_view' => Gate::allows('view_supplier', $supplier),
+            'can_update' => Gate::allows('update_supplier', $supplier),
+            'can_delete' => Gate::allows('delete_supplier', $supplier),
+        ];
+
+        return Inertia::render('Admin/Supplier/ActivityLog', [
+            'supplier' => $supplier,
+            'activities' => $activities,
+            'permissions' => $permissions,
+        ]);
+    }
+
+    /**
+     * Format activity changes for better readability.
+     */
+    private function formatActivityChanges($activity): array
+    {
+        $changes = [];
+        
+        if ($activity->properties && isset($activity->properties['attributes']) && isset($activity->properties['old'])) {
+            $attributes = $activity->properties['attributes'];
+            $old = $activity->properties['old'];
+            
+            foreach ($attributes as $key => $newValue) {
+                if (isset($old[$key]) && $old[$key] !== $newValue) {
+                    $changes[] = [
+                        'field' => $this->formatFieldName($key),
+                        'old_value' => $old[$key] ?? '',
+                        'new_value' => $newValue ?? '',
+                    ];
+                }
+            }
+        } elseif ($activity->properties && isset($activity->properties['attributes'])) {
+            // For created records
+            $attributes = $activity->properties['attributes'];
+            foreach ($attributes as $key => $value) {
+                if (!empty($value)) {
+                    $changes[] = [
+                        'field' => $this->formatFieldName($key),
+                        'old_value' => '',
+                        'new_value' => $value,
+                    ];
+                }
+            }
+        }
+        
+        return $changes;
+    }
+
+    /**
+     * Format field names for better readability.
+     */
+    private function formatFieldName(string $field): string
+    {
+        $fieldMap = [
+            'name' => 'Supplier Name',
+            'contact_name' => 'Contact Name',
+            'phone' => 'Phone Number',
+            'email' => 'Email Address',
+            'address' => 'Address',
+            'city' => 'City',
+            'state' => 'State',
+            'country' => 'Country',
+            'postal_code' => 'Postal Code',
+            'id_number' => 'ID Number',
+            'created_at' => 'Created Date',
+            'updated_at' => 'Updated Date',
+        ];
+
+        return $fieldMap[$field] ?? ucwords(str_replace('_', ' ', $field));
+    }
 }

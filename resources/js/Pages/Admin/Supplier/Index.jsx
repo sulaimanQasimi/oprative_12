@@ -159,7 +159,7 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                                             : 'text-gray-400 cursor-not-allowed'
                                     }`}
                                 >
-                                    <ChevronLeft className="h-4 w-4" />
+                                    <ChevronRight className="h-4 w-4" />
                                     <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
                                 </Link>
                             );
@@ -176,7 +176,7 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                                     }`}
                                 >
                                     <span className="mr-1 hidden sm:inline">{t('Next')}</span>
-                                    <ChevronRight className="h-4 w-4" />
+                                    <ChevronLeft className="h-4 w-4" />
                                 </Link>
                             );
                         }

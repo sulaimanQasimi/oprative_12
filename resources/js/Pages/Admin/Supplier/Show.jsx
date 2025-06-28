@@ -200,6 +200,14 @@ export default function Show({ auth, supplier, purchases, payments, summary, per
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-5"
                             >
+                                {permissions.view_supplier && (
+                                    <Link href={route('admin.suppliers.activity-log', supplier.id)}>
+                                        <Button className="relative group bg-gradient-to-r from-sky-500 via-cyan-500 to-blue-500 hover:from-sky-600 hover:via-cyan-600 hover:to-blue-600 text-white shadow-2xl hover:shadow-sky-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm">
+                                            <Clock className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                        </Button>
+                                    </Link>
+                                )}
+
                                 {permissions.can_update && (
                                     <Link href={route('admin.suppliers.edit', supplier.id)}>
                                         <Button className="relative group bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm">

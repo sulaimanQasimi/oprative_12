@@ -143,6 +143,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{supplier}/force-delete', [SupplierController::class, 'forceDelete'])->name('admin.suppliers.force-delete')->withTrashed();
         Route::get('/{supplier}/payments', [SupplierController::class, 'payments'])->name('admin.suppliers.payments');
         Route::get('/{supplier}/purchases', [SupplierController::class, 'purchases'])->name('admin.suppliers.purchases');
+        Route::get('/{supplier}/activity-log', [SupplierController::class, 'activityLog'])->name('admin.suppliers.activity-log');
     });
 
     // Product Management
