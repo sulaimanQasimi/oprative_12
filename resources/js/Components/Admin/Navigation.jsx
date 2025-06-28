@@ -170,6 +170,8 @@ const Navigation = ({ auth, currentRoute }) => {
                     return "/adminpanel/roles";
                 case "admin.permissions.index":
                     return "/adminpanel/permissions";
+                case "admin.activity-logs.index":
+                    return "/adminpanel/activity-logs";
                 default:
                     return "#";
             }
@@ -410,6 +412,14 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.currencies.index",
                     active: currentRoute?.startsWith("admin.currencies"),
                     permission: "view_any_currency",
+                },
+                {
+                    name: t("Activity Logs"),
+                    icon: <FileText className="w-5 h-5" />,
+                    route: "admin.activity-logs.index",
+                    active: currentRoute?.startsWith("admin.activity-logs"),
+                    permission: "view_activity_logs",
+                    badge: "Monitor",
                 },
             ],
         },

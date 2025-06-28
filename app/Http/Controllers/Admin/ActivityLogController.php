@@ -23,6 +23,7 @@ class ActivityLogController extends Controller
      */
     public function show(Request $request, string $modelType, int $modelId): Response
     {
+        $this->authorize('view_activity_logs');
         // Validate and get the model class
         $modelClass = $this->getModelClass($modelType);
         
@@ -93,7 +94,7 @@ class ActivityLogController extends Controller
      */
     public function index(Request $request): Response
     {
-        // $this->authorize('view_activity_logs');
+        $this->authorize('view_activity_logs');
 
         $query = Activity::with(['causer:id,name,email']);
 
@@ -333,6 +334,7 @@ class ActivityLogController extends Controller
      */
     private function formatActivityChanges($activity, ?string $modelClass = null): array
     {
+        $this->authorize('view_activity_logs');
         $changes = [];
         
         if ($activity->properties && isset($activity->properties['attributes']) && isset($activity->properties['old'])) {
