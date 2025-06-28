@@ -343,8 +343,8 @@ export default function ShowStockIncome({ auth, stockIncome }) {
                                         href={route('customer.stock-incomes.index')}
                                         className="px-4 py-2 bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 rounded-md border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors duration-200 flex items-center shadow-sm"
                                     >
-                                        <ArrowLeft className="h-4 w-4 mr-2" />
                                         {t('Back to List')}
+                                        <ArrowLeft className="h-4 w-4 ml-2" />
                                     </Link>
 
                                     <button
