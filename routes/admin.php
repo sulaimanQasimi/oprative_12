@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\SalesController;
+use App\Http\Controllers\Admin\ActivityLogController;
 use App\Http\Controllers\Admin\{IncomeController, OutcomeController, TransferController};
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
@@ -380,5 +381,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Warehouse Income Management
     Route::prefix('transfer')->group(function () {
         Route::get('/', [TransferController::class, 'index'])->name('admin.transfers.index');
+    });
+
+    // Universal Activity Log Routes
+    Route::prefix('activity-logs')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
+        Route::get('/{modelType}/{modelId}', [ActivityLogController::class, 'show'])->name('admin.activity-logs.show');
     });
 });
