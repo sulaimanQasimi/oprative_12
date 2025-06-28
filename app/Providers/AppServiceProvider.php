@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\CustomerUser;
+use App\Policies\CustomerUserPolicy;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -31,6 +34,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Vite::prefetch(concurrency: 3);
+
+        // Register CustomerUserPolicy
+        Gate::policy(CustomerUser::class, CustomerUserPolicy::class);
 
         // Initialize Model connection resolver for tests
         if (app()->runningUnitTests()) {

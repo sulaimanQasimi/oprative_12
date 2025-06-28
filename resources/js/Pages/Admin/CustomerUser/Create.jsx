@@ -42,7 +42,7 @@ import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import PageHeader from "@/Components/PageHeader";
 
-export default function Create({ auth = {}, customers = [], permissions = [], selectedCustomerId, customerPermissions = {}, errors }) {
+export default function Create({ auth = {}, customers = [], permissions = [], selectedCustomerId, errors }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -171,33 +171,6 @@ export default function Create({ auth = {}, customers = [], permissions = [], se
                                 transition={{ delay: 0.8, duration: 0.5 }}
                                 className="max-w-5xl mx-auto"
                             >
-                                {!customerPermissions.update_customer ? (
-                                    <motion.div
-                                        initial={{ scale: 0.95, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 0.9, duration: 0.5 }}
-                                    >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardContent className="p-12 text-center">
-                                                <div className="p-4 bg-red-100 dark:bg-red-900/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                                                    <Shield className="h-8 w-8 text-red-500" />
-                                                </div>
-                                                <h3 className="text-lg font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                    {t("Access Denied")}
-                                                </h3>
-                                                <p className="text-sm text-slate-500 mb-4">
-                                                    {t("You don't have permission to create customer users.")}
-                                                </p>
-                                                <Link href={route("admin.customer-users.index")}>
-                                                    <Button variant="outline" className="gap-2">
-                                                        <ArrowLeft className="h-4 w-4" />
-                                                        {t("Back to Users")}
-                                                    </Button>
-                                                </Link>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-                                ) : (
                                 <form onSubmit={handleSubmit} className="space-y-8">
                                     {/* Form Card */}
                                     <motion.div
@@ -577,7 +550,6 @@ export default function Create({ auth = {}, customers = [], permissions = [], se
                                         </Button>
                                     </motion.div>
                                 </form>
-                                )}
                             </motion.div>
                         </div>
                     </main>

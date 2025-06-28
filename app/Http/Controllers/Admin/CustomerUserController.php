@@ -14,20 +14,12 @@ use Spatie\Permission\Models\Permission;
 class CustomerUserController extends Controller
 {
     /**
-     * Constructor to apply middleware for customer user permissions
-     */
-    public function __construct()
-    {
-        // Customer user management requires update_customer permission
-        $this->middleware('permission:update_customer')->only(['create', 'store', 'edit', 'update', 'destroy']);
-        $this->middleware('permission:view_customer')->only(['index', 'show']);
-    }
-
-    /**
      * Display a listing of the resource.
      */
     public function index()
     {
+        $this->authorize('viewAny', CustomerUser::class);
+
         $customerUsers = CustomerUser::with(['customer', 'roles', 'permissions'])->paginate(10);
 
         // Pass customer permissions to frontend
@@ -47,20 +39,16 @@ class CustomerUserController extends Controller
      */
     public function create(Request $request)
     {
+        $this->authorize('create', CustomerUser::class);
+
         $customers = Customer::all();
         $permissions = Permission::where('guard_name', 'customer_user')->get();
         $selectedCustomerId = $request->get('customer_id');
-
-        // Pass customer permissions to frontend
-        $customerPermissions = [
-            'update_customer' => Auth::user()->can('update_customer'),
-        ];
 
         return Inertia::render('Admin/CustomerUser/Create', [
             'customers' => $customers,
             'permissions' => $permissions,
             'selectedCustomerId' => $selectedCustomerId,
-            'customerPermissions' => $customerPermissions,
         ]);
     }
 
@@ -69,6 +57,8 @@ class CustomerUserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', CustomerUser::class);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:customer_users',
@@ -102,6 +92,8 @@ class CustomerUserController extends Controller
      */
     public function show(CustomerUser $customerUser)
     {
+        $this->authorize('view', $customerUser);
+
         $customerUser->load(['customer', 'permissions']);
 
         // Pass customer permissions to frontend
@@ -121,10 +113,11 @@ class CustomerUserController extends Controller
      */
     public function edit(CustomerUser $customerUser)
     {
+        $this->authorize('update', $customerUser);
+
         $customers = Customer::all();
         $permissions = Permission::where('guard_name', 'customer_user')->get();
         $customerUser->load(['customer', 'permissions']);
-
         return Inertia::render('Admin/CustomerUser/Edit', [
             'customerUser' => $customerUser,
             'customers' => $customers,
@@ -137,6 +130,8 @@ class CustomerUserController extends Controller
      */
     public function update(Request $request, CustomerUser $customerUser)
     {
+        $this->authorize('update', $customerUser);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:customer_users,email,' . $customerUser->id,
@@ -177,6 +172,8 @@ class CustomerUserController extends Controller
      */
     public function destroy(CustomerUser $customerUser)
     {
+        $this->authorize('delete', $customerUser);
+
         $customerUser->delete();
 
         return redirect()->route('admin.customer-users.index')
