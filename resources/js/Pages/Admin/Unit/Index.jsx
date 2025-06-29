@@ -6,15 +6,9 @@ import anime from "animejs";
 import {
     Search,
     Plus,
-    Globe,
-    ChevronRight,
-    MoreHorizontal,
     Edit,
     Trash2,
-    CheckCircle,
-    XCircle,
     Star,
-    AlertCircle,
     Filter,
     ArrowUpDown,
     Download,
@@ -23,7 +17,6 @@ import {
     Sparkles,
     ChevronDown,
     X,
-    Info,
     Package,
     Hash,
 } from "lucide-react";
@@ -33,7 +26,6 @@ import {
     CardContent,
     CardHeader,
     CardTitle,
-    CardFooter,
 } from "@/Components/ui/card";
 import {
     Table,
@@ -230,7 +222,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -253,7 +245,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                     }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
                                     <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
                                         <Package className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
@@ -279,7 +271,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                             delay: 0.5,
                                             duration: 0.4,
                                         }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
                                     >
                                         {t("Unit Management")}
                                     </motion.h1>
@@ -290,7 +282,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                             delay: 0.6,
                                             duration: 0.4,
                                         }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
                                         {t(
@@ -308,7 +300,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                             >
                                 <Button
                                     variant="outline"
-                                    className="gap-2 hover:scale-105 transition-all duration-200 border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                    className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-200 hover:text-indigo-700 dark:hover:text-indigo-300"
                                 >
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
@@ -344,24 +336,24 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("Total Units")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-indigo-600">
+                                                        <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
                                                             {totalUnits}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t(
                                                                 "Measurement units"
                                                             )}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl">
-                                                        <Package className="h-8 w-8 text-indigo-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 rounded-2xl">
+                                                        <Package className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -376,24 +368,24 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("With Codes")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-blue-600">
+                                                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                                                             {totalCodes}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t(
                                                                 "Units with codes"
                                                             )}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
-                                                        <Hash className="h-8 w-8 text-blue-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 rounded-2xl">
+                                                        <Hash className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -408,24 +400,24 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("With Symbols")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-purple-600">
+                                                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
                                                             {totalSymbols}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t(
                                                                 "Units with symbols"
                                                             )}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
-                                                        <Star className="h-8 w-8 text-purple-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-2xl">
+                                                        <Star className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -439,10 +431,10 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                    <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800">
+                                        <CardHeader className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/10 dark:from-indigo-500/20 dark:via-purple-500/20 dark:to-indigo-500/20 border-b border-slate-200 dark:border-slate-700">
                                             <div className="flex items-center justify-between">
-                                                <CardTitle className="flex items-center gap-3">
+                                                <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
                                                     <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
                                                         <Filter className="h-5 w-5 text-white" />
                                                     </div>
@@ -455,7 +447,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                             !showFilters
                                                         )
                                                     }
-                                                    className="gap-2"
+                                                    className="gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
                                                 >
                                                     <Filter className="h-4 w-4" />
                                                     {showFilters
@@ -475,7 +467,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                             {/* Search Bar */}
                                             <div className="mb-4">
                                                 <div className="relative">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                     <Input
                                                         placeholder={t(
                                                             "Search units by name, code, or symbol..."
@@ -486,7 +478,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                 e.target.value
                                                             )
                                                         }
-                                                        className="pl-12 h-12 text-lg border-2 border-indigo-200 focus:border-indigo-500 rounded-xl"
+                                                        className="pl-12 h-12 text-lg border-2 border-slate-300 dark:border-slate-600 focus:border-indigo-500 dark:focus:border-indigo-400 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -497,7 +489,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                     ""
                                                                 )
                                                             }
-                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </Button>
@@ -541,10 +533,10 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                         setSortField
                                                                     }
                                                                 >
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
+                                                                    <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                                         <SelectItem value="name">
                                                                             {t(
                                                                                 "Name"
@@ -578,10 +570,10 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                         setSortDirection
                                                                     }
                                                                 >
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
+                                                                    <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                                         <SelectItem value="asc">
                                                                             {t(
                                                                                 "Ascending"
@@ -602,7 +594,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                     onClick={
                                                                         clearFilters
                                                                     }
-                                                                    className="w-full h-10 gap-2"
+                                                                    className="w-full h-10 gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
                                                                 >
                                                                     <RefreshCw className="h-4 w-4" />
                                                                     {t(
@@ -624,16 +616,16 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                            <CardTitle className="flex items-center gap-3">
+                                    <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800">
+                                        <CardHeader className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/10 dark:from-indigo-500/20 dark:via-purple-500/20 dark:to-indigo-500/20 border-b border-slate-200 dark:border-slate-700">
+                                            <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
                                                 <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
                                                 </div>
                                                 {t("Units")}
                                                 <Badge
                                                     variant="secondary"
-                                                    className="ml-auto"
+                                                    className="ml-auto bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
                                                 >
                                                     {filteredUnits.length}{" "}
                                                     {t("of")} {units.length}
@@ -644,7 +636,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                                                             <TableHead
                                                                 className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
                                                                 onClick={() =>
@@ -713,12 +705,12 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                         key={
                                                                             unit.id
                                                                         }
-                                                                        className="hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors"
+                                                                        className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-800"
                                                                     >
                                                                         <TableCell>
                                                                             <div className="flex items-center gap-3">
-                                                                                <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg">
-                                                                                    <Package className="h-4 w-4 text-indigo-600" />
+                                                                                <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 rounded-lg">
+                                                                                    <Package className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                                                                                 </div>
                                                                                 <div>
                                                                                     <p className="font-semibold text-slate-800 dark:text-white">
@@ -730,7 +722,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                             </div>
                                                                         </TableCell>
                                                                         <TableCell>
-                                                                            <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                                                                            <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg text-slate-700 dark:text-slate-300">
                                                                                 {unit.code ||
                                                                                     t(
                                                                                         "—"
@@ -740,7 +732,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                         <TableCell>
                                                                             <Badge
                                                                                 variant="secondary"
-                                                                                className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                                                                className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800"
                                                                             >
                                                                                 {unit.symbol ||
                                                                                     t(
@@ -786,7 +778,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                 >
                                                                     <div className="flex flex-col items-center gap-4">
                                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                                            <Package className="h-8 w-8 text-slate-400" />
+                                                                            <Package className="h-8 w-8 text-slate-400 dark:text-slate-500" />
                                                                         </div>
                                                                         <div>
                                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
@@ -794,7 +786,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                                     "No units found"
                                                                                 )}
                                                                             </p>
-                                                                            <p className="text-sm text-slate-500">
+                                                                            <p className="text-sm text-slate-500 dark:text-slate-500">
                                                                                 {searchTerm
                                                                                     ? t(
                                                                                           "Try adjusting your search"

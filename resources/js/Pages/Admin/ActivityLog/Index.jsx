@@ -6,7 +6,6 @@ import {
     Activity,
     Search,
     Filter,
-    Calendar,
     User,
     RefreshCw,
     Plus,
@@ -229,7 +228,7 @@ export default function ActivityLogIndex({
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -239,7 +238,7 @@ export default function ActivityLogIndex({
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-sky-500 via-cyan-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-sky-500 via-cyan-500 to-blue-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
                                     <div className="relative bg-gradient-to-br from-sky-500 via-cyan-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
                                         <Activity className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
@@ -259,7 +258,7 @@ export default function ActivityLogIndex({
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-sky-600 via-cyan-600 to-blue-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
                                     >
                                         {t("Activity Logs")}
                                     </motion.h1>
@@ -267,7 +266,7 @@ export default function ActivityLogIndex({
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <Zap className="w-4 h-4" />
                                         {t("System-wide activity monitoring")}
@@ -287,29 +286,31 @@ export default function ActivityLogIndex({
                                 className="max-w-7xl mx-auto space-y-8"
                             >
                                 {/* Filters */}
-                                <Card className="border-0 shadow-lg bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                    <CardHeader className="pb-4">
-                                        <CardTitle className="flex items-center gap-3">
-                                            <Filter className="h-5 w-5 text-sky-600" />
+                                <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800">
+                                    <CardHeader className="pb-4 border-b border-slate-200 dark:border-slate-700">
+                                        <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
+                                            <div className="p-2 bg-gradient-to-br from-sky-500 to-cyan-600 rounded-lg">
+                                                <Filter className="h-5 w-5 text-white" />
+                                            </div>
                                             {t("Filters")}
                                         </CardTitle>
                                     </CardHeader>
-                                    <CardContent className="space-y-4">
+                                    <CardContent className="space-y-4 pt-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                             <div>
                                                 <Input
                                                     placeholder={t("Search activities...")}
                                                     value={searchTerm}
                                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                                    className="w-full"
+                                                    className="w-full border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400"
                                                 />
                                             </div>
                                             <div>
                                                 <Select value={selectedModel} onValueChange={setSelectedModel}>
-                                                    <SelectTrigger>
+                                                    <SelectTrigger className="border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                                                         <SelectValue placeholder={t("All Models")} />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                         <SelectItem value="">{t("All Models")}</SelectItem>
                                                         {availableModels && Object.entries(availableModels).map(([key, name]) => (
                                                             <SelectItem key={key} value={key}>
@@ -321,10 +322,10 @@ export default function ActivityLogIndex({
                                             </div>
                                             <div>
                                                 <Select value={selectedLogName} onValueChange={setSelectedLogName}>
-                                                    <SelectTrigger>
+                                                    <SelectTrigger className="border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                                                         <SelectValue placeholder={t("All Log Types")} />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                         <SelectItem value="">{t("All Log Types")}</SelectItem>
                                                         {availableLogNames && availableLogNames.map((logName) => (
                                                             <SelectItem key={logName} value={logName}>
@@ -340,6 +341,7 @@ export default function ActivityLogIndex({
                                                     placeholder={t("From Date")}
                                                     value={dateFrom}
                                                     onChange={(e) => setDateFrom(e.target.value)}
+                                                    className="border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                                                 />
                                             </div>
                                             <div>
@@ -348,15 +350,16 @@ export default function ActivityLogIndex({
                                                     placeholder={t("To Date")}
                                                     value={dateTo}
                                                     onChange={(e) => setDateTo(e.target.value)}
+                                                    className="border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
                                                 />
                                             </div>
                                         </div>
                                         <div className="flex gap-2">
-                                            <Button onClick={handleSearch} className="gap-2">
+                                            <Button onClick={handleSearch} className="gap-2 bg-sky-600 hover:bg-sky-700">
                                                 <Search className="h-4 w-4" />
                                                 {t("Search")}
                                             </Button>
-                                            <Button variant="outline" onClick={clearFilters} className="gap-2">
+                                            <Button variant="outline" onClick={clearFilters} className="gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
                                                 <RefreshCw className="h-4 w-4" />
                                                 {t("Clear")}
                                             </Button>
@@ -365,14 +368,14 @@ export default function ActivityLogIndex({
                                 </Card>
 
                                 {/* Activity Log Table */}
-                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                    <CardHeader className="bg-gradient-to-r from-sky-500/20 via-cyan-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                        <CardTitle className="flex items-center gap-3">
+                                <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800">
+                                    <CardHeader className="bg-gradient-to-r from-sky-500/10 via-cyan-500/10 to-blue-500/10 dark:from-sky-500/20 dark:via-cyan-500/20 dark:to-blue-500/20 border-b border-slate-200 dark:border-slate-700">
+                                        <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
                                             <div className="p-2 bg-gradient-to-br from-sky-500 to-cyan-600 rounded-lg">
                                                 <Activity className="h-5 w-5 text-white" />
                                             </div>
                                             {t("All Activities")}
-                                            <Badge variant="secondary" className="ml-auto">
+                                            <Badge variant="secondary" className="ml-auto bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                                                 {activities?.total || 0} {t("activities")}
                                             </Badge>
                                         </CardTitle>
@@ -381,7 +384,7 @@ export default function ActivityLogIndex({
                                         <div className="overflow-x-auto">
                                             <Table>
                                                 <TableHeader>
-                                                    <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                    <TableRow className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                                                         <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                             {t("Activity")}
                                                         </TableHead>
@@ -411,37 +414,37 @@ export default function ActivityLogIndex({
                                                             return (
                                                                 <TableRow
                                                                     key={activity.id}
-                                                                    className="hover:bg-sky-50 dark:hover:bg-sky-900/10 transition-colors"
+                                                                    className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-800"
                                                                 >
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-3">
-                                                                            <div className={`p-2 rounded-lg ${getActivityColor(activity.description).replace('text-', 'bg-').replace('-600', '-100')}`}>
-                                                                                <Icon className={`h-4 w-4 ${getActivityColor(activity.description)}`} />
+                                                                            <div className={`p-2 rounded-lg ${getActivityColor(activity.description).replace('text-', 'bg-').replace('-600', '-100')} dark:${getActivityColor(activity.description).replace('text-', 'bg-').replace('-600', '-900/50')}`}>
+                                                                                <Icon className={`h-4 w-4 ${getActivityColor(activity.description)} dark:${getActivityColor(activity.description).replace('-600', '-400')}`} />
                                                                             </div>
                                                                             <div>
                                                                                 <p className="font-medium text-slate-800 dark:text-white">
                                                                                     {activity.description}
                                                                                 </p>
-                                                                                <p className="text-sm text-slate-500">
+                                                                                <p className="text-sm text-slate-500 dark:text-slate-400">
                                                                                     {activity.log_name}
                                                                                 </p>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <Badge className={`${getActivityBadge(activity.description)} font-medium`}>
+                                                                        <Badge className={`${getActivityBadge(activity.description)} dark:${getActivityBadge(activity.description).replace('-100', '-900/50').replace('-800', '-300').replace('-200', '-800')} font-medium`}>
                                                                             {activity.description?.split(' ')[0] || 'Activity'}
                                                                         </Badge>
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-2">
-                                                                            <ModelIcon className="h-4 w-4 text-slate-600" />
+                                                                            <ModelIcon className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                                                                             <div>
                                                                                 <p className="font-medium text-slate-800 dark:text-white">
                                                                                     {activity.subject_type_name || 'Unknown'}
                                                                                 </p>
                                                                                 {activity.subject_id && (
-                                                                                    <p className="text-sm text-slate-500">
+                                                                                    <p className="text-sm text-slate-500 dark:text-slate-400">
                                                                                         ID: {activity.subject_id}
                                                                                     </p>
                                                                                 )}
@@ -450,13 +453,13 @@ export default function ActivityLogIndex({
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-2">
-                                                                            <User className="h-4 w-4 text-slate-600" />
+                                                                            <User className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                                                                             <div>
                                                                                 <p className="font-medium text-slate-800 dark:text-white">
                                                                                     {activity.causer?.name || t('System')}
                                                                                 </p>
                                                                                 {activity.causer?.email && (
-                                                                                    <p className="text-sm text-slate-500">
+                                                                                    <p className="text-sm text-slate-500 dark:text-slate-400">
                                                                                         {activity.causer.email}
                                                                                     </p>
                                                                                 )}
@@ -477,7 +480,7 @@ export default function ActivityLogIndex({
                                                                                     activity.subject_id
                                                                                 ])}
                                                                             >
-                                                                                <Button variant="outline" size="sm" className="gap-2">
+                                                                                <Button variant="outline" size="sm" className="gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
                                                                                     <Eye className="h-4 w-4" />
                                                                                     {t("View")}
                                                                                 </Button>
@@ -492,13 +495,13 @@ export default function ActivityLogIndex({
                                                             <TableCell colSpan="6" className="h-32 text-center">
                                                                 <div className="flex flex-col items-center gap-4">
                                                                     <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                                        <Activity className="h-8 w-8 text-slate-400" />
+                                                                        <Activity className="h-8 w-8 text-slate-400 dark:text-slate-500" />
                                                                     </div>
                                                                     <div>
                                                                         <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
                                                                             {t("No activities found")}
                                                                         </p>
-                                                                        <p className="text-sm text-slate-500">
+                                                                        <p className="text-sm text-slate-500 dark:text-slate-500">
                                                                             {t("Try adjusting your search filters")}
                                                                         </p>
                                                                     </div>
@@ -512,7 +515,7 @@ export default function ActivityLogIndex({
 
                                         {/* Pagination */}
                                         {activities?.data?.length > 0 && activities.last_page > 1 && (
-                                            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+                                            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                                                 <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
                                                     <span>
                                                         {t("Showing")} {activities.from} {t("to")} {activities.to} {t("of")} {activities.total} {t("activities")}
@@ -525,7 +528,7 @@ export default function ActivityLogIndex({
                                                             variant="outline" 
                                                             size="sm"
                                                             onClick={() => router.get(activities.prev_page_url)}
-                                                            className="border-sky-200 text-sky-700 hover:bg-sky-50 dark:border-sky-700 dark:text-sky-400"
+                                                            className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
                                                         >
                                                             <ChevronLeft className="h-4 w-4 mr-1" />
                                                             {t("Previous")}
@@ -541,7 +544,7 @@ export default function ActivityLogIndex({
                                                             variant="outline" 
                                                             size="sm"
                                                             onClick={() => router.get(activities.next_page_url)}
-                                                            className="border-sky-200 text-sky-700 hover:bg-sky-50 dark:border-sky-700 dark:text-sky-400"
+                                                            className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
                                                         >
                                                             {t("Next")}
                                                             <ChevronRight className="h-4 w-4 ml-1" />

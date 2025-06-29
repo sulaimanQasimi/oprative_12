@@ -981,14 +981,6 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                                                                 {searchTerm || selectedStatus || selectedCustomer ? t("Try adjusting your filters") : t("Create your first account")}
                                                                             </p>
                                                                         </div>
-                                                                        {!searchTerm && !selectedStatus && !selectedCustomer && permissions?.create_account && (
-                                                                            <Link href={route('admin.accounts.create')}>
-                                                                                <Button className="gap-2">
-                                                                                    <Plus className="h-4 w-4" />
-                                                                                    {t("Add Account")}
-                                                                                </Button>
-                                                                            </Link>
-                                                                        )}
                                                                     </div>
                                                                 </TableCell>
                                                             </TableRow>

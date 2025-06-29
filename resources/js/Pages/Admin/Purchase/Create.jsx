@@ -18,12 +18,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/Com
 import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
-import { Textarea } from "@/Components/ui/textarea";
 import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { Badge } from "@/Components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Create({ auth, suppliers, currencies, invoiceNumber }) {
     const { t } = useLaravelReactI18n();
@@ -139,12 +139,7 @@ export default function Create({ auth, suppliers, currencies, invoiceNumber }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route("admin.purchases.index")}>
-                                    <Button variant="outline" className="gap-2">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Purchases")}
-                                    </Button>
-                                </Link>
+                                <BackButton link={route("admin.purchases.index")} />
                             </motion.div>
                         </div>
                     </motion.header>
@@ -356,7 +351,7 @@ export default function Create({ auth, suppliers, currencies, invoiceNumber }) {
                                 {/* Submit Button */}
                                 <div className="flex justify-end space-x-4">
                                     <Link href={route("admin.purchases.index")}>
-                                        <Button type="button" variant="outline" className="px-8 py-3">
+                                        <Button type="button" variant="outline" className="px-8 py-3 text-black dark:text-white">
                                             {t("Cancel")}
                                         </Button>
                                     </Link>

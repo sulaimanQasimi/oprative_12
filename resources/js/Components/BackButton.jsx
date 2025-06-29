@@ -8,7 +8,7 @@ export default function BackButton({ link }) {
 
     return (
         <Link href={link}>
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2 text-black dark:text-white">
                 {t("Back")}
                 <ArrowLeft className="h-4 w-4" />
             </Button>
