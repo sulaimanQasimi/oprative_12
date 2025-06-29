@@ -345,31 +345,25 @@ export default function Income({
                                 </motion.div>
 
                                 {/* Search */}
-                                <motion.div
-                                    initial={{ y: 20, opacity: 0 }}
-                                    animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.9, duration: 0.4 }}
-                                >
-                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardContent className="p-6">
-                                            <div className="relative">
-                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                <Input
-                                                    placeholder={t("Search income records...")}
-                                                    value={searchTerm}
-                                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                                    className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
-                                                />
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                </motion.div>
+                                <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                    <CardContent className="p-6">
+                                        <div className="relative">
+                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                            <Input
+                                                placeholder={t("Search income records...")}
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
+                                            />
+                                        </div>
+                                    </CardContent>
+                                </Card>
 
                                 {/* Income Records Table */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 1.0, duration: 0.4 }}
+                                    transition={{ delay: 0.9, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                         <CardHeader>
@@ -488,7 +482,7 @@ export default function Income({
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.1, duration: 0.4 }}
+                                        transition={{ delay: 1.0, duration: 0.4 }}
                                         className="flex flex-col items-center space-y-4"
                                     >
                                         <div className="text-sm text-slate-600 dark:text-slate-400">
