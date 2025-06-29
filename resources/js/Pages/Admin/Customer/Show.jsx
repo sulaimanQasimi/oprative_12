@@ -55,6 +55,8 @@ import { Input } from "@/Components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
+import ActionButton from "@/Components/ActionButton";
 
 export default function Show({ auth, customer, roles, permissions, accounts, accounts_filters = {} }) {
     const { t } = useLaravelReactI18n();
@@ -272,22 +274,12 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                 initial={{ x: 20, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-5"
+                                className="flex items-center gap-x-2"
                             >
                                 {permissions.update_customer && (
-                                    <Link href={route("admin.customers.edit", customer.id)}>
-                                        <Button className="relative group bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 hover:from-amber-600 hover:via-orange-600 hover:to-yellow-600 text-white shadow-2xl hover:shadow-amber-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300">
-                                            <Edit className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
-                                            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-amber-400/20 to-yellow-400/20 blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
-                                        </Button>
-                                    </Link>
+                                    <ActionButton link={route("admin.customers.edit", customer.id)} className="bg-yellow-600 text-white hover:bg-yellow-700 dark:bg-yellow-600 dark:text-white dark:hover:bg-yellow-700" icon={<Edit className="h-4 w-4" />} text={t("Edit")} />
                                 )}
-                                <Link href={route("admin.customers.index")}>
-                                    <Button className="relative group bg-gradient-to-r from-slate-600 via-gray-600 to-zinc-600 hover:from-slate-700 hover:via-gray-700 hover:to-zinc-700 text-white shadow-2xl hover:shadow-slate-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm before:absolute before:inset-0 before:rounded-xl before:bg-gradient-to-r before:from-white/20 before:to-transparent before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300">
-                                        <ArrowLeft className="h-5 w-5 relative z-10 group-hover:-translate-x-1 transition-transform duration-300" />
-                                        <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-slate-400/20 to-zinc-400/20 blur-xl group-hover:blur-2xl transition-all duration-300 opacity-0 group-hover:opacity-100"></div>
-                                    </Button>
-                                </Link>
+                                <BackButton link={route("admin.customers.index")} />
                             </motion.div>
                         </div>
                     </motion.header>
@@ -567,6 +559,7 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                                 {t("Add User")}
                                                             </Button>
                                                         </Link>
+                                                        
                                                     )}
                                                 </CardHeader>
                                                 <CardContent>
@@ -737,12 +730,6 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                             )}
                                                         </Badge>
                                                     </CardTitle>
-                                                    <Link href={route("admin.accounts.create", { customer_id: customer.id })}>
-                                                        <Button className="gap-2">
-                                                            <Plus className="w-4 h-4" />
-                                                            {t("Add Account")}
-                                                        </Button>
-                                                    </Link>
                                                 </CardHeader>
                                                 <CardContent>
                                                     {accounts && (accounts.data?.length > 0 || accounts.length > 0) ? (
@@ -827,10 +814,6 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                                                         className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
                                                                                         asChild
                                                                                     >
-                                                                                        <Link href={route('admin.accounts.edit', account.id)}>
-                                                                                            <Edit className="h-4 w-4" />
-                                                                                            <span className="sr-only">{t("Edit")}</span>
-                                                                                        </Link>
                                                                                     </Button>
                                                                                     <Button
                                                                                         variant="ghost"
@@ -857,12 +840,6 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                             <p className="text-sm text-slate-400 mb-4">
                                                                 {accountsSearch || accountsStatus ? t("Try adjusting your search or filters") : t("Create the first account to get started")}
                                                             </p>
-                                                            <Link href={route("admin.accounts.create", { customer_id: customer.id })}>
-                                                                <Button className="gap-2">
-                                                                    <Plus className="w-4 h-4" />
-                                                                    {t("Add Account")}
-                                                                </Button>
-                                                            </Link>
                                                         </div>
                                                     )}
                                                 </CardContent>

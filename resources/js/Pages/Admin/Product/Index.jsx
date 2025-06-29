@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
 import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
 import {
@@ -57,6 +58,7 @@ export default function Index({
         to: 0,
         current_page: 1,
         last_page: 1,
+        links: [],
     },
     filters = {},
     productTypes = [],
@@ -139,13 +141,9 @@ export default function Index({
         }
     };
 
-    // Pagination handlers
-    const handlePageChange = (page) => {
-        router.get(
-            route("admin.products.index"),
-            { page },
-            { preserveState: true, preserveScroll: true }
-        );
+    // Pagination handler
+    const handlePageChange = (url) => {
+        router.get(url, {}, { preserveState: true, preserveScroll: true });
     };
 
     // Bulk actions
@@ -307,31 +305,18 @@ export default function Index({
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <motion.div
-                                    initial={{
-                                        scale: 0.8,
-                                        opacity: 0,
-                                        rotate: -180,
-                                    }}
-                                    animate={{
-                                        scale: 1,
-                                        opacity: 1,
-                                        rotate: 0,
-                                    }}
-                                    transition={{
-                                        delay: 0.3,
-                                        duration: 0.6,
-                                        type: "spring",
-                                        stiffness: 200,
-                                    }}
-                                    className="relative float-animation"
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
+                                    <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
                                         <Package className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
@@ -340,11 +325,8 @@ export default function Index({
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
-                                        transition={{
-                                            delay: 0.4,
-                                            duration: 0.4,
-                                        }}
-                                        className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1 flex items-center gap-2"
+                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
                                         {t("Product Management")}
@@ -352,43 +334,41 @@ export default function Index({
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
-                                        transition={{
-                                            delay: 0.5,
-                                            duration: 0.4,
-                                        }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
+                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
                                     >
                                         {t("Products")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
-                                        transition={{
-                                            delay: 0.6,
-                                            duration: 0.4,
-                                        }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
-                                        <BarChart3 className="w-4 h-4" />
+                                        <ShoppingCart className="w-4 h-4" />
                                         {t("Manage your product inventory")}
                                     </motion.p>
                                 </div>
                             </div>
-
                             <motion.div
                                 initial={{ x: 20, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                {permissions.create_product && (
-                                    <Link href={route("admin.products.create")}>
-                                        <Button className="gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                            <Plus className="h-4 w-4" />
-                                            {t("Add Product")}
-                                        </Button>
-                                    </Link>
-                                )}
+                                <Button 
+                                    variant="outline" 
+                                    className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-slate-700 dark:text-slate-200 hover:text-green-700 dark:hover:text-green-300"
+                                >
+                                    <Download className="h-4 w-4" />
+                                    {t("Export")}
+                                </Button>
+                                <Link href={route("admin.products.create")}> 
+                                    <Button className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-0">
+                                        <Plus className="h-4 w-4" />
+                                        {t("Add Product")}
+                                    </Button>
+                                </Link>
                             </motion.div>
                         </div>
                     </motion.header>
@@ -412,24 +392,20 @@ export default function Index({
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
+                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                                                            {t(
-                                                                "Total Products"
-                                                            )}
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Total Products")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                                                            {stats.total}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                        <p className="text-3xl font-bold text-blue-600">{stats.total}</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("In inventory")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                                                        <Package className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
+                                                        <Package className="h-8 w-8 text-blue-600" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -444,26 +420,20 @@ export default function Index({
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
+                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                                                            {t(
-                                                                "Active Products"
-                                                            )}
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                            {t("Active Products")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                                                            {stats.active}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                            {t(
-                                                                "Currently active"
-                                                            )}
+                                                        <p className="text-3xl font-bold text-green-600">{stats.active}</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                            {t("Currently active")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                                                        <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
+                                                        <CheckCircle className="h-8 w-8 text-green-600" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -478,22 +448,20 @@ export default function Index({
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
+                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("In Stock")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                                                            {stats.inStock}
-                                                        </p>
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                        <p className="text-3xl font-bold text-indigo-600">{stats.inStock}</p>
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Available")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
-                                                        <ShoppingCart className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                                                    <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl">
+                                                        <ShoppingCart className="h-8 w-8 text-indigo-600" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -508,25 +476,22 @@ export default function Index({
                                             duration: 0.4,
                                         }}
                                     >
-                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-300 bg-white dark:bg-gray-800">
+                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Total Value")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                                                            $
-                                                            {stats.totalValue.toLocaleString()}
+                                                        <p className="text-3xl font-bold text-purple-600">
+                                                            ${stats.totalValue.toLocaleString()}
                                                         </p>
-                                                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                            {t(
-                                                                "Inventory value"
-                                                            )}
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                            {t("Inventory value")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                                                        <DollarSign className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
+                                                        <DollarSign className="h-8 w-8 text-purple-600" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -534,245 +499,23 @@ export default function Index({
                                     </motion.div>
                                 </div>
 
-                                {/* Search & Filter Card */}
+                                {/* Search */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
-                                        <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                                            <div className="flex items-center justify-between">
-                                                <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
-                                                    <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                                                        <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
-                                                    </div>
-                                                    {t("Search & Filter")}
-                                                </CardTitle>
-                                                <Button
-                                                    variant="outline"
-                                                    onClick={() =>
-                                                        setShowFilters(
-                                                            !showFilters
-                                                        )
-                                                    }
-                                                    className="gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                                                >
-                                                    <Filter className="h-4 w-4" />
-                                                    {showFilters
-                                                        ? t("Hide Filters")
-                                                        : t("Show Filters")}
-                                                    <ChevronDown
-                                                        className={`h-4 w-4 transition-transform ${
-                                                            showFilters
-                                                                ? "rotate-180"
-                                                                : ""
-                                                        }`}
-                                                    />
-                                                </Button>
-                                            </div>
-                                        </CardHeader>
+                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                         <CardContent className="p-6">
-                                            {/* Search Bar */}
-                                            <div className="mb-4">
-                                                <div className="relative w-full">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                                                    <Input
-                                                        placeholder={t(
-                                                            "Search by name, barcode, or type..."
-                                                        )}
-                                                        value={searchTerm}
-                                                        onChange={(e) =>
-                                                            setSearchTerm(
-                                                                e.target.value
-                                                            )
-                                                        }
-                                                        className="pl-12 h-12 text-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                                                    />
-                                                    {searchTerm && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                setSearchTerm(
-                                                                    ""
-                                                                )
-                                                            }
-                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-                                                        >
-                                                            <X className="h-4 w-4" />
-                                                        </Button>
-                                                    )}
-                                                </div>
+                                            <div className="relative">
+                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                <Input
+                                                    placeholder={t("Search products...")}
+                                                    value={searchTerm}
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                                    className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
+                                                />
                                             </div>
-
-                                            {/* Advanced Filters */}
-                                            <AnimatePresence>
-                                                {showFilters && (
-                                                    <motion.div
-                                                        initial={{
-                                                            height: 0,
-                                                            opacity: 0,
-                                                        }}
-                                                        animate={{
-                                                            height: "auto",
-                                                            opacity: 1,
-                                                        }}
-                                                        exit={{
-                                                            height: 0,
-                                                            opacity: 0,
-                                                        }}
-                                                        transition={{
-                                                            duration: 0.3,
-                                                        }}
-                                                        className="relative"
-                                                    >
-                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                                                            <div className="relative">
-                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                                    {t(
-                                                                        "Status"
-                                                                    )}
-                                                                </label>
-                                                                <Select
-                                                                    value={
-                                                                        filterStatus
-                                                                    }
-                                                                    onValueChange={
-                                                                        setFilterStatus
-                                                                    }
-                                                                >
-                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                                                                        <SelectValue className="">
-                                                                            {statusOptions.find(
-                                                                                (
-                                                                                    option
-                                                                                ) =>
-                                                                                    option.value ===
-                                                                                    filterStatus
-                                                                            )
-                                                                                ?.label ||
-                                                                                t(
-                                                                                    "Select status"
-                                                                                )}
-                                                                        </SelectValue>
-                                                                    </SelectTrigger>
-                                                                    <SelectContent
-                                                                        position="popper"
-                                                                        sideOffset={5}
-                                                                    >
-                                                                        {statusOptions.map(
-                                                                            (
-                                                                                option
-                                                                            ) => (
-                                                                                <SelectItem
-                                                                                    key={
-                                                                                        option.value
-                                                                                    }
-                                                                                    value={
-                                                                                        option.value
-                                                                                    }
-                                                                                    className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                                                >
-                                                                                    {
-                                                                                        option.label
-                                                                                    }
-                                                                                </SelectItem>
-                                                                            )
-                                                                        )}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-
-                                                            <div className="relative">
-                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                                    {t("Type")}
-                                                                </label>
-                                                                <Select
-                                                                    value={
-                                                                        filterType
-                                                                    }
-                                                                    onValueChange={
-                                                                        setFilterType
-                                                                    }
-                                                                >
-                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
-                                                                        <SelectValue>
-                                                                            {filterType ===
-                                                                            "all"
-                                                                                ? t(
-                                                                                      "All Types"
-                                                                                  )
-                                                                                : filterType ||
-                                                                                  t(
-                                                                                      "Select type"
-                                                                                  )}
-                                                                        </SelectValue>
-                                                                    </SelectTrigger>
-                                                                    <SelectContent
-                                                                        position="popper"
-                                                                        sideOffset={5}
-                                                                    >
-                                                                        <SelectItem 
-                                                                            value="all"
-                                                                            className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                                        >
-                                                                            {t(
-                                                                                "All Types"
-                                                                            )}
-                                                                        </SelectItem>
-                                                                        {Array.isArray(
-                                                                            productTypes
-                                                                        ) &&
-                                                                            productTypes.map(
-                                                                                (
-                                                                                    type
-                                                                                ) => (
-                                                                                    <SelectItem
-                                                                                        key={
-                                                                                            type
-                                                                                        }
-                                                                                        value={
-                                                                                            type
-                                                                                        }
-                                                                                        className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-                                                                                    >
-                                                                                        {
-                                                                                            type
-                                                                                        }
-                                                                                    </SelectItem>
-                                                                                )
-                                                                            )}
-                                                                    </SelectContent>
-                                                                </Select>
-                                                            </div>
-
-                                                            <div className="flex items-end">
-                                                                <Button
-                                                                    variant="outline"
-                                                                    onClick={() => {
-                                                                        setFilterStatus(
-                                                                            "all"
-                                                                        );
-                                                                        setFilterType(
-                                                                            "all"
-                                                                        );
-                                                                        setSearchTerm(
-                                                                            ""
-                                                                        );
-                                                                    }}
-                                                                    className="w-full h-10 gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                                                                >
-                                                                    <RefreshCw className="h-4 w-4" />
-                                                                    {t(
-                                                                        "Clear Filters"
-                                                                    )}
-                                                                </Button>
-                                                            </div>
-                                                        </div>
-                                                    </motion.div>
-                                                )}
-                                            </AnimatePresence>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
@@ -783,500 +526,251 @@ export default function Index({
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardHeader>
                                             <CardTitle className="flex items-center gap-3">
-                                                <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
-                                                    <Package className="h-5 w-5 text-white" />
-                                                </div>
+                                                <Package className="h-5 w-5 text-green-600" />
                                                 {t("Product List")}
-                                                <Badge
-                                                    variant="secondary"
-                                                    className="ml-auto"
-                                                >
-                                                    {products.total}{" "}
-                                                    {t("total")}
-                                                </Badge>
+                                                <Badge variant="secondary">{products.total} {t("total")}</Badge>
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-0">
                                             <div className="overflow-x-auto">
-                                                <table className="w-full">
-                                                    <thead>
-                                                        <tr className="bg-slate-50 dark:bg-slate-900/50">
-                                                            <th className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                                                                <input
-                                                                    type="checkbox"
-                                                                    checked={
-                                                                        selectedProducts.length ===
-                                                                        products
-                                                                            .data
-                                                                            .length
-                                                                    }
-                                                                    onChange={
-                                                                        handleSelectAll
-                                                                    }
-                                                                    className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 scale-110"
-                                                                />
-                                                            </th>
-                                                            <th
-                                                                className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
-                                                                onClick={() =>
-                                                                    handleSort(
-                                                                        "name"
-                                                                    )
-                                                                }
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                            <TableHead 
+                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                onClick={() => handleSort("name")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <Package className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                                                                    <span>
-                                                                        {t(
-                                                                            "Product"
-                                                                        )}
-                                                                    </span>
-                                                                    <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+                                                                    <Package className="h-4 w-4" />
+                                                                    {t("Product")}
+                                                                    <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
-                                                            </th>
-                                                            <th
-                                                                className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
-                                                                onClick={() =>
-                                                                    handleSort(
-                                                                        "type"
-                                                                    )
-                                                                }
+                                                            </TableHead>
+                                                            <TableHead 
+                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                onClick={() => handleSort("type")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <Tag className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                                                                    <span>
-                                                                        {t(
-                                                                            "Type"
-                                                                        )}
-                                                                    </span>
-                                                                    <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+                                                                    <Tag className="h-4 w-4" />
+                                                                    {t("Type")}
+                                                                    <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
-                                                            </th>
-                                                            <th
-                                                                className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
-                                                                onClick={() =>
-                                                                    handleSort(
-                                                                        "barcode"
-                                                                    )
-                                                                }
+                                                            </TableHead>
+                                                            <TableHead 
+                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                onClick={() => handleSort("barcode")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <Barcode className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                                                                    <span>
-                                                                        {t(
-                                                                            "Barcode"
-                                                                        )}
-                                                                    </span>
-                                                                    <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+                                                                    <Barcode className="h-4 w-4" />
+                                                                    {t("Barcode")}
+                                                                    <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
-                                                            </th>
-                                                            <th
-                                                                className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
-                                                                onClick={() =>
-                                                                    handleSort(
-                                                                        "purchase_price"
-                                                                    )
-                                                                }
+                                                            </TableHead>
+                                                            <TableHead 
+                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                onClick={() => handleSort("purchase_price")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <DollarSign className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                                                                    <span>
-                                                                        {t(
-                                                                            "Purchase"
-                                                                        )}
-                                                                    </span>
-                                                                    <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+                                                                    <DollarSign className="h-4 w-4" />
+                                                                    {t("Purchase")}
+                                                                    <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
-                                                            </th>
-                                                            <th
-                                                                className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
-                                                                onClick={() =>
-                                                                    handleSort(
-                                                                        "retail_price"
-                                                                    )
-                                                                }
+                                                            </TableHead>
+                                                            <TableHead 
+                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                onClick={() => handleSort("retail_price")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <ShoppingCart className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                                                                    <span>
-                                                                        {t(
-                                                                            "Retail"
-                                                                        )}
-                                                                    </span>
-                                                                    <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+                                                                    <ShoppingCart className="h-4 w-4" />
+                                                                    {t("Retail")}
+                                                                    <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
-                                                            </th>
-                                                            <th
-                                                                className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider cursor-pointer hover:text-indigo-600 transition-colors group"
-                                                                onClick={() =>
-                                                                    handleSort(
-                                                                        "whole_sale_unit_amount"
-                                                                    )
-                                                                }
+                                                            </TableHead>
+                                                            <TableHead 
+                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                onClick={() => handleSort("whole_sale_unit_amount")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <Package className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                                                                    <span>
-                                                                        {t(
-                                                                            "Wholesale Unit"
-                                                                        )}
-                                                                    </span>
-                                                                    <ArrowUpDown className="h-3 w-3 opacity-50 group-hover:opacity-100" />
+                                                                    <Package className="h-4 w-4" />
+                                                                    {t("Wholesale Unit")}
+                                                                    <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
-                                                            </th>
-                                                            <th className="px-6 py-5 text-left text-xs font-bold text-slate-700 dark:text-slate-200 uppercase tracking-wider">
-                                                                {t("Actions")}
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                                                        <AnimatePresence>
-                                                            {products.data.map(
-                                                                (
-                                                                    product,
-                                                                    index
-                                                                ) => (
-                                                                    <motion.tr
-                                                                        key={
-                                                                            product.id
-                                                                        }
-                                                                        initial={{
-                                                                            opacity: 0,
-                                                                            y: 20,
-                                                                        }}
-                                                                        animate={{
-                                                                            opacity: 1,
-                                                                            y: 0,
-                                                                        }}
-                                                                        exit={{
-                                                                            opacity: 0,
-                                                                            y: -20,
-                                                                        }}
-                                                                        transition={{
-                                                                            duration: 0.3,
-                                                                            delay:
-                                                                                index *
-                                                                                0.05,
-                                                                        }}
-                                                                        className="hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors"
-                                                                    >
-                                                                        <td className="px-6 py-5">
-                                                                            <input
-                                                                                type="checkbox"
-                                                                                checked={selectedProducts.includes(
-                                                                                    product.id
-                                                                                )}
-                                                                                onChange={() =>
-                                                                                    handleSelectProduct(
-                                                                                        product.id
-                                                                                    )
-                                                                                }
-                                                                                className="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 scale-110"
-                                                                            />
-                                                                        </td>
-                                                                        <td className="px-6 py-5">
-                                                                            <div className="flex items-center gap-3">
-                                                                                <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg">
-                                                                                    <Package className="h-4 w-4 text-indigo-600" />
+                                                            </TableHead>
+                                                            <TableHead>{t("Actions")}</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {products.data.length > 0 ? (
+                                                            products.data.map((product) => (
+                                                                <TableRow key={product.id} className="hover:bg-green-50 dark:hover:bg-green-900/10">
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-3">
+                                                                            <Package className="h-4 w-4 text-blue-600" />
+                                                                            <div>
+                                                                                <div className="font-bold text-slate-900 dark:text-white">
+                                                                                    {product.name}
                                                                                 </div>
-                                                                                <div>
-                                                                                    <div className="font-bold text-slate-900 dark:text-white text-lg">
-                                                                                        {
-                                                                                            product.name
-                                                                                        }
-                                                                                    </div>
-                                                                                    <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                        {
-                                                                                            product
-                                                                                                .wholesaleUnit
-                                                                                                ?.name
-                                                                                        }{" "}
-                                                                                        /{" "}
-                                                                                        {
-                                                                                            product
-                                                                                                .retailUnit
-                                                                                                ?.name
-                                                                                        }
-                                                                                    </div>
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                                                    {product.wholesaleUnit?.name} / {product.retailUnit?.name}
                                                                                 </div>
                                                                             </div>
-                                                                        </td>
-                                                                        <td className="px-6 py-5">
-                                                                            <Badge
-                                                                                variant="outline"
-                                                                                className="bg-gradient-to-r from-slate-50 to-slate-100 text-slate-700 border-slate-200 dark:from-slate-800 dark:to-slate-700 dark:text-slate-300 dark:border-slate-600 font-medium"
-                                                                            >
-                                                                                {
-                                                                                    product.type
-                                                                                }
-                                                                            </Badge>
-                                                                        </td>
-                                                                        <td className="px-6 py-5">
-                                                                            <div className="font-mono text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg shadow-inner">
-                                                                                {product.barcode ||
-                                                                                    "—"}
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className="px-6 py-5">
-                                                                            <div className="font-bold text-slate-900 dark:text-white text-lg">
-                                                                                $
-                                                                                {parseFloat(
-                                                                                    product.purchase_price ||
-                                                                                        0
-                                                                                ).toLocaleString()}
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className="px-6 py-5">
-                                                                            <div className="font-bold text-green-600 dark:text-green-400 text-lg">
-                                                                                $
-                                                                                {parseFloat(
-                                                                                    product.retail_price ||
-                                                                                        0
-                                                                                ).toLocaleString()}
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className="px-6 py-5">
-                                                                            <div className="font-bold text-blue-600 dark:text-blue-400 text-sm">
-                                                                                {product.whole_sale_unit_amount
-                                                                                    ? `${parseFloat(
-                                                                                          product.whole_sale_unit_amount
-                                                                                      ).toLocaleString()} ${
-                                                                                          product
-                                                                                              .wholesaleUnit
-                                                                                              ?.name ||
-                                                                                          ""
-                                                                                      }`
-                                                                                    : "—"}
-                                                                            </div>
-                                                                        </td>
-                                                                        <td className="px-6 py-5">
-                                                                            <div className="flex items-center justify-center gap-2">
-                                                                                {!product.deleted_at && permissions.view_product && (
-                                                                                    <Link
-                                                                                        href={route(
-                                                                                            "admin.products.edit",
-                                                                                            product.id
-                                                                                        )}
-                                                                                    >
-                                                                                        <Button
-                                                                                            variant="outline"
-                                                                                            size="sm"
-                                                                                            className="text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 border-indigo-200 dark:hover:bg-indigo-900/30 shadow-sm"
-                                                                                            title={t("Edit Product")}
-                                                                                        >
-                                                                                            <Edit className="h-4 w-4" />
-                                                                                        </Button>
-                                                                                    </Link>
-                                                                                )}
-                                                                                {!product.deleted_at && permissions.delete_product && (
-                                                                                    <Button
-                                                                                        variant="outline"
-                                                                                        size="sm"
-                                                                                        onClick={() =>
-                                                                                            handleDelete(
-                                                                                                product.id
-                                                                                            )
-                                                                                        }
-                                                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 dark:hover:bg-red-900/30 shadow-sm"
-                                                                                        title={t("Delete Product")}
-                                                                                    >
-                                                                                        <Trash2 className="h-4 w-4" />
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <Badge variant="outline" className="bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600">
+                                                                            {product.type}
+                                                                        </Badge>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="font-mono text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                                                                            {product.barcode || "—"}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="font-bold text-slate-900 dark:text-white">
+                                                                        ${parseFloat(product.purchase_price || 0).toLocaleString()}
+                                                                    </TableCell>
+                                                                    <TableCell className="font-bold text-green-600 dark:text-green-400">
+                                                                        ${parseFloat(product.retail_price || 0).toLocaleString()}
+                                                                    </TableCell>
+                                                                    <TableCell className="font-bold text-blue-600 dark:text-blue-400">
+                                                                        {product.whole_sale_unit_amount
+                                                                            ? `${parseFloat(product.whole_sale_unit_amount).toLocaleString()} ${product.wholesaleUnit?.name || ""}`
+                                                                            : "—"}
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        <div className="flex items-center gap-2">
+                                                                            {!product.deleted_at && permissions.view_product && (
+                                                                                <Link href={route("admin.products.edit", product.id)}>
+                                                                                    <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                                                                                        <Edit className="h-4 w-4 text-green-600" />
                                                                                     </Button>
-                                                                                )}
-                                                                                {product.deleted_at && permissions.restore_product && (
-                                                                                    <Button
-                                                                                        variant="outline"
-                                                                                        size="sm"
-                                                                                        onClick={() =>
-                                                                                            handleRestore(
-                                                                                                product.id
-                                                                                            )
-                                                                                        }
-                                                                                        className="text-green-600 hover:text-green-700 hover:bg-green-50 border-green-200 dark:hover:bg-green-900/30 shadow-sm"
-                                                                                        title={t("Restore Product")}
-                                                                                    >
-                                                                                        <RotateCcw className="h-4 w-4" />
-                                                                                    </Button>
-                                                                                )}
-                                                                                {product.deleted_at && permissions.force_delete_product && (
-                                                                                    <Button
-                                                                                        variant="outline"
-                                                                                        size="sm"
-                                                                                        onClick={() =>
-                                                                                            handleForceDelete(
-                                                                                                product.id
-                                                                                            )
-                                                                                        }
-                                                                                        className="text-red-800 hover:text-red-900 hover:bg-red-100 border-red-300 dark:hover:bg-red-900/50 shadow-sm"
-                                                                                        title={t("Permanently Delete Product")}
-                                                                                    >
-                                                                                        <XOctagon className="h-4 w-4" />
-                                                                                    </Button>
-                                                                                )}
-                                                                            </div>
-                                                                        </td>
-                                                                    </motion.tr>
-                                                                )
-                                                            )}
-                                                        </AnimatePresence>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-
-                                            {/* Pagination */}
-                                            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-slate-700">
-                                                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                                                    {t("Showing")}{" "}
-                                                    {products?.from || 0} -{" "}
-                                                    {products?.to || 0}{" "}
-                                                    {t("of")}{" "}
-                                                    {products?.total || 0}{" "}
-                                                    {t("results")}
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            handlePageChange(1)
-                                                        }
-                                                        disabled={
-                                                            !products?.current_page ||
-                                                            products.current_page ===
-                                                                1
-                                                        }
-                                                        className="gap-1"
-                                                    >
-                                                        <SkipForward className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            handlePageChange(
-                                                                products.current_page -
-                                                                    1
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            !products?.current_page ||
-                                                            products.current_page ===
-                                                                1
-                                                        }
-                                                        className="gap-1"
-                                                    >
-                                                        <ChevronRight className="h-4 w-4" />
-                                                    </Button>
-                                                    {Array.from(
-                                                        {
-                                                            length:
-                                                                products?.last_page ||
-                                                                1,
-                                                        },
-                                                        (_, i) => i + 1
-                                                    )
-                                                        .filter((page) => {
-                                                            const current =
-                                                                products?.current_page ||
-                                                                1;
-                                                            return (
-                                                                page === 1 ||
-                                                                page ===
-                                                                    (products?.last_page ||
-                                                                        1) ||
-                                                                (page >=
-                                                                    current -
-                                                                        1 &&
-                                                                    page <=
-                                                                        current +
-                                                                            1)
-                                                            );
-                                                        })
-                                                        .map(
-                                                            (
-                                                                page,
-                                                                index,
-                                                                array
-                                                            ) => (
-                                                                <React.Fragment
-                                                                    key={page}
-                                                                >
-                                                                    {index >
-                                                                        0 &&
-                                                                        array[
-                                                                            index -
-                                                                                1
-                                                                        ] !==
-                                                                            page -
-                                                                                1 && (
-                                                                            <span className="px-2 text-slate-400">
-                                                                                ...
-                                                                            </span>
-                                                                        )}
-                                                                    <Button
-                                                                        variant={
-                                                                            page ===
-                                                                            (products?.current_page ||
-                                                                                1)
-                                                                                ? "default"
-                                                                                : "outline"
-                                                                        }
-                                                                        size="sm"
-                                                                        onClick={() =>
-                                                                            handlePageChange(
-                                                                                page
-                                                                            )
-                                                                        }
-                                                                        className="min-w-[2rem]"
-                                                                    >
-                                                                        {page}
-                                                                    </Button>
-                                                                </React.Fragment>
-                                                            )
+                                                                                </Link>
+                                                                            )}
+                                                                            {!product.deleted_at && permissions.delete_product && (
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    variant="outline"
+                                                                                    className="h-8 w-8 p-0"
+                                                                                    onClick={() => handleDelete(product.id)}
+                                                                                >
+                                                                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                                                                </Button>
+                                                                            )}
+                                                                            {product.deleted_at && permissions.restore_product && (
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    variant="outline"
+                                                                                    className="h-8 w-8 p-0"
+                                                                                    onClick={() => handleRestore(product.id)}
+                                                                                >
+                                                                                    <RotateCcw className="h-4 w-4 text-green-600" />
+                                                                                </Button>
+                                                                            )}
+                                                                            {product.deleted_at && permissions.force_delete_product && (
+                                                                                <Button
+                                                                                    size="sm"
+                                                                                    variant="outline"
+                                                                                    className="h-8 w-8 p-0"
+                                                                                    onClick={() => handleForceDelete(product.id)}
+                                                                                >
+                                                                                    <XOctagon className="h-4 w-4 text-red-800" />
+                                                                                </Button>
+                                                                            )}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            ))
+                                                        ) : (
+                                                            <TableRow>
+                                                                <TableCell colSpan="7" className="h-32 text-center">
+                                                                    <div className="flex flex-col items-center gap-4">
+                                                                        <Package className="h-8 w-8 text-slate-400" />
+                                                                        <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                                            {t("No products found")}
+                                                                        </p>
+                                                                        <Link href={route("admin.products.create")}>
+                                                                            <Button className="gap-2">
+                                                                                <Plus className="h-4 w-4" />
+                                                                                {t("Create First Product")}
+                                                                            </Button>
+                                                                        </Link>
+                                                                    </div>
+                                                                </TableCell>
+                                                            </TableRow>
                                                         )}
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            handlePageChange(
-                                                                products.current_page +
-                                                                    1
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            !products?.current_page ||
-                                                            products.current_page ===
-                                                                products.last_page
-                                                        }
-                                                        className="gap-1"
-                                                    >
-                                                        <ChevronLeft className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() =>
-                                                            handlePageChange(
-                                                                products.last_page
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            !products?.current_page ||
-                                                            products.current_page ===
-                                                                products.last_page
-                                                        }
-                                                        className="gap-1"
-                                                    >
-                                                        <SkipBack className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
+                                                    </TableBody>
+                                                </Table>
                                             </div>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
+
+                                {/* Pagination */}
+                                {products?.links && products.links.length > 3 && (
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.5, duration: 0.4 }}
+                                        className="flex flex-col items-center space-y-4"
+                                    >
+                                        <div className="text-sm text-slate-600 dark:text-slate-400">
+                                            {t("Showing")} {products.from} {t("to")} {products.to} {t("of")} {products.total} {t("results")}
+                                        </div>
+                                        <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
+                                            {products.links.map((link, index) => {
+                                                if (link.label.includes('Previous')) {
+                                                    return (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url || '#'}
+                                                            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                link.url
+                                                                    ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                            }`}
+                                                        >
+                                                            <ChevronRight className="h-4 w-4" />
+                                                            <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                        </Link>
+                                                    );
+                                                }
+                                                if (link.label.includes('Next')) {
+                                                    return (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url || '#'}
+                                                            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                link.url
+                                                                    ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                            }`}
+                                                        >
+                                                            <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                            <ChevronLeft className="h-4 w-4" />
+                                                        </Link>
+                                                    );
+                                                }
+                                                return (
+                                                    <Link
+                                                        key={index}
+                                                        href={link.url || '#'}
+                                                        className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                            link.active
+                                                                ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg'
+                                                                : link.url
+                                                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                        }`}
+                                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    </motion.div>
+                                )}
                             </motion.div>
                         </div>
                     </main>
