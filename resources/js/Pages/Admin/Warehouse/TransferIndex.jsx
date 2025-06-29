@@ -304,18 +304,6 @@ export default function TransferIndex({
                         animation: pulse-glow 2s ease-in-out infinite;
                     }
 
-                    .glass-effect {
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
-                    }
-
-                    .dark .glass-effect {
-                        background: rgba(0, 0, 0, 0.2);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
-                    }
-
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
                                     linear-gradient(45deg, #22c55e, #16a34a) border-box;
@@ -347,7 +335,7 @@ export default function TransferIndex({
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -357,7 +345,7 @@ export default function TransferIndex({
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
                                     <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
                                         <ArrowRightLeft className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
@@ -377,7 +365,7 @@ export default function TransferIndex({
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
                                     >
                                         {t("Warehouse Transfers")}
                                     </motion.h1>
@@ -385,7 +373,7 @@ export default function TransferIndex({
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
                                         {t("Track and manage warehouse to warehouse transfers")}
@@ -399,18 +387,12 @@ export default function TransferIndex({
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                <Button 
+                                    variant="outline" 
+                                    className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-slate-700 dark:text-slate-200 hover:text-green-700 dark:hover:text-green-300"
+                                >
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
-                                </Button>
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setShowFilters(!showFilters)}
-                                    className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20"
-                                >
-                                    <Filter className="h-4 w-4" />
-                                    {showFilters ? t("Hide Filters") : t("Show Filters")}
-                                    <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
                                 </Button>
                             </motion.div>
                         </div>
@@ -535,6 +517,24 @@ export default function TransferIndex({
                                         </Card>
                                     </motion.div>
                                 </div>
+
+                                {/* Filter Button Component */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.3, duration: 0.4 }}
+                                    className="flex justify-end"
+                                >
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setShowFilters(!showFilters)}
+                                        className="gap-3 px-6 py-3 text-lg font-medium border-2 border-green-200 dark:border-green-700 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-green-700 dark:text-green-300 hover:text-green-800 dark:hover:text-green-200 transition-all duration-200 hover:scale-105 shadow-lg"
+                                    >
+                                        <Filter className="h-5 w-5" />
+                                        {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                        <ChevronDown className={`h-5 w-5 transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`} />
+                                    </Button>
+                                </motion.div>
 
                                 {/* Advanced Filters */}
                                 <AnimatePresence>

@@ -243,16 +243,6 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                             linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
                             linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
                     }
-                    .glass-effect {
-                        backdrop-filter: blur(20px);
-                        background: rgba(255, 255, 255, 0.9);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
-                    }
-                    .dark .glass-effect {
-                        background: rgba(2, 6, 23, 0.98);
-                        border: 1px solid rgba(148, 163, 184, 0.15);
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-                    }
                     .warehouse-card {
                         transition: all 0.3s ease;
                     }
@@ -262,24 +252,6 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                     }
                     .dark .warehouse-card:hover {
                         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-                    }
-                    .header-icon-container {
-                        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-                        border: 1px solid rgba(148, 163, 184, 0.15);
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-                    }
-                    .dark .header-icon-container {
-                        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-                        border: 1px solid rgba(148, 163, 184, 0.25);
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
-                    }
-                    .header-glow {
-                        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-                        opacity: 0.3;
-                    }
-                    .dark .header-glow {
-                        background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%);
-                        opacity: 0.4;
                     }
                     .dropdown-content {
                         position: fixed !important;
@@ -297,51 +269,73 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Enhanced Header */}
-                    <header ref={headerRef} className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-40 bg-white/95 dark:bg-slate-900">
+                    <header ref={headerRef} className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-40 shadow-sm dark:shadow-slate-900/20">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
-                                <div className="relative">
-                                    <div className="absolute -inset-1 header-glow rounded-lg blur"></div>
-                                    <div className="relative header-icon-container p-3 rounded-lg shadow-sm">
-                                        <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative"
+                                >
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
+                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
+                                        <Building2 className="w-8 h-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
-                                </div>
+                                </motion.div>
                                 <div>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400">
-                                            {t("Warehouse Management")}
-                                        </span>
-                                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700 shadow-sm">
-                                            <Activity className="h-3 w-3 mr-1" />
-                                            {stats.total} {t("Total")}
-                                        </Badge>
-                                    </div>
-                                    <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-700 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
+                                    >
+                                        <Zap className="w-4 h-4" />
+                                        {t("Warehouse Management")}
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
+                                    >
                                         {t("Warehouses")}
-                                    </h1>
-                                    <p className="text-sm text-slate-600 dark:text-slate-300 mt-1">
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
+                                    >
+                                        <Building2 className="w-4 h-4" />
                                         {t("Manage your warehouse facilities and storage locations")}
-                                    </p>
+                                    </motion.p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center space-x-3">
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
+                            >
                                 <Button 
                                     variant="outline" 
-                                    className="shadow-sm border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/80 hover:bg-white dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                                    className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300"
                                 >
-                                    <RefreshCw className="h-4 w-4 mr-2" />
+                                    <RefreshCw className="h-4 w-4" />
                                     {t("Refresh")}
                                 </Button>
                                 {permissions.can_create && (
                                     <Link href={route("admin.warehouses.create")}>
-                                        <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 dark:from-blue-500 dark:to-indigo-500 dark:hover:from-blue-600 dark:hover:to-indigo-600 text-white shadow-lg">
-                                            <Plus className="h-4 w-4 mr-2" />
+                                        <Button className="gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-0">
+                                            <Plus className="h-4 w-4" />
                                             {t("Add Warehouse")}
                                         </Button>
                                     </Link>
                                 )}
-                            </div>
+                            </motion.div>
                         </div>
                     </header>
 
