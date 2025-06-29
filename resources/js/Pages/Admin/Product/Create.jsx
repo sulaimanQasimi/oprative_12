@@ -273,7 +273,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                 <Link href={route("admin.products.index")}>
                                     <Button
                                         variant="outline"
-                                        className="gap-2 hover:scale-105 transition-all duration-200 border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800"
+                                        className="gap-2 hover:scale-105 transition-all duration-200 border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800 dark:text-white"
                                     >
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Products")}
@@ -1189,7 +1189,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200"
+                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200 dark:text-white"
                                             >
                                                 {t("Cancel")}
                                             </Button>

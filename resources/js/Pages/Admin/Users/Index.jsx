@@ -3,11 +3,8 @@ import { Head, Link, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     Users,
-    User,
-    Shield,
     Mail,
-    TrendingUp,
-    DollarSign,
+   
     Calendar,
     Search,
     Eye,
@@ -25,8 +22,7 @@ import {
     Crown,
     Clock,
     UserCheck,
-    Key,
-    MoreHorizontal,
+ 
     Activity
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
@@ -275,7 +271,7 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -285,7 +281,7 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
                                     <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
                                         <Users className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
@@ -305,7 +301,7 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
                                     >
                                         {t("Users")}
                                     </motion.h1>
@@ -313,7 +309,7 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
                                         {t("Manage system users, roles, and permissions")}
@@ -328,13 +324,19 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.users.export")}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                    <Button 
+                                        variant="outline" 
+                                        className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300"
+                                    >
                                         <Download className="h-4 w-4" />
                                         {t("Export")}
                                     </Button>
                                 </Link>
                                 <Link href={route("admin.users.import.form")}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                    <Button 
+                                        variant="outline" 
+                                        className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-slate-700 dark:text-slate-200 hover:text-green-700 dark:hover:text-green-300"
+                                    >
                                         <Upload className="h-4 w-4" />
                                         {t("Import")}
                                     </Button>
@@ -365,22 +367,22 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("Total Users")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-blue-600">
+                                                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                                                             <AnimatedCounter value={totalUsers} duration={2000} />
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Registered users")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
-                                                        <Users className="h-8 w-8 text-blue-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 rounded-2xl">
+                                                        <Users className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -392,22 +394,22 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.0, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("Active Users")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-green-600">
+                                                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                                                             <AnimatedCounter value={activeUsers} duration={2000} />
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Verified accounts")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
-                                                        <UserCheck className="h-8 w-8 text-green-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/50 dark:to-emerald-900/50 rounded-2xl">
+                                                        <UserCheck className="h-8 w-8 text-green-600 dark:text-green-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -419,22 +421,22 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.1, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("Administrators")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-purple-600">
+                                                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
                                                             <AnimatedCounter value={adminUsers} duration={2000} />
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Admin role users")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
-                                                        <Crown className="h-8 w-8 text-purple-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-2xl">
+                                                        <Crown className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -446,22 +448,22 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.2, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("Recent Users")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-orange-600">
+                                                        <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
                                                             <AnimatedCounter value={recentUsers} duration={2000} />
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Last 30 days")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
-                                                        <Clock className="h-8 w-8 text-orange-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 rounded-2xl">
+                                                        <Clock className="h-8 w-8 text-orange-600 dark:text-orange-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -475,10 +477,10 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                    <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 dark:from-blue-500/20 dark:via-indigo-500/20 dark:to-blue-500/20 border-b border-slate-200 dark:border-slate-700">
                                             <div className="flex items-center justify-between">
-                                                <CardTitle className="flex items-center gap-3">
+                                                <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
                                                     <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
                                                         <Filter className="h-5 w-5 text-white" />
                                                     </div>
@@ -487,7 +489,7 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => setShowFilters(!showFilters)}
-                                                    className="gap-2"
+                                                    className="gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
                                                 >
                                                     <Filter className="h-4 w-4" />
                                                     {showFilters ? t("Hide Filters") : t("Show Filters")}
@@ -499,19 +501,19 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                             {/* Search Bar */}
                                             <div className="mb-4">
                                                 <div className="relative">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                     <Input
                                                         placeholder={t("Search by name, email, or role...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-12 h-12 text-lg border-2 border-blue-200 focus:border-blue-500 rounded-xl"
+                                                        className="pl-12 h-12 text-lg border-2 border-slate-300 dark:border-slate-600 focus:border-blue-500 dark:focus:border-blue-400 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400"
                                                     />
                                                     {searchTerm && (
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => setSearchTerm("")}
-                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                                                         >
                                                             <X className="h-4 w-4" />
                                                         </Button>
@@ -535,10 +537,10 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                     {t("Role Filter")}
                                                                 </label>
                                                                 <Select value={roleFilter} onValueChange={setRoleFilter}>
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                                                                         <SelectValue placeholder={t("All Roles")} />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
+                                                                    <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                                         <SelectItem className="fixed bottom-0 w-40" value="">{t("All Roles")}</SelectItem>
                                                                         {roles?.map(role => (
                                                                             <SelectItem key={role.id} value={role.name}>
@@ -554,10 +556,10 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                     {t("Sort By")}
                                                                 </label>
                                                                 <Select value={sortBy} onValueChange={setSortBy}>
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent className="fixed bottom-0 w-11">
+                                                                    <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                                         <SelectItem value="created_at">{t("Date Created")}</SelectItem>
                                                                         <SelectItem value="name">{t("Name")}</SelectItem>
                                                                         <SelectItem value="email">{t("Email")}</SelectItem>
@@ -570,10 +572,10 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                     {t("Sort Order")}
                                                                 </label>
                                                                 <Select value={sortOrder} onValueChange={setSortOrder}>
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent className="bottom-0 w-12">
+                                                                    <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                                         <SelectItem value="desc">{t("Descending")}</SelectItem>
                                                                         <SelectItem value="asc">{t("Ascending")}</SelectItem>
                                                                     </SelectContent>
@@ -584,7 +586,7 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                 <Button
                                                                     variant="outline"
                                                                     onClick={clearFilters}
-                                                                    className="w-full h-10 gap-2"
+                                                                    className="w-full h-10 gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
                                                                 >
                                                                     <RefreshCw className="h-4 w-4" />
                                                                     {t("Clear Filters")}
@@ -604,14 +606,14 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                            <CardTitle className="flex items-center gap-3">
+                                    <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 dark:from-blue-500/20 dark:via-indigo-500/20 dark:to-blue-500/20 border-b border-slate-200 dark:border-slate-700">
+                                            <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
                                                 <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
                                                 </div>
                                                 {t("User Records")}
-                                                <Badge variant="secondary" className="ml-auto">
+                                                <Badge variant="secondary" className="ml-auto bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                                                     {filteredUsers.length} {t("of")} {totalUsers}
                                                 </Badge>
                                             </CardTitle>
@@ -620,7 +622,7 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("User")}
                                                             </TableHead>
@@ -643,18 +645,18 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                             filteredUsers.map((user, index) => (
                                                                 <TableRow
                                                                     key={user.id}
-                                                                    className="hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
+                                                                    className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors border-b border-slate-100 dark:border-slate-800"
                                                                 >
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-3">
-                                                                            <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+                                                                            <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center flex-shrink-0">
                                                                                 <span className="text-blue-600 dark:text-blue-400 font-semibold text-lg">
                                                                                     {user.name.charAt(0).toUpperCase()}
                                                                                 </span>
                                                                             </div>
                                                                             <div>
                                                                                 <p className="font-semibold text-slate-800 dark:text-white">{user.name}</p>
-                                                                                <p className="text-sm text-slate-500 flex items-center gap-1">
+                                                                                <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
                                                                                     <Mail className="h-3 w-3" />
                                                                                     {user.email}
                                                                                 </p>
@@ -668,14 +670,14 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                                     <Badge
                                                                                         key={role.id}
                                                                                         variant="outline"
-                                                                                        className="text-xs bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-800"
+                                                                                        className="text-xs bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-800"
                                                                                     >
                                                                                         <Crown className="h-3 w-3 mr-1" />
                                                                                         {role.name}
                                                                                     </Badge>
                                                                                 ))
                                                                             ) : (
-                                                                                <Badge variant="secondary" className="text-xs">
+                                                                                <Badge variant="secondary" className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300">
                                                                                     {t("No roles")}
                                                                                 </Badge>
                                                                             )}
@@ -685,8 +687,8 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                         <Badge
                                                                             variant={user.email_verified_at ? "success" : "secondary"}
                                                                             className={`rounded-full ${user.email_verified_at
-                                                                                    ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                                                                                    : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                                                                    ? "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300"
+                                                                                    : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-300"
                                                                                 }`}
                                                                         >
                                                                             {user.email_verified_at ? (
@@ -709,30 +711,45 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <div className="flex items-center gap-2">
+                                                                        <div className="flex items-center gap-3">
                                                                             <Link href={route("admin.users.show", user.id)}>
-                                                                                <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-blue-50 hover:border-blue-300" title={t("View Details")}>
-                                                                                    <Eye className="h-4 w-4 text-blue-600" />
+                                                                                <Button 
+                                                                                    size="sm" 
+                                                                                    variant="outline" 
+                                                                                    className="h-10 w-10 p-0 hover:scale-110 transition-all duration-200 border-blue-300 dark:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/40 hover:border-blue-400 dark:hover:border-blue-500 shadow-sm hover:shadow-md" 
+                                                                                    title={t("View Details")}
+                                                                                >
+                                                                                    <Eye className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                                                                 </Button>
                                                                             </Link>
                                                                             <Link href={route("admin.users.edit", user.id)}>
-                                                                                <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300" title={t("Edit User")}>
-                                                                                    <Edit className="h-4 w-4 text-green-600" />
+                                                                                <Button 
+                                                                                    size="sm" 
+                                                                                    variant="outline" 
+                                                                                    className="h-10 w-10 p-0 hover:scale-110 transition-all duration-200 border-green-300 dark:border-green-600 hover:bg-green-50 dark:hover:bg-green-900/40 hover:border-green-400 dark:hover:border-green-500 shadow-sm hover:shadow-md" 
+                                                                                    title={t("Edit User")}
+                                                                                >
+                                                                                    <Edit className="h-5 w-5 text-green-600 dark:text-green-400" />
                                                                                 </Button>
                                                                             </Link>
                                                                             <Link href={route("admin.users.activity-log", user.id)}>
-                                                                                <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-purple-50 hover:border-purple-300" title={t("Activity Log")}>
-                                                                                    <Activity className="h-4 w-4 text-purple-600" />
+                                                                                <Button 
+                                                                                    size="sm" 
+                                                                                    variant="outline" 
+                                                                                    className="h-10 w-10 p-0 hover:scale-110 transition-all duration-200 border-purple-300 dark:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/40 hover:border-purple-400 dark:hover:border-purple-500 shadow-sm hover:shadow-md" 
+                                                                                    title={t("Activity Log")}
+                                                                                >
+                                                                                    <Activity className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                                                                                 </Button>
                                                                             </Link>
                                                                             <Button
                                                                                 size="sm"
                                                                                 variant="outline"
-                                                                                className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-300"
+                                                                                className="h-10 w-10 p-0 hover:scale-110 transition-all duration-200 border-red-300 dark:border-red-600 hover:bg-red-50 dark:hover:bg-red-900/40 hover:border-red-400 dark:hover:border-red-500 shadow-sm hover:shadow-md"
                                                                                 onClick={() => handleDelete(user)}
                                                                                 title={t("Delete User")}
                                                                             >
-                                                                                <Trash2 className="h-4 w-4 text-red-600" />
+                                                                                <Trash2 className="h-5 w-5 text-red-600 dark:text-red-400" />
                                                                             </Button>
                                                                         </div>
                                                                     </TableCell>
@@ -743,13 +760,13 @@ export default function UsersIndex({ auth, users, roles, permissions, filters })
                                                                 <TableCell colSpan="5" className="h-32 text-center">
                                                                     <div className="flex flex-col items-center gap-4">
                                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                                            <Users className="h-8 w-8 text-slate-400" />
+                                                                            <Users className="h-8 w-8 text-slate-400 dark:text-slate-500" />
                                                                         </div>
                                                                         <div>
                                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
                                                                                 {t("No users found")}
                                                                             </p>
-                                                                            <p className="text-sm text-slate-500">
+                                                                            <p className="text-sm text-slate-500 dark:text-slate-500">
                                                                                 {searchTerm || roleFilter ? t("Try adjusting your filters") : t("Create your first user")}
                                                                             </p>
                                                                         </div>

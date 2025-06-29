@@ -11,20 +11,13 @@ import {
     Trash2,
     Plus,
     Filter,
-    RefreshCw,
     BarChart3,
     ChevronDown,
     X,
-    Crown,
-    Lock,
-    Unlock,
     MoreHorizontal,
     Sparkles,
     ChevronLeft,
     ChevronRight,
-    ChevronsLeft,
-    ChevronsRight,
-    Settings,
     Download
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
@@ -110,7 +103,7 @@ const Pagination = ({ data, onPageChange }) => {
     return (
         <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
             <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
-                {t("Showing")} <span className="font-medium mx-1">{data.from}</span> {t("to")} <span className="font-medium mx-1">{data.to}</span> {t("of")} <span className="font-medium mx-1">{data.total}</span> {t("results")}
+                {t("Showing")} <span className="font-medium mx-1 text-slate-700 dark:text-slate-300">{data.from}</span> {t("to")} <span className="font-medium mx-1 text-slate-700 dark:text-slate-300">{data.to}</span> {t("of")} <span className="font-medium mx-1 text-slate-700 dark:text-slate-300">{data.total}</span> {t("results")}
             </div>
             <div className="flex items-center space-x-1">
                 {data.links.map((link, index) => {
@@ -121,7 +114,7 @@ const Pagination = ({ data, onPageChange }) => {
                                 variant="ghost"
                                 size="sm"
                                 disabled
-                                className="text-slate-400"
+                                className="text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700"
                             >
                                 {link.label === '&laquo; Previous' ? <ChevronLeft className="w-4 h-4" /> :
                                  link.label === 'Next &raquo;' ? <ChevronRight className="w-4 h-4" /> :
@@ -136,7 +129,7 @@ const Pagination = ({ data, onPageChange }) => {
                             variant={link.active ? "default" : "ghost"}
                             size="sm"
                             onClick={() => onPageChange(link.url)}
-                            className={link.active ? "bg-blue-600 text-white" : ""}
+                            className={link.active ? "bg-blue-600 text-white hover:bg-blue-700" : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"}
                         >
                             {link.label === '&laquo; Previous' ? <ChevronLeft className="w-4 h-4" /> :
                              link.label === 'Next &raquo;' ? <ChevronRight className="w-4 h-4" /> :
@@ -313,7 +306,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -323,7 +316,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
                                     <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
                                         <Shield className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
@@ -343,7 +336,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
                                     >
                                         {t("Roles")}
                                     </motion.h1>
@@ -351,7 +344,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
                                         {t("Manage user roles and permissions")}
@@ -365,7 +358,11 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button onClick={handleExport} variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                <Button 
+                                    onClick={handleExport} 
+                                    variant="outline" 
+                                    className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300"
+                                >
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
@@ -397,22 +394,22 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("Total Roles")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-blue-600">
+                                                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                                                             <AnimatedCounter value={totalRoles} duration={2000} />
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("System roles")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
-                                                        <Shield className="h-8 w-8 text-blue-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/50 dark:to-indigo-900/50 rounded-2xl">
+                                                        <Shield className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -424,22 +421,22 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.0, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("Total Permissions")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-indigo-600">
+                                                        <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
                                                             <AnimatedCounter value={totalPermissions} duration={2000} />
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Available permissions")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl">
-                                                        <Key className="h-8 w-8 text-indigo-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 rounded-2xl">
+                                                        <Key className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -451,22 +448,22 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.1, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("Avg Permissions")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-purple-600">
+                                                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
                                                             <AnimatedCounter value={averagePermissions} duration={2000} />
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Per role")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
-                                                        <BarChart3 className="h-8 w-8 text-purple-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-2xl">
+                                                        <BarChart3 className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -478,22 +475,22 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.2, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800 hover:scale-105 transition-all duration-300 hover:shadow-2xl">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
                                                             {t("Active Roles")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-green-600">
+                                                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                                                             <AnimatedCounter value={rolesWithPermissions} duration={2000} />
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("With permissions")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
-                                                        <Users className="h-8 w-8 text-green-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/50 dark:to-emerald-900/50 rounded-2xl">
+                                                        <Users className="h-8 w-8 text-green-600 dark:text-green-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -507,19 +504,19 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.5 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                    <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800">
                                         <CardContent className="p-6">
                                             <div className="space-y-4">
                                                 {/* Basic Filters */}
                                                 <div className="flex flex-col lg:flex-row gap-4">
                                                     <div className="flex-1">
                                                         <div className="relative">
-                                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-4 h-4" />
+                                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 w-4 h-4" />
                                                             <Input
                                                                 placeholder={t("Search roles or permissions...")}
                                                                 value={searchTerm}
                                                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                                                className="pl-10 bg-white/50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                                                className="pl-10 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400"
                                                                 onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                                                             />
                                                         </div>
@@ -527,10 +524,10 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                     
                                                     <div className="flex gap-2">
                                                         <Select value={sortBy} onValueChange={setSortBy}>
-                                                            <SelectTrigger className="w-40 bg-white/50 dark:bg-slate-700/50">
+                                                            <SelectTrigger className="w-40 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100">
                                                                 <SelectValue />
                                                             </SelectTrigger>
-                                                            <SelectContent>
+                                                            <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                                 <SelectItem value="name">{t("Name")}</SelectItem>
                                                                 <SelectItem value="created_at">{t("Created Date")}</SelectItem>
                                                                 <SelectItem value="updated_at">{t("Updated Date")}</SelectItem>
@@ -538,20 +535,20 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                         </Select>
 
                                                         <Select value={sortOrder} onValueChange={setSortOrder}>
-                                                            <SelectTrigger className="w-32 bg-white/50 dark:bg-slate-700/50">
+                                                            <SelectTrigger className="w-32 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100">
                                                                 <SelectValue />
                                                             </SelectTrigger>
-                                                            <SelectContent>
+                                                            <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                                 <SelectItem value="asc">{t("Ascending")}</SelectItem>
                                                                 <SelectItem value="desc">{t("Descending")}</SelectItem>
                                                             </SelectContent>
                                                         </Select>
 
                                                         <Select value={perPage.toString()} onValueChange={(value) => setPerPage(parseInt(value))}>
-                                                            <SelectTrigger className="w-24 bg-white/50 dark:bg-slate-700/50">
+                                                            <SelectTrigger className="w-24 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100">
                                                                 <SelectValue />
                                                             </SelectTrigger>
-                                                            <SelectContent>
+                                                            <SelectContent className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                                 <SelectItem value="10">10</SelectItem>
                                                                 <SelectItem value="15">15</SelectItem>
                                                                 <SelectItem value="25">25</SelectItem>
@@ -562,7 +559,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
 
                                                         <Collapsible open={showAdvancedFilters} onOpenChange={setShowAdvancedFilters}>
                                                             <CollapsibleTrigger asChild>
-                                                                <Button variant="outline" className="gap-2">
+                                                                <Button variant="outline" className="gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
                                                                     <Filter className="w-4 h-4" />
                                                                     {t("Advanced")}
                                                                     <ChevronDown className={`w-4 h-4 transition-transform ${showAdvancedFilters ? 'rotate-180' : ''}`} />
@@ -574,7 +571,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                             <Search className="w-4 h-4" />
                                                         </Button>
 
-                                                        <Button onClick={clearFilters} variant="outline">
+                                                        <Button onClick={clearFilters} variant="outline" className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
                                                             <X className="w-4 h-4" />
                                                         </Button>
                                                     </div>
@@ -593,7 +590,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                                     placeholder="0"
                                                                     value={minPermissions}
                                                                     onChange={(e) => setMinPermissions(e.target.value)}
-                                                                    className="bg-white/50 dark:bg-slate-700/50"
+                                                                    className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
                                                                 />
                                                             </div>
                                                             <div>
@@ -605,7 +602,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                                     placeholder="100"
                                                                     value={maxPermissions}
                                                                     onChange={(e) => setMaxPermissions(e.target.value)}
-                                                                    className="bg-white/50 dark:bg-slate-700/50"
+                                                                    className="bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 text-slate-900 dark:text-slate-100"
                                                                 />
                                                             </div>
                                                         </div>
@@ -622,9 +619,9 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.5 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                        <CardHeader>
-                                            <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-white">
+                                    <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 dark:from-blue-500/20 dark:via-indigo-500/20 dark:to-blue-500/20 border-b border-slate-200 dark:border-slate-700">
+                                            <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
                                                 <Shield className="w-5 h-5" />
                                                 {t("Roles")} ({roles?.total || 0})
                                             </CardTitle>
@@ -633,17 +630,17 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="border-slate-200 dark:border-slate-700">
-                                                            <TableHead className="text-slate-600 dark:text-slate-300">
+                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                                                            <TableHead className="text-slate-700 dark:text-slate-300 font-semibold">
                                                                 {t("Role Name")}
                                                             </TableHead>
-                                                            <TableHead className="text-slate-600 dark:text-slate-300">
+                                                            <TableHead className="text-slate-700 dark:text-slate-300 font-semibold">
                                                                 {t("Permissions")}
                                                             </TableHead>
-                                                            <TableHead className="text-slate-600 dark:text-slate-300">
+                                                            <TableHead className="text-slate-700 dark:text-slate-300 font-semibold">
                                                                 {t("Created Date")}
                                                             </TableHead>
-                                                            <TableHead className="text-slate-600 dark:text-slate-300 text-right">
+                                                            <TableHead className="text-slate-700 dark:text-slate-300 font-semibold text-right">
                                                                 {t("Actions")}
                                                             </TableHead>
                                                         </TableRow>
@@ -657,7 +654,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                                     animate={{ opacity: 1, x: 0 }}
                                                                     exit={{ opacity: 0, x: 20 }}
                                                                     transition={{ duration: 0.3, delay: index * 0.05 }}
-                                                                    className="border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                                                                    className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                                                                 >
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-3">
@@ -680,13 +677,13 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                                                 <Badge
                                                                                     key={permission.id}
                                                                                     variant="secondary"
-                                                                                    className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                                                                                    className="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200 border-blue-200 dark:border-blue-800"
                                                                                 >
                                                                                     {permission.name}
                                                                                 </Badge>
                                                                             ))}
                                                                             {role.permissions?.length > 3 && (
-                                                                                <Badge variant="outline" className="text-xs">
+                                                                                <Badge variant="outline" className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600">
                                                                                     +{role.permissions.length - 3} more
                                                                                 </Badge>
                                                                             )}
@@ -704,13 +701,13 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                                         <div className="flex items-center justify-end gap-2">
                                                                             <DropdownMenu>
                                                                                 <DropdownMenuTrigger asChild>
-                                                                                    <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
-                                                                                        <MoreHorizontal className="h-4 w-4" />
+                                                                                    <Button size="sm" variant="ghost" className="h-10 w-10 p-0 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                                        <MoreHorizontal className="h-5 w-5 text-slate-600 dark:text-slate-400" />
                                                                                     </Button>
                                                                                 </DropdownMenuTrigger>
-                                                                                <DropdownMenuContent align="end">
+                                                                                <DropdownMenuContent align="end" className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
                                                                                     {auth.user?.can?.view_role && (
-                                                                                        <DropdownMenuItem asChild>
+                                                                                        <DropdownMenuItem asChild className="text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
                                                                                             <Link href={route('admin.roles.show', role.id)} className="flex items-center gap-2">
                                                                                                 <Eye className="w-4 h-4" />
                                                                                                 {t("View")}
@@ -718,7 +715,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                                                         </DropdownMenuItem>
                                                                                     )}
                                                                                     {auth.user?.can?.update_role && (
-                                                                                        <DropdownMenuItem asChild>
+                                                                                        <DropdownMenuItem asChild className="text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
                                                                                             <Link href={route('admin.roles.edit', role.id)} className="flex items-center gap-2">
                                                                                                 <Edit className="w-4 h-4" />
                                                                                                 {t("Edit")}
@@ -727,10 +724,10 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                                                     )}
                                                                                     {auth.user?.can?.delete_role && (
                                                                                         <>
-                                                                                            <DropdownMenuSeparator />
+                                                                                            <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-700" />
                                                                                             <DropdownMenuItem
                                                                                                 onClick={() => handleDelete(role)}
-                                                                                                className="text-red-600 focus:text-red-600 flex items-center gap-2"
+                                                                                                className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400 flex items-center gap-2 hover:bg-red-50 dark:hover:bg-red-900/20"
                                                                                             >
                                                                                                 <Trash2 className="w-4 h-4" />
                                                                                                 {t("Delete")}
@@ -757,7 +754,7 @@ export default function RolesIndex({ auth, roles, filters = {}, statistics = {} 
                                                     <p className="text-slate-500 dark:text-slate-500 mb-4">
                                                         {t("No roles match your current search criteria.")}
                                                     </p>
-                                                    <Button onClick={clearFilters} variant="outline">
+                                                    <Button onClick={clearFilters} variant="outline" className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700">
                                                         {t("Clear Filters")}
                                                     </Button>
                                                 </div>

@@ -146,18 +146,6 @@ export default function Index({
                         animation: float 6s ease-in-out infinite;
                     }
 
-                    .glass-effect {
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
-                    }
-
-                    .dark .glass-effect {
-                        background: rgba(0, 0, 0, 0.2);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
-                    }
-
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
                                     linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
@@ -189,7 +177,7 @@ export default function Index({
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -199,7 +187,7 @@ export default function Index({
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
                                     <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
                                         <Building className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
@@ -219,7 +207,7 @@ export default function Index({
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
                                     >
                                         {t("Gates")}
                                     </motion.h1>
@@ -227,7 +215,7 @@ export default function Index({
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <Building className="w-4 h-4" />
                                         {t("Manage access gates and permissions")}
@@ -361,29 +349,29 @@ export default function Index({
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-blue-900 backdrop-blur-xl gradient-border">
-                                        <CardHeader>
+                                    <Card className="border border-slate-200 dark:border-slate-700 shadow-lg bg-white dark:bg-slate-800">
+                                        <CardHeader className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                                             <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
                                                 <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
                                                     <Search className="h-5 w-5 text-white" />
                                                 </div>
                                                 {t("Search & Filter")}
                                                 {searchTerm && (
-                                                    <Badge variant="secondary" className="ml-auto">
+                                                    <Badge variant="secondary" className="ml-auto bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
                                                         {t("Filtered")}
                                                     </Badge>
                                                 )}
                                             </CardTitle>
                                         </CardHeader>
-                                        <CardContent className="space-y-4">
-                                            <form onSubmit={handleSearch} className="flex flex-col lg:flex-row gap-4">
-                                                <div className="relative flex-1">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                        <CardContent className="space-y-6 p-6">
+                                            <form onSubmit={handleSearch} className="space-y-4">
+                                                <div className="relative">
+                                                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                     <Input
                                                         placeholder={t("Search gates by name, user, or description...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-10 h-12 border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 transition-colors"
+                                                        className="pl-12 h-14 text-lg border-2 border-slate-300 dark:border-slate-600 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20 rounded-xl bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -391,16 +379,19 @@ export default function Index({
                                                             variant="ghost"
                                                             size="sm"
                                                             onClick={() => setSearchTerm("")}
-                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
                                                         >
-                                                            <X className="h-4 w-4" />
+                                                            <X className="h-5 w-5" />
                                                         </Button>
                                                     )}
                                                 </div>
 
-                                                <div className="flex gap-2">
-                                                    <Button type="submit" className="gap-2 h-12 bg-indigo-600 hover:bg-indigo-700">
-                                                        <Search className="h-4 w-4" />
+                                                <div className="flex flex-col sm:flex-row gap-3">
+                                                    <Button 
+                                                        type="submit" 
+                                                        className="gap-2 h-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                                                    >
+                                                        <Search className="h-5 w-5" />
                                                         {t("Search")}
                                                     </Button>
 
@@ -409,9 +400,9 @@ export default function Index({
                                                             type="button"
                                                             variant="outline"
                                                             onClick={clearFilters}
-                                                            className="gap-2 h-12 border-2 hover:border-indigo-300"
+                                                            className="gap-2 h-12 border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-200 hover:text-indigo-700 dark:hover:text-indigo-300"
                                                         >
-                                                            <RefreshCw className="h-4 w-4" />
+                                                            <RefreshCw className="h-5 w-5" />
                                                             {t("Clear")}
                                                         </Button>
                                                     )}
@@ -420,53 +411,55 @@ export default function Index({
                                             
                                             {/* Filter Buttons */}
                                             {permissions.restore_gate && (
-                                                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                                    <div className="flex items-center gap-2">
-                                                        <Filter className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-                                                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                            {t("Show")}:
-                                                        </span>
-                                                    </div>
-                                                    <div className="flex gap-2 flex-wrap">
-                                                        <Button
-                                                            variant={filterState === 'active' ? 'default' : 'outline'}
-                                                            size="sm"
-                                                            onClick={() => handleFilterChange('active')}
-                                                            className={`gap-2 ${
-                                                                filterState === 'active' 
-                                                                    ? 'bg-indigo-600 hover:bg-indigo-700 text-white' 
-                                                                    : 'hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300'
-                                                            }`}
-                                                        >
-                                                            <Building className="h-3 w-3" />
-                                                            {t("Active Gates")}
-                                                        </Button>
-                                                        <Button
-                                                            variant={filterState === 'with_trashed' ? 'default' : 'outline'}
-                                                            size="sm"
-                                                            onClick={() => handleFilterChange('with_trashed')}
-                                                            className={`gap-2 ${
-                                                                filterState === 'with_trashed' 
-                                                                    ? 'bg-amber-600 hover:bg-amber-700 text-white' 
-                                                                    : 'hover:bg-amber-50 hover:text-amber-600 hover:border-amber-300'
-                                                            }`}
-                                                        >
-                                                            <Eye className="h-3 w-3" />
-                                                            {t("All Gates")}
-                                                        </Button>
-                                                        <Button
-                                                            variant={filterState === 'trashed' ? 'default' : 'outline'}
-                                                            size="sm"
-                                                            onClick={() => handleFilterChange('trashed')}
-                                                            className={`gap-2 ${
-                                                                filterState === 'trashed' 
-                                                                    ? 'bg-red-600 hover:bg-red-700 text-white' 
-                                                                    : 'hover:bg-red-50 hover:text-red-600 hover:border-red-300'
-                                                            }`}
-                                                        >
-                                                            <Trash2 className="h-3 w-3" />
-                                                            {t("Deleted Gates")}
-                                                        </Button>
+                                                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                    <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                                                        <div className="flex items-center gap-2">
+                                                            <Filter className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                                            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                                {t("Show")}:
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex gap-2 flex-wrap">
+                                                            <Button
+                                                                variant={filterState === 'active' ? 'default' : 'outline'}
+                                                                size="sm"
+                                                                onClick={() => handleFilterChange('active')}
+                                                                className={`gap-2 transition-all duration-200 ${
+                                                                    filterState === 'active' 
+                                                                        ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg' 
+                                                                        : 'border-slate-300 dark:border-slate-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-300 hover:border-indigo-400 dark:hover:border-indigo-500'
+                                                                }`}
+                                                            >
+                                                                <Building className="h-4 w-4" />
+                                                                {t("Active Gates")}
+                                                            </Button>
+                                                            <Button
+                                                                variant={filterState === 'with_trashed' ? 'default' : 'outline'}
+                                                                size="sm"
+                                                                onClick={() => handleFilterChange('with_trashed')}
+                                                                className={`gap-2 transition-all duration-200 ${
+                                                                    filterState === 'with_trashed' 
+                                                                        ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-lg' 
+                                                                        : 'border-slate-300 dark:border-slate-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:text-amber-600 dark:hover:text-amber-300 hover:border-amber-400 dark:hover:border-amber-500'
+                                                                }`}
+                                                            >
+                                                                <Eye className="h-4 w-4" />
+                                                                {t("All Gates")}
+                                                            </Button>
+                                                            <Button
+                                                                variant={filterState === 'trashed' ? 'default' : 'outline'}
+                                                                size="sm"
+                                                                onClick={() => handleFilterChange('trashed')}
+                                                                className={`gap-2 transition-all duration-200 ${
+                                                                    filterState === 'trashed' 
+                                                                        ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg' 
+                                                                        : 'border-slate-300 dark:border-slate-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-300 hover:border-red-400 dark:hover:border-red-500'
+                                                                }`}
+                                                            >
+                                                                <Trash2 className="h-4 w-4" />
+                                                                {t("Deleted Gates")}
+                                                            </Button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             )}
@@ -480,8 +473,8 @@ export default function Index({
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                        <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                    <Card className="border border-slate-200 dark:border-slate-700 shadow-xl bg-white dark:bg-slate-800">
+                                        <CardHeader className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                                             <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                 <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
                                                     <Building className="h-6 w-6 text-white" />
@@ -502,11 +495,11 @@ export default function Index({
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="border-b border-slate-200 dark:border-slate-700">
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Gate")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Assigned User")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">{t("Employees")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">{t("Actions")}</TableHead>
+                                                        <TableRow className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 py-4">{t("Gate")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 py-4">{t("Assigned User")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 py-4">{t("Employees")}</TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right py-4">{t("Actions")}</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -520,52 +513,57 @@ export default function Index({
                                                                     transition={{ delay: index * 0.05 }}
                                                                     className="border-b border-slate-100 dark:border-slate-700 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-colors"
                                                                 >
-                                                                    <TableCell>
+                                                                    <TableCell className="py-4">
                                                                         <div className="flex items-center space-x-3">
                                                                             <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg">
-                                                                                <Building className="h-5 w-5 text-indigo-600" />
+                                                                                <Building className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                                                                             </div>
                                                                             <div>
                                                                                 <div className="flex items-center gap-2">
                                                                                     <div className="font-semibold text-slate-900 dark:text-white">{gate.name}</div>
                                                                                     {gate.deleted_at && (
-                                                                                        <Badge variant="destructive" className="text-xs">
+                                                                                        <Badge variant="destructive" className="text-xs bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
                                                                                             {t("Deleted")}
                                                                                         </Badge>
                                                                                     )}
                                                                                 </div>
+                                                                                {gate.description && (
+                                                                                    <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                                                                                        {gate.description}
+                                                                                    </div>
+                                                                                )}
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="space-y-1">
+                                                                    <TableCell className="py-4">
+                                                                        <div className="space-y-2">
                                                                             {gate.user ? (
                                                                                 <>
                                                                                     <div className="font-medium text-slate-900 dark:text-white">{gate.user.name}</div>
-                                                                                    <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                                                        <User className="w-3 h-3" />
+                                                                                    <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
+                                                                                        <User className="w-4 h-4" />
                                                                                         {gate.user.email}
                                                                                     </div>
                                                                                 </>
                                                                             ) : (
-                                                                                <span className="text-slate-500 italic">{t("No user assigned")}</span>
+                                                                                <span className="text-slate-500 dark:text-slate-400 italic">{t("No user assigned")}</span>
                                                                             )}
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <Badge variant="outline" className="gap-1">
-                                                                            <Users className="w-3 h-3" />
+                                                                    <TableCell className="py-4">
+                                                                        <Badge variant="outline" className="gap-2 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700">
+                                                                            <Users className="w-4 h-4" />
                                                                             {gate.employees?.length || 0}
                                                                         </Badge>
                                                                     </TableCell>
-                                                                    <TableCell className="text-right">
-                                                                        <div className="flex items-center justify-end gap-1">
+                                                                    <TableCell className="text-right py-4">
+                                                                        <div className="flex items-center justify-end gap-2">
                                                                             {/* View Button */}
                                                                             {permissions.view_gate && (
                                                                                 <Button
                                                                                     variant="ghost"
                                                                                     size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                                                                                    className="h-9 w-9 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
                                                                                     asChild
                                                                                 >
                                                                                     <Link href={route('admin.gates.show', gate.id)}>
@@ -580,7 +578,7 @@ export default function Index({
                                                                                 <Button
                                                                                     variant="ghost"
                                                                                     size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400 transition-colors"
+                                                                                    className="h-9 w-9 p-0 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400 transition-colors"
                                                                                     asChild
                                                                                 >
                                                                                     <Link href={route('admin.gates.edit', gate.id)}>
@@ -595,7 +593,7 @@ export default function Index({
                                                                                 <Button
                                                                                     variant="ghost"
                                                                                     size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                                                                                    className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
                                                                                     onClick={() => handleDelete(gate.id)}
                                                                                 >
                                                                                     <Trash2 className="h-4 w-4" />
@@ -608,7 +606,7 @@ export default function Index({
                                                                                 <Button
                                                                                     variant="ghost"
                                                                                     size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
+                                                                                    className="h-9 w-9 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
                                                                                     onClick={() => handleRestore(gate.id)}
                                                                                 >
                                                                                     <RotateCcw className="h-4 w-4" />
@@ -621,7 +619,7 @@ export default function Index({
                                                                                 <Button
                                                                                     variant="ghost"
                                                                                     size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                                                                                    className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
                                                                                     onClick={() => handleForceDelete(gate.id)}
                                                                                 >
                                                                                     <XCircle className="h-4 w-4" />
@@ -637,22 +635,22 @@ export default function Index({
                                                 </Table>
                                             </div>
                                             ) : (
-                                                <div className="text-center py-12">
-                                                    <div className="flex flex-col items-center gap-4">
-                                                        <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                            <Building className="h-8 w-8 text-slate-400" />
+                                                <div className="text-center py-16">
+                                                    <div className="flex flex-col items-center gap-6">
+                                                        <div className="p-6 bg-slate-100 dark:bg-slate-800 rounded-full">
+                                                            <Building className="h-12 w-12 text-slate-400" />
                                                         </div>
-                                                        <div className="text-center">
-                                                            <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
+                                                        <div className="text-center max-w-md">
+                                                            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-2">
                                                                 {searchTerm ? t("No gates found") : t("No gates created yet")}
-                                                            </p>
-                                                            <p className="text-sm text-slate-500">
-                                                                {searchTerm ? t("Try adjusting your search") : t("Create your first gate to get started.")}
+                                                            </h3>
+                                                            <p className="text-slate-600 dark:text-slate-400">
+                                                                {searchTerm ? t("Try adjusting your search criteria") : t("Create your first gate to get started with access management.")}
                                                             </p>
                                                         </div>
                                                         {!searchTerm && permissions.create_gate && (
                                                             <Link href={route("admin.gates.create")}>
-                                                                <Button className="gap-2">
+                                                                <Button className="gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-lg">
                                                                     <Plus className="w-4 h-4" />
                                                                     {t("Create First Gate")}
                                                                 </Button>

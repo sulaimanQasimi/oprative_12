@@ -5,9 +5,6 @@ import {
     Shield,
     Key,
     Search,
-    Eye,
-    Edit,
-    Trash2,
     Plus,
     RefreshCw,
     X,
@@ -21,19 +18,11 @@ import {
     CardHeader,
     CardTitle,
 } from "@/Components/ui/card";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/Components/ui/table";
 import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
-import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import { motion } from "framer-motion";
 
 // AnimatedCounter component
 const AnimatedCounter = ({
@@ -155,27 +144,64 @@ export default function PermissionsIndex({ auth, permissions, filters }) {
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
-                    <header className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-white/30 dark:border-slate-700/50 px-8 py-6">
+                    <motion.header
+                        initial={{ y: -20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 px-8 py-6 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
+                    >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg">
-                                    <Shield className="h-8 w-8 text-white" />
-                                </div>
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative"
+                                >
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
+                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
+                                        <Shield className="h-8 w-8 text-white" />
+                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
+                                    </div>
+                                </motion.div>
                                 <div>
-                                    <h1 className="text-3xl font-bold text-slate-800 dark:text-white">
-                                        {t("Permissions Management")}
-                                    </h1>
-                                    <p className="text-slate-600 dark:text-slate-400">
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1"
+                                    >
+                                        {t("Admin Panel")} - {t("Permission Management")}
+                                    </motion.p>
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
+                                    >
+                                        {t("Permissions")}
+                                    </motion.h1>
+                                    <motion.p
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
+                                        className="text-sm text-slate-600 dark:text-slate-300"
+                                    >
                                         {t("Manage system permissions and access controls")}
-                                    </p>
+                                    </motion.p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center space-x-3">
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
+                                className="flex items-center space-x-3"
+                            >
                                 <Button
                                     variant="outline"
                                     onClick={() => window.location.reload()}
-                                    className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                    className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300"
                                 >
                                     <RefreshCw className="h-4 w-4" />
                                     {t("Refresh")}
@@ -186,9 +212,9 @@ export default function PermissionsIndex({ auth, permissions, filters }) {
                                         {t("Add Permission")}
                                     </Button>
                                 </Link>
-                            </div>
+                            </motion.div>
                         </div>
-                    </header>
+                    </motion.header>
 
                     {/* Main Content Container */}
                     <main className="flex-1 overflow-auto p-8">
