@@ -139,7 +139,7 @@ export default function Create({ auth, suppliers, currencies, invoiceNumber }) {
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.purchases.index")}>
-                                    <Button variant="outline" className="gap-2">
+                                    <Button variant="outline" className="gap-2 dark:text-white">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Purchases")}
                                     </Button>
@@ -355,7 +355,7 @@ export default function Create({ auth, suppliers, currencies, invoiceNumber }) {
                                 {/* Submit Button */}
                                 <div className="flex justify-end space-x-4">
                                     <Link href={route("admin.purchases.index")}>
-                                        <Button type="button" variant="outline" className="px-8 py-3">
+                                        <Button type="button" variant="outline" className="px-8 py-3 text-black dark:text-white">
                                             {t("Cancel")}
                                         </Button>
                                     </Link>

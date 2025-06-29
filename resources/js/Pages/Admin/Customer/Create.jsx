@@ -9,8 +9,6 @@ import {
     Mail,
     Phone,
     MapPin,
-    CreditCard,
-    DollarSign,
     FileText,
     Building2,
     Sparkles,
@@ -244,7 +242,7 @@ export default function Create({ auth, permissions = {} }) {
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.customers.index")}>
-                                    <Button variant="outline" className="gap-2 border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800">
+                                    <Button variant="outline" className="gap-2 border-slate-200 dark:text-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Stores")}
                                     </Button>
@@ -511,7 +509,7 @@ export default function Create({ auth, permissions = {} }) {
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                className="gap-2 h-12 px-8 border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800"
+                                                className="gap-2 h-12 px-8 dark:text-white border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800"
                                             >
                                                 <ArrowLeft className="h-4 w-4" />
                                                 {t("Cancel")}

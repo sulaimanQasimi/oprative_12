@@ -152,7 +152,7 @@ export default function Create({ auth, permissions = {} }) {
 
                             <div className="flex items-center space-x-3">
                                 <Link href={route("admin.suppliers.index")}>
-                                    <Button variant="outline" className="shadow-sm border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800">
+                                    <Button variant="outline" className="shadow-sm border-slate-200 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:text-white dark:hover:border-slate-500 dark:hover:bg-slate-800">
                                         <ArrowLeft className="h-4 w-4 mr-2" />
                                         {t("Back to List")}
                                     </Button>
