@@ -2735,5 +2735,15 @@
   "To Warehouse": "به گدام",
   "No transfer records found": "هیچ ثبت انتقال یافت نشد",
   "Start tracking warehouse transfers": "پیگیری انتقالات گدام را آغاز کنید",
-  "UserRecords": "ریکاردهای کاربر"
+  "UserRecords": "ریکاردهای کاربر",
+  "Supplier Records": "سوابق تأمین‌کنندگان",
+  "No suppliers created yet": "هنوز هیچ تأمین‌کننده‌ای ایجاد نشده است",
+  "Create your first supplier to get started.": "برای شروع، اولین تأمین‌کننده خود را ایجاد کنید.",
+  "Create First Supplier": "ایجاد اولین تأمین‌کننده",
+  "Purchase Management": "مدیریت خرید",
+  "Purchase Orders": "سفارش خرید",
+  "No purchases found": "هیچ خریدی یافت نشد",
+  "Create First Purchase": "ایجاد اولین خرید",
+  "New Purchase": "خریداری جدید",
+  "Manage purchase orders and supplier transactions": "مدیریت سفارش‌های خرید و تراکنش‌های تأمین‌کنندگان"
 }

@@ -381,13 +381,6 @@ export default function Index({
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button
-                                    variant="outline"
-                                    className="gap-2 hover:scale-105 transition-all duration-200 border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                                >
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
                                 {permissions.create_product && (
                                     <Link href={route("admin.products.create")}>
                                         <Button className="gap-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">

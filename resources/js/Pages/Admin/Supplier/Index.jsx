@@ -242,6 +242,18 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                         backdrop-filter: blur(12px);
                         border: 1px solid rgba(51, 65, 85, 0.8);
                     }
+                    .header-glass {
+                        background: rgba(255, 255, 255, 0.98);
+                        backdrop-filter: blur(20px);
+                        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                    }
+                    .dark .header-glass {
+                        background: rgba(15, 23, 42, 0.98);
+                        backdrop-filter: blur(20px);
+                        border-bottom: 1px solid rgba(51, 65, 85, 0.6);
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+                    }
                     .table-row {
                         transition: all 0.3s ease;
                         background: linear-gradient(to right, transparent, transparent);
@@ -330,7 +342,7 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -338,9 +350,9 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                                     initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
                                     animate={{ scale: 1, opacity: 1, rotate: 0 }}
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                    className="relative float-animation"
+                                    className="relative"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-sky-500 via-cyan-500 to-sky-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-sky-500 via-cyan-500 to-sky-600 rounded-2xl blur-lg opacity-60 dark:opacity-40"></div>
                                     <div className="relative bg-gradient-to-br from-sky-500 via-cyan-500 to-sky-600 p-4 rounded-2xl shadow-2xl">
                                         <Truck className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
@@ -360,7 +372,7 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
                                     >
                                         {t("Suppliers")}
                                     </motion.h1>
@@ -368,7 +380,7 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                        className="text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2"
                                     >
                                         <Activity className="w-4 h-4" />
                                         {t("Track and manage supplier records")}
@@ -381,13 +393,16 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-sky-200 hover:border-sky-300 hover:bg-sky-50 dark:hover:bg-sky-900/20">
+                                <Button 
+                                    variant="outline" 
+                                    className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-sky-400 dark:hover:border-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/30 text-slate-700 dark:text-slate-200 hover:text-sky-700 dark:hover:text-sky-300"
+                                >
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
                                 {permissions.can_create && (
                                     <Link href={route("admin.suppliers.create")}>
-                                        <Button className="gap-2 bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-700 hover:from-sky-700 hover:via-cyan-700 hover:to-sky-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105">
+                                        <Button className="gap-2 bg-gradient-to-r from-sky-600 via-cyan-600 to-sky-700 hover:from-sky-700 hover:via-cyan-700 hover:to-sky-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-0">
                                             <Plus className="h-4 w-4" />
                                             {t("Add Supplier")}
                                         </Button>
