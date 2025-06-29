@@ -37,7 +37,9 @@ import {
     RotateCcw,
     XOctagon,
     Edit,
-    Trash2
+    Trash2,
+    CircleDollarSign,
+    Receipt
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -363,7 +365,7 @@ export default function Income({
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 0.9, duration: 0.4 }}
+                                    transition={{ delay: 1.0, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                         <CardHeader>
@@ -387,19 +389,22 @@ export default function Income({
                                                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                     {t("Product")}
                                                                 </TableHead>
-                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
                                                                     {t("Quantity")}
                                                                 </TableHead>
-                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                    {t("Unit Price")}
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Unit Type")}
                                                                 </TableHead>
-                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                    {t("Total Value")}
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Price")}
                                                                 </TableHead>
-                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
-                                                                    {t("Status")}
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Total")}
                                                                 </TableHead>
-                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Notes")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
                                                                     {t("Date")}
                                                                 </TableHead>
                                                             </TableRow>
@@ -412,44 +417,97 @@ export default function Income({
                                                                 >
                                                                     <TableCell>
                                                                         <div className="flex items-center gap-3">
-                                                                            <FileText className="h-4 w-4 text-blue-600" />
-                                                                            <span className="font-mono text-sm">{income.reference_number || '-'}</span>
-                                                                        </div>
-                                                                    </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="flex items-center gap-3">
-                                                                            <Package className="h-4 w-4 text-purple-600" />
+                                                                            <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md">
+                                                                                <FileText className="h-5 w-5" />
+                                                                            </div>
                                                                             <div>
-                                                                                <div className="font-bold text-slate-900 dark:text-white">
-                                                                                    {income.product.name}
+                                                                                <div className="text-base font-medium text-slate-900 dark:text-white">
+                                                                                    {income.reference_number}
                                                                                 </div>
-                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                    {income.product.barcode && (
-                                                                                        <Badge variant="outline" className="text-xs">
-                                                                                            {income.product.barcode}
-                                                                                        </Badge>
-                                                                                    )}
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400 mt-1 flex items-center">
+                                                                                    <Calendar className="h-4 w-4 mr-1 text-slate-400" />
+                                                                                    {formatDate(income.created_at)}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
                                                                     <TableCell>
-                                                                        <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                                                                            {income.quantity?.toLocaleString() || 0}
-                                                                        </Badge>
+                                                                        <div className="text-sm text-slate-900 dark:text-white">
+                                                                            {income.product?.name || 'N/A'}
+                                                                        </div>
+                                                                        {income.product?.barcode && (
+                                                                            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                                                                <Badge variant="outline" className="text-xs">
+                                                                                    {income.product.barcode}
+                                                                                </Badge>
+                                                                            </div>
+                                                                        )}
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-slate-900 dark:text-white">
-                                                                        {formatCurrency(income.price)}
+                                                                    <TableCell className="text-right">
+                                                                        <div className="flex flex-col gap-1">
+                                                                            <div className="text-sm font-mono bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 py-1.5 px-3 rounded-md border border-blue-100 dark:border-blue-900 shadow-sm inline-flex items-center float-right">
+                                                                                <Package className="h-4 w-4 mr-1.5 text-blue-500 dark:text-blue-400" />
+                                                                                {income.is_wholesale 
+                                                                                    ? `${((parseFloat(income.quantity) || 0) / (parseFloat(income.unit_amount) || 1)).toLocaleString()}`
+                                                                                    : (parseFloat(income.quantity) || 0).toLocaleString()
+                                                                                }
+                                                                                {(income.unit_name || income.unit?.name) && (
+                                                                                    <span className="ml-1 text-xs opacity-75">
+                                                                                        {income.unit_name || income.unit?.name}
+                                                                                        {income.unit?.symbol && ` (${income.unit.symbol})`}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                            {income.is_wholesale && (
+                                                                                <span className="text-xs text-slate-500 dark:text-slate-400 float-right">
+                                                                                    ({(parseFloat(income.quantity) || 0).toLocaleString()} retail units total)
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-green-600 dark:text-green-400">
-                                                                        {formatCurrency(income.total)}
+                                                                    <TableCell className="text-right">
+                                                                        <div className={`text-sm font-mono py-1.5 px-3 rounded-md border shadow-sm inline-flex items-center float-right ${
+                                                                            income.unit_type === 'wholesale' 
+                                                                                ? "bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-100 dark:border-purple-900"
+                                                                                : "bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-100 dark:border-blue-900"
+                                                                        }`}>
+                                                                            <Package className={`h-4 w-4 mr-1.5 ${
+                                                                                income.unit_type === 'wholesale' 
+                                                                                    ? "text-purple-500 dark:text-purple-400"
+                                                                                    : "text-blue-500 dark:text-blue-400"
+                                                                            }`} />
+                                                                            {income.unit_type === 'wholesale' ? t('Wholesale') : t('Retail')}
+                                                                        </div>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        {getStatusBadge(income.status)}
+                                                                    <TableCell className="text-right">
+                                                                        <div className="text-sm font-mono bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 py-1.5 px-3 rounded-md border border-purple-100 dark:border-purple-900 shadow-sm inline-flex items-center float-right">
+                                                                            <DollarSign className="h-4 w-4 mr-1.5 text-purple-500 dark:text-purple-400" />
+                                                                            {formatCurrency(income.price)}
+                                                                        </div>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="flex items-center gap-2">
-                                                                            <Calendar className="h-4 w-4" />
+                                                                    <TableCell className="text-right">
+                                                                        <div className="text-sm font-mono bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300 py-1.5 px-3 rounded-md border border-green-100 dark:border-green-900 shadow-sm inline-flex items-center float-right">
+                                                                            <DollarSign className="h-4 w-4 mr-1.5 text-green-500 dark:text-green-400" />
+                                                                            {formatCurrency(income.total)}
+                                                                        </div>
+                                                                    </TableCell>
+                                                                    <TableCell className="text-center">
+                                                                        {income.notes ? (
+                                                                            <div className="text-sm text-slate-700 dark:text-slate-300 bg-yellow-50 dark:bg-yellow-900/30 py-1.5 px-3 rounded-md border border-yellow-100 dark:border-yellow-900 shadow-sm inline-flex items-center max-w-xs">
+                                                                                <FileText className="h-4 w-4 mr-1.5 text-yellow-500 dark:text-yellow-400 flex-shrink-0" />
+                                                                                <span className="truncate" title={income.notes}>
+                                                                                    {income.notes.length > 30 ? `${income.notes.substring(0, 30)}...` : income.notes}
+                                                                                </span>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className="text-slate-400 dark:text-slate-600 text-sm italic">
+                                                                                {t('No notes')}
+                                                                            </span>
+                                                                        )}
+                                                                    </TableCell>
+                                                                    <TableCell className="text-right">
+                                                                        <div className="text-sm text-slate-900 dark:text-slate-300 bg-slate-50 dark:bg-slate-800 py-1.5 px-3 rounded-md inline-flex items-center float-right">
+                                                                            <Calendar className="h-4 w-4 mr-1.5 text-slate-500 dark:text-slate-400" />
                                                                             {formatDate(income.created_at)}
                                                                         </div>
                                                                     </TableCell>
@@ -460,7 +518,7 @@ export default function Income({
                                                 </div>
                                             ) : (
                                                 <TableRow>
-                                                    <TableCell colSpan="7" className="h-32 text-center">
+                                                    <TableCell colSpan="8" className="h-32 text-center">
                                                         <div className="flex flex-col items-center gap-4">
                                                             <TrendingUp className="h-8 w-8 text-slate-400" />
                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">

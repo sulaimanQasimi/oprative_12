@@ -432,7 +432,7 @@ class CustomerController extends Controller
 
             // Build the query
             $query = $customer->customerStockIncome()
-                ->with(['product'])
+                ->with(['product', 'unit'])
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($q) use ($search) {
                         $q->where('reference_number', 'like', "%{$search}%")
@@ -459,15 +459,32 @@ class CustomerController extends Controller
             // Paginate the results
             $incomes = $query->paginate($perPage);
 
-            // Format the paginated data
+            // Format the paginated data with enhanced structure like StockIncomeController
             $formattedIncomes = $incomes->through(function ($income) {
                 return [
                     'id' => $income->id,
                     'reference_number' => $income->reference_number,
-                    'product' => $this->formatProductData($income->product),
+                    'product' => [
+                        'id' => $income->product->id,
+                        'name' => $income->product->name,
+                        'barcode' => $income->product->barcode,
+                        'type' => $income->product->type,
+                    ],
                     'quantity' => $income->quantity,
                     'price' => $income->price,
                     'total' => $income->total,
+                    'unit_type' => $income->unit_type ?? 'retail',
+                    'is_wholesale' => $income->is_wholesale ?? false,
+                    'unit_id' => $income->unit_id,
+                    'unit_amount' => $income->unit_amount ?? 1,
+                    'unit_name' => $income->unit_name,
+                    'unit' => $income->unit ? [
+                        'id' => $income->unit->id,
+                        'name' => $income->unit->name,
+                        'code' => $income->unit->code,
+                        'symbol' => $income->unit->symbol,
+                    ] : null,
+                    'notes' => $income->notes,
                     'description' => $income->description,
                     'status' => $income->status,
                     'created_at' => $income->created_at,
@@ -488,6 +505,7 @@ class CustomerController extends Controller
                     'sort_order' => $sortOrder,
                 ],
                 'permissions' => $this->getCustomerPermissions(),
+                'auth' => ['user' => Auth::user()]
             ]);
             
         } catch (\Exception $e) {
