@@ -19,6 +19,12 @@ class CustomerStockIncome extends Model
         'quantity',
         'price',
         'total',
+        'unit_type',
+        'is_wholesale',
+        'unit_id',
+        'unit_amount',
+        'unit_name',
+        'notes',
         'status'
     ];
 
@@ -26,9 +32,12 @@ class CustomerStockIncome extends Model
         'customer_id' => 'integer',
         'product_id' => 'integer',
         'model_id' => 'integer',
-        'quantity' => 'integer',
+        'unit_id' => 'integer',
+        'quantity' => 'decimal:2',
         'price' => 'decimal:2',
         'total' => 'decimal:2',
+        'unit_amount' => 'decimal:2',
+        'is_wholesale' => 'boolean',
     ];
 
     // Relationships
@@ -40,6 +49,11 @@ class CustomerStockIncome extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
     }
 
     public function model()

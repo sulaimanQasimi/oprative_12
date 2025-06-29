@@ -154,7 +154,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
             entered_quantity: parseFloat(currentItem.quantity),
             actual_quantity: actualQuantity,
             unit_price: parseFloat(currentItem.price),
-            total_price: totalPrice
+            total_price: currentItem.price*currentItem.quantity
         };
 
         setSaleItems([...saleItems, newItem]);
@@ -183,7 +183,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
     };
 
     const getTotalItems = () => {
-        return saleItems.reduce((sum, item) => sum + item.actual_quantity, 0);
+        return saleItems.reduce((sum, item) => sum + item.entered_quantity, 0);
     };
 
     const handleSubmit = (e) => {

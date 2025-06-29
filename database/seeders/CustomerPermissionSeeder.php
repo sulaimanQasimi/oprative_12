@@ -19,76 +19,24 @@ class CustomerPermissionSeeder extends Seeder
 
         // Create customer permissions
         $customerPermissions = [
-            // Dashboard permissions
-            'customer.view_dashboard',
+            
+            //Wallet permissions
+            'customer.view_wallet'=>"مشاهده کیف پول",
+            'customer.withdraw_wallet'=>"برداشت از کیف پول",
+            'customer.deposit_wallet'=>"واریز در کیف پول",
 
+            "customer.view_stock"=>"دیدن موجودی",
             // Orders permissions
-            'customer.view_orders',
-            'customer.create_orders',
-            'customer.view_invoice',
-
-            // Profile permissions
-            'customer.view_profile',
-            'customer.edit_profile',
-
-            // Stock permissions
-            'customer.view_stock',
-
-            // Accounts permissions
-            'customer.view_accounts',
-            'customer.manage_accounts',
-
-            // Income permissions
-            'customer.view_incomes',
-            'customer.manage_incomes',
-
-            // Sales permissions
-            'customer.view_sales',
-
-            // Reports permissions
-            'customer.view_reports',
+            'customer.view_orders'=>"دیدن سفارشات",
+            'customer.create_orders'=>"ایجاد سفارش",
+            'customer.view_invoice'=>"پرنت بل مشتری",
+            'customer.view_sales'=>"دیدن دریافت از گدام",
+            'customer.manage_sales'=>"مدیریت دریافتی ها از گدام"
         ];
 
         // Create all permissions
-        foreach ($customerPermissions as $permission) {
-            Permission::create(['name' => $permission, 'guard_name' => 'customer_user']);
-        }
-
-        // Create customer roles
-        $adminRole = Role::create(['name' => 'customer_admin', 'guard_name' => 'customer_user']);
-        $managerRole = Role::create(['name' => 'customer_manager', 'guard_name' => 'customer_user']);
-        $employeeRole = Role::create(['name' => 'customer_employee', 'guard_name' => 'customer_user']);
-
-        // Admin gets all permissions
-        $adminRole->syncPermissions($customerPermissions);
-
-        // Manager permissions
-        $managerRole->syncPermissions([
-            'customer.view_dashboard',
-            'customer.view_orders',
-            'customer.create_orders',
-            'customer.view_invoice',
-            'customer.view_profile',
-            'customer.edit_profile',
-            'customer.view_stock',
-            'customer.view_accounts',
-            'customer.view_incomes',
-            'customer.view_sales',
-            'customer.view_reports',
-        ]);
-
-        // Employee permissions (most basic)
-        $employeeRole->syncPermissions([
-            'customer.view_dashboard',
-            'customer.view_orders',
-            'customer.view_profile',
-            'customer.view_stock',
-        ]);
-
-        // Assign admin role to user with ID 1 (for testing)
-        $user = CustomerUser::find(1);
-        if ($user) {
-            $user->assignRole('customer_admin');
+        foreach ($customerPermissions as $permission=>$translated) {
+            Permission::updateOrCreate(['name' => $permission],['label'=>$translated, 'guard_name' => 'customer_user']);
         }
     }
 }

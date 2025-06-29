@@ -41,21 +41,22 @@ import { Checkbox } from "@/Components/ui/checkbox";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import PageHeader from "@/Components/PageHeader";
 
-export default function Edit({ auth, customerUser, customers, permissions, customerPermissions = {}, errors }) {
+export default function Edit({ auth = {}, customerUser = {}, customers = [], permissions = [], errors }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
 
-    const { data, setData, patch, processing, errors: formErrors } = useForm({
-        name: customerUser.name || '',
-        email: customerUser.email || '',
+    const { data, setData, put, processing, errors: formErrors } = useForm({
+        name: customerUser?.name || '',
+        email: customerUser?.email || '',
         password: '',
         password_confirmation: '',
-        customer_id: customerUser.customer_id || '',
-        permissions: customerUser.permissions?.map(p => p.id) || [],
+        customer_id: customerUser?.customer_id || '',
+        permissions: customerUser?.permissions?.map(p => p.id) || [],
     });
 
     // Animation effect
@@ -69,7 +70,7 @@ export default function Edit({ auth, customerUser, customers, permissions, custo
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        patch(route('admin.customer-users.update', customerUser.id));
+        put(route('admin.customer-users.update', customerUser.id));
     };
 
     const handlePermissionChange = (permissionId, checked) => {
@@ -154,72 +155,13 @@ export default function Edit({ auth, customerUser, customers, permissions, custo
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
-                    <motion.header
-                        initial={{ y: -20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
-                    >
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <motion.div
-                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
-                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                    className="relative float-animation"
-                                >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
-                                        <EditIcon className="w-8 h-8 text-white" />
-                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
-                                    </div>
-                                </motion.div>
-                                <div>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
-                                    >
-                                        <Sparkles className="w-4 h-4" />
-                                        {t("Customer User Management")}
-                                    </motion.p>
-                                    <motion.h1
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
-                                    >
-                                        {t("Edit User")}
-                                    </motion.h1>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
-                                    >
-                                        <User className="w-4 h-4" />
-                                        {t("Update customer user account and permissions")}
-                                    </motion.p>
-                                </div>
-                            </div>
-
-                            <motion.div
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-3"
-                            >
-                                <Link href={route("admin.customer-users.index")}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Users")}
-                                    </Button>
-                                </Link>
-                            </motion.div>
-                        </div>
-                    </motion.header>
-
+                    <PageHeader
+                        category={t("Customer User Management")}
+                        title={t("Edit User")}
+                        subtitle={t("Update customer user account and permissions")}
+                        icon={EditIcon}
+                        backButtonLink={route("admin.customer-users.index")}
+                    />
                     {/* Main Content Container */}
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent">
                         <div className="p-8">
@@ -229,33 +171,6 @@ export default function Edit({ auth, customerUser, customers, permissions, custo
                                 transition={{ delay: 0.8, duration: 0.5 }}
                                 className="max-w-5xl mx-auto"
                             >
-                                {!customerPermissions.update_customer ? (
-                                    <motion.div
-                                        initial={{ scale: 0.95, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 0.9, duration: 0.5 }}
-                                    >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardContent className="p-12 text-center">
-                                                <div className="p-4 bg-red-100 dark:bg-red-900/20 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
-                                                    <Shield className="h-8 w-8 text-red-500" />
-                                                </div>
-                                                <h3 className="text-lg font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                    {t("Access Denied")}
-                                                </h3>
-                                                <p className="text-sm text-slate-500 mb-4">
-                                                    {t("You don't have permission to edit customer users.")}
-                                                </p>
-                                                <Link href={route("admin.customer-users.index")}>
-                                                    <Button variant="outline" className="gap-2">
-                                                        <ArrowLeft className="h-4 w-4" />
-                                                        {t("Back to Users")}
-                                                    </Button>
-                                                </Link>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-                                ) : (
                                 <form onSubmit={handleSubmit} className="space-y-8">
                                     {/* Current User Info */}
                                     <motion.div
@@ -305,7 +220,7 @@ export default function Edit({ auth, customerUser, customers, permissions, custo
                                             <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                     <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                                                        <Edit className="h-6 w-6 text-white" />
+                                                        <EditIcon className="h-6 w-6 text-white" />
                                                     </div>
                                                     {t("Update User Details")}
                                                     <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
@@ -684,7 +599,6 @@ export default function Edit({ auth, customerUser, customers, permissions, custo
                                         </Button>
                                     </motion.div>
                                 </form>
-                                )}
                             </motion.div>
                         </div>
                     </main>

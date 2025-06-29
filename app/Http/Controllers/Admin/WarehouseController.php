@@ -3,31 +3,19 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Warehouse;
-use App\Models\WareHouseUser;
+use App\Models\{Warehouse, WareHouseUser, Product};
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{Auth, Gate, Hash, Log, DB};
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\DB;
-use App\Models\Product;
-use App\Models\WarehouseIncome;
-use App\Models\WarehouseProduct;
-use App\Models\WarehouseOutcome;
-use App\Models\Sale;
-use App\Http\Controllers\Admin\Warehouse\IncomeController;
-use App\Http\Controllers\Admin\Warehouse\OutcomeController;
+use App\Http\Controllers\Admin\Warehouse\{OutcomeController, IncomeController, SaleController};
 
 class WarehouseController extends Controller
 {
     use IncomeController;
     use OutcomeController;
-    /**
-     * Constructor to apply middleware
-     */
+
+    use SaleController;
     public function __construct()
     {
         $this->middleware('permission:view_any_warehouse')->only(['index']);
@@ -191,21 +179,21 @@ class WarehouseController extends Controller
             $roles = Role::where('guard_name', 'warehouse_user')->with('permissions')->get();
             $permissions = \Spatie\Permission\Models\Permission::where('guard_name', 'warehouse_user')->get();
 
-                    // Pass permissions to the frontend
-        $warehousePermissions = [
-            'can_view' => Gate::allows('view_warehouse', $warehouse),
-            'can_update' => Gate::allows('update_warehouse', $warehouse),
-            'can_delete' => Gate::allows('delete_warehouse', $warehouse),
-            'can_restore' => Gate::allows('restore_warehouse', $warehouse),
-            'can_force_delete' => Gate::allows('force_delete_warehouse', $warehouse),
-        ];
+            // Pass permissions to the frontend
+            $warehousePermissions = [
+                'can_view' => Gate::allows('view_warehouse', $warehouse),
+                'can_update' => Gate::allows('update_warehouse', $warehouse),
+                'can_delete' => Gate::allows('delete_warehouse', $warehouse),
+                'can_restore' => Gate::allows('restore_warehouse', $warehouse),
+                'can_force_delete' => Gate::allows('force_delete_warehouse', $warehouse),
+            ];
 
-        return Inertia::render('Admin/Warehouse/Show', [
-            'warehouse' => $warehouse,
-            'roles' => $roles,
-            'permissions' => $permissions,
-            'warehousePermissions' => $warehousePermissions,
-        ]);
+            return Inertia::render('Admin/Warehouse/Show', [
+                'warehouse' => $warehouse,
+                'roles' => $roles,
+                'permissions' => $permissions,
+                'warehousePermissions' => $warehousePermissions,
+            ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse: ' . $e->getMessage());
             return redirect()->route('admin.warehouses.index')
@@ -397,7 +385,7 @@ class WarehouseController extends Controller
                 'transfers' => $transfers,
                 'availableWarehouses' => $availableWarehouses,
                 'products' => $products,
-               
+
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse transfers: ' . $e->getMessage());
@@ -455,7 +443,7 @@ class WarehouseController extends Controller
                 ],
                 'warehouses' => $availableWarehouses,
                 'warehouseProducts' => $warehouseProducts,
-               
+
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading create transfer page: ' . $e->getMessage());
@@ -549,66 +537,58 @@ class WarehouseController extends Controller
         }
     }
 
-    public function sales(Warehouse $warehouse)
+
+
+    // Wallet functionality methods
+    public function wallet(Warehouse $warehouse)
     {
         try {
-            // Load warehouse sales with their relationships
-            $sales = Sale::where('warehouse_id', $warehouse->id)
-                ->with([
-                    'customer:id,name,email,phone',
-                    'saleItems.product:id,name,barcode,type',
-                    'currency:id,name,code'
-                ])
-                ->orderBy('created_at', 'desc')
-                ->get()
-                ->map(function ($sale) {
-                    return [
-                        'id' => $sale->id,
-                        'reference' => $sale->reference,
-                        'date' => $sale->date,
-                        'status' => $sale->status,
-                        'notes' => $sale->notes,
-                        'customer' => $sale->customer ? [
-                            'id' => $sale->customer->id,
-                            'name' => $sale->customer->name,
-                            'email' => $sale->customer->email,
-                            'phone' => $sale->customer->phone,
-                        ] : null,
-                        'currency' => $sale->currency ? [
-                            'id' => $sale->currency->id,
-                            'name' => $sale->currency->name,
-                            'code' => $sale->currency->code,
-                        ] : null,
-                        'sale_items' => $sale->saleItems->map(function ($item) {
-                            return [
-                                'id' => $item->id,
-                                'product_id' => $item->product_id,
-                                'product' => $item->product ? [
-                                    'id' => $item->product->id,
-                                    'name' => $item->product->name,
-                                    'barcode' => $item->product->barcode,
-                                    'type' => $item->product->type,
-                                ] : null,
-                                'quantity' => $item->quantity,
-                                'unit_price' => $item->unit_price,
-                                'total_price' => $item->total_price,
-                                'discount_amount' => $item->discount_amount ?? 0,
-                                'tax_amount' => $item->tax_amount ?? 0,
-                            ];
-                        }),
-                        'total_amount' => $sale->total_amount ?? $sale->saleItems->sum('total_price'),
-                        'tax_amount' => $sale->tax_amount ?? 0,
-                        'discount_amount' => $sale->discount_amount ?? 0,
-                        'paid_amount' => $sale->paid_amount ?? 0,
-                        'due_amount' => $sale->due_amount ?? 0,
-                        'confirmed_by_warehouse' => $sale->confirmed_by_warehouse,
-                        'confirmed_by_shop' => $sale->confirmed_by_shop,
-                        'created_at' => $sale->created_at,
-                        'updated_at' => $sale->updated_at,
-                    ];
-                });
+            // Get wallet balance and transactions using direct approach
+            $wallet = $warehouse->wallet;
+            // Get recent transactions with error handling
+            $transactions = collect();
+            try {
+                $transactions = $wallet->transactions()
+                    ->orderBy('created_at', 'desc')
+                    ->limit(20)
+                    ->get()
+                    ->map(function ($transaction) {
+                        return [
+                            'id' => $transaction->id,
+                            'uuid' => $transaction->uuid,
+                            'type' => $transaction->type, // 'deposit' or 'withdraw'
+                            'amount' => $transaction->amount,
+                            'amount_formatted' => number_format($transaction->amount, 2),
+                            'balance' => $transaction->balance,
+                            'balance_formatted' => number_format($transaction->balance, 2),
+                            'description' => $transaction->description,
+                            'meta' => $transaction->meta,
+                            'created_at' => $transaction->created_at,
+                            'updated_at' => $transaction->updated_at,
+                        ];
+                    });
+            } catch (\Exception $e) {
+                Log::warning('Error loading transactions: ' . $e->getMessage());
+                $transactions = collect();
+            }
 
-            return Inertia::render('Admin/Warehouse/Sales', [
+            // Get transaction statistics using the correct methods with error handling
+            $totalDeposits = 0;
+            $totalWithdrawals = 0;
+            try {
+                $totalDeposits = $wallet->transactions()
+                    ->where('type', 'deposit')
+                    ->sum('amount');
+                $totalWithdrawals = $wallet->transactions()
+                    ->where('type', 'withdraw')
+                    ->sum('amount');
+            } catch (\Exception $e) {
+                Log::warning('Error calculating transaction statistics: ' . $e->getMessage());
+            }
+
+            $currentBalance = $wallet->balance;
+
+            return Inertia::render('Admin/Warehouse/Wallet', [
                 'warehouse' => [
                     'id' => $warehouse->id,
                     'name' => $warehouse->name,
@@ -616,212 +596,27 @@ class WarehouseController extends Controller
                     'description' => $warehouse->description,
                     'is_active' => $warehouse->is_active,
                 ],
-                'sales' => $sales,
-               
+                'wallet' => [
+                    'id' => $wallet->id,
+                    'name' => $wallet->name,
+                    'slug' => $wallet->slug,
+                    'balance' => $currentBalance,
+                    'balance_formatted' => number_format($currentBalance, 2),
+                ],
+                'transactions' => $transactions,
+                'statistics' => [
+                    'total_deposits' => $totalDeposits,
+                    'total_deposits_formatted' => number_format($totalDeposits, 2),
+                    'total_withdrawals' => $totalWithdrawals,
+                    'total_withdrawals_formatted' => number_format($totalWithdrawals, 2),
+                    'current_balance' => $currentBalance,
+                    'current_balance_formatted' => number_format($currentBalance, 2),
+                ],
             ]);
         } catch (\Exception $e) {
-            Log::error('Error loading warehouse sales: ' . $e->getMessage());
+            Log::error('Error loading warehouse wallet: ' . $e->getMessage());
             return redirect()->route('admin.warehouses.show', $warehouse->id)
-                ->with('error', 'Error loading warehouse sales: ' . $e->getMessage());
-        }
-    }
-
-    public function createSale(Warehouse $warehouse)
-    {
-        try {
-            // Get customers
-            $customers = \App\Models\Customer::select('id', 'name', 'email', 'phone')->get();
-
-            // Get warehouse products with stock quantities
-            $warehouseProducts = $warehouse->items()->with(['product.wholesaleUnit', 'product.retailUnit'])->get()->map(function ($item) {
-                return [
-                    'id' => $item->product->id,
-                    'name' => $item->product->name,
-                    'barcode' => $item->product->barcode,
-                    'type' => $item->product->type,
-                    'stock_quantity' => $item->net_quantity ?? 0,
-                    'purchase_price' => $item->product->purchase_price,
-                    'wholesale_price' => $item->product->wholesale_price,
-                    'retail_price' => $item->product->retail_price,
-                    'wholesale_unit_id' => $item->product->wholesale_unit_id,
-                    'retail_unit_id' => $item->product->retail_unit_id,
-                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount,
-                    'retails_sale_unit_amount' => $item->product->retails_sale_unit_amount,
-                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
-                        'id' => $item->product->wholesaleUnit->id,
-                        'name' => $item->product->wholesaleUnit->name,
-                        'code' => $item->product->wholesaleUnit->code,
-                    ] : null,
-                    'retailUnit' => $item->product->retailUnit ? [
-                        'id' => $item->product->retailUnit->id,
-                        'name' => $item->product->retailUnit->name,
-                        'code' => $item->product->retailUnit->code,
-                    ] : null,
-                ];
-            })->filter(function ($product) {
-                return $product['stock_quantity'] > 0;
-            });
-
-            return Inertia::render('Admin/Warehouse/CreateSale', [
-                'warehouse' => [
-                    'id' => $warehouse->id,
-                    'name' => $warehouse->name,
-                    'code' => $warehouse->code,
-                    'description' => $warehouse->description,
-                    'address' => $warehouse->address,
-                    'is_active' => $warehouse->is_active,
-                ],
-                'customers' => $customers,
-                'warehouseProducts' => $warehouseProducts,
-               
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error loading create store movement page: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Error loading create store movement page');
-        }
-    }
-
-    public function storeSale(Request $request, Warehouse $warehouse)
-    {
-        try {
-            $validated = $request->validate([
-                'customer_id' => 'required|exists:customers,id',
-                'sale_items' => 'required|array|min:1',
-                'sale_items.*.product_id' => 'required|exists:products,id',
-                'sale_items.*.quantity' => 'required|numeric|min:1',
-                'sale_items.*.unit_price' => 'required|numeric|min:0',
-                'sale_items.*.total_price' => 'required|numeric|min:0',
-                'notes' => 'nullable|string|max:1000',
-            ]);
-
-            // Validate stock for all items
-            foreach ($validated['sale_items'] as $index => $item) {
-                $warehouseProduct = $warehouse->items()->where('product_id', $item['product_id'])->first();
-
-                if (!$warehouseProduct) {
-                    return redirect()->back()
-                        ->with('error', "Product ID {$item['product_id']} not found in this warehouse")
-                        ->withInput()
-                        ->withErrors(["sale_items.{$index}.product_id" => 'Product not found in this warehouse']);
-                }
-
-                $availableStock = $warehouseProduct->net_quantity ?? 0;
-
-                if ($item['quantity'] > $availableStock) {
-                    return redirect()->back()
-                        ->with('error', "Insufficient stock for product ID {$item['product_id']}. Available: {$availableStock} units")
-                        ->withInput()
-                        ->withErrors(["sale_items.{$index}.quantity" => "Quantity cannot exceed available stock of {$availableStock} units"]);
-                }
-
-                if ($item['quantity'] <= 0) {
-                    return redirect()->back()
-                        ->with('error', 'Quantity must be greater than 0')
-                        ->withInput()
-                        ->withErrors(["sale_items.{$index}.quantity" => 'Quantity must be greater than 0']);
-                }
-            }
-
-            DB::beginTransaction();
-
-            // Generate reference number
-            $referenceNumber = 'SALE-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
-
-            // Calculate total sale amount
-            $totalSaleAmount = collect($validated['sale_items'])->sum('total_price');
-
-            // Create Sale record
-            $sale = \App\Models\Sale::create([
-                'warehouse_id' => $warehouse->id,
-                'customer_id' => $validated['customer_id'],
-                'currency_id' => 1, // Default currency
-                'reference' => $referenceNumber,
-                'status' => 'pending',
-                'date' => now()->toDateString(),
-                'confirmed_by_warehouse' => false,
-                'confirmed_by_shop' => false,
-                'notes' => $validated['notes'] ?? null,
-            ]);
-
-            // Create SaleItem records and tracking records for each item
-            foreach ($validated['sale_items'] as $item) {
-                // Create SaleItem record
-                \App\Models\SaleItem::create([
-                    'sale_id' => $sale->id,
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'price' => $item['unit_price'],
-                    'total' => $item['total_price'],
-                ]);
-
-                // Create warehouse outcome record for inventory tracking
-                \App\Models\WarehouseOutcome::create([
-                    'warehouse_id' => $warehouse->id,
-                    'product_id' => $item['product_id'],
-                    'reference_number' => $referenceNumber,
-                    'quantity' => $item['quantity'],
-                    'price' => $item['unit_price'],
-                    'total' => $item['total_price'],
-                    'model_type' => 'customer_sale',
-                    'model_id' => $validated['customer_id'],
-                ]);
-
-                // Create customer income record for customer tracking
-                \App\Models\CustomerStockIncome::create([
-                    'customer_id' => $validated['customer_id'],
-                    'product_id' => $item['product_id'],
-                    'reference_number' => $referenceNumber,
-                    'quantity' => $item['quantity'],
-                    'price' => $item['unit_price'],
-                    'total' => $item['total_price'],
-                    'model_id' => $warehouse->id,
-                ]);
-            }
-
-            DB::commit();
-
-            return redirect()->route('admin.warehouses.sales', $warehouse->id)
-                ->with('success', 'Sale with ' . count($validated['sale_items']) . ' items created successfully');
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return redirect()->back()
-                ->withErrors($e->errors())
-                ->withInput();
-        } catch (\Exception $e) {
-            DB::rollback();
-            Log::error('Error creating sale: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('error', 'Error creating sale: ' . $e->getMessage())
-                ->withInput();
-        }
-    }
-
-    public function showSale(Warehouse $warehouse, $saleId)
-    {
-        try {
-            $sale = \App\Models\Sale::with([
-                'customer:id,name,email,phone',
-                'currency:id,name,code',
-                'saleItems.product:id,name,barcode'
-            ])
-            ->where('warehouse_id', $warehouse->id)
-            ->findOrFail($saleId);
-
-            return Inertia::render('Admin/Warehouse/ShowSale', [
-                'warehouse' => [
-                    'id' => $warehouse->id,
-                    'name' => $warehouse->name,
-                    'code' => $warehouse->code,
-                    'description' => $warehouse->description,
-                    'address' => $warehouse->address,
-                    'is_active' => $warehouse->is_active,
-                ],
-                'sale' => $sale,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Error loading sale details: ' . $e->getMessage());
-            return redirect()->route('admin.warehouses.sales', $warehouse->id)
-                ->with('error', 'Sale not found or error loading sale details.');
+                ->with('error', 'Error loading warehouse wallet: ' . $e->getMessage());
         }
     }
 }

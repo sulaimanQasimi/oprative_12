@@ -6,34 +6,41 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerUser;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
-use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Permission;
 
+/**
+ * CustomerUserController handles all customer user-related operations.
+ * 
+ * This controller manages CRUD operations for customer users with
+ * policy-based authorization using the CustomerPolicy.
+ */
 class CustomerUserController extends Controller
 {
     /**
-     * Constructor to apply middleware for customer user permissions
+     * Display a listing of customer users.
+     * 
+     * @return Response
      */
-    public function __construct()
+    public function index(): Response
     {
-        // Customer user management requires update_customer permission
-        $this->middleware('permission:update_customer')->only(['create', 'store', 'edit', 'update', 'destroy']);
-        $this->middleware('permission:view_customer')->only(['index', 'show']);
-    }
+        $this->authorize('viewAnyCustomerUser', Customer::class);
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
         $customerUsers = CustomerUser::with(['customer', 'roles', 'permissions'])->paginate(10);
 
         // Pass customer permissions to frontend
         $permissions = [
             'view_customer' => Auth::user()->can('view_customer'),
+            'create_customer' => Auth::user()->can('create_customer'),
             'update_customer' => Auth::user()->can('update_customer'),
+            'view_any_customer' => Auth::user()->can('view_any_customer'),
         ];
 
         return Inertia::render('Admin/CustomerUser/Index', [
@@ -43,33 +50,38 @@ class CustomerUserController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new customer user.
+     * 
+     * @param Request $request
+     * @return Response
      */
-    public function create(Request $request)
+    public function create(Request $request): Response
     {
+        $this->authorize('createCustomerUser', Customer::class);
+
         $customers = Customer::all();
         $permissions = Permission::where('guard_name', 'customer_user')->get();
         $selectedCustomerId = $request->get('customer_id');
-
-        // Pass customer permissions to frontend
-        $customerPermissions = [
-            'update_customer' => Auth::user()->can('update_customer'),
-        ];
 
         return Inertia::render('Admin/CustomerUser/Create', [
             'customers' => $customers,
             'permissions' => $permissions,
             'selectedCustomerId' => $selectedCustomerId,
-            'customerPermissions' => $customerPermissions,
         ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created customer user in storage.
+     * 
+     * @param Request $request
+     * @return RedirectResponse
+     * @throws ValidationException
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
-        $request->validate([
+        $this->authorize('createCustomerUser', Customer::class);
+
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:customer_users',
             'password' => 'required|string|min:8|confirmed',
@@ -78,30 +90,53 @@ class CustomerUserController extends Controller
             'permissions.*' => 'exists:permissions,id',
         ]);
 
-        $customerUser = CustomerUser::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'customer_id' => $request->customer_id,
-        ]);
+        try {
+            DB::beginTransaction();
 
-        // Assign permissions
-        if ($request->has('permissions')) {
-            $permissions = Permission::whereIn('id', $request->permissions)
-                ->where('guard_name', 'customer_user')
-                ->get();
-            $customerUser->syncPermissions($permissions);
+            $customerUser = CustomerUser::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'customer_id' => $validated['customer_id'],
+            ]);
+
+            // Assign permissions
+            if ($request->has('permissions')) {
+                $permissions = Permission::whereIn('id', $request->permissions)
+                    ->where('guard_name', 'customer_user')
+                    ->get();
+                $customerUser->syncPermissions($permissions);
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.customer-users.index')
+                ->with('success', 'Customer user created successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Customer user creation failed', [
+                'error' => $e->getMessage(),
+                'user_id' => Auth::id(),
+                'data' => $validated
+            ]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error creating customer user: ' . $e->getMessage());
         }
-
-        return redirect()->route('admin.customer-users.index')
-            ->with('success', 'Customer user created successfully.');
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified customer user.
+     * 
+     * @param CustomerUser $customerUser
+     * @return Response
      */
-    public function show(CustomerUser $customerUser)
+    public function show(CustomerUser $customerUser): Response
     {
+        $this->authorize('viewCustomerUser', Customer::class);
+
         $customerUser->load(['customer', 'permissions']);
 
         // Pass customer permissions to frontend
@@ -117,14 +152,19 @@ class CustomerUserController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified customer user.
+     * 
+     * @param CustomerUser $customerUser
+     * @return Response
      */
-    public function edit(CustomerUser $customerUser)
+    public function edit(CustomerUser $customerUser): Response
     {
+        $this->authorize('updateCustomerUser', Customer::class);
+
         $customers = Customer::all();
         $permissions = Permission::where('guard_name', 'customer_user')->get();
         $customerUser->load(['customer', 'permissions']);
-
+        
         return Inertia::render('Admin/CustomerUser/Edit', [
             'customerUser' => $customerUser,
             'customers' => $customers,
@@ -133,11 +173,18 @@ class CustomerUserController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified customer user in storage.
+     * 
+     * @param Request $request
+     * @param CustomerUser $customerUser
+     * @return RedirectResponse
+     * @throws ValidationException
      */
-    public function update(Request $request, CustomerUser $customerUser)
+    public function update(Request $request, CustomerUser $customerUser): RedirectResponse
     {
-        $request->validate([
+        $this->authorize('updateCustomerUser', Customer::class);
+
+        $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:customer_users,email,' . $customerUser->id,
             'password' => 'nullable|string|min:8|confirmed',
@@ -146,40 +193,74 @@ class CustomerUserController extends Controller
             'permissions.*' => 'exists:permissions,id',
         ]);
 
-        $customerUser->update([
-            'name' => $request->name,
-            'email' => $request->email,
-            'customer_id' => $request->customer_id,
-        ]);
+        try {
+            DB::beginTransaction();
 
-        if ($request->filled('password')) {
             $customerUser->update([
-                'password' => Hash::make($request->password),
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'customer_id' => $validated['customer_id'],
             ]);
-        }
 
-        // Sync permissions
-        if ($request->has('permissions')) {
-            $permissions = Permission::whereIn('id', $request->permissions)
-                ->where('guard_name', 'customer_user')
-                ->get();
-            $customerUser->syncPermissions($permissions);
-        } else {
-            $customerUser->syncPermissions([]);
-        }
+            if ($request->filled('password')) {
+                $customerUser->update([
+                    'password' => Hash::make($validated['password']),
+                ]);
+            }
 
-        return redirect()->route('admin.customer-users.index')
-            ->with('success', 'Customer user updated successfully.');
+            // Sync permissions
+            if ($request->has('permissions')) {
+                $permissions = Permission::whereIn('id', $request->permissions)
+                    ->where('guard_name', 'customer_user')
+                    ->get();
+                $customerUser->syncPermissions($permissions);
+            } else {
+                $customerUser->syncPermissions([]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.customer-users.index')
+                ->with('success', 'Customer user updated successfully.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Customer user update failed', [
+                'customer_user_id' => $customerUser->id,
+                'error' => $e->getMessage(),
+                'data' => $validated
+            ]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Error updating customer user: ' . $e->getMessage());
+        }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified customer user from storage.
+     * 
+     * @param CustomerUser $customerUser
+     * @return RedirectResponse
      */
-    public function destroy(CustomerUser $customerUser)
+    public function destroy(CustomerUser $customerUser): RedirectResponse
     {
-        $customerUser->delete();
+        $this->authorize('deleteCustomerUser', Customer::class);
 
-        return redirect()->route('admin.customer-users.index')
-            ->with('success', 'Customer user deleted successfully.');
+        try {
+            $customerUser->delete();
+
+            return redirect()->route('admin.customer-users.index')
+                ->with('success', 'Customer user deleted successfully.');
+
+        } catch (\Exception $e) {
+            Log::error('Customer user deletion failed', [
+                'customer_user_id' => $customerUser->id,
+                'error' => $e->getMessage()
+            ]);
+
+            return redirect()->back()
+                ->with('error', 'Error deleting customer user: ' . $e->getMessage());
+        }
     }
 }

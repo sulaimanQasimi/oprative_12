@@ -26,7 +26,7 @@ class StockIncomeController extends Controller
         $customer = Auth::guard('customer_user')->user()->customer;
 
         $query = CustomerStockIncome::where('customer_id', $customer->id)
-            ->with(['product', 'model'])
+            ->with(['product', 'unit'])
             ->latest();
 
         // Apply filters
@@ -46,8 +46,37 @@ class StockIncomeController extends Controller
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
-        // Get paginated results
+        // Get paginated results with enhanced data mapping
         $stockIncomes = $query->paginate(10)
+            ->through(function ($income) {
+                return [
+                    'id' => $income->id,
+                    'reference_number' => $income->reference_number,
+                    'product' => [
+                        'id' => $income->product->id,
+                        'name' => $income->product->name,
+                        'barcode' => $income->product->barcode,
+                        'type' => $income->product->type,
+                    ],
+                    'quantity' => $income->quantity,
+                    'price' => $income->price,
+                    'total' => $income->total,
+                    'unit_type' => $income->unit_type ?? 'retail',
+                    'is_wholesale' => $income->is_wholesale ?? false,
+                    'unit_id' => $income->unit_id,
+                    'unit_amount' => $income->unit_amount ?? 1,
+                    'unit_name' => $income->unit_name,
+                    'unit' => $income->unit ? [
+                        'id' => $income->unit->id,
+                        'name' => $income->unit->name,
+                        'code' => $income->unit->code,
+                        'symbol' => $income->unit->symbol,
+                    ] : null,
+                    'notes' => $income->notes,
+                    'created_at' => $income->created_at,
+                    'updated_at' => $income->updated_at,
+                ];
+            })
             ->appends($request->query());
 
         // Get product list for filter
@@ -80,7 +109,7 @@ class StockIncomeController extends Controller
         }
 
         // Load relationships
-        $stockIncome->load(['product', 'model']);
+        $stockIncome->load(['product', 'unit']);
 
         return Inertia::render('Customer/StockIncomes/Show', [
             'stockIncome' => $stockIncome
@@ -94,10 +123,35 @@ class StockIncomeController extends Controller
     {
         $customer = Auth::guard('customer_user')->user()->customer;
 
-        // Get available products with name and barcode for searching
-        $products = Product::select('id', 'name', 'barcode', 'purchase_price', 'retail_price')
+        // Get all products with their units and pricing information (similar to warehouse)
+        $products = Product::with(['wholesaleUnit', 'retailUnit'])
             ->where('is_activated', true)
-            ->get();
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'type' => $product->type,
+                    'purchase_price' => $product->purchase_price,
+                    'wholesale_price' => $product->wholesale_price,
+                    'retail_price' => $product->retail_price,
+                    'whole_sale_unit_amount' => $product->whole_sale_unit_amount,
+                    'retails_sale_unit_amount' => $product->retails_sale_unit_amount,
+                    'wholesaleUnit' => $product->wholesaleUnit ? [
+                        'id' => $product->wholesaleUnit->id,
+                        'name' => $product->wholesaleUnit->name,
+                        'code' => $product->wholesaleUnit->code,
+                        'symbol' => $product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $product->retailUnit ? [
+                        'id' => $product->retailUnit->id,
+                        'name' => $product->retailUnit->name,
+                        'code' => $product->retailUnit->code,
+                        'symbol' => $product->retailUnit->symbol,
+                    ] : null,
+                ];
+            });
 
         return Inertia::render('Customer/StockIncomes/Create', [
             'products' => $products,
@@ -112,14 +166,39 @@ class StockIncomeController extends Controller
     {
         $search = $request->input('search');
 
-        $products = Product::select('id', 'name', 'barcode', 'purchase_price', 'retail_price')
+        $products = Product::with(['wholesaleUnit', 'retailUnit'])
             ->where('is_activated', true)
             ->where(function($query) use ($search) {
                 $query->where('name', 'like', "%{$search}%")
                       ->orWhere('barcode', 'like', "%{$search}%");
             })
             ->limit(10)
-            ->get();
+            ->get()
+            ->map(function ($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'type' => $product->type,
+                    'purchase_price' => $product->purchase_price,
+                    'wholesale_price' => $product->wholesale_price,
+                    'retail_price' => $product->retail_price,
+                    'whole_sale_unit_amount' => $product->whole_sale_unit_amount,
+                    'retails_sale_unit_amount' => $product->retails_sale_unit_amount,
+                    'wholesaleUnit' => $product->wholesaleUnit ? [
+                        'id' => $product->wholesaleUnit->id,
+                        'name' => $product->wholesaleUnit->name,
+                        'code' => $product->wholesaleUnit->code,
+                        'symbol' => $product->wholesaleUnit->symbol,
+                    ] : null,
+                    'retailUnit' => $product->retailUnit ? [
+                        'id' => $product->retailUnit->id,
+                        'name' => $product->retailUnit->name,
+                        'code' => $product->retailUnit->code,
+                        'symbol' => $product->retailUnit->symbol,
+                    ] : null,
+                ];
+            });
 
         return response()->json($products);
     }
@@ -129,32 +208,30 @@ class StockIncomeController extends Controller
      */
     public function store(Request $request)
     {
-        // Enhanced validation with detailed rules and custom messages
+        // Enhanced validation with unit type support
         $validated = $request->validate([
             'product_id' => 'required|exists:products,id,is_activated,1',
             'reference_number' => 'required|string|max:255|unique:customer_stock_incomes,reference_number',
-            'quantity' => 'required|integer|min:1|max:10000',
+            'unit_type' => 'required|in:wholesale,retail',
+            'quantity' => 'required|numeric|min:0.01',
             'price' => 'required|numeric|min:0|max:9999999.99',
+            'notes' => 'nullable|string|max:1000',
         ], [
             'product_id.required' => 'لطفاً یک محصول را انتخاب کنید.',
             'product_id.exists' => 'محصول انتخاب شده معتبر نیست یا فعال نمی باشد.',
             'reference_number.required' => 'شماره مرجع الزامی است.',
             'reference_number.unique' => 'این شماره مرجع قبلاً استفاده شده است.',
+            'unit_type.required' => 'نوع واحد را انتخاب کنید.',
+            'unit_type.in' => 'نوع واحد انتخاب شده معتبر نیست.',
             'quantity.required' => 'مقدار را وارد کنید.',
-            'quantity.min' => 'مقدار باید حداقل 1 باشد.',
-            'quantity.max' => 'مقدار وارد شده بیش از حد مجاز است.',
+            'quantity.min' => 'مقدار باید حداقل 0.01 باشد.',
             'price.required' => 'قیمت را وارد کنید.',
             'price.min' => 'قیمت نمی‌تواند منفی باشد.',
             'price.max' => 'قیمت وارد شده بیش از حد مجاز است.',
         ]);
 
-        // Validate product existence and activation status
-        $product = Product::find($validated['product_id']);
-        if (!$product) {
-            return redirect()->back()
-                ->withErrors(['product_id' => 'محصول انتخاب شده در سیستم موجود نیست.'])
-                ->withInput();
-        }
+        // Get the product with unit information
+        $product = Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($validated['product_id']);
 
         if (!$product->is_activated) {
             return redirect()->back()
@@ -166,24 +243,51 @@ class StockIncomeController extends Controller
         $customer = Auth::guard('customer_user')->user()->customer;
         $user = Auth::guard('customer_user')->user();
 
-        // Calculate total
-        $total = $validated['quantity'] * $validated['price'];
+        // Calculate actual quantity and total based on unit type (similar to warehouse logic)
+        $actualQuantity = $validated['quantity'];
+        $unitPrice = $validated['price'];
+        $isWholesale = $validated['unit_type'] === 'wholesale';
+        $unitId = null;
+        $unitAmount = 1;
+        $unitName = null;
+        $total = 0;
+
+        if ($isWholesale && $product->wholesaleUnit) {
+            // If wholesale unit is selected, multiply by unit amount
+            $actualQuantity = $validated['quantity'] * $product->whole_sale_unit_amount;
+            $unitId = $product->wholesaleUnit->id;
+            $unitAmount = $product->whole_sale_unit_amount;
+            $unitName = $product->wholesaleUnit->name;
+            $total = $validated['quantity'] * $unitPrice;
+        } elseif (!$isWholesale && $product->retailUnit) {
+            // For retail unit
+            $unitId = $product->retailUnit->id;
+            $unitAmount = $product->retails_sale_unit_amount ?? 1;
+            $unitName = $product->retailUnit->name;
+            $total = $actualQuantity * $unitPrice;
+        } else {
+            // Fallback if no unit is configured
+            $total = $actualQuantity * $unitPrice;
+        }
 
         // Start a log batch to group related activities
         LogBatch::startBatch();
 
-        // Create stock income
+        // Create stock income with enhanced unit data
         $stockIncome = CustomerStockIncome::create([
             'customer_id' => $customer->id,
             'product_id' => $validated['product_id'],
             'reference_number' => $validated['reference_number'],
-            'quantity' => $validated['quantity'],
-            'price' => $validated['price'],
+            'quantity' => $actualQuantity,
+            'price' => $unitPrice,
             'total' => $total,
+            'unit_type' => $validated['unit_type'],
+            'is_wholesale' => $isWholesale,
+            'unit_id' => $unitId,
+            'unit_amount' => $unitAmount,
+            'unit_name' => $unitName,
+            'notes' => $validated['notes'] ?? null,
         ]);
-
-        // Get product details for the log
-        $product = Product::find($validated['product_id']);
 
         // Log the stock income creation with detailed information
         activity()
@@ -191,18 +295,20 @@ class StockIncomeController extends Controller
             ->performedOn($stockIncome)
             ->withProperties([
                 'product_name' => $product->name,
-                'quantity' => $validated['quantity'],
-                'price' => $validated['price'],
+                'quantity' => $actualQuantity,
+                'unit_type' => $validated['unit_type'],
+                'unit_name' => $unitName,
+                'price' => $unitPrice,
                 'total' => $total,
                 'customer_name' => $customer->name,
             ])
-            ->log('ثبت ورود موجودی جدید: ' . $validated['quantity'] . ' ' . $product->name . ' با مبلغ ' . $total);
+            ->log('ثبت ورود موجودی جدید: ' . $actualQuantity . ' ' . $product->name . ' با مبلغ ' . $total);
 
         // Log a separate customer activity
         activity()
             ->causedBy($user)
             ->performedOn($customer)
-            ->log('افزودن موجودی ' . $product->name . ' به مقدار ' . $validated['quantity'] . ' واحد');
+            ->log('افزودن موجودی ' . $product->name . ' به مقدار ' . $actualQuantity . ' واحد');
 
         // Complete the batch
         LogBatch::endBatch();

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/Components/ui/avatar';
 import { Button } from '@/Components/ui/button';
-import { Package, Download, Upload, Store, ShoppingCart, BarChart3, LogOut, Menu, X } from 'lucide-react';
+import { Package, Download, Upload, Store, ShoppingCart, BarChart3, LogOut, Menu, X, Wallet } from 'lucide-react';
 import { Link, useForm } from '@inertiajs/react';
 import { useLaravelReactI18n } from 'laravel-react-i18n';
 
@@ -58,19 +58,29 @@ export default function Navigation({ auth, currentRoute }) {
             label: t('Move to Shop'),
             route: 'warehouse.sales',
             icon: Store,
-            routeKey: 'warehouse.sales'
+            routeKey: 'warehouse.sales',
+            permission:'warehouse.view_sales'
         },
         {
             label: t('Import'),
             route: 'warehouse.income',
             icon: Download,
-            routeKey: 'warehouse.income'
+            routeKey: 'warehouse.income',
+            permission:'warehouse.view_income'
         },
         {
             label: t('Export'),
             route: 'warehouse.outcome',
             icon: Upload,
-            routeKey: 'warehouse.outcome'
+            routeKey: 'warehouse.outcome',
+            permission:'warehouse.view_outcome'
+        },
+        {
+            label: t('Wallet'),
+            route: 'warehouse.wallet',
+            icon: Wallet,
+            routeKey: 'warehouse.wallet',
+            permission:'warehouse.view_wallet'
         }
     ];
 
@@ -94,7 +104,7 @@ export default function Navigation({ auth, currentRoute }) {
 
             {/* Mobile Overlay */}
             {isMobileMenuOpen && (
-                <div 
+                <div
                     className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
                     onClick={() => setIsMobileMenuOpen(false)}
                 />
@@ -105,8 +115,8 @@ export default function Navigation({ auth, currentRoute }) {
                 fixed lg:static inset-y-0 left-0 z-50 w-72 lg:w-64 xl:w-72
                 transform transition-transform duration-300 ease-in-out
                 ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-                flex-shrink-0 bg-gradient-to-b from-white via-white to-slate-50/50 
-                dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/50 
+                flex-shrink-0 bg-gradient-to-b from-white via-white to-slate-50/50
+                dark:from-slate-900 dark:via-slate-900 dark:to-slate-800/50
                 shadow-2xl border-r border-slate-200/50 dark:border-slate-700/50
                 backdrop-blur-xl
             `}>
@@ -130,13 +140,22 @@ export default function Navigation({ auth, currentRoute }) {
 
                     {/* Navigation Menu */}
                     <nav className="flex-1 p-4 lg:p-3 xl:p-4 space-y-1">
-                        {navigationItems.map((item) => {
+                        {navigationItems
+                        .filter(item=>{
+                            if(!item.permission)return true;
+                            
+                                            // Check if user has the required permission
+                                            const hasPermission = auth.user.permissions?.includes(item.permission);
+                                            return hasPermission;
+                        })
+                        
+                        .map((item) => {
                             const IconComponent = item.icon;
                             const isActive = currentRoute === item.routeKey;
-                            
+
                             return (
-                                <Link 
-                                    key={item.routeKey} 
+                                <Link
+                                    key={item.routeKey}
                                     href={route(item.route)}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >

@@ -13,14 +13,6 @@ use Inertia\Inertia;
 
 class SalesListController extends Controller
 {
-    protected $customer;
-
-    public function __construct()
-    {
-        $customerRepo = CustomerRepository::currentUserCustomer();
-        $this->customer = $customerRepo ? $customerRepo->model : null;
-    }
-
     public function index(Request $request)
     {
         $request->validate([
@@ -35,8 +27,10 @@ class SalesListController extends Controller
             'sortDirection' => ['nullable', Rule::in(['asc', 'desc'])],
         ]);
 
+        // Get the authenticated customer
+        $customer = Auth::guard('customer_user')->user()->customer;
         $sales = Sale::query()
-            ->where('customer_id', $this->customer->id)
+            ->where('customer_id', $customer->id)
             ->when($request->search, function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
                     $q->where('reference', 'like', '%' . $request->search . '%')
@@ -75,7 +69,10 @@ class SalesListController extends Controller
 
     public function show($saleId)
     {
-        $sale = Sale::where('customer_id', $this->customer->id)
+        
+        // Get the authenticated customer
+        $customer = Auth::guard('customer_user')->user()->customer;
+        $sale = Sale::where('customer_id', $customer->id)
             ->findOrFail($saleId);
 
         $sale->load(['saleItems.product', 'customer', 'currency', 'payments']);
@@ -87,7 +84,10 @@ class SalesListController extends Controller
 
     public function addPayment(Request $request, $saleId)
     {
-        $sale = Sale::where('customer_id', $this->customer->id)
+        
+        // Get the authenticated customer
+        $customer = Auth::guard('customer_user')->user()->customer;
+        $sale = Sale::where('customer_id', $customer->id)
             ->findOrFail($saleId);
 
         $request->validate([
@@ -122,7 +122,9 @@ class SalesListController extends Controller
 
     public function confirmSale($saleId)
     {
-        $sale = Sale::where('customer_id', $this->customer->id)
+        // Get the authenticated customer
+        $customer = Auth::guard('customer_user')->user()->customer;
+        $sale = Sale::where('customer_id', $customer->id)
             ->findOrFail($saleId);
 
         if (!$sale->confirmed_by_warehouse) {
@@ -142,10 +144,7 @@ class SalesListController extends Controller
 
             DB::commit();
 
-            return response()->json([
-                'message' => __('Sale confirmed successfully.'),
-                'success' => true
-            ]);
+            return redirect()->back();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

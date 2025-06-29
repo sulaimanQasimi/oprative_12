@@ -69,9 +69,6 @@ class PurchaseController extends Controller
                 'total_amount' => $totalAmount,
                 'suppliers_count' => $suppliersCount,
             ],
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -91,9 +88,6 @@ class PurchaseController extends Controller
             'suppliers' => $suppliers,
             'currencies' => $currencies,
             'invoiceNumber' => $invoiceNumber,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -194,9 +188,6 @@ class PurchaseController extends Controller
                 'payments' => $purchase->payments,
                 'additionalCosts' => $purchase->additional_costs,
                 'warehouses' => $warehouses,
-                'auth' => [
-                    'user' => Auth::guard('web')->user()
-                ]
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading purchase: ' . $e->getMessage());
@@ -231,9 +222,6 @@ class PurchaseController extends Controller
             ],
             'suppliers' => $suppliers,
             'currencies' => $currencies,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -313,9 +301,6 @@ class PurchaseController extends Controller
             'purchase' => $purchase,
             'purchaseItems' => $purchase->purchaseItems,
             'products' => $products,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -368,9 +353,6 @@ class PurchaseController extends Controller
                 'currency' => $purchase->currency,
             ],
             'products' => $products,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -454,9 +436,6 @@ class PurchaseController extends Controller
                 'invoice_date' => $purchase->invoice_date,
                 'currency' => $purchase->currency,
             ],
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 
@@ -535,9 +514,6 @@ class PurchaseController extends Controller
             ],
             'suppliers' => $suppliers,
             'currencies' => $currencies,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
         ]);
     }
 

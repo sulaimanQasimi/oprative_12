@@ -24,7 +24,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\SalesController;
-use App\Http\Controllers\Admin\{IncomeController,OutcomeController, TransferController};
+use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\{IncomeController, OutcomeController, TransferController};
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -143,6 +144,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::delete('/{supplier}/force-delete', [SupplierController::class, 'forceDelete'])->name('admin.suppliers.force-delete')->withTrashed();
         Route::get('/{supplier}/payments', [SupplierController::class, 'payments'])->name('admin.suppliers.payments');
         Route::get('/{supplier}/purchases', [SupplierController::class, 'purchases'])->name('admin.suppliers.purchases');
+        Route::get('/{supplier}/activity-log', [SupplierController::class, 'activityLog'])->name('admin.suppliers.activity-log');
     });
 
     // Product Management
@@ -183,7 +185,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{id}/edit', [EmployeeController::class, 'edit'])->name('admin.employees.edit');
         Route::put('/{id}', [EmployeeController::class, 'update'])->name('admin.employees.update');
         Route::delete('/{id}', [EmployeeController::class, 'destroy'])->name('admin.employees.destroy');
-
     });
 
     // Attendance Settings routes
@@ -304,19 +305,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/{warehouse:id}/users', [WarehouseUserController::class, 'store'])->name('admin.warehouses.users.store');
         Route::get('/{warehouse:id}/users/{warehouseUser}/edit', [WarehouseUserController::class, 'edit'])->name('admin.warehouses.users.edit');
         Route::put('/{warehouse:id}/users/{warehouseUser}', [WarehouseUserController::class, 'update'])->name('admin.warehouses.users.update');
+
+        // Warehouse wallet management
+        Route::get('/{warehouse:id}/wallet', [WarehouseController::class, 'wallet'])->name('admin.warehouses.wallet');
     });
 
     // Accounts Management
     Route::prefix('accounts')->group(function () {
         Route::get('/', [AccountController::class, 'index'])->name('admin.accounts.index');
-        Route::get('/create', [AccountController::class, 'create'])->name('admin.accounts.create');
-        Route::post('/', [AccountController::class, 'store'])->name('admin.accounts.store');
         Route::get('/{account:id}', [AccountController::class, 'show'])->name('admin.accounts.show');
-        Route::get('/{account:id}/edit', [AccountController::class, 'edit'])->name('admin.accounts.edit');
-        Route::put('/{account:id}', [AccountController::class, 'update'])->name('admin.accounts.update');
-        Route::delete('/{account:id}', [AccountController::class, 'destroy'])->name('admin.accounts.destroy');
-        Route::post('/{id}/restore', [AccountController::class, 'restore'])->name('admin.accounts.restore')->withTrashed();
-        Route::delete('/{id}/force-delete', [AccountController::class, 'forceDelete'])->name('admin.accounts.force-delete')->withTrashed();
     });
 
     // Account Income CRUD routes
@@ -384,5 +381,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Warehouse Income Management
     Route::prefix('transfer')->group(function () {
         Route::get('/', [TransferController::class, 'index'])->name('admin.transfers.index');
+    });
+
+    // Universal Activity Log Routes
+    Route::prefix('activity-logs')->group(function () {
+        Route::get('/', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
+        Route::get('/{modelType}/{modelId}', [ActivityLogController::class, 'show'])->name('admin.activity-logs.show');
     });
 });

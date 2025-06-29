@@ -19,7 +19,10 @@ class WarehousePermissionSeeder extends Seeder
 
         // Create warehouse permissions
         $warehousePermissions = [
-
+            //Wallet permissions
+            'warehouse.view_wallet'=>"مشاهده کیف پول",
+            'warehouse.withdraw_wallet'=>"برداشت از کیف پول",
+            'warehouse.deposit_wallet'=>"واریز در کیف پول",
 
             // Product permissions
             'warehouse.view_products'=>"مشاهده محصولات",
@@ -42,7 +45,7 @@ class WarehousePermissionSeeder extends Seeder
 
         // Create all permissions
         foreach ($warehousePermissions as $permission =>$value) {
-            Permission::create(['name' => $permission,'label'=>$value, 'guard_name' => 'warehouse_user']);
+            Permission::updateOrCreate(['name' => $permission,],['label'=>$value, 'guard_name' => 'warehouse_user']);
         }
     }
-} 
+}

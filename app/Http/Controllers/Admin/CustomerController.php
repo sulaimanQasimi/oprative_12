@@ -6,335 +6,335 @@ use App\Http\Controllers\Controller;
 use App\Models\Customer;
 use App\Models\CustomerUser;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
+use Inertia\Response;
+use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
+/**
+ * CustomerController handles all customer-related operations.
+ * 
+ * This controller manages CRUD operations for customers, their users,
+ * financial records (income/outcome), and order management with
+ * comprehensive permission-based access control.
+ */
 class CustomerController extends Controller
 {
+    /**
+     * Apply middleware protection for all customer operations.
+     * 
+     * Uses Laravel policy-based authorization with comprehensive permission system:
+     * - viewAny: Access to index/list page
+     * - view: Access to individual customer details and sub-pages
+     * - create: Create new customers
+     * - update: Edit existing customers
+     * - delete: Soft delete customers
+     * - restore: Restore soft-deleted customers
+     * - forceDelete: Permanently delete customers
+     * - manageUsers: Manage customer users (requires update permission)
+     * - viewFinancials: View financial records (requires view permission)
+     */
     public function __construct()
     {
-        // Apply comprehensive middleware protection for all customer operations
-        $this->middleware('permission:view_any_customer')->only(['index']);
-        $this->middleware('permission:view_customer')->only(['show', 'income', 'outcome', 'orders', 'showOrder']);
-        $this->middleware('permission:create_customer')->only(['create', 'store']);
-        $this->middleware('permission:update_customer')->only(['edit', 'update', 'addUser', 'updateUser']);
-        $this->middleware('permission:delete_customer')->only(['destroy']);
-        $this->middleware('permission:restore_customer')->only(['restore']);
-        $this->middleware('permission:force_delete_customer')->only(['forceDelete']);
+        // Policy-based authorization will be handled in individual methods
     }
 
-    public function index(Request $request)
+    /**
+     * Display a paginated listing of customers with search and filtering.
+     * 
+     * @param Request $request
+     * @return Response
+     */
+    public function index(Request $request): Response
     {
+        $this->authorize('viewAny', Customer::class);
+        
         $query = Customer::with(['users'])->latest();
         
-        // Add search functionality
-        if ($request->filled('search')) {
-            $search = $request->get('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%")
-                  ->orWhere('address', 'like', "%{$search}%");
-            });
-        }
-
-        // Add status filter
+        // Apply search filters
+        $this->applySearchFilters($query, $request);
+        
+        // Apply status filter
         if ($request->filled('status')) {
-            $query->where('status', $request->get('status'));
+            $query->where('status', $request->string('status'));
         }
 
         $customers = $query->paginate(10);
-        
-        // Append query parameters to pagination links
         $customers->appends($request->query());
-
-        // Pass all 7 customer permissions to frontend for UI control
-        $permissions = [
-            'view_customer' => Auth::user()->can('view_customer'),
-            'view_any_customer' => Auth::user()->can('view_any_customer'),
-            'create_customer' => Auth::user()->can('create_customer'),
-            'update_customer' => Auth::user()->can('update_customer'),
-            'delete_customer' => Auth::user()->can('delete_customer'),
-            'restore_customer' => Auth::user()->can('restore_customer'),
-            'force_delete_customer' => Auth::user()->can('force_delete_customer'),
-        ];
 
         return Inertia::render('Admin/Customer/Index', [
             'customers' => $customers,
             'filters' => $request->only(['search', 'status']),
-            'permissions' => $permissions
+            'permissions' => $this->getCustomerPermissions(),
         ]);
     }
 
-    public function create()
+    /**
+     * Show the form for creating a new customer.
+     * 
+     * @return Response
+     */
+    public function create(): Response
     {
-        // Pass create permission to frontend
-        $permissions = [
-            'create_customer' => Auth::user()->can('create_customer'),
-        ];
-
         return Inertia::render('Admin/Customer/Create', [
-            'permissions' => $permissions,
+            'permissions' => $this->getCustomerPermissions(),
         ]);
     }
 
-    public function store(Request $request)
+    /**
+     * Store a newly created customer in storage.
+     * 
+     * @param Request $request
+     * @return RedirectResponse
+     * @throws ValidationException
+     */
+    public function store(Request $request): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:customers,email',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-            'status' => 'required|in:active,inactive,pending',
-            'notes' => 'nullable|string|max:1000',
-        ]);
+        $validated = $this->validateCustomerData($request);
 
         try {
+            DB::beginTransaction();
+            
             $customer = Customer::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'address' => $validated['address'],
-                'status' => $validated['status'],
-                'notes' => $validated['notes'],
+                ...$validated,
                 'user_id' => Auth::id(),
             ]);
 
-            return redirect()->route('admin.customers.index')
+            DB::commit();
+
+            return redirect()
+                ->route('admin.customers.index')
                 ->with('success', 'Customer created successfully.');
+                
         } catch (\Exception $e) {
-            Log::error('Error creating customer: ' . $e->getMessage());
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Error creating customer: ' . $e->getMessage()]);
+            DB::rollBack();
+            Log::error('Customer creation failed', [
+                'error' => $e->getMessage(),
+                'user_id' => Auth::id(),
+                'data' => $validated
+            ]);
+            
+            return $this->handleError($e, 'Error creating customer');
         }
     }
 
-    public function show(Customer $customer, Request $request)
+    /**
+     * Display the specified customer with related data.
+     * 
+     * @param Customer $customer
+     * @param Request $request
+     * @return Response|RedirectResponse
+     */
+    public function show(Customer $customer, Request $request): Response|RedirectResponse
     {
+        $this->authorize('view', $customer);
+        
         try {
-            $customer = Customer::with(['users.roles.permissions'])->findOrFail($customer->id);
-
-            // Load accounts with pagination and filtering
-            $accountsQuery = $customer->accounts()
-                ->with(['incomes', 'outcomes']);
-
-            // Search functionality for accounts
-            if ($request->filled('accounts_search')) {
-                $search = $request->get('accounts_search');
-                $accountsQuery->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('account_number', 'like', "%{$search}%")
-                      ->orWhere('id_number', 'like', "%{$search}%");
-                });
-            }
-
-            // Status filter for accounts
-            if ($request->filled('accounts_status')) {
-                $accountsQuery->where('status', $request->get('accounts_status'));
-            }
-
-            $accounts = $accountsQuery->latest()->paginate(5, ['*'], 'accounts_page');
+            $customer->load(['users.roles.permissions']);
             
-            // Transform accounts data
-            $accounts->getCollection()->transform(function ($account) {
-                return [
-                    'id' => $account->id,
-                    'name' => $account->name,
-                    'account_number' => $account->account_number,
-                    'id_number' => $account->id_number,
-                    'address' => $account->address,
-                    'status' => $account->status ?? 'active',
-                    'approved_by' => $account->approved_by,
-                    'total_income' => $account->incomes->where('status', 'approved')->sum('amount'),
-                    'total_outcome' => $account->outcomes->where('status', 'approved')->sum('amount'),
-                    'balance' => $account->incomes->where('status', 'approved')->sum('amount') - 
-                               $account->outcomes->where('status', 'approved')->sum('amount'),
-                    'incomes_count' => $account->incomes->count(),
-                    'outcomes_count' => $account->outcomes->count(),
-                    'created_at' => $account->created_at,
-                    'updated_at' => $account->updated_at,
-                ];
-            });
-
-            $roles = Role::where('guard_name', 'customer_user')->with('permissions')->get();
-            $customerUserPermissions = \Spatie\Permission\Models\Permission::where('guard_name', 'customer_user')->get();
+            // Load paginated accounts with filtering
+            $accounts = $this->getCustomerAccounts($customer, $request);
             
-            // Pass all 7 customer permissions to frontend including restore and force_delete
-            $permissions = [
-                'view_customer' => Auth::user()->can('view_customer'),
-                'view_any_customer' => Auth::user()->can('view_any_customer'),
-                'create_customer' => Auth::user()->can('create_customer'),
-                'update_customer' => Auth::user()->can('update_customer'),
-                'delete_customer' => Auth::user()->can('delete_customer'),
-                'restore_customer' => Auth::user()->can('restore_customer'),
-                'force_delete_customer' => Auth::user()->can('force_delete_customer'),
-            ];
+            // Get roles and permissions for customer user management
+            $roles = Role::where('guard_name', 'customer_user')
+                         ->with('permissions')
+                         ->get();
+                         
+            $customerUserPermissions = Permission::where('guard_name', 'customer_user')->get();
             
             return Inertia::render('Admin/Customer/Show', [
-                'customer' => [
-                    'id' => $customer->id,
-                    'name' => $customer->name,
-                    'email' => $customer->email,
-                    'phone' => $customer->phone,
-                    'address' => $customer->address,
-                    'status' => $customer->status,
-                    'notes' => $customer->notes,
-                    'users' => $customer->users,
-                    'created_at' => $customer->created_at,
-                    'updated_at' => $customer->updated_at,
-                ],
+                'customer' => $this->formatCustomerData($customer),
                 'accounts' => $accounts,
                 'accounts_filters' => $request->only(['accounts_search', 'accounts_status']),
                 'roles' => $roles,
-                'permissions' => $permissions,
+                'permissions' => $this->getCustomerPermissions(),
                 'customerUserPermissions' => $customerUserPermissions,
-                'auth' => [
-                    'user' => Auth::guard('web')->user()
-                ]
+                'auth' => ['user' => Auth::user()]
             ]);
+            
         } catch (\Exception $e) {
-            Log::error('Error loading customer: ' . $e->getMessage());
-            return redirect()->route('admin.customers.index')
-                ->with('error', 'Error loading customer: ' . $e->getMessage());
+            Log::error('Customer display failed', [
+                'customer_id' => $customer->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()
+                ->route('admin.customers.index')
+                ->with('error', 'Error loading customer details.');
         }
     }
 
-    public function edit(Customer $customer)
+    /**
+     * Show the form for editing the specified customer.
+     * 
+     * @param Customer $customer
+     * @return Response
+     */
+    public function edit(Customer $customer): Response
     {
-        // Pass update permission to frontend
-        $permissions = [
-            'update_customer' => Auth::user()->can('update_customer'),
-        ];
-
         return Inertia::render('Admin/Customer/Edit', [
-            'customer' => [
-                'id' => $customer->id,
-                'name' => $customer->name,
-                'email' => $customer->email,
-                'phone' => $customer->phone,
-                'address' => $customer->address,
-                'status' => $customer->status,
-                'notes' => $customer->notes,
-            ],
-            'permissions' => $permissions,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ]
+            'customer' => $this->formatCustomerData($customer),
+            'permissions' => $this->getCustomerPermissions(),
+            'auth' => ['user' => Auth::user()]
         ]);
     }
 
-    public function update(Request $request, Customer $customer)
+    /**
+     * Update the specified customer in storage.
+     * 
+     * @param Request $request
+     * @param Customer $customer
+     * @return RedirectResponse
+     * @throws ValidationException
+     */
+    public function update(Request $request, Customer $customer): RedirectResponse
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|unique:customers,email,' . $customer->id,
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:500',
-            'status' => 'required|in:active,inactive,pending',
-            'notes' => 'nullable|string|max:1000',
-        ]);
+        $validated = $this->validateCustomerData($request, $customer->id);
 
         try {
-            $customer->update([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'address' => $validated['address'],
-                'status' => $validated['status'],
-                'notes' => $validated['notes'],
-            ]);
+            DB::beginTransaction();
+            
+            $customer->update($validated);
+            
+            DB::commit();
 
-            return redirect()->route('admin.customers.show', $customer->id)
+            return redirect()
+                ->route('admin.customers.show', $customer)
                 ->with('success', 'Customer updated successfully.');
+                
         } catch (\Exception $e) {
-            Log::error('Error updating customer: ' . $e->getMessage());
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Error updating customer: ' . $e->getMessage()]);
+            DB::rollBack();
+            Log::error('Customer update failed', [
+                'customer_id' => $customer->id,
+                'error' => $e->getMessage(),
+                'data' => $validated
+            ]);
+            
+            return $this->handleError($e, 'Error updating customer');
         }
     }
 
-    public function destroy(Customer $customer)
+    /**
+     * Soft delete the specified customer.
+     * 
+     * @param Customer $customer
+     * @return RedirectResponse
+     */
+    public function destroy(Customer $customer): RedirectResponse
     {
         try {
-            // Delete associated users first
+            DB::beginTransaction();
+            
+            // Soft delete associated users first
             $customer->users()->delete();
             $customer->delete();
+            
+            DB::commit();
 
-            return redirect()->route('admin.customers.index')
+            return redirect()
+                ->route('admin.customers.index')
                 ->with('success', 'Customer deleted successfully.');
+                
         } catch (\Exception $e) {
-            Log::error('Error deleting customer: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('error', 'Error deleting customer: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Customer deletion failed', [
+                'customer_id' => $customer->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return $this->handleError($e, 'Error deleting customer');
         }
     }
 
     /**
-     * Restore a soft-deleted customer
-     * Requires 'restore_customer' permission
+     * Restore a soft-deleted customer.
+     * 
+     * @param string $id
+     * @return RedirectResponse
      */
-    public function restore($id)
+    public function restore(string $id): RedirectResponse
     {
         try {
             $customer = Customer::withTrashed()->findOrFail($id);
+            
+            DB::beginTransaction();
+            
             $customer->restore();
+            $customer->users()->restore();
+            
+            DB::commit();
 
-            return redirect()->route('admin.customers.index')
+            return redirect()
+                ->route('admin.customers.index')
                 ->with('success', 'Customer restored successfully.');
+                
         } catch (\Exception $e) {
-            Log::error('Error restoring customer: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('error', 'Error restoring customer: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Customer restoration failed', [
+                'customer_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return $this->handleError($e, 'Error restoring customer');
         }
     }
 
     /**
-     * Permanently delete a customer
-     * Requires 'force_delete_customer' permission
+     * Permanently delete a customer and all related data.
+     * 
+     * @param string $id
+     * @return RedirectResponse
      */
-    public function forceDelete($id)
+    public function forceDelete(string $id): RedirectResponse
     {
         try {
             $customer = Customer::withTrashed()->findOrFail($id);
+            
+            DB::beginTransaction();
             
             // Force delete associated users first
             $customer->users()->forceDelete();
-            
-            // Force delete the customer
             $customer->forceDelete();
+            
+            DB::commit();
 
-            return redirect()->route('admin.customers.index')
+            return redirect()
+                ->route('admin.customers.index')
                 ->with('success', 'Customer permanently deleted.');
+                
         } catch (\Exception $e) {
-            Log::error('Error force deleting customer: ' . $e->getMessage());
-            return redirect()->back()
-                ->with('error', 'Error force deleting customer: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Customer force deletion failed', [
+                'customer_id' => $id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return $this->handleError($e, 'Error permanently deleting customer');
         }
     }
 
-    public function addUser(Request $request, Customer $customer)
+    /**
+     * Add a new user to the specified customer.
+     * 
+     * @param Request $request
+     * @param Customer $customer
+     * @return RedirectResponse
+     * @throws ValidationException
+     */
+    public function addUser(Request $request, Customer $customer): RedirectResponse
     {
-        // Verify user has permission to update customers (and thus manage their users)
-        if (!Auth::user()->can('update_customer')) {
-            return redirect()->route('admin.customers.show', $customer->id)
-                ->with('error', 'You do not have permission to add users to this customer.');
-        }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customer_users,email',
-            'password' => 'required|string|min:8',
-            'role' => 'required|string|exists:roles,name',
-            'permissions' => 'nullable|array',
-        ]);
+        $validated = $this->validateCustomerUserData($request);
 
         try {
+            DB::beginTransaction();
+            
             // Create the user
             $user = CustomerUser::create([
                 'customer_id' => $customer->id,
@@ -343,40 +343,43 @@ class CustomerController extends Controller
                 'password' => Hash::make($validated['password']),
             ]);
 
-            // Assign role
-            $role = Role::findByName($validated['role'], 'customer_user');
-            $user->assignRole($role);
+            // Assign role and permissions
+            $this->assignUserRoleAndPermissions($user, $validated);
+            
+            DB::commit();
 
-            // Assign additional permissions if any
-            if (!empty($validated['permissions'])) {
-                $user->givePermissionTo($validated['permissions']);
-            }
-
-            return redirect()->route('admin.customers.show', $customer->id)
+            return redirect()
+                ->route('admin.customers.show', $customer)
                 ->with('success', 'User added successfully.');
+                
         } catch (\Exception $e) {
-            return redirect()->route('admin.customers.show', $customer->id)
-                ->with('error', 'Error adding user: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Customer user creation failed', [
+                'customer_id' => $customer->id,
+                'error' => $e->getMessage(),
+                'data' => $validated
+            ]);
+            
+            return $this->handleError($e, 'Error adding user');
         }
     }
 
-    public function updateUser(Request $request, Customer $customer, CustomerUser $user)
+    /**
+     * Update an existing customer user.
+     * 
+     * @param Request $request
+     * @param Customer $customer
+     * @param CustomerUser $user
+     * @return RedirectResponse
+     * @throws ValidationException
+     */
+    public function updateUser(Request $request, Customer $customer, CustomerUser $user): RedirectResponse
     {
-        // Verify user has permission to update customers (and thus manage their users)
-        if (!Auth::user()->can('update_customer')) {
-            return redirect()->route('admin.customers.show', $customer->id)
-                ->with('error', 'You do not have permission to update users for this customer.');
-        }
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customer_users,email,' . $user->id,
-            'password' => 'nullable|string|min:8',
-            'role' => 'required|string|exists:roles,name',
-            'permissions' => 'nullable|array',
-        ]);
+        $validated = $this->validateCustomerUserData($request, $user->id);
 
         try {
+            DB::beginTransaction();
+            
             // Update user details
             $user->update([
                 'name' => $validated['name'],
@@ -388,229 +391,188 @@ class CustomerController extends Controller
                 $user->update(['password' => Hash::make($validated['password'])]);
             }
 
-            // Update role
-            $role = Role::findByName($validated['role'], 'customer_user');
-            $user->syncRoles([$role]);
+            // Update role and permissions
+            $this->assignUserRoleAndPermissions($user, $validated);
+            
+            DB::commit();
 
-            // Update permissions
-            if (isset($validated['permissions'])) {
-                $user->syncPermissions($validated['permissions']);
-            }
-
-            return redirect()->route('admin.customers.show', $customer->id)
+            return redirect()
+                ->route('admin.customers.show', $customer)
                 ->with('success', 'User updated successfully.');
+                
         } catch (\Exception $e) {
-            return redirect()->route('admin.customers.show', $customer->id)
-                ->with('error', 'Error updating user: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Customer user update failed', [
+                'customer_id' => $customer->id,
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'data' => $validated
+            ]);
+            
+            return $this->handleError($e, 'Error updating user');
         }
     }
 
-    public function income(Customer $customer)
+    /**
+     * Display customer income records.
+     * 
+     * @param Customer $customer
+     * @return Response|RedirectResponse
+     */
+    public function income(Customer $customer): Response|RedirectResponse
     {
         try {
-            // Load customer with income records and related data
-            $customer = Customer::with([
-                'customerStockIncome.product'
-            ])->findOrFail($customer->id);
+            $customer->load(['customerStockIncome.product']);
 
-            // Get customer income records
-            $incomes = $customer->customerStockIncome->map(function ($income) {
-                return [
-                    'id' => $income->id,
-                    'reference_number' => $income->reference_number,
-                    'product' => [
-                        'id' => $income->product->id,
-                        'name' => $income->product->name,
-                        'barcode' => $income->product->barcode,
-                        'type' => $income->product->type,
-                    ],
-                    'quantity' => $income->quantity,
-                    'price' => $income->price,
-                    'total' => $income->total,
-                    'description' => $income->description,
-                    'status' => $income->status,
-                    'created_at' => $income->created_at,
-                    'updated_at' => $income->updated_at,
-                ];
-            });
-
-            // Pass view permission to frontend
-            $permissions = [
-                'view_customer' => Auth::user()->can('view_customer'),
-            ];
+            $incomes = $customer->customerStockIncome->map(fn($income) => [
+                'id' => $income->id,
+                'reference_number' => $income->reference_number,
+                'product' => $this->formatProductData($income->product),
+                'quantity' => $income->quantity,
+                'price' => $income->price,
+                'total' => $income->total,
+                'description' => $income->description,
+                'status' => $income->status,
+                'created_at' => $income->created_at,
+                'updated_at' => $income->updated_at,
+            ]);
 
             return Inertia::render('Admin/Customer/Income', [
-                'customer' => [
-                    'id' => $customer->id,
-                    'name' => $customer->name,
-                    'email' => $customer->email,
-                    'phone' => $customer->phone,
-                    'status' => $customer->status,
-                ],
+                'customer' => $this->formatCustomerData($customer),
                 'incomes' => $incomes,
-                'permissions' => $permissions,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
+                'permissions' => $this->getCustomerPermissions(),
+                'auth' => ['user' => Auth::user()]
             ]);
+            
         } catch (\Exception $e) {
-            Log::error('Error loading customer income: ' . $e->getMessage());
-            return redirect()->route('admin.customers.show', $customer->id)
-                ->with('error', 'Error loading customer income: ' . $e->getMessage());
+            Log::error('Customer income display failed', [
+                'customer_id' => $customer->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()
+                ->route('admin.customers.show', $customer)
+                ->with('error', 'Error loading customer income data.');
         }
     }
 
-    public function outcome(Customer $customer)
+    /**
+     * Display customer outcome records.
+     * 
+     * @param Customer $customer
+     * @return Response|RedirectResponse
+     */
+    public function outcome(Customer $customer): Response|RedirectResponse
     {
         try {
-            // Load customer with outcome records and related data
-            $customer = Customer::with([
-                'customerStockOutcome.product'
-            ])->findOrFail($customer->id);
+            $customer->load(['customerStockOutcome.product']);
 
-            // Get customer outcome records
-            $outcomes = $customer->customerStockOutcome->map(function ($outcome) {
-                return [
-                    'id' => $outcome->id,
-                    'reference_number' => $outcome->reference_number,
-                    'product' => [
-                        'id' => $outcome->product->id,
-                        'name' => $outcome->product->name,
-                        'barcode' => $outcome->product->barcode,
-                        'type' => $outcome->product->type,
-                    ],
-                    'quantity' => $outcome->quantity,
-                    'total' => $outcome->total,
-                    'description' => $outcome->description,
-                    'reason' => $outcome->reason,
-                    'status' => $outcome->status,
-                    'created_at' => $outcome->created_at,
-                    'updated_at' => $outcome->updated_at,
-                ];
-            });
-
-            // Pass view permission to frontend
-            $permissions = [
-                'view_customer' => Auth::user()->can('view_customer'),
-            ];
+            $outcomes = $customer->customerStockOutcome->map(fn($outcome) => [
+                'id' => $outcome->id,
+                'reference_number' => $outcome->reference_number,
+                'product' => $this->formatProductData($outcome->product),
+                'quantity' => $outcome->quantity,
+                'total' => $outcome->total,
+                'description' => $outcome->description,
+                'reason' => $outcome->reason,
+                'status' => $outcome->status,
+                'created_at' => $outcome->created_at,
+                'updated_at' => $outcome->updated_at,
+            ]);
 
             return Inertia::render('Admin/Customer/Outcome', [
-                'customer' => [
-                    'id' => $customer->id,
-                    'name' => $customer->name,
-                    'email' => $customer->email,
-                    'phone' => $customer->phone,
-                    'status' => $customer->status,
-                ],
+                'customer' => $this->formatCustomerData($customer),
                 'outcomes' => $outcomes,
-                'permissions' => $permissions,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
+                'permissions' => $this->getCustomerPermissions(),
+                'auth' => ['user' => Auth::user()]
             ]);
+            
         } catch (\Exception $e) {
-            Log::error('Error loading customer outcome: ' . $e->getMessage());
-            return redirect()->route('admin.customers.show', $customer->id)
-                ->with('error', 'Error loading customer outcome: ' . $e->getMessage());
+            Log::error('Customer outcome display failed', [
+                'customer_id' => $customer->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()
+                ->route('admin.customers.show', $customer)
+                ->with('error', 'Error loading customer outcome data.');
         }
     }
 
-    public function orders(Customer $customer)
+    /**
+     * Display customer market orders.
+     * 
+     * @param Customer $customer
+     * @return Response|RedirectResponse
+     */
+    public function orders(Customer $customer): Response|RedirectResponse
     {
         try {
-            // Load customer with market orders
-            $customer = Customer::with([
-                'marketOrders.items.product'
-            ])->findOrFail($customer->id);
+            $customer->load(['marketOrders.items.product']);
 
-            // Get customer market orders
-            $orders = $customer->marketOrders->map(function ($order) {
-                return [
-                    'id' => $order->id,
-                    'order_number' => $order->order_number,
-                    'total_amount' => $order->total_amount,
-                    'subtotal' => $order->subtotal,
-                    'tax_amount' => $order->tax_amount,
-                    'discount_amount' => $order->discount_amount,
-                    'payment_method' => $order->payment_method,
-                    'payment_status' => $order->payment_status,
-                    'order_status' => $order->order_status,
-                    'status' => $order->status,
-                    'notes' => $order->notes,
-                    'items_count' => $order->items->count(),
-                    'total_quantity' => $order->items->sum('quantity'),
-                    'created_at' => $order->created_at,
-                    'updated_at' => $order->updated_at,
-                ];
-            });
-
-            // Pass view permission to frontend
-            $permissions = [
-                'view_customer' => Auth::user()->can('view_customer'),
-            ];
+            $orders = $customer->marketOrders->map(fn($order) => [
+                'id' => $order->id,
+                'order_number' => $order->order_number,
+                'total_amount' => $order->total_amount,
+                'subtotal' => $order->subtotal,
+                'tax_amount' => $order->tax_amount,
+                'discount_amount' => $order->discount_amount,
+                'payment_method' => $order->payment_method,
+                'payment_status' => $order->payment_status,
+                'order_status' => $order->order_status,
+                'status' => $order->status,
+                'notes' => $order->notes,
+                'items_count' => $order->items->count(),
+                'total_quantity' => $order->items->sum('quantity'),
+                'created_at' => $order->created_at,
+                'updated_at' => $order->updated_at,
+            ]);
 
             return Inertia::render('Admin/Customer/Orders/Index', [
-                'customer' => [
-                    'id' => $customer->id,
-                    'name' => $customer->name,
-                    'email' => $customer->email,
-                    'phone' => $customer->phone,
-                    'status' => $customer->status,
-                ],
+                'customer' => $this->formatCustomerData($customer),
                 'orders' => $orders,
-                'permissions' => $permissions,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
+                'permissions' => $this->getCustomerPermissions(),
+                'auth' => ['user' => Auth::user()]
             ]);
+            
         } catch (\Exception $e) {
-            Log::error('Error loading customer orders: ' . $e->getMessage());
-            return redirect()->route('admin.customers.show', $customer->id)
-                ->with('error', 'Error loading customer orders: ' . $e->getMessage());
+            Log::error('Customer orders display failed', [
+                'customer_id' => $customer->id,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()
+                ->route('admin.customers.show', $customer)
+                ->with('error', 'Error loading customer orders.');
         }
     }
 
-    public function showOrder(Customer $customer, $orderId)
+    /**
+     * Display a specific customer order.
+     * 
+     * @param Customer $customer
+     * @param string $orderId
+     * @return Response|RedirectResponse
+     */
+    public function showOrder(Customer $customer, string $orderId): Response|RedirectResponse
     {
         try {
-            // Load the specific order with items and products
-            $order = \App\Models\MarketOrder::with([
-                'items.product',
-                'customer'
-            ])->where('customer_id', $customer->id)
-              ->findOrFail($orderId);
+            $order = \App\Models\MarketOrder::with(['items.product', 'customer'])
+                ->where('customer_id', $customer->id)
+                ->findOrFail($orderId);
 
-            // Format order items
-            $orderItems = $order->items->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'product' => [
-                        'id' => $item->product->id,
-                        'name' => $item->product->name,
-                        'barcode' => $item->product->barcode,
-                        'type' => $item->product->type,
-                    ],
-                    'quantity' => $item->quantity,
-                    'unit_price' => $item->unit_price,
-                    'subtotal' => $item->subtotal,
-                    'discount_amount' => $item->discount_amount,
-                    'notes' => $item->notes,
-                ];
-            });
-
-            // Pass view permission to frontend
-            $permissions = [
-                'view_customer' => Auth::user()->can('view_customer'),
-            ];
+            $orderItems = $order->items->map(fn($item) => [
+                'id' => $item->id,
+                'product' => $this->formatProductData($item->product),
+                'quantity' => $item->quantity,
+                'unit_price' => $item->unit_price,
+                'subtotal' => $item->subtotal,
+                'discount_amount' => $item->discount_amount,
+                'notes' => $item->notes,
+            ]);
 
             return Inertia::render('Admin/Customer/Orders/Show', [
-                'customer' => [
-                    'id' => $customer->id,
-                    'name' => $customer->name,
-                    'email' => $customer->email,
-                    'phone' => $customer->phone,
-                    'status' => $customer->status,
-                ],
+                'customer' => $this->formatCustomerData($customer),
                 'order' => [
                     'id' => $order->id,
                     'order_number' => $order->order_number,
@@ -627,15 +589,237 @@ class CustomerController extends Controller
                     'updated_at' => $order->updated_at,
                 ],
                 'orderItems' => $orderItems,
-                'permissions' => $permissions,
-                'auth' => [
-                    'user' => Auth::user()
-                ]
+                'permissions' => $this->getCustomerPermissions(),
+                'auth' => ['user' => Auth::user()]
             ]);
+            
         } catch (\Exception $e) {
-            Log::error('Error loading customer order: ' . $e->getMessage());
-            return redirect()->route('admin.customers.orders', $customer->id)
-                ->with('error', 'Error loading customer order: ' . $e->getMessage());
+            Log::error('Customer order display failed', [
+                'customer_id' => $customer->id,
+                'order_id' => $orderId,
+                'error' => $e->getMessage()
+            ]);
+            
+            return redirect()
+                ->route('admin.customers.orders', $customer)
+                ->with('error', 'Error loading order details.');
         }
+    }
+
+    // ============================================================================
+    // PRIVATE HELPER METHODS
+    // ============================================================================
+
+    /**
+     * Apply search filters to the customer query.
+     * 
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param Request $request
+     * @return void
+     */
+    private function applySearchFilters($query, Request $request): void
+    {
+        if ($request->filled('search')) {
+            $search = $request->string('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%");
+            });
+        }
+    }
+
+    /**
+     * Get customer accounts with pagination and filtering.
+     * 
+     * @param Customer $customer
+     * @param Request $request
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    private function getCustomerAccounts(Customer $customer, Request $request)
+    {
+        $accountsQuery = $customer->accounts()->with(['incomes', 'outcomes']);
+
+        // Apply search filters
+        if ($request->filled('accounts_search')) {
+            $search = $request->string('accounts_search');
+            $accountsQuery->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('account_number', 'like', "%{$search}%")
+                  ->orWhere('id_number', 'like', "%{$search}%");
+            });
+        }
+
+        // Apply status filter
+        if ($request->filled('accounts_status')) {
+            $accountsQuery->where('status', $request->string('accounts_status'));
+        }
+
+        $accounts = $accountsQuery->latest()->paginate(5, ['*'], 'accounts_page');
+        
+        // Transform accounts data
+        $accounts->getCollection()->transform(fn($account) => [
+            'id' => $account->id,
+            'name' => $account->name,
+            'account_number' => $account->account_number,
+            'id_number' => $account->id_number,
+            'address' => $account->address,
+            'status' => $account->status ?? 'active',
+            'approved_by' => $account->approved_by,
+            'total_income' => $account->incomes->where('status', 'approved')->sum('amount'),
+            'total_outcome' => $account->outcomes->where('status', 'approved')->sum('amount'),
+            'balance' => $account->incomes->where('status', 'approved')->sum('amount') - 
+                       $account->outcomes->where('status', 'approved')->sum('amount'),
+            'incomes_count' => $account->incomes->count(),
+            'outcomes_count' => $account->outcomes->count(),
+            'created_at' => $account->created_at,
+            'updated_at' => $account->updated_at,
+        ]);
+
+        return $accounts;
+    }
+
+    /**
+     * Get all customer permissions for the authenticated user.
+     * 
+     * @return array<string, bool>
+     */
+    private function getCustomerPermissions(): array
+    {
+        $user = Auth::user();
+        
+        return [
+            'view_customer' => $user->can('view_customer'),
+            'view_any_customer' => $user->can('view_any_customer'),
+            'create_customer' => $user->can('create_customer'),
+            'update_customer' => $user->can('update_customer'),
+            'delete_customer' => $user->can('delete_customer'),
+            'restore_customer' => $user->can('restore_customer'),
+            'force_delete_customer' => $user->can('force_delete_customer'),
+        ];
+    }
+
+    /**
+     * Validate customer data for create and update operations.
+     * 
+     * @param Request $request
+     * @param int|null $customerId
+     * @return array<string, mixed>
+     * @throws ValidationException
+     */
+    private function validateCustomerData(Request $request, ?int $customerId = null): array
+    {
+        $emailRule = $customerId 
+            ? "nullable|email|unique:customers,email,{$customerId}"
+            : 'nullable|email|unique:customers,email';
+
+        return $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => $emailRule,
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'status' => 'required|in:active,inactive,pending',
+            'notes' => 'nullable|string|max:1000',
+        ]);
+    }
+
+    /**
+     * Validate customer user data for create and update operations.
+     * 
+     * @param Request $request
+     * @param int|null $userId
+     * @return array<string, mixed>
+     * @throws ValidationException
+     */
+    private function validateCustomerUserData(Request $request, ?int $userId = null): array
+    {
+        $emailRule = $userId 
+            ? "required|email|unique:customer_users,email,{$userId}"
+            : 'required|email|unique:customer_users,email';
+
+        $passwordRule = $userId ? 'nullable|string|min:8' : 'required|string|min:8';
+
+        return $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => $emailRule,
+            'password' => $passwordRule,
+            'role' => 'required|string|exists:roles,name',
+            'permissions' => 'nullable|array',
+        ]);
+    }
+
+    /**
+     * Assign role and permissions to a customer user.
+     * 
+     * @param CustomerUser $user
+     * @param array<string, mixed> $validated
+     * @return void
+     */
+    private function assignUserRoleAndPermissions(CustomerUser $user, array $validated): void
+    {
+        // Assign role
+        $role = Role::findByName($validated['role'], 'customer_user');
+        $user->syncRoles([$role]);
+
+        // Assign additional permissions if any
+        if (!empty($validated['permissions'])) {
+            $user->syncPermissions($validated['permissions']);
+        } else {
+            $user->syncPermissions([]);
+        }
+    }
+
+    /**
+     * Format customer data for frontend consumption.
+     * 
+     * @param Customer $customer
+     * @return array<string, mixed>
+     */
+    private function formatCustomerData(Customer $customer): array
+    {
+        return [
+            'id' => $customer->id,
+            'name' => $customer->name,
+            'email' => $customer->email,
+            'phone' => $customer->phone,
+            'address' => $customer->address,
+            'status' => $customer->status,
+            'notes' => $customer->notes,
+            'users' => $customer->users ?? [],
+            'created_at' => $customer->created_at,
+            'updated_at' => $customer->updated_at,
+        ];
+    }
+
+    /**
+     * Format product data for frontend consumption.
+     * 
+     * @param \App\Models\Product $product
+     * @return array<string, mixed>
+     */
+    private function formatProductData($product): array
+    {
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'barcode' => $product->barcode,
+            'type' => $product->type,
+        ];
+    }
+
+    /**
+     * Handle exceptions and return appropriate redirect response.
+     * 
+     * @param \Exception $exception
+     * @param string $defaultMessage
+     * @return RedirectResponse
+     */
+    private function handleError(\Exception $exception, string $defaultMessage): RedirectResponse
+    {
+        return redirect()
+            ->back()
+            ->withInput()
+            ->with('error', $defaultMessage . ': ' . $exception->getMessage());
     }
 }

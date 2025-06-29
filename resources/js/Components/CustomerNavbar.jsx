@@ -26,7 +26,8 @@ import {
     Receipt,
     DollarSign,
     TrendingUp,
-    Database
+    Database,
+    Wallet
 } from 'lucide-react';
 
 export default function CustomerNavbar({ auth, currentRoute }) {
@@ -200,6 +201,23 @@ export default function CustomerNavbar({ auth, currentRoute }) {
                             </Button>
                             <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                                 {t('Received from Warehouse')}
+                            </div>
+                        </Link>
+
+                        {/* Wallet */}
+                        <Link href={safeRoute('customer.wallet')} className="group relative">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className={`${currentRoute === 'customer.wallet' || currentRoute === 'customer.wallet.deposit' || currentRoute === 'customer.wallet.withdraw' ?
+                                    'text-emerald-600 bg-emerald-100 dark:bg-emerald-900/20 shadow-md' :
+                                    'text-gray-500 hover:text-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-900/20'}`}
+                                type="button"
+                            >
+                                <Wallet className="h-5 w-5" />
+                            </Button>
+                            <div className="absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                                {t('Wallet')}
                             </div>
                         </Link>
 

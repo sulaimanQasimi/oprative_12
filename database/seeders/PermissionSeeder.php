@@ -213,6 +213,20 @@ class PermissionSeeder extends Seeder
             ]);
         }
 
+        // Create activity logs permissions
+        $activityLogsPermissions = [
+            'view_activity_logs' => 'مشاهده لاگ فعالیت',
+        ];
+
+        foreach ($activityLogsPermissions as $permission => $label) {
+            Permission::firstOrCreate([
+                'name' => $permission,
+                'guard_name' => 'web',
+            ], [
+                'label' => $label,
+            ]);
+        }
+
         // Create roles and assign permissions
         $this->createRoles();
     }

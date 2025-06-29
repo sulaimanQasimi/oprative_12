@@ -3,17 +3,26 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\Product\StoreProductRequest;
+use App\Http\Requests\Admin\Product\UpdateProductRequest;
 use App\Models\Product;
 use App\Models\Unit;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Inertia\Inertia;
+use Inertia\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProductController extends Controller
 {
     use AuthorizesRequests;
-    public function index(Request $request)
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request): Response
     {
         $this->authorize('view_any_product');
 
@@ -27,7 +36,7 @@ class ProductController extends Controller
         }
 
         // Apply search filter
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -37,26 +46,19 @@ class ProductController extends Controller
         }
 
         // Apply status filter
-        if ($request->has('status') && $request->input('status') !== 'all') {
+        if ($request->filled('status') && $request->input('status') !== 'all') {
             $status = $request->input('status');
-            switch ($status) {
-                case 'active':
-                    $query->where('is_activated', true);
-                    break;
-                case 'inactive':
-                    $query->where('is_activated', false);
-                    break;
-                case 'in_stock':
-                    $query->where('is_in_stock', true);
-                    break;
-                case 'trending':
-                    $query->where('is_trend', true);
-                    break;
-            }
+            match ($status) {
+                'active' => $query->where('is_activated', true),
+                'inactive' => $query->where('is_activated', false),
+                'in_stock' => $query->where('is_in_stock', true),
+                'trending' => $query->where('is_trend', true),
+                default => null,
+            };
         }
 
         // Apply type filter
-        if ($request->has('type') && $request->input('type') !== 'all') {
+        if ($request->filled('type') && $request->input('type') !== 'all') {
             $query->where('type', $request->input('type'));
         }
 
@@ -66,7 +68,7 @@ class ProductController extends Controller
         $query->orderBy($sortField, $sortDirection);
 
         // Get paginated results
-        $products = $query->paginate(10)->withQueryString();
+        $products = $query->paginate(10);
 
         // Get unique product types for filter
         $productTypes = Product::distinct()->pluck('type')->filter();
@@ -86,11 +88,15 @@ class ProductController extends Controller
         ]);
     }
 
-    public function create()
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create(): Response
     {
         $this->authorize('create_product');
 
         $units = Unit::all();
+
         return Inertia::render('Admin/Product/Create', [
             'units' => $units,
             'permissions' => [
@@ -99,26 +105,12 @@ class ProductController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(StoreProductRequest $request): RedirectResponse
     {
-        $this->authorize('create_product');
-
-        $validated = $request->validate([
-            'type' => 'required|string',
-            'name' => 'required|string|max:255',
-            'barcode' => 'nullable|string|max:255',
-            'purchase_price' => 'required|numeric|min:0',
-            'wholesale_price' => 'required|numeric|min:0',
-            'retail_price' => 'required|numeric|min:0',
-            'is_activated' => 'boolean',
-            'is_in_stock' => 'boolean',
-            'is_shipped' => 'boolean',
-            'is_trend' => 'boolean',
-            'wholesale_unit_id' => 'required|exists:units,id',
-            'retail_unit_id' => 'required|exists:units,id',
-            'whole_sale_unit_amount' => 'nullable|numeric|min:0',
-            'retails_sale_unit_amount' => 'nullable|numeric|min:0',
-        ]);
+        $validated = $request->validated();
 
         Product::create($validated);
 
@@ -126,45 +118,32 @@ class ProductController extends Controller
             ->with('success', 'Product created successfully.');
     }
 
-    public function edit(Product $product)
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(Product $product): Response
     {
-        $this->authorize('view_product', $product);
+        $this->authorize('update_product', $product);
 
         $units = Unit::all();
+
         return Inertia::render('Admin/Product/Edit', [
             'product' => $product->load(['wholesaleUnit', 'retailUnit']),
             'units' => $units,
-            'auth' => [
-                'user' => Auth::guard('web')->user()
-            ],
             'permissions' => [
-                'view_product' => true, // Already authorized
-                'update_product' => Auth::user()->can('update_product', $product),
+                'view_product' => Auth::user()->can('view_product', $product),
+                'update_product' => true, // Already authorized
                 'delete_product' => Auth::user()->can('delete_product', $product),
             ]
         ]);
     }
 
-    public function update(Request $request, Product $product)
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(UpdateProductRequest $request, Product $product): RedirectResponse
     {
-        $this->authorize('update_product', $product);
-
-        $validated = $request->validate([
-            'type' => 'required|string',
-            'name' => 'required|string|max:255',
-            'barcode' => 'nullable|string|max:255',
-            'purchase_price' => 'required|numeric|min:0',
-            'wholesale_price' => 'required|numeric|min:0',
-            'retail_price' => 'required|numeric|min:0',
-            'is_activated' => 'boolean',
-            'is_in_stock' => 'boolean',
-            'is_shipped' => 'boolean',
-            'is_trend' => 'boolean',
-            'wholesale_unit_id' => 'required|exists:units,id',
-            'retail_unit_id' => 'required|exists:units,id',
-            'whole_sale_unit_amount' => 'nullable|numeric|min:0',
-            'retails_sale_unit_amount' => 'nullable|numeric|min:0',
-        ]);
+        $validated = $request->validated();
 
         $product->update($validated);
 
@@ -172,7 +151,10 @@ class ProductController extends Controller
             ->with('success', 'Product updated successfully.');
     }
 
-    public function destroy(Product $product)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(Product $product): RedirectResponse
     {
         $this->authorize('delete_product', $product);
 
@@ -182,7 +164,10 @@ class ProductController extends Controller
             ->with('success', 'Product deleted successfully.');
     }
 
-    public function restore($id)
+    /**
+     * Restore the specified soft deleted resource.
+     */
+    public function restore(int $id): RedirectResponse
     {
         $product = Product::withTrashed()->findOrFail($id);
         $this->authorize('restore_product', $product);
@@ -193,7 +178,10 @@ class ProductController extends Controller
             ->with('success', 'Product restored successfully.');
     }
 
-    public function forceDelete($id)
+    /**
+     * Permanently delete the specified resource.
+     */
+    public function forceDelete(int $id): RedirectResponse
     {
         $product = Product::withTrashed()->findOrFail($id);
         $this->authorize('force_delete_product', $product);

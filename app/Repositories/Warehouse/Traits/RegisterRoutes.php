@@ -12,6 +12,7 @@ use App\Http\Controllers\Warehouse\OutcomeController;
 use App\Http\Controllers\Warehouse\UsersController;
 use App\Http\Controllers\Warehouse\SaleController;
 use App\Http\Controllers\Warehouse\ReportController;
+use App\Http\Controllers\Warehouse\WalletController;
 
 trait RegisterRoutes
 {
@@ -29,20 +30,18 @@ trait RegisterRoutes
             Route::middleware('auth:warehouse_user')->group(function () {
                 // Dashboard
                 Route::get('dashboard', [DashboardController::class, 'index'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_dashboard')
                     ->name('dashboard');
 
                 // Products management
                 Route::get('products', [ProductController::class, 'index'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.view_products')
                     ->name('products');
 
                 Route::get('products/create', [ProductController::class, 'create'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.create_products')
+                    // ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.create_products')
                     ->name('products.create');
 
                 Route::post('products', [ProductController::class, 'store'])
-                    ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.create_products')
+                    // ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.create_products')
                     ->name('products.store');
 
                 Route::get('products/{product}', [ProductController::class, 'show'])
@@ -129,6 +128,15 @@ trait RegisterRoutes
                 Route::post('logout', [AuthController::class, 'logout'])
                     ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':warehouse.logout')
                     ->name('logout');
+
+                // Wallet management
+                Route::get('wallet', [WalletController::class, 'wallet'])->name('wallet');
+                Route::get('wallet/deposit', [WalletController::class, 'depositForm'])->name('wallet.deposit.form');
+                Route::post('wallet/deposit', [WalletController::class, 'deposit'])->name('wallet.deposit');
+                Route::get('wallet/withdraw', [WalletController::class, 'withdrawForm'])->name('wallet.withdraw.form');
+                Route::post('wallet/withdraw', [WalletController::class, 'withdraw'])->name('wallet.withdraw');
+                Route::get('wallet/export', [WalletController::class, 'exportTransactions'])->name('wallet.export');
+                Route::get('wallet/transaction/{transaction}', [WalletController::class, 'getTransaction'])->name('wallet.transaction');
             });
 
             // Redirect root warehouse path to dashboard if authenticated, otherwise to login

@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\LogOptions;
+use Spatie\Activitylog\Traits\LogsActivity;
 
 class Supplier extends Model
 {
     use SoftDeletes;
     use HasFactory;
-
+    use LogsActivity;
     protected $fillable = [
         'name',
         'contact_name',
@@ -28,6 +30,16 @@ class Supplier extends Model
     ];
 
     protected $appends = ['invoice_total'];
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logAll()
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs()
+            ->useLogName('supplier')
+            ->setDescriptionForEvent(fn(string $eventName) => "This supplier has been {$eventName}")
+            ->dontLogIfAttributesChangedOnly(['updated_at']);
+    }
 
     public function purchases(): HasMany
     {

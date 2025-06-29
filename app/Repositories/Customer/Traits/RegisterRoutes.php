@@ -46,7 +46,6 @@ trait RegisterRoutes
 
                     // Dashboard product search
                     Route::get('dashboard/search-products', [DashboardController::class, 'searchProducts'])
-                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_dashboard')
                         ->name('dashboard.search-products');
 
                     // Market Order routes (controller-based)
@@ -77,12 +76,10 @@ trait RegisterRoutes
 
                     // Stock Products route
                     Route::get('stock-products', [\App\Http\Controllers\Customer\StockProductsController::class, 'index'])
-                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
                         ->name('stock-products');
 
                     // Stock Incomes and Outcomes routes
                     Route::get('stock-incomes', [\App\Http\Controllers\Customer\StockIncomeController::class, 'index'])
-                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_stock')
                         ->name('stock-incomes.index');
 
                     Route::get('stock-incomes/create', [\App\Http\Controllers\Customer\StockIncomeController::class, 'create'])
@@ -218,6 +215,35 @@ trait RegisterRoutes
                     Route::post('/sales/{sale}/confirm', [SalesListController::class, 'confirmSale'])
                         ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.manage_sales')
                         ->name('sales.confirm');
+
+                    // Customer Wallet routes
+                    Route::get('/wallet', [\App\Http\Controllers\Customer\WalletController::class, 'wallet'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_wallet')
+                        ->name('wallet');
+
+                    Route::get('/wallet/deposit', [\App\Http\Controllers\Customer\WalletController::class, 'depositForm'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.deposit_wallet')
+                        ->name('wallet.deposit.form');
+
+                    Route::post('/wallet/deposit', [\App\Http\Controllers\Customer\WalletController::class, 'deposit'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.deposit_wallet')
+                        ->name('wallet.deposit');
+
+                    Route::get('/wallet/withdraw', [\App\Http\Controllers\Customer\WalletController::class, 'withdrawForm'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.withdraw_wallet')
+                        ->name('wallet.withdraw.form');
+
+                    Route::post('/wallet/withdraw', [\App\Http\Controllers\Customer\WalletController::class, 'withdraw'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.withdraw_wallet')
+                        ->name('wallet.withdraw');
+
+                    Route::get('/wallet/export', [\App\Http\Controllers\Customer\WalletController::class, 'exportTransactions'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_wallet')
+                        ->name('wallet.export');
+
+                    Route::get('/wallet/transaction/{transactionId}', [\App\Http\Controllers\Customer\WalletController::class, 'getTransaction'])
+                        ->middleware(\Spatie\Permission\Middleware\PermissionMiddleware::class . ':customer.view_wallet')
+                        ->name('wallet.transaction');
 
                     // Customer Reports route
                     Route::get('/reports', [\App\Http\Controllers\Customer\ReportsController::class, 'index'])

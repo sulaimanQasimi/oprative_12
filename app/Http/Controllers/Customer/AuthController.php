@@ -75,12 +75,12 @@ class AuthController extends Controller
             // Check if user exists and is verified
             $user = CustomerUser::where('email', $email)->first();
 
-            if ($user && $user->email_verified_at === null) {
-                RateLimiter::hit($throttleKey, 30);
-                throw ValidationException::withMessages([
-                    'email' => ['Please verify your email address before logging in.'],
-                ]);
-            }
+            // if ($user && $user->email_verified_at === null) {
+            //     RateLimiter::hit($throttleKey, 30);
+            //     throw ValidationException::withMessages([
+            //         'email' => ['Please verify your email address before logging in.'],
+            //     ]);
+            // }
 
             if (!Auth::guard('customer_user')->attempt([
                 'email' => $email,

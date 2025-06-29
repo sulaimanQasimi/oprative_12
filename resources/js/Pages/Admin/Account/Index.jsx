@@ -567,26 +567,6 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                     </motion.p>
                                 </div>
                             </div>
-
-                            <motion.div
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-3"
-                            >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-200 hover:border-blue-300 hover:bg-blue-50 dark:border-slate-600 dark:hover:border-blue-400 dark:hover:bg-blue-900/20">
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
-                                {permissions?.create_account && (
-                                    <Link href={route('admin.accounts.create')}>
-                                        <Button className="gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                            <Plus className="h-4 w-4" />
-                                            {t("Add Account")}
-                                        </Button>
-                                    </Link>
-                                )}
-                            </motion.div>
                         </div>
                     </motion.header>
 
@@ -982,23 +962,6 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                                                                     </Link>
                                                                                 </Button>
                                                                             )}
-                                                                            {permissions?.update_account && (
-                                                                                <Button size="sm" variant="outline" className="h-8 w-8 p-0 hover:bg-green-50 hover:border-green-300 dark:hover:bg-green-900/20 dark:hover:border-green-400" asChild>
-                                                                                    <Link href={route('admin.accounts.edit', account.id)}>
-                                                                                        <Edit className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                                                                    </Link>
-                                                                                </Button>
-                                                                            )}
-                                                                            {permissions?.delete_account && (
-                                                                                <Button
-                                                                                    size="sm"
-                                                                                    variant="outline"
-                                                                                    className="h-8 w-8 p-0 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-900/20 dark:hover:border-red-400"
-                                                                                    onClick={() => handleDelete(account)}
-                                                                                >
-                                                                                    <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
-                                                                                </Button>
-                                                                            )}
                                                                         </div>
                                                                     </TableCell>
                                                                 </TableRow>
@@ -1064,8 +1027,8 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                                                         className="w-10 h-10 p-0 border-slate-200 dark:border-slate-600"
                                                                     >
                                                                         {link.label === '&laquo; Previous' ? <ChevronLeft className="h-4 w-4" /> :
-                                                                         link.label === 'Next &raquo;' ? <ChevronRight className="h-4 w-4" /> :
-                                                                         link.label}
+                                                                            link.label === 'Next &raquo;' ? <ChevronRight className="h-4 w-4" /> :
+                                                                                link.label}
                                                                     </Button>
                                                                 );
                                                             }
@@ -1085,8 +1048,8 @@ export default function Index({ accounts, customers, filters, auth, permissions 
                                                                     }}
                                                                 >
                                                                     {link.label === '&laquo; Previous' ? <ChevronLeft className="h-4 w-4" /> :
-                                                                     link.label === 'Next &raquo;' ? <ChevronRight className="h-4 w-4" /> :
-                                                                     link.label}
+                                                                        link.label === 'Next &raquo;' ? <ChevronRight className="h-4 w-4" /> :
+                                                                            link.label}
                                                                 </Button>
                                                             );
                                                         })}
