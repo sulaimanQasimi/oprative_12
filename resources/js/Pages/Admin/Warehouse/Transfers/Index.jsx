@@ -307,22 +307,22 @@ export default function TransfersIndex({ auth, transfers }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Total Transfers")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-blue-600">
+                                                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                                                             {totalTransfers}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Transactions")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
-                                                        <ArrowRightLeft className="h-8 w-8 text-blue-600" />
+                                                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
+                                                        <ArrowRightLeft className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -334,22 +334,22 @@ export default function TransfersIndex({ auth, transfers }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.0, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Total Quantity")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-green-600">
+                                                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                                                             {totalQuantity.toLocaleString()}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Units transferred")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
-                                                        <Package className="h-8 w-8 text-green-600" />
+                                                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-2xl">
+                                                        <Package className="h-8 w-8 text-green-600 dark:text-green-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -361,22 +361,22 @@ export default function TransfersIndex({ auth, transfers }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.1, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Total Value")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-purple-600">
+                                                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
                                                             {formatCurrency(totalValue)}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Transfer value")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
-                                                        <DollarSign className="h-8 w-8 text-purple-600" />
+                                                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl">
+                                                        <DollarSign className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -388,22 +388,22 @@ export default function TransfersIndex({ auth, transfers }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.2, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border hover:scale-105 transition-all duration-300">
+                                        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
                                                             {t("Average Transfer")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-orange-600">
+                                                        <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
                                                             {formatCurrency(avgTransferValue)}
                                                         </p>
-                                                        <p className="text-xs text-slate-500 mt-1">
+                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t("Per transaction")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
-                                                        <TrendingUp className="h-8 w-8 text-orange-600" />
+                                                    <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-2xl">
+                                                        <TrendingUp className="h-8 w-8 text-orange-600 dark:text-orange-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>

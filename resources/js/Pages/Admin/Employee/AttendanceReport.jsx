@@ -19,13 +19,16 @@ import {
     Sparkles,
     TrendingUp,
     Activity,
+    ChevronDown,
+    X,
+    RefreshCw,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import { Badge } from "@/Components/ui/badge";
 import { Input } from "@/Components/ui/input";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 
 // Persian month names
@@ -36,6 +39,56 @@ const PERSIAN_MONTHS = [
 
 // Persian day names
 const PERSIAN_DAYS = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
+
+// Add custom CSS for dynamic container expansion
+const dynamicSelectStyles = `
+    .select-container {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        min-height: 80px;
+        position: relative;
+    }
+    
+    .select-container[data-state="open"] {
+        min-height: 180px;
+        transform: translateY(0);
+    }
+    
+    .select-container[data-state="closed"] {
+        min-height: 80px;
+        transform: translateY(0);
+    }
+    
+    .select-container[data-state="open"] .select-trigger {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .select-content-wrapper {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .select-content-wrapper[data-state="open"] {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    
+    .select-content-wrapper[data-state="closed"] {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
+    
+    .filters-grid {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .filters-grid[data-expanded="true"] {
+        min-height: 200px;
+    }
+    
+    .filters-grid[data-expanded="false"] {
+        min-height: auto;
+    }
+`;
 
 export default function AttendanceReport({
     auth,
@@ -52,6 +105,8 @@ export default function AttendanceReport({
     const [selectedDepartment, setSelectedDepartment] = useState(filters.department || "");
     const [searchTerm, setSearchTerm] = useState(filters.search || "");
     const [isPrintMode, setIsPrintMode] = useState(false);
+    const [showFilters, setShowFilters] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
     // Generate year options (current year ± 5 years)
     const currentYear = new Date().getFullYear();
@@ -87,16 +142,26 @@ export default function AttendanceReport({
         }, 100);
     };
 
-    const handleExportExcel = () => {
-        const params = new URLSearchParams({
-            year: selectedYear,
-            month: selectedMonth,
-            department: selectedDepartment || "",
-            search: searchTerm || "",
-            export: "excel"
-        });
+    const handleExportExcel = async () => {
+        setIsExporting(true);
+        try {
+            const params = new URLSearchParams({
+                year: selectedYear,
+                month: selectedMonth,
+                department: selectedDepartment || "",
+                search: searchTerm || "",
+                export: "excel"
+            });
 
-        window.open(`${route("admin.employees.attendance-report")}?${params}`, '_blank');
+            await router.get(route("admin.employees.attendance-report"), params, {
+                preserveState: true,
+                preserveScroll: true,
+            });
+        } catch (error) {
+            console.error('Export failed:', error);
+        } finally {
+            setIsExporting(false);
+        }
     };
 
     const getAttendanceStatus = (employeeId, day) => {
@@ -245,6 +310,8 @@ export default function AttendanceReport({
                             justify-content: space-between;
                         }
                     }
+
+                    ${dynamicSelectStyles}
                 `}</style>
             </Head>
 
@@ -312,10 +379,11 @@ export default function AttendanceReport({
                                 <Button
                                     onClick={handleExportExcel}
                                     variant="outline"
-                                    className="gap-2 border-2 hover:border-green-300 dark:border-slate-600 dark:hover:border-green-400"
+                                    className="gap-2 border-2 dark:text-white hover:border-green-300 dark:border-slate-600 dark:hover:border-green-400"
+                                    disabled={isExporting}
                                 >
-                                    <Download className="h-4 w-4" />
-                                    {t("Export Excel")}
+                                    <Download className="h-4 w-4 dark:text-white" />
+                                    {isExporting ? t("Exporting...") : t("Export Excel")}
                                 </Button>
                                 <Button
                                     onClick={handlePrint}
@@ -333,74 +401,209 @@ export default function AttendanceReport({
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.8, duration: 0.5 }}
-                        className="px-8 py-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-b border-slate-200 dark:border-slate-700 no-print"
+                        className="px-8 py-6 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border-b border-slate-200 dark:border-slate-700 no-print"
                     >
-                        <Card className="border-0 shadow-xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
-                            <CardHeader>
-                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
-                                    <div className="p-2 bg-gradient-to-br from-green-500 to-blue-600 rounded-lg shadow-lg">
-                                        <Filter className="h-5 w-5 text-white" />
-                                    </div>
-                                    {t("Report Filters")}
-                                </CardTitle>
+                        <Card className="border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800">
+                            <CardHeader className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                                <div className="flex items-center justify-between">
+                                    <CardTitle className="flex items-center gap-3 text-slate-900 dark:text-white">
+                                        <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                                            <Filter className="h-5 w-5 text-slate-600 dark:text-slate-400" />
+                                        </div>
+                                        {t("Search & Filter")}
+                                    </CardTitle>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setShowFilters(!showFilters)}
+                                        className="gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                    >
+                                        <Filter className="h-4 w-4" />
+                                        {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                        <ChevronDown
+                                            className={`h-4 w-4 transition-transform ${
+                                                showFilters ? "rotate-180" : ""
+                                            }`}
+                                        />
+                                    </Button>
+                                </div>
                             </CardHeader>
-                            <CardContent>
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                    {/* Year Filter */}
-                                    <Select value={selectedYear.toString()} onValueChange={(value) => setSelectedYear(parseInt(value))}>
-                                        <SelectTrigger className="border-2 border-slate-200 hover:border-green-300 focus:border-green-500 dark:border-slate-600 dark:hover:border-green-400 dark:focus:border-green-400 dark:bg-slate-700 dark:text-white">
-                                            <SelectValue placeholder={t("Select Year")} />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {yearOptions.map((year) => (
-                                                <SelectItem key={year} value={year.toString()}>
-                                                    {year}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* Month Filter */}
-                                    <Select value={selectedMonth.toString()} onValueChange={(value) => setSelectedMonth(parseInt(value))}>
-                                        <SelectTrigger className="border-2 border-slate-200 hover:border-green-300 focus:border-green-500 dark:border-slate-600 dark:hover:border-green-400 dark:focus:border-green-400 dark:bg-slate-700 dark:text-white">
-                                            <SelectValue placeholder={t("Select Month")} />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {PERSIAN_MONTHS.map((month, index) => (
-                                                <SelectItem key={index + 1} value={(index + 1).toString()}>
-                                                    {month} ({index + 1})
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* Department Filter */}
-                                    <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
-                                        <SelectTrigger className="border-2 border-slate-200 hover:border-green-300 focus:border-green-500 dark:border-slate-600 dark:hover:border-green-400 dark:focus:border-green-400 dark:bg-slate-700 dark:text-white">
-                                            <SelectValue placeholder={t("All Departments")} />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="">{t("All Departments")}</SelectItem>
-                                            {departments.map((dept) => (
-                                                <SelectItem key={dept} value={dept}>
-                                                    {dept}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-
-                                    {/* Search */}
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                            <CardContent className="p-6">
+                                {/* Search Bar */}
+                                <div className="mb-4">
+                                    <div className="relative w-full">
+                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                         <Input
-                                            type="text"
                                             placeholder={t("Search employees...")}
                                             value={searchTerm}
                                             onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="pl-10 border-2 border-slate-200 hover:border-green-300 focus:border-green-500 dark:border-slate-600 dark:hover:border-green-400 dark:focus:border-green-400 dark:bg-slate-700 dark:text-white"
+                                            className="pl-12 h-12 text-lg border border-slate-300 dark:border-slate-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-lg w-full bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400"
                                         />
+                                        {searchTerm && (
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => setSearchTerm("")}
+                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
+
+                                {/* Advanced Filters */}
+                                <AnimatePresence>
+                                    {showFilters && (
+                                        <motion.div
+                                            initial={{
+                                                height: 0,
+                                                opacity: 0,
+                                            }}
+                                            animate={{
+                                                height: "auto",
+                                                opacity: 1,
+                                            }}
+                                            exit={{
+                                                height: 0,
+                                                opacity: 0,
+                                            }}
+                                            transition={{
+                                                duration: 0.3,
+                                            }}
+                                            className="relative"
+                                        >
+                                            <div 
+                                                className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700 filters-grid"
+                                                data-expanded="false"
+                                                id="filters-grid"
+                                            >
+                                                <div className="relative select-container" data-state="closed">
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Year")}
+                                                    </label>
+                                                    <Select 
+                                                        value={selectedYear.toString()} 
+                                                        onValueChange={(value) => setSelectedYear(parseInt(value))}
+                                                        onOpenChange={(open) => {
+                                                            const container = document.querySelector('.select-container:nth-child(1)');
+                                                            const grid = document.getElementById('filters-grid');
+                                                            if (container) {
+                                                                container.setAttribute('data-state', open ? 'open' : 'closed');
+                                                            }
+                                                            if (grid) {
+                                                                grid.setAttribute('data-expanded', open ? 'true' : 'false');
+                                                            }
+                                                        }}
+                                                    >
+                                                        <SelectTrigger className="h-10 w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white select-trigger">
+                                                            <SelectValue  placeholder={t("Select Year")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent 
+                                                            position="popper" 
+                                                            sideOffset={5}
+                                                            className="w-[var(--radix-select-trigger-width)]"
+                                                        >
+                                                            {yearOptions.map((year) => (
+                                                                <SelectItem key={year} value={year.toString()} className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                    {year}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+
+                                                <div className="relative select-container" data-state="closed">
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Month")}
+                                                    </label>
+                                                    <Select 
+                                                        value={selectedMonth.toString()} 
+                                                        onValueChange={(value) => setSelectedMonth(parseInt(value))}
+                                                        onOpenChange={(open) => {
+                                                            const container = document.querySelector('.select-container:nth-child(2)');
+                                                            const grid = document.getElementById('filters-grid');
+                                                            if (container) {
+                                                                container.setAttribute('data-state', open ? 'open' : 'closed');
+                                                            }
+                                                            if (grid) {
+                                                                grid.setAttribute('data-expanded', open ? 'true' : 'false');
+                                                            }
+                                                        }}
+                                                    >
+                                                        <SelectTrigger className="h-10 w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white select-trigger">
+                                                            <SelectValue placeholder={t("Select Month")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent 
+                                                            position="popper" 
+                                                            sideOffset={5}
+                                                            className="w-[var(--radix-select-trigger-width)]"
+                                                        >
+                                                            {PERSIAN_MONTHS.map((month, index) => (
+                                                                <SelectItem key={index + 1} value={(index + 1).toString()} className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                    {month} ({index + 1})
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+
+                                                <div className="relative select-container" data-state="closed">
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Department")}
+                                                    </label>
+                                                    <Select 
+                                                        value={selectedDepartment} 
+                                                        onValueChange={setSelectedDepartment}
+                                                        onOpenChange={(open) => {
+                                                            const container = document.querySelector('.select-container:nth-child(3)');
+                                                            const grid = document.getElementById('filters-grid');
+                                                            if (container) {
+                                                                container.setAttribute('data-state', open ? 'open' : 'closed');
+                                                            }
+                                                            if (grid) {
+                                                                grid.setAttribute('data-expanded', open ? 'true' : 'false');
+                                                            }
+                                                        }}
+                                                    >
+                                                        <SelectTrigger className="h-10 w-full border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white select-trigger">
+                                                            <SelectValue placeholder={t("All Departments")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent 
+                                                            position="popper" 
+                                                            sideOffset={5}
+                                                            className="w-[var(--radix-select-trigger-width)]"
+                                                        >
+                                                            <SelectItem value="" className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                {t("All Departments")}
+                                                            </SelectItem>
+                                                            {departments.map((dept) => (
+                                                                <SelectItem key={dept} value={dept} className="text-slate-900 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                    {dept}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+
+                                                <div className="flex items-end select-container" data-state="closed">
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={() => {
+                                                            setSelectedYear(new Date().getFullYear());
+                                                            setSelectedMonth(new Date().getMonth() + 1);
+                                                            setSelectedDepartment("");
+                                                            setSearchTerm("");
+                                                        }}
+                                                        className="w-full h-10 gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
+                                                    >
+                                                        <RefreshCw className="h-4 w-4" />
+                                                        {t("Clear Filters")}
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
                             </CardContent>
                         </Card>
                     </motion.div>

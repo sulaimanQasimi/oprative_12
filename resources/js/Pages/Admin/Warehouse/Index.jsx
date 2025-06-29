@@ -27,6 +27,8 @@ import {
     Building,
     Shield,
     BarChart3,
+    X,
+    ChevronDown,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -58,6 +60,7 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
     const [sortDirection, setSortDirection] = useState("asc");
     const [filterStatus, setFilterStatus] = useState("all");
     const [selectedWarehouses, setSelectedWarehouses] = useState([]);
+    const [showFilters, setShowFilters] = useState(false);
 
     // Refs for animation targets
     const headerRef = useRef(null);
@@ -384,45 +387,144 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                 />
                             </div>
 
-                            {/* Filters and Search */}
-                            <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm overflow-visible">
-                                <CardContent className="p-6 overflow-visible">
-                                    <div className="flex flex-col lg:flex-row gap-4 overflow-visible">
-                                        <div className="relative flex-1">
-                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            {/* Enhanced Search & Filter Card */}
+                            <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                                    <div className="flex items-center justify-between">
+                                        <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
+                                            <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                                <Filter className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                                            </div>
+                                            {t("Search & Filter")}
+                                        </CardTitle>
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setShowFilters(!showFilters)}
+                                            className="gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                        >
+                                            <Filter className="h-4 w-4" />
+                                            {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                            <ChevronDown className={`h-4 w-4 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+                                        </Button>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="p-6">
+                                    {/* Search Bar */}
+                                    <div className="mb-4">
+                                        <div className="relative w-full">
+                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                                             <Input
-                                                type="text"
                                                 placeholder={t("Search warehouses by name, code, or location...")}
                                                 value={searchTerm}
                                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                                className="pl-10 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700"
+                                                className="pl-12 h-12 text-lg border border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                                             />
+                                            {searchTerm && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => setSearchTerm("")}
+                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            )}
                                         </div>
-                                        <div className="flex gap-3 relative">
-                                            <div className="relative">
-                                                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                                                    <SelectTrigger className="w-48 bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700">
-                                                        <Filter className="h-4 w-4 mr-2" />
-                                                        <SelectValue placeholder={t("Filter by status")} />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="z-[9999] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl max-h-60 overflow-auto relative">
-                                                        <SelectItem value="all">{t("All Warehouses")}</SelectItem>
-                                                        <SelectItem value="active">{t("Active Only")}</SelectItem>
-                                                        <SelectItem value="inactive">{t("Inactive Only")}</SelectItem>
-                                                        <SelectItem value="with_users">{t("With Users")}</SelectItem>
-                                                        <SelectItem value="with_products">{t("With Products")}</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <Button
-                                                variant="outline"
-                                                onClick={() => handleSort("name")}
-                                                className="bg-white/50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800"
+                                    </div>
+
+                                    {/* Advanced Filters */}
+                                    <AnimatePresence>
+                                        {showFilters && (
+                                            <motion.div
+                                                initial={{
+                                                    height: 0,
+                                                    opacity: 0,
+                                                }}
+                                                animate={{
+                                                    height: "auto",
+                                                    opacity: 1,
+                                                }}
+                                                exit={{
+                                                    height: 0,
+                                                    opacity: 0,
+                                                }}
+                                                transition={{
+                                                    duration: 0.3,
+                                                }}
+                                                className="relative"
                                             >
-                                                <ArrowUpDown className="h-4 w-4 mr-2" />
-                                                {t("Sort")}
-                                            </Button>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                                                    <div className="relative z-50">
+                                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                            {t("Status")}
+                                                        </label>
+                                                        <Select value={filterStatus} onValueChange={setFilterStatus}>
+                                                            <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                                <SelectValue>
+                                                                    {filterStatus === "all" 
+                                                                        ? t("All Warehouses") 
+                                                                        : filterStatus === "active" 
+                                                                        ? t("Active Only") 
+                                                                        : filterStatus === "inactive" 
+                                                                        ? t("Inactive Only") 
+                                                                        : filterStatus === "with_users" 
+                                                                        ? t("With Users") 
+                                                                        : filterStatus === "with_products" 
+                                                                        ? t("With Products") 
+                                                                        : t("Select status")}
+                                                                </SelectValue>
+                                                            </SelectTrigger>
+                                                            <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+                                                                <SelectItem value="all" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                    {t("All Warehouses")}
+                                                                </SelectItem>
+                                                                <SelectItem value="active" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                    {t("Active Only")}
+                                                                </SelectItem>
+                                                                <SelectItem value="inactive" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                    {t("Inactive Only")}
+                                                                </SelectItem>
+                                                                <SelectItem value="with_users" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                    {t("With Users")}
+                                                                </SelectItem>
+                                                                <SelectItem value="with_products" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                                    {t("With Products")}
+                                                                </SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+
+                                                    <div className="flex items-end">
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={() => {
+                                                                setFilterStatus("all");
+                                                                setSearchTerm("");
+                                                            }}
+                                                            className="w-full h-10 gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                        >
+                                                            <RefreshCw className="h-4 w-4" />
+                                                            {t("Clear Filters")}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Results Summary */}
+                                    <div className="mt-4 flex items-center justify-between text-sm text-slate-600 dark:text-slate-300">
+                                        <div>
+                                            {t("Showing")} <span className="font-medium">{sortedWarehouses.length}</span> {t("of")} <span className="font-medium">{warehouses?.length || 0}</span> {t("warehouses")}
                                         </div>
+                                        {selectedWarehouses.length > 0 && (
+                                            <div className="flex items-center gap-2">
+                                                <span>{selectedWarehouses.length} {t("selected")}</span>
+                                                <Button variant="outline" size="sm">
+                                                    {t("Bulk Actions")}
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </CardContent>
                             </Card>
