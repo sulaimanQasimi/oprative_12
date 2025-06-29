@@ -488,7 +488,6 @@ class CustomerController extends Controller
                     'sort_order' => $sortOrder,
                 ],
                 'permissions' => $this->getCustomerPermissions(),
-                'auth' => ['user' => Auth::user()]
             ]);
             
         } catch (\Exception $e) {

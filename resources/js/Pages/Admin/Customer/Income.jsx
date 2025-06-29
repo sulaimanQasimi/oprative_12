@@ -129,10 +129,6 @@ export default function Income({
 
     // Calculate totals from paginated data
     const incomesData = incomes?.data || incomes || [];
-    const totalIncomes = incomes?.total || incomesData.length;
-    const totalQuantity = incomesData.reduce((sum, income) => sum + (income.quantity || 0), 0);
-    const totalValue = incomesData.reduce((sum, income) => sum + (income.total || 0), 0);
-    const avgIncomeValue = totalIncomes > 0 ? totalValue / totalIncomes : 0;
 
     const getStatusBadge = (status) => {
         const statusConfig = {
@@ -348,122 +344,11 @@ export default function Income({
                                     </Card>
                                 </motion.div>
 
-                                {/* Enhanced Summary Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                    <motion.div
-                                        initial={{ scale: 0.9, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 0.9, duration: 0.4 }}
-                                    >
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Income")}
-                                                        </p>
-                                                        <p className="text-3xl font-bold text-green-600">
-                                                            {totalIncomes}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Records")}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl">
-                                                        <TrendingUp className="h-8 w-8 text-green-600" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ scale: 0.9, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 1.0, duration: 0.4 }}
-                                    >
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Quantity")}
-                                                        </p>
-                                                        <p className="text-3xl font-bold text-blue-600">
-                                                            {totalQuantity.toLocaleString()}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Units")}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl">
-                                                        <Package className="h-8 w-8 text-blue-600" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ scale: 0.9, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 1.1, duration: 0.4 }}
-                                    >
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Value")}
-                                                        </p>
-                                                        <p className="text-3xl font-bold text-purple-600">
-                                                            {formatCurrency(totalValue)}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Income value")}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
-                                                        <DollarSign className="h-8 w-8 text-purple-600" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ scale: 0.9, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 1.2, duration: 0.4 }}
-                                    >
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Average Income")}
-                                                        </p>
-                                                        <p className="text-3xl font-bold text-orange-600">
-                                                            {formatCurrency(avgIncomeValue)}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Per record")}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
-                                                        <BarChart3 className="h-8 w-8 text-orange-600" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-                                </div>
-
                                 {/* Search */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 1.3, duration: 0.4 }}
+                                    transition={{ delay: 0.9, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                         <CardContent className="p-6">
@@ -484,7 +369,7 @@ export default function Income({
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
-                                    transition={{ delay: 1.4, duration: 0.4 }}
+                                    transition={{ delay: 1.0, duration: 0.4 }}
                                 >
                                     <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
                                         <CardHeader>
@@ -603,7 +488,7 @@ export default function Income({
                                     <motion.div
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.5, duration: 0.4 }}
+                                        transition={{ delay: 1.1, duration: 0.4 }}
                                         className="flex flex-col items-center space-y-4"
                                     >
                                         <div className="text-sm text-slate-600 dark:text-slate-400">
