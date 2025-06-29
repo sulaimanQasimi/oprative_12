@@ -75,38 +75,14 @@ export default function Index({ auth, purchases, suppliers }) {
             <Head title={t("Purchases")}>
                 <style>{`
                     .glass-effect {
-                        background: rgba(255, 255, 255, 0.95);
-                        backdrop-filter: blur(12px);
-                        border: 1px solid rgba(226, 232, 240, 0.8);
+                        background: rgba(255, 255, 255, 0.1);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
                     }
                     .dark .glass-effect {
-                        background: rgba(15, 23, 42, 0.95);
-                        backdrop-filter: blur(12px);
-                        border: 1px solid rgba(51, 65, 85, 0.8);
-                    }
-                    .header-glass {
-                        background: rgba(255, 255, 255, 0.98);
-                        backdrop-filter: blur(20px);
-                        border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-                    }
-                    .dark .header-glass {
-                        background: rgba(15, 23, 42, 0.98);
-                        backdrop-filter: blur(20px);
-                        border-bottom: 1px solid rgba(51, 65, 85, 0.6);
-                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-                    }
-                    .content-card {
-                        background: rgba(255, 255, 255, 0.98);
-                        backdrop-filter: blur(16px);
-                        border: 1px solid rgba(226, 232, 240, 0.8);
-                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
-                    }
-                    .dark .content-card {
-                        background: rgba(15, 23, 42, 0.98);
-                        backdrop-filter: blur(16px);
-                        border: 1px solid rgba(51, 65, 85, 0.8);
-                        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+                        background: rgba(0, 0, 0, 0.2);
+                        backdrop-filter: blur(10px);
+                        border: 1px solid rgba(255, 255, 255, 0.1);
                     }
                 `}</style>
             </Head>
