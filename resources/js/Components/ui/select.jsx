@@ -183,11 +183,8 @@ const SelectItem = forwardRef(({
             className={cn(
                 "relative flex w-full cursor-pointer select-none items-center rounded-sm py-2 pl-8 pr-2 text-sm outline-none transition-colors hover:bg-slate-100 focus:bg-slate-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:hover:bg-slate-700 dark:focus:bg-slate-700",
                 isSelected && "bg-slate-100 dark:bg-slate-700",
-                disabled && "cursor-not-allowed opacity-50",
-                className
             )}
             onClick={handleClick}
-            data-disabled={disabled}
             {...props}
         >
             <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
