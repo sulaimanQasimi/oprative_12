@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     TrendingUp,
@@ -68,16 +68,29 @@ import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import BackButton from "@/Components/BackButton";
 
-export default function Income({ auth, customer, incomes, permissions = {} }) {
+export default function Income({ 
+    auth, 
+    customer, 
+    incomes = {
+        data: [],
+        total: 0,
+        from: 0,
+        to: 0,
+        current_page: 1,
+        last_page: 1,
+        links: [],
+    },
+    filters = {},
+    permissions = {} 
+}) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [dateFilter, setDateFilter] = useState("");
-    const [sortBy, setSortBy] = useState("created_at");
-    const [sortOrder, setSortOrder] = useState("desc");
+    const [searchTerm, setSearchTerm] = useState(filters.search || "");
+    const [dateFilter, setDateFilter] = useState(filters.date || "");
+    const [sortBy, setSortBy] = useState(filters.sort_by || "created_at");
+    const [sortOrder, setSortOrder] = useState(filters.sort_order || "desc");
     const [showFilters, setShowFilters] = useState(false);
-    const [filteredIncomes, setFilteredIncomes] = useState(incomes || []);
 
     // Animation effect
     useEffect(() => {
@@ -88,58 +101,37 @@ export default function Income({ auth, customer, incomes, permissions = {} }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Enhanced filtering logic
+    // Handle search with debounce
     useEffect(() => {
-        let filtered = [...incomes];
-
-        // Search filter
-        if (searchTerm) {
-            filtered = filtered.filter(income =>
-                income.reference_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                income.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                income.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                income.product.type?.toLowerCase().includes(searchTerm.toLowerCase())
+        const timer = setTimeout(() => {
+            router.get(
+                route("admin.customers.income", customer.id),
+                { search: searchTerm },
+                { preserveState: true, preserveScroll: true }
             );
-        }
+        }, 300);
 
-        // Date filter
-        if (dateFilter) {
-            const filterDate = new Date(dateFilter);
-            filtered = filtered.filter(income => {
-                const incomeDate = new Date(income.created_at);
-                return incomeDate.toDateString() === filterDate.toDateString();
-            });
-        }
+        return () => clearTimeout(timer);
+    }, [searchTerm, customer.id]);
 
-        // Sorting
-        filtered.sort((a, b) => {
-            let aValue = a[sortBy];
-            let bValue = b[sortBy];
+    // Handle filter changes
+    useEffect(() => {
+        router.get(
+            route("admin.customers.income", customer.id),
+            {
+                date: dateFilter,
+                sort_by: sortBy,
+                sort_order: sortOrder,
+            },
+            { preserveState: true, preserveScroll: true }
+        );
+    }, [dateFilter, sortBy, sortOrder, customer.id]);
 
-            if (sortBy === 'product.name') {
-                aValue = a.product.name;
-                bValue = b.product.name;
-            }
-
-            if (typeof aValue === 'string') {
-                aValue = aValue.toLowerCase();
-                bValue = bValue.toLowerCase();
-            }
-
-            if (sortOrder === 'asc') {
-                return aValue > bValue ? 1 : -1;
-            } else {
-                return aValue < bValue ? 1 : -1;
-            }
-        });
-
-        setFilteredIncomes(filtered);
-    }, [searchTerm, dateFilter, sortBy, sortOrder, incomes]);
-
-    // Calculate totals
-    const totalIncomes = filteredIncomes.length;
-    const totalQuantity = filteredIncomes.reduce((sum, income) => sum + (income.quantity || 0), 0);
-    const totalValue = filteredIncomes.reduce((sum, income) => sum + (income.total || 0), 0);
+    // Calculate totals from paginated data
+    const incomesData = incomes?.data || incomes || [];
+    const totalIncomes = incomes?.total || incomesData.length;
+    const totalQuantity = incomesData.reduce((sum, income) => sum + (income.quantity || 0), 0);
+    const totalValue = incomesData.reduce((sum, income) => sum + (income.total || 0), 0);
     const avgIncomeValue = totalIncomes > 0 ? totalValue / totalIncomes : 0;
 
     const getStatusBadge = (status) => {
@@ -500,12 +492,12 @@ export default function Income({ auth, customer, incomes, permissions = {} }) {
                                                 <BarChart3 className="h-5 w-5 text-green-600" />
                                                 {t("Income Records")}
                                                 <Badge variant="secondary">
-                                                    {filteredIncomes.length} {t("of")} {incomes.length}
+                                                    {incomesData.length} {t("of")} {incomes.total}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-0">
-                                            {filteredIncomes.length > 0 ? (
+                                            {incomesData.length > 0 ? (
                                                 <div className="overflow-x-auto">
                                                     <Table>
                                                         <TableHeader>
@@ -534,7 +526,7 @@ export default function Income({ auth, customer, incomes, permissions = {} }) {
                                                             </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
-                                                            {filteredIncomes.map((income, index) => (
+                                                            {incomesData.map((income, index) => (
                                                                 <TableRow
                                                                     key={income.id}
                                                                     className="hover:bg-green-50 dark:hover:bg-green-900/10"
@@ -605,6 +597,70 @@ export default function Income({ auth, customer, incomes, permissions = {} }) {
                                         </CardContent>
                                     </Card>
                                 </motion.div>
+
+                                {/* Pagination */}
+                                {incomes?.links && incomes.links.length > 3 && (
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.5, duration: 0.4 }}
+                                        className="flex flex-col items-center space-y-4"
+                                    >
+                                        <div className="text-sm text-slate-600 dark:text-slate-400">
+                                            {t("Showing")} {incomes.from} {t("to")} {incomes.to} {t("of")} {incomes.total} {t("results")}
+                                        </div>
+                                        <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
+                                            {incomes.links.map((link, index) => {
+                                                if (link.label.includes('Previous')) {
+                                                    return (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url || '#'}
+                                                            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                link.url
+                                                                    ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                            }`}
+                                                        >
+                                                            <ChevronLeft className="h-4 w-4" />
+                                                            <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                        </Link>
+                                                    );
+                                                }
+                                                if (link.label.includes('Next')) {
+                                                    return (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url || '#'}
+                                                            className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                link.url
+                                                                    ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                            }`}
+                                                        >
+                                                            <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                            <ChevronRight className="h-4 w-4" />
+                                                        </Link>
+                                                    );
+                                                }
+                                                return (
+                                                    <Link
+                                                        key={index}
+                                                        href={link.url || '#'}
+                                                        className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                            link.active
+                                                                ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg'
+                                                                : link.url
+                                                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                        }`}
+                                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    </motion.div>
+                                )}
                             </motion.div>
                         </div>
                     </main>
