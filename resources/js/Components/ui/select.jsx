@@ -10,6 +10,7 @@ const Select = ({ children, value, onValueChange, open, onOpenChange, ...props }
     const isControlled = open !== undefined;
     const isOpen = isControlled ? open : internalOpen;
     const setIsOpen = isControlled ? onOpenChange : setInternalOpen;
+    const selectId = useRef(`select-${Math.random().toString(36).substr(2, 9)}`);
 
     return (
         <SelectContext.Provider value={{ 
@@ -17,9 +18,10 @@ const Select = ({ children, value, onValueChange, open, onOpenChange, ...props }
             onValueChange, 
             open: isOpen, 
             setOpen: setIsOpen,
-            isControlled 
+            isControlled,
+            selectId: selectId.current
         }}>
-            <div className="relative" {...props}>
+            <div className="relative" data-select-container data-select-id={selectId.current} {...props}>
                 {children}
             </div>
         </SelectContext.Provider>
@@ -27,7 +29,7 @@ const Select = ({ children, value, onValueChange, open, onOpenChange, ...props }
 };
 
 const SelectTrigger = forwardRef(({ className, children, disabled, ...props }, ref) => {
-    const { open, setOpen } = useContext(SelectContext);
+    const { open, setOpen, selectId } = useContext(SelectContext);
 
     return (
         <button
@@ -35,6 +37,7 @@ const SelectTrigger = forwardRef(({ className, children, disabled, ...props }, r
             ref={ref}
             disabled={disabled}
             data-select-trigger
+            data-select-id={selectId}
             onClick={() => setOpen(!open)}
             className={cn(
                 "flex h-10 w-full items-center justify-between rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400 dark:focus:ring-blue-400 dark:focus:ring-offset-slate-800",
@@ -78,10 +81,11 @@ const SelectContent = forwardRef(({
     avoidCollisions = true,
     ...props 
 }, ref) => {
-    const { open, setOpen } = useContext(SelectContext);
+    const { open, setOpen, selectId } = useContext(SelectContext);
     const contentRef = useRef(null);
     const triggerRef = useRef(null);
     const [positionStyle, setPositionStyle] = useState({});
+    const [zIndex, setZIndex] = useState(9999);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -97,6 +101,14 @@ const SelectContent = forwardRef(({
         };
 
         if (open) {
+            // Set a higher z-index for the most recently opened select
+            const currentMaxZIndex = Math.max(
+                9999,
+                ...Array.from(document.querySelectorAll('[data-select-content]'))
+                    .map(el => parseInt(el.style.zIndex) || 9999)
+            );
+            setZIndex(currentMaxZIndex + 1);
+            
             document.addEventListener('mousedown', handleClickOutside);
             document.addEventListener('keydown', handleEscape);
             return () => {
@@ -108,8 +120,8 @@ const SelectContent = forwardRef(({
 
     useEffect(() => {
         if (open) {
-            // Find the trigger element
-            const triggerElement = document.querySelector('[data-select-trigger]');
+            // Find the specific trigger element for this select
+            const triggerElement = document.querySelector(`[data-select-trigger][data-select-id="${selectId}"]`);
             if (triggerElement) {
                 const rect = triggerElement.getBoundingClientRect();
                 const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -120,11 +132,11 @@ const SelectContent = forwardRef(({
                     top: rect.bottom + scrollTop + sideOffset,
                     left: rect.left + scrollLeft,
                     width: rect.width,
-                    zIndex: 9999,
+                    zIndex,
                 });
             }
         }
-    }, [open, sideOffset]);
+    }, [open, sideOffset, selectId, zIndex]);
 
     if (!open) return null;
 
@@ -143,6 +155,7 @@ const SelectContent = forwardRef(({
                 className
             )}
             style={positionStyle}
+            data-select-content
             {...props}
         >
             <div className="p-1 max-h-[300px] overflow-y-auto">
