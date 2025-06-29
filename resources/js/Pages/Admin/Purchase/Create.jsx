@@ -23,6 +23,7 @@ import { Badge } from "@/Components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Create({ auth, suppliers, currencies, invoiceNumber }) {
     const { t } = useLaravelReactI18n();
@@ -138,12 +139,7 @@ export default function Create({ auth, suppliers, currencies, invoiceNumber }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route("admin.purchases.index")}>
-                                    <Button variant="outline" className="gap-2 dark:text-white">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Purchases")}
-                                    </Button>
-                                </Link>
+                                <BackButton link={route("admin.purchases.index")} />
                             </motion.div>
                         </div>
                     </motion.header>
