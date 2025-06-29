@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     ShoppingCart,
@@ -14,22 +14,37 @@ import {
     DollarSign,
     Calendar,
     FileText,
-    Truck
+    Truck,
+    RefreshCw,
+    X,
+    ChevronLeft,
+    ChevronRight
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
 import { Input } from "@/Components/ui/input";
 import { Badge } from "@/Components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/Components/ui/select";
 import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Index({ auth, purchases, suppliers }) {
+export default function Index({ auth, purchases = {}, suppliers, filters = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
+    const [searchTerm, setSearchTerm] = useState(filters.search || "");
+    const [statusFilter, setStatusFilter] = useState(filters.status || "all");
+    const [sortField, setSortField] = useState(filters.sort_field || "invoice_date");
+    const [sortDirection, setSortDirection] = useState(filters.sort_direction || "desc");
+    const [perPage, setPerPage] = useState(filters.per_page || 10);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -38,6 +53,29 @@ export default function Index({ auth, purchases, suppliers }) {
         }, 800);
         return () => clearTimeout(timer);
     }, []);
+
+    // Handle search/filter
+    const handleSearch = () => {
+        router.get(route('admin.purchases.index'), {
+            search: searchTerm,
+            status: statusFilter,
+            sort_field: sortField,
+            sort_direction: sortDirection,
+            per_page: perPage,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setStatusFilter("all");
+        setSortField("invoice_date");
+        setSortDirection("desc");
+        setPerPage(10);
+        router.get(route('admin.purchases.index'));
+    };
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', {
@@ -67,8 +105,72 @@ export default function Index({ auth, purchases, suppliers }) {
     };
 
     const purchaseData = purchases?.data || purchases || [];
-    const totalPurchases = purchaseData.length;
+    const totalPurchases = purchases?.total || purchaseData.length;
     const totalAmount = purchaseData.reduce((sum, purchase) => sum + (purchase.total_amount || 0), 0);
+
+    // Pagination
+    const renderPagination = () => {
+        if (!purchases?.links || purchases.links.length <= 3) return null;
+        return (
+            <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 1.5, duration: 0.4 }}
+                className="flex items-center justify-center space-x-2"
+            >
+                <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
+                    {purchases.links.map((link, index) => {
+                        if (link.label.includes('Previous')) {
+                            return (
+                                <Link
+                                    key={index}
+                                    href={link.url || '#'}
+                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                        link.url
+                                            ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                            : 'text-gray-400 cursor-not-allowed'
+                                    }`}
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                    <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                </Link>
+                            );
+                        }
+                        if (link.label.includes('Next')) {
+                            return (
+                                <Link
+                                    key={index}
+                                    href={link.url || '#'}
+                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                        link.url
+                                            ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                            : 'text-gray-400 cursor-not-allowed'
+                                    }`}
+                                >
+                                    <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Link>
+                            );
+                        }
+                        return (
+                            <Link
+                                key={index}
+                                href={link.url || '#'}
+                                className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                    link.active
+                                        ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg'
+                                        : link.url
+                                            ? 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                            : 'text-gray-400 cursor-not-allowed'
+                                }`}
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                            />
+                        );
+                    })}
+                </div>
+            </motion.div>
+        );
+    };
 
     return (
         <>
@@ -83,6 +185,29 @@ export default function Index({ auth, purchases, suppliers }) {
                         background: rgba(0, 0, 0, 0.2);
                         backdrop-filter: blur(10px);
                         border: 1px solid rgba(255, 255, 255, 0.1);
+                    }
+                    .search-input {
+                        background: rgba(255, 255, 255, 1);
+                        border: 1px solid rgba(226, 232, 240, 1);
+                        transition: all 0.2s ease-in-out;
+                    }
+                    .dark .search-input {
+                        background: rgba(30, 41, 59, 1);
+                        border: 1px solid rgba(51, 65, 85, 1);
+                    }
+                    .search-input:focus {
+                        border-color: #10b981;
+                        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+                    }
+                    .dark .search-input:focus {
+                        border-color: #34d399;
+                        box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+                    }
+                    .search-input:hover {
+                        border-color: #a7f3d0;
+                    }
+                    .dark .search-input:hover {
+                        border-color: #475569;
                     }
                 `}</style>
             </Head>
@@ -218,28 +343,95 @@ export default function Index({ auth, purchases, suppliers }) {
                                 </Card>
                             </div>
 
-                            {/* Search */}
+                            {/* Search and Filter */}
                             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                <CardContent className="p-6">
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                        <Input
-                                            placeholder={t("Search purchases...")}
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
-                                        />
-                                    </div>
+                                <CardHeader>
+                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
+                                        <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-lg">
+                                            <Search className="h-5 w-5 text-white" />
+                                        </div>
+                                        {t("Search & Filter")}
+                                        {(searchTerm || statusFilter !== "all") && (
+                                            <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                {t("Filtered")}
+                                            </Badge>
+                                        )}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                    <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex flex-col lg:flex-row gap-4">
+                                        <div className="relative flex-1">
+                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                            <Input
+                                                placeholder={t("Search purchases by invoice, supplier, or amount...")}
+                                                value={searchTerm}
+                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                className="search-input pl-10 h-12 transition-colors"
+                                            />
+                                            {searchTerm && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => setSearchTerm("")}
+                                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+
+                                        <div className="flex gap-2">
+                                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                                                <SelectTrigger className="search-input w-48 h-12">
+                                                    <SelectValue placeholder={t("Filter by status")} />
+                                                </SelectTrigger>
+                                                <SelectContent className="z-50">
+                                                    <SelectItem value="all">{t("All Status")}</SelectItem>
+                                                    <SelectItem value="purchase">{t("Purchase")}</SelectItem>
+                                                    <SelectItem value="onway">{t("On Way")}</SelectItem>
+                                                    <SelectItem value="arrived">{t("Arrived")}</SelectItem>
+                                                    <SelectItem value="return">{t("Return")}</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+
+                                            <Button type="submit" className="gap-2 h-12 bg-green-600 hover:bg-green-700">
+                                                <Search className="h-4 w-4" />
+                                                {t("Search")}
+                                            </Button>
+
+                                            {(searchTerm || statusFilter !== "all") && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={clearFilters}
+                                                    className="gap-2 h-12 border-slate-200 hover:border-green-300 dark:border-slate-600 dark:hover:border-green-400"
+                                                >
+                                                    <RefreshCw className="h-4 w-4" />
+                                                    {t("Clear")}
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </form>
                                 </CardContent>
                             </Card>
 
                             {/* Purchases Table */}
                             <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-3">
-                                        <ShoppingCart className="h-5 w-5 text-green-600" />
+                                <CardHeader className="bg-gradient-to-r from-green-500/15 via-emerald-500/15 to-green-500/15 dark:from-green-500/25 dark:via-emerald-500/25 dark:to-green-500/25 border-b border-slate-200/60 dark:border-slate-600/60 rounded-t-xl">
+                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                        <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                                            <ShoppingCart className="h-6 w-6 text-white" />
+                                        </div>
                                         {t("Purchase Orders")}
-                                        <Badge variant="secondary">{purchaseData.length}</Badge>
+                                        <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border border-green-200 dark:border-green-700">
+                                            {purchaseData?.length || 0} {t("purchases")}
+                                            {purchases?.total && (
+                                                <span className="ml-1">
+                                                    {t("of")} {purchases.total}
+                                                </span>
+                                            )}
+                                        </Badge>
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-0">
@@ -323,6 +515,9 @@ export default function Index({ auth, purchases, suppliers }) {
                                     </div>
                                 </CardContent>
                             </Card>
+                            
+                            {/* Pagination */}
+                            {renderPagination()}
                         </motion.div>
                     </main>
                 </div>
