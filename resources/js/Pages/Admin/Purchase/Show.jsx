@@ -50,8 +50,9 @@ import { Badge } from "@/Components/ui/badge";
 import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
-export default function Show({ auth, purchase, purchaseItems, additionalCosts, payments, warehouses }) {
+export default function Show({ auth, purchase, purchaseItems, additionalCosts, payments, warehouses, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -132,7 +133,7 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
     const getTotalQuantity = () => (purchaseItems || []).reduce((sum, item) => sum + parseFloat(item.quantity || 0), 0);
 
     // Check if warehouse tab should be shown
-    const showWarehouseTab = purchase.status === 'arrived' && !purchase.is_moved_to_warehouse;
+    const showWarehouseTab = permissions.can_warehouse_transfer;
     
     // Check if purchase is locked (warehouse moved)
     const isPurchaseLocked = purchase.status === 'warehouse_moved';
@@ -230,21 +231,29 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-5"
                             >
-                                <Link href={route('admin.purchases.edit', purchase.id)}>
-                                    <Button className="relative group bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm">
-                                        <Edit className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
-                                    </Button>
-                                </Link>
+                                {permissions.can_update && (
+                                    <Link href={route('admin.purchases.edit', purchase.id)}>
+                                        <Button className="relative group bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm">
+                                            <Edit className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                        </Button>
+                                    </Link>
+                                )}
 
-                                <Button className="relative group bg-gradient-to-r from-rose-500 via-pink-500 to-red-500 hover:from-rose-600 hover:via-pink-600 hover:to-red-600 text-white shadow-2xl hover:shadow-rose-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm">
-                                    <Trash2 className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
-                                </Button>
-
-                                <Link href={route('admin.purchases.index')}>
-                                    <Button className="relative group bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500 hover:from-indigo-600 hover:via-purple-600 hover:to-violet-600 text-white shadow-2xl hover:shadow-indigo-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm">
-                                        <ArrowLeft className="h-5 w-5 relative z-10 group-hover:-translate-x-1 transition-transform duration-300" />
+                                {permissions.can_delete && (
+                                    <Button 
+                                        className="relative group bg-gradient-to-r from-rose-500 via-pink-500 to-red-500 hover:from-rose-600 hover:via-pink-600 hover:to-red-600 text-white shadow-2xl hover:shadow-rose-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm"
+                                        onClick={() => {
+                                            if (confirm(t('Are you sure you want to delete this purchase?'))) {
+                                                router.delete(route('admin.purchases.destroy', purchase.id));
+                                            }
+                                        }}
+                                    >
+                                        <Trash2 className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
                                     </Button>
-                                </Link>
+                                )}
+
+                                
+                                <BackButton link={route('admin.purchases.index')} />
                             </motion.div>
                         </div>
                     </motion.header>
@@ -649,24 +658,30 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                             </CardHeader>
                                             <CardContent className="p-6">
                                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                    <Link href={route('admin.purchases.items.create', purchase.id)}>
-                                                        <Button className="w-full gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                                            <Package className="h-4 w-4" />
-                                                            {t("Add Item")}
-                                                        </Button>
-                                                    </Link>
-                                                    <Link href={route('admin.purchases.payments.create', purchase.id)}>
-                                                        <Button className="w-full gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                                            <CreditCard className="h-4 w-4" />
-                                                            {t("Add Payment")}
-                                                        </Button>
-                                                    </Link>
-                                                    <Link href={route('admin.purchases.additional-costs.create', purchase.id)}>
-                                                        <Button className="w-full gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
-                                                            <Receipt className="h-4 w-4" />
-                                                            {t("Add Cost")}
-                                                        </Button>
-                                                    </Link>
+                                                    {permissions.can_create_items && (
+                                                        <Link href={route('admin.purchases.items.create', purchase.id)}>
+                                                            <Button className="w-full gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                                                <Package className="h-4 w-4" />
+                                                                {t("Add Item")}
+                                                            </Button>
+                                                        </Link>
+                                                    )}
+                                                    {permissions.can_create_payments && (
+                                                        <Link href={route('admin.purchases.payments.create', purchase.id)}>
+                                                            <Button className="w-full gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                                                <CreditCard className="h-4 w-4" />
+                                                                {t("Add Payment")}
+                                                            </Button>
+                                                        </Link>
+                                                    )}
+                                                    {permissions.can_create_additional_costs && (
+                                                        <Link href={route('admin.purchases.additional-costs.create', purchase.id)}>
+                                                            <Button className="w-full gap-2 bg-gradient-to-r from-orange-600 to-amber-600 text-white hover:scale-105 transition-all duration-200 shadow-lg">
+                                                                <Receipt className="h-4 w-4" />
+                                                                {t("Add Cost")}
+                                                            </Button>
+                                                        </Link>
+                                                    )}
                                                 </div>
                                             </CardContent>
                                         </Card>

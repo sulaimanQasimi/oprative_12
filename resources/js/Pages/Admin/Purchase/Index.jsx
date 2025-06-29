@@ -36,7 +36,7 @@ import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Index({ auth, purchases = {}, suppliers, filters = {} }) {
+export default function Index({ auth, purchases = {}, suppliers, filters = {}, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -270,16 +270,20 @@ export default function Index({ auth, purchases = {}, suppliers, filters = {} })
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2">
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
-                                <Link href={route("admin.purchases.create")}>
-                                    <Button className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white">
-                                        <Plus className="h-4 w-4" />
-                                        {t("New Purchase")}
+                                {permissions.can_export && (
+                                    <Button variant="outline" className="gap-2">
+                                        <Download className="h-4 w-4" />
+                                        {t("Export")}
                                     </Button>
-                                </Link>
+                                )}
+                                {permissions.can_create && (
+                                    <Link href={route("admin.purchases.create")}>
+                                        <Button className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white">
+                                            <Plus className="h-4 w-4" />
+                                            {t("New Purchase")}
+                                        </Button>
+                                    </Link>
+                                )}
                             </motion.div>
                         </div>
                     </motion.header>
@@ -473,23 +477,38 @@ export default function Index({ auth, purchases = {}, suppliers, filters = {} })
                                                                 {formatCurrency(purchase.total_amount)}
                                                             </TableCell>
                                                             <TableCell>{getStatusBadge(purchase.status)}</TableCell>
-                                                            <TableCell>
-                                                                <div className="flex items-center gap-2">
-                                                                    <Link href={route("admin.purchases.show", purchase.id)}>
-                                                                        <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                                                                            <Eye className="h-4 w-4 text-blue-600" />
-                                                                        </Button>
-                                                                    </Link>
-                                                                    <Link href={route("admin.purchases.edit", purchase.id)}>
-                                                                        <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                                                                            <Edit className="h-4 w-4 text-green-600" />
-                                                                        </Button>
-                                                                    </Link>
-                                                                    <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                                                                        <Trash2 className="h-4 w-4 text-red-600" />
-                                                                    </Button>
-                                                                </div>
-                                                            </TableCell>
+                                                                                                        <TableCell>
+                                                <div className="flex items-center gap-2">
+                                                    {permissions.can_view && (
+                                                        <Link href={route("admin.purchases.show", purchase.id)}>
+                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                                                                <Eye className="h-4 w-4 text-blue-600" />
+                                                            </Button>
+                                                        </Link>
+                                                    )}
+                                                    {permissions.can_update && (
+                                                        <Link href={route("admin.purchases.edit", purchase.id)}>
+                                                            <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                                                                <Edit className="h-4 w-4 text-green-600" />
+                                                            </Button>
+                                                        </Link>
+                                                    )}
+                                                    {permissions.can_delete && (
+                                                        <Button 
+                                                            size="sm" 
+                                                            variant="outline" 
+                                                            className="h-8 w-8 p-0"
+                                                            onClick={() => {
+                                                                if (confirm(t('Are you sure you want to delete this purchase?'))) {
+                                                                    router.delete(route('admin.purchases.destroy', purchase.id));
+                                                                }
+                                                            }}
+                                                        >
+                                                            <Trash2 className="h-4 w-4 text-red-600" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </TableCell>
                                                         </TableRow>
                                                     ))
                                                 ) : (

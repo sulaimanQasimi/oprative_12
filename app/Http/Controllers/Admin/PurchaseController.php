@@ -23,6 +23,8 @@ class PurchaseController extends Controller
      */
     public function index(Request $request)
     {
+        $this->authorize('viewAny', Purchase::class);
+        
         $query = Purchase::with(['supplier', 'currency', 'user', 'purchaseItems']);
 
         // Search functionality
@@ -37,7 +39,7 @@ class PurchaseController extends Controller
         }
 
         // Status filter
-        if ($request->filled('status')) {
+        if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
         }
 
@@ -46,7 +48,14 @@ class PurchaseController extends Controller
             $query->where('supplier_id', $request->supplier_id);
         }
 
-        $purchases = $query->latest()->paginate(10);
+        // Sorting
+        $sortField = $request->input('sort_field', 'invoice_date');
+        $sortDirection = $request->input('sort_direction', 'desc');
+        $query->orderBy($sortField, $sortDirection);
+
+        // Pagination
+        $perPage = $request->input('per_page', 10);
+        $purchases = $query->paginate($perPage);
         $purchases->appends($request->query());
 
         // Get filter options
@@ -60,15 +69,25 @@ class PurchaseController extends Controller
         });
         $suppliersCount = Supplier::count();
 
+        // Get permissions
+        $permissions = [
+            'can_view' => Auth::user()->can('view_purchase'),
+            'can_create' => Auth::user()->can('create_purchase'),
+            'can_update' => Auth::user()->can('update_purchase'),
+            'can_delete' => Auth::user()->can('delete_purchase'),
+            'can_export' => Auth::user()->can('view_purchase'),
+        ];
+
         return Inertia::render('Admin/Purchase/Index', [
             'purchases' => $purchases,
             'suppliers' => $suppliers,
-            'filters' => $request->only(['search', 'status', 'supplier_id']),
+            'filters' => $request->only(['search', 'status', 'supplier_id', 'sort_field', 'sort_direction', 'per_page']),
             'stats' => [
                 'total_purchases' => $totalPurchases,
                 'total_amount' => $totalAmount,
                 'suppliers_count' => $suppliersCount,
             ],
+            'permissions' => $permissions,
         ]);
     }
 
@@ -77,6 +96,8 @@ class PurchaseController extends Controller
      */
     public function create()
     {
+        $this->authorize('create', Purchase::class);
+        
         $suppliers = Supplier::select('id', 'name')->orderBy('name')->get();
         $currencies = Currency::select('id', 'name', 'code')->orderBy('name')->get();
 
@@ -96,6 +117,8 @@ class PurchaseController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', Purchase::class);
+        
         $validated = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'currency_id' => 'required|exists:currencies,id',
@@ -136,6 +159,8 @@ class PurchaseController extends Controller
      */
     public function show(Purchase $purchase)
     {
+        $this->authorize('view', $purchase);
+        
         try {
             $purchase->load([
                 'supplier',
@@ -163,6 +188,23 @@ class PurchaseController extends Controller
                 ->orderBy('name')
                 ->get();
 
+            // Get permissions for this purchase
+            $permissions = [
+                'can_view' => Auth::user()->can('view', $purchase),
+                'can_update' => Auth::user()->can('update', $purchase),
+                'can_delete' => Auth::user()->can('delete', $purchase),
+                'can_manage_items' => Auth::user()->can('manageItems', $purchase),
+                'can_create_items' => Auth::user()->can('createItems', $purchase),
+                'can_delete_items' => Auth::user()->can('deleteItems', $purchase),
+                'can_manage_payments' => Auth::user()->can('managePayments', $purchase),
+                'can_create_payments' => Auth::user()->can('createPayments', $purchase),
+                'can_delete_payments' => Auth::user()->can('deletePayments', $purchase),
+                'can_manage_additional_costs' => Auth::user()->can('manageAdditionalCosts', $purchase),
+                'can_create_additional_costs' => Auth::user()->can('createAdditionalCosts', $purchase),
+                'can_delete_additional_costs' => Auth::user()->can('deleteAdditionalCosts', $purchase),
+                'can_warehouse_transfer' => Auth::user()->can('warehouseTransfer', $purchase),
+            ];
+
             return Inertia::render('Admin/Purchase/Show', [
                 'purchase' => [
                     'id' => $purchase->id,
@@ -188,6 +230,7 @@ class PurchaseController extends Controller
                 'payments' => $purchase->payments,
                 'additionalCosts' => $purchase->additional_costs,
                 'warehouses' => $warehouses,
+                'permissions' => $permissions,
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading purchase: ' . $e->getMessage());
@@ -201,11 +244,7 @@ class PurchaseController extends Controller
      */
     public function edit(Purchase $purchase)
     {
-        // Prevent editing if purchase is moved to warehouse
-        if ($purchase->status === 'warehouse_moved') {
-            return redirect()->route('admin.purchases.show', $purchase->id)
-                ->with('error', 'Cannot edit purchase that has been moved to warehouse.');
-        }
+        $this->authorize('update', $purchase);
 
         $suppliers = Supplier::select('id', 'name')->orderBy('name')->get();
         $currencies = Currency::select('id', 'name', 'code')->orderBy('name')->get();
@@ -230,11 +269,7 @@ class PurchaseController extends Controller
      */
     public function update(Request $request, Purchase $purchase)
     {
-        // Prevent updating if purchase is moved to warehouse
-        if ($purchase->status === 'warehouse_moved') {
-            return redirect()->route('admin.purchases.show', $purchase->id)
-                ->with('error', 'Cannot update purchase that has been moved to warehouse.');
-        }
+        $this->authorize('update', $purchase);
 
         $validated = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
@@ -263,18 +298,9 @@ class PurchaseController extends Controller
      */
     public function destroy(Purchase $purchase)
     {
+        $this->authorize('delete', $purchase);
+        
         try {
-            // Check if purchase has items or payments
-            if ($purchase->purchaseItems()->count() > 0) {
-                return redirect()->back()
-                    ->with('error', 'Cannot delete purchase with existing items.');
-            }
-
-            if ($purchase->payments()->count() > 0) {
-                return redirect()->back()
-                    ->with('error', 'Cannot delete purchase with existing payments.');
-            }
-
             $purchase->delete();
 
             return redirect()->route('admin.purchases.index')
@@ -309,11 +335,7 @@ class PurchaseController extends Controller
      */
     public function createItem(Purchase $purchase)
     {
-        // Prevent adding items if purchase is moved to warehouse
-        if ($purchase->status === 'warehouse_moved') {
-            return redirect()->route('admin.purchases.show', $purchase->id)
-                ->with('error', 'Cannot add items to purchase that has been moved to warehouse.');
-        }
+        $this->authorize('createItems', $purchase);
 
         $products = Product::with(['wholesaleUnit', 'retailUnit'])
             ->select('id', 'name', 'purchase_price', 'wholesale_price', 'retail_price', 'whole_sale_unit_amount', 'retails_sale_unit_amount', 'wholesale_unit_id', 'retail_unit_id', 'barcode')
@@ -345,6 +367,11 @@ class PurchaseController extends Controller
                     ] : null,
                 ];
             });
+            
+        $permissions = [
+            'can_create_items' => Auth::user()->can('createItems', $purchase),
+        ];
+            
         return Inertia::render('Admin/Purchase/CreateItem', [
             'purchase' => [
                 'id' => $purchase->id,
@@ -353,6 +380,7 @@ class PurchaseController extends Controller
                 'currency' => $purchase->currency,
             ],
             'products' => $products,
+            'permissions' => $permissions,
         ]);
     }
 
@@ -361,11 +389,7 @@ class PurchaseController extends Controller
      */
     public function storeItem(Request $request, Purchase $purchase)
     {
-        // Prevent adding items if purchase is moved to warehouse
-        if ($purchase->status === 'warehouse_moved') {
-            return redirect()->route('admin.purchases.show', $purchase->id)
-                ->with('error', 'Cannot add items to purchase that has been moved to warehouse.');
-        }
+        $this->authorize('createItems', $purchase);
 
         try {
             $validated = $request->validate([
@@ -407,6 +431,8 @@ class PurchaseController extends Controller
      */
     public function destroyItem(Purchase $purchase, PurchaseItem $item)
     {
+        $this->authorize('deleteItems', $purchase);
+        
         try {
             DB::beginTransaction();
 
@@ -429,6 +455,12 @@ class PurchaseController extends Controller
      */
     public function createAdditionalCost(Purchase $purchase)
     {
+        $this->authorize('createAdditionalCosts', $purchase);
+        
+        $permissions = [
+            'can_create_additional_costs' => Auth::user()->can('createAdditionalCosts', $purchase),
+        ];
+        
         return Inertia::render('Admin/Purchase/CreateAdditionalCost', [
             'purchase' => [
                 'id' => $purchase->id,
@@ -436,6 +468,7 @@ class PurchaseController extends Controller
                 'invoice_date' => $purchase->invoice_date,
                 'currency' => $purchase->currency,
             ],
+            'permissions' => $permissions,
         ]);
     }
 
@@ -444,6 +477,8 @@ class PurchaseController extends Controller
      */
     public function storeAdditionalCost(Request $request, Purchase $purchase)
     {
+        $this->authorize('createAdditionalCosts', $purchase);
+        
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
@@ -478,6 +513,8 @@ class PurchaseController extends Controller
      */
     public function destroyAdditionalCost(Purchase $purchase, PurchaseHasAddionalCosts $cost)
     {
+        $this->authorize('deleteAdditionalCosts', $purchase);
+        
         try {
             DB::beginTransaction();
 
@@ -500,9 +537,15 @@ class PurchaseController extends Controller
      */
     public function createPayment(Purchase $purchase)
     {
+        $this->authorize('createPayments', $purchase);
+        
         $purchase->load(['supplier', 'currency']);
         $suppliers = Supplier::select('id', 'name')->orderBy('name')->get();
         $currencies = Currency::select('id', 'name', 'code')->orderBy('name')->get();
+
+        $permissions = [
+            'can_create_payments' => Auth::user()->can('createPayments', $purchase),
+        ];
 
         return Inertia::render('Admin/Purchase/CreatePayment', [
             'purchase' => [
@@ -514,6 +557,7 @@ class PurchaseController extends Controller
             ],
             'suppliers' => $suppliers,
             'currencies' => $currencies,
+            'permissions' => $permissions,
         ]);
     }
 
@@ -522,6 +566,8 @@ class PurchaseController extends Controller
      */
     public function storePayment(Request $request, Purchase $purchase)
     {
+        $this->authorize('createPayments', $purchase);
+        
         try {
             $validated = $request->validate([
                 'supplier_id' => 'required|exists:suppliers,id',
@@ -570,6 +616,8 @@ class PurchaseController extends Controller
      */
     public function destroyPayment(Purchase $purchase, PurchasePayment $payment)
     {
+        $this->authorize('deletePayments', $purchase);
+        
         try {
             DB::beginTransaction();
 
@@ -592,17 +640,7 @@ class PurchaseController extends Controller
      */
     public function warehouseTransfer(Purchase $purchase)
     {
-        // Only allow warehouse transfer for arrived purchases
-        if ($purchase->status !== 'arrived') {
-            return redirect()->back()
-                ->with('error', 'Warehouse transfer is only available for arrived purchases.');
-        }
-
-        // Check if already moved to warehouse
-        if ($purchase->is_moved_to_warehouse) {
-            return redirect()->back()
-                ->with('error', 'This purchase has already been moved to warehouse.');
-        }
+        $this->authorize('warehouseTransfer', $purchase);
 
         $warehouses = \App\Models\Warehouse::select('id', 'name', 'code')->where('is_active', true)->orderBy('name')->get();
 
@@ -628,19 +666,9 @@ class PurchaseController extends Controller
      */
     public function storeWarehouseTransfer(Request $request, Purchase $purchase)
     {
+        $this->authorize('warehouseTransfer', $purchase);
+        
         try {
-            // Only allow warehouse transfer for arrived purchases
-            if ($purchase->status !== 'arrived') {
-                return redirect()->back()
-                    ->with('error', 'Warehouse transfer is only available for arrived purchases.');
-            }
-
-            // Check if already moved to warehouse
-            if ($purchase->is_moved_to_warehouse) {
-                return redirect()->back()
-                    ->with('error', 'This purchase has already been moved to warehouse.');
-            }
-
             $validated = $request->validate([
                 'warehouse_id' => 'required|exists:warehouses,id',
                 'notes' => 'nullable|string|max:1000',
