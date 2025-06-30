@@ -207,6 +207,11 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
                     }
                     .animate-shimmer { animation: shimmer 3s infinite; }
 
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+
                     .bg-grid-pattern {
                         background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
                                         linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
@@ -438,148 +443,197 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
                                     </form>
                                 </div>
 
-                                {/* Stock Incomes Table */}
-                                <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden mb-8">
-                                    <div className="px-8 py-6 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900">
-                                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
-                                            <Package className="h-6 w-6 mr-2 text-blue-600 dark:text-blue-400" />
-                                            {t('Stock Income Records')}
-                                        </h3>
-                                    </div>
 
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                                            <thead>
-                                                <tr className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-900">
-                                                    <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Reference')}
+                                    <div className="overflow-x-auto rounded-xl shadow-sm">
+                                        <table className="min-w-full divide-y divide-gray-200 bg-white shadow-md rounded-xl overflow-hidden border-collapse">
+                                            <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
+                                                <tr>
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                        <div className="flex items-center justify-end">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                            </svg>
+                                                            {t('Reference')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Product')}
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                        <div className="flex items-center justify-end">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                                            </svg>
+                                                            {t('Product')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Quantity')}
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                        <div className="flex items-center justify-end">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                                            </svg>
+                                                            {t('Quantity')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Unit Type')}
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                        <div className="flex items-center justify-end">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                                            </svg>
+                                                            {t('Unit Type')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Price')}
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                        <div className="flex items-center justify-end">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            {t('Price')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Total')}
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                        <div className="flex items-center justify-end">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                            </svg>
+                                                            {t('Total')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Notes')}
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                        <div className="flex items-center justify-end">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                            </svg>
+                                                            {t('Notes')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Date')}
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                        <div className="flex items-center justify-end">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                            {t('Date')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider pr-8">
-                                                        {t('Actions')}
+                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider">
+                                                        <div className="flex items-center justify-end">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                            </svg>
+                                                            {t('Actions')}
+                                                        </div>
                                                     </th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
-                                                {safeStockIncomes.data.map((income) => (
-                                                    <tr key={income.id} className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md">
-                                                        <td className="px-8 py-5 whitespace-nowrap">
-                                                            <div className="flex items-center">
-                                                                <div className="mx-6 flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md">
-                                                                    <Receipt className="h-6 w-6" />
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {safeStockIncomes.data.map((income, index) => (
+                                                    <tr
+                                                        key={income.id}
+                                                        className="hover:bg-indigo-50/30 transition-colors duration-150 group"
+                                                        style={{
+                                                            animation: `fadeIn 0.5s ease-out ${index * 0.1}s both`,
+                                                        }}
+                                                    >
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            <div className="flex items-center justify-end space-x-2 rtl:space-x-reverse">
+                                                                <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-sm">
+                                                                    <Receipt className="h-5 w-5" />
                                                                 </div>
-                                                                <div className="ml-4">
-                                                                    <div className="text-base font-medium text-gray-900 dark:text-white">{income.reference_number}</div>
-                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center">
-                                                                        <Calendar className="h-4 w-4 mr-1 text-gray-400" />
+                                                                <div className="text-right">
+                                                                    <div className="text-sm font-medium text-gray-900 group-hover:text-indigo-600 transition-colors duration-150">
+                                                                        {income.reference_number}
+                                                                    </div>
+                                                                    <div className="text-xs text-gray-500 flex items-center justify-end mt-1">
+                                                                        <Calendar className="h-3 w-3 mr-1 rtl:ml-1 rtl:mr-0" />
                                                                         {new Date(income.created_at).toLocaleDateString()}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap">
-                                                            <div className="text-sm text-gray-900 dark:text-white">{income.product?.name || 'N/A'}</div>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            <div className="flex items-center justify-end">
+                                                                <span className="bg-blue-100 text-blue-600 group-hover:bg-blue-200 transition-colors duration-150 py-1 px-2.5 rounded-lg">
+                                                                    {income.product?.name || 'N/A'}
+                                                                </span>
+                                                            </div>
                                                         </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className="flex flex-col gap-1">
-                                                                <div className="text-sm font-mono bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 py-1.5 px-3 rounded-md border border-blue-100 dark:border-blue-900 shadow-sm inline-flex items-center float-right">
-                                                                    <Package className="h-4 w-4 mr-1.5 text-blue-500 dark:text-blue-400" />
-                                                                    {income.is_wholesale 
-                                                                        ? `${((parseFloat(income.quantity) || 0) / (parseFloat(income.unit_amount) || 1)).toLocaleString()}`
-                                                                        : (parseFloat(income.quantity) || 0).toLocaleString()
-                                                                    }
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            <div className="flex items-center justify-end">
+                                                                <span className="bg-indigo-100 text-indigo-600 group-hover:bg-indigo-200 transition-colors duration-150 py-1 px-2.5 rounded-lg">
+                                                                    <span className="font-semibold">
+                                                                        {income.is_wholesale 
+                                                                            ? `${((parseFloat(income.quantity) || 0) / (parseFloat(income.unit_amount) || 1)).toLocaleString()}`
+                                                                            : (parseFloat(income.quantity) || 0).toLocaleString()
+                                                                        }
+                                                                    </span>
                                                                     {(income.unit_name || income.unit?.name) && (
                                                                         <span className="ml-1 text-xs opacity-75">
                                                                             {income.unit_name || income.unit?.name}
                                                                             {income.unit?.symbol && ` (${income.unit.symbol})`}
                                                                         </span>
                                                                     )}
-                                                                </div>
-                                                                {income.is_wholesale && (
-                                                                    <span className="text-xs text-slate-500 dark:text-slate-400 float-right">
-                                                                        ({(parseFloat(income.quantity) || 0).toLocaleString()} retail units total)
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            <div className="flex items-center justify-end">
+                                                                <span className={`py-1 px-2.5 rounded-lg ${
+                                                                    income.unit_type === 'wholesale' 
+                                                                        ? "bg-purple-100 text-purple-600 group-hover:bg-purple-200"
+                                                                        : "bg-blue-100 text-blue-600 group-hover:bg-blue-200"
+                                                                } transition-colors duration-150`}>
+                                                                    {income.unit_type === 'wholesale' ? t('Wholesale') : t('Retail')}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div className="flex items-center justify-end">
+                                                                <span className="bg-green-100 text-green-700 py-1 px-2.5 rounded-lg group-hover:bg-green-200 transition-colors duration-150">
+                                                                    {formatCurrency(income.price)}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div className="flex items-center justify-end">
+                                                                <span className="bg-purple-100 text-purple-600 py-1 px-2.5 rounded-lg group-hover:bg-purple-200 transition-colors duration-150">
+                                                                    {formatCurrency(income.total)}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            <div className="flex items-center justify-end">
+                                                                {income.notes ? (
+                                                                    <span className="bg-yellow-100 text-yellow-600 py-1 px-2.5 rounded-lg group-hover:bg-yellow-200 transition-colors duration-150 max-w-xs truncate" title={income.notes}>
+                                                                        {income.notes.length > 20 ? `${income.notes.substring(0, 20)}...` : income.notes}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-gray-400 text-sm italic">
+                                                                        {t('No notes')}
                                                                     </span>
                                                                 )}
                                                             </div>
                                                         </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className={`text-sm font-mono py-1.5 px-3 rounded-md border shadow-sm inline-flex items-center float-right ${
-                                                                income.unit_type === 'wholesale' 
-                                                                    ? "bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-100 dark:border-purple-900"
-                                                                    : "bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-100 dark:border-blue-900"
-                                                            }`}>
-                                                                <Package className={`h-4 w-4 mr-1.5 ${
-                                                                    income.unit_type === 'wholesale' 
-                                                                        ? "text-purple-500 dark:text-purple-400"
-                                                                        : "text-blue-500 dark:text-blue-400"
-                                                                }`} />
-                                                                {income.unit_type === 'wholesale' ? t('Wholesale') : t('Retail')}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className="text-sm font-mono bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 py-1.5 px-3 rounded-md border border-purple-100 dark:border-purple-900 shadow-sm inline-flex items-center float-right">
-                                                                <DollarSign className="h-4 w-4 mr-1.5 text-purple-500 dark:text-purple-400" />
-                                                                {formatCurrency(income.price)}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className="text-sm font-mono bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 py-1.5 px-3 rounded-md border border-purple-100 dark:border-purple-900 shadow-sm inline-flex items-center float-right">
-                                                                <CircleDollarSign className="h-4 w-4 mr-1.5 text-purple-500 dark:text-purple-400" />
-                                                                {formatCurrency(income.total)}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5 text-center">
-                                                            {income.notes ? (
-                                                                <div className="text-sm text-gray-700 dark:text-gray-300 bg-yellow-50 dark:bg-yellow-900/30 py-1.5 px-3 rounded-md border border-yellow-100 dark:border-yellow-900 shadow-sm inline-flex items-center max-w-xs">
-                                                                    <FileText className="h-4 w-4 mr-1.5 text-yellow-500 dark:text-yellow-400 flex-shrink-0" />
-                                                                    <span className="truncate" title={income.notes}>
-                                                                        {income.notes.length > 30 ? `${income.notes.substring(0, 30)}...` : income.notes}
-                                                                    </span>
-                                                                </div>
-                                                            ) : (
-                                                                <span className="text-gray-400 dark:text-gray-600 text-sm italic">
-                                                                    {t('No notes')}
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            <div className="flex items-center justify-end">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 rtl:ml-1.5 rtl:mr-0 text-indigo-400 group-hover:text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                                </svg>
+                                                                <span className="text-green-600 font-medium">
+                                                                    {new Date(income.created_at).toLocaleDateString()}
                                                                 </span>
-                                                            )}
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className="text-sm text-gray-900 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 py-1.5 px-3 rounded-md inline-flex items-center float-right">
-                                                                <Calendar className="h-4 w-4 mr-1.5 text-gray-500 dark:text-gray-400" />
-                                                                {new Date(income.created_at).toLocaleDateString()}
                                                             </div>
                                                         </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-right">
-                                                            <Link
-                                                                href={route('customer.stock-incomes.show', income.id)}
-                                                                className="group relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 hover:from-blue-600 hover:via-indigo-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg overflow-hidden"
-                                                            >
-                                                                <span className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
-                                                                <span className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg blur opacity-20 group-hover:opacity-30 transition-opacity duration-300 animate-tilt"></span>
-                                                                <span className="absolute left-0 inset-y-0 flex items-center pl-3 relative">
-                                                                    <Eye className="h-4 w-4 text-white opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
-                                                                </span>
-                                                                <span className="pl-6 relative">{t('View Details')}</span>
-                                                            </Link>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            <div className="flex justify-end">
+                                                                <Link
+                                                                    href={route('customer.stock-incomes.show', income.id)}
+                                                                    className="flex items-center text-indigo-600 hover:text-indigo-900 font-medium bg-indigo-50 hover:bg-indigo-100 transition-colors duration-150 px-3 py-1.5 rounded-lg group-hover:scale-105 transform"
+                                                                >
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1.5 rtl:ml-1.5 rtl:mr-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                                    </svg>
+                                                                    {t('View Details')}
+                                                                </Link>
+                                                            </div>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -588,9 +642,15 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
                                                     <tr>
                                                         <td colSpan="9" className="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
                                                             <div className="flex flex-col items-center justify-center">
-                                                                <Package className="h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
-                                                                <p className="text-lg font-medium">{t('No stock incomes found')}</p>
-                                                                <p className="text-sm mt-1">{t('Try adjusting your search or filter to find what you are looking for.')}</p>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                                </svg>
+                                                                <p className="text-lg">
+                                                                    {t('No stock incomes found matching your criteria.')}
+                                                                </p>
+                                                                <p className="text-sm mt-2">
+                                                                    {t('Try changing your filters or search parameters.')}
+                                                                </p>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -600,60 +660,75 @@ export default function StockIncomesIndex({ auth, stockIncomes = { data: [], lin
                                     </div>
 
                                     {safeStockIncomes.links && safeStockIncomes.links.length > 3 && (
-                                        <div className="px-8 py-6 border-t border-blue-100 dark:border-slate-800 bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-                                            {/* Pagination Controls */}
-                                            <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-4 rtl:flex-row-reverse">
-                                                {/* Records Info */}
-                                                <div className="text-sm text-gray-600 rtl:text-right">
-                                                    <div className="flex items-center gap-2 rtl:flex-row-reverse">
-                                                        <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-md rtl:font-semibold">
-                                                            RTL {t('Support')}
-                                                        </span>
-                                                        {safeStockIncomes.total > 0 ? (
-                                                            <p>
-                                                                {t('Showing')} <span className="font-medium text-blue-600">{safeStockIncomes.from}</span> {t('to')}{' '}
-                                                                <span className="font-medium text-blue-600">{safeStockIncomes.to}</span> {t('of')}{' '}
-                                                                <span className="font-medium text-blue-600">{safeStockIncomes.total}</span> {t('records')}
-                                                            </p>
-                                                        ) : (
-                                                            <p>{t('No records found')}</p>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                                {/* Pagination Controls */}
-                                                <div className="flex items-center justify-center rtl:flex-row-reverse">
-                                                    <nav
-                                                        className="relative z-0 inline-flex rounded-xl shadow-md -space-x-px rtl:space-x-reverse overflow-hidden"
-                                                        aria-label="Pagination"
-                                                        style={{ boxShadow: '0 4px 20px -2px rgba(66, 133, 244, 0.15)' }}
-                                                    >
-                                                        {safeStockIncomes.links.map((link, index) => (
-                                                            <Link
-                                                                key={index}
-                                                                href={link.url || '#'}
-                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm border-r border-blue-100 dark:border-slate-700 ${
-                                                                    link.url === null
-                                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
-                                                                        : link.active
-                                                                        ? 'z-10 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 text-white shadow-md transform scale-105'
-                                                                        : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                                                                }`}
-                                                                disabled={link.url === null}
-                                                            >
-                                                                {link.label.replace(/&laquo;|&raquo;/g, '')}
-                                                                {link.active && (
-                                                                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full transform translate-y-1/2 opacity-60"></span>
-                                                                )}
-                                                            </Link>
-                                                        ))}
-                                                    </nav>
-                                                </div>
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 1.5, duration: 0.4 }}
+                                            className="flex flex-col items-center space-y-4"
+                                        >
+                                            <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                {t("Showing")} {safeStockIncomes.from} {t("to")} {safeStockIncomes.to} {t("of")} {safeStockIncomes.total} {t("results")}
                                             </div>
-                                        </div>
+                                            <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
+                                                {/* Previous Page */}
+                                                <Link
+                                                    href={safeStockIncomes.links[0]?.url || '#'}
+                                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                        safeStockIncomes.links[0]?.url
+                                                            ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                            : 'text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                                                    </svg>
+                                                    <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                </Link>
+
+                                                {/* Page Numbers */}
+                                                {safeStockIncomes.links.slice(1, -1).map((link, index) => {
+                                                    if (link.label.includes('...')) {
+                                                        return (
+                                                            <span key={index} className="px-3 py-2 text-gray-400">
+                                                                ...
+                                                            </span>
+                                                        );
+                                                    }
+                                                    return (
+                                                        <Link
+                                                            key={index}
+                                                            href={link.url || '#'}
+                                                            className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                link.active
+                                                                    ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg'
+                                                                    : link.url
+                                                                    ? 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                    : 'text-gray-400 cursor-not-allowed'
+                                                            }`}
+                                                            dangerouslySetInnerHTML={{ __html: link.label }}
+                                                        />
+                                                    );
+                                                })}
+
+                                                {/* Next Page */}
+                                                <Link
+                                                    href={safeStockIncomes.links[safeStockIncomes.links.length - 1]?.url || '#'}
+                                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                        safeStockIncomes.links[safeStockIncomes.links.length - 1]?.url
+                                                            ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                            : 'text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </Link>
+                                            </div>
+                                        </motion.div>
                                     )}
                                 </div>
-                            </div>
+                            
                         </div>
                     </main>
                 </div>
