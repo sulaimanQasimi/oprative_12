@@ -312,8 +312,7 @@ class MarketOrderController extends Controller
         $paymentMethod = $request->input('payment_method');
         $amountPaid = $request->input('amount_paid');
         $accountId = $request->input('account_id');
-        $notes = $request->input('notes');
-
+        
         if (empty($items)) {
             return response()->json([
                 'success' => false,
@@ -372,7 +371,7 @@ class MarketOrderController extends Controller
                 'payment_method' => $paymentMethod,
                 'payment_status' => $amountPaid >= $total ? 'paid' : 'partial',
                 'order_status' => 'completed',
-                'notes' => $notes
+                'notes' => $request->input('notes')
             ]);
             //
             $order->customer->deposit($subtotal,['description'=>$order->order_number]);
@@ -456,6 +455,14 @@ class MarketOrderController extends Controller
                     'quantity' => $actualUnitsNeeded, // Use the actual units consumed
                     'price' => $storeUnitPrice,
                     'total' => $item['total'],
+                    'unit_type' => $isWholesale ? 'wholesale' : 'retail',
+                    'is_wholesale' => $isWholesale,
+                    'unit_id' => $isWholesale ? $stockProduct->product->wholesale_unit_id : $stockProduct->product->retail_unit_id,
+                    'unit_amount' => $unitAmount,
+                    'unit_name' => $isWholesale ? 
+                        ($stockProduct->product->wholesaleUnit->name ?? 'Wholesale Unit') : 
+                        ($stockProduct->product->retailUnit->name ?? 'Retail Unit'),
+                    'notes' => $order->order_number,
                     'model_type' => MarketOrder::class,
                     'model_id' => $order->id
                 ]);
