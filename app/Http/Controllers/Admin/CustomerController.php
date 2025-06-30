@@ -414,32 +414,96 @@ class CustomerController extends Controller
     }
 
     /**
-     * Display customer income records.
+     * Display customer income records with pagination.
      * 
      * @param Customer $customer
+     * @param Request $request
      * @return Response|RedirectResponse
      */
-    public function income(Customer $customer): Response|RedirectResponse
+    public function income(Customer $customer, Request $request): Response|RedirectResponse
     {
         try {
-            $customer->load(['customerStockIncome.product']);
+            // Get query parameters
+            $search = $request->input('search');
+            $date = $request->input('date');
+            $sortBy = $request->input('sort_by', 'created_at');
+            $sortOrder = $request->input('sort_order', 'desc');
+            $perPage = $request->input('per_page', 15);
 
-            $incomes = $customer->customerStockIncome->map(fn($income) => [
-                'id' => $income->id,
-                'reference_number' => $income->reference_number,
-                'product' => $this->formatProductData($income->product),
-                'quantity' => $income->quantity,
-                'price' => $income->price,
-                'total' => $income->total,
-                'description' => $income->description,
-                'status' => $income->status,
-                'created_at' => $income->created_at,
-                'updated_at' => $income->updated_at,
-            ]);
+            // Build the query
+            $query = $customer->customerStockIncome()
+                ->with(['product', 'unit'])
+                ->when($search, function ($query) use ($search) {
+                    $query->where(function ($q) use ($search) {
+                        $q->where('reference_number', 'like', "%{$search}%")
+                          ->orWhereHas('product', function ($productQuery) use ($search) {
+                              $productQuery->where('name', 'like', "%{$search}%")
+                                          ->orWhere('barcode', 'like', "%{$search}%")
+                                          ->orWhere('type', 'like', "%{$search}%");
+                          });
+                    });
+                })
+                ->when($date, function ($query) use ($date) {
+                    $query->whereDate('created_at', $date);
+                });
+
+            // Apply sorting
+            if ($sortBy === 'product.name') {
+                $query->join('products', 'customer_stock_incomes.product_id', '=', 'products.id')
+                      ->orderBy('products.name', $sortOrder)
+                      ->select('customer_stock_incomes.*');
+            } else {
+                $query->orderBy($sortBy, $sortOrder);
+            }
+
+            // Paginate the results
+            $incomes = $query->paginate($perPage);
+
+            // Format the paginated data with enhanced structure like StockIncomeController
+            $formattedIncomes = $incomes->through(function ($income) {
+                return [
+                    'id' => $income->id,
+                    'reference_number' => $income->reference_number,
+                    'product' => [
+                        'id' => $income->product->id,
+                        'name' => $income->product->name,
+                        'barcode' => $income->product->barcode,
+                        'type' => $income->product->type,
+                    ],
+                    'quantity' => $income->quantity,
+                    'price' => $income->price,
+                    'total' => $income->total,
+                    'unit_type' => $income->unit_type ?? 'retail',
+                    'is_wholesale' => $income->is_wholesale ?? false,
+                    'unit_id' => $income->unit_id,
+                    'unit_amount' => $income->unit_amount ?? 1,
+                    'unit_name' => $income->unit_name,
+                    'unit' => $income->unit ? [
+                        'id' => $income->unit->id,
+                        'name' => $income->unit->name,
+                        'code' => $income->unit->code,
+                        'symbol' => $income->unit->symbol,
+                    ] : null,
+                    'notes' => $income->notes,
+                    'description' => $income->description,
+                    'status' => $income->status,
+                    'created_at' => $income->created_at,
+                    'updated_at' => $income->updated_at,
+                ];
+            });
+
+            // Add query string to pagination links
+            $formattedIncomes->appends($request->query());
 
             return Inertia::render('Admin/Customer/Income', [
                 'customer' => $this->formatCustomerData($customer),
-                'incomes' => $incomes,
+                'incomes' => $formattedIncomes,
+                'filters' => [
+                    'search' => $search,
+                    'date' => $date,
+                    'sort_by' => $sortBy,
+                    'sort_order' => $sortOrder,
+                ],
                 'permissions' => $this->getCustomerPermissions(),
                 'auth' => ['user' => Auth::user()]
             ]);

@@ -51,7 +51,30 @@ import {
     UserCheck,
     Check,
     X,
-    FilterX
+    FilterX,
+    PackageCheck,
+    PackageX,
+    PackageOpen,
+    Warehouse,
+    Box,
+    MapPin,
+    Route,
+    Minus,
+    AlertTriangle,
+    TrendingDown,
+    Download as DownloadIcon,
+    Upload,
+    Globe,
+    Ship,
+    Plane,
+    Container,
+    CircleDollarSign,
+    BanknoteIcon,
+    ReceiptText,
+    ArrowRightLeft,
+    Truck,
+    Receipt,
+    ChevronLeft
 } from "lucide-react";
 
 export default function Index({ auth, stats }) {
@@ -158,7 +181,7 @@ export default function Index({ auth, stats }) {
             });
 
             const response = await axios.get(route('customer.api.orders.index'), { params });
-            
+
             setOrders(response.data.orders);
             setPagination(response.data.pagination);
             setStats(response.data.stats);
@@ -186,9 +209,9 @@ export default function Index({ auth, stats }) {
             min_amount: '',
             max_amount: ''
         };
-        
+
         setFilters(resetFilters);
-        
+
         try {
             const response = await axios.post(route('customer.api.orders.clear-filters'));
             setStats(response.data.stats);
@@ -368,8 +391,8 @@ export default function Index({ auth, stats }) {
     const removeFilter = (filterKey, filterValue) => {
         setFilters(prev => ({
             ...prev,
-            [filterKey]: filterKey === 'statusFilter' || filterKey === 'payment_status' ? 'all' : 
-                        filterKey === 'dateRange' ? 'all' : '',
+            [filterKey]: filterKey === 'statusFilter' || filterKey === 'payment_status' ? 'all' :
+                filterKey === 'dateRange' ? 'all' : '',
             page: 1
         }));
     };
@@ -466,32 +489,6 @@ export default function Index({ auth, stats }) {
                     ))}
                 </div>
 
-                {/* Animated particles */}
-                <div className="absolute inset-0">
-                    {[...Array(30)].map((_, i) => (
-                        <motion.div
-                            key={i}
-                            className="absolute rounded-full bg-white"
-                            style={{
-                                width: Math.random() * 4 + 1,
-                                height: Math.random() * 4 + 1,
-                                x: `${Math.random() * 100}%`,
-                                y: `${Math.random() * 100}%`,
-                                opacity: Math.random() * 0.5 + 0.2,
-                            }}
-                            animate={{
-                                y: [null, `${-Math.random() * 100 - 50}%`],
-                                opacity: [null, 0],
-                            }}
-                            transition={{
-                                duration: Math.random() * 10 + 5,
-                                repeat: Infinity,
-                                ease: "linear",
-                            }}
-                        />
-                    ))}
-                </div>
-
                 <div className="relative z-10 flex flex-col items-center">
                     {/* Main animated container */}
                     <motion.div
@@ -505,107 +502,21 @@ export default function Index({ auth, stats }) {
                             ease: "easeInOut",
                         }}
                     >
-                        {/* Pulsing background circles */}
+                        {/* Icon/logo in center */}
                         <motion.div
-                            className="absolute w-64 h-64 rounded-full bg-blue-600/5 filter blur-2xl"
+                            className="relative z-10 bg-gradient-to-br from-blue-500 to-indigo-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
                             animate={{
-                                scale: [1, 1.2, 1],
-                                opacity: [0.3, 0.5, 0.3],
+                                rotate: [0, 10, 0, -10, 0],
+                                scale: [1, 1.1, 1, 1.1, 1],
                             }}
                             transition={{
                                 duration: 5,
                                 repeat: Infinity,
                                 ease: "easeInOut",
                             }}
-                        />
-                        <motion.div
-                            className="absolute w-72 h-72 rounded-full bg-indigo-500/5 filter blur-2xl transform -translate-x-4 translate-y-4"
-                            animate={{
-                                scale: [1.2, 1, 1.2],
-                                opacity: [0.3, 0.5, 0.3],
-                            }}
-                            transition={{
-                                duration: 4,
-                                repeat: Infinity,
-                                ease: "easeInOut",
-                                delay: 1,
-                            }}
-                        />
-
-                        {/* Animated logo/icon container */}
-                        <div className="relative flex items-center justify-center h-40 w-40">
-                            {/* Spinning rings */}
-                            <motion.div
-                                className="absolute h-full w-full rounded-full border-4 border-blue-300/10"
-                                animate={{
-                                    rotate: 360,
-                                }}
-                                transition={{
-                                    duration: 20,
-                                    ease: "linear",
-                                    repeat: Infinity,
-                                }}
-                            />
-                            <motion.div
-                                className="absolute h-[85%] w-[85%] rounded-full border-4 border-indigo-400/20"
-                                animate={{
-                                    rotate: -360,
-                                }}
-                                transition={{
-                                    duration: 15,
-                                    ease: "linear",
-                                    repeat: Infinity,
-                                }}
-                            />
-                            <motion.div
-                                className="absolute h-[70%] w-[70%] rounded-full border-4 border-blue-400/30"
-                                animate={{
-                                    rotate: 360,
-                                }}
-                                transition={{
-                                    duration: 10,
-                                    ease: "linear",
-                                    repeat: Infinity,
-                                }}
-                            />
-
-                            {/* Spinner arcs */}
-                            <motion.div
-                                className="absolute h-full w-full rounded-full border-4 border-r-blue-400 border-t-transparent border-l-transparent border-b-transparent"
-                                animate={{ rotate: 360 }}
-                                transition={{
-                                    duration: 1.5,
-                                    ease: "linear",
-                                    repeat: Infinity,
-                                }}
-                            />
-                            <motion.div
-                                className="absolute h-full w-full rounded-full border-4 border-b-indigo-400 border-t-transparent border-l-transparent border-r-transparent"
-                                animate={{ rotate: -180 }}
-                                transition={{
-                                    duration: 2,
-                                    ease: "easeInOut",
-                                    repeat: Infinity,
-                                    repeatType: "reverse",
-                                }}
-                            />
-
-                            {/* Icon/logo in center */}
-                            <motion.div
-                                className="relative z-10 bg-gradient-to-br from-blue-500 to-indigo-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
-                                animate={{
-                                    rotate: [0, 10, 0, -10, 0],
-                                    scale: [1, 1.1, 1, 1.1, 1],
-                                }}
-                                transition={{
-                                    duration: 5,
-                                    repeat: Infinity,
-                                    ease: "easeInOut",
-                                }}
-                            >
-                                <ShoppingCart className="h-10 w-10 text-white drop-shadow-lg" />
-                            </motion.div>
-                        </div>
+                        >
+                            <ShoppingCart className="h-10 w-10 text-white drop-shadow-lg" />
+                        </motion.div>
                     </motion.div>
                 </div>
             </motion.div>
@@ -617,16 +528,10 @@ export default function Index({ auth, stats }) {
             <Head title={t('Customer Orders')}>
                 <style>{`
                     @keyframes shimmer {
-                        0% {
-                            transform: translateX(-100%);
-                        }
-                        100% {
-                            transform: translateX(100%);
-                        }
+                        0% { transform: translateX(-100%); }
+                        100% { transform: translateX(100%); }
                     }
-                    .animate-shimmer {
-                        animation: shimmer 3s infinite;
-                    }
+                    .animate-shimmer { animation: shimmer 3s infinite; }
 
                     .bg-grid-pattern {
                         background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
@@ -638,36 +543,6 @@ export default function Index({ auth, stats }) {
                         background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
                                         linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
                     }
-
-                    .card-shine {
-                        position: absolute;
-                        top: 0;
-                        left: -100%;
-                        width: 50%;
-                        height: 100%;
-                        background: linear-gradient(
-                            to right,
-                            rgba(255, 255, 255, 0) 0%,
-                            rgba(255, 255, 255, 0.3) 50%,
-                            rgba(255, 255, 255, 0) 100%
-                        );
-                    }
-
-                    /* Fix for horizontal scroll */
-                    html, body {
-                        overflow-x: hidden;
-                        max-width: 100%;
-                    }
-
-                    .responsive-chart-container {
-                        max-width: 100%;
-                        overflow-x: hidden;
-                    }
-
-                    @keyframes modalFadeIn {
-                        from { opacity: 0; transform: scale(0.95) translateY(10px); }
-                        to { opacity: 1; transform: scale(1) translateY(0); }
-                    }
                 `}</style>
             </Head>
 
@@ -676,30 +551,22 @@ export default function Index({ auth, stats }) {
             <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
                 {/* Sidebar */}
                 <CustomerNavbar
-                    auth={auth || {user: {name: 'Customer'}}}
+                    auth={auth || { user: { name: 'Customer' } }}
                     currentRoute="customer.orders"
                 />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden max-w-full">
                     {/* Header */}
-                    <header
-                        ref={headerRef}
-                        className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30"
-                    >
+                    <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
                         <div className="flex items-center space-x-4">
                             <div className="relative flex flex-col">
                                 <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">
                                     {t("Customer Portal")}
                                 </span>
                                 <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <ShoppingCart className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                     {t("Orders Management")}
-                                    <Badge
-                                        variant="outline"
-                                        className="ml-2 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 rounded-full"
-                                    >
-                                        {pagination?.total || 0}
-                                    </Badge>
                                 </h1>
                             </div>
                         </div>
@@ -737,266 +604,32 @@ export default function Index({ auth, stats }) {
 
                     {/* Main Content Container */}
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
-                        {/* Search and Tabs Section */}
                         <div className="p-6">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-                                <motion.div
-                                    initial={{ x: -20, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{ duration: 0.4 }}
-                                    className="w-full md:w-96 relative"
-                                >
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Search className="h-4 w-4 text-slate-400" />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder={t(
-                                            "Search orders..."
-                                        )}
-                                        className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all duration-200"
-                                        value={filters.searchQuery}
-                                        onChange={(e) =>
-                                            handleFilterChange('searchQuery', e.target.value)
-                                        }
-                                    />
-                                    {filters.searchQuery && (
-                                        <button
-                                            className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-500"
-                                            onClick={() => handleFilterChange('searchQuery', '')}
-                                        >
-                                            <X className="h-4 w-4" />
-                                        </button>
-                                    )}
-                                </motion.div>
+                            <div className="max-w-7xl mx-auto">
+                                {/* Hero Section with Gradient Background */}
+                                <div className="relative bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 rounded-2xl shadow-xl p-10 mb-10 overflow-hidden">
+                                    <div className="absolute inset-0 bg-pattern opacity-10"></div>
+                                    <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-gradient-to-br from-blue-400 to-indigo-500 opacity-20 rounded-full blur-3xl"></div>
+                                    <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 h-64 bg-gradient-to-tr from-indigo-400 to-blue-500 opacity-20 rounded-full blur-3xl"></div>
 
-                                <motion.div
-                                    initial={{ x: 20, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{ duration: 0.4 }}
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            className="flex items-center gap-1.5 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-lg"
-                                            onClick={() => fetchOrders()}
-                                        >
-                                            <RefreshCw className="h-3.5 w-3.5" />
-                                            <span>{t('Refresh')}</span>
-                                        </Button>
-                                        <Tabs
-                                            value={view}
-                                            className="w-auto"
-                                        >
-                                            <TabsList className="p-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg">
-                                                <TabsTrigger
-                                                    value="grid"
-                                                    onClick={() =>
-                                                        handleViewChange("grid")
-                                                    }
-                                                    className="px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm rounded-md transition-all"
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="16"
-                                                        height="16"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="2"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        className="lucide lucide-layout-grid"
-                                                    >
-                                                        <rect
-                                                            width="7"
-                                                            height="7"
-                                                            x="3"
-                                                            y="3"
-                                                            rx="1"
-                                                        />
-                                                        <rect
-                                                            width="7"
-                                                            height="7"
-                                                            x="14"
-                                                            y="3"
-                                                            rx="1"
-                                                        />
-                                                        <rect
-                                                            width="7"
-                                                            height="7"
-                                                            x="14"
-                                                            y="14"
-                                                            rx="1"
-                                                        />
-                                                        <rect
-                                                            width="7"
-                                                            height="7"
-                                                            x="3"
-                                                            y="14"
-                                                            rx="1"
-                                                        />
-                                                    </svg>
-                                                </TabsTrigger>
-                                                <TabsTrigger
-                                                    value="list"
-                                                    onClick={() =>
-                                                        handleViewChange("list")
-                                                    }
-                                                    className="px-3 py-1.5 data-[state=active]:bg-white data-[state=active]:dark:bg-slate-900 data-[state=active]:shadow-sm rounded-md transition-all"
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        width="16"
-                                                        height="16"
-                                                        viewBox="0 0 24 24"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        strokeWidth="2"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        className="lucide lucide-list"
-                                                    >
-                                                        <line
-                                                            x1="8"
-                                                            x2="21"
-                                                            y1="6"
-                                                            y2="6"
-                                                        />
-                                                        <line
-                                                            x1="8"
-                                                            x2="21"
-                                                            y1="12"
-                                                            y2="12"
-                                                        />
-                                                        <line
-                                                            x1="8"
-                                                            x2="21"
-                                                            y1="18"
-                                                            y2="18"
-                                                        />
-                                                        <line
-                                                            x1="3"
-                                                            x2="3.01"
-                                                            y1="6"
-                                                            y2="6"
-                                                        />
-                                                        <line
-                                                            x1="3"
-                                                            x2="3.01"
-                                                            y1="12"
-                                                            y2="12"
-                                                        />
-                                                        <line
-                                                            x1="3"
-                                                            x2="3.01"
-                                                            y1="18"
-                                                            y2="18"
-                                                        />
-                                                    </svg>
-                                                </TabsTrigger>
-                                            </TabsList>
-                                        </Tabs>
-                                    </div>
-                                </motion.div>
-                            </div>
-
-                            {/* Active Filters Display */}
-                            {Object.keys(activeFilters).length > 0 && (
-                                <div className="mb-6">
-                                    <div className="flex items-center justify-between mb-3">
-                                        <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                            {t('Active Filters')} ({Object.keys(activeFilters).length})
-                                        </h3>
-                                        <Button
-                                            size="sm"
-                                            variant="outline"
-                                            onClick={clearAllFilters}
-                                            className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
-                                        >
-                                            <FilterX className="h-3 w-3 mr-1" />
-                                            {t('Clear All')}
-                                        </Button>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {Object.entries(activeFilters).map(([key, value]) => (
-                                            <Badge
-                                                key={key}
-                                                variant="secondary"
-                                                className="flex items-center gap-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                                            >
-                                                <span className="text-xs font-medium">
-                                                    {key === 'search' ? t('Search') :
-                                                     key === 'status' ? t('Status') :
-                                                     key === 'payment_status' ? t('Payment') :
-                                                     key === 'date_range' ? t('Date Range') :
-                                                     key === 'min_amount' ? t('Min Amount') :
-                                                     key === 'max_amount' ? t('Max Amount') : key}:
-                                                </span>
-                                                <span className="text-xs">{value}</span>
-                                                <button
-                                                    onClick={() => removeFilter(key, value)}
-                                                    className="ml-1 hover:text-red-600"
-                                                >
-                                                    <X className="h-3 w-3" />
-                                                </button>
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-
-                            {filters.searchQuery && (
-                                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 animate-pulse">
-                                    <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                                    <p>
-                                        {t("Showing results for:")}{" "}
-                                        <span className="font-medium text-slate-700 dark:text-slate-300">
-                                            {filters.searchQuery}
-                                        </span>
-                                    </p>
-                                </div>
-                            )}
-
-                            <h2 className="text-xl font-semibold text-slate-900 dark:text-white flex items-center mb-6">
-                                {filters.searchQuery
-                                    ? t("Search Results")
-                                    : t("Your Orders")}
-                                <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 rounded-full">
-                                    {pagination?.total || 0}
-                                </Badge>
-                            </h2>
-
-                            {/* Pagination Info */}
-                            {pagination.total > 0 && (
-                                <div className="flex items-center justify-between mb-4 text-sm text-slate-600 dark:text-slate-400">
-                                    <div className="flex items-center gap-4">
-                                        <span>
-                                            {t('Showing')} {((pagination.current_page - 1) * pagination.per_page) + 1} - {Math.min(pagination.current_page * pagination.per_page, pagination.total)} {t('of')} {pagination.total} {t('orders')}
-                                        </span>
-                                        <div className="flex items-center gap-2">
-                                            <span>{t('Per page:')}</span>
-                                            <select
-                                                value={filters.per_page}
-                                                onChange={(e) => handlePerPageChange(parseInt(e.target.value))}
-                                                className="px-2 py-1 border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-sm"
-                                            >
-                                                {filterOptions.per_page_options.map(option => (
-                                                    <option key={option} value={option}>{option}</option>
-                                                ))}
-                                            </select>
+                                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                        <div>
+                                            <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
+                                                {t("Orders Management")}
+                                            </h1>
+                                            <p className="text-blue-100 text-lg max-w-2xl">
+                                                {t(
+                                                    "Track all your orders and manage your business operations in one secure place."
+                                                )}
+                                            </p>
+                                        </div>
+                                        <div className="hidden md:flex items-center justify-center bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-2xl border border-white border-opacity-20 shadow-lg">
+                                            <ShoppingCart className="h-16 w-16 text-white opacity-80" />
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <span>{t('Page')} {pagination.current_page} {t('of')} {pagination.last_page}</span>
-                                    </div>
                                 </div>
-                            )}
 
-                            {/* Advanced Filters Section */}
-                            {showAdvancedFilters && (
-                                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl p-5 mb-6">
+                                <div className="">
                                     <OrderFilters
                                         filters={filters}
                                         filterOptions={filterOptions}
@@ -1005,29 +638,86 @@ export default function Index({ auth, stats }) {
                                         onPerPageChange={handlePerPageChange}
                                     />
                                 </div>
-                            )}
 
-                            {/* Grid and List Views */}
-                            <div
-                                ref={cardsRef}
-                                className="transition-opacity duration-300"
-                                style={{ minHeight: "200px" }}
-                            >
-                                {/* Orders Table */}
-                                <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm rounded-xl overflow-hidden mb-6">
-                                    <div className="p-5">
-                                        <OrderList
-                                            orders={orders}
-                                            onOrderSelect={handleOrderSelect}
-                                            loading={loading}
-                                            pagination={pagination}
-                                            onPageChange={handlePageChange}
-                                            view={view}
-                                            filters={filters}
-                                            onFilterChange={handleFilterChange}
-                                        />
-                                    </div>
-                                </div>
+
+                                {/* Grid and List Views */}
+                                <div
+                                    ref={cardsRef}
+                                    className="transition-opacity duration-300"
+                                    style={{ minHeight: "200px" }}
+                                >
+                                            <OrderList
+                                                orders={orders}
+                                                onOrderSelect={handleOrderSelect}
+                                                loading={loading}
+                                                pagination={pagination}
+                                                onPageChange={handlePageChange}
+                                                view={view}
+                                                filters={filters}
+                                                onFilterChange={handleFilterChange}
+                                            />
+                                        </div>
+
+                                        {/* Pagination Controls */}
+                                        {pagination.total > 0 && (
+                                            <motion.div
+                                                initial={{ y: 20, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                transition={{ delay: 1.5, duration: 0.4 }}
+                                                className="flex flex-col items-center space-y-4"
+                                            >
+                                                <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                    {t("Showing")} {((pagination.current_page - 1) * pagination.per_page) + 1} {t("to")} {Math.min(pagination.current_page * pagination.per_page, pagination.total)} {t("of")} {pagination.total} {t("results")}
+                                                </div>
+                                                <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
+                                                    {/* Previous Page */}
+                                                    <button
+                                                        onClick={() => handlePageChange(pagination.current_page - 1)}
+                                                        disabled={pagination.current_page <= 1}
+                                                        className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                            pagination.current_page > 1
+                                                                ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                : 'text-gray-400 cursor-not-allowed'
+                                                        }`}
+                                                    >
+                                                        <ChevronRight className="h-4 w-4" />
+                                                        <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                    </button>
+
+                                                    {/* Page Numbers */}
+                                                    {Array.from({ length: Math.min(5, pagination.last_page) }, (_, i) => {
+                                                        const pageNum = i + 1;
+                                                        return (
+                                                            <button
+                                                                key={pageNum}
+                                                                onClick={() => handlePageChange(pageNum)}
+                                                                className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                    pageNum === pagination.current_page
+                                                                        ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg'
+                                                                        : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                }`}
+                                                            >
+                                                                {pageNum}
+                                                            </button>
+                                                        );
+                                                    })}
+
+                                                    {/* Next Page */}
+                                                    <button
+                                                        onClick={() => handlePageChange(pagination.current_page + 1)}
+                                                        disabled={pagination.current_page >= pagination.last_page}
+                                                        className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                            pagination.current_page < pagination.last_page
+                                                                ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                : 'text-gray-400 cursor-not-allowed'
+                                                        }`}
+                                                    >
+                                                        <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                        <ChevronLeft className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        )}
                             </div>
                         </div>
                     </main>
@@ -1038,26 +728,21 @@ export default function Index({ auth, stats }) {
             {showOrderDetails && selectedOrder && (
                 <div className="fixed inset-0 z-50 overflow-y-auto">
                     <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                        {/* Backdrop with improved blur effect */}
+                        {/* Backdrop */}
                         <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/70 via-purple-900/70 to-indigo-900/70 backdrop-blur-sm"></div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/70 via-indigo-900/70 to-blue-900/70 backdrop-blur-sm"></div>
                         </div>
 
                         <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                        {/* Modal container with animation */}
-                        <div
-                            className="inline-block align-bottom bg-gradient-to-br from-white to-indigo-50/30 dark:from-slate-900 dark:to-slate-800/30 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-indigo-100 dark:border-indigo-900/50"
-                            style={{
-                                animation: 'modalFadeIn 0.3s ease-out forwards'
-                            }}
-                        >
-                            {/* Close button - enhanced */}
+                        {/* Modal container */}
+                        <div className="inline-block align-bottom bg-gradient-to-br from-white to-blue-50/30 dark:from-slate-900 dark:to-slate-800/30 rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full border border-blue-100 dark:border-blue-900/50">
+                            {/* Close button */}
                             <div className="absolute top-4 right-4 z-10">
                                 <button
                                     type="button"
                                     onClick={() => setShowOrderDetails(false)}
-                                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full text-gray-500 dark:text-gray-400 hover:text-indigo-700 dark:hover:text-indigo-400 p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200 transform hover:scale-110 focus:outline-none shadow-md hover:shadow-lg"
+                                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full text-gray-500 dark:text-gray-400 hover:text-blue-700 dark:hover:text-blue-400 p-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 transform hover:scale-110 focus:outline-none shadow-md hover:shadow-lg"
                                 >
                                     <span className="sr-only">Close</span>
                                     <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
