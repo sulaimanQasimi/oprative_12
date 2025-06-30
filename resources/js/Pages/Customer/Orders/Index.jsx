@@ -180,7 +180,7 @@ export default function Index({ auth, stats }) {
             });
 
             const response = await axios.get(route('customer.api.orders.index'), { params });
-            
+
             setOrders(response.data.orders);
             setPagination(response.data.pagination);
             setStats(response.data.stats);
@@ -208,9 +208,9 @@ export default function Index({ auth, stats }) {
             min_amount: '',
             max_amount: ''
         };
-        
+
         setFilters(resetFilters);
-        
+
         try {
             const response = await axios.post(route('customer.api.orders.clear-filters'));
             setStats(response.data.stats);
@@ -390,8 +390,8 @@ export default function Index({ auth, stats }) {
     const removeFilter = (filterKey, filterValue) => {
         setFilters(prev => ({
             ...prev,
-            [filterKey]: filterKey === 'statusFilter' || filterKey === 'payment_status' ? 'all' : 
-                        filterKey === 'dateRange' ? 'all' : '',
+            [filterKey]: filterKey === 'statusFilter' || filterKey === 'payment_status' ? 'all' :
+                filterKey === 'dateRange' ? 'all' : '',
             page: 1
         }));
     };
@@ -550,7 +550,7 @@ export default function Index({ auth, stats }) {
             <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
                 {/* Sidebar */}
                 <CustomerNavbar
-                    auth={auth || {user: {name: 'Customer'}}}
+                    auth={auth || { user: { name: 'Customer' } }}
                     currentRoute="customer.orders"
                 />
 
@@ -628,158 +628,16 @@ export default function Index({ auth, stats }) {
                                     </div>
                                 </div>
 
-                                {/* Stats Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                                    {/* Total Orders */}
-                                    <div className="group relative bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-blue-100 dark:hover:border-blue-800 transform hover:-translate-y-1">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/30 dark:to-indigo-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                        <div className="relative flex items-center justify-between">
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">{t('Total Orders')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{stats_data.total_orders || 0}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('All time orders')}</p>
-                                            </div>
-                                            <div className="bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900 dark:to-indigo-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                                                <ShoppingCart className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Total Amount */}
-                                    <div className="group relative bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-indigo-100 dark:hover:border-indigo-800 transform hover:-translate-y-1">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/30 dark:to-purple-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                        <div className="relative flex items-center justify-between">
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{t('Total Amount')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'AFN', minimumFractionDigits: 0 }).format(stats_data.total_amount || 0)}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('Total revenue')}</p>
-                                            </div>
-                                            <div className="bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                                                <DollarSign className="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Average Amount */}
-                                    <div className="group relative bg-white dark:bg-slate-900 rounded-2xl shadow-md border border-gray-100 dark:border-slate-800 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-purple-100 dark:hover:border-purple-800 transform hover:-translate-y-1">
-                                        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-blue-50/50 dark:from-purple-900/30 dark:to-blue-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                        <div className="relative flex items-center justify-between">
-                                            <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 transition-colors duration-300 group-hover:text-purple-600 dark:group-hover:text-purple-400">{t('Average Amount')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'AFN', minimumFractionDigits: 0 }).format(stats_data.average_amount || 0)}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('Per order average')}</p>
-                                            </div>
-                                            <div className="bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                                                <BarChart3 className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div className="">
+                                    <OrderFilters
+                                        filters={filters}
+                                        filterOptions={filterOptions}
+                                        onFilterChange={handleFilterChange}
+                                        onSortChange={handleSortChange}
+                                        onPerPageChange={handlePerPageChange}
+                                    />
                                 </div>
 
-                            
-
-                                {/* Active Filters Display */}
-                                {Object.keys(activeFilters).length > 0 && (
-                                    <div className="mb-6">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                                                {t('Active Filters')} ({Object.keys(activeFilters).length})
-                                            </h3>
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                onClick={clearAllFilters}
-                                                className="text-blue-600 hover:text-blue-700 border-blue-200 hover:border-blue-300"
-                                            >
-                                                <FilterX className="h-3 w-3 mr-1" />
-                                                {t('Clear All')}
-                                            </Button>
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            {Object.entries(activeFilters).map(([key, value]) => (
-                                                <Badge
-                                                    key={key}
-                                                    variant="secondary"
-                                                    className="flex items-center gap-1 bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400"
-                                                >
-                                                    <span className="text-xs font-medium">
-                                                        {key === 'search' ? t('Search') :
-                                                         key === 'status' ? t('Status') :
-                                                         key === 'payment_status' ? t('Payment') :
-                                                         key === 'date_range' ? t('Date Range') :
-                                                         key === 'min_amount' ? t('Min Amount') :
-                                                         key === 'max_amount' ? t('Max Amount') : key}:
-                                                    </span>
-                                                    <span className="text-xs">{value}</span>
-                                                    <button
-                                                        onClick={() => removeFilter(key, value)}
-                                                        className="ml-1 hover:text-red-600"
-                                                    >
-                                                        <X className="h-3 w-3" />
-                                                    </button>
-                                                </Badge>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                {filters.searchQuery && (
-                                    <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4 animate-pulse">
-                                        <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                                        <p>
-                                            {t("Showing results for:")}{" "}
-                                            <span className="font-medium text-slate-700 dark:text-slate-300">
-                                                {filters.searchQuery}
-                                            </span>
-                                        </p>
-                                    </div>
-                                )}
-
-                                <h2 className="text-xl font-semibold text-slate-900 dark:text-white flex items-center mb-6">
-                                    {filters.searchQuery
-                                        ? t("Search Results")
-                                        : t("Your Orders")}
-                                    <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800 rounded-full">
-                                        {pagination?.total || 0}
-                                    </Badge>
-                                </h2>
-
-                                {/* Pagination Info */}
-                                {pagination.total > 0 && (
-                                    <div className="flex items-center justify-between mb-4 text-sm text-slate-600 dark:text-slate-400">
-                                        <div className="flex items-center gap-4">
-                                            <span>
-                                                {t('Showing')} {((pagination.current_page - 1) * pagination.per_page) + 1} - {Math.min(pagination.current_page * pagination.per_page, pagination.total)} {t('of')} {pagination.total} {t('orders')}
-                                            </span>
-                                            <div className="flex items-center gap-2">
-                                                <span>{t('Per page:')}</span>
-                                                <select
-                                                    value={filters.per_page}
-                                                    onChange={(e) => handlePerPageChange(parseInt(e.target.value))}
-                                                    className="px-2 py-1 border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-sm"
-                                                >
-                                                    {filterOptions.per_page_options.map(option => (
-                                                        <option key={option} value={option}>{option}</option>
-                                                    ))}
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span>{t('Page')} {pagination.current_page} {t('of')} {pagination.last_page}</span>
-                                        </div>
-                                    </div>
-                                )}
-
-                                    <div className="">
-                                        <OrderFilters
-                                            filters={filters}
-                                            filterOptions={filterOptions}
-                                            onFilterChange={handleFilterChange}
-                                            onSortChange={handleSortChange}
-                                            onPerPageChange={handlePerPageChange}
-                                        />
-                                    </div>
-                                
 
                                 {/* Grid and List Views */}
                                 <div
@@ -787,16 +645,6 @@ export default function Index({ auth, stats }) {
                                     className="transition-opacity duration-300"
                                     style={{ minHeight: "200px" }}
                                 >
-                                    {/* Orders Table */}
-                                    <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl overflow-hidden mb-8">
-                                        <div className="px-8 py-6 border-b border-gray-100 dark:border-slate-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900">
-                                            <h3 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
-                                                <ShoppingCart className="h-6 w-6 mr-2 text-blue-600 dark:text-blue-400" />
-                                                {t('Orders Records')}
-                                            </h3>
-                                        </div>
-
-                                        <div className="p-5">
                                             <OrderList
                                                 orders={orders}
                                                 onOrderSelect={handleOrderSelect}
@@ -842,11 +690,10 @@ export default function Index({ auth, stats }) {
                                                             <button
                                                                 onClick={() => handlePageChange(pagination.current_page - 1)}
                                                                 disabled={pagination.current_page <= 1}
-                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm border-r border-blue-100 dark:border-slate-700 ${
-                                                                    pagination.current_page <= 1
+                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm border-r border-blue-100 dark:border-slate-700 ${pagination.current_page <= 1
                                                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
                                                                         : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                                                                }`}
+                                                                    }`}
                                                             >
                                                                 {t('Previous')}
                                                             </button>
@@ -858,11 +705,10 @@ export default function Index({ auth, stats }) {
                                                                     <button
                                                                         key={pageNum}
                                                                         onClick={() => handlePageChange(pageNum)}
-                                                                        className={`relative inline-flex items-center px-4 py-2.5 text-sm border-r border-blue-100 dark:border-slate-700 ${
-                                                                            pageNum === pagination.current_page
+                                                                        className={`relative inline-flex items-center px-4 py-2.5 text-sm border-r border-blue-100 dark:border-slate-700 ${pageNum === pagination.current_page
                                                                                 ? 'z-10 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 text-white shadow-md transform scale-105'
                                                                                 : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                                                                        }`}
+                                                                            }`}
                                                                     >
                                                                         {pageNum}
                                                                         {pageNum === pagination.current_page && (
@@ -876,11 +722,10 @@ export default function Index({ auth, stats }) {
                                                             <button
                                                                 onClick={() => handlePageChange(pagination.current_page + 1)}
                                                                 disabled={pagination.current_page >= pagination.last_page}
-                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm ${
-                                                                    pagination.current_page >= pagination.last_page
+                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm ${pagination.current_page >= pagination.last_page
                                                                         ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
                                                                         : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                                                                }`}
+                                                                    }`}
                                                             >
                                                                 {t('Next')}
                                                             </button>
@@ -889,8 +734,6 @@ export default function Index({ auth, stats }) {
                                                 </div>
                                             </div>
                                         )}
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </main>

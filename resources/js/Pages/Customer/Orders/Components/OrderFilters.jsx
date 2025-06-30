@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function OrderFilters({ filters, onFilterChange, onSortChange }) {
+export default function OrderFilters({ filters, filterOptions, onFilterChange, onSortChange, onPerPageChange }) {
     const [showFilters, setShowFilters] = useState(false);
 
     return (
@@ -31,7 +31,7 @@ export default function OrderFilters({ filters, onFilterChange, onSortChange }) 
             </div>
             {showFilters && (
                 <div className="p-6 space-y-6 bg-gradient-to-br from-white to-indigo-50/30">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                         {/* Date Range Filter */}
                         <div className="group">
                             <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
@@ -130,6 +130,32 @@ export default function OrderFilters({ filters, onFilterChange, onSortChange }) 
                                     <option value="created_at">Date</option>
                                     <option value="total_amount">Amount</option>
                                     <option value="order_status">Status</option>
+                                </select>
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Per Page */}
+                        <div className="group">
+                            <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                                </svg>
+                                Per Page
+                            </label>
+                            <div className="relative">
+                                <select
+                                    value={filters.per_page}
+                                    onChange={(e) => onPerPageChange(parseInt(e.target.value))}
+                                    className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
+                                >
+                                    {filterOptions?.per_page_options?.map(option => (
+                                        <option key={option} value={option}>{option}</option>
+                                    ))}
                                 </select>
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
