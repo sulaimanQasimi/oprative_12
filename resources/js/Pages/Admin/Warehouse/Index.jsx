@@ -193,7 +193,7 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
     }, []);
 
     const StatCard = ({ icon: Icon, title, value, subtitle, color = "indigo" }) => (
-        <Card className="relative overflow-hidden border-0 shadow-lg bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 hover:shadow-xl transition-all duration-300">
+        <Card className="relative overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-shadow duration-200">
             <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                     <div className="space-y-2">
@@ -225,51 +225,38 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
         <>
             <Head title={t("Warehouses")}>
                 <style>{`
-                    @keyframes shimmer {
-                        0% { transform: translateX(-100%); }
-                        100% { transform: translateX(100%); }
+                    .scrollbar-thin::-webkit-scrollbar {
+                        width: 6px;
                     }
-                    .animate-shimmer {
-                        animation: shimmer 3s infinite;
+                    .scrollbar-thin::-webkit-scrollbar-track {
+                        background: transparent;
                     }
-                    .bg-grid-pattern {
-                        background-image:
-                            linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
-                        background-size: 20px 20px;
+                    .scrollbar-thin::-webkit-scrollbar-thumb {
+                        background: rgba(148, 163, 184, 0.5);
+                        border-radius: 3px;
                     }
-                    .dark .bg-grid-pattern {
-                        background-image:
-                            linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+                    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                        background: rgba(148, 163, 184, 0.7);
                     }
-                    .warehouse-card {
-                        transition: all 0.3s ease;
+                    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+                        background: rgba(71, 85, 105, 0.5);
                     }
-                    .warehouse-card:hover {
-                        transform: translateY(-4px);
-                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-                    }
-                    .dark .warehouse-card:hover {
-                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-                    }
-                    .dropdown-content {
-                        position: fixed !important;
-                        z-index: 999999 !important;
+                    .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                        background: rgba(71, 85, 105, 0.7);
                     }
                 `}</style>
             </Head>
 
             <PageLoader isVisible={loading} />
 
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 bg-grid-pattern overflow-hidden">
+            <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Enhanced Header */}
-                    <header ref={headerRef} className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-40 shadow-sm dark:shadow-slate-900/20">
+                    <header ref={headerRef} className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-6 px-8 sticky top-0 z-40 shadow-sm">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
                                 <motion.div
@@ -536,8 +523,8 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                                     exit={{ opacity: 0, y: -20 }}
                                                     transition={{ delay: index * 0.1 }}
                                                 >
-                                                    <Card className="warehouse-card border-0 shadow-lg bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 overflow-hidden">
-                                                        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-b border-slate-200/50 dark:border-slate-700/50">
+                                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-shadow duration-200">
+                                                        <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                                                             <div className="flex items-start justify-between">
                                                                 <div className="flex items-center space-x-3">
                                                                     <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
@@ -602,7 +589,7 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                                                 )}
                                                             </div>
                                                         </CardContent>
-                                                        <CardFooter className="bg-slate-50/50 dark:bg-slate-800/50 border-t border-slate-200/50 dark:border-slate-700/50 p-4">
+                                                        <CardFooter className="bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 p-4">
                                                             <div className="flex items-center justify-between w-full">
                                                                 <div className="flex items-center space-x-2">
                                                                     {permissions.can_view && (
@@ -640,7 +627,7 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                         </AnimatePresence>
                                     </div>
                                 ) : (
-                                    <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-900/70 backdrop-blur-sm">
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
                                         <CardContent className="p-12 text-center">
                                             <div className="flex flex-col items-center space-y-4">
                                                 <div className="p-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full">

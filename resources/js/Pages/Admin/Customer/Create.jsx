@@ -37,6 +37,7 @@ import { Badge } from "@/Components/ui/badge";
 import { motion } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Create({ auth, permissions = {} }) {
     const { t } = useLaravelReactI18n();
@@ -147,26 +148,31 @@ export default function Create({ auth, permissions = {} }) {
                     }
 
                     .dark .input-field {
-                        background: rgba(30, 41, 59, 1);
-                        border: 1px solid rgba(51, 65, 85, 1);
+                        background: rgba(51, 65, 85, 0.8);
+                        border: 1px solid rgba(71, 85, 105, 1);
+                        color: rgb(241, 245, 249);
                     }
 
                     .input-field:focus {
                         border-color: #10b981;
                         box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+                        background: rgba(255, 255, 255, 1);
                     }
 
                     .dark .input-field:focus {
                         border-color: #34d399;
                         box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+                        background: rgba(71, 85, 105, 0.9);
                     }
 
                     .input-field:hover {
                         border-color: #a7f3d0;
+                        background: rgba(249, 250, 251, 1);
                     }
 
                     .dark .input-field:hover {
-                        border-color: #475569;
+                        border-color: #64748b;
+                        background: rgba(71, 85, 105, 0.7);
                     }
                 `}</style>
             </Head>
@@ -241,12 +247,7 @@ export default function Create({ auth, permissions = {} }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route("admin.customers.index")}>
-                                    <Button variant="outline" className="gap-2 border-slate-200 dark:text-white hover:border-slate-300 hover:bg-slate-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-800">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Stores")}
-                                    </Button>
-                                </Link>
+                               <BackButton link={route("admin.customers.index")}/>
                             </motion.div>
                         </div>
                     </motion.header>

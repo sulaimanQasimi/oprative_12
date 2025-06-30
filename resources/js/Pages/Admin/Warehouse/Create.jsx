@@ -95,77 +95,31 @@ export default function Create({ auth, permissions = {} }) {
         <>
             <Head title={t("Create Warehouse")}>
                 <style>{`
-                    @keyframes shimmer {
-                        0% { transform: translateX(-100%); }
-                        100% { transform: translateX(100%); }
+                    .scrollbar-thin::-webkit-scrollbar {
+                        width: 6px;
                     }
-                    .animate-shimmer {
-                        animation: shimmer 3s infinite;
+                    .scrollbar-thin::-webkit-scrollbar-track {
+                        background: transparent;
                     }
-                    .bg-grid-pattern {
-                        background-image:
-                            linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
-                        background-size: 20px 20px;
+                    .scrollbar-thin::-webkit-scrollbar-thumb {
+                        background: rgba(148, 163, 184, 0.5);
+                        border-radius: 3px;
                     }
-                    .dark .bg-grid-pattern {
-                        background-image:
-                            linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+                    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                        background: rgba(148, 163, 184, 0.7);
                     }
-                    .glass-effect {
-                        backdrop-filter: blur(20px);
-                        background: rgba(255, 255, 255, 0.9);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
+                    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+                        background: rgba(71, 85, 105, 0.5);
                     }
-                    .dark .glass-effect {
-                        background: rgba(2, 6, 23, 0.98);
-                        border: 1px solid rgba(148, 163, 184, 0.15);
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-                    }
-                    .form-card {
-                        transition: all 0.3s ease;
-                    }
-                    .form-card:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-                    }
-                    .dark .form-card:hover {
-                        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-                    }
-                    .header-icon-container {
-                        background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
-                        border: 1px solid rgba(148, 163, 184, 0.15);
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-                    }
-                    .dark .header-icon-container {
-                        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-                        border: 1px solid rgba(148, 163, 184, 0.25);
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
-                    }
-                    .header-glow {
-                        background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-                        opacity: 0.3;
-                    }
-                    .dark .header-glow {
-                        background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%);
-                        opacity: 0.4;
-                    }
-                    .form-section {
-                        transition: all 0.2s ease;
-                    }
-                    .form-section:hover {
-                        background: rgba(248, 250, 252, 0.5);
-                    }
-                    .dark .form-section:hover {
-                        background: rgba(15, 23, 42, 0.3);
+                    .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                        background: rgba(71, 85, 105, 0.7);
                     }
                 `}</style>
             </Head>
 
             <PageLoader isVisible={loading} />
 
-            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 bg-grid-pattern overflow-hidden">
+            <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
 
@@ -174,13 +128,12 @@ export default function Create({ auth, permissions = {} }) {
                     {/* Enhanced Header */}
                     <header
                         ref={headerRef}
-                        className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-40 bg-white/95 dark:bg-slate-900"
+                        className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-6 px-8 sticky top-0 z-40"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
                                 <div className="relative">
-                                    <div className="absolute -inset-1 header-glow rounded-lg blur"></div>
-                                    <div className="relative header-icon-container p-3 rounded-lg shadow-sm">
+                                    <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                                         <Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
                                     </div>
                                 </div>
@@ -230,8 +183,8 @@ export default function Create({ auth, permissions = {} }) {
                                 className="max-w-4xl mx-auto space-y-8"
                             >
                                 {/* Form Card */}
-                                <Card className="form-card border-0 shadow-xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 overflow-hidden">
-                                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 border-b border-slate-200/50 dark:border-slate-700/50 pb-6">
+                                <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                    <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 pb-6">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center space-x-4">
                                                 <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
@@ -266,11 +219,11 @@ export default function Create({ auth, permissions = {} }) {
                                         >
                                             {/* Basic Information Section */}
                                             <div className="space-y-6">
-                                                <div className="flex items-center space-x-2 mb-4 p-3 rounded-lg form-section">
-                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-sm">
-                                                        <FileText className="h-4 w-4 text-white" />
+                                                <div className="flex items-center space-x-2 mb-4">
+                                                    <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                                        <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                                     </div>
-                                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                                         {t("Basic Information")}
                                                     </h3>
                                                 </div>
@@ -304,10 +257,10 @@ export default function Create({ auth, permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`transition-all duration-200 bg-white/50 dark:bg-slate-800/50 ${
+                                                            className={`transition-all duration-200 bg-white dark:bg-gray-700 ${
                                                                 errors.name
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                                                                    : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                                                    : "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20"
                                                             }`}
                                                         />
                                                         {errors.name && (
@@ -355,10 +308,10 @@ export default function Create({ auth, permissions = {} }) {
                                                                     e.target.value.toUpperCase()
                                                                 )
                                                             }
-                                                            className={`transition-all duration-200 font-mono bg-white/50 dark:bg-slate-800/50 ${
+                                                            className={`transition-all duration-200 font-mono bg-white dark:bg-gray-700 ${
                                                                 errors.code
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                                                                    : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                                                    : "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20"
                                                             }`}
                                                         />
                                                         {errors.code && (
@@ -404,10 +357,10 @@ export default function Create({ auth, permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`transition-all duration-200 bg-white/50 dark:bg-slate-800/50 ${
+                                                            className={`transition-all duration-200 bg-white dark:bg-gray-700 ${
                                                                 errors.location
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                                                                    : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                                                    : "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20"
                                                             }`}
                                                         />
                                                         {errors.location && (
@@ -457,10 +410,10 @@ export default function Create({ auth, permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`transition-all duration-200 bg-white/50 dark:bg-slate-800/50 ${
+                                                            className={`transition-all duration-200 bg-white dark:bg-gray-700 ${
                                                                 errors.capacity
                                                                     ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                                                                    : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                                                    : "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20"
                                                             }`}
                                                         />
                                                         {errors.capacity && (
@@ -506,10 +459,10 @@ export default function Create({ auth, permissions = {} }) {
                                                             )
                                                         }
                                                         rows={4}
-                                                        className={`transition-all duration-200 resize-none bg-white/50 dark:bg-slate-800/50 ${
+                                                        className={`transition-all duration-200 resize-none bg-white dark:bg-gray-700 ${
                                                             errors.description
                                                                 ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                                                                : "border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-blue-500/20"
+                                                                : "border-gray-300 dark:border-gray-600 focus:border-blue-500 focus:ring-blue-500/20"
                                                         }`}
                                                     />
                                                     {errors.description && (
@@ -531,15 +484,15 @@ export default function Create({ auth, permissions = {} }) {
                                                 </div>
                                             </div>
 
-                                            <Separator className="my-8 bg-slate-200 dark:bg-slate-700" />
+                                            <Separator className="my-8 bg-gray-200 dark:bg-gray-700" />
 
                                             {/* Settings Section */}
                                             <div className="space-y-6">
-                                                <div className="flex items-center space-x-2 mb-4 p-3 rounded-lg form-section">
-                                                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg shadow-sm">
-                                                        <Settings className="h-4 w-4 text-white" />
+                                                <div className="flex items-center space-x-2 mb-4">
+                                                    <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                                        <Settings className="h-4 w-4 text-green-600 dark:text-green-400" />
                                                     </div>
-                                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                                         {t(
                                                             "Warehouse Settings"
                                                         )}
@@ -555,7 +508,7 @@ export default function Create({ auth, permissions = {} }) {
                                                         <Activity className="h-4 w-4 text-green-500" />
                                                         {t("Warehouse Status")}
                                                     </Label>
-                                                    <div className="flex items-center space-x-4 p-4 bg-slate-50/80 dark:bg-slate-800/60 rounded-lg border border-slate-200 dark:border-slate-700 backdrop-blur-sm">
+                                                    <div className="flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600">
                                                         <div className="flex items-center space-x-4">
                                                             <Checkbox
                                                                 id="is_active"
@@ -612,7 +565,7 @@ export default function Create({ auth, permissions = {} }) {
                                                 </div>
                                             </div>
 
-                                            <Separator className="my-8 bg-slate-200 dark:bg-slate-700" />
+                                            <Separator className="my-8 bg-gray-200 dark:bg-gray-700" />
 
                                             {/* Action Buttons */}
                                             <div className="flex items-center justify-between pt-6">
