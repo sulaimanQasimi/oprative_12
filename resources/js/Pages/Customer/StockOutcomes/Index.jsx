@@ -479,9 +479,6 @@ export default function StockOutcomesIndex({
                                                     <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                                         {t('Date')}
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider pr-8">
-                                                        {t('Actions')}
-                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-100 dark:divide-slate-800">
@@ -585,19 +582,6 @@ export default function StockOutcomesIndex({
                                                                 <Calendar className="h-4 w-4 mr-1.5 text-gray-500 dark:text-gray-400" />
                                                                 {new Date(outcome.created_at).toLocaleDateString()}
                                                             </div>
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-right">
-                                                            <Link
-                                                                href={route('customer.stock-outcomes.show', outcome.id)}
-                                                                className="group relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-red-500 via-orange-500 to-red-600 hover:from-red-600 hover:via-orange-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg overflow-hidden"
-                                                            >
-                                                                <span className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
-                                                                <span className="absolute -inset-0.5 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg blur opacity-20 group-hover:opacity-30 transition-opacity duration-300 animate-tilt"></span>
-                                                                <span className="absolute left-0 inset-y-0 flex items-center pl-3 relative">
-                                                                    <Eye className="h-4 w-4 text-white opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
-                                                                </span>
-                                                                <span className="pl-6 relative">{t('View Details')}</span>
-                                                            </Link>
                                                         </td>
                                                     </tr>
                                                 ))}
