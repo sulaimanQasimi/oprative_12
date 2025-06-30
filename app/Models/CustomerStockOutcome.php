@@ -19,14 +19,23 @@ class CustomerStockOutcome extends Model
         'reason',
         'total',
         'price',
-        'status'
+        'status',
+        'unit_type',
+        'is_wholesale',
+        'unit_id',
+        'unit_amount',
+        'unit_name',
+        'notes'
     ];
 
     protected $casts = [
         'customer_id' => 'integer',
         'product_id' => 'integer',
-        'quantity' => 'integer',
-        'total' => 'decimal:2',
+        'is_wholesale' => 'boolean',
+        'quantity' => 'float',
+        'total' => 'float',
+        'price' => 'float',
+        'unit_amount' => 'float',
     ];
 
     // Relationships
@@ -38,5 +47,10 @@ class CustomerStockOutcome extends Model
     public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class);
     }
 }
