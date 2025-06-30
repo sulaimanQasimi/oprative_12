@@ -73,7 +73,8 @@ import {
     ReceiptText,
     ArrowRightLeft,
     Truck,
-    Receipt
+    Receipt,
+    ChevronLeft
 } from "lucide-react";
 
 export default function Index({ auth, stats }) {
@@ -659,80 +660,63 @@ export default function Index({ auth, stats }) {
 
                                         {/* Pagination Controls */}
                                         {pagination.total > 0 && (
-                                            <div className="px-8 py-6 border-t border-blue-100 dark:border-slate-800 bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-                                                <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-4 rtl:flex-row-reverse">
-                                                    {/* Records Info */}
-                                                    <div className="text-sm text-gray-600 rtl:text-right">
-                                                        <div className="flex items-center gap-2 rtl:flex-row-reverse">
-                                                            <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded-md rtl:font-semibold">
-                                                                RTL {t('Support')}
-                                                            </span>
-                                                            {pagination.total > 0 ? (
-                                                                <p>
-                                                                    {t('Showing')} <span className="font-medium text-blue-600">{((pagination.current_page - 1) * pagination.per_page) + 1}</span> {t('to')}{' '}
-                                                                    <span className="font-medium text-blue-600">{Math.min(pagination.current_page * pagination.per_page, pagination.total)}</span> {t('of')}{' '}
-                                                                    <span className="font-medium text-blue-600">{pagination.total}</span> {t('orders')}
-                                                                </p>
-                                                            ) : (
-                                                                <p>{t('No orders found')}</p>
-                                                            )}
-                                                        </div>
-                                                    </div>
-
-                                                    {/* Pagination Controls */}
-                                                    <div className="flex items-center justify-center rtl:flex-row-reverse">
-                                                        <nav
-                                                            className="relative z-0 inline-flex rounded-xl shadow-md -space-x-px rtl:space-x-reverse overflow-hidden"
-                                                            aria-label="Pagination"
-                                                            style={{ boxShadow: '0 4px 20px -2px rgba(59, 130, 246, 0.15)' }}
-                                                        >
-                                                            {/* Previous Page */}
-                                                            <button
-                                                                onClick={() => handlePageChange(pagination.current_page - 1)}
-                                                                disabled={pagination.current_page <= 1}
-                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm border-r border-blue-100 dark:border-slate-700 ${pagination.current_page <= 1
-                                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
-                                                                        : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                                                                    }`}
-                                                            >
-                                                                {t('Previous')}
-                                                            </button>
-
-                                                            {/* Page Numbers */}
-                                                            {Array.from({ length: Math.min(5, pagination.last_page) }, (_, i) => {
-                                                                const pageNum = i + 1;
-                                                                return (
-                                                                    <button
-                                                                        key={pageNum}
-                                                                        onClick={() => handlePageChange(pageNum)}
-                                                                        className={`relative inline-flex items-center px-4 py-2.5 text-sm border-r border-blue-100 dark:border-slate-700 ${pageNum === pagination.current_page
-                                                                                ? 'z-10 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 text-white shadow-md transform scale-105'
-                                                                                : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                                                                            }`}
-                                                                    >
-                                                                        {pageNum}
-                                                                        {pageNum === pagination.current_page && (
-                                                                            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full transform translate-y-1/2 opacity-60"></span>
-                                                                        )}
-                                                                    </button>
-                                                                );
-                                                            })}
-
-                                                            {/* Next Page */}
-                                                            <button
-                                                                onClick={() => handlePageChange(pagination.current_page + 1)}
-                                                                disabled={pagination.current_page >= pagination.last_page}
-                                                                className={`relative inline-flex items-center px-4 py-2.5 text-sm ${pagination.current_page >= pagination.last_page
-                                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed dark:bg-slate-800 dark:text-slate-600'
-                                                                        : 'bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800'
-                                                                    }`}
-                                                            >
-                                                                {t('Next')}
-                                                            </button>
-                                                        </nav>
-                                                    </div>
+                                            <motion.div
+                                                initial={{ y: 20, opacity: 0 }}
+                                                animate={{ y: 0, opacity: 1 }}
+                                                transition={{ delay: 1.5, duration: 0.4 }}
+                                                className="flex flex-col items-center space-y-4"
+                                            >
+                                                <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                    {t("Showing")} {((pagination.current_page - 1) * pagination.per_page) + 1} {t("to")} {Math.min(pagination.current_page * pagination.per_page, pagination.total)} {t("of")} {pagination.total} {t("results")}
                                                 </div>
-                                            </div>
+                                                <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
+                                                    {/* Previous Page */}
+                                                    <button
+                                                        onClick={() => handlePageChange(pagination.current_page - 1)}
+                                                        disabled={pagination.current_page <= 1}
+                                                        className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                            pagination.current_page > 1
+                                                                ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                : 'text-gray-400 cursor-not-allowed'
+                                                        }`}
+                                                    >
+                                                        <ChevronRight className="h-4 w-4" />
+                                                        <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                    </button>
+
+                                                    {/* Page Numbers */}
+                                                    {Array.from({ length: Math.min(5, pagination.last_page) }, (_, i) => {
+                                                        const pageNum = i + 1;
+                                                        return (
+                                                            <button
+                                                                key={pageNum}
+                                                                onClick={() => handlePageChange(pageNum)}
+                                                                className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                    pageNum === pagination.current_page
+                                                                        ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg'
+                                                                        : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                }`}
+                                                            >
+                                                                {pageNum}
+                                                            </button>
+                                                        );
+                                                    })}
+
+                                                    {/* Next Page */}
+                                                    <button
+                                                        onClick={() => handlePageChange(pagination.current_page + 1)}
+                                                        disabled={pagination.current_page >= pagination.last_page}
+                                                        className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                            pagination.current_page < pagination.last_page
+                                                                ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                                : 'text-gray-400 cursor-not-allowed'
+                                                        }`}
+                                                    >
+                                                        <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                        <ChevronLeft className="h-4 w-4" />
+                                                    </button>
+                                                </div>
+                                            </motion.div>
                                         )}
                             </div>
                         </div>
