@@ -202,7 +202,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent drop-shadow dark:drop-shadow-lg"
                                     >
                                         {t("Manual Attendance")}
                                     </motion.h1>
@@ -224,7 +224,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                                 className="flex items-center gap-3"
                             >
                                 <Link href={route("admin.employees.verify")}>
-                                    <Button variant="outline" className="gap-2 border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400">
+                                    <Button variant="outline" className="gap-2 dark:text-white border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400">
                                         <Eye className="h-4 w-4" />
                                         {t("Biometric Verify")}
                                     </Button>
@@ -232,7 +232,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                                 <Button
                                     onClick={() => router.reload()}
                                     variant="outline"
-                                    className="gap-2 border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400"
+                                    className="gap-2  border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400 dark:text-white text-slate-800"
                                 >
                                     <RotateCcw className="h-4 w-4" />
                                     {t("Refresh")}
@@ -276,10 +276,10 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                                         <SelectTrigger className="border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 dark:border-slate-600 dark:hover:border-blue-400 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-white">
                                             <SelectValue placeholder={t("All Departments")} />
                                         </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="">{t("All Departments")}</SelectItem>
+                                        <SelectContent className="dark:bg-slate-800">
+                                            <SelectItem value="" className="dark:text-white">{t("All Departments")}</SelectItem>
                                             {departments.map((dept) => (
-                                                <SelectItem key={dept} value={dept}>
+                                                <SelectItem key={dept} value={dept} className="dark:text-white">
                                                     {dept}
                                                 </SelectItem>
                                             ))}
@@ -299,11 +299,11 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                                         <SelectTrigger className="border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 dark:border-slate-600 dark:hover:border-blue-400 dark:focus:border-blue-400 dark:bg-slate-700 dark:text-white">
                                             <SelectValue placeholder={t("All Status")} />
                                         </SelectTrigger>
-                                        <SelectContent className="z-50 fixed top-0">
-                                            <SelectItem value="">{t("All Status")}</SelectItem>
-                                            <SelectItem value="present">{t("Present")}</SelectItem>
-                                            <SelectItem value="absent">{t("Absent")}</SelectItem>
-                                            <SelectItem value="incomplete">{t("Incomplete")}</SelectItem>
+                                        <SelectContent className="z-50 fixed top-0 dark:bg-slate-800">
+                                            <SelectItem value="" className="dark:text-white">{t("All Status")}</SelectItem>
+                                            <SelectItem value="present" className="dark:text-white">{t("Present")}</SelectItem>
+                                            <SelectItem value="absent" className="dark:text-white">{t("Absent")}</SelectItem>
+                                            <SelectItem value="incomplete" className="dark:text-white">{t("Incomplete")}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -559,7 +559,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                                                         size="sm"
                                                         onClick={() => handlePageChange(1)}
                                                         disabled={pagination.current_page === 1}
-                                                        className="border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400"
+                                                        className="border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400 dark:text-white"
                                                     >
                                                         <ChevronsLeft className="h-4 w-4" />
                                                     </Button>
@@ -568,7 +568,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                                                         size="sm"
                                                         onClick={() => handlePageChange(pagination.current_page - 1)}
                                                         disabled={pagination.current_page === 1}
-                                                        className="border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400"
+                                                        className="border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400 dark:text-white"
                                                     >
                                                         <ChevronLeft className="h-4 w-4" />
                                                     </Button>
@@ -582,7 +582,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                                                                 variant={pagination.current_page === page ? "default" : "outline"}
                                                                 size="sm"
                                                                 onClick={() => handlePageChange(page)}
-                                                                className={pagination.current_page === page ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400'}
+                                                                className={pagination.current_page === page ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400 dark:text-white'}
                                                             >
                                                                 {page}
                                                             </Button>
@@ -594,7 +594,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                                                         size="sm"
                                                         onClick={() => handlePageChange(pagination.current_page + 1)}
                                                         disabled={pagination.current_page === pagination.last_page}
-                                                        className="border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400"
+                                                        className="border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400 dark:text-white"
                                                     >
                                                         <ChevronRight className="h-4 w-4" />
                                                     </Button>
@@ -603,7 +603,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                                                         size="sm"
                                                         onClick={() => handlePageChange(pagination.last_page)}
                                                         disabled={pagination.current_page === pagination.last_page}
-                                                        className="border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400"
+                                                        className="border-slate-200 hover:border-blue-300 dark:border-slate-600 dark:hover:border-blue-400 dark:text-white"
                                                     >
                                                         <ChevronsRight className="h-4 w-4" />
                                                     </Button>
@@ -669,7 +669,7 @@ export default function ManualAttendance({ auth, attendances = [], employees = [
                             <Button
                                 variant="outline"
                                 onClick={closeActionModal}
-                                className="flex-1 border-slate-200 hover:border-slate-300 dark:border-slate-600 dark:hover:border-slate-500"
+                                className="flex-1 border-slate-200 hover:border-slate-300 dark:border-slate-600 dark:hover:border-slate-500 dark:text-white"
                             >
                                 {t("Cancel")}
                             </Button>

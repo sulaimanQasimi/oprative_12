@@ -400,7 +400,7 @@ export default function Index({
                                                             type="button"
                                                             variant="outline"
                                                             onClick={clearFilters}
-                                                            className="gap-2 h-12 border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-200 hover:text-indigo-700 dark:hover:text-indigo-300"
+                                                            className="gap-2 h-12 border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-200 hover:text-indigo-700 dark:hover:text-indigo-300 dark:text-white"
                                                         >
                                                             <RefreshCw className="h-5 w-5" />
                                                             {t("Clear")}
@@ -427,7 +427,7 @@ export default function Index({
                                                                 className={`gap-2 transition-all duration-200 ${
                                                                     filterState === 'active' 
                                                                         ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg' 
-                                                                        : 'border-slate-300 dark:border-slate-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-300 hover:border-indigo-400 dark:hover:border-indigo-500'
+                                                                        : 'border-slate-300 dark:border-slate-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 hover:text-indigo-600 dark:hover:text-indigo-300 hover:border-indigo-400 dark:hover:border-indigo-500 dark:text-white'
                                                                 }`}
                                                             >
                                                                 <Building className="h-4 w-4" />
@@ -440,7 +440,7 @@ export default function Index({
                                                                 className={`gap-2 transition-all duration-200 ${
                                                                     filterState === 'with_trashed' 
                                                                         ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-lg' 
-                                                                        : 'border-slate-300 dark:border-slate-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:text-amber-600 dark:hover:text-amber-300 hover:border-amber-400 dark:hover:border-amber-500'
+                                                                        : 'border-slate-300 dark:border-slate-600 hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:text-amber-600 dark:hover:text-amber-300 hover:border-amber-400 dark:hover:border-amber-500 dark:text-white'
                                                                 }`}
                                                             >
                                                                 <Eye className="h-4 w-4" />
@@ -453,7 +453,7 @@ export default function Index({
                                                                 className={`gap-2 transition-all duration-200 ${
                                                                     filterState === 'trashed' 
                                                                         ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg' 
-                                                                        : 'border-slate-300 dark:border-slate-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-300 hover:border-red-400 dark:hover:border-red-500'
+                                                                        : 'border-slate-300 dark:border-slate-600 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-300 hover:border-red-400 dark:hover:border-red-500 dark:text-white'
                                                                 }`}
                                                             >
                                                                 <Trash2 className="h-4 w-4" />
@@ -687,7 +687,7 @@ export default function Index({
                                                                         variant="outline"
                                                                         size="sm"
                                                                         disabled
-                                                                        className="w-10 h-10 p-0"
+                                                                        className="w-10 h-10 p-0 dark:text-white"
                                                                     >
                                                                         {link.label === '&laquo; Previous' ? (
                                                                             <ChevronLeft className="h-4 w-4" />
@@ -713,7 +713,7 @@ export default function Index({
                                                                         className={`w-10 h-10 p-0 ${
                                                                             link.active
                                                                                 ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-                                                                                : 'hover:bg-indigo-50 hover:border-indigo-300'
+                                                                                : 'hover:bg-indigo-50 hover:border-indigo-300 dark:text-white'
                                                                         }`}
                                                                     >
                                                                         {link.label === '&laquo; Previous' ? (

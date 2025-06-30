@@ -187,11 +187,11 @@ export default function HomePage({ auth }) {
                             transition={{ duration: 0.5, delay: 0.2 }}
                             className="flex items-center"
                         >
-                            <div className="flex items-center gap-3 pr-2">
+                            <div className="flex items-center gap-2 pr-2">
                                 {auth?.web ? (
                                     <ButtonAnimation>
-                                        <Link href="/adminpanel/" className="group relative inline-flex items-center px-4 py-2.5 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white text-sm font-medium rounded-md shadow-md shadow-emerald-600/10">
-                                            <svg className="w-[18px] h-[18px] mr-2 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <Link href="/adminpanel/" className="group relative inline-flex items-center px-3 py-2 bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-xs font-medium rounded-lg shadow-lg shadow-emerald-600/25 transition-all duration-200 border border-emerald-500/20">
+                                            <svg className="w-4 h-4 mr-1.5 text-emerald-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                                             </svg>
                                             <span>پنل مدیریت</span>
@@ -199,8 +199,8 @@ export default function HomePage({ auth }) {
                                     </ButtonAnimation>
                                 ) : (
                                     <ButtonAnimation>
-                                        <Link href="/adminpanel/login" className="group relative inline-flex items-center px-4 py-2.5 bg-gradient-to-br from-emerald-600 to-emerald-700 text-white text-sm font-medium rounded-md shadow-md shadow-emerald-600/10">
-                                            <svg className="w-[18px] h-[18px] mr-2 text-emerald-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <Link href="/adminpanel/login" className="group relative inline-flex items-center px-3 py-2 bg-gradient-to-br from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-xs font-medium rounded-lg shadow-lg shadow-emerald-600/25 transition-all duration-200 border border-emerald-500/20">
+                                            <svg className="w-4 h-4 mr-1.5 text-emerald-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                             </svg>
                                             <span>ورود مدیر</span>
@@ -210,8 +210,8 @@ export default function HomePage({ auth }) {
 
                                 {auth?.warehouse ? (
                                     <ButtonAnimation>
-                                        <Link href="/warehouse/dashboard" className="group relative inline-flex items-center px-4 py-2.5 bg-gradient-to-br from-blue-600 to-blue-700 text-white text-sm font-medium rounded-md shadow-md shadow-blue-600/10">
-                                            <svg className="w-[18px] h-[18px] mr-2 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <Link href="/warehouse/dashboard" className="group relative inline-flex items-center px-3 py-2 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-xs font-medium rounded-lg shadow-lg shadow-blue-600/25 transition-all duration-200 border border-blue-500/20">
+                                            <svg className="w-4 h-4 mr-1.5 text-blue-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                                             </svg>
                                             <span>پنل انبار</span>
@@ -219,8 +219,8 @@ export default function HomePage({ auth }) {
                                     </ButtonAnimation>
                                 ) : (
                                     <ButtonAnimation>
-                                        <Link href="/warehouse/login" className="group relative inline-flex items-center px-4 py-2.5 bg-gradient-to-br from-blue-600 to-blue-700 text-white text-sm font-medium rounded-md shadow-md shadow-blue-600/10">
-                                            <svg className="w-[18px] h-[18px] mr-2 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <Link href="/warehouse/login" className="group relative inline-flex items-center px-3 py-2 bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-xs font-medium rounded-lg shadow-lg shadow-blue-600/25 transition-all duration-200 border border-blue-500/20">
+                                            <svg className="w-4 h-4 mr-1.5 text-blue-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                             </svg>
                                             <span>ورود انبار</span>
@@ -230,8 +230,8 @@ export default function HomePage({ auth }) {
 
                                 {auth?.customer ? (
                                     <ButtonAnimation>
-                                        <Link href="/customer/dashboard" className="group relative inline-flex items-center px-4 py-2.5 bg-gradient-to-br from-orange-600 to-orange-700 text-white text-sm font-medium rounded-md shadow-md shadow-orange-600/10">
-                                            <svg className="w-[18px] h-[18px] mr-2 text-orange-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <Link href="/customer/dashboard" className="group relative inline-flex items-center px-3 py-2 bg-gradient-to-br from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-xs font-medium rounded-lg shadow-lg shadow-orange-600/25 transition-all duration-200 border border-orange-500/20">
+                                            <svg className="w-4 h-4 mr-1.5 text-orange-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                             </svg>
                                             <span>پنل مشتری</span>
@@ -239,8 +239,8 @@ export default function HomePage({ auth }) {
                                     </ButtonAnimation>
                                 ) : (
                                     <ButtonAnimation>
-                                        <Link href="/customer/login" className="group relative inline-flex items-center px-4 py-2.5 bg-gradient-to-br from-orange-600 to-orange-700 text-white text-sm font-medium rounded-md shadow-md shadow-orange-600/10">
-                                            <svg className="w-[18px] h-[18px] mr-2 text-orange-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <Link href="/customer/login" className="group relative inline-flex items-center px-3 py-2 bg-gradient-to-br from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white text-xs font-medium rounded-lg shadow-lg shadow-orange-600/25 transition-all duration-200 border border-orange-500/20">
+                                            <svg className="w-4 h-4 mr-1.5 text-orange-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                                             </svg>
                                             <span>ورود مشتری</span>
@@ -249,8 +249,8 @@ export default function HomePage({ auth }) {
                                 )}
 
                                 <ButtonAnimation>
-                                    <Link href="/attendance-request" className="group relative inline-flex items-center px-4 py-2.5 bg-gradient-to-br from-purple-600 to-purple-700 text-white text-sm font-medium rounded-md shadow-md shadow-purple-600/10">
-                                        <svg className="w-[18px] h-[18px] mr-2 text-purple-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <Link href="/attendance-request" className="group relative inline-flex items-center px-3 py-2 bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white text-xs font-medium rounded-lg shadow-lg shadow-purple-600/25 transition-all duration-200 border border-purple-500/20">
+                                        <svg className="w-4 h-4 mr-1.5 text-purple-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                         <span>درخواست توجیه حضور</span>
@@ -258,8 +258,8 @@ export default function HomePage({ auth }) {
                                 </ButtonAnimation>
 
                                 <ButtonAnimation>
-                                    <Link href="/attendance-request/track" className="group relative inline-flex items-center px-4 py-2.5 bg-gradient-to-br from-teal-600 to-teal-700 text-white text-sm font-medium rounded-md shadow-md shadow-teal-600/10">
-                                        <svg className="w-[18px] h-[18px] mr-2 text-teal-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <Link href="/attendance-request/track" className="group relative inline-flex items-center px-3 py-2 bg-gradient-to-br from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white text-xs font-medium rounded-lg shadow-lg shadow-teal-600/25 transition-all duration-200 border border-teal-500/20">
+                                        <svg className="w-4 h-4 mr-1.5 text-teal-100" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                         </svg>
                                         <span>پیگیری درخواست</span>
@@ -302,9 +302,10 @@ export default function HomePage({ auth }) {
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ duration: 0.8, delay: 0.7 }}
-                                className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed"
+                                className="text-xl md:text-2xl text-gray-300 mb-12 leading-relaxed max-w-2xl mx-auto lg:mx-0"
                             >
-                            راه حل جامع برای مدیریت حرفه‌ای کوپراتیف، کنترل موجودی، فروش و گزارش‌گیری هوشمند
+                                راه حل جامع و هوشمند برای مدیریت حرفه‌ای کوپراتیف‌ها با امکانات پیشرفته کنترل موجودی، 
+                                مدیریت فروش، گزارش‌گیری تحلیلی و پشتیبانی ۲۴ ساعته
                             </motion.p>
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
@@ -313,17 +314,18 @@ export default function HomePage({ auth }) {
                                 className="flex flex-wrap gap-4 justify-center lg:justify-start"
                             >
                                 <ButtonAnimation>
-                                    <a href="#features" className="px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold flex items-center space-x-2">
-                                        <span>مشاهده ویژگی‌ها</span>
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <a href="#features" className="group relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-xl transition-all duration-300 shadow-lg shadow-blue-600/25 border border-blue-500/20">
+                                        <span className="relative z-10">مشاهده ویژگی‌ها</span>
+                                        <svg className="w-5 h-5 mr-2 transition-transform group-hover:translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                                         </svg>
+                                        <div className="absolute inset-0 bg-gradient-to-r from-blue-700 to-purple-700 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     </a>
                                 </ButtonAnimation>
                                 <ButtonAnimation>
-                                    <a href="#contact" className="px-8 py-4 rounded-xl bg-white/10 text-white font-semibold flex items-center space-x-2 backdrop-blur-lg">
-                                        <span>تماس با ما</span>
-                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <a href="#contact" className="group relative inline-flex items-center px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl backdrop-blur-lg transition-all duration-300 border border-white/20 hover:border-white/30">
+                                        <span className="relative z-10">تماس با ما</span>
+                                        <svg className="w-5 h-5 mr-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                                         </svg>
                                     </a>
@@ -339,33 +341,33 @@ export default function HomePage({ auth }) {
                         >
                             <div className="relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-3xl blur-2xl"></div>
-                                <div className="relative bg-gradient-to-br from-[#1a1f3c] to-[#2c1f47] rounded-3xl p-8 border border-white/10">
+                                <div className="relative bg-gradient-to-br from-[#1a1f3c]/90 to-[#2c1f47]/90 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl">
                                     <div className="grid grid-cols-2 gap-6">
                                         <div className="space-y-6">
-                                            <div className="h-24 bg-white/5 rounded-xl backdrop-blur-lg p-4 border border-white/10 flex items-center justify-center">
+                                            <div className="group h-24 bg-white/5 hover:bg-white/10 rounded-xl backdrop-blur-lg p-4 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-300 hover:scale-105">
                                                 <div className="text-center">
-                                                    <div className="stat-number text-2xl font-bold text-white mb-1" data-value="1234">0</div>
-                                                    <div className="text-sm text-gray-400">محصول ثبت شده</div>
+                                                    <div className="stat-number text-2xl font-bold text-white mb-1 group-hover:text-blue-300 transition-colors" data-value="1234">0</div>
+                                                    <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">محصول ثبت شده</div>
                                                 </div>
                                             </div>
-                                            <div className="h-24 bg-white/5 rounded-xl backdrop-blur-lg p-4 border border-white/10 flex items-center justify-center">
+                                            <div className="group h-24 bg-white/5 hover:bg-white/10 rounded-xl backdrop-blur-lg p-4 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-300 hover:scale-105">
                                                 <div className="text-center">
-                                                    <div className="stat-number text-2xl font-bold text-white mb-1" data-value="98">0</div>
-                                                    <div className="text-sm text-gray-400">رضایت مشتریان</div>
+                                                    <div className="stat-number text-2xl font-bold text-white mb-1 group-hover:text-green-300 transition-colors" data-value="98">0</div>
+                                                    <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">رضایت مشتریان</div>
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="space-y-6 mt-12">
-                                            <div className="h-24 bg-white/5 rounded-xl backdrop-blur-lg p-4 border border-white/10 flex items-center justify-center">
+                                            <div className="group h-24 bg-white/5 hover:bg-white/10 rounded-xl backdrop-blur-lg p-4 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-300 hover:scale-105">
                                                 <div className="text-center">
-                                                    <div className="stat-number text-2xl font-bold text-white mb-1" data-value="567">0</div>
-                                                    <div className="text-sm text-gray-400">کاربر فعال</div>
+                                                    <div className="stat-number text-2xl font-bold text-white mb-1 group-hover:text-purple-300 transition-colors" data-value="567">0</div>
+                                                    <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">کاربر فعال</div>
                                                 </div>
                                             </div>
-                                            <div className="h-24 bg-white/5 rounded-xl backdrop-blur-lg p-4 border border-white/10 flex items-center justify-center">
+                                            <div className="group h-24 bg-white/5 hover:bg-white/10 rounded-xl backdrop-blur-lg p-4 border border-white/10 hover:border-white/20 flex items-center justify-center transition-all duration-300 hover:scale-105">
                                                 <div className="text-center">
-                                                    <div className="text-2xl font-bold text-white mb-1">۲۴/۷</div>
-                                                    <div className="text-sm text-gray-400">پشتیبانی آنلاین</div>
+                                                    <div className="text-2xl font-bold text-white mb-1 group-hover:text-orange-300 transition-colors">۲۴/۷</div>
+                                                    <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">پشتیبانی آنلاین</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -566,25 +568,30 @@ export default function HomePage({ auth }) {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                     </svg>
                                 </div>
-                                <span className="text-2xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">سیستم مدیریت کوپراتیف</span>
+                                <span className="text-xl font-bold bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">سیستم مدیریت کوپراتیف</span>
                             </div>
-                            <p className="text-gray-400">
-                                راه حل هوشمند برای مدیریت حرفه‌ای کوپراتیف و کسب و کار شما
+                            <p className="text-gray-400 leading-relaxed max-w-sm">
+                                راه حل هوشمند برای مدیریت حرفه‌ای کوپراتیف و کسب و کار شما با امکانات پیشرفته و پشتیبانی 24/7
                             </p>
-                            <div className="flex space-x-4">
-                                <a href="#" className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
-                                    <svg className="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                            <div className="flex space-x-3">
+                                <a href="#" className="group w-10 h-10 bg-white/5 hover:bg-gradient-to-br hover:from-blue-600 hover:to-purple-600 rounded-lg flex items-center justify-center transition-all duration-300">
+                                    <svg className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                                     </svg>
                                 </a>
-                                <a href="#" className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
-                                    <svg className="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                                <a href="#" className="group w-10 h-10 bg-white/5 hover:bg-gradient-to-br hover:from-blue-600 hover:to-purple-600 rounded-lg flex items-center justify-center transition-all duration-300">
+                                    <svg className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
                                     </svg>
                                 </a>
-                                <a href="#" className="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors">
-                                    <svg className="w-5 h-5 text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.995 17.176c-.048.11-.144.18-.257.156-.67-.183-1.487-.276-2.47-.276-.98 0-1.798.093-2.47.276-.112.024-.208-.046-.257-.156a.27.27 0 01.052-.296c.649-.578 1.794-.934 2.674-.934.881 0 2.025.356 2.674.934a.27.27 0 01.052.296zM18.406 12c0 1.088-.244 2.138-.683 3.077-.466.996-1.13 1.834-1.977 2.482-.847.648-1.83 1.094-2.878 1.314-1.048.22-2.143.22-3.191 0-1.048-.22-2.031-.666-2.878-1.314-.847-.648-1.511-1.486-1.977-2.482A7.853 7.853 0 014.139 12c0-1.088.244-2.138.683-3.077.466-.996 1.13-1.834 1.977-2.482.847-.648 1.83-1.094 2.878-1.314 1.048-.22 2.143-.22 3.191 0 1.048.22 2.031.666 2.878 1.314.847.648 1.511 1.486 1.977 2.482.439.939.683 1.989.683 3.077z"/>
+                                <a href="#" className="group w-10 h-10 bg-white/5 hover:bg-gradient-to-br hover:from-blue-600 hover:to-purple-600 rounded-lg flex items-center justify-center transition-all duration-300">
+                                    <svg className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.747.099.12.112.225.085.347-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.748-1.378 0 0-.599 2.282-.744 2.840-.282 1.084-1.064 2.456-1.549 3.235C9.584 23.815 10.77 24.001 12.017 24.001c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
+                                    </svg>
+                                </a>
+                                <a href="#" className="group w-10 h-10 bg-white/5 hover:bg-gradient-to-br hover:from-blue-600 hover:to-purple-600 rounded-lg flex items-center justify-center transition-all duration-300">
+                                    <svg className="w-5 h-5 text-gray-300 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.747.099.12.112.225.085.347-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.748-1.378 0 0-.599 2.282-.744 2.840-.282 1.084-1.064 2.456-1.549 3.235C9.584 23.815 10.77 24.001 12.017 24.001c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001 12.017.001z"/>
                                     </svg>
                                 </a>
                             </div>
@@ -592,85 +599,132 @@ export default function HomePage({ auth }) {
 
                         {/* Quick Links */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-6">دسترسی سریع</h3>
-                            <div className="grid grid-cols-1 gap-4">
-                                <Link href="/adminpanel/login" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                                    </svg>
-                                    <span>ورود مدیر</span>
+                            <h3 className="text-lg font-semibold text-white mb-6 relative">
+                                دسترسی سریع
+                                <div className="absolute bottom-0 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                            </h3>
+                            <div className="grid grid-cols-1 gap-3">
+                                <Link href="/adminpanel/login" className="group text-gray-400 hover:text-white transition-all duration-300 flex items-center space-x-2 p-2 rounded-lg hover:bg-white/5">
+                                    <div className="w-8 h-8 bg-emerald-600/20 group-hover:bg-emerald-600/30 rounded-lg flex items-center justify-center transition-colors">
+                                        <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                        </svg>
+                                    </div>
+                                    <span className="group-hover:translate-x-1 transition-transform">ورود مدیر</span>
                                 </Link>
-                                <Link href="/warehouse/login" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                                    </svg>
-                                    <span>ورود انبار</span>
+                                <Link href="/warehouse/login" className="group text-gray-400 hover:text-white transition-all duration-300 flex items-center space-x-2 p-2 rounded-lg hover:bg-white/5">
+                                    <div className="w-8 h-8 bg-blue-600/20 group-hover:bg-blue-600/30 rounded-lg flex items-center justify-center transition-colors">
+                                        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                                        </svg>
+                                    </div>
+                                    <span className="group-hover:translate-x-1 transition-transform">ورود انبار</span>
                                 </Link>
-                                <Link href="/customer/login" className="text-gray-400 hover:text-white transition-colors flex items-center space-x-2">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                                    </svg>
-                                    <span>ورود مشتری</span>
+                                <Link href="/customer/login" className="group text-gray-400 hover:text-white transition-all duration-300 flex items-center space-x-2 p-2 rounded-lg hover:bg-white/5">
+                                    <div className="w-8 h-8 bg-orange-600/20 group-hover:bg-orange-600/30 rounded-lg flex items-center justify-center transition-colors">
+                                        <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                        </svg>
+                                    </div>
+                                    <span className="group-hover:translate-x-1 transition-transform">ورود مشتری</span>
                                 </Link>
                             </div>
                         </div>
 
                         {/* Services */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-6">خدمات</h3>
-                            <div className="grid grid-cols-1 gap-4">
-                                <a href="#features" className="text-gray-400 hover:text-white transition-colors">مدیریت موجودی</a>
-                                <a href="#features" className="text-gray-400 hover:text-white transition-colors">مدیریت فروش</a>
-                                <a href="#features" className="text-gray-400 hover:text-white transition-colors">گزارش‌گیری</a>
-                                <a href="#features" className="text-gray-400 hover:text-white transition-colors">پشتیبانی ۲۴/۷</a>
+                            <h3 className="text-lg font-semibold text-white mb-6 relative">
+                                خدمات
+                                <div className="absolute bottom-0 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                            </h3>
+                            <div className="grid grid-cols-1 gap-3">
+                                <a href="#features" className="group text-gray-400 hover:text-white transition-all duration-300 p-2 rounded-lg hover:bg-white/5 flex items-center">
+                                    <div className="w-2 h-2 bg-blue-500 rounded-full mr-3 group-hover:scale-125 transition-transform"></div>
+                                    <span>مدیریت موجودی</span>
+                                </a>
+                                <a href="#features" className="group text-gray-400 hover:text-white transition-all duration-300 p-2 rounded-lg hover:bg-white/5 flex items-center">
+                                    <div className="w-2 h-2 bg-green-500 rounded-full mr-3 group-hover:scale-125 transition-transform"></div>
+                                    <span>مدیریت فروش</span>
+                                </a>
+                                <a href="#features" className="group text-gray-400 hover:text-white transition-all duration-300 p-2 rounded-lg hover:bg-white/5 flex items-center">
+                                    <div className="w-2 h-2 bg-purple-500 rounded-full mr-3 group-hover:scale-125 transition-transform"></div>
+                                    <span>گزارش‌گیری</span>
+                                </a>
+                                <a href="#features" className="group text-gray-400 hover:text-white transition-all duration-300 p-2 rounded-lg hover:bg-white/5 flex items-center">
+                                    <div className="w-2 h-2 bg-orange-500 rounded-full mr-3 group-hover:scale-125 transition-transform"></div>
+                                    <span>پشتیبانی ۲۴/۷</span>
+                                </a>
                             </div>
                         </div>
 
                         {/* Contact */}
                         <div>
-                            <h3 className="text-lg font-semibold text-white mb-6">تماس با ما</h3>
+                            <h3 className="text-lg font-semibold text-white mb-6 relative">
+                                تماس با ما
+                                <div className="absolute bottom-0 left-0 w-8 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"></div>
+                            </h3>
                             <div className="space-y-4">
-                                <p className="text-gray-400 flex items-center space-x-3">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                    </svg>
-                                    <span>2660787</span>
-                                </p>
-                                <p className="text-gray-400 flex items-center space-x-3">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                    </svg>
-                                    <span>info@warehouse.com</span>
-                                </p>
-                                <p className="text-gray-400 flex items-center space-x-3">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                    </svg>
-                                    <span>شهر نو چهاراهی اریانا</span>
-                                </p>
-                                <p className="text-gray-400 flex items-center space-x-3">
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    <span>شنبه تا پنجشنبه: 8:00 - 17:00</span>
-                                </p>
+                                <div className="group flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                                    <div className="w-8 h-8 bg-green-600/20 rounded-lg flex items-center justify-center">
+                                        <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-gray-400 group-hover:text-white transition-colors">2660787</span>
+                                </div>
+                                <div className="group flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                                    <div className="w-8 h-8 bg-blue-600/20 rounded-lg flex items-center justify-center">
+                                        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-gray-400 group-hover:text-white transition-colors">info@warehouse.com</span>
+                                </div>
+                                <div className="group flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                                    <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center">
+                                        <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-gray-400 group-hover:text-white transition-colors text-sm">شهر نو چهاراهی اریانا</span>
+                                </div>
+                                <div className="group flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-colors">
+                                    <div className="w-8 h-8 bg-orange-600/20 rounded-lg flex items-center justify-center">
+                                        <svg className="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-gray-400 group-hover:text-white transition-colors text-sm">شنبه تا پنجشنبه: 8:00 - 17:00</span>
+                                </div>
                             </div>
                         </div>
                     </motion.div>
 
                     {/* Copyright */}
                     <div className="border-t border-white/10 pt-8">
-                        <div className="text-center">
-                            <p className="text-gray-400 text-sm flex items-center justify-center">
-                                <svg className="w-5 h-5 mr-2 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                                </svg>
-                                طراحی و توسعه توسط تیم مولوی احمد عادل
-                            </p>
-                            <p className="text-gray-500 text-sm mt-2">
-                                © ۲۰۲۴ تمامی حقوق محفوظ است
-                            </p>
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div className="flex items-center space-x-2">
+                                <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                </div>
+                                <p className="text-gray-400 text-sm">
+                                    © 2024 سیستم مدیریت کوپراتیف. تمامی حقوق محفوظ است.
+                                </p>
+                            </div>
+                            <div className="flex items-center space-x-4 text-gray-400 text-sm">
+                                <div className="flex items-center space-x-2">
+                                    <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                                    </svg>
+                                    <span>طراحی و توسعه توسط</span>
+                                </div>
+                                <span className="font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                                    تیم مولوی احمد عادل
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>

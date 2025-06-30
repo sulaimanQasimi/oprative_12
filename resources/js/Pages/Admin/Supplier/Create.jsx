@@ -72,57 +72,38 @@ export default function Create({ auth, permissions = {} }) {
         <>
             <Head title={t("Add Supplier")}>
                 <style>{`
-                    @keyframes shimmer {
-                        0% { transform: translateX(-100%); }
-                        100% { transform: translateX(100%); }
+                    .scrollbar-thin::-webkit-scrollbar {
+                        width: 6px;
                     }
-                    .animate-shimmer {
-                        animation: shimmer 3s infinite;
+                    .scrollbar-thin::-webkit-scrollbar-track {
+                        background: transparent;
                     }
-                    .bg-grid-pattern {
-                        background-image:
-                            linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
-                        background-size: 20px 20px;
+                    .scrollbar-thin::-webkit-scrollbar-thumb {
+                        background: rgba(148, 163, 184, 0.5);
+                        border-radius: 3px;
                     }
-                    .dark .bg-grid-pattern {
-                        background-image:
-                            linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                            linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+                    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                        background: rgba(148, 163, 184, 0.7);
                     }
-                    .glass-effect {
-                        background: rgba(255, 255, 255, 0.95);
-                        backdrop-filter: blur(12px);
-                        border: 1px solid rgba(226, 232, 240, 0.8);
+                    .dark .scrollbar-thin::-webkit-scrollbar-thumb {
+                        background: rgba(71, 85, 105, 0.5);
                     }
-                    .dark .glass-effect {
-                        background: rgba(15, 23, 42, 0.95);
-                        backdrop-filter: blur(12px);
-                        border: 1px solid rgba(51, 65, 85, 0.8);
-                    }
-                    .form-section {
-                        transition: all 0.3s ease;
-                    }
-                    .form-section:hover {
-                        transform: translateY(-2px);
-                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-                    }
-                    .dark .form-section:hover {
-                        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+                    .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                        background: rgba(71, 85, 105, 0.7);
                     }
                 `}</style>
             </Head>
 
             <PageLoader isVisible={loading} />
 
-            <div className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 bg-grid-pattern overflow-hidden">
+            <div className="flex h-screen bg-gray-50 dark:bg-gray-900 overflow-hidden">
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.suppliers" />
 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Enhanced Header */}
-                    <header className="glass-effect border-b border-slate-200/50 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-40 bg-white/95 dark:bg-slate-900/95">
+                    <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 py-6 px-8 sticky top-0 z-40">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-6">
                                 <div className="relative">
@@ -188,8 +169,8 @@ export default function Create({ auth, permissions = {} }) {
 
                                 <form onSubmit={handleSubmit} className="space-y-8">
                                     {/* Basic Information */}
-                                    <Card className="form-section border-0 shadow-xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 overflow-hidden">
-                                        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 border-b border-slate-200/50 dark:border-slate-700/50 pb-6">
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 pb-6">
                                             <CardTitle className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
                                                 <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
                                                     <Building className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
@@ -359,8 +340,8 @@ export default function Create({ auth, permissions = {} }) {
                                     </Card>
 
                                     {/* Address Information */}
-                                    <Card className="form-section border-0 shadow-xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-800 overflow-hidden">
-                                        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border-b border-slate-200/50 dark:border-slate-700/50 pb-6">
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 pb-6">
                                             <CardTitle className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
                                                 <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
                                                     <MapPin className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -529,7 +510,7 @@ export default function Create({ auth, permissions = {} }) {
                                     </Card>
 
                                     {/* Action Buttons */}
-                                    <Card className="border-0 shadow-xl bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700">
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
                                         <CardContent className="p-8">
                                             <div className="flex flex-col sm:flex-row gap-4 justify-end">
                                                 <Link href={route("admin.suppliers.index")}>

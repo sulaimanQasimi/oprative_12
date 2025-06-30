@@ -129,7 +129,7 @@ export default function Create({ auth, permissions = {} }) {
                                 <Link href={route("admin.attendance-settings.index")}>
                                     <Button
                                         variant="outline"
-                                        className="gap-2 hover:scale-105 transition-all duration-200"
+                                        className="gap-2 text-black dark:text-white  hover:scale-105 transition-all duration-200"
                                     >
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to List")}

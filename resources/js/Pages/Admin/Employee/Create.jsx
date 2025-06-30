@@ -105,11 +105,11 @@ export default function Create({ auth }) {
         <>
             <Head title={t("Create Employee")} />
 
-            <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
+            <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
                 <Navigation auth={auth} currentRoute="admin.employees" />
 
                 <div className="flex-1 flex flex-col overflow-hidden">
-                    <header className="bg-white dark:bg-gray-900 shadow border-b border-gray-200 dark:border-gray-800">
+                    <header className="bg-white dark:bg-gray-800 shadow border-b border-gray-200 dark:border-gray-700">
                         <div className="px-6 py-4">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center space-x-4">
@@ -136,8 +136,8 @@ export default function Create({ auth }) {
                         <div className="max-w-4xl mx-auto">
                             <form onSubmit={submit} className="space-y-8">
                                 {/* Photo Upload */}
-                                <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                                <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-shadow duration-200">
+                                    <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                                         <CardTitle className="flex items-center gap-3 text-lg">
                                             <Camera className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                             {t("Employee Photo")}
@@ -184,8 +184,8 @@ export default function Create({ auth }) {
                                 </Card>
 
                                 {/* Basic Information */}
-                                <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                                <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-shadow duration-200">
+                                    <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                                         <CardTitle className="flex items-center gap-3 text-lg">
                                             <User className="h-5 w-5 text-green-600 dark:text-green-400" />
                                             {t("Basic Information")}
@@ -194,8 +194,8 @@ export default function Create({ auth }) {
                                     <CardContent className="p-6 space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="taskra_id" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Badge className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="taskra_id" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Badge className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Taskra ID")}
                                                 </Label>
                                                 <Input
@@ -207,7 +207,7 @@ export default function Create({ auth }) {
                                                     className="transition-all duration-200 focus:ring-2 focus:ring-green-500/20"
                                                 />
                                                 {errors.taskra_id && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                         <AlertCircle className="h-4 w-4" />
                                                         {errors.taskra_id}
                                                     </div>
@@ -215,8 +215,8 @@ export default function Create({ auth }) {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="employee_id" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Badge className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="employee_id" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Badge className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Employee ID")}
                                                 </Label>
                                                 <Input
@@ -228,7 +228,7 @@ export default function Create({ auth }) {
                                                     className="transition-all duration-200 focus:ring-2 focus:ring-green-500/20"
                                                 />
                                                 {errors.employee_id && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                         <AlertCircle className="h-4 w-4" />
                                                         {errors.employee_id}
                                                     </div>
@@ -238,8 +238,8 @@ export default function Create({ auth }) {
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="first_name" className="flex items-center gap-2 text-sm font-medium">
-                                                    <User className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="first_name" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("First Name")}
                                                 </Label>
                                                 <Input
@@ -251,7 +251,7 @@ export default function Create({ auth }) {
                                                     className="transition-all duration-200 focus:ring-2 focus:ring-green-500/20"
                                                 />
                                                 {errors.first_name && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                         <AlertCircle className="h-4 w-4" />
                                                         {errors.first_name}
                                                     </div>
@@ -259,8 +259,8 @@ export default function Create({ auth }) {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="last_name" className="flex items-center gap-2 text-sm font-medium">
-                                                    <User className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="last_name" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Last Name")}
                                                 </Label>
                                                 <Input
@@ -272,7 +272,7 @@ export default function Create({ auth }) {
                                                     className="transition-all duration-200 focus:ring-2 focus:ring-green-500/20"
                                                 />
                                                 {errors.last_name && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                         <AlertCircle className="h-4 w-4" />
                                                         {errors.last_name}
                                                     </div>
@@ -282,8 +282,8 @@ export default function Create({ auth }) {
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="department" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Building className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="department" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Building className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Department")}
                                                 </Label>
                                                 <select
@@ -300,7 +300,7 @@ export default function Create({ auth }) {
                                                     ))}
                                                 </select>
                                                 {errors.department && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                         <AlertCircle className="h-4 w-4" />
                                                         {errors.department}
                                                     </div>
@@ -308,8 +308,8 @@ export default function Create({ auth }) {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Mail className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Mail className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Email Address")}
                                                 </Label>
                                                 <Input
@@ -321,7 +321,7 @@ export default function Create({ auth }) {
                                                     className="transition-all duration-200 focus:ring-2 focus:ring-green-500/20"
                                                 />
                                                 {errors.email && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                         <AlertCircle className="h-4 w-4" />
                                                         {errors.email}
                                                     </div>
@@ -332,8 +332,8 @@ export default function Create({ auth }) {
                                 </Card>
 
                                 {/* Contact Information */}
-                                <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+                                <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-shadow duration-200">
+                                    <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                                         <CardTitle className="flex items-center gap-3 text-lg">
                                             <Contact className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                                             {t("Contact Information")}
@@ -342,8 +342,8 @@ export default function Create({ auth }) {
                                     <CardContent className="p-6 space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Phone className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="phone" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Phone Number")}
                                                 </Label>
                                                 <Input
@@ -355,7 +355,7 @@ export default function Create({ auth }) {
                                                     className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20"
                                                 />
                                                 {errors["contact_info.phone"] && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                         <AlertCircle className="h-4 w-4" />
                                                         {errors["contact_info.phone"]}
                                                     </div>
@@ -363,8 +363,8 @@ export default function Create({ auth }) {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="mobile" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Phone className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="mobile" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Mobile Number")}
                                                 </Label>
                                                 <Input
@@ -376,7 +376,7 @@ export default function Create({ auth }) {
                                                     className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20"
                                                 />
                                                 {errors["contact_info.mobile"] && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                         <AlertCircle className="h-4 w-4" />
                                                         {errors["contact_info.mobile"]}
                                                     </div>
@@ -385,8 +385,8 @@ export default function Create({ auth }) {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="address" className="flex items-center gap-2 text-sm font-medium">
-                                                <MapPin className="h-4 w-4 text-gray-500" />
+                                            <Label htmlFor="address" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                <MapPin className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                 {t("Address")}
                                             </Label>
                                             <Textarea
@@ -398,7 +398,7 @@ export default function Create({ auth }) {
                                                 rows={3}
                                             />
                                             {errors["contact_info.address"] && (
-                                                <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                     <AlertCircle className="h-4 w-4" />
                                                     {errors["contact_info.address"]}
                                                 </div>
@@ -408,8 +408,8 @@ export default function Create({ auth }) {
                                 </Card>
 
                                 {/* Emergency Contact */}
-                                <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20">
+                                <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-shadow duration-200">
+                                    <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                                         <CardTitle className="flex items-center gap-3 text-lg">
                                             <Users className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                                             {t("Emergency Contact")}
@@ -418,8 +418,8 @@ export default function Create({ auth }) {
                                     <CardContent className="p-6 space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="emergency_name" className="flex items-center gap-2 text-sm font-medium">
-                                                    <User className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="emergency_name" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <User className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Contact Name")}
                                                 </Label>
                                                 <Input
@@ -431,7 +431,7 @@ export default function Create({ auth }) {
                                                     className="transition-all duration-200 focus:ring-2 focus:ring-orange-500/20"
                                                 />
                                                 {errors["contact_info.emergency_contact.name"] && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                         <AlertCircle className="h-4 w-4" />
                                                         {errors["contact_info.emergency_contact.name"]}
                                                     </div>
@@ -439,8 +439,8 @@ export default function Create({ auth }) {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="emergency_phone" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Phone className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="emergency_phone" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Phone className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Contact Phone")}
                                                 </Label>
                                                 <Input
@@ -452,7 +452,7 @@ export default function Create({ auth }) {
                                                     className="transition-all duration-200 focus:ring-2 focus:ring-orange-500/20"
                                                 />
                                                 {errors["contact_info.emergency_contact.phone"] && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                    <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                         <AlertCircle className="h-4 w-4" />
                                                         {errors["contact_info.emergency_contact.phone"]}
                                                     </div>
@@ -461,8 +461,8 @@ export default function Create({ auth }) {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="relationship" className="flex items-center gap-2 text-sm font-medium">
-                                                <Users className="h-4 w-4 text-gray-500" />
+                                            <Label htmlFor="relationship" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                <Users className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                 {t("Relationship")}
                                             </Label>
                                             <select
@@ -471,15 +471,15 @@ export default function Create({ auth }) {
                                                 onChange={(e) => handleEmergencyContactChange("relationship", e.target.value)}
                                                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500/20 focus:border-transparent dark:bg-gray-800 dark:text-white transition-all duration-200"
                                             >
-                                                <option value="">{t("Select Relationship")}</option>
+                                                <option value="" className="text-gray-700 dark:text-gray-300">{t("Select Relationship")}</option>
                                                 {relationships.map((rel) => (
-                                                    <option key={rel} value={rel}>
+                                                    <option key={rel} value={rel} className="text-gray-700 dark:text-gray-300">
                                                         {rel}
                                                     </option>
                                                 ))}
                                             </select>
                                             {errors["contact_info.emergency_contact.relationship"] && (
-                                                <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                <div className="flex items-center gap-2 text-red-600 dark:text-red-400 text-sm">
                                                     <AlertCircle className="h-4 w-4" />
                                                     {errors["contact_info.emergency_contact.relationship"]}
                                                 </div>
@@ -491,7 +491,7 @@ export default function Create({ auth }) {
                                 {/* Submit Button */}
                                 <div className="flex items-center justify-end space-x-4">
                                     <Link href={route("admin.employees.index")}>
-                                        <Button variant="outline" type="button">
+                                        <Button className="dark:text-white text-black" variant="outline" type="button">
                                             {t("Cancel")}
                                         </Button>
                                     </Link>
