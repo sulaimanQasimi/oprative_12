@@ -31,6 +31,7 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $customerUser = $request->user('customer_user');
         
         return [
             ...parent::share($request),
@@ -43,7 +44,15 @@ class HandleInertiaRequests extends Middleware
                     'created_at' => $user->created_at,
                     'updated_at' => $user->updated_at,
                     'permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
-                ] : null,
+                ] : ($customerUser ? [
+                    'id' => $customerUser->id,
+                    'name' => $customerUser->name,
+                    'email' => $customerUser->email,
+                    'email_verified_at' => $customerUser->email_verified_at,
+                    'created_at' => $customerUser->created_at,
+                    'updated_at' => $customerUser->updated_at,
+                    'permissions' => $customerUser->getAllPermissions()->pluck('name')->toArray(),
+                ] : null),
             ],
             'ziggy' => fn () => [
                 ...(new Ziggy)->toArray(),

@@ -10,13 +10,21 @@
         <!-- Theme Initialization Script -->
         <script>
             (function() {
+                // Only run on client side
+                if (typeof window === 'undefined') return;
+                
                 const theme = localStorage.getItem('theme') || 'dark';
-                if (theme === 'dark') {
-                    document.documentElement.classList.add('dark');
-                    document.body.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                    document.body.classList.remove('dark');
+                const root = document.documentElement;
+                const body = document.body;
+                
+                if (root && body) {
+                    if (theme === 'dark') {
+                        root.classList.add('dark');
+                        body.classList.add('dark');
+                    } else {
+                        root.classList.remove('dark');
+                        body.classList.remove('dark');
+                    }
                 }
             })();
         </script>

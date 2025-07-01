@@ -67,16 +67,23 @@ export default function Navigation({ user }) {
 
     // Check system preference and localStorage on component mount
     useEffect(() => {
+        // Only run on client side
+        if (typeof window === 'undefined') return;
+        
         // Check if user has saved preference
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             setIsDarkMode(savedTheme === 'dark');
-            document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+            if (document.documentElement) {
+                document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+            }
         } else {
             // Check system preference
             const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             setIsDarkMode(prefersDark);
-            document.documentElement.classList.toggle('dark', prefersDark);
+            if (document.documentElement) {
+                document.documentElement.classList.toggle('dark', prefersDark);
+            }
         }
     }, []);
 
@@ -85,10 +92,14 @@ export default function Navigation({ user }) {
         setIsDarkMode(newMode);
 
         // Update document class
-        document.documentElement.classList.toggle('dark', newMode);
+        if (document.documentElement) {
+            document.documentElement.classList.toggle('dark', newMode);
+        }
 
         // Save preference to localStorage
-        localStorage.setItem('theme', newMode ? 'dark' : 'light');
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('theme', newMode ? 'dark' : 'light');
+        }
     };
 
     const handleLogout = () => {

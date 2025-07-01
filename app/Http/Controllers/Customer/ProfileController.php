@@ -16,7 +16,19 @@ class ProfileController extends Controller
      */
     public function show()
     {
-        return Inertia::render('Customer/Profile/Index');
+        return Inertia::render('Customer/Profile/Index', [
+            'auth' => [
+                'user' => auth('customer_user')->user() ? [
+                    'id' => auth('customer_user')->user()->id,
+                    'name' => auth('customer_user')->user()->name,
+                    'email' => auth('customer_user')->user()->email,
+                    'email_verified_at' => auth('customer_user')->user()->email_verified_at,
+                    'created_at' => auth('customer_user')->user()->created_at,
+                    'updated_at' => auth('customer_user')->user()->updated_at,
+                    'permissions' => auth('customer_user')->user()->getAllPermissions()->pluck('name')->toArray(),
+                ] : null,
+            ],
+        ]);
     }
 
     /**

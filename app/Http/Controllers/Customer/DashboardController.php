@@ -34,6 +34,17 @@ class DashboardController extends Controller
 
             if ($validator->fails()) {
                 return Inertia::render('Customer/Dashboard', [
+                    'auth' => [
+                        'user' => auth('customer_user')->user() ? [
+                            'id' => auth('customer_user')->user()->id,
+                            'name' => auth('customer_user')->user()->name,
+                            'email' => auth('customer_user')->user()->email,
+                            'email_verified_at' => auth('customer_user')->user()->email_verified_at,
+                            'created_at' => auth('customer_user')->user()->created_at,
+                            'updated_at' => auth('customer_user')->user()->updated_at,
+                            'permissions' => auth('customer_user')->user()->getAllPermissions()->pluck('name')->toArray(),
+                        ] : null,
+                    ],
                     'errors' => $validator->errors(),
                     'stats' => [],
                 ]);
@@ -77,6 +88,17 @@ class DashboardController extends Controller
 
             // Prepare the data for the view
             $data = [
+                'auth' => [
+                    'user' => auth('customer_user')->user() ? [
+                        'id' => auth('customer_user')->user()->id,
+                        'name' => auth('customer_user')->user()->name,
+                        'email' => auth('customer_user')->user()->email,
+                        'email_verified_at' => auth('customer_user')->user()->email_verified_at,
+                        'created_at' => auth('customer_user')->user()->created_at,
+                        'updated_at' => auth('customer_user')->user()->updated_at,
+                        'permissions' => auth('customer_user')->user()->getAllPermissions()->pluck('name')->toArray(),
+                    ] : null,
+                ],
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -111,6 +133,17 @@ class DashboardController extends Controller
             ]);
 
             return Inertia::render('Customer/Dashboard', [
+                'auth' => [
+                    'user' => auth('customer_user')->user() ? [
+                        'id' => auth('customer_user')->user()->id,
+                        'name' => auth('customer_user')->user()->name,
+                        'email' => auth('customer_user')->user()->email,
+                        'email_verified_at' => auth('customer_user')->user()->email_verified_at,
+                        'created_at' => auth('customer_user')->user()->created_at,
+                        'updated_at' => auth('customer_user')->user()->updated_at,
+                        'permissions' => auth('customer_user')->user()->getAllPermissions()->pluck('name')->toArray(),
+                    ] : null,
+                ],
                 'errors' => ['database' => 'A database error occurred. Please try again later.'],
                 'stats' => [],
             ]);
@@ -123,6 +156,17 @@ class DashboardController extends Controller
             ]);
 
             return Inertia::render('Customer/Dashboard', [
+                'auth' => [
+                    'user' => auth('customer_user')->user() ? [
+                        'id' => auth('customer_user')->user()->id,
+                        'name' => auth('customer_user')->user()->name,
+                        'email' => auth('customer_user')->user()->email,
+                        'email_verified_at' => auth('customer_user')->user()->email_verified_at,
+                        'created_at' => auth('customer_user')->user()->created_at,
+                        'updated_at' => auth('customer_user')->user()->updated_at,
+                        'permissions' => auth('customer_user')->user()->getAllPermissions()->pluck('name')->toArray(),
+                    ] : null,
+                ],
                 'errors' => ['general' => 'An error occurred while loading the dashboard.'],
                 'stats' => [],
             ]);
