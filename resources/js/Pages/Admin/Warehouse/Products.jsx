@@ -39,6 +39,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Products({ auth, warehouse, products }) {
     const { t } = useLaravelReactI18n();
@@ -208,12 +209,7 @@ export default function Products({ auth, warehouse, products }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-transform">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Warehouse")}
-                                    </Button>
-                                </Link>
+                                <BackButton link={route("admin.warehouses.show", warehouse.id)} />
                             </motion.div>
                         </div>
                     </motion.header>
