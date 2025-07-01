@@ -5,20 +5,20 @@ const Table = forwardRef(({ className, ...props }, ref) => (
   <div className="w-full overflow-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
+      className={cn("w-full caption-bottom text-sm border-collapse bg-white dark:bg-gray-900 rounded-lg overflow-hidden", className)}
       {...props}
     />
   </div>
 ));
 
 const TableHeader = forwardRef(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
+  <thead ref={ref} className={cn("[&_tr]:border-b-0", className)} {...props} />
 ));
 
 const TableBody = forwardRef(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn("[&_tr:last-child]:border-0", className)}
+    className={cn("[&_tr:last-child]:border-b-0", className)}
     {...props}
   />
 ));
@@ -26,7 +26,7 @@ const TableBody = forwardRef(({ className, ...props }, ref) => (
 const TableFooter = forwardRef(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn("bg-slate-100 font-medium dark:bg-slate-800", className)}
+    className={cn("bg-gray-50 font-medium dark:bg-gray-800", className)}
     {...props}
   />
 ));
@@ -35,7 +35,7 @@ const TableRow = forwardRef(({ className, ...props }, ref) => (
   <tr
     ref={ref}
     className={cn(
-      "border-b border-slate-200 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/50",
+      "border-b border-gray-200 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50 even:bg-gray-50/30 dark:even:bg-gray-800/30",
       className
     )}
     {...props}
@@ -46,7 +46,7 @@ const TableHead = forwardRef(({ className, ...props }, ref) => (
   <th
     ref={ref}
     className={cn(
-      "h-12 px-4 text-left align-middle font-medium text-slate-500 dark:text-slate-400 [&:has([role=checkbox])]:pr-0",
+      "h-12 px-6 py-4 text-left align-middle font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 [&:has([role=checkbox])]:pr-0",
       className
     )}
     {...props}
@@ -56,7 +56,7 @@ const TableHead = forwardRef(({ className, ...props }, ref) => (
 const TableCell = forwardRef(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn("p-4 align-middle [&:has([role=checkbox])]:pr-0", className)}
+    className={cn("px-6 py-4 align-middle text-gray-900 dark:text-white [&:has([role=checkbox])]:pr-0", className)}
     {...props}
   />
 ));
@@ -64,7 +64,7 @@ const TableCell = forwardRef(({ className, ...props }, ref) => (
 const TableCaption = forwardRef(({ className, ...props }, ref) => (
   <caption
     ref={ref}
-    className={cn("mt-4 text-sm text-slate-500 dark:text-slate-400", className)}
+    className={cn("mt-4 text-sm text-gray-600 dark:text-gray-400", className)}
     {...props}
   />
 ));

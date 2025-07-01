@@ -620,12 +620,37 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Supplier")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Contact")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Status")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("ID Number")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200 text-right">{t("Actions")}</TableHead>
+                                                        <TableRow className="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-200 py-4 px-6">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Building className="h-4 w-4 text-sky-600" />
+                                                                    {t("Supplier")}
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-200 py-4 px-6">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Users className="h-4 w-4 text-sky-600" />
+                                                                    {t("Contact")}
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-200 py-4 px-6">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Activity className="h-4 w-4 text-sky-600" />
+                                                                    {t("Status")}
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-200 py-4 px-6">
+                                                                <div className="flex items-center gap-2">
+                                                                    <FileText className="h-4 w-4 text-sky-600" />
+                                                                    {t("ID Number")}
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-200 py-4 px-6 text-right">
+                                                                <div className="flex items-center justify-end gap-2">
+                                                                    <Settings className="h-4 w-4 text-sky-600" />
+                                                                    {t("Actions")}
+                                                                </div>
+                                                            </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -637,105 +662,107 @@ export default function Index({ auth, suppliers = {}, filters = {}, permissions 
                                                                     animate={{ opacity: 1, y: 0 }}
                                                                     exit={{ opacity: 0, y: -20 }}
                                                                     transition={{ delay: index * 0.05 }}
-                                                                    className="border-b border-slate-100 dark:border-slate-700 hover:bg-sky-50/50 dark:hover:bg-sky-900/10 transition-colors"
+                                                                    className="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/30 transition-all duration-200"
                                                                 >
-                                                                    <TableCell>
-                                                                        <div className="flex items-center space-x-3">
-                                                                            <div className="p-2 bg-gradient-to-br from-sky-100 to-cyan-100 dark:from-sky-900/30 dark:to-cyan-900/30 rounded-lg">
-                                                                                <Building className="h-5 w-5 text-sky-600 dark:text-sky-400" />
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <div className="flex items-center space-x-4">
+                                                                            <div className="p-3 bg-gradient-to-br from-sky-100 to-cyan-100 dark:from-sky-900/30 dark:to-cyan-900/30 rounded-xl shadow-sm">
+                                                                                <Building className="h-6 w-6 text-sky-600 dark:text-sky-400" />
                                                                             </div>
                                                                             <div>
-                                                                                <div className="font-semibold text-slate-900 dark:text-white">{supplier.name}</div>
+                                                                                <div className="font-semibold text-gray-900 dark:text-white text-base mb-1">
+                                                                                    {supplier.name}
+                                                                                </div>
                                                                                 {(supplier.city || supplier.country) && (
-                                                                                    <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                                                                        <MapPin className="w-3 h-3" />
+                                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                                                                        <MapPin className="w-4 h-4" />
                                                                                         {supplier.city}{supplier.city && supplier.country && ', '}{supplier.country}
                                                                                     </div>
                                                                                 )}
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="space-y-1">
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <div className="space-y-2">
                                                                             {supplier.contact_name && (
-                                                                                <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                                                    <Users className="w-3 h-3" />
-                                                                                    {supplier.contact_name}
+                                                                                <div className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                                                    <Users className="w-4 h-4 text-gray-500" />
+                                                                                    <span className="font-medium">{supplier.contact_name}</span>
                                                                                 </div>
                                                                             )}
                                                                             {supplier.email && (
-                                                                                <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                                                    <Mail className="w-3 h-3" />
-                                                                                    {supplier.email}
+                                                                                <div className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                                                    <Mail className="w-4 h-4 text-gray-500" />
+                                                                                    <span className="font-mono">{supplier.email}</span>
                                                                                 </div>
                                                                             )}
                                                                             {supplier.phone && (
-                                                                                <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                                                    <Phone className="w-3 h-3" />
-                                                                                    {supplier.phone}
+                                                                                <div className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                                                    <Phone className="w-4 h-4 text-gray-500" />
+                                                                                    <span className="font-mono">{supplier.phone}</span>
                                                                                 </div>
                                                                             )}
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell>
+                                                                    <TableCell className="py-4 px-6">
                                                                         <div className="flex flex-wrap gap-2">
                                                                             {supplier.is_active !== false && (
-                                                                                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-0">
+                                                                                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 border-0 px-3 py-1 text-sm font-medium">
                                                                                     <CheckCircle className="h-3 w-3 mr-1" />
                                                                                     {t("Active")}
                                                                                 </Badge>
                                                                             )}
                                                                             {(supplier.purchases_count || 0) > 0 && (
-                                                                                <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-0">
+                                                                                <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 border-0 px-3 py-1 text-sm font-medium">
                                                                                     <ShoppingBag className="h-3 w-3 mr-1" />
                                                                                     {t("Has Orders")}
                                                                                 </Badge>
                                                                             )}
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <Badge variant="outline" className="gap-1 border-slate-200 dark:border-slate-600">
-                                                                            <FileText className="w-3 h-3" />
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <Badge variant="outline" className="gap-2 border-gray-200 dark:border-gray-600 px-3 py-2 text-sm font-medium">
+                                                                            <FileText className="w-4 h-4" />
                                                                             {supplier.id_number || "—"}
                                                                         </Badge>
                                                                     </TableCell>
-                                                                    <TableCell className="text-right">
-                                                                        <div className="flex items-center justify-end gap-1">
+                                                                    <TableCell className="py-4 px-6 text-right">
+                                                                        <div className="flex items-center justify-end gap-3">
                                                                             {permissions.can_view && (
                                                                                 <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                                                                                    variant="outline"
+                                                                                    size="default"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     asChild
+                                                                                    title={t("View Details")}
                                                                                 >
                                                                                     <Link href={route('admin.suppliers.show', supplier.id)}>
-                                                                                        <Eye className="h-4 w-4" />
-                                                                                        <span className="sr-only">{t("View Details")}</span>
+                                                                                        <Eye className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                                                                                     </Link>
                                                                                 </Button>
                                                                             )}
                                                                             {permissions.can_update && (
                                                                                 <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-900/20 dark:hover:text-sky-400 transition-colors"
+                                                                                    variant="outline"
+                                                                                    size="default"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-sky-500 dark:hover:border-sky-400 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     asChild
+                                                                                    title={t("Edit Supplier")}
                                                                                 >
                                                                                     <Link href={route('admin.suppliers.edit', supplier.id)}>
-                                                                                        <Edit className="h-4 w-4" />
-                                                                                        <span className="sr-only">{t("Edit")}</span>
+                                                                                        <Edit className="h-7 w-7 text-sky-600 dark:text-sky-400" />
                                                                                     </Link>
                                                                                 </Button>
                                                                             )}
                                                                             {permissions.can_delete && (
                                                                                 <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                                                                                    variant="outline"
+                                                                                    size="default"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     onClick={() => handleDelete(supplier.id)}
+                                                                                    title={t("Delete Supplier")}
                                                                                 >
-                                                                                    <Trash2 className="h-4 w-4" />
-                                                                                    <span className="sr-only">{t("Delete")}</span>
+                                                                                    <Trash2 className="h-7 w-7 text-red-600 dark:text-red-400" />
                                                                                 </Button>
                                                                             )}
                                                                         </div>
