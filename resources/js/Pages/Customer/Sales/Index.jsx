@@ -289,6 +289,7 @@ export default function SalesIndex({
         status: filters.status || '',
         confirmedByWarehouse: filters.confirmedByWarehouse || '',
         confirmedByShop: filters.confirmedByShop || '',
+        confirmedByStoreByWarehouse: filters.confirmedByStoreByWarehouse || '',
         date_from: filters.date_from || '',
         date_to: filters.date_to || '',
     });
@@ -316,6 +317,7 @@ export default function SalesIndex({
             status: '',
             confirmedByWarehouse: '',
             confirmedByShop: '',
+            confirmedByStoreByWarehouse: '',
             date_from: '',
             date_to: '',
         });
@@ -368,6 +370,7 @@ export default function SalesIndex({
     // Calculate statistics
     const completedSales = safeSales?.data?.filter(sale => sale?.status === 'completed')?.length || 0;
     const pendingSales = safeSales?.data?.filter(sale => sale?.status === 'pending')?.length || 0;
+    const confirmedByStoreByWarehouse = safeSales?.data?.filter(sale => sale?.confirmed_by_store_by_warehouse)?.length || 0;
 
     return (
         <>
@@ -604,7 +607,7 @@ export default function SalesIndex({
                                 </div>
 
                                 {/* Stats Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                                     {/* Total Orders */}
                                     <div className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-indigo-100 dark:hover:border-indigo-700 transform hover:-translate-y-1">
                                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/30 dark:to-purple-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -646,6 +649,21 @@ export default function SalesIndex({
                                             </div>
                                             <div className="bg-gradient-to-br from-amber-100 to-yellow-100 dark:from-amber-900 dark:to-yellow-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                                                 <Route className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Confirmed by Store by Warehouse */}
+                                    <div className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-purple-100 dark:hover:border-purple-700 transform hover:-translate-y-1">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-violet-50/50 dark:from-purple-900/30 dark:to-violet-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        <div className="relative flex items-center justify-between">
+                                            <div className="space-y-1">
+                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors duration-300 group-hover:text-purple-600 dark:group-hover:text-purple-400">{t('Confirmed by Store by Warehouse')}</p>
+                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{confirmedByStoreByWarehouse}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('Fully confirmed')}</p>
+                                            </div>
+                                            <div className="bg-gradient-to-br from-purple-100 to-violet-100 dark:from-purple-900 dark:to-violet-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                                                <CheckCircle className="w-8 h-8 text-purple-600 dark:text-purple-400" />
                                             </div>
                                         </div>
                                     </div>
@@ -805,6 +823,32 @@ export default function SalesIndex({
                                                         <select
                                                             value={data.confirmedByShop}
                                                             onChange={(e) => setData('confirmedByShop', e.target.value)}
+                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
+                                                        >
+                                                            <option value="">{t('All')}</option>
+                                                            <option value="1">{t('Yes')}</option>
+                                                            <option value="0">{t('No')}</option>
+                                                        </select>
+                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Confirmed by Store by Warehouse */}
+                                                <div className="group">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                        </svg>
+                                                        {t('Confirmed by Store by Warehouse')}
+                                                    </label>
+                                                    <div className="relative">
+                                                        <select
+                                                            value={data.confirmedByStoreByWarehouse}
+                                                            onChange={(e) => setData('confirmedByStoreByWarehouse', e.target.value)}
                                                             className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
                                                         >
                                                             <option value="">{t('All')}</option>
@@ -999,6 +1043,31 @@ export default function SalesIndex({
                                                         scope="col"
                                                         className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
                                                     >
+                                                        <div className="flex items-center justify-end group relative">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                stroke="currentColor"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                                                                />
+                                                            </svg>
+                                                            {t('Confirmed by Store by Warehouse')}
+                                                            <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-gray-900 text-white text-xs rounded-lg py-1 px-2 whitespace-nowrap z-10">
+                                                                {t('Both warehouse and shop have confirmed')}
+                                                            </div>
+                                                        </div>
+                                                    </th>
+                                                    <th
+                                                        scope="col"
+                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
+                                                    >
                                                         <div className="flex items-center justify-end">
                                                             <svg
                                                                 xmlns="http://www.w3.org/2000/svg"
@@ -1108,6 +1177,25 @@ export default function SalesIndex({
                                                                             <Clock className="h-3 w-3 text-white" />
                                                                         </span>
                                                                         Pending
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            <div className="flex justify-end">
+                                                                {sale.confirmed_by_store_by_warehouse ? (
+                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border border-green-200 shadow-sm">
+                                                                        <span className="flex items-center justify-center h-5 w-5 bg-green-500 rounded-full mr-1.5 shadow-inner">
+                                                                            <CheckCircle className="h-3 w-3 text-white" />
+                                                                        </span>
+                                                                        {t('Confirmed')}
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-gray-50 to-slate-50 text-gray-800 border border-gray-200 shadow-sm">
+                                                                        <span className="flex items-center justify-center h-5 w-5 bg-gray-500 rounded-full mr-1.5 shadow-inner">
+                                                                            <Clock className="h-3 w-3 text-white" />
+                                                                        </span>
+                                                                        {t('Pending')}
                                                                     </span>
                                                                 )}
                                                             </div>

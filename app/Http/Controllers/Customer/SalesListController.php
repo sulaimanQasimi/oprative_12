@@ -22,6 +22,7 @@ class SalesListController extends Controller
             'status' => ['nullable', Rule::in(['completed', 'pending', 'cancelled', ''])],
             'confirmedByWarehouse' => ['nullable', Rule::in(['0', '1', ''])],
             'confirmedByShop' => ['nullable', Rule::in(['0', '1', ''])],
+            'confirmedByStoreByWarehouse' => ['nullable', Rule::in(['0', '1', ''])],
             'movedFromWarehouse' => ['nullable', Rule::in(['0', '1', ''])],
             'sortField' => ['nullable', Rule::in(['reference', 'date', 'total_amount', 'status'])],
             'sortDirection' => ['nullable', Rule::in(['asc', 'desc'])],
@@ -30,6 +31,7 @@ class SalesListController extends Controller
         // Get the authenticated customer
         $customer = Auth::guard('customer_user')->user()->customer;
         $sales = Sale::query()
+            ->with(['customer', 'warehouse'])
             ->where('customer_id', $customer->id)
             ->when($request->search, function ($query) use ($request) {
                 $query->where(function ($q) use ($request) {
@@ -54,17 +56,31 @@ class SalesListController extends Controller
             ->when($request->confirmedByShop, function ($query) use ($request) {
                 $query->where('confirmed_by_shop', $request->confirmedByShop === '1');
             })
+            ->when($request->confirmedByStoreByWarehouse, function ($query) use ($request) {
+                if ($request->confirmedByStoreByWarehouse === '1') {
+                    $query->where('confirmed_by_warehouse', true)->where('confirmed_by_shop', true);
+                } else {
+                    $query->where(function ($q) {
+                        $q->where('confirmed_by_warehouse', false)->orWhere('confirmed_by_shop', false);
+                    });
+                }
+            })
             ->when($request->movedFromWarehouse, function ($query) use ($request) {
                 $query->where('moved_from_warehouse', $request->movedFromWarehouse === '1');
             })
             ->orderBy($request->sortField ?? 'date', $request->sortDirection ?? 'desc')
             ->paginate(10)
-
             ->appends($request->except('page'));
+
+        // Transform the sales data to include the new field
+        $sales->getCollection()->transform(function ($sale) {
+            $sale->confirmed_by_store_by_warehouse = $sale->confirmed_by_warehouse && $sale->confirmed_by_shop;
+            return $sale;
+        });
         
         return Inertia::render('Customer/Sales/Index', [
             'sales' => $sales,
-            'filters' => $request->only(['search', 'status', 'confirmedByWarehouse', 'confirmedByShop']),
+            'filters' => $request->only(['search', 'status', 'confirmedByWarehouse', 'confirmedByShop', 'confirmedByStoreByWarehouse']),
         ]);
     }
 
