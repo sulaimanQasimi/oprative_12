@@ -78,4 +78,28 @@ class Sale extends Model
             default => 'bg-gray-100 text-gray-800',
         };
     }
+
+    /**
+     * Get total amount (alias for total column)
+     */
+    public function getTotalAmountAttribute(): float
+    {
+        return (float) ($this->total ?? 0);
+    }
+
+    /**
+     * Get paid amount from payments
+     */
+    public function getPaidAmountAttribute(): float
+    {
+        return $this->payments()->sum('amount');
+    }
+
+    /**
+     * Get due amount (total - paid)
+     */
+    public function getDueAmountAttribute(): float
+    {
+        return $this->total_amount - $this->paid_amount;
+    }
 }

@@ -50,4 +50,14 @@ class Currency extends Model
     {
         return self::where('is_active', true)->orderBy('is_default', 'desc')->orderBy('name')->get();
     }
+
+    /**
+     * Get the currency symbol (alias for code)
+     *
+     * @return string
+     */
+    public function getSymbolAttribute(): string
+    {
+        return $this->code;
+    }
 }
