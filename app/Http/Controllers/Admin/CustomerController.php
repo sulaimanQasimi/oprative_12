@@ -18,32 +18,11 @@ use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
-/**
- * CustomerController handles all customer-related operations.
- * 
- * This controller manages CRUD operations for customers, their users,
- * financial records (income/outcome), and order management with
- * comprehensive permission-based access control.
- */
 class CustomerController extends Controller
 {
-    /**
-     * Apply middleware protection for all customer operations.
-     * 
-     * Uses Laravel policy-based authorization with comprehensive permission system:
-     * - viewAny: Access to index/list page
-     * - view: Access to individual customer details and sub-pages
-     * - create: Create new customers
-     * - update: Edit existing customers
-     * - delete: Soft delete customers
-     * - restore: Restore soft-deleted customers
-     * - forceDelete: Permanently delete customers
-     * - manageUsers: Manage customer users (requires update permission)
-     * - viewFinancials: View financial records (requires view permission)
-     */
     public function __construct()
     {
-        // Policy-based authorization will be handled in individual methods
+ 
     }
 
     /**

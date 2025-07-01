@@ -238,6 +238,9 @@ trait SaleController{
                     'model_id' => $warehouse->id,
                 ]);
             }
+            $sale->update([
+                'total' => $sale->saleItems->sum('total'),
+            ]);
 
             DB::commit();
 

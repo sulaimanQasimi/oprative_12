@@ -20,7 +20,8 @@ class Sale extends Model
         'status',
         'notes',
         'confirmed_by_warehouse',
-        'confirmed_by_shop'
+        'confirmed_by_shop',
+        'total'
     ];
 
     protected $casts = [
