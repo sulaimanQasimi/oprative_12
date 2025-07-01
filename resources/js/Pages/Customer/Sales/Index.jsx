@@ -368,8 +368,8 @@ export default function SalesIndex({
     };
 
     // Calculate statistics
-    const completedSales = safeSales?.data?.filter(sale => sale?.status === 'completed')?.length || 0;
-    const pendingSales = safeSales?.data?.filter(sale => sale?.status === 'pending')?.length || 0;
+    const confirmedByShop = safeSales?.data?.filter(sale => sale?.confirmed_by_shop)?.length || 0;
+    const pendingByShop = safeSales?.data?.filter(sale => !sale?.confirmed_by_shop)?.length || 0;
     const confirmedByStoreByWarehouse = safeSales?.data?.filter(sale => sale?.confirmed_by_store_by_warehouse)?.length || 0;
 
     return (
@@ -623,32 +623,32 @@ export default function SalesIndex({
                                         </div>
                                     </div>
 
-                                    {/* Completed Orders */}
+                                    {/* Confirmed by Shop */}
                                     <div className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-green-100 dark:hover:border-green-700 transform hover:-translate-y-1">
                                         <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-900/30 dark:to-emerald-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                         <div className="relative flex items-center justify-between">
                                             <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors duration-300 group-hover:text-green-600 dark:group-hover:text-green-400">{t('Completed Orders')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{completedSales}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('Successfully delivered')}</p>
+                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors duration-300 group-hover:text-green-600 dark:group-hover:text-green-400">{t('Confirmed by Shop')}</p>
+                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{confirmedByShop}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('Shop confirmed')}</p>
                                             </div>
                                             <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                                                <PackageCheck className="w-8 h-8 text-green-600 dark:text-green-400" />
+                                                <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* Pending Orders */}
+                                    {/* Pending by Shop */}
                                     <div className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-md border border-gray-100 dark:border-slate-700 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-amber-100 dark:hover:border-amber-700 transform hover:-translate-y-1">
                                         <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-yellow-50/50 dark:from-amber-900/30 dark:to-yellow-900/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                                         <div className="relative flex items-center justify-between">
                                             <div className="space-y-1">
-                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors duration-300 group-hover:text-amber-600 dark:group-hover:text-amber-400">{t('Pending Orders')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{pendingSales}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('In transit')}</p>
+                                                <p className="text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors duration-300 group-hover:text-amber-600 dark:group-hover:text-amber-400">{t('Pending by Shop')}</p>
+                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{pendingByShop}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">{t('Awaiting shop confirmation')}</p>
                                             </div>
                                             <div className="bg-gradient-to-br from-amber-100 to-yellow-100 dark:from-amber-900 dark:to-yellow-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                                                <Route className="w-8 h-8 text-amber-600 dark:text-amber-400" />
+                                                <Clock className="w-8 h-8 text-amber-600 dark:text-amber-400" />
                                             </div>
                                         </div>
                                     </div>
@@ -1157,26 +1157,19 @@ export default function SalesIndex({
                                                         </td>
                                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                             <div className="flex justify-end">
-                                                                {sale.status === 'completed' ? (
+                                                                {sale.confirmed_by_shop ? (
                                                                     <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border border-green-200 shadow-sm">
                                                                         <span className="flex items-center justify-center h-5 w-5 bg-green-500 rounded-full mr-1.5 shadow-inner">
                                                                             <CheckCircle className="h-3 w-3 text-white" />
                                                                         </span>
-                                                                        Completed
-                                                                    </span>
-                                                                ) : sale.status === 'cancelled' ? (
-                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-red-50 to-pink-50 text-red-800 border border-red-200 shadow-sm">
-                                                                        <span className="flex items-center justify-center h-5 w-5 bg-red-500 rounded-full mr-1.5 shadow-inner">
-                                                                            <XCircle className="h-3 w-3 text-white" />
-                                                                        </span>
-                                                                        Cancelled
+                                                                        {t('Confirmed')}
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border border-amber-200 shadow-sm">
-                                                                        <span className="flex items-center justify-center h-5 w-5 bg-amber-500 rounded-full mr-1.5 shadow-inner">
+                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-gray-50 to-slate-50 text-gray-800 border border-gray-200 shadow-sm">
+                                                                        <span className="flex items-center justify-center h-5 w-5 bg-gray-500 rounded-full mr-1.5 shadow-inner">
                                                                             <Clock className="h-3 w-3 text-white" />
                                                                         </span>
-                                                                        Pending
+                                                                        {t('Pending')}
                                                                     </span>
                                                                 )}
                                                             </div>
