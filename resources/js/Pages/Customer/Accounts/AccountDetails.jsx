@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import CustomerNavbar from "@/Components/CustomerNavbar";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import { motion } from "framer-motion";
@@ -314,25 +314,60 @@ export default function AccountDetails({
                                         <div className="lg:col-span-2 flex flex-col sm:flex-row gap-4">
                                             <button
                                                 onClick={() => setShowCreateIncomeModal(true)}
-                                                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 p-4 flex items-center justify-center gap-3"
+                                                className="group relative flex-1 bg-gradient-to-br from-emerald-400 via-green-500 to-emerald-600 hover:from-emerald-500 hover:via-green-600 hover:to-emerald-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 p-5 flex items-center justify-center gap-3 overflow-hidden"
                                             >
-                                                <Plus className="h-5 w-5" />
-                                                {t('Add Income')}
+                                                {/* Animated background effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                                
+                                                {/* Icon with glow effect */}
+                                                <div className="relative z-10 flex items-center gap-3">
+                                                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                                        <Plus className="h-5 w-5 drop-shadow-lg" />
+                                                    </div>
+                                                    <span className="text-lg font-bold tracking-wide">{t('Add Income')}</span>
+                                                </div>
+                                                
+                                                {/* Shimmer effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
                                             </button>
+                                            
                                             <button
                                                 onClick={() => setShowCreateOutcomeModal(true)}
-                                                className="flex-1 bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 p-4 flex items-center justify-center gap-3"
+                                                className="group relative flex-1 bg-gradient-to-br from-rose-400 via-red-500 to-rose-600 hover:from-rose-500 hover:via-red-600 hover:to-rose-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 p-5 flex items-center justify-center gap-3 overflow-hidden"
                                             >
-                                                <CardIcon className="h-5 w-5" />
-                                                {t('Add Rent/Loan')}
+                                                {/* Animated background effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                                
+                                                {/* Icon with glow effect */}
+                                                <div className="relative z-10 flex items-center gap-3">
+                                                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                                        <CardIcon className="h-5 w-5 drop-shadow-lg" />
+                                                    </div>
+                                                    <span className="text-lg font-bold tracking-wide">{t('Add Rent/Loan')}</span>
+                                                </div>
+                                                
+                                                {/* Shimmer effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
                                             </button>
+                                            
                                             <a
                                                 href={route('reports.account.statement', account.id)}
                                                 target="_blank"
-                                                className="flex-1 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 p-4 flex items-center justify-center gap-3"
+                                                className="group relative flex-1 bg-gradient-to-br from-blue-400 via-indigo-500 to-blue-600 hover:from-blue-500 hover:via-indigo-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 p-5 flex items-center justify-center gap-3 overflow-hidden"
                                             >
-                                                <FileText className="h-5 w-5" />
-                                                {t('Export Statement')}
+                                                {/* Animated background effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                                
+                                                {/* Icon with glow effect */}
+                                                <div className="relative z-10 flex items-center gap-3">
+                                                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                                        <FileText className="h-5 w-5 drop-shadow-lg" />
+                                                    </div>
+                                                    <span className="text-lg font-bold tracking-wide">{t('Export Statement')}</span>
+                                                </div>
+                                                
+                                                {/* Shimmer effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
                                             </a>
                                         </div>
                                     </div>
@@ -510,22 +545,31 @@ export default function AccountDetails({
                                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                                                                     <div className="flex items-center justify-end space-x-2">
                                                                         {income.status === 'pending' && (
-                                                                            <Link
-                                                                                href={route('customer.accounts.incomes.approve', {account: account.id, income: income.id})}
-                                                                                method="post"
-                                                                                as="button"
-                                                                                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-sm hover:shadow-md transition-all duration-200"
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    // Use Inertia's post method instead of Link for POST requests
+                                                                                    router.post(route('customer.accounts.incomes.approve', {account: account.id, income: income.id}));
+                                                                                }}
+                                                                                className="group relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden"
                                                                             >
-                                                                                <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                                                                                {t('Approve')}
-                                                                            </Link>
+                                                                                {/* Shimmer effect */}
+                                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                                                                
+                                                                                <div className="relative z-10 flex items-center gap-2">
+                                                                                    <CheckCircle className="w-4 h-4 drop-shadow-sm" />
+                                                                                    <span className="font-bold">{t('Approve')}</span>
+                                                                                </div>
+                                                                            </button>
                                                                         )}
                                                                         <a
                                                                             href={route('thermal.print.income', income.id)}
                                                                             target="_blank"
-                                                                            className="inline-flex items-center px-2 py-1.5 border border-slate-300 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 shadow-sm hover:shadow-md transition-all duration-200"
+                                                                            className="group relative inline-flex items-center px-3 py-2 border border-slate-200 text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:border-indigo-300"
                                                                         >
-                                                                            <Printer className="w-3.5 h-3.5 text-indigo-500" />
+                                                                            <div className="relative z-10 flex items-center gap-2">
+                                                                                <Printer className="w-4 h-4 text-indigo-600 group-hover:text-indigo-700 transition-colors" />
+                                                                                <span className="font-semibold">{t('Print')}</span>
+                                                                            </div>
                                                                         </a>
                                                                     </div>
                                                                 </td>
@@ -542,10 +586,15 @@ export default function AccountDetails({
                                                                 <p className="text-sm text-slate-500 mb-4">{t('Start by adding your first income transaction')}</p>
                                                                 <button
                                                                     onClick={() => setShowCreateIncomeModal(true)}
-                                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                                                                    className="group relative inline-flex items-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-emerald-500 to-green-600 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-300 transform hover:scale-105 overflow-hidden"
                                                                 >
-                                                                    <Plus className="w-4 h-4 mr-2" />
-                                                                    {t('Add your first income')}
+                                                                    {/* Shimmer effect */}
+                                                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                                                    
+                                                                    <div className="relative z-10 flex items-center gap-2">
+                                                                        <Plus className="w-5 h-5 drop-shadow-sm" />
+                                                                        <span>{t('Add your first income')}</span>
+                                                                    </div>
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -557,46 +606,98 @@ export default function AccountDetails({
 
                                     {/* Pagination for incomes */}
                                     {incomes.links && incomes.links.length > 3 && (
-                                        <div className="px-6 py-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-indigo-50/30">
-                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                                <div className="mb-4 sm:mb-0">
-                                                    <p className="text-sm text-slate-700">
-                                                        {t('Showing')} <span className="font-semibold">{incomes.from}</span> {t('to')} <span className="font-semibold">{incomes.to}</span> {t('of')} <span className="font-semibold">{incomes.total}</span> {t('results')}
-                                                    </p>
-                                                </div>
-                                                <nav className="relative z-0 inline-flex justify-center rounded-md shadow-sm -space-x-px">
-                                                    <Link
-                                                        href={incomes.prev_page_url}
-                                                        className={`relative inline-flex items-center px-4 py-2 rounded-l-lg border ${!incomes.prev_page_url ? 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed' : 'border-slate-300 bg-white text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 transition-colors'}`}
-                                                        disabled={!incomes.prev_page_url}
-                                                    >
-                                                        <ChevronLeft className="h-4 w-4" />
-                                                    </Link>
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 1.5, duration: 0.4 }}
+                                            className="flex flex-col items-center space-y-4 px-6 py-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-indigo-50/30"
+                                        >
+                                            <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                {t("Showing")} {incomes.from || 0} {t("to")} {incomes.to || 0} {t("of")} {incomes.total || 0} {t("results")}
+                                            </div>
+                                            <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-indigo-100 dark:border-indigo-900/30">
+                                                {/* Previous Page */}
+                                                <button
+                                                    onClick={() => {
+                                                        const prevPage = incomes.current_page - 1;
+                                                        if (prevPage >= 1) {
+                                                            router.get(route('customer.accounts.show', { account: account.id, page: prevPage }), {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            });
+                                                        }
+                                                    }}
+                                                    disabled={!incomes.links || incomes.current_page <= 1}
+                                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                        incomes.links && incomes.current_page > 1
+                                                            ? 'text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
+                                                            : 'text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    <ChevronRight className="h-4 w-4" />
+                                                    <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                </button>
 
-                                                    {incomes.links && incomes.links.slice(1, -1).map((link, index) => (
-                                                        <Link
+                                                {/* Page Numbers */}
+                                                {incomes.links && incomes.links.slice(1, -1).map((link, index) => {
+                                                    if (link.url === null) {
+                                                        return (
+                                                            <span key={index} className="px-3 py-2 text-gray-400">
+                                                                ...
+                                                            </span>
+                                                        );
+                                                    }
+                                                    
+                                                    const pageNum = link.label;
+                                                    const isActive = link.active;
+                                                    
+                                                    return (
+                                                        <button
                                                             key={index}
-                                                            href={link.url}
-                                                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                                                link.active
-                                                                    ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600 font-semibold'
-                                                                    : 'bg-white border-slate-300 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 transition-colors'
+                                                            onClick={() => {
+                                                                const url = new URL(link.url);
+                                                                const page = url.searchParams.get('page');
+                                                                if (page) {
+                                                                    router.get(route('customer.accounts.show', { account: account.id, page }), {
+                                                                        preserveState: true,
+                                                                        preserveScroll: true,
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                isActive
+                                                                    ? 'bg-gradient-to-r from-indigo-500 to-blue-400 text-white shadow-lg'
+                                                                    : 'text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
                                                             }`}
                                                         >
-                                                            {link.label.replace('&laquo;', '').replace('&raquo;', '')}
-                                                        </Link>
-                                                    ))}
+                                                            {pageNum}
+                                                        </button>
+                                                    );
+                                                })}
 
-                                                    <Link
-                                                        href={incomes.next_page_url}
-                                                        className={`relative inline-flex items-center px-4 py-2 rounded-r-lg border ${!incomes.next_page_url ? 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed' : 'border-slate-300 bg-white text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 transition-colors'}`}
-                                                        disabled={!incomes.next_page_url}
-                                                    >
-                                                        <ChevronRight className="h-4 w-4" />
-                                                    </Link>
-                                                </nav>
+                                                {/* Next Page */}
+                                                <button
+                                                    onClick={() => {
+                                                        const nextPage = incomes.current_page + 1;
+                                                        if (nextPage <= incomes.last_page) {
+                                                            router.get(route('customer.accounts.show', { account: account.id, page: nextPage }), {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            });
+                                                        }
+                                                    }}
+                                                    disabled={!incomes.links || incomes.current_page >= incomes.last_page}
+                                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                        incomes.links && incomes.current_page < incomes.last_page
+                                                            ? 'text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
+                                                            : 'text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                    <ChevronRight className="h-4 w-4 rotate-180" />
+                                                </button>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     )}
                                 </div>
 
@@ -699,22 +800,31 @@ export default function AccountDetails({
                                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                                                                     <div className="flex items-center justify-end space-x-2">
                                                                         {outcome.status === 'pending' && (
-                                                                            <Link
-                                                                                href={route('customer.accounts.outcomes.approve', {account: account.id, outcome: outcome.id})}
-                                                                                method="post"
-                                                                                as="button"
-                                                                                className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-sm hover:shadow-md transition-all duration-200"
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    // Use Inertia's post method instead of Link for POST requests
+                                                                                    router.post(route('customer.accounts.outcomes.approve', {account: account.id, outcome: outcome.id}));
+                                                                                }}
+                                                                                className="group relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden"
                                                                             >
-                                                                                <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                                                                                {t('Approve')}
-                                                                            </Link>
+                                                                                {/* Shimmer effect */}
+                                                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                                                                
+                                                                                <div className="relative z-10 flex items-center gap-2">
+                                                                                    <CheckCircle className="w-4 h-4 drop-shadow-sm" />
+                                                                                    <span className="font-bold">{t('Approve')}</span>
+                                                                                </div>
+                                                                            </button>
                                                                         )}
                                                                         <a
                                                                             href={route('thermal.print.outcome', outcome.id)}
                                                                             target="_blank"
-                                                                            className="inline-flex items-center px-2 py-1.5 border border-slate-300 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 shadow-sm hover:shadow-md transition-all duration-200"
+                                                                            className="group relative inline-flex items-center px-3 py-2 border border-slate-200 text-sm font-medium rounded-xl text-slate-700 bg-white hover:bg-slate-50 shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 hover:border-red-300"
                                                                         >
-                                                                            <Printer className="w-3.5 h-3.5 text-red-500" />
+                                                                            <div className="relative z-10 flex items-center gap-2">
+                                                                                <Printer className="w-4 h-4 text-red-600 group-hover:text-red-700 transition-colors" />
+                                                                                <span className="font-semibold">{t('Print')}</span>
+                                                                            </div>
                                                                         </a>
                                                                     </div>
                                                                 </td>
@@ -731,10 +841,15 @@ export default function AccountDetails({
                                                                 <p className="text-sm text-slate-500 mb-4">{t('Add your first rental or loan payment')}</p>
                                                                 <button
                                                                     onClick={() => setShowCreateOutcomeModal(true)}
-                                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-red-600 to-pink-600 shadow-sm hover:from-red-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200"
+                                                                    className="group relative inline-flex items-center px-6 py-3 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-rose-500 to-red-600 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-all duration-300 transform hover:scale-105 overflow-hidden"
                                                                 >
-                                                                    <Plus className="w-4 h-4 mr-2" />
-                                                                    {t('Add Rent/Loan')}
+                                                                    {/* Shimmer effect */}
+                                                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                                                    
+                                                                    <div className="relative z-10 flex items-center gap-2">
+                                                                        <Minus className="w-5 h-5 drop-shadow-sm" />
+                                                                        <span>{t('Add Rent/Loan')}</span>
+                                                                    </div>
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -746,46 +861,98 @@ export default function AccountDetails({
 
                                     {/* Pagination for outcomes */}
                                     {outcomes.links && outcomes.links.length > 3 && (
-                                        <div className="px-6 py-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-red-50/30">
-                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                                <div className="mb-4 sm:mb-0">
-                                                    <p className="text-sm text-slate-700">
-                                                        {t('Showing')} <span className="font-semibold">{outcomes.from}</span> {t('to')} <span className="font-semibold">{outcomes.to}</span> {t('of')} <span className="font-semibold">{outcomes.total}</span> {t('results')}
-                                                    </p>
-                                                </div>
-                                                <nav className="relative z-0 inline-flex justify-center rounded-md shadow-sm -space-x-px">
-                                                    <Link
-                                                        href={outcomes.prev_page_url}
-                                                        className={`relative inline-flex items-center px-4 py-2 rounded-l-lg border ${!outcomes.prev_page_url ? 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed' : 'border-slate-300 bg-white text-slate-500 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors'}`}
-                                                        disabled={!outcomes.prev_page_url}
-                                                    >
-                                                        <ChevronLeft className="h-4 w-4" />
-                                                    </Link>
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 1.5, duration: 0.4 }}
+                                            className="flex flex-col items-center space-y-4 px-6 py-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-red-50/30"
+                                        >
+                                            <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                {t("Showing")} {outcomes.from || 0} {t("to")} {outcomes.to || 0} {t("of")} {outcomes.total || 0} {t("results")}
+                                            </div>
+                                            <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-red-100 dark:border-red-900/30">
+                                                {/* Previous Page */}
+                                                <button
+                                                    onClick={() => {
+                                                        const prevPage = outcomes.current_page - 1;
+                                                        if (prevPage >= 1) {
+                                                            router.get(route('customer.accounts.show', { account: account.id, page: prevPage }), {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            });
+                                                        }
+                                                    }}
+                                                    disabled={!outcomes.links || outcomes.current_page <= 1}
+                                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                        outcomes.links && outcomes.current_page > 1
+                                                            ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30'
+                                                            : 'text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    <ChevronRight className="h-4 w-4" />
+                                                    <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                </button>
 
-                                                    {outcomes.links && outcomes.links.slice(1, -1).map((link, index) => (
-                                                        <Link
+                                                {/* Page Numbers */}
+                                                {outcomes.links && outcomes.links.slice(1, -1).map((link, index) => {
+                                                    if (link.url === null) {
+                                                        return (
+                                                            <span key={index} className="px-3 py-2 text-gray-400">
+                                                                ...
+                                                            </span>
+                                                        );
+                                                    }
+                                                    
+                                                    const pageNum = link.label;
+                                                    const isActive = link.active;
+                                                    
+                                                    return (
+                                                        <button
                                                             key={index}
-                                                            href={link.url}
-                                                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                                                link.active
-                                                                    ? 'z-10 bg-red-50 border-red-500 text-red-600 font-semibold'
-                                                                    : 'bg-white border-slate-300 text-slate-500 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors'
+                                                            onClick={() => {
+                                                                const url = new URL(link.url);
+                                                                const page = url.searchParams.get('page');
+                                                                if (page) {
+                                                                    router.get(route('customer.accounts.show', { account: account.id, page }), {
+                                                                        preserveState: true,
+                                                                        preserveScroll: true,
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                isActive
+                                                                    ? 'bg-gradient-to-r from-red-500 to-pink-400 text-white shadow-lg'
+                                                                    : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30'
                                                             }`}
                                                         >
-                                                            {link.label.replace('&laquo;', '').replace('&raquo;', '')}
-                                                        </Link>
-                                                    ))}
+                                                            {pageNum}
+                                                        </button>
+                                                    );
+                                                })}
 
-                                                    <Link
-                                                        href={outcomes.next_page_url}
-                                                        className={`relative inline-flex items-center px-4 py-2 rounded-r-lg border ${!outcomes.next_page_url ? 'border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed' : 'border-slate-300 bg-white text-slate-500 hover:bg-red-50 hover:text-red-600 hover:border-red-300 transition-colors'}`}
-                                                        disabled={!outcomes.next_page_url}
-                                                    >
-                                                        <ChevronRight className="h-4 w-4" />
-                                                    </Link>
-                                                </nav>
+                                                {/* Next Page */}
+                                                <button
+                                                    onClick={() => {
+                                                        const nextPage = outcomes.current_page + 1;
+                                                        if (nextPage <= outcomes.last_page) {
+                                                            router.get(route('customer.accounts.show', { account: account.id, page: nextPage }), {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            });
+                                                        }
+                                                    }}
+                                                    disabled={!outcomes.links || outcomes.current_page >= outcomes.last_page}
+                                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                        outcomes.links && outcomes.current_page < outcomes.last_page
+                                                            ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30'
+                                                            : 'text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                    <ChevronRight className="h-4 w-4 rotate-180" />
+                                                </button>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     )}
                                 </div>
                             </div>
@@ -855,27 +1022,38 @@ export default function AccountDetails({
                                     </div>
                                 </div>
 
-                                <div className="mt-8 flex gap-3">
+                                <div className="mt-8 flex gap-4">
                                     <button
                                         type="button"
                                         onClick={() => setShowCreateIncomeModal(false)}
-                                        className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200"
+                                        className="group relative flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all duration-300 transform hover:scale-105 font-semibold"
                                     >
-                                        {t('Cancel')}
+                                        <div className="relative z-10 flex items-center justify-center gap-2">
+                                            <X className="w-4 h-4" />
+                                            <span>{t('Cancel')}</span>
+                                        </div>
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="flex-1 px-4 py-3 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-lg hover:from-indigo-700 hover:to-blue-700 disabled:opacity-50 transition-all duration-200"
+                                        className="group relative flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl disabled:opacity-50 transition-all duration-300 transform hover:scale-105 font-bold shadow-lg hover:shadow-xl overflow-hidden"
                                     >
-                                        {processing ? (
-                                            <div className="flex items-center justify-center">
-                                                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                                                {t('Creating...')}
-                                            </div>
-                                        ) : (
-                                            t('Create Income')
-                                        )}
+                                        {/* Shimmer effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                        
+                                        <div className="relative z-10 flex items-center justify-center gap-2">
+                                            {processing ? (
+                                                <>
+                                                    <RefreshCw className="h-5 w-5 animate-spin drop-shadow-sm" />
+                                                    <span>{t('Creating...')}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Plus className="h-5 w-5 drop-shadow-sm" />
+                                                    <span>{t('Create Income')}</span>
+                                                </>
+                                            )}
+                                        </div>
                                     </button>
                                 </div>
                             </form>
@@ -945,27 +1123,38 @@ export default function AccountDetails({
                                     </div>
                                 </div>
 
-                                <div className="mt-8 flex gap-3">
+                                <div className="mt-8 flex gap-4">
                                     <button
                                         type="button"
                                         onClick={() => setShowCreateOutcomeModal(false)}
-                                        className="flex-1 px-4 py-3 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-all duration-200"
+                                        className="group relative flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all duration-300 transform hover:scale-105 font-semibold"
                                     >
-                                        {t('Cancel')}
+                                        <div className="relative z-10 flex items-center justify-center gap-2">
+                                            <X className="w-4 h-4" />
+                                            <span>{t('Cancel')}</span>
+                                        </div>
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={outcomeForm.processing}
-                                        className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-pink-600 text-white rounded-lg hover:from-red-700 hover:to-pink-700 disabled:opacity-50 transition-all duration-200"
+                                        className="group relative flex-1 px-6 py-3 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white rounded-xl disabled:opacity-50 transition-all duration-300 transform hover:scale-105 font-bold shadow-lg hover:shadow-xl overflow-hidden"
                                     >
-                                        {outcomeForm.processing ? (
-                                            <div className="flex items-center justify-center">
-                                                <RefreshCw className="h-4 w-4 animate-spin mr-2" />
-                                                {t('Creating...')}
-                                            </div>
-                                        ) : (
-                                            t('Create Payment')
-                                        )}
+                                        {/* Shimmer effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                        
+                                        <div className="relative z-10 flex items-center justify-center gap-2">
+                                            {outcomeForm.processing ? (
+                                                <>
+                                                    <RefreshCw className="h-5 w-5 animate-spin drop-shadow-sm" />
+                                                    <span>{t('Creating...')}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Minus className="h-5 w-5 drop-shadow-sm" />
+                                                    <span>{t('Create Payment')}</span>
+                                                </>
+                                            )}
+                                        </div>
                                     </button>
                                 </div>
                             </form>
