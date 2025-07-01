@@ -36,7 +36,20 @@ import {
     Warehouse,
     Box,
     MapPin,
-    Route
+    Route,
+    Plus,
+    Minus,
+    AlertTriangle,
+    TrendingDown,
+    Download,
+    Upload,
+    ExternalLink,
+    Globe,
+    Ship,
+    Plane,
+    Container,
+    ChevronLeft,
+    ChevronRight
 } from 'lucide-react';
 // Import the lottie player package
 import '@lottiefiles/lottie-player';
@@ -246,17 +259,38 @@ const PageLoader = ({ isVisible }) => {
     );
 };
 
-export default function SalesIndex({ auth, sales = { data: [], links: [], total: 0 }, filters = {} }) {
+export default function SalesIndex({ 
+    auth, 
+    sales = { data: [], links: [], total: 0 }, 
+    filters = {},
+    products = [],
+    statistics = {}
+}) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [selectedSale, setSelectedSale] = useState(null);
+    const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+
+    // Ensure sales data is properly structured
+    const safeSales = {
+        data: Array.isArray(sales?.data) ? sales.data : [],
+        links: Array.isArray(sales?.links) ? sales.links : [],
+        total: parseInt(sales?.total) || 0,
+        from: parseInt(sales?.from) || 0,
+        to: parseInt(sales?.to) || 0,
+        current_page: parseInt(sales?.current_page) || 1,
+        last_page: parseInt(sales?.last_page) || 1,
+        ...sales
+    };
 
     const { data, setData, get, processing, errors } = useForm({
         search: filters.search || '',
         status: filters.status || '',
         confirmedByWarehouse: filters.confirmedByWarehouse || '',
         confirmedByShop: filters.confirmedByShop || '',
+        date_from: filters.date_from || '',
+        date_to: filters.date_to || '',
     });
 
     // Simulate loading delay
@@ -282,6 +316,8 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
             status: '',
             confirmedByWarehouse: '',
             confirmedByShop: '',
+            date_from: '',
+            date_to: '',
         });
         get(route('customer.sales.index'), {
             preserveState: true,
@@ -329,9 +365,9 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
         }
     };
 
-    // Ensure sales data is properly structured
-    const completedSales = sales?.data?.filter(sale => sale?.status === 'completed')?.length || 0;
-    const pendingSales = sales?.data?.filter(sale => sale?.status === 'pending')?.length || 0;
+    // Calculate statistics
+    const completedSales = safeSales?.data?.filter(sale => sale?.status === 'completed')?.length || 0;
+    const pendingSales = safeSales?.data?.filter(sale => sale?.status === 'pending')?.length || 0;
 
     return (
         <>
@@ -342,6 +378,11 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                         100% { transform: translateX(100%); }
                     }
                     .animate-shimmer { animation: shimmer 3s infinite; }
+
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
 
                     .bg-grid-pattern {
                         background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
@@ -570,7 +611,7 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                         <div className="relative flex items-center justify-between">
                                             <div className="space-y-1">
                                                 <p className="text-sm font-medium text-gray-500 dark:text-gray-300 transition-colors duration-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{t('Total Orders')}</p>
-                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{sales?.total || 0}</p>
+                                                <p className="text-2xl font-bold text-gray-900 dark:text-white">{safeSales?.total || 0}</p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">{t('All time orders')}</p>
                                             </div>
                                             <div className="bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900 dark:to-purple-900 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
@@ -610,196 +651,459 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                     </div>
                                 </div>
 
-                                {/* Quick Filters */}
-                                <div className="mb-8 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-md border border-gray-100 dark:border-slate-700 transition-all duration-300">
-                                    <h3 className="text-lg font-medium text-gray-800 dark:text-white mb-4 flex items-center">
-                                        <Filter className="h-5 w-5 mr-2 text-indigo-500 dark:text-indigo-400" />
-                                        {t('Quick Filters')}
-                                    </h3>
-
-                                    <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-3">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('Reference')}</label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Search className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    name="search"
-                                                    value={data.search}
-                                                    onChange={e => setData('search', e.target.value)}
-                                                    className="pl-10 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:ring-opacity-50"
-                                                    placeholder={t('Search by reference')}
-                                                />
+                                {/* Filters Section */}
+                                <div className="mb-6 bg-gradient-to-br from-white/80 to-indigo-50/50 backdrop-blur-xl rounded-2xl shadow-lg border border-indigo-100/50 overflow-hidden transform hover:scale-[1.01] transition-all duration-300">
+                                    <div className="p-4 border-b border-indigo-100/50 flex justify-between items-center bg-gradient-to-r from-purple-50 to-indigo-50">
+                                        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                                            <div className="p-2 bg-gradient-to-br from-purple-500/10 to-indigo-500/10 rounded-lg">
+                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                                                </svg>
                                             </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('Status')}</label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <FileText className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                                                </div>
-                                                <select
-                                                    name="status"
-                                                    value={data.status}
-                                                    onChange={e => setData('status', e.target.value)}
-                                                    className="pl-10 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:ring-opacity-50"
-                                                >
-                                                    <option value="">{t('All Statuses')}</option>
-                                                    <option value="completed">{t('Completed')}</option>
-                                                    <option value="pending">{t('Pending')}</option>
-                                                    <option value="cancelled">{t('Cancelled')}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('Warehouse Confirmation')}</label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Building2 className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                                                </div>
-                                                <select
-                                                    name="confirmedByWarehouse"
-                                                    value={data.confirmedByWarehouse}
-                                                    onChange={e => setData('confirmedByWarehouse', e.target.value)}
-                                                    className="pl-10 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:ring-opacity-50"
-                                                >
-                                                    <option value="">{t('All')}</option>
-                                                    <option value="1">{t('Yes')}</option>
-                                                    <option value="0">{t('No')}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">{t('Shop Confirmation')}</label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <ShoppingBag className="h-5 w-5 text-gray-400 dark:text-gray-500" />
-                                                </div>
-                                                <select
-                                                    name="confirmedByShop"
-                                                    value={data.confirmedByShop}
-                                                    onChange={e => setData('confirmedByShop', e.target.value)}
-                                                    className="pl-10 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white shadow-sm focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring focus:ring-indigo-200 dark:focus:ring-indigo-800 focus:ring-opacity-50"
-                                                >
-                                                    <option value="">{t('All')}</option>
-                                                    <option value="1">{t('Yes')}</option>
-                                                    <option value="0">{t('No')}</option>
-                                                </select>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex items-end">
-                                            <button
-                                                type="submit"
-                                                disabled={processing}
-                                                className="w-full px-4 py-2 bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 hover:from-violet-600 hover:via-purple-600 hover:to-fuchsia-600 text-white text-sm font-medium rounded-md shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 relative overflow-hidden group"
+                                            {t('Filters')}
+                                        </h3>
+                                        <button 
+                                            onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                                            className="p-2 hover:bg-indigo-50 rounded-lg text-indigo-600 hover:text-indigo-700 transition-all duration-200 group"
+                                        >
+                                            <svg 
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className={`h-5 w-5 transform transition-transform duration-300 ${showAdvancedFilters ? 'rotate-180' : ''}`}
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
                                             >
-                                                <span className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
-                                                <span className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 to-violet-500 rounded-lg blur opacity-20 group-hover:opacity-30 transition-opacity duration-300 animate-tilt"></span>
-                                                <span className="relative flex items-center justify-center">
-                                                    <Search className="h-5 w-5 mr-2 text-white" />
-                                                    {t('Search')}
-                                                </span>
-                                            </button>
-                                        </div>
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    {showAdvancedFilters && (
+                                        <div className="p-6 space-y-6 bg-gradient-to-br from-white to-indigo-50/30">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                                                {/* Date Range Filter */}
+                                                <div className="group">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                        {t('Date Range')}
+                                                    </label>
+                                                    <div className="relative">
+                                                        <select
+                                                            value={data.date_from && data.date_to ? 'custom' : 'all'}
+                                                            onChange={(e) => {
+                                                                if (e.target.value === 'all') {
+                                                                    setData('date_from', '');
+                                                                    setData('date_to', '');
+                                                                }
+                                                            }}
+                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
+                                                        >
+                                                            <option value="all">{t('All Time')}</option>
+                                                            <option value="today">{t('Today')}</option>
+                                                            <option value="week">{t('This Week')}</option>
+                                                            <option value="month">{t('This Month')}</option>
+                                                            <option value="year">{t('This Year')}</option>
+                                                            <option value="custom">{t('Custom Range')}</option>
+                                                        </select>
+                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                        <div className="flex items-end">
-                                            <button
-                                                type="button"
-                                                onClick={handleReset}
-                                                className="w-full px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white text-sm font-medium rounded-md shadow focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-300"
-                                            >
-                                                <span className="flex items-center justify-center">
-                                                    <RefreshCw className="h-5 w-5 mr-2" />
+                                                {/* Reference Number Search */}
+                                                <div className="group">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                        </svg>
+                                                        {t('Reference Number')}
+                                                    </label>
+                                                    <div className="relative">
+                                                        <input
+                                                            type="text"
+                                                            value={data.search}
+                                                            onChange={(e) => setData('search', e.target.value)}
+                                                            placeholder={t('Search by reference number...')}
+                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-11 pr-4 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200"
+                                                        />
+                                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                                            <div className="p-1.5 bg-gradient-to-br from-purple-500/5 to-indigo-500/5 rounded-lg">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                                </svg>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Status Filter */}
+                                                <div className="group">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                        </svg>
+                                                        {t('Status')}
+                                                    </label>
+                                                    <div className="relative">
+                                                        <select
+                                                            value={data.status}
+                                                            onChange={(e) => setData('status', e.target.value)}
+                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
+                                                        >
+                                                            <option value="">{t('All Statuses')}</option>
+                                                            <option value="completed">{t('Completed')}</option>
+                                                            <option value="pending">{t('Pending')}</option>
+                                                            <option value="cancelled">{t('Cancelled')}</option>
+                                                        </select>
+                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Warehouse Confirmation */}
+                                                <div className="group">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                        </svg>
+                                                        {t('Warehouse Confirmation')}
+                                                    </label>
+                                                    <div className="relative">
+                                                        <select
+                                                            value={data.confirmedByWarehouse}
+                                                            onChange={(e) => setData('confirmedByWarehouse', e.target.value)}
+                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
+                                                        >
+                                                            <option value="">{t('All')}</option>
+                                                            <option value="1">{t('Yes')}</option>
+                                                            <option value="0">{t('No')}</option>
+                                                        </select>
+                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Shop Confirmation */}
+                                                <div className="group">
+                                                    <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                                                        </svg>
+                                                        {t('Shop Confirmation')}
+                                                    </label>
+                                                    <div className="relative">
+                                                        <select
+                                                            value={data.confirmedByShop}
+                                                            onChange={(e) => setData('confirmedByShop', e.target.value)}
+                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-10 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200 text-gray-700"
+                                                        >
+                                                            <option value="">{t('All')}</option>
+                                                            <option value="1">{t('Yes')}</option>
+                                                            <option value="0">{t('No')}</option>
+                                                        </select>
+                                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-indigo-500">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Custom Date Range (shown when custom is selected) */}
+                                            {(data.date_from || data.date_to) && (
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div className="group">
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                            {t('From Date')}
+                                                        </label>
+                                                        <input
+                                                            type="date"
+                                                            value={data.date_from}
+                                                            onChange={(e) => setData('date_from', e.target.value)}
+                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-4 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200"
+                                                        />
+                                                    </div>
+                                                    <div className="group">
+                                                        <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                            </svg>
+                                                            {t('To Date')}
+                                                        </label>
+                                                        <input
+                                                            type="date"
+                                                            value={data.date_to}
+                                                            onChange={(e) => setData('date_to', e.target.value)}
+                                                            className="w-full rounded-xl border-gray-200 focus:border-indigo-500 focus:ring-indigo-500 pl-4 pr-4 py-3 bg-white/50 backdrop-blur-sm hover:bg-white transition-all duration-200"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Action Buttons */}
+                                            <div className="flex justify-end space-x-4">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleReset}
+                                                    className="px-6 py-2 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                                                >
+                                                    <RefreshCw className="h-4 w-4 mr-2 inline" />
                                                     {t('Reset')}
-                                                </span>
-                                            </button>
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={handleSubmit}
+                                                    disabled={processing}
+                                                    className="px-6 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                                                >
+                                                    <Search className="h-4 w-4 mr-2 inline" />
+                                                    {t('Apply Filters')}
+                                                </button>
+                                            </div>
                                         </div>
-                                    </form>
+                                    )}
                                 </div>
 
                                 {/* Sales Table */}
-                                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden mb-8">
-                                    <div className="px-8 py-6 border-b border-gray-100 dark:border-slate-700 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-slate-700 dark:to-slate-800">
-                                        <h3 className="text-xl font-semibold text-gray-800 dark:text-white flex items-center">
-                                            <Truck className="h-6 w-6 mr-2 text-indigo-600 dark:text-indigo-400" />
-                                            {t('Your Orders')}
-                                        </h3>
-                                    </div>
-
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                                            <thead>
-                                                <tr className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-slate-700 dark:to-slate-800">
-                                                    <th scope="col" className="px-8 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Reference')}
+                                <div className="overflow-x-auto rounded-xl shadow-sm">
+                                    {safeSales.data.length === 0 ? (
+                                        <div className="bg-white rounded-xl p-12 text-center text-gray-500 border border-dashed border-gray-300">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-12 w-12 mx-auto text-gray-400 mb-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                />
+                                            </svg>
+                                            <p className="text-lg">
+                                                {t('No sales found matching your criteria.')}
+                                            </p>
+                                            <p className="text-sm mt-2">
+                                                {t('Try changing your filters or search parameters.')}
+                                            </p>
+                                        </div>
+                                    ) : (
+                                        <table className="min-w-full divide-y divide-gray-200 bg-white shadow-md rounded-xl overflow-hidden border-collapse">
+                                            <thead className="bg-gradient-to-r from-indigo-50 to-purple-50">
+                                                <tr>
+                                                    <th
+                                                        scope="col"
+                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
+                                                    >
+                                                        <div className="flex items-center justify-end">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                stroke="currentColor"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
+                                                                />
+                                                            </svg>
+                                                            {t('Reference')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Date')}
+                                                    <th
+                                                        scope="col"
+                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
+                                                    >
+                                                        <div className="flex items-center justify-end">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                stroke="currentColor"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                                />
+                                                            </svg>
+                                                            {t('Date')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Total Amount')}
+                                                    <th
+                                                        scope="col"
+                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
+                                                    >
+                                                        <div className="flex items-center justify-end">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                stroke="currentColor"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                                />
+                                                            </svg>
+                                                            {t('Total Amount')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
-                                                        {t('Status')}
+                                                    <th
+                                                        scope="col"
+                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
+                                                    >
+                                                        <div className="flex items-center justify-end">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                stroke="currentColor"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                                />
+                                                            </svg>
+                                                            {t('Status')}
+                                                        </div>
                                                     </th>
-                                                    <th scope="col" className="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider pr-8">
-                                                        {t('Actions')}
+                                                    <th
+                                                        scope="col"
+                                                        className="px-6 py-4 text-right text-xs font-medium text-gray-600 uppercase tracking-wider"
+                                                    >
+                                                        <div className="flex items-center justify-end">
+                                                            <svg
+                                                                xmlns="http://www.w3.org/2000/svg"
+                                                                className="h-4 w-4 mr-1 rtl:ml-1 rtl:mr-0 text-indigo-500"
+                                                                fill="none"
+                                                                viewBox="0 0 24 24"
+                                                                stroke="currentColor"
+                                                            >
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                                                                />
+                                                                <path
+                                                                    strokeLinecap="round"
+                                                                    strokeLinejoin="round"
+                                                                    strokeWidth="2"
+                                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                                />
+                                                            </svg>
+                                                            {t('Actions')}
+                                                        </div>
                                                     </th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="bg-white dark:bg-slate-800 divide-y divide-gray-100 dark:divide-slate-700">
-                                                {sales?.data?.map((sale) => (
-                                                    <tr key={sale.id} className="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/20 transition-all duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-md">
-                                                        <td className="px-8 py-5 whitespace-nowrap">
-                                                            <div className="flex items-center">
-                                                                <div className="mx-6 flex-shrink-0 h-12 w-12 flex items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md">
-                                                                    <Receipt className="h-6 w-6" />
-                                                                </div>
-                                                                <div className="ml-4">
-                                                                    <div className="text-base font-medium text-gray-900 dark:text-white">{sale.reference}</div>
-                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 flex items-center">
-                                                                        <User className="h-4 w-4 mr-1 text-gray-400 dark:text-gray-500" />
-                                                                        {sale.customer?.name || 'N/A'}
+                                            <tbody className="bg-white divide-y divide-gray-200">
+                                                {safeSales.data.map((sale, index) => (
+                                                    <tr
+                                                        key={sale.id}
+                                                        className="hover:bg-indigo-50/30 transition-colors duration-150 group"
+                                                        style={{
+                                                            animation: `fadeIn 0.5s ease-out ${
+                                                                index * 0.1
+                                                            }s both`,
+                                                        }}
+                                                    >
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                            <div className="flex items-center justify-end">
+                                                                <div className="flex items-center">
+                                                                    <div className="mx-3 flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-md">
+                                                                        <Receipt className="h-5 w-5" />
+                                                                    </div>
+                                                                    <div className="ml-3">
+                                                                        <div className="text-sm font-medium text-gray-900">{sale.reference}</div>
+                                                                        <div className="text-xs text-gray-500 mt-1 flex items-center">
+                                                                            <User className="h-3 w-3 mr-1 text-gray-400" />
+                                                                            {sale.customer?.name || 'N/A'}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className="text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-slate-700 py-1.5 px-3 rounded-md inline-flex items-center float-right">
-                                                                <Calendar className="h-4 w-4 mr-1.5 text-gray-500 dark:text-gray-400" />
-                                                                {new Date(sale.date).toLocaleDateString()}
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                            <div className="flex items-center justify-end">
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    className="h-4 w-4 mr-1.5 rtl:ml-1.5 rtl:mr-0 text-indigo-400 group-hover:text-indigo-500"
+                                                                    fill="none"
+                                                                    viewBox="0 0 24 24"
+                                                                    stroke="currentColor"
+                                                                >
+                                                                    <path
+                                                                        strokeLinecap="round"
+                                                                        strokeLinejoin="round"
+                                                                        strokeWidth="2"
+                                                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                                                    />
+                                                                </svg>
+                                                                <span className="text-green-600 font-medium">
+                                                                    {new Intl.DateTimeFormat('fa-IR', {
+                                                                        year: 'numeric',
+                                                                        month: '2-digit',
+                                                                        day: 'numeric',
+                                                                        calendar: 'persian',
+                                                                        numberingSystem: 'arab'
+                                                                    }).format(new Date(sale.date))}
+                                                                </span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-right">
-                                                            <div className="text-sm font-mono bg-indigo-50 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-200 py-1.5 px-3 rounded-md border border-indigo-100 dark:border-indigo-800 shadow-sm inline-flex items-center float-right">
-                                                                <DollarSign className="h-4 w-4 mr-1.5 text-indigo-500 dark:text-indigo-400" />
-                                                                {sale.total}
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <div className="flex items-center justify-end">
+                                                                <span className="bg-green-100 text-green-700 py-1 px-2.5 rounded-lg group-hover:bg-green-200 transition-colors duration-150">
+                                                                    {sale.total}
+                                                                </span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-right">
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                             <div className="flex justify-end">
                                                                 {sale.status === 'completed' ? (
-                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-700 shadow-sm">
+                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border border-green-200 shadow-sm">
                                                                         <span className="flex items-center justify-center h-5 w-5 bg-green-500 rounded-full mr-1.5 shadow-inner">
                                                                             <CheckCircle className="h-3 w-3 text-white" />
                                                                         </span>
                                                                         Completed
                                                                     </span>
                                                                 ) : sale.status === 'cancelled' ? (
-                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700 shadow-sm">
+                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-red-50 to-pink-50 text-red-800 border border-red-200 shadow-sm">
                                                                         <span className="flex items-center justify-center h-5 w-5 bg-red-500 rounded-full mr-1.5 shadow-inner">
                                                                             <XCircle className="h-3 w-3 text-white" />
                                                                         </span>
                                                                         Cancelled
                                                                     </span>
                                                                 ) : (
-                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-amber-50 to-yellow-50 dark:from-amber-900/30 dark:to-yellow-900/30 text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-700 shadow-sm">
+                                                                    <span className="px-3.5 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full bg-gradient-to-r from-amber-50 to-yellow-50 text-amber-800 border border-amber-200 shadow-sm">
                                                                         <span className="flex items-center justify-center h-5 w-5 bg-amber-500 rounded-full mr-1.5 shadow-inner">
                                                                             <Clock className="h-3 w-3 text-white" />
                                                                         </span>
@@ -808,7 +1112,7 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                                                 )}
                                                             </div>
                                                         </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-sm font-medium text-right">
+                                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
                                                             <Link
                                                                 href={route('customer.sales.show', sale.id)}
                                                                 className="group relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 hover:from-violet-600 hover:via-purple-600 hover:to-fuchsia-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg overflow-hidden"
@@ -825,194 +1129,104 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                                                 ))}
                                             </tbody>
                                         </table>
-                                    </div>
-
-                                    <div className="px-8 py-6 border-t border-indigo-100 dark:border-indigo-800 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-slate-700 dark:via-slate-800 dark:to-slate-900">
-                                        {/* RTL Pagination */}
-                                        <div className="flex flex-col-reverse md:flex-row items-center justify-between gap-4 rtl:flex-row-reverse">
-                                            {/* Records Info */}
-                                            <div className="text-sm text-gray-600 dark:text-gray-300 rtl:text-right">
-                                                <div className="flex items-center gap-2 rtl:flex-row-reverse">
-                                                    <span className="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 px-2 py-1 rounded-md rtl:font-semibold">
-                                                        RTL {t('Support')}
-                                                    </span>
-                                                    {sales?.total > 0 ? (
-                                                        <p>
-                                                            {t('Showing')} <span className="font-medium text-indigo-600 dark:text-indigo-400">{sales.from}</span> {t('to')}{' '}
-                                                            <span className="font-medium text-indigo-600 dark:text-indigo-400">{sales.to}</span> {t('of')}{' '}
-                                                            <span className="font-medium text-indigo-600 dark:text-indigo-400">{sales.total}</span> {t('records')}
-                                                        </p>
-                                                    ) : (
-                                                        <p>{t('No records found')}</p>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            {/* Pagination Controls */}
-                                            {sales?.links && sales.links.length > 3 && (
-                                                <div className="flex items-center justify-center rtl:flex-row-reverse">
-                                                    <nav
-                                                        className="relative z-0 inline-flex rounded-xl shadow-md -space-x-px rtl:space-x-reverse overflow-hidden"
-                                                        aria-label="Pagination"
-                                                        style={{ boxShadow: '0 4px 20px -2px rgba(103, 58, 183, 0.15)' }}
-                                                    >
-                                                        {/* First Page Button */}
-                                                        {sales.first_page_url && sales.current_page !== 1 ? (
-                                                            <Link
-                                                                href={sales.first_page_url}
-                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
-                                                            >
-                                                                <span className="sr-only">{t('First Page')}</span>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </Link>
-                                                        ) : (
-                                                            <button
-                                                                disabled
-                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
-                                                            >
-                                                                <span className="sr-only">{t('First Page')}</span>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M15.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 010 1.414zm-6 0a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 011.414 1.414L5.414 10l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                        )}
-
-                                                        {/* Previous Page Button */}
-                                                        {sales.prev_page_url ? (
-                                                            <Link
-                                                                href={sales.prev_page_url}
-                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
-                                                            >
-                                                                <span className="sr-only">{t('Previous')}</span>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </Link>
-                                                        ) : (
-                                                            <button
-                                                                disabled
-                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
-                                                            >
-                                                                <span className="sr-only">{t('Previous')}</span>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                        )}
-
-                                                        {/* Page Numbers */}
-                                                        {sales.links.slice(1, -1).map((link, index) => (
-                                                            link.url ? (
-                                                                <Link
-                                                                    key={index}
-                                                                    href={link.url}
-                                                                    className={`relative inline-flex items-center px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l ${
-                                                                        link.active
-                                                                            ? 'z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-md transform scale-105'
-                                                                            : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-600 dark:hover:text-indigo-400'
-                                                                    }`}
-                                                                >
-                                                                    {link.label.replace(/&laquo;|&raquo;/g, '')}
-                                                                    {link.active && (
-                                                                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full transform translate-y-1/2 opacity-60"></span>
-                                                                    )}
-                                                                </Link>
-                                                            ) : (
-                                                                <span
-                                                                    key={index}
-                                                                    className={`relative inline-flex items-center px-4 py-2.5 text-sm font-semibold transition-all duration-200 ease-in-out border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l ${
-                                                                        link.active
-                                                                            ? 'z-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-md transform scale-105'
-                                                                            : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-gray-300'
-                                                                    }`}
-                                                                >
-                                                                    {link.label.replace(/&laquo;|&raquo;/g, '')}
-                                                                    {link.active && (
-                                                                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full transform translate-y-1/2 opacity-60"></span>
-                                                                    )}
-                                                                </span>
-                                                            )
-                                                        ))}
-
-                                                        {/* Next Page Button */}
-                                                        {sales.next_page_url ? (
-                                                            <Link
-                                                                href={sales.next_page_url}
-                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
-                                                            >
-                                                                <span className="sr-only">{t('Next')}</span>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </Link>
-                                                        ) : (
-                                                            <button
-                                                                disabled
-                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed transition-colors duration-200 ease-in-out rtl:rotate-180 border-r border-indigo-100 dark:border-slate-600 rtl:border-r-0 rtl:border-l"
-                                                            >
-                                                                <span className="sr-only">{t('Next')}</span>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                        )}
-
-                                                        {/* Last Page Button */}
-                                                        {sales.last_page_url && sales.current_page !== sales.last_page ? (
-                                                            <Link
-                                                                href={sales.last_page_url}
-                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors duration-200 ease-in-out rtl:rotate-180"
-                                                            >
-                                                                <span className="sr-only">{t('Last Page')}</span>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 6.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0zm6 0a1 1 0 010-1.414L14.586 10l-4.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </Link>
-                                                        ) : (
-                                                            <button
-                                                                disabled
-                                                                className="relative inline-flex items-center px-3.5 py-2.5 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-400 dark:text-gray-500 cursor-not-allowed transition-colors duration-200 ease-in-out rtl:rotate-180"
-                                                            >
-                                                                <span className="sr-only">{t('Last Page')}</span>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                                                    <path fillRule="evenodd" d="M4.293 15.707a1 1 0 010-1.414L8.586 10 4.293 6.707a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0zm6 0a1 1 0 010-1.414L14.586 10l-4.293-3.293a1 1 0 011.414-1.414l5 5a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                                                                </svg>
-                                                            </button>
-                                                        )}
-                                                    </nav>
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        {/* Page Selection Dropdown - For Mobile */}
-                                        {sales.last_page > 1 && (
-                                            <div className="mt-4 sm:hidden">
-                                                <div className="flex items-center justify-between gap-2 rtl:flex-row-reverse">
-                                                    <div className="text-sm text-gray-600 dark:text-gray-300">{t('Go to page')}:</div>
-                                                    <select
-                                                        value={sales.current_page}
-                                                        onChange={(e) => {
-                                                            const page = parseInt(e.target.value);
-                                                            window.location.href = route('customer.sales.index', {
-                                                                ...filters,
-                                                                page,
-                                                            });
-                                                        }}
-                                                        className="form-select block w-full md:w-32 pl-3 pr-10 py-2 text-base border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:outline-none focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:border-indigo-500 dark:focus:border-indigo-400 sm:text-sm rounded-md"
-                                                    >
-                                                        {[...Array(sales.last_page)].map((_, i) => (
-                                                            <option key={i + 1} value={i + 1}>
-                                                                {i + 1}
-                                                            </option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
+                                    )}
                                 </div>
+
+                                {/* Pagination Controls */}
+                                {safeSales.links && safeSales.links.length > 3 && (
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.5, duration: 0.4 }}
+                                        className="flex flex-col items-center space-y-4"
+                                    >
+                                        <div className="text-sm text-slate-600 dark:text-slate-400">
+                                            {t("Showing")} {safeSales.from || 0} {t("to")} {safeSales.to || 0} {t("of")} {safeSales.total || 0} {t("results")}
+                                        </div>
+                                        <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
+                                            {/* Previous Page */}
+                                            <button
+                                                onClick={() => {
+                                                    const prevPage = safeSales.current_page - 1;
+                                                    if (prevPage >= 1) {
+                                                        get(route('customer.sales.index', { page: prevPage }), {
+                                                            preserveState: true,
+                                                            preserveScroll: true,
+                                                        });
+                                                    }
+                                                }}
+                                                disabled={!safeSales.links || safeSales.current_page <= 1}
+                                                className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                    safeSales.links && safeSales.current_page > 1
+                                                        ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                        : 'text-gray-400 cursor-not-allowed'
+                                                }`}
+                                            >
+                                                <ChevronRight className="h-4 w-4" />
+                                                <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                            </button>
+
+                                            {/* Page Numbers */}
+                                            {safeSales.links && safeSales.links.slice(1, -1).map((link, index) => {
+                                                if (link.url === null) {
+                                                    return (
+                                                        <span key={index} className="px-3 py-2 text-gray-400">
+                                                            ...
+                                                        </span>
+                                                    );
+                                                }
+                                                
+                                                const pageNum = link.label;
+                                                const isActive = link.active;
+                                                
+                                                return (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => {
+                                                            const url = new URL(link.url);
+                                                            const page = url.searchParams.get('page');
+                                                            if (page) {
+                                                                get(route('customer.sales.index', { page }), {
+                                                                    preserveState: true,
+                                                                    preserveScroll: true,
+                                                                });
+                                                            }
+                                                        }}
+                                                        className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                            isActive
+                                                                ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg'
+                                                                : 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                        }`}
+                                                    >
+                                                        {pageNum}
+                                                    </button>
+                                                );
+                                            })}
+
+                                            {/* Next Page */}
+                                            <button
+                                                onClick={() => {
+                                                    const nextPage = safeSales.current_page + 1;
+                                                    if (nextPage <= safeSales.last_page) {
+                                                        get(route('customer.sales.index', { page: nextPage }), {
+                                                            preserveState: true,
+                                                            preserveScroll: true,
+                                                        });
+                                                    }
+                                                }}
+                                                disabled={!safeSales.links || safeSales.current_page >= safeSales.last_page}
+                                                className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                    safeSales.links && safeSales.current_page < safeSales.last_page
+                                                        ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                                        : 'text-gray-400 cursor-not-allowed'
+                                                }`}
+                                            >
+                                                <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                <ChevronRight className="h-4 w-4 rotate-180" />
+                                            </button>
+                                        </div>
+                                    </motion.div>
+                                )}
                             </div>
                         </div>
                     </main>
@@ -1092,6 +1306,17 @@ export default function SalesIndex({ auth, sales = { data: [], links: [], total:
                     </div>
                 </div>
             )}
+
+            <style
+                dangerouslySetInnerHTML={{
+                    __html: `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `,
+                }}
+            />
         </>
     );
 }
