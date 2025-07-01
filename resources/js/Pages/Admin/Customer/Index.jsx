@@ -23,7 +23,8 @@ import {
     ChevronLeft,
     ChevronRight,
     X,
-    RefreshCw
+    RefreshCw,
+    Settings
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -511,12 +512,37 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Store")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Contact")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Status")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200">{t("Users")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-200 text-right">{t("Actions")}</TableHead>
+                                                        <TableRow className="border-b border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50">
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-200 py-4 px-6">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Store className="h-4 w-4 text-green-600" />
+                                                                    {t("Store")}
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-200 py-4 px-6">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Users className="h-4 w-4 text-green-600" />
+                                                                    {t("Contact")}
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-200 py-4 px-6">
+                                                                <div className="flex items-center gap-2">
+                                                                    <TrendingUp className="h-4 w-4 text-green-600" />
+                                                                    {t("Status")}
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-200 py-4 px-6">
+                                                                <div className="flex items-center gap-2">
+                                                                    <Users className="h-4 w-4 text-green-600" />
+                                                                    {t("Users")}
+                                                                </div>
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-gray-700 dark:text-gray-200 py-4 px-6 text-right">
+                                                                <div className="flex items-center justify-end gap-2">
+                                                                    <Settings className="h-4 w-4 text-green-600" />
+                                                                    {t("Actions")}
+                                                                </div>
+                                                            </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -528,112 +554,114 @@ export default function Index({ auth, customers, filters = {}, permissions = {} 
                                                                     animate={{ opacity: 1, y: 0 }}
                                                                     exit={{ opacity: 0, y: -20 }}
                                                                     transition={{ delay: index * 0.05 }}
-                                                                    className="border-b border-slate-100 dark:border-slate-700 hover:bg-green-50/50 dark:hover:bg-green-900/10 transition-colors"
+                                                                    className="border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/30 transition-all duration-200"
                                                                 >
-                                                                    <TableCell>
-                                                                        <div className="flex items-center space-x-3">
-                                                                            <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
-                                                                                <Store className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <div className="flex items-center space-x-4">
+                                                                            <div className="p-3 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl shadow-sm">
+                                                                                <Store className="h-6 w-6 text-green-600 dark:text-green-400" />
                                                                             </div>
                                                                             <div>
-                                                                                <div className="font-semibold text-slate-900 dark:text-white">{customer.name}</div>
+                                                                                <div className="font-semibold text-gray-900 dark:text-white text-base mb-1">
+                                                                                    {customer.name}
+                                                                                </div>
                                                                                 {customer.address && (
-                                                                                    <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
-                                                                                        <MapPin className="w-3 h-3" />
+                                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                                                                        <MapPin className="w-4 h-4" />
                                                                                         {customer.address}
                                                                                     </div>
                                                                                 )}
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="space-y-1">
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <div className="space-y-2">
                                                                             {customer.email && (
-                                                                                <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                                                    <Mail className="w-3 h-3" />
-                                                                                    {customer.email}
+                                                                                <div className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                                                    <Mail className="w-4 h-4 text-gray-500" />
+                                                                                    <span className="font-mono">{customer.email}</span>
                                                                                 </div>
                                                                             )}
                                                                             {customer.phone && (
-                                                                                <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1">
-                                                                                    <Phone className="w-3 h-3" />
-                                                                                    {customer.phone}
+                                                                                <div className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                                                    <Phone className="w-4 h-4 text-gray-500" />
+                                                                                    <span className="font-mono">{customer.phone}</span>
                                                                                 </div>
                                                                             )}
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell>
+                                                                    <TableCell className="py-4 px-6">
                                                                         {getStatusBadge(customer.status)}
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <Badge variant="outline" className="gap-1 border-slate-200 dark:border-slate-600">
-                                                                            <Users className="w-3 h-3" />
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <Badge variant="outline" className="gap-2 border-gray-200 dark:border-gray-600 px-3 py-2 text-sm font-medium">
+                                                                            <Users className="w-4 h-4" />
                                                                             {customer.users_count}
                                                                         </Badge>
                                                                     </TableCell>
-                                                                    <TableCell className="text-right">
-                                                                        <div className="flex items-center justify-end gap-1">
+                                                                    <TableCell className="py-4 px-6 text-right">
+                                                                        <div className="flex items-center justify-end gap-3">
                                                                             {permissions.view_customer && (
                                                                                 <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
+                                                                                    variant="outline"
+                                                                                    size="default"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     asChild
+                                                                                    title={t("View Details")}
                                                                                 >
                                                                                     <Link href={route('admin.customers.show', customer.id)}>
-                                                                                        <Eye className="h-4 w-4" />
-                                                                                        <span className="sr-only">{t("View Details")}</span>
+                                                                                        <Eye className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                                                                                     </Link>
                                                                                 </Button>
                                                                             )}
                                                                             {permissions.update_customer && (
                                                                                 <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
+                                                                                    variant="outline"
+                                                                                    size="default"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     asChild
+                                                                                    title={t("Edit Store")}
                                                                                 >
                                                                                     <Link href={route('admin.customers.edit', customer.id)}>
-                                                                                        <Edit className="h-4 w-4" />
-                                                                                        <span className="sr-only">{t("Edit")}</span>
+                                                                                        <Edit className="h-7 w-7 text-green-600 dark:text-green-400" />
                                                                                     </Link>
                                                                                 </Button>
                                                                             )}
                                                                             {permissions.view_customer && (
                                                                                 <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400 transition-colors"
+                                                                                    variant="outline"
+                                                                                    size="default"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-indigo-500 dark:hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     asChild
+                                                                                    title={t("View Income")}
                                                                                 >
                                                                                     <Link href={route('admin.customers.income', customer.id)}>
-                                                                                        <TrendingUp className="h-4 w-4" />
-                                                                                        <span className="sr-only">{t("Income")}</span>
+                                                                                        <TrendingUp className="h-7 w-7 text-indigo-600 dark:text-indigo-400" />
                                                                                     </Link>
                                                                                 </Button>
                                                                             )}
                                                                             {permissions.view_customer && (
                                                                                 <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-orange-50 hover:text-orange-600 dark:hover:bg-orange-900/20 dark:hover:text-orange-400 transition-colors"
+                                                                                    variant="outline"
+                                                                                    size="default"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-orange-500 dark:hover:border-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     asChild
+                                                                                    title={t("View Outcome")}
                                                                                 >
                                                                                     <Link href={route('admin.customers.outcome', customer.id)}>
-                                                                                        <TrendingDown className="h-4 w-4" />
-                                                                                        <span className="sr-only">{t("Outcome")}</span>
+                                                                                        <TrendingDown className="h-7 w-7 text-orange-600 dark:text-orange-400" />
                                                                                     </Link>
                                                                                 </Button>
                                                                             )}
                                                                             {permissions.delete_customer && (
                                                                                 <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
+                                                                                    variant="outline"
+                                                                                    size="default"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     onClick={() => handleDelete(customer.id)}
+                                                                                    title={t("Delete Store")}
                                                                                 >
-                                                                                    <Trash2 className="h-4 w-4" />
-                                                                                    <span className="sr-only">{t("Delete")}</span>
+                                                                                    <Trash2 className="h-7 w-7 text-red-600 dark:text-red-400" />
                                                                                 </Button>
                                                                             )}
                                                                         </div>

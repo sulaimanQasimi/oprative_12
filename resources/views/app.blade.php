@@ -7,6 +7,20 @@
         <title inertia>{{ config('app.name', 'Laravel') }}</title>
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
+        <!-- Theme Initialization Script -->
+        <script>
+            (function() {
+                const theme = localStorage.getItem('theme') || 'dark';
+                if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    document.body.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    document.body.classList.remove('dark');
+                }
+            })();
+        </script>
+
         <!-- Scripts -->
         @routes
         @viteReactRefresh

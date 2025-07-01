@@ -80,13 +80,13 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                         </div>
                     </header>
 
-                    <main className="flex-1 overflow-auto p-6">
+                    <main className="flex-1 overflow-auto p-6 bg-gray-50 dark:bg-gray-950">
                         <div className="max-w-4xl mx-auto">
-                            <form onSubmit={submit} className="space-y-8">
+                            <form onSubmit={submit} className="space-y-6">
                                 {/* Basic Information */}
-                                <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                                        <CardTitle className="flex items-center gap-3 text-lg">
+                                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                    <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                                        <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white">
                                             <Package className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                             {t("Basic Information")}
                                         </CardTitle>
@@ -94,8 +94,8 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                     <CardContent className="p-6 space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="type" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Tag className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="type" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Tag className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Product Type")}
                                                 </Label>
                                                 <Input
@@ -104,7 +104,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                     value={data.type}
                                                     placeholder={t("Enter product type")}
                                                     onChange={(e) => setData("type", e.target.value)}
-                                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
+                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500/20 dark:focus:ring-blue-400/20"
                                                 />
                                                 {errors.type && (
                                                     <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -117,8 +117,8 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="name" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Package className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="name" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Package className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Product Name")}
                                                 </Label>
                                                 <Input
@@ -127,7 +127,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                     value={data.name}
                                                     placeholder={t("Enter product name")}
                                                     onChange={(e) => setData("name", e.target.value)}
-                                                    className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
+                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500/20 dark:focus:ring-blue-400/20"
                                                 />
                                                 {errors.name && (
                                                     <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -141,8 +141,8 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                         </div>
 
                                         <div className="space-y-2">
-                                            <Label htmlFor="barcode" className="flex items-center gap-2 text-sm font-medium">
-                                                <Barcode className="h-4 w-4 text-gray-500" />
+                                            <Label htmlFor="barcode" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                <Barcode className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                 {t("Barcode")}
                                             </Label>
                                             <Input
@@ -151,7 +151,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                 value={data.barcode}
                                                 placeholder={t("Enter product barcode")}
                                                 onChange={(e) => setData("barcode", e.target.value)}
-                                                className="transition-all duration-200 focus:ring-2 focus:ring-blue-500/20"
+                                                className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500/20 dark:focus:ring-blue-400/20"
                                             />
                                             {errors.barcode && (
                                                 <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -166,9 +166,9 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                 </Card>
 
                                 {/* Pricing Information */}
-                                <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
-                                        <CardTitle className="flex items-center gap-3 text-lg">
+                                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                    <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                                        <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white">
                                             <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
                                             {t("Pricing Information")}
                                         </CardTitle>
@@ -176,8 +176,8 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                     <CardContent className="p-6 space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="purchase_price" className="flex items-center gap-2 text-sm font-medium">
-                                                    <DollarSign className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="purchase_price" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Purchase Price")}
                                                 </Label>
                                                 <Input
@@ -187,7 +187,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                     value={data.purchase_price}
                                                     placeholder="0.00"
                                                     onChange={(e) => setData("purchase_price", e.target.value)}
-                                                    className="transition-all duration-200 focus:ring-2 focus:ring-green-500/20"
+                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 dark:focus:ring-green-400/20"
                                                 />
                                                 {errors.purchase_price && (
                                                     <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -200,8 +200,8 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="wholesale_price" className="flex items-center gap-2 text-sm font-medium">
-                                                    <DollarSign className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="wholesale_price" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Wholesale Price")}
                                                 </Label>
                                                 <Input
@@ -211,7 +211,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                     value={data.wholesale_price}
                                                     placeholder="0.00"
                                                     onChange={(e) => setData("wholesale_price", e.target.value)}
-                                                    className="transition-all duration-200 focus:ring-2 focus:ring-green-500/20"
+                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 dark:focus:ring-green-400/20"
                                                 />
                                                 {errors.wholesale_price && (
                                                     <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -224,8 +224,8 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="retail_price" className="flex items-center gap-2 text-sm font-medium">
-                                                    <DollarSign className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="retail_price" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Retail Price")}
                                                 </Label>
                                                 <Input
@@ -235,7 +235,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                     value={data.retail_price}
                                                     placeholder="0.00"
                                                     onChange={(e) => setData("retail_price", e.target.value)}
-                                                    className="transition-all duration-200 focus:ring-2 focus:ring-green-500/20"
+                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 dark:focus:ring-green-400/20"
                                                 />
                                                 {errors.retail_price && (
                                                     <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -251,9 +251,9 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                 </Card>
 
                                 {/* Unit Configuration */}
-                                <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
-                                        <CardTitle className="flex items-center gap-3 text-lg">
+                                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                    <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                                        <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white">
                                             <Scale className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                                             {t("Unit Configuration")}
                                         </CardTitle>
@@ -261,20 +261,20 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                     <CardContent className="p-6 space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="wholesale_unit_id" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Scale className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="wholesale_unit_id" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Scale className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Wholesale Unit")}
                                                 </Label>
                                                 <Select
                                                     value={data.wholesale_unit_id}
                                                     onValueChange={(value) => setData("wholesale_unit_id", value)}
                                                 >
-                                                    <SelectTrigger className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20">
+                                                    <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-purple-500/20 dark:focus:ring-purple-400/20">
                                                         <SelectValue placeholder={t("Select wholesale unit")} />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                                                         {units.map((unit) => (
-                                                            <SelectItem key={unit.id} value={unit.id.toString()}>
+                                                            <SelectItem key={unit.id} value={unit.id.toString()} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                                                                 {unit.name}
                                                             </SelectItem>
                                                         ))}
@@ -291,20 +291,20 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="retail_unit_id" className="flex items-center gap-2 text-sm font-medium">
-                                                    <Scale className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="retail_unit_id" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Scale className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Retail Unit")}
                                                 </Label>
                                                 <Select
                                                     value={data.retail_unit_id}
                                                     onValueChange={(value) => setData("retail_unit_id", value)}
                                                 >
-                                                    <SelectTrigger className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20">
+                                                    <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-purple-500/20 dark:focus:ring-purple-400/20">
                                                         <SelectValue placeholder={t("Select retail unit")} />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                                                         {units.map((unit) => (
-                                                            <SelectItem key={unit.id} value={unit.id.toString()}>
+                                                            <SelectItem key={unit.id} value={unit.id.toString()} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                                                                 {unit.name}
                                                             </SelectItem>
                                                         ))}
@@ -323,8 +323,8 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="whole_sale_unit_amount" className="flex items-center gap-2 text-sm font-medium">
-                                                    <DollarSign className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="whole_sale_unit_amount" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Wholesale Unit Amount")}
                                                 </Label>
                                                 <Input
@@ -334,7 +334,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                     value={data.whole_sale_unit_amount}
                                                     placeholder="0.00"
                                                     onChange={(e) => setData("whole_sale_unit_amount", e.target.value)}
-                                                    className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20"
+                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-purple-500/20 dark:focus:ring-purple-400/20"
                                                 />
                                                 {errors.whole_sale_unit_amount && (
                                                     <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -347,8 +347,8 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <Label htmlFor="retails_sale_unit_amount" className="flex items-center gap-2 text-sm font-medium">
-                                                    <DollarSign className="h-4 w-4 text-gray-500" />
+                                                <Label htmlFor="retails_sale_unit_amount" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Retail Unit Amount")}
                                                 </Label>
                                                 <Input
@@ -358,7 +358,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                     value={data.retails_sale_unit_amount}
                                                     placeholder="0.00"
                                                     onChange={(e) => setData("retails_sale_unit_amount", e.target.value)}
-                                                    className="transition-all duration-200 focus:ring-2 focus:ring-purple-500/20"
+                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-purple-500/20 dark:focus:ring-purple-400/20"
                                                 />
                                                 {errors.retails_sale_unit_amount && (
                                                     <div className="flex items-center gap-2 text-red-600 text-sm">
@@ -374,16 +374,16 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                 </Card>
 
                                 {/* Status Configuration */}
-                                <Card className="shadow-sm hover:shadow-md transition-shadow duration-200">
-                                    <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20">
-                                        <CardTitle className="flex items-center gap-3 text-lg">
+                                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                    <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                                        <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white">
                                             <Activity className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                                             {t("Status Configuration")}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="p-6 space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-200 dark:border-gray-600">
                                                 <Checkbox
                                                     id="is_activated"
                                                     checked={data.is_activated}
@@ -392,13 +392,13 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                 />
                                                 <Label
                                                     htmlFor="is_activated"
-                                                    className="text-sm font-medium cursor-pointer flex-1"
+                                                    className="text-sm font-medium cursor-pointer flex-1 text-gray-700 dark:text-gray-300"
                                                 >
                                                     {t("Product is Activated")}
                                                 </Label>
                                             </div>
 
-                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-200 dark:border-gray-600">
                                                 <Checkbox
                                                     id="is_in_stock"
                                                     checked={data.is_in_stock}
@@ -407,13 +407,13 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                 />
                                                 <Label
                                                     htmlFor="is_in_stock"
-                                                    className="text-sm font-medium cursor-pointer flex-1"
+                                                    className="text-sm font-medium cursor-pointer flex-1 text-gray-700 dark:text-gray-300"
                                                 >
                                                     {t("Product is in Stock")}
                                                 </Label>
                                             </div>
 
-                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-200 dark:border-gray-600">
                                                 <Checkbox
                                                     id="is_shipped"
                                                     checked={data.is_shipped}
@@ -422,13 +422,13 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                 />
                                                 <Label
                                                     htmlFor="is_shipped"
-                                                    className="text-sm font-medium cursor-pointer flex-1"
+                                                    className="text-sm font-medium cursor-pointer flex-1 text-gray-700 dark:text-gray-300"
                                                 >
                                                     {t("Product is Shipped")}
                                                 </Label>
                                             </div>
 
-                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-200 dark:border-gray-600">
                                                 <Checkbox
                                                     id="is_trend"
                                                     checked={data.is_trend}
@@ -437,7 +437,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                 />
                                                 <Label
                                                     htmlFor="is_trend"
-                                                    className="text-sm font-medium cursor-pointer flex-1"
+                                                    className="text-sm font-medium cursor-pointer flex-1 text-gray-700 dark:text-gray-300"
                                                 >
                                                     {t("Product is Trending")}
                                                 </Label>
@@ -452,7 +452,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            className="px-6 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                                            className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
                                         >
                                             {t("Cancel")}
                                         </Button>
@@ -461,7 +461,7 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                         <Button
                                             type="submit"
                                             disabled={processing}
-                                            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200"
                                         >
                                             <Save className="h-4 w-4 mr-2" />
                                             {processing ? t("Updating...") : t("Update Product")}

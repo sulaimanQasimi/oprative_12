@@ -120,7 +120,7 @@ export default function Create({ auth, permissions = {} }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 overflow-hidden"
             >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.units" />
@@ -132,10 +132,11 @@ export default function Create({ auth, permissions = {} }) {
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-gray-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm"
                     >
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
+                        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+                            <div className="flex items-center justify-between py-4">
+                                <div className="flex items-center space-x-6">
                                 <motion.div
                                     initial={{
                                         scale: 0.8,
@@ -155,25 +156,26 @@ export default function Create({ auth, permissions = {} }) {
                                     }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
-                                        <Package className="w-8 h-8 text-white" />
-                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
+                                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-xl blur opacity-75 dark:opacity-50"></div>
+                                        <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 dark:from-indigo-700 dark:via-purple-700 dark:to-indigo-700 p-3 rounded-xl shadow-lg">
+                                            <Package className="w-6 h-6 text-white" />
                                     </div>
                                 </motion.div>
-                                <div>
-                                    <motion.p
+                                    <div className="space-y-1">
+                                        <motion.div
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{
                                             delay: 0.4,
                                             duration: 0.4,
                                         }}
-                                        className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1 flex items-center gap-2"
+                                            className="flex items-center gap-2"
                                     >
-                                        <Sparkles className="w-4 h-4" />
-                                        {t("Create Unit")}
-                                    </motion.p>
+                                            <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                            <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">
+                                                {t("Unit Management")}
+                                            </span>
+                                        </motion.div>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
@@ -181,24 +183,24 @@ export default function Create({ auth, permissions = {} }) {
                                             delay: 0.5,
                                             duration: 0.4,
                                         }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
+                                            className="text-2xl font-bold text-gray-900 dark:text-white"
                                     >
-                                        {t("New Measurement Unit")}
+                                            {t("Create Unit")}
                                     </motion.h1>
-                                    <motion.p
+                                        <motion.div
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{
                                             delay: 0.6,
                                             duration: 0.4,
                                         }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
+                                            className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
                                     >
                                         <Package className="w-4 h-4" />
                                         {t(
                                             "Create a new measurement unit for your inventory system"
                                         )}
-                                    </motion.p>
+                                        </motion.div>
                                 </div>
                             </div>
 
@@ -211,19 +213,20 @@ export default function Create({ auth, permissions = {} }) {
                                 <Link href={route("admin.units.index")}>
                                     <Button
                                         variant="outline"
-                                        className="gap-2 hover:scale-105 transition-all duration-200 border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                                            className="gap-2 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-400 dark:hover:border-slate-500"
                                     >
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Units")}
                                     </Button>
                                 </Link>
                             </motion.div>
+                            </div>
                         </div>
                     </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-700 scrollbar-track-transparent">
-                        <div className="p-8">
+                    <main className="flex-1 overflow-auto bg-gray-50 dark:bg-slate-900">
+                        <div className="container mx-auto px-6 py-8">
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
@@ -243,27 +246,33 @@ export default function Create({ auth, permissions = {} }) {
                                             duration: 0.5,
                                         }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
-                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
-                                                        <Package className="h-6 w-6 text-white" />
+                                        <Card className="bg-white dark:bg-slate-800 shadow-lg border border-gray-200 dark:border-slate-700">
+                                            <CardHeader className="bg-gray-50 dark:bg-slate-700 px-6 py-4 border-b border-gray-200 dark:border-slate-600">
+                                                <CardTitle className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                                            <Package className="h-5 w-5 text-white" />
+                                                        </div>
+                                                        <div>
+                                                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                                {t("Unit Details")}
+                                                            </h2>
+                                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                                {t(
+                                                                    "Enter the details for the new measurement unit"
+                                                                )}
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                    {t("Unit Details")}
                                                     <Badge
                                                         variant="secondary"
-                                                        className="ml-auto bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300"
+                                                        className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800"
                                                     >
                                                         {t("Required")}
                                                     </Badge>
                                                 </CardTitle>
-                                                <CardDescription className="text-slate-600 dark:text-slate-400">
-                                                    {t(
-                                                        "Enter the details for the new measurement unit"
-                                                    )}
-                                                </CardDescription>
                                             </CardHeader>
-                                            <CardContent className="p-8 space-y-8">
+                                            <CardContent className="px-6 py-8 space-y-8">
                                                 {/* Error Alert */}
                                                 <AnimatePresence>
                                                     {Object.keys(errors)
@@ -282,8 +291,8 @@ export default function Create({ auth, permissions = {} }) {
                                                                 y: -10,
                                                             }}
                                                         >
-                                                            <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 pulse-glow">
-                                                                <AlertCircle className="h-5 w-5 text-red-600" />
+                                                            <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800">
+                                                                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
                                                                 <AlertDescription className="text-red-700 dark:text-red-400 font-medium">
                                                                     {t(
                                                                         "Please correct the errors below and try again."
@@ -313,13 +322,11 @@ export default function Create({ auth, permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="name"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
                                                         >
-                                                            <Package className="w-5 h-5 text-indigo-500" />
+                                                            <Package className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                             {t("Name")} *
                                                         </Label>
-                                                        <div className="relative">
-                                                            <Package className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                                             <Input
                                                                 id="name"
                                                                 type="text"
@@ -336,13 +343,12 @@ export default function Create({ auth, permissions = {} }) {
                                                                             .value
                                                                     )
                                                                 }
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${
+                                                            className={`h-11 transition-all duration-200 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
                                                                     errors.name
-                                                                        ? "border-red-500 ring-2 ring-red-200"
-                                                                        : "border-slate-200 hover:border-indigo-300 focus:border-indigo-500"
-                                                                } bg-white dark:bg-slate-800`}
+                                                                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                    : "border-gray-300 dark:border-slate-600 focus:border-indigo-500 focus:ring-indigo-500/20"
+                                                            }`}
                                                             />
-                                                        </div>
                                                         {errors.name && (
                                                             <motion.p
                                                                 initial={{
@@ -351,7 +357,7 @@ export default function Create({ auth, permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {errors.name}
@@ -377,19 +383,17 @@ export default function Create({ auth, permissions = {} }) {
                                                     >
                                                         <Label
                                                             htmlFor="code"
-                                                            className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                            className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
                                                         >
-                                                            <Hash className="w-5 h-5 text-blue-500" />
+                                                            <Hash className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                                                             {t("Code")}
                                                             <Badge
                                                                 variant="secondary"
-                                                                className="text-xs"
+                                                                className="text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
                                                             >
                                                                 {t("Optional")}
                                                             </Badge>
                                                         </Label>
-                                                        <div className="relative">
-                                                            <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                                             <Input
                                                                 id="code"
                                                                 type="text"
@@ -406,13 +410,12 @@ export default function Create({ auth, permissions = {} }) {
                                                                             .value
                                                                     )
                                                                 }
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${
+                                                            className={`h-11 transition-all duration-200 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
                                                                     errors.code
-                                                                        ? "border-red-500 ring-2 ring-red-200"
-                                                                        : "border-slate-200 hover:border-blue-300 focus:border-blue-500"
-                                                                } bg-white dark:bg-slate-800`}
+                                                                    ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                    : "border-gray-300 dark:border-slate-600 focus:border-blue-500 focus:ring-blue-500/20"
+                                                            }`}
                                                             />
-                                                        </div>
                                                         {errors.code && (
                                                             <motion.p
                                                                 initial={{
@@ -421,7 +424,7 @@ export default function Create({ auth, permissions = {} }) {
                                                                 animate={{
                                                                     opacity: 1,
                                                                 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                                className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {errors.code}
@@ -448,19 +451,17 @@ export default function Create({ auth, permissions = {} }) {
                                                 >
                                                     <Label
                                                         htmlFor="symbol"
-                                                        className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2"
+                                                        className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
                                                     >
-                                                        <Star className="w-5 h-5 text-purple-500" />
+                                                        <Star className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                                                         {t("Symbol")}
                                                         <Badge
                                                             variant="secondary"
-                                                            className="text-xs"
+                                                            className="text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
                                                         >
                                                             {t("Optional")}
                                                         </Badge>
                                                     </Label>
-                                                    <div className="relative">
-                                                        <Star className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                                         <Input
                                                             id="symbol"
                                                             type="text"
@@ -475,13 +476,12 @@ export default function Create({ auth, permissions = {} }) {
                                                                         .value
                                                                 )
                                                             }
-                                                            className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${
+                                                        className={`h-11 transition-all duration-200 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
                                                                 errors.symbol
-                                                                    ? "border-red-500 ring-2 ring-red-200"
-                                                                    : "border-slate-200 hover:border-purple-300 focus:border-purple-500"
-                                                            } bg-white dark:bg-slate-800`}
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "border-gray-300 dark:border-slate-600 focus:border-purple-500 focus:ring-purple-500/20"
+                                                        }`}
                                                         />
-                                                    </div>
                                                     {errors.symbol && (
                                                         <motion.p
                                                             initial={{
@@ -490,7 +490,7 @@ export default function Create({ auth, permissions = {} }) {
                                                             animate={{
                                                                 opacity: 1,
                                                             }}
-                                                            className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
                                                         >
                                                             <AlertCircle className="w-4 h-4" />
                                                             {errors.symbol}
@@ -507,9 +507,9 @@ export default function Create({ auth, permissions = {} }) {
                                                         duration: 0.4,
                                                     }}
                                                 >
-                                                    <Alert className="border-indigo-200 bg-indigo-50 dark:bg-indigo-900/20">
-                                                        <Info className="h-5 w-5 text-indigo-600" />
-                                                        <AlertDescription className="text-indigo-700 dark:text-indigo-400 font-medium">
+                                                    <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800">
+                                                        <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                                        <AlertDescription className="text-blue-700 dark:text-blue-400 font-medium">
                                                             <strong>
                                                                 {t("Tip")}:
                                                             </strong>{" "}
@@ -531,34 +531,47 @@ export default function Create({ auth, permissions = {} }) {
                                             delay: 1.4,
                                             duration: 0.4,
                                         }}
-                                        className="flex justify-end space-x-6 pt-6"
+                                        className="bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700 p-6"
                                     >
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                    {t("Create Unit")}
+                                                </h3>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                    {t("Review the information and create the new unit")}
+                                                </p>
+                                            </div>
+                                            <div className="flex space-x-3">
                                         <Link href={route("admin.units.index")}>
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200"
+                                                        className="gap-2 px-6 py-2 h-10 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-400 dark:hover:border-slate-500"
                                             >
+                                                        <ArrowLeft className="h-4 w-4" />
                                                 {t("Cancel")}
                                             </Button>
                                         </Link>
                                         <Button
                                             type="submit"
                                             disabled={processing}
-                                            className={`px-8 py-4 text-lg shadow-2xl transition-all duration-200 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 hover:scale-105 hover:shadow-3xl text-white`}
+                                                    className="gap-2 px-6 py-2 h-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                             {processing ? (
                                                 <>
-                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                                     {t("Creating...")}
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Save className="h-5 w-5 mr-3" />
+                                                            <Save className="h-4 w-4" />
                                                     {t("Create Unit")}
                                                 </>
                                             )}
                                         </Button>
+                                            </div>
+                                        </div>
                                     </motion.div>
                                 </form>
                             </motion.div>

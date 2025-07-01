@@ -538,145 +538,160 @@ export default function Index({
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                        <TableRow className="bg-gray-50 dark:bg-slate-800/50 border-b border-gray-200 dark:border-slate-700">
                                                             <TableHead 
-                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                className="cursor-pointer hover:text-green-600 transition-colors py-4 px-6 font-semibold text-gray-700 dark:text-gray-200"
                                                                 onClick={() => handleSort("name")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <Package className="h-4 w-4" />
+                                                                    <Package className="h-4 w-4 text-green-600" />
                                                                     {t("Product")}
                                                                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
                                                             </TableHead>
                                                             <TableHead 
-                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                className="cursor-pointer hover:text-green-600 transition-colors py-4 px-6 font-semibold text-gray-700 dark:text-gray-200"
                                                                 onClick={() => handleSort("type")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <Tag className="h-4 w-4" />
+                                                                    <Tag className="h-4 w-4 text-green-600" />
                                                                     {t("Type")}
                                                                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
                                                             </TableHead>
                                                             <TableHead 
-                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                className="cursor-pointer hover:text-green-600 transition-colors py-4 px-6 font-semibold text-gray-700 dark:text-gray-200"
                                                                 onClick={() => handleSort("barcode")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <Barcode className="h-4 w-4" />
+                                                                    <Barcode className="h-4 w-4 text-green-600" />
                                                                     {t("Barcode")}
                                                                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
                                                             </TableHead>
                                                             <TableHead 
-                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                className="cursor-pointer hover:text-green-600 transition-colors py-4 px-6 font-semibold text-gray-700 dark:text-gray-200"
                                                                 onClick={() => handleSort("purchase_price")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <DollarSign className="h-4 w-4" />
+                                                                    <DollarSign className="h-4 w-4 text-green-600" />
                                                                     {t("Purchase")}
                                                                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
                                                             </TableHead>
                                                             <TableHead 
-                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                className="cursor-pointer hover:text-green-600 transition-colors py-4 px-6 font-semibold text-gray-700 dark:text-gray-200"
                                                                 onClick={() => handleSort("retail_price")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <ShoppingCart className="h-4 w-4" />
+                                                                    <ShoppingCart className="h-4 w-4 text-green-600" />
                                                                     {t("Retail")}
                                                                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
                                                             </TableHead>
                                                             <TableHead 
-                                                                className="cursor-pointer hover:text-green-600 transition-colors"
+                                                                className="cursor-pointer hover:text-green-600 transition-colors py-4 px-6 font-semibold text-gray-700 dark:text-gray-200"
                                                                 onClick={() => handleSort("whole_sale_unit_amount")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <Package className="h-4 w-4" />
+                                                                    <Package className="h-4 w-4 text-green-600" />
                                                                     {t("Wholesale Unit")}
                                                                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
                                                             </TableHead>
-                                                            <TableHead>{t("Actions")}</TableHead>
+                                                            <TableHead className="py-4 px-6 font-semibold text-gray-700 dark:text-gray-200 text-right">
+                                                                <div className="flex items-center justify-end gap-2">
+                                                                    <Settings className="h-4 w-4 text-green-600" />
+                                                                    {t("Actions")}
+                                                                </div>
+                                                            </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
                                                         {products.data.length > 0 ? (
                                                             products.data.map((product) => (
-                                                                <TableRow key={product.id} className="hover:bg-green-50 dark:hover:bg-green-900/10">
-                                                                    <TableCell>
-                                                                        <div className="flex items-center gap-3">
-                                                                            <Package className="h-4 w-4 text-blue-600" />
+                                                                <TableRow key={product.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/30 transition-all duration-200 border-b border-gray-100 dark:border-slate-700">
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <div className="flex items-center gap-4">
+                                                                            <div className="p-3 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-xl shadow-sm">
+                                                                                <Package className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                                                            </div>
                                                                             <div>
-                                                                                <div className="font-bold text-slate-900 dark:text-white">
+                                                                                <div className="font-semibold text-gray-900 dark:text-white text-base mb-1">
                                                                                     {product.name}
                                                                                 </div>
-                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                                                <div className="text-sm text-gray-500 dark:text-gray-400">
                                                                                     {product.wholesaleUnit?.name} / {product.retailUnit?.name}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <Badge variant="outline" className="bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600">
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200 dark:bg-slate-800 dark:text-gray-300 dark:border-slate-600 px-3 py-2 text-sm font-medium">
                                                                             {product.type}
                                                                         </Badge>
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="font-mono text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <div className="font-mono text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-slate-800 px-3 py-2 rounded-lg">
                                                                             {product.barcode || "—"}
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-slate-900 dark:text-white">
+                                                                    <TableCell className="py-4 px-6 font-bold text-gray-900 dark:text-white">
                                                                         ${parseFloat(product.purchase_price || 0).toLocaleString()}
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-green-600 dark:text-green-400">
+                                                                    <TableCell className="py-4 px-6 font-bold text-green-600 dark:text-green-400">
                                                                         ${parseFloat(product.retail_price || 0).toLocaleString()}
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-blue-600 dark:text-blue-400">
+                                                                    <TableCell className="py-4 px-6 font-bold text-blue-600 dark:text-blue-400">
                                                                         {product.whole_sale_unit_amount
                                                                             ? `${parseFloat(product.whole_sale_unit_amount).toLocaleString()} ${product.wholesaleUnit?.name || ""}`
                                                                             : "—"}
                                                                     </TableCell>
-                                                                    <TableCell>
-                                                                        <div className="flex items-center gap-2">
+                                                                    <TableCell className="py-4 px-6 text-right">
+                                                                        <div className="flex items-center justify-end gap-3">
                                                                             {!product.deleted_at && permissions.view_product && (
                                                                                 <Link href={route("admin.products.edit", product.id)}>
-                                                                                    <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                                                                                        <Edit className="h-4 w-4 text-green-600" />
+                                                                                    <Button 
+                                                                                        size="default" 
+                                                                                        variant="outline" 
+                                                                                        className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-blue-500 dark:hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
+                                                                                        title={t("Edit Product")}
+                                                                                    >
+                                                                                        <Edit className="h-7 w-7 text-blue-600 dark:text-blue-400" />
                                                                                     </Button>
                                                                                 </Link>
                                                                             )}
                                                                             {!product.deleted_at && permissions.delete_product && (
                                                                                 <Button
-                                                                                    size="sm"
+                                                                                    size="default"
                                                                                     variant="outline"
-                                                                                    className="h-8 w-8 p-0"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-red-500 dark:hover:border-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     onClick={() => handleDelete(product.id)}
+                                                                                    title={t("Delete Product")}
                                                                                 >
-                                                                                    <Trash2 className="h-4 w-4 text-red-600" />
+                                                                                    <Trash2 className="h-7 w-7 text-red-600 dark:text-red-400" />
                                                                                 </Button>
                                                                             )}
                                                                             {product.deleted_at && permissions.restore_product && (
                                                                                 <Button
-                                                                                    size="sm"
+                                                                                    size="default"
                                                                                     variant="outline"
-                                                                                    className="h-8 w-8 p-0"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-green-500 dark:hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     onClick={() => handleRestore(product.id)}
+                                                                                    title={t("Restore Product")}
                                                                                 >
-                                                                                    <RotateCcw className="h-4 w-4 text-green-600" />
+                                                                                    <RotateCcw className="h-7 w-7 text-green-600 dark:text-green-400" />
                                                                                 </Button>
                                                                             )}
                                                                             {product.deleted_at && permissions.force_delete_product && (
                                                                                 <Button
-                                                                                    size="sm"
+                                                                                    size="default"
                                                                                     variant="outline"
-                                                                                    className="h-8 w-8 p-0"
+                                                                                    className="h-12 w-12 p-0 border-gray-300 dark:border-slate-600 hover:border-red-600 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                                     onClick={() => handleForceDelete(product.id)}
+                                                                                    title={t("Permanently Delete Product")}
                                                                                 >
-                                                                                    <XOctagon className="h-4 w-4 text-red-800" />
+                                                                                    <XOctagon className="h-7 w-7 text-red-700 dark:text-red-500" />
                                                                                 </Button>
                                                                             )}
                                                                         </div>

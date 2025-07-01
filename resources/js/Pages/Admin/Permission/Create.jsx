@@ -8,6 +8,7 @@ import { Input } from "@/Components/ui/input";
 import { Label } from "@/Components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/Components/ui/select";
 import Navigation from "@/Components/Admin/Navigation";
+import BackButton from "@/Components/BackButton";
 
 export default function CreatePermission({ auth }) {
     const { t } = useLaravelReactI18n();
@@ -45,12 +46,7 @@ export default function CreatePermission({ auth }) {
                                 </div>
                             </div>
 
-                            <Link href={route("admin.permissions.index")}>
-                                <Button variant="outline" className="gap-2">
-                                    <ArrowLeft className="h-4 w-4" />
-                                    {t("Back to Permissions")}
-                                </Button>
-                            </Link>
+                         <BackButton className="dark:text-white text-black" link={route("admin.permissions.index")}/>
                         </div>
                     </header>
 
@@ -62,7 +58,7 @@ export default function CreatePermission({ auth }) {
                                     {t("Permission Details")}
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6">
+                            <CardContent className="p-6 dark:text-white">
                                 <form onSubmit={submit} className="space-y-6">
                                     <div className="space-y-2">
                                         <Label htmlFor="name">{t("Permission Name")}</Label>
@@ -97,7 +93,7 @@ export default function CreatePermission({ auth }) {
                                     </div>
 
                                     <div className="flex items-center justify-end space-x-4 pt-6">
-                                        <Link href={route("admin.permissions.index")}>
+                                        <Link className="dark:text-white" href={route("admin.permissions.index")}>
                                             <Button type="button" variant="outline">
                                                 {t("Cancel")}
                                             </Button>

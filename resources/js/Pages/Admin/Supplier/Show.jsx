@@ -194,47 +194,59 @@ export default function Show({ auth, supplier, purchases, payments, summary, per
                                 </div>
                             </div>
 
-                            <motion.div
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-5"
-                            >
+                            <div className="flex items-center space-x-3">
                                 {permissions.view_supplier && (
                                     <Link href={route('admin.suppliers.activity-log', supplier.id)}>
-                                        <Button className="relative group bg-gradient-to-r from-sky-500 via-cyan-500 to-blue-500 hover:from-sky-600 hover:via-cyan-600 hover:to-blue-600 text-white shadow-2xl hover:shadow-sky-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm">
-                                            <Clock className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                        <Button 
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-10 px-4 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                                        >
+                                            <Clock className="h-4 w-4 mr-2" />
+                                            {t("Activity Log")}
                                         </Button>
                                     </Link>
                                 )}
 
                                 {permissions.can_update && (
                                     <Link href={route('admin.suppliers.edit', supplier.id)}>
-                                        <Button className="relative group bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm">
-                                            <Edit className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                        <Button 
+                                            size="sm"
+                                            className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200"
+                                        >
+                                            <Edit className="h-4 w-4 mr-2" />
+                                            {t("Edit")}
                                         </Button>
                                     </Link>
                                 )}
 
                                 {permissions.can_delete && (
                                     <Button 
+                                        size="sm"
+                                        variant="outline"
                                         onClick={() => {
                                             if (confirm(t('Are you sure you want to delete this supplier?'))) {
                                                 router.delete(route('admin.suppliers.destroy', supplier.id));
                                             }
                                         }}
-                                        className="relative group bg-gradient-to-r from-rose-500 via-pink-500 to-red-500 hover:from-rose-600 hover:via-pink-600 hover:to-red-600 text-white shadow-2xl hover:shadow-rose-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm"
+                                        className="h-10 px-4 border-red-300 dark:border-red-600 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
                                     >
-                                        <Trash2 className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        {t("Delete")}
                                     </Button>
                                 )}
 
                                 <Link href={route('admin.suppliers.index')}>
-                                    <Button className="relative group bg-gradient-to-r from-indigo-500 via-purple-500 to-violet-500 hover:from-indigo-600 hover:via-purple-600 hover:to-violet-600 text-white shadow-2xl hover:shadow-indigo-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm">
-                                        <ArrowLeft className="h-5 w-5 relative z-10 group-hover:-translate-x-1 transition-transform duration-300" />
+                                    <Button 
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-10 px-4 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                                    >
+                                        <ArrowLeft className="h-4 w-4 mr-2" />
+                                        {t("Back")}
                                     </Button>
                                 </Link>
-                            </motion.div>
+                            </div>
                         </div>
                     </motion.header>
 
@@ -340,57 +352,59 @@ export default function Show({ auth, supplier, purchases, payments, summary, per
                                     </TabsContent>
 
                                     <TabsContent value="purchases" className="space-y-6">
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
-                                                <div className="flex items-center justify-between">
-                                                    <CardTitle className="flex items-center gap-3 text-lg">
-                                                        <ShoppingBag className="h-5 w-5 text-blue-600" />
-                                                        {t("Purchase History")}
-                                                        <Badge variant="secondary" className="ml-auto">
-                                                            {purchases.total} {t("purchases")}
-                                                        </Badge>
-                                                    </CardTitle>
-                                                </div>
+                                        <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                            <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                                                <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white">
+                                                    <ShoppingBag className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                                    {t("Purchase History")}
+                                                    <Badge className="bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800 ml-auto">
+                                                        {purchases.total} {t("purchases")}
+                                                    </Badge>
+                                                </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-0">
                                                 <div className="overflow-x-auto">
                                                     <Table>
                                                         <TableHeader>
-                                                            <TableRow>
-                                                                <TableHead>{t("Invoice Number")}</TableHead>
-                                                                <TableHead>{t("Date")}</TableHead>
-                                                                <TableHead>{t("Total Amount")}</TableHead>
-                                                                <TableHead>{t("Paid Amount")}</TableHead>
-                                                                <TableHead>{t("Status")}</TableHead>
-                                                                <TableHead>{t("Actions")}</TableHead>
+                                                            <TableRow className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Invoice Number")}</TableHead>
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Date")}</TableHead>
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Total Amount")}</TableHead>
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Paid Amount")}</TableHead>
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Status")}</TableHead>
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Actions")}</TableHead>
                                                             </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
                                                             {purchases.data?.length > 0 ? (
                                                                 purchases.data.map((purchase) => (
-                                                                    <TableRow key={purchase.id} className="hover:bg-blue-50/50 dark:hover:bg-blue-900/10">
-                                                                        <TableCell>
+                                                                    <TableRow key={purchase.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                                                                        <TableCell className="py-4">
                                                                             <div className="flex items-center gap-3">
-                                                                                <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                                                                                    <FileText className="h-5 w-5 text-slate-500" />
+                                                                                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                                                                    <FileText className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                                                                                 </div>
                                                                                 <div>
-                                                                                    <p className="font-semibold">{purchase.invoice_number}</p>
-                                                                                    <p className="text-xs text-slate-500">ID: {purchase.id}</p>
+                                                                                    <p className="font-semibold text-gray-900 dark:text-white text-sm">{purchase.invoice_number}</p>
+                                                                                    <p className="text-xs text-gray-500 dark:text-gray-400">ID: {purchase.id}</p>
                                                                                 </div>
                                                                             </div>
                                                                         </TableCell>
-                                                                        <TableCell className="text-sm text-slate-500">
+                                                                        <TableCell className="py-4 text-sm text-gray-600 dark:text-gray-400">
                                                                             {formatDate(purchase.invoice_date)}
                                                                         </TableCell>
-                                                                        <TableCell className="font-bold text-green-600 font-mono">{formatCurrency(purchase.total_amount)}</TableCell>
-                                                                        <TableCell className="font-bold text-blue-600 font-mono">{formatCurrency(purchase.paid_amount)}</TableCell>
-                                                                        <TableCell>{getStatusBadge(purchase.status)}</TableCell>
-                                                                        <TableCell>
+                                                                        <TableCell className="py-4 font-bold text-green-600 dark:text-green-400 font-mono text-sm">
+                                                                            {formatCurrency(purchase.total_amount)}
+                                                                        </TableCell>
+                                                                        <TableCell className="py-4 font-bold text-blue-600 dark:text-blue-400 font-mono text-sm">
+                                                                            {formatCurrency(purchase.paid_amount)}
+                                                                        </TableCell>
+                                                                        <TableCell className="py-4">{getStatusBadge(purchase.status)}</TableCell>
+                                                                        <TableCell className="py-4">
                                                                             <div className="flex items-center gap-2">
                                                                                 <Link href={route('admin.purchases.show', purchase.id)}>
-                                                                                    <Button size="icon" variant="ghost" className="h-8 w-8 hover:bg-blue-100">
-                                                                                        <Eye className="h-4 w-4 text-blue-600" />
+                                                                                    <Button size="sm" variant="outline" className="h-10 w-10 p-0 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
+                                                                                        <Eye className="h-5 w-5 text-gray-600 dark:text-gray-400" />
                                                                                     </Button>
                                                                                 </Link>
                                                                             </div>
@@ -401,12 +415,12 @@ export default function Show({ auth, supplier, purchases, payments, summary, per
                                                                 <TableRow>
                                                                     <TableCell colSpan="6" className="h-48 text-center">
                                                                         <div className="flex flex-col items-center gap-4">
-                                                                            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                                                <ShoppingBag className="h-8 w-8 text-slate-400" />
+                                                                            <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-full">
+                                                                                <ShoppingBag className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                                                                             </div>
                                                                             <div>
-                                                                                <p className="font-medium">{t("No purchases found")}</p>
-                                                                                <p className="text-sm text-slate-500">{t("This supplier has no purchase history yet.")}</p>
+                                                                                <p className="font-medium text-gray-900 dark:text-white">{t("No purchases found")}</p>
+                                                                                <p className="text-sm text-gray-500 dark:text-gray-400">{t("This supplier has no purchase history yet.")}</p>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
@@ -418,22 +432,22 @@ export default function Show({ auth, supplier, purchases, payments, summary, per
 
                                                 {/* Pagination */}
                                                 {purchases.last_page > 1 && (
-                                                    <div className="p-6 border-t border-slate-200 dark:border-slate-700">
+                                                    <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                                                         <div className="flex items-center justify-between">
-                                                            <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                            <div className="text-sm text-gray-600 dark:text-gray-400">
                                                                 {t("Showing")} {purchases.from} {t("to")} {purchases.to} {t("of")} {purchases.total} {t("results")}
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 {purchases.prev_page_url && (
                                                                     <Link href={purchases.prev_page_url} preserveState>
-                                                                        <Button variant="outline" size="sm">
+                                                                        <Button variant="outline" size="sm" className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                                                                             {t("Previous")}
                                                                         </Button>
                                                                     </Link>
                                                                 )}
                                                                 {purchases.next_page_url && (
                                                                     <Link href={purchases.next_page_url} preserveState>
-                                                                        <Button variant="outline" size="sm">
+                                                                        <Button variant="outline" size="sm" className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                                                                             {t("Next")}
                                                                         </Button>
                                                                     </Link>
@@ -447,61 +461,61 @@ export default function Show({ auth, supplier, purchases, payments, summary, per
                                     </TabsContent>
 
                                     <TabsContent value="payments" className="space-y-6">
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
-                                                <div className="flex items-center justify-between">
-                                                    <CardTitle className="flex items-center gap-3 text-lg">
-                                                        <CreditCard className="h-5 w-5 text-purple-600" />
-                                                        {t("Payment History")}
-                                                        <Badge variant="secondary" className="ml-auto">
-                                                            {payments.total} {t("payments")}
-                                                        </Badge>
-                                                    </CardTitle>
-                                                </div>
+                                        <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
+                                            <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                                                <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white">
+                                                    <CreditCard className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                                                    {t("Payment History")}
+                                                    <Badge className="bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800 ml-auto">
+                                                        {payments.total} {t("payments")}
+                                                    </Badge>
+                                                </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-0">
                                                 <div className="overflow-x-auto">
                                                     <Table>
                                                         <TableHeader>
-                                                            <TableRow>
-                                                                <TableHead>{t("Amount")}</TableHead>
-                                                                <TableHead>{t("Payment Method")}</TableHead>
-                                                                <TableHead>{t("Reference")}</TableHead>
-                                                                <TableHead>{t("Payment Date")}</TableHead>
-                                                                <TableHead>{t("Notes")}</TableHead>
+                                                            <TableRow className="bg-gray-50 dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800">
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Amount")}</TableHead>
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Payment Method")}</TableHead>
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Reference")}</TableHead>
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Payment Date")}</TableHead>
+                                                                <TableHead className="font-semibold text-gray-900 dark:text-white py-4">{t("Notes")}</TableHead>
                                                             </TableRow>
                                                         </TableHeader>
                                                         <TableBody>
                                                             {payments.data?.length > 0 ? (
                                                                 payments.data.map((payment) => (
-                                                                    <TableRow key={payment.id} className="hover:bg-purple-50/50 dark:hover:bg-purple-900/10">
-                                                                        <TableCell className="font-bold text-green-600 font-mono">{formatCurrency(payment.amount)}</TableCell>
-                                                                        <TableCell>
+                                                                    <TableRow key={payment.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                                                                        <TableCell className="py-4 font-bold text-green-600 dark:text-green-400 font-mono text-sm">
+                                                                            {formatCurrency(payment.amount)}
+                                                                        </TableCell>
+                                                                        <TableCell className="py-4">
                                                                             <div className="flex items-center gap-3">
-                                                                                <div className="p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
-                                                                                    <CreditCard className="h-5 w-5 text-slate-500" />
+                                                                                <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                                                                                    <CreditCard className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                                                                                 </div>
                                                                                 <div>
-                                                                                    <p className="font-semibold capitalize">{payment.payment_method?.replace('_', ' ')}</p>
+                                                                                    <p className="font-semibold text-gray-900 dark:text-white capitalize text-sm">{payment.payment_method?.replace('_', ' ')}</p>
                                                                                     {payment.bank_name && (
-                                                                                        <p className="text-xs text-slate-500">{payment.bank_name}</p>
+                                                                                        <p className="text-xs text-gray-500 dark:text-gray-400">{payment.bank_name}</p>
                                                                                     )}
                                                                                 </div>
                                                                             </div>
                                                                         </TableCell>
-                                                                        <TableCell>
+                                                                        <TableCell className="py-4">
                                                                             {payment.reference_number ? (
-                                                                                <Badge variant="outline" className="font-mono text-xs">
+                                                                                <Badge variant="outline" className="font-mono text-xs border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300">
                                                                                     {payment.reference_number}
                                                                                 </Badge>
                                                                             ) : (
-                                                                                <span className="text-slate-400">-</span>
+                                                                                <span className="text-gray-400 dark:text-gray-500">-</span>
                                                                             )}
                                                                         </TableCell>
-                                                                        <TableCell className="text-sm text-slate-500">
+                                                                        <TableCell className="py-4 text-sm text-gray-600 dark:text-gray-400">
                                                                             {formatDate(payment.payment_date)}
                                                                         </TableCell>
-                                                                        <TableCell className="text-sm text-slate-500 max-w-xs truncate">
+                                                                        <TableCell className="py-4 text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
                                                                             {payment.notes || '-'}
                                                                         </TableCell>
                                                                     </TableRow>
@@ -510,12 +524,12 @@ export default function Show({ auth, supplier, purchases, payments, summary, per
                                                                 <TableRow>
                                                                     <TableCell colSpan="5" className="h-48 text-center">
                                                                         <div className="flex flex-col items-center gap-4">
-                                                                            <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
-                                                                                <CreditCard className="h-8 w-8 text-slate-400" />
+                                                                            <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-full">
+                                                                                <CreditCard className="h-8 w-8 text-gray-400 dark:text-gray-500" />
                                                                             </div>
                                                                             <div>
-                                                                                <p className="font-medium">{t("No payments found")}</p>
-                                                                                <p className="text-sm text-slate-500">{t("This supplier has no payment history yet.")}</p>
+                                                                                <p className="font-medium text-gray-900 dark:text-white">{t("No payments found")}</p>
+                                                                                <p className="text-sm text-gray-500 dark:text-gray-400">{t("This supplier has no payment history yet.")}</p>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
@@ -527,22 +541,22 @@ export default function Show({ auth, supplier, purchases, payments, summary, per
 
                                                 {/* Pagination */}
                                                 {payments.last_page > 1 && (
-                                                    <div className="p-6 border-t border-slate-200 dark:border-slate-700">
+                                                    <div className="p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                                                         <div className="flex items-center justify-between">
-                                                            <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                            <div className="text-sm text-gray-600 dark:text-gray-400">
                                                                 {t("Showing")} {payments.from} {t("to")} {payments.to} {t("of")} {payments.total} {t("results")}
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 {payments.prev_page_url && (
                                                                     <Link href={payments.prev_page_url} preserveState>
-                                                                        <Button variant="outline" size="sm">
+                                                                        <Button variant="outline" size="sm" className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                                                                             {t("Previous")}
                                                                         </Button>
                                                                     </Link>
                                                                 )}
                                                                 {payments.next_page_url && (
                                                                     <Link href={payments.next_page_url} preserveState>
-                                                                        <Button variant="outline" size="sm">
+                                                                        <Button variant="outline" size="sm" className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800">
                                                                             {t("Next")}
                                                                         </Button>
                                                                     </Link>

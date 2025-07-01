@@ -21,6 +21,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/Components/ui/badge";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Create({ auth, users = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
@@ -88,26 +89,28 @@ export default function Create({ auth, users = [], permissions = {} }) {
                     }
 
                     .glass-effect {
-                        background: rgba(255, 255, 255, 0.1);
+                        background: rgba(255, 255, 255, 0.95);
                         backdrop-filter: blur(10px);
                         border: 1px solid rgba(255, 255, 255, 0.2);
+                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
                     }
 
                     .dark .glass-effect {
-                        background: rgba(0, 0, 0, 0.2);
+                        background: rgba(15, 15, 15, 0.95);
                         backdrop-filter: blur(10px);
                         border: 1px solid rgba(255, 255, 255, 0.1);
+                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
                     }
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
-                                    linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
-                        border: 2px solid transparent;
+                                    linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4) border-box;
+                        border: 1px solid transparent;
                     }
 
                     .dark .gradient-border {
-                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
-                                    linear-gradient(45deg, #6366f1, #8b5cf6) border-box;
+                        background: linear-gradient(rgb(15 23 42), rgb(15 23 42)) padding-box,
+                                    linear-gradient(135deg, #6366f1, #8b5cf6, #06b6d4) border-box;
                     }
 
                     .input-glow:focus {
@@ -123,7 +126,7 @@ export default function Create({ auth, users = [], permissions = {} }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 overflow-hidden"
             >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.gates" />
@@ -135,107 +138,114 @@ export default function Create({ auth, users = [], permissions = {} }) {
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white dark:border-slate-700 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-gray-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm"
                     >
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-4">
-                                <motion.div
-                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
-                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                    className="relative float-animation"
-                                >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-600 p-4 rounded-2xl shadow-2xl">
-                                        <Building className="w-8 h-8 text-white" />
-                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
+                        <div className="max-w-7xl mx-auto px-6 lg:px-8">
+                            <div className="flex items-center justify-between py-4">
+                                <div className="flex items-center space-x-6">
+                                    <motion.div
+                                        initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                        transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                        className="relative float-animation"
+                                    >
+                                        <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-xl blur opacity-75 dark:opacity-50"></div>
+                                        <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-cyan-600 dark:from-indigo-700 dark:via-purple-700 dark:to-cyan-700 p-3 rounded-xl shadow-lg">
+                                            <Building className="w-6 h-6 text-white" />
+                                        </div>
+                                    </motion.div>
+                                    <div className="space-y-1">
+                                        <motion.div
+                                            initial={{ x: -20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.4, duration: 0.4 }}
+                                            className="flex items-center gap-2"
+                                        >
+                                            <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                            <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">
+                                                {t("Access Management")}
+                                            </span>
+                                        </motion.div>
+                                        <motion.h1
+                                            initial={{ x: -20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.5, duration: 0.4 }}
+                                            className="text-2xl font-bold text-gray-900 dark:text-white"
+                                        >
+                                            {t("Add New Gate")}
+                                        </motion.h1>
+                                        <motion.div
+                                            initial={{ x: -20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.6, duration: 0.4 }}
+                                            className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+                                        >
+                                            <Building2 className="w-4 h-4" />
+                                            {t("Create a new access gate for your system")}
+                                        </motion.div>
                                     </div>
-                                </motion.div>
-                                <div>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-1 flex items-center gap-2"
-                                    >
-                                        <Sparkles className="w-4 h-4" />
-                                        {t("Access Management")}
-                                    </motion.p>
-                                    <motion.h1
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
-                                    >
-                                        {t("Add New Gate")}
-                                    </motion.h1>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
-                                    >
-                                        <Building2 className="w-4 h-4" />
-                                        {t("Create a new access gate for your system")}
-                                    </motion.p>
                                 </div>
-                            </div>
 
-                            <motion.div
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-3"
-                            >
-                                <Link href={route("admin.gates.index")}>
-                                    <Button variant="outline" className="gap-2 border-2 hover:border-indigo-300 dark:text-white">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Gates")}
-                                    </Button>
-                                </Link>
-                            </motion.div>
+                                <motion.div
+                                    initial={{ x: 20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.7, duration: 0.4 }}
+                                >
+                                  
+                                    <BackButton className="text-gray-700 dark:text-white hover:text-gray-900 dark:hover:text-gray-100" link={route("admin.gates.index")}/>
+                                    
+                                </motion.div>
+                            </div>
                         </div>
                     </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-700 scrollbar-track-transparent bg-white dark:bg-slate-900">
-                        <div className="p-8 bg-white dark:bg-slate-900 ">
+                    <main className="flex-1 overflow-auto bg-gray-50 dark:bg-slate-900">
+                        <div className="container mx-auto px-6 py-8">
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.8, duration: 0.5 }}
-                                className="max-w-4xl mx-auto bg-white dark:bg-slate-900"
+                                className="max-w-4xl mx-auto"
                             >
-                                <form onSubmit={handleSubmit} className="space-y-8 bg-white dark:bg-slate-900 p-6 rounded-lg">
+                                <form onSubmit={handleSubmit} className="space-y-8">
                                     {/* Gate Information Card */}
                                     <motion.div
                                         initial={{ scale: 0.95, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
-                                        className="bg-white dark:bg-slate-800 rounded-lg"
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white dark:bg-slate-800 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-indigo-500/10 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600 rounded-t-xl">
-                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
-                                                        <Building className="h-6 w-6 text-white" />
+                                        <Card className="bg-white dark:bg-slate-800 shadow-lg border border-gray-200 dark:border-slate-700">
+                                            <CardHeader className="bg-gray-50 dark:bg-slate-700 px-6 py-4 border-b border-gray-200 dark:border-slate-600">
+                                                <CardTitle className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                                            <Building className="h-5 w-5 text-white" />
+                                                        </div>
+                                                        <div>
+                                                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                                {t("Gate Information")}
+                                                            </h2>
+                                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                                {t("Enter the basic details for the new gate")}
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                    {t("Gate Information")}
-                                                    <Badge className="ml-auto bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+                                                    <Badge variant="default" className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                                                         {t("Required")}
                                                     </Badge>
                                                 </CardTitle>
                                             </CardHeader>
-                                            <CardContent className="p-8 space-y-6">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 dark:bg-slate-700 p-4 rounded-lg">
+                                            <CardContent className="px-6 py-8">
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                                     <motion.div
                                                         initial={{ x: -20, opacity: 0 }}
                                                         animate={{ x: 0, opacity: 1 }}
                                                         transition={{ delay: 1.0, duration: 0.4 }}
                                                         className="space-y-2"
                                                     >
-                                                        <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                            <Building className="w-4 h-4 text-indigo-600 dark:text-slate-300" />
+                                                        <Label htmlFor="name" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                            <Building className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                             {t("Gate Name")} *
                                                         </Label>
                                                         <Input
@@ -243,20 +253,20 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                             type="text"
                                                             value={data.name}
                                                             onChange={(e) => setData("name", e.target.value)}
-                                                            className={`h-12 border-2 transition-all duration-200 input-glow bg-white dark:bg-slate-700 text-slate-900 dark:text-white ${
-                                                                errors.name ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300 dark:border-slate-600 dark:hover:border-indigo-400"
+                                                            className={`h-11 transition-all duration-200 input-glow bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                                                                errors.name ? "border-red-300 focus:border-red-500 focus:ring-red-500/20" : "border-gray-300 dark:border-slate-600 focus:border-indigo-500 focus:ring-indigo-500/20"
                                                             }`}
                                                             placeholder={t("Enter gate name")}
                                                             required
                                                         />
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
                                                             {t("Gate name must be unique across all gates")}
                                                         </p>
                                                         {errors.name && (
                                                             <motion.p
                                                                 initial={{ opacity: 0, y: -10 }}
                                                                 animate={{ opacity: 1, y: 0 }}
-                                                                className="text-red-500 dark:text-red-400 text-sm flex items-center gap-1"
+                                                                className="text-red-600 dark:text-red-400 text-sm flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {errors.name}
@@ -270,8 +280,8 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                         transition={{ delay: 1.1, duration: 0.4 }}
                                                         className="space-y-2"
                                                     >
-                                                        <Label htmlFor="user_id" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                            <User className="w-4 h-4 text-indigo-600 dark:text-slate-300" />
+                                                        <Label htmlFor="user_id" className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                                            <User className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                             {t("Assigned User")} *
                                                         </Label>
                                                         <Select
@@ -279,37 +289,37 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                             onValueChange={(value) => setData("user_id", value)}
                                                             required
                                                         >
-                                                            <SelectTrigger className={`h-12 border-2 transition-all duration-200 input-glow bg-white dark:bg-slate-700 text-slate-900 dark:text-white ${
-                                                                errors.user_id ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300 dark:border-slate-600 dark:hover:border-indigo-400"
+                                                            <SelectTrigger className={`h-11 transition-all duration-200 input-glow bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
+                                                                errors.user_id ? "border-red-300 focus:border-red-500 focus:ring-red-500/20" : "border-gray-300 dark:border-slate-600 focus:border-indigo-500 focus:ring-indigo-500/20"
                                                             }`}>
                                                                 <SelectValue placeholder={t("Select a user")}>
                                                                     {displayUserName || <span className="text-gray-500 dark:text-gray-400">{t("Select a user")}</span>}
                                                                 </SelectValue>
                                                             </SelectTrigger>
-                                                            <SelectContent className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600">
+                                                            <SelectContent className="bg-white dark:bg-slate-700 border border-gray-200 dark:border-slate-600 shadow-lg">
                                                                 {users.map((user) => (
-                                                                    <SelectItem key={user.id} value={user.id.toString()} className="hover:bg-slate-100 dark:hover:bg-slate-600">
-                                                                        <div className="flex items-center gap-2 w-full">
-                                                                            <div className="p-1 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded">
+                                                                    <SelectItem key={user.id} value={user.id.toString()} className="hover:bg-gray-100 dark:hover:bg-slate-600 focus:bg-gray-100 dark:focus:bg-slate-600">
+                                                                        <div className="flex items-center gap-3 w-full">
+                                                                            <div className="p-1.5 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-md">
                                                                                 <User className="h-3 w-3 text-indigo-600 dark:text-indigo-400" />
                                                                             </div>
-                                                                            <div className="flex-1">
-                                                                                <div className="font-medium text-gray-900 dark:text-white">{user.name}</div>
-                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">{user.email}</div>
+                                                                            <div className="flex-1 min-w-0">
+                                                                                <div className="font-medium text-gray-900 dark:text-white truncate">{user.name}</div>
+                                                                                <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</div>
                                                                             </div>
                                                                         </div>
                                                                     </SelectItem>
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                        <p className="text-xs text-gray-500 dark:text-gray-400">
                                                             {t("Each user can only be assigned to one gate")}
                                                         </p>
                                                         {errors.user_id && (
                                                             <motion.p
                                                                 initial={{ opacity: 0, y: -10 }}
                                                                 animate={{ opacity: 1, y: 0 }}
-                                                                className="text-red-500 dark:text-red-400 text-sm flex items-center gap-1"
+                                                                className="text-red-600 dark:text-red-400 text-sm flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
                                                                 {errors.user_id}
@@ -322,17 +332,17 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                     initial={{ y: 20, opacity: 0 }}
                                                     animate={{ y: 0, opacity: 1 }}
                                                     transition={{ delay: 1.2, duration: 0.4 }}
-                                                    className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:bg-slate-600 rounded-lg p-4 border border-indigo-200 dark:border-slate-600"
+                                                    className="lg:col-span-2 bg-blue-50 dark:bg-slate-700/50 rounded-lg p-6 border border-blue-200 dark:border-slate-600"
                                                 >
-                                                    <div className="flex items-start gap-3">
-                                                        <div className="p-2 bg-indigo-100 dark:bg-slate-600 rounded-lg">
-                                                            <CheckCircle className="w-5 h-5 text-indigo-600 dark:text-slate-300" />
+                                                    <div className="flex items-start gap-4">
+                                                        <div className="flex-shrink-0 w-8 h-8 bg-blue-500 dark:bg-indigo-600 rounded-lg flex items-center justify-center">
+                                                            <CheckCircle className="w-4 h-4 text-white" />
                                                         </div>
                                                         <div>
-                                                            <h4 className="font-semibold text-indigo-700 dark:text-slate-200 mb-1">
+                                                            <h3 className="font-semibold text-blue-900 dark:text-white mb-2">
                                                                 {t("Gate Configuration")}
-                                                            </h4>
-                                                            <p className="text-sm text-indigo-600 dark:text-slate-300 leading-relaxed">
+                                                            </h3>
+                                                            <p className="text-sm text-blue-800 dark:text-gray-300 leading-relaxed">
                                                                 {t("The assigned user will have full access to manage this gate and its associated employees. You can modify these settings later from the gate management panel.")}
                                                             </p>
                                                         </div>
@@ -347,51 +357,61 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                         initial={{ scale: 0.95, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.3, duration: 0.4 }}
-                                        className="bg-white dark:bg-slate-800 rounded-lg"
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white dark:bg-slate-800 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-purple-500/10 via-violet-500/10 to-purple-500/10 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600 rounded-t-xl">
-                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg">
-                                                        <FileText className="h-6 w-6 text-white" />
+                                        <Card className="bg-white dark:bg-slate-800 shadow-lg border border-gray-200 dark:border-slate-700">
+                                            <CardHeader className="bg-gray-50 dark:bg-slate-700 px-6 py-4 border-b border-gray-200 dark:border-slate-600">
+                                                <CardTitle className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 bg-purple-600 rounded-lg flex items-center justify-center">
+                                                            <FileText className="h-5 w-5 text-white" />
+                                                        </div>
+                                                        <div>
+                                                            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                                {t("Access Information")}
+                                                            </h2>
+                                                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                                {t("Learn about gate access management")}
+                                                            </p>
+                                                        </div>
                                                     </div>
-                                                    {t("Access Information")}
-                                                    <Badge className="ml-auto bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                                    <Badge variant="default" className="bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 border border-purple-200 dark:border-purple-800">
                                                         {t("Info")}
                                                     </Badge>
                                                 </CardTitle>
                                             </CardHeader>
-                                            <CardContent className="p-8">
+                                            <CardContent className="px-6 py-8">
                                                 <motion.div
                                                     initial={{ y: 20, opacity: 0 }}
                                                     animate={{ y: 0, opacity: 1 }}
                                                     transition={{ delay: 1.4, duration: 0.4 }}
-                                                    className="space-y-4"
+                                                    className="grid grid-cols-1 md:grid-cols-2 gap-6"
                                                 >
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 dark:bg-slate-700 p-4 rounded-lg">
-                                                        <div className="bg-gradient-to-br from-indigo-50 to-blue-50 dark:bg-slate-600 rounded-lg p-4 border border-indigo-200 dark:border-slate-600">
-                                                            <div className="flex items-center gap-2 mb-2">
-                                                                <User className="w-4 h-4 text-indigo-600 dark:text-slate-300" />
-                                                                <h5 className="font-semibold text-indigo-700 dark:text-slate-200">
-                                                                    {t("User Assignment")}
-                                                                </h5>
+                                                    <div className="bg-indigo-50 dark:bg-slate-700/50 rounded-lg p-5 border border-indigo-200 dark:border-slate-600">
+                                                        <div className="flex items-center gap-3 mb-3">
+                                                            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                                                <User className="w-4 h-4 text-white" />
                                                             </div>
-                                                            <p className="text-sm text-indigo-600 dark:text-slate-300">
-                                                                {t("Each gate must be assigned to a user who will manage its operations and employee access.")}
-                                                            </p>
+                                                            <h4 className="font-semibold text-indigo-900 dark:text-white">
+                                                                {t("User Assignment")}
+                                                            </h4>
                                                         </div>
+                                                        <p className="text-sm text-indigo-800 dark:text-gray-300 leading-relaxed">
+                                                            {t("Each gate must be assigned to a user who will manage its operations and employee access.")}
+                                                        </p>
+                                                    </div>
 
-                                                        <div className="bg-gradient-to-br from-purple-50 to-violet-50 dark:bg-slate-600 rounded-lg p-4 border border-purple-200 dark:border-slate-600">
-                                                            <div className="flex items-center gap-2 mb-2">
-                                                                <Building className="w-4 h-4 text-purple-600 dark:text-slate-300" />
-                                                                <h5 className="font-semibold text-purple-700 dark:text-slate-200">
-                                                                    {t("Gate Access")}
-                                                                </h5>
+                                                    <div className="bg-purple-50 dark:bg-slate-700/50 rounded-lg p-5 border border-purple-200 dark:border-slate-600">
+                                                        <div className="flex items-center gap-3 mb-3">
+                                                            <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+                                                                <Building className="w-4 h-4 text-white" />
                                                             </div>
-                                                            <p className="text-sm text-purple-600 dark:text-slate-300">
-                                                                {t("Gates control employee access to specific areas and track entry/exit activities.")}
-                                                            </p>
+                                                            <h4 className="font-semibold text-purple-900 dark:text-white">
+                                                                {t("Gate Access")}
+                                                            </h4>
                                                         </div>
+                                                        <p className="text-sm text-purple-800 dark:text-gray-300 leading-relaxed">
+                                                            {t("Gates control employee access to specific areas and track entry/exit activities.")}
+                                                        </p>
                                                     </div>
                                                 </motion.div>
                                             </CardContent>
@@ -403,35 +423,47 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 1.5, duration: 0.4 }}
-                                        className="flex justify-end space-x-4"
+                                        className="bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-700 p-6"
                                     >
-                                        <Link href={route("admin.gates.index")}>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                className="gap-2 h-12 px-8 border-2 hover:border-slate-300 dark:text-white"
-                                            >
-                                                <ArrowLeft className="h-4 w-4" />
-                                                {t("Cancel")}
-                                            </Button>
-                                        </Link>
-                                        <Button
-                                            type="submit"
-                                            disabled={processing}
-                                            className="gap-2 h-12 px-8 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 pulse-glow"
-                                        >
-                                            {processing ? (
-                                                <>
-                                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                    {t("Creating...")}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Save className="h-4 w-4" />
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                                                     {t("Create Gate")}
-                                                </>
-                                            )}
-                                        </Button>
+                                                </h3>
+                                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                                    {t("Review the information and create the new gate")}
+                                                </p>
+                                            </div>
+                                            <div className="flex space-x-3">
+                                                <Link href={route("admin.gates.index")}>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        className="gap-2 px-6 py-2 h-10 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-400 dark:hover:border-slate-500"
+                                                    >
+                                                        <ArrowLeft className="h-4 w-4" />
+                                                        {t("Cancel")}
+                                                    </Button>
+                                                </Link>
+                                                <Button
+                                                    type="submit"
+                                                    disabled={processing}
+                                                    className="gap-2 px-6 py-2 h-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 hover:from-indigo-700 hover:via-purple-700 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 pulse-glow disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+                                                    {processing ? (
+                                                        <>
+                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                            {t("Creating...")}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Save className="h-4 w-4" />
+                                                            {t("Create Gate")}
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </div>
                                     </motion.div>
                                 </form>
                             </motion.div>
@@ -441,4 +473,4 @@ export default function Create({ auth, users = [], permissions = {} }) {
             </motion.div>
         </>
     );
-} 
+}
