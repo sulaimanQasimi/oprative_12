@@ -10,10 +10,8 @@ import {
     Key,
     Mail,
     AlertCircle,
-    CheckCircle,
     Save,
-    Sparkles,
-    Package
+    Sparkles
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -165,61 +163,32 @@ export default function Create({ auth, warehouse, permissions }) {
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                                <motion.div
-                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
-                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                    className="relative float-animation"
-                                >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
-                                        <UserPlus className="w-8 h-8 text-white" />
-                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
-                                    </div>
-                                </motion.div>
+                                <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                                    <UserPlus className="w-6 h-6 text-white" />
+                                </div>
                                 <div>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
-                                    >
+                                    <p className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2">
                                         <Sparkles className="w-4 h-4" />
                                         {warehouse?.name} - {t("User Management")}
-                                    </motion.p>
-                                    <motion.h1
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
-                                    >
+                                    </p>
+                                    <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-200">
                                         {t("Add New User")}
-                                    </motion.h1>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
-                                    >
+                                    </h1>
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
                                         <Building2 className="w-4 h-4" />
                                         {t("Create a new warehouse user with permissions")}
-                                    </motion.p>
+                                    </p>
                                 </div>
                             </div>
 
-                            <motion.div
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-3"
-                            >
+                            <div className="flex items-center space-x-3">
                                 <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-all duration-200">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Warehouse")}
                                     </Button>
                                 </Link>
-                            </motion.div>
+                            </div>
                         </div>
                     </motion.header>
 
@@ -239,11 +208,11 @@ export default function Create({ auth, warehouse, permissions }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.5 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="border-b border-slate-200 dark:border-slate-600">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                                                        <Users className="h-6 w-6 text-white" />
+                                                    <div className="p-2 bg-blue-500 rounded-lg">
+                                                        <Users className="h-5 w-5 text-white" />
                                                     </div>
                                                     {t("User Information")}
                                                     <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
@@ -267,7 +236,7 @@ export default function Create({ auth, warehouse, permissions }) {
                                                             type="text"
                                                             value={data.name}
                                                             onChange={(e) => setData("name", e.target.value)}
-                                                            className={`h-14 text-lg border-2 transition-all duration-200 ${errors.name ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}
+                                                            className={`h-14 text-lg border-2 transition-all duration-200 ${errors.name ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}
                                                             placeholder={t("Enter full name")}
                                                             required
                                                         />
@@ -294,7 +263,7 @@ export default function Create({ auth, warehouse, permissions }) {
                                                             type="email"
                                                             value={data.email}
                                                             onChange={(e) => setData("email", e.target.value)}
-                                                            className={`h-14 text-lg border-2 transition-all duration-200 ${errors.email ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}
+                                                            className={`h-14 text-lg border-2 transition-all duration-200 ${errors.email ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}
                                                             placeholder={t("Enter email address")}
                                                             required
                                                         />
@@ -321,7 +290,7 @@ export default function Create({ auth, warehouse, permissions }) {
                                                             type="password"
                                                             value={data.password}
                                                             onChange={(e) => setData("password", e.target.value)}
-                                                            className={`h-14 text-lg border-2 transition-all duration-200 ${errors.password ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-800`}
+                                                            className={`h-14 text-lg border-2 transition-all duration-200 ${errors.password ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}
                                                             placeholder={t("Enter secure password")}
                                                             required
                                                         />
@@ -347,11 +316,11 @@ export default function Create({ auth, warehouse, permissions }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.0, duration: 0.5 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="border-b border-slate-200 dark:border-slate-600">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl shadow-lg">
-                                                        <Shield className="h-6 w-6 text-white" />
+                                                    <div className="p-2 bg-purple-500 rounded-lg">
+                                                        <Shield className="h-5 w-5 text-white" />
                                                     </div>
                                                     {t("Warehouse Permissions")}
                                                 </CardTitle>
@@ -367,10 +336,10 @@ export default function Create({ auth, warehouse, permissions }) {
                                                                 key={category}
                                                                 initial={{ opacity: 0, y: 20 }}
                                                                 animate={{ opacity: 1, y: 0 }}
-                                                                className="space-y-4 p-6 rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200/50 dark:border-purple-700/50 shadow-lg hover:shadow-xl transition-all duration-300"
+                                                                className="space-y-4 p-6 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-all duration-200"
                                                             >
-                                                                <h4 className="font-bold text-lg text-purple-700 dark:text-purple-300 capitalize flex items-center gap-2">
-                                                                    <Shield className="h-5 w-5 flex-shrink-0" />
+                                                                <h4 className="font-bold text-lg text-slate-800 dark:text-slate-200 capitalize flex items-center gap-2">
+                                                                    <Shield className="h-5 w-5 flex-shrink-0 text-purple-500" />
                                                                     <span className="truncate">{categoryPermissions[0]?.label || getPermissionDisplayName(categoryPermissions[0]?.name)}</span>
                                                                 </h4>
                                                                 <div className="space-y-4">
@@ -380,7 +349,7 @@ export default function Create({ auth, warehouse, permissions }) {
                                                                                 id={`permission-${permission.id}`}
                                                                                 checked={data.permissions.includes(permission.name)}
                                                                                 onCheckedChange={() => togglePermission(permission.name)}
-                                                                                className="border-purple-300 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 mt-0.5 flex-shrink-0 w-5 h-5"
+                                                                                className="border-purple-300 data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600 mt-0.5 flex-shrink-0 w-5 h-5 dark:border-slate-500"
                                                                             />
                                                                             <Label
                                                                                 htmlFor={`permission-${permission.id}`}
@@ -432,7 +401,7 @@ export default function Create({ auth, warehouse, permissions }) {
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200"
+                                                className="px-8 py-4 text-lg border-2 dark:text-white text-black hover:scale-105 transition-all duration-200"
                                             >
                                                 {t("Cancel")}
                                             </Button>

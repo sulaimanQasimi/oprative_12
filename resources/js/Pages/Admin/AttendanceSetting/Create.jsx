@@ -129,7 +129,7 @@ export default function Create({ auth, permissions = {} }) {
                                 <Link href={route("admin.attendance-settings.index")}>
                                     <Button
                                         variant="outline"
-                                        className="gap-2 text-black dark:text-white  hover:scale-105 transition-all duration-200"
+                                        className="gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-105 transition-all duration-200"
                                     >
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to List")}
@@ -148,9 +148,9 @@ export default function Create({ auth, permissions = {} }) {
                                 transition={{ delay: 0.7, duration: 0.5 }}
                                 className="max-w-2xl mx-auto"
                             >
-                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                    <CardHeader>
-                                        <CardTitle className="flex items-center gap-3">
+                                <Card className="border border-slate-200 dark:border-slate-700 shadow-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
+                                    <CardHeader className="border-b border-slate-200 dark:border-slate-700">
+                                        <CardTitle className="flex items-center gap-3 text-slate-900 dark:text-white">
                                             <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
                                                 <Clock className="h-5 w-5 text-white" />
                                             </div>
@@ -169,7 +169,7 @@ export default function Create({ auth, permissions = {} }) {
                                                     type="time"
                                                     value={data.enter_time}
                                                     onChange={(e) => setData("enter_time", e.target.value)}
-                                                    className="h-12 border-2 border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg"
+                                                    className="h-12 border-2 border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg dark:bg-slate-700 dark:text-white"
                                                     required
                                                 />
                                                 {errors.enter_time && (
@@ -187,7 +187,7 @@ export default function Create({ auth, permissions = {} }) {
                                                     type="time"
                                                     value={data.exit_time}
                                                     onChange={(e) => setData("exit_time", e.target.value)}
-                                                    className="h-12 border-2 border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg"
+                                                    className="h-12 border-2 border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg dark:bg-slate-700 dark:text-white"
                                                     required
                                                 />
                                                 {errors.exit_time && (
@@ -201,13 +201,13 @@ export default function Create({ auth, permissions = {} }) {
                                                     {t("Date")}
                                                 </Label>
                                                 <div className="relative">
-                                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                     <Input
                                                         id="date"
                                                         type="date"
                                                         value={data.date}
                                                         onChange={(e) => setData("date", e.target.value)}
-                                                        className="pl-12 h-12 border-2 border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg"
+                                                        className="pl-12 h-12 border-2 border-slate-200 dark:border-slate-700 focus:border-indigo-500 rounded-lg dark:bg-slate-700 dark:text-white"
                                                     />
                                                 </div>
                                                 {errors.date && (
@@ -220,10 +220,10 @@ export default function Create({ auth, permissions = {} }) {
                                                 <motion.div
                                                     initial={{ opacity: 0, scale: 0.95 }}
                                                     animate={{ opacity: 1, scale: 1 }}
-                                                    className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-700"
+                                                    className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-xl border border-indigo-200 dark:border-indigo-700"
                                                 >
                                                     <div className="flex items-center gap-3">
-                                                        <Timer className="w-5 h-5 text-indigo-600" />
+                                                        <Timer className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
                                                         <div>
                                                             <p className="text-sm font-medium text-slate-700 dark:text-slate-300">{t("Work Duration")}</p>
                                                             <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
@@ -240,12 +240,12 @@ export default function Create({ auth, permissions = {} }) {
                                             )}
 
                                             {/* Submit Buttons */}
-                                            <div className="flex items-center justify-end space-x-4 pt-6">
+                                            <div className="flex items-center justify-end space-x-4 pt-6 border-t border-slate-200 dark:border-slate-700">
                                                 <Link href={route("admin.attendance-settings.index")}>
                                                     <Button
                                                         type="button"
                                                         variant="outline"
-                                                        className="px-6 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                                                        className="px-6 py-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors duration-200"
                                                     >
                                                         {t("Cancel")}
                                                     </Button>

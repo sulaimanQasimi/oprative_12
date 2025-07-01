@@ -289,7 +289,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.warehouses.income", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-all duration-200">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Imports")}
                                     </Button>
@@ -314,8 +314,8 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.5 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-600/50 rounded-t-xl">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                     <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
                                                         <TrendingUp className="h-6 w-6 text-white" />
@@ -364,7 +364,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                             value={data.product_id}
                                                             onValueChange={(value) => setData('product_id', value)}
                                                         >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.product_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}>
+                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.product_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}>
                                                                 <SelectValue placeholder={t("Select a product to import")} />
                                                             </SelectTrigger>
                                                             <SelectContent className="max-w-md">
@@ -414,7 +414,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                             onValueChange={handleUnitTypeChange}
                                                             disabled={!selectedProduct}
                                                         >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.unit_type ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-emerald-300 focus:border-emerald-500'} ${!selectedProduct ? 'opacity-50 cursor-not-allowed' : 'bg-white dark:bg-slate-800'}`}>
+                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.unit_type ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-emerald-300 focus:border-emerald-500'} ${!selectedProduct ? 'opacity-50 cursor-not-allowed' : 'bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400'}`}>
                                                                 <SelectValue placeholder={selectedProduct ? t("Select unit type") : t("Select product first")} />
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -476,7 +476,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                                 placeholder={t("Enter quantity")}
                                                                 value={data.quantity}
                                                                 onChange={(e) => setData('quantity', e.target.value)}
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.quantity ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}
+                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.quantity ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}
                                                             />
                                                         </div>
                                                         {errors.quantity && (
@@ -512,7 +512,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                                 placeholder={t("Enter price")}
                                                                 value={data.price}
                                                                 onChange={(e) => setData('price', e.target.value)}
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.price ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}
+                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.price ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}
                                                             />
                                                         </div>
                                                         {errors.price && (
@@ -548,7 +548,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                         value={data.notes}
                                                         onChange={(e) => setData('notes', e.target.value)}
                                                         rows={4}
-                                                        className={`resize-none text-lg border-2 transition-all duration-200 ${errors.notes ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-800`}
+                                                        className={`resize-none text-lg border-2 transition-all duration-200 ${errors.notes ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}
                                                     />
                                                     {errors.notes && (
                                                         <motion.p
@@ -574,8 +574,8 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
                                                 transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
                                             >
-                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-green-900/30 backdrop-blur-xl">
-                                                    <CardHeader className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-b border-green-200/50 dark:border-green-700/50">
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 backdrop-blur-xl">
+                                                    <CardHeader className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-b border-green-200/50 dark:border-slate-600/50">
                                                         <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                             <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
                                                                 <Calculator className="h-6 w-6 text-white" />
@@ -591,7 +591,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                             <motion.div
                                                                 whileHover={{ scale: 1.02 }}
-                                                                className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-green-200/50 dark:border-green-700/50"
+                                                                className="text-center p-6 bg-white/70 dark:bg-slate-700/70 rounded-2xl shadow-lg border border-green-200/50 dark:border-slate-600/50"
                                                             >
                                                                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
                                                                     <Hash className="w-4 h-4" />
@@ -605,7 +605,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                             </motion.div>
                                                             <motion.div
                                                                 whileHover={{ scale: 1.02 }}
-                                                                className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-green-200/50 dark:border-green-700/50"
+                                                                className="text-center p-6 bg-white/70 dark:bg-slate-700/70 rounded-2xl shadow-lg border border-green-200/50 dark:border-slate-600/50"
                                                             >
                                                                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
                                                                     <DollarSign className="w-4 h-4" />
@@ -661,7 +661,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200"
+                                                className="px-8 py-4 text-lg border-2 dark:text-white text-black hover:scale-105 transition-all duration-200"
                                             >
                                                 {t("Cancel")}
                                             </Button>

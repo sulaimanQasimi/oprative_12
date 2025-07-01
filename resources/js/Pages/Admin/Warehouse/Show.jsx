@@ -238,7 +238,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                 )}
 
                                 <Link href={route("admin.warehouses.index")} >
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform">
+                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-transform">
                                         {t("Back")}
                                         <ArrowLeft className="h-4 w-4" />
                                     </Button>
@@ -326,7 +326,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                 </motion.div>
 
                                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                                    <TabsList className="grid w-full grid-cols-4 h-14 p-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-2 border-slate-200 dark:border-slate-700">
+                                    <TabsList className="grid w-full grid-cols-4 h-14 p-1 bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl border-2 border-slate-200 dark:border-slate-600">
                                         <TabsTrigger
                                             value="overview"
                                             className="h-12 text-sm font-semibold flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white"
@@ -360,9 +360,9 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                     {/* Overview Tab */}
                                     <TabsContent value="overview" className="space-y-6">
                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl">
                                                 <CardHeader>
-                                                    <CardTitle className="flex items-center gap-2">
+                                                    <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
                                                         <Package className="w-5 h-5 text-blue-600" />
                                                         {t("Quick Actions")}
                                                     </CardTitle>
@@ -375,25 +375,25 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         </Button>
                                                     </Link>
                                                     <Link href={route("admin.warehouses.products", warehouse.id)}>
-                                                        <Button variant="outline" className="w-full justify-start gap-2">
+                                                        <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
                                                             <Package className="w-4 h-4" />
                                                             {t("Manage Products")}
                                                         </Button>
                                                     </Link>
                                                     <Link href={route("admin.warehouses.income", warehouse.id)}>
-                                                        <Button variant="outline" className="w-full justify-start gap-2">
+                                                        <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
                                                             <Download className="w-4 h-4" />
                                                             {t("View Imports")}
                                                         </Button>
                                                     </Link>
                                                     <Link href={route("admin.warehouses.outcome", warehouse.id)}>
-                                                        <Button variant="outline" className="w-full justify-start gap-2">
+                                                        <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
                                                             <Upload className="w-4 h-4" />
                                                             {t("View Exports")}
                                                         </Button>
                                                     </Link>
                                                     <Link href={route("admin.warehouses.sales", warehouse.id)}>
-                                                        <Button variant="outline" className="w-full justify-start gap-2">
+                                                        <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
                                                             <ShoppingCart className="w-4 h-4" />
                                                             {t("View Sales")}
                                                         </Button>
@@ -401,9 +401,9 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl">
                                                 <CardHeader>
-                                                    <CardTitle className="flex items-center gap-2">
+                                                    <CardTitle className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
                                                         <Calendar className="w-5 h-5 text-purple-600" />
                                                         {t("Recent Activity")}
                                                     </CardTitle>
@@ -413,16 +413,16 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                                                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                                                             <div>
-                                                                <p className="text-sm font-medium">{t("Warehouse created")}</p>
-                                                                <p className="text-xs text-slate-500">{new Date(warehouse?.created_at).toLocaleDateString()}</p>
+                                                                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{t("Warehouse created")}</p>
+                                                                <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(warehouse?.created_at).toLocaleDateString()}</p>
                                                             </div>
                                                         </div>
                                                         {warehouse?.updated_at && warehouse?.updated_at !== warehouse?.created_at && (
                                                             <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg">
                                                                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                                                                 <div>
-                                                                    <p className="text-sm font-medium">{t("Warehouse updated")}</p>
-                                                                    <p className="text-xs text-slate-500">{new Date(warehouse?.updated_at).toLocaleDateString()}</p>
+                                                                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{t("Warehouse updated")}</p>
+                                                                    <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(warehouse?.updated_at).toLocaleDateString()}</p>
                                                                 </div>
                                                             </div>
                                                         )}
@@ -439,8 +439,8 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                             animate={{ y: 0, opacity: 1 }}
                                             transition={{ delay: 0.3, duration: 0.5 }}
                                         >
-                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                                <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-700/50">
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl gradient-border">
+                                                <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-600/50">
                                                     <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
                                                         <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
                                                             <Building2 className="h-6 w-6 text-white" />
@@ -527,8 +527,8 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                             animate={{ y: 0, opacity: 1 }}
                                             transition={{ delay: 0.3, duration: 0.5 }}
                                         >
-                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                                <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-700/50">
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl gradient-border">
+                                                <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-600/50">
                                                     <div className="flex items-center justify-between">
                                                         <div>
                                                             <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
@@ -556,7 +556,7 @@ export default function Show({ auth, warehouse, roles, permissions, warehousePer
                                                         <div className="overflow-x-auto">
                                                             <Table>
                                                                 <TableHeader>
-                                                                    <TableRow className="bg-slate-50/50 dark:bg-slate-800/50">
+                                                                    <TableRow className="bg-slate-50/50 dark:bg-slate-600/50">
                                                                         <TableHead className="font-bold text-slate-700 dark:text-slate-300">
                                                                             <div className="flex items-center gap-2">
                                                                                 <Users className="h-4 w-4" />

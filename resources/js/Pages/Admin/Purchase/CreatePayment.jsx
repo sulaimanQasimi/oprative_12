@@ -149,8 +149,8 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
 
                             <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.7, duration: 0.4 }}>
                                 <Link href={route("admin.purchases.show", purchase.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                        <ArrowLeft className="h-4 w-4" /> {t("Back to Purchase")}
+                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                        <ArrowLeft className="h-4 w-4 " /> {t("Back to Purchase")}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -159,8 +159,8 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
 
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent p-8">
                         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8, duration: 0.5 }}>
-                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border max-w-4xl mx-auto">
-                                <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl gradient-border max-w-4xl mx-auto">
+                                <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-600/50">
                                     <CardTitle className="flex items-center gap-3 text-2xl">
                                         <CreditCard className="h-6 w-6 text-blue-600" />
                                         {t("Add New Payment")}
@@ -176,22 +176,22 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                                 transition={{ delay: 0.1, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                <Label htmlFor="supplier_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                <Label htmlFor="supplier_id" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                     <User className="w-5 h-5 text-blue-500" />
                                                     {t("Supplier")} *
                                                 </Label>
                                                 <Select value={data.supplier_id} onValueChange={(value) => setData('supplier_id', value)}>
-                                                    <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.supplier_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}>
+                                                    <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.supplier_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200`}>
                                                         <SelectValue placeholder={t("Select supplier")} />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600">
                                                         {suppliers?.map((supplier) => (
-                                                            <SelectItem key={supplier.id} value={supplier.id.toString()} className="p-4">
+                                                            <SelectItem key={supplier.id} value={supplier.id.toString()} className="p-4 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">
                                                                 <div className="flex items-center space-x-4">
                                                                     <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
                                                                         <User className="h-5 w-5 text-blue-600" />
                                                                     </div>
-                                                                    <div className="font-semibold text-slate-800 dark:text-white">{supplier.name}</div>
+                                                                    <div className="font-semibold text-slate-800 dark:text-slate-200">{supplier.name}</div>
                                                                 </div>
                                                             </SelectItem>
                                                         ))}
@@ -211,24 +211,24 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                                 transition={{ delay: 0.2, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                <Label htmlFor="currency_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                <Label htmlFor="currency_id" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                     <DollarSign className="w-5 h-5 text-blue-500" />
                                                     {t("Currency")} *
                                                 </Label>
                                                 <Select value={data.currency_id} onValueChange={(value) => setData('currency_id', value)}>
-                                                    <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.currency_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}>
+                                                    <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.currency_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200`}>
                                                         <SelectValue placeholder={t("Select currency")} />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600">
                                                         {currencies?.map((currency) => (
-                                                            <SelectItem key={currency.id} value={currency.id.toString()} className="p-4">
+                                                            <SelectItem key={currency.id} value={currency.id.toString()} className="p-4 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">
                                                                 <div className="flex items-center space-x-4">
                                                                     <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
                                                                         <DollarSign className="h-5 w-5 text-blue-600" />
                                                                     </div>
                                                                     <div>
-                                                                        <div className="font-semibold text-slate-800 dark:text-white">{currency.name}</div>
-                                                                        <div className="text-sm text-slate-500">{currency.code}</div>
+                                                                        <div className="font-semibold text-slate-800 dark:text-slate-200">{currency.name}</div>
+                                                                        <div className="text-sm text-slate-500 dark:text-slate-400">{currency.code}</div>
                                                                     </div>
                                                                 </div>
                                                             </SelectItem>
@@ -252,12 +252,12 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                                 transition={{ delay: 0.3, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                <Label htmlFor="amount" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                <Label htmlFor="amount" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                     <DollarSign className="w-5 h-5 text-green-500" />
                                                     {t("Amount")} *
                                                 </Label>
                                                 <div className="relative">
-                                                    <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                     <Input
                                                         id="amount"
                                                         type="number"
@@ -266,7 +266,7 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                                         placeholder={t("Enter payment amount")}
                                                         value={data.amount}
                                                         onChange={(e) => setData('amount', e.target.value)}
-                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.amount ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}
+                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.amount ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder:text-slate-400`}
                                                     />
                                                 </div>
                                                 {errors.amount && (
@@ -283,22 +283,22 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                                 transition={{ delay: 0.4, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                <Label htmlFor="payment_method" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                <Label htmlFor="payment_method" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                     <CreditCard className="w-5 h-5 text-purple-500" />
                                                     {t("Payment Method")} *
                                                 </Label>
                                                 <Select value={data.payment_method} onValueChange={(value) => setData('payment_method', value)}>
-                                                    <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.payment_method ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-800`}>
+                                                    <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.payment_method ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200`}>
                                                         <SelectValue placeholder={t("Select payment method")} />
                                                     </SelectTrigger>
-                                                    <SelectContent>
+                                                    <SelectContent className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600">
                                                         {paymentMethods.map((method) => (
-                                                            <SelectItem key={method.value} value={method.value} className="p-4">
+                                                            <SelectItem key={method.value} value={method.value} className="p-4 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">
                                                                 <div className="flex items-center space-x-4">
                                                                     <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
                                                                         <method.icon className="h-5 w-5 text-purple-600" />
                                                                     </div>
-                                                                    <div className="font-semibold text-slate-800 dark:text-white">{method.label}</div>
+                                                                    <div className="font-semibold text-slate-800 dark:text-slate-200">{method.label}</div>
                                                                 </div>
                                                             </SelectItem>
                                                         ))}
@@ -321,18 +321,18 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                                 transition={{ delay: 0.5, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                <Label htmlFor="payment_date" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                <Label htmlFor="payment_date" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                     <Calendar className="w-5 h-5 text-indigo-500" />
                                                     {t("Payment Date")} *
                                                 </Label>
                                                 <div className="relative">
-                                                    <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                     <Input
                                                         id="payment_date"
                                                         type="date"
                                                         value={data.payment_date}
                                                         onChange={(e) => setData('payment_date', e.target.value)}
-                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.payment_date ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-indigo-300 focus:border-indigo-500'} bg-white dark:bg-slate-800`}
+                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.payment_date ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-indigo-300 focus:border-indigo-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200`}
                                                     />
                                                 </div>
                                                 {errors.payment_date && (
@@ -349,19 +349,19 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                                 transition={{ delay: 0.6, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                <Label htmlFor="reference_number" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                <Label htmlFor="reference_number" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                     <Hash className="w-5 h-5 text-teal-500" />
                                                     {t("Reference Number")}
                                                 </Label>
                                                 <div className="relative">
-                                                    <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                     <Input
                                                         id="reference_number"
                                                         type="text"
                                                         placeholder={t("Enter reference number")}
                                                         value={data.reference_number}
                                                         onChange={(e) => setData('reference_number', e.target.value)}
-                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.reference_number ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-teal-300 focus:border-teal-500'} bg-white dark:bg-slate-800`}
+                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.reference_number ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-teal-300 focus:border-teal-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder:text-slate-400`}
                                                     />
                                                 </div>
                                                 {errors.reference_number && (
@@ -397,19 +397,19 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                                             transition={{ delay: 0.1, duration: 0.4 }}
                                                             className="space-y-3"
                                                         >
-                                                            <Label htmlFor="bank_name" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Label htmlFor="bank_name" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                                 <Building className="w-5 h-5 text-orange-500" />
                                                                 {t("Bank Name")}
                                                             </Label>
                                                             <div className="relative">
-                                                                <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                                <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                                 <Input
                                                                     id="bank_name"
                                                                     type="text"
                                                                     placeholder={t("Enter bank name")}
                                                                     value={data.bank_name}
                                                                     onChange={(e) => setData('bank_name', e.target.value)}
-                                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.bank_name ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-orange-300 focus:border-orange-500'} bg-white dark:bg-slate-800`}
+                                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.bank_name ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-orange-300 focus:border-orange-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder:text-slate-400`}
                                                                 />
                                                             </div>
                                                             {errors.bank_name && (
@@ -426,19 +426,19 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                                             transition={{ delay: 0.2, duration: 0.4 }}
                                                             className="space-y-3"
                                                         >
-                                                            <Label htmlFor="bank_account" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Label htmlFor="bank_account" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                                 <Hash className="w-5 h-5 text-red-500" />
                                                                 {t("Bank Account")}
                                                             </Label>
                                                             <div className="relative">
-                                                                <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                                <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                                 <Input
                                                                     id="bank_account"
                                                                     type="text"
                                                                     placeholder={t("Enter bank account number")}
                                                                     value={data.bank_account}
                                                                     onChange={(e) => setData('bank_account', e.target.value)}
-                                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.bank_account ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-red-300 focus:border-red-500'} bg-white dark:bg-slate-800`}
+                                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.bank_account ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-red-300 focus:border-red-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder:text-slate-400`}
                                                                 />
                                                             </div>
                                                             {errors.bank_account && (
@@ -460,7 +460,7 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                             transition={{ delay: 0.7, duration: 0.4 }}
                                             className="space-y-3"
                                         >
-                                            <Label htmlFor="notes" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                            <Label htmlFor="notes" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                 <FileText className="w-5 h-5 text-slate-500" />
                                                 {t("Notes")}
                                             </Label>
@@ -469,7 +469,7 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                                 placeholder={t("Enter any additional notes or comments")}
                                                 value={data.notes}
                                                 onChange={(e) => setData('notes', e.target.value)}
-                                                className={`min-h-[120px] text-lg border-2 transition-all duration-200 ${errors.notes ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-slate-300 focus:border-slate-500'} bg-white dark:bg-slate-800`}
+                                                className={`min-h-[120px] text-lg border-2 transition-all duration-200 ${errors.notes ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-slate-300 focus:border-slate-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder:text-slate-400`}
                                             />
                                             {errors.notes && (
                                                 <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
@@ -479,7 +479,7 @@ export default function CreatePayment({ auth, purchase, suppliers, currencies, p
                                             )}
                                         </motion.div>
 
-                                        <div className="flex justify-end space-x-4 pt-6">
+                                        <div className="flex justify-end space-x-4 pt-6 dark:text-white">
                                             <Link href={route("admin.purchases.show", purchase.id)}>
                                                 <Button type="button" variant="outline" className="px-8 py-3">
                                                     {t("Cancel")}

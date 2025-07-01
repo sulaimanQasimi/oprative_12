@@ -84,38 +84,49 @@ export default function Purchases({ auth, supplier, purchases = [], permissions 
                 {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
                     {/* Header */}
-                    <header className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30">
-                        <div className="flex items-center space-x-4">
-                            <div className="relative flex flex-col">
-                                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 mb-0.5">
-                                    {t("Admin Panel")}
-                                </span>
-                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
-                                    {t("Supplier Purchases")}
-                                    <ChevronRight className="h-5 w-5 text-slate-400" />
-                                    <span className="text-indigo-600 dark:text-indigo-400">
-                                        {supplier.name}
-                                    </span>
-                                </h1>
-                            </div>
-                        </div>
+                    <header className="bg-white dark:bg-gray-900 shadow border-b border-gray-200 dark:border-gray-800">
+                        <div className="px-6 py-4">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                    <Link
+                                        href={route("admin.suppliers.show", supplier.id)}
+                                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                                    >
+                                        <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                                    </Link>
+                                    <div>
+                                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                            {t("Supplier Purchases")}
+                                        </h1>
+                                        <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+                                            <Truck className="h-4 w-4" />
+                                            {supplier.name}
+                                        </p>
+                                    </div>
+                                </div>
 
-                        <div className="flex items-center space-x-3">
-                            <Link href={route("admin.suppliers.show", supplier.id)}>
-                                <Button
-                                    variant="outline"
-                                    className="border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
-                                >
-                                    <ArrowLeft className="h-4 w-4 mr-2" />
-                                    {t("Back to Supplier")}
-                                </Button>
-                            </Link>
-                            {permissions.can_create && (
-                                <Button className="bg-indigo-600 hover:bg-indigo-700 text-white">
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    {t("New Purchase")}
-                                </Button>
-                            )}
+                                <div className="flex items-center space-x-3">
+                                    <Link href={route("admin.suppliers.show", supplier.id)}>
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="h-10 px-4 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                                        >
+                                            <ArrowLeft className="h-4 w-4 mr-2" />
+                                            {t("Back to Supplier")}
+                                        </Button>
+                                    </Link>
+                                    {permissions.can_create && (
+                                        <Button 
+                                            size="sm"
+                                            className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200"
+                                        >
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            {t("New Purchase")}
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </header>
 

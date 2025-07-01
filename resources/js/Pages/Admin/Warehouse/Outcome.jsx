@@ -388,12 +388,12 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-red-200 hover:border-red-300 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 text-slate-700 dark:text-slate-200 hover:text-red-700 dark:hover:text-red-300">
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
                                 <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Warehouse")}
                                     </Button>
@@ -546,7 +546,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => setShowFilters(!showFilters)}
-                                                    className="gap-2"
+                                                    className="gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                                                 >
                                                     <Filter className="h-4 w-4" />
                                                     {showFilters ? t("Hide Filters") : t("Show Filters")}
@@ -563,7 +563,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                         placeholder={t("Search by reference, product name, barcode, or type...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-12 h-12 text-lg border-2 border-red-200 focus:border-red-500 rounded-xl"
+                                                        className="pl-12 h-12 text-lg border-2 border-red-200 focus:border-red-500 rounded-xl bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -590,14 +590,14 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                     >
                                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                                                             <div>
-                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                <label className="block text-sm font-medium dark:border-white text-slate-700 dark:text-slate-300 mb-2">
                                                                     {t("Date Filter")}
                                                                 </label>
                                                                 <Input
                                                                     type="date"
                                                                     value={dateFilter}
                                                                     onChange={(e) => setDateFilter(e.target.value)}
-                                                                    className="h-10"
+                                                                    className="h-10 bg-white dark:border-white dark:bg-slate-800 dark:text-white"
                                                                 />
                                                             </div>
 
@@ -606,15 +606,15 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                                     {t("Sort By")}
                                                                 </label>
                                                                 <Select value={sortBy} onValueChange={setSortBy}>
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 bg-white dark:bg-slate-800 dark:text-white">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="created_at">{t("Date Created")}</SelectItem>
-                                                                        <SelectItem value="reference_number">{t("Reference")}</SelectItem>
-                                                                        <SelectItem value="product.name">{t("Product Name")}</SelectItem>
-                                                                        <SelectItem value="quantity">{t("Quantity")}</SelectItem>
-                                                                        <SelectItem value="total">{t("Total Value")}</SelectItem>
+                                                                    <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                                                        <SelectItem value="created_at" className="hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white">{t("Date Created")}</SelectItem>
+                                                                        <SelectItem value="reference_number" className="hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white">{t("Reference")}</SelectItem>
+                                                                        <SelectItem value="product.name" className="hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white">{t("Product Name")}</SelectItem>
+                                                                        <SelectItem value="quantity" className="hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white">{t("Quantity")}</SelectItem>
+                                                                        <SelectItem value="total" className="hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white">{t("Total Value")}</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
@@ -624,12 +624,12 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                                     {t("Sort Order")}
                                                                 </label>
                                                                 <Select value={sortOrder} onValueChange={setSortOrder}>
-                                                                    <SelectTrigger className="h-10">
+                                                                    <SelectTrigger className="h-10 bg-white dark:bg-slate-800 dark:text-white">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent>
-                                                                        <SelectItem value="desc">{t("Descending")}</SelectItem>
-                                                                        <SelectItem value="asc">{t("Ascending")}</SelectItem>
+                                                                    <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                                                        <SelectItem value="desc" className="hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white">{t("Descending")}</SelectItem>
+                                                                        <SelectItem value="asc" className="hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white">{t("Ascending")}</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
@@ -638,7 +638,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                                 <Button
                                                                     variant="outline"
                                                                     onClick={clearFilters}
-                                                                    className="w-full h-10 gap-2"
+                                                                    className="w-full h-10 gap-2  border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                                                                 >
                                                                     <RefreshCw className="h-4 w-4" />
                                                                     {t("Clear Filters")}
@@ -721,13 +721,13 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                                             </div>
                                                                             <div>
                                                                                 <p className="font-semibold text-slate-800 dark:text-white">{outcome.product.name}</p>
-                                                                                <p className="text-sm text-slate-500 flex items-center gap-1">
+                                                                                <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1">
                                                                                     {outcome.product.barcode && (
                                                                                         <Badge variant="outline" className="text-xs">
                                                                                             {outcome.product.barcode}
                                                                                         </Badge>
                                                                                     )}
-                                                                                    <span className="text-xs">{outcome.product.type}</span>
+                                                                                    <span className="text-xs text-slate-500 dark:text-slate-400">{outcome.product.type}</span>
                                                                                 </p>
                                                                             </div>
                                                                         </div>
@@ -764,10 +764,10 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                                             {outcome.unit_type === 'wholesale' ? t('Wholesale') : t('Retail')}
                                                                         </Badge>
                                                                     </TableCell>
-                                                                    <TableCell className="font-medium">
+                                                                    <TableCell className="font-medium text-slate-800 dark:text-white">
                                                                         {formatCurrency(outcome.price)}
                                                                     </TableCell>
-                                                                    <TableCell className="font-bold text-red-600">
+                                                                    <TableCell className="font-bold text-red-600 dark:text-red-400">
                                                                         {formatCurrency(outcome.total)}
                                                                     </TableCell>
                                                                     <TableCell className="text-center">
@@ -800,7 +800,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
                                                                                 {t("No export records found")}
                                                                             </p>
-                                                                            <p className="text-sm text-slate-500">
+                                                                            <p className="text-sm text-slate-500 dark:text-slate-400">
                                                                                 {searchTerm || dateFilter ? t("Try adjusting your filters") : t("Create your first export record")}
                                                                             </p>
                                                                         </div>
