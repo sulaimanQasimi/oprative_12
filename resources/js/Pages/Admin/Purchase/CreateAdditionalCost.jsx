@@ -132,7 +132,7 @@ export default function CreateAdditionalCost({ auth, purchase, permissions = {} 
 
                             <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.7, duration: 0.4 }}>
                                 <Link href={route("admin.purchases.show", purchase.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-orange-200 hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20">
+                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-all duration-200 border-orange-200 hover:border-orange-300 hover:bg-orange-50 dark:hover:bg-orange-900/20">
                                         <ArrowLeft className="h-4 w-4" /> {t("Back to Purchase")}
                                     </Button>
                                 </Link>
@@ -142,8 +142,8 @@ export default function CreateAdditionalCost({ auth, purchase, permissions = {} 
 
                     <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-orange-300 dark:scrollbar-thumb-orange-700 scrollbar-track-transparent p-8">
                         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8, duration: 0.5 }}>
-                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border max-w-4xl mx-auto">
-                                <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl gradient-border max-w-4xl mx-auto">
+                                <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-600/50">
                                     <CardTitle className="flex items-center gap-3 text-2xl">
                                         <Receipt className="h-6 w-6 text-orange-600" />
                                         {t("Add Additional Cost")}
@@ -158,19 +158,19 @@ export default function CreateAdditionalCost({ auth, purchase, permissions = {} 
                                             transition={{ delay: 0.1, duration: 0.4 }}
                                             className="space-y-3"
                                         >
-                                            <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                            <Label htmlFor="name" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                 <FileText className="w-5 h-5 text-orange-500" />
                                                 {t("Cost Name")} *
                                             </Label>
                                             <div className="relative">
-                                                <FileText className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                <FileText className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                 <Input
                                                     id="name"
                                                     type="text"
                                                     placeholder={t("Enter cost name (e.g., Shipping, Insurance, Tax)")}
                                                     value={data.name}
                                                     onChange={(e) => setData('name', e.target.value)}
-                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.name ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-orange-300 focus:border-orange-500'} bg-white dark:bg-slate-800`}
+                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.name ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-orange-300 focus:border-orange-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder:text-slate-400`}
                                                 />
                                             </div>
                                             {errors.name && (
@@ -188,12 +188,12 @@ export default function CreateAdditionalCost({ auth, purchase, permissions = {} 
                                             transition={{ delay: 0.2, duration: 0.4 }}
                                             className="space-y-3"
                                         >
-                                            <Label htmlFor="amount" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                            <Label htmlFor="amount" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                 <DollarSign className="w-5 h-5 text-green-500" />
                                                 {t("Amount")} *
                                             </Label>
                                             <div className="relative">
-                                                <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                 <Input
                                                     id="amount"
                                                     type="number"
@@ -202,11 +202,11 @@ export default function CreateAdditionalCost({ auth, purchase, permissions = {} 
                                                     placeholder={t("Enter amount")}
                                                     value={data.amount}
                                                     onChange={(e) => setData('amount', e.target.value)}
-                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.amount ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}
+                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.amount ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder:text-slate-400`}
                                                 />
                                             </div>
                                             {data.amount && (
-                                                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                                                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
                                                     <Calculator className="w-4 h-4" />
                                                     <span>{t("Amount in")} {purchase.currency?.code}: {formatCurrency(data.amount)}</span>
                                                 </div>
@@ -219,9 +219,9 @@ export default function CreateAdditionalCost({ auth, purchase, permissions = {} 
                                             )}
                                         </motion.div>
 
-                                        <div className="flex justify-end space-x-4 pt-6">
+                                        <div className="flex justify-end space-x-4 pt-6 dark:text-white">
                                             <Link href={route("admin.purchases.show", purchase.id)}>
-                                                <Button type="button" variant="outline" className="px-8 py-3">
+                                                <Button type="button" variant="outline" className="px-8 py-3 dark:text-white text-black">
                                                     {t("Cancel")}
                                                 </Button>
                                             </Link>

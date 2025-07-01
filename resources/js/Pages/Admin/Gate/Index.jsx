@@ -495,142 +495,125 @@ export default function Index({
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 py-4">{t("Gate")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 py-4">{t("Assigned User")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 py-4">{t("Employees")}</TableHead>
-                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right py-4">{t("Actions")}</TableHead>
+                                                        <TableRow>
+                                                            <TableHead className="w-1/3">{t("Gate Information")}</TableHead>
+                                                            <TableHead className="w-1/3">{t("Assigned User")}</TableHead>
+                                                            <TableHead className="w-1/6">{t("Employees")}</TableHead>
+                                                            <TableHead className="w-1/6 text-right">{t("Actions")}</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        <AnimatePresence>
-                                                            {gateData.map((gate, index) => (
-                                                                <motion.tr
-                                                                    key={gate.id}
-                                                                    initial={{ opacity: 0, y: 20 }}
-                                                                    animate={{ opacity: 1, y: 0 }}
-                                                                    exit={{ opacity: 0, y: -20 }}
-                                                                    transition={{ delay: index * 0.05 }}
-                                                                    className="border-b border-slate-100 dark:border-slate-700 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/10 transition-colors"
-                                                                >
-                                                                    <TableCell className="py-4">
-                                                                        <div className="flex items-center space-x-3">
-                                                                            <div className="p-2 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg">
-                                                                                <Building className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                                                                            </div>
-                                                                            <div>
-                                                                                <div className="flex items-center gap-2">
-                                                                                    <div className="font-semibold text-slate-900 dark:text-white">{gate.name}</div>
-                                                                                    {gate.deleted_at && (
-                                                                                        <Badge variant="destructive" className="text-xs bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">
-                                                                                            {t("Deleted")}
-                                                                                        </Badge>
-                                                                                    )}
-                                                                                </div>
-                                                                                {gate.description && (
-                                                                                    <div className="text-sm text-slate-600 dark:text-slate-400 mt-1">
-                                                                                        {gate.description}
-                                                                                    </div>
+                                                        {gateData.map((gate, index) => (
+                                                            <TableRow key={gate.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                                                <TableCell>
+                                                                    <div className="flex items-start space-x-3">
+                                                                        <div className="flex-shrink-0 p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
+                                                                            <Building className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                                                        </div>
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <div className="flex items-center gap-2 mb-1">
+                                                                                <h4 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+                                                                                    {gate.name}
+                                                                                </h4>
+                                                                                {gate.deleted_at && (
+                                                                                    <Badge variant="destructive" className="text-xs px-2 py-0.5">
+                                                                                        {t("Deleted")}
+                                                                                    </Badge>
                                                                                 )}
                                                                             </div>
-                                                                        </div>
-                                                                    </TableCell>
-                                                                    <TableCell className="py-4">
-                                                                        <div className="space-y-2">
-                                                                            {gate.user ? (
-                                                                                <>
-                                                                                    <div className="font-medium text-slate-900 dark:text-white">{gate.user.name}</div>
-                                                                                    <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2">
-                                                                                        <User className="w-4 h-4" />
-                                                                                        {gate.user.email}
-                                                                                    </div>
-                                                                                </>
-                                                                            ) : (
-                                                                                <span className="text-slate-500 dark:text-slate-400 italic">{t("No user assigned")}</span>
+                                                                            {gate.description && (
+                                                                                <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
+                                                                                    {gate.description}
+                                                                                </p>
                                                                             )}
                                                                         </div>
-                                                                    </TableCell>
-                                                                    <TableCell className="py-4">
-                                                                        <Badge variant="outline" className="gap-2 bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700">
-                                                                            <Users className="w-4 h-4" />
-                                                                            {gate.employees?.length || 0}
+                                                                    </div>
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    {gate.user ? (
+                                                                        <div className="space-y-1">
+                                                                            <div className="font-medium text-slate-900 dark:text-white text-sm">
+                                                                                {gate.user.name}
+                                                                            </div>
+                                                                            <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
+                                                                                <User className="w-3.5 h-3.5" />
+                                                                                <span className="truncate">{gate.user.email}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="text-sm text-slate-500 dark:text-slate-400 italic">
+                                                                            {t("No user assigned")}
+                                                                        </div>
+                                                                    )}
+                                                                </TableCell>
+                                                                <TableCell>
+                                                                    <div className="flex items-center justify-center">
+                                                                        <Badge variant="secondary" className="gap-1.5 bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
+                                                                            <Users className="w-3.5 h-3.5" />
+                                                                            <span className="font-medium">{gate.employees?.length || 0}</span>
                                                                         </Badge>
-                                                                    </TableCell>
-                                                                    <TableCell className="text-right py-4">
-                                                                        <div className="flex items-center justify-end gap-2">
-                                                                            {/* View Button */}
-                                                                            {permissions.view_gate && (
-                                                                                <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-9 w-9 p-0 hover:bg-blue-50 hover:text-blue-600 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-colors"
-                                                                                    asChild
-                                                                                >
-                                                                                    <Link href={route('admin.gates.show', gate.id)}>
-                                                                                        <Eye className="h-4 w-4" />
-                                                                                        <span className="sr-only">{t("View")}</span>
-                                                                                    </Link>
-                                                                                </Button>
-                                                                            )}
-                                                                            
-                                                                            {/* Edit Button - only for active gates */}
-                                                                            {permissions.update_gate && !gate.deleted_at && (
-                                                                                <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-9 w-9 p-0 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-900/20 dark:hover:text-indigo-400 transition-colors"
-                                                                                    asChild
-                                                                                >
-                                                                                    <Link href={route('admin.gates.edit', gate.id)}>
-                                                                                        <Edit className="h-4 w-4" />
-                                                                                        <span className="sr-only">{t("Edit")}</span>
-                                                                                    </Link>
-                                                                                </Button>
-                                                                            )}
-                                                                            
-                                                                            {/* Delete Button - only for active gates */}
-                                                                            {permissions.delete_gate && !gate.deleted_at && (
-                                                                                <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
-                                                                                    onClick={() => handleDelete(gate.id)}
-                                                                                >
-                                                                                    <Trash2 className="h-4 w-4" />
-                                                                                    <span className="sr-only">{t("Delete")}</span>
-                                                                                </Button>
-                                                                            )}
-                                                                            
-                                                                            {/* Restore Button - only for deleted gates */}
-                                                                            {permissions.restore_gate && gate.deleted_at && (
-                                                                                <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-9 w-9 p-0 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-colors"
-                                                                                    onClick={() => handleRestore(gate.id)}
-                                                                                >
-                                                                                    <RotateCcw className="h-4 w-4" />
-                                                                                    <span className="sr-only">{t("Restore")}</span>
-                                                                                </Button>
-                                                                            )}
-                                                                            
-                                                                            {/* Force Delete Button - only for deleted gates */}
-                                                                            {permissions.force_delete_gate && gate.deleted_at && (
-                                                                                <Button
-                                                                                    variant="ghost"
-                                                                                    size="sm"
-                                                                                    className="h-9 w-9 p-0 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-colors"
-                                                                                    onClick={() => handleForceDelete(gate.id)}
-                                                                                >
-                                                                                    <XCircle className="h-4 w-4" />
-                                                                                    <span className="sr-only">{t("Force Delete")}</span>
-                                                                                </Button>
-                                                                            )}
-                                                                        </div>
-                                                                    </TableCell>
-                                                                </motion.tr>
-                                                            ))}
-                                                        </AnimatePresence>
+                                                                    </div>
+                                                                </TableCell>
+                                                                <TableCell className="text-right">
+                                                                    <div className="flex items-center justify-end gap-2">
+                                                                        {/* View Button */}
+                                                                        {permissions.view_gate && (
+                                                                            <Link
+                                                                                href={route('admin.gates.show', gate.id)}
+                                                                                className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
+                                                                                title={t("View Gate")}
+                                                                            >
+                                                                                <Eye className="h-4 w-4" />
+                                                                            </Link>
+                                                                        )}
+                                                                        
+                                                                        {/* Edit Button - only for active gates */}
+                                                                        {permissions.update_gate && !gate.deleted_at && (
+                                                                            <Link
+                                                                                href={route('admin.gates.edit', gate.id)}
+                                                                                className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200 transition-colors"
+                                                                                title={t("Edit Gate")}
+                                                                            >
+                                                                                <Edit className="h-4 w-4" />
+                                                                            </Link>
+                                                                        )}
+                                                                        
+                                                                        {/* Delete Button - only for active gates */}
+                                                                        {permissions.delete_gate && !gate.deleted_at && (
+                                                                            <button
+                                                                                onClick={() => handleDelete(gate.id)}
+                                                                                className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-200 transition-colors"
+                                                                                title={t("Delete Gate")}
+                                                                            >
+                                                                                <Trash2 className="h-4 w-4" />
+                                                                            </button>
+                                                                        )}
+                                                                        
+                                                                        {/* Restore Button - only for deleted gates */}
+                                                                        {permissions.restore_gate && gate.deleted_at && (
+                                                                            <button
+                                                                                onClick={() => handleRestore(gate.id)}
+                                                                                className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 hover:text-green-900 dark:text-green-300 dark:hover:text-green-200 transition-colors"
+                                                                                title={t("Restore Gate")}
+                                                                            >
+                                                                                <RotateCcw className="h-4 w-4" />
+                                                                            </button>
+                                                                        )}
+                                                                        
+                                                                        {/* Force Delete Button - only for deleted gates */}
+                                                                        {permissions.force_delete_gate && gate.deleted_at && (
+                                                                            <button
+                                                                                onClick={() => handleForceDelete(gate.id)}
+                                                                                className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-200 transition-colors"
+                                                                                title={t("Force Delete Gate")}
+                                                                            >
+                                                                                <XCircle className="h-4 w-4" />
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
                                                     </TableBody>
                                                 </Table>
                                             </div>

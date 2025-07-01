@@ -455,12 +455,12 @@ export default function Income({ auth, warehouse, incomes }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-all duration-200">
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
                                 <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
+                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-all duration-200">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Warehouse")}
                                     </Button>
@@ -491,7 +491,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
-                                        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                                        <Card className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -518,7 +518,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.0, duration: 0.4 }}
                                     >
-                                        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                                        <Card className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -545,7 +545,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.1, duration: 0.4 }}
                                     >
-                                        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                                        <Card className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -572,7 +572,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.2, duration: 0.4 }}
                                     >
-                                        <Card className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+                                        <Card className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -602,7 +602,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
                                     <Card className="content-card border-0 shadow-2xl backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-600/50">
                                             <div className="flex items-center justify-between">
                                                 <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
                                                     <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
@@ -613,7 +613,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => setShowFilters(!showFilters)}
-                                                    className="gap-2"
+                                                    className="gap-2 dark:text-white text-black"
                                                 >
                                                     <Filter className="h-4 w-4" />
                                                     {showFilters ? t("Hide Filters") : t("Show Filters")}
@@ -630,7 +630,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                         placeholder={t("Search by reference, product name, barcode, or type...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
+                                                        className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -664,7 +664,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                     type="date"
                                                                     value={dateFilter}
                                                                     onChange={(e) => setDateFilter(e.target.value)}
-                                                                    className="h-10"
+                                                                    className="h-10 dark:bg-slate-700 dark:text-white"
                                                                 />
                                                             </div>
 
@@ -705,7 +705,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                 <Button
                                                                     variant="outline"
                                                                     onClick={clearFilters}
-                                                                    className="w-full h-10 gap-2"
+                                                                    className="w-full h-10 gap-2 dark:text-white text-black"
                                                                 >
                                                                     <RefreshCw className="h-4 w-4" />
                                                                     {t("Clear Filters")}
@@ -726,7 +726,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
                                     <Card className="content-card border-0 shadow-2xl backdrop-blur-xl">
-                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                        <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-600/50">
                                             <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
                                                 <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
@@ -741,7 +741,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="bg-slate-50 dark:bg-slate-900/50">
+                                                        <TableRow className="bg-slate-50 dark:bg-slate-600/50">
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Reference")}
                                                             </TableHead>

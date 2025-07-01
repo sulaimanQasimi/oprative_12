@@ -2,14 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
-    Building2,
     ArrowLeft,
     Package,
     Search,
     TrendingUp,
     TrendingDown,
-    AlertTriangle,
-    CheckCircle,
     BarChart3,
     DollarSign,
     Boxes
@@ -212,7 +209,7 @@ export default function Products({ auth, warehouse, products }) {
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-transform">
+                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-transform">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Warehouse")}
                                     </Button>
@@ -231,7 +228,7 @@ export default function Products({ auth, warehouse, products }) {
                                 transition={{ delay: 0.8, duration: 0.5 }}
                                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
                             >
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
+                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
                                     <CardContent className="p-6">
                                         <div className="flex items-center justify-between">
                                             <div>
@@ -249,7 +246,7 @@ export default function Products({ auth, warehouse, products }) {
                                     </CardContent>
                                 </Card>
 
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
+                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
                                     <CardContent className="p-6">
                                         <div className="flex items-center justify-between">
                                             <div>
@@ -267,7 +264,7 @@ export default function Products({ auth, warehouse, products }) {
                                     </CardContent>
                                 </Card>
 
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
+                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
                                     <CardContent className="p-6">
                                         <div className="flex items-center justify-between">
                                             <div>
@@ -285,7 +282,7 @@ export default function Products({ auth, warehouse, products }) {
                                     </CardContent>
                                 </Card>
 
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
+                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
                                     <CardContent className="p-6">
                                         <div className="flex items-center justify-between">
                                             <div>
@@ -310,7 +307,7 @@ export default function Products({ auth, warehouse, products }) {
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.9, duration: 0.5 }}
                             >
-                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
+                                <Card className="border-0 shadow-lg bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
                                     <CardContent className="p-6">
                                         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                                             <div className="flex flex-1 gap-4 items-center">
@@ -320,7 +317,7 @@ export default function Products({ auth, warehouse, products }) {
                                                         placeholder={t("Search products...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-10"
+                                                        className="pl-10 dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400"
                                                     />
                                                 </div>
                                                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -337,7 +334,7 @@ export default function Products({ auth, warehouse, products }) {
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
-                                                    className="gap-2"
+                                                    className="gap-2 dark:text-white text-black"
                                                 >
                                                     {sortDirection === 'asc' ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
                                                     {sortDirection === 'asc' ? t("Ascending") : t("Descending")}
@@ -354,8 +351,8 @@ export default function Products({ auth, warehouse, products }) {
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 1.0, duration: 0.5 }}
                             >
-                                <Card className="border-0 shadow-xl bg-white/70 dark:bg-slate-800/70 backdrop-blur-sm">
-                                    <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-700/50">
+                                <Card className="border-0 shadow-xl bg-white/70 dark:bg-slate-700/70 backdrop-blur-sm">
+                                    <CardHeader className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border-b border-white/20 dark:border-slate-600/50">
                                         <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3">
                                             <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
                                                 <Package className="h-5 w-5 text-white" />
@@ -371,7 +368,7 @@ export default function Products({ auth, warehouse, products }) {
                                             <div className="overflow-x-auto">
                                                 <Table>
                                                     <TableHeader>
-                                                        <TableRow className="bg-slate-50/50 dark:bg-slate-800/50">
+                                                        <TableRow className="bg-slate-50/50 dark:bg-slate-600/50">
                                                             <TableHead className="font-bold text-slate-700 dark:text-slate-300">
                                                                 {t("Product")}
                                                             </TableHead>

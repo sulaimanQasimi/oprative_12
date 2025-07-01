@@ -12,11 +12,9 @@ import {
     ShoppingCart,
     Save,
     AlertCircle,
-    Barcode,
     Weight,
     Package2,
     CheckCircle,
-    Info,
     Sparkles,
     Users,
     Plus,
@@ -358,7 +356,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.warehouses.sales", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Sales")}
                                     </Button>
@@ -405,19 +403,19 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                         value={data.customer_id}
                                                         onValueChange={(value) => setData('customer_id', value)}
                                                     >
-                                                        <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.customer_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-indigo-300 focus:border-indigo-500'} bg-white dark:bg-slate-800`}>
+                                                        <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.customer_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-indigo-300 focus:border-indigo-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}>
                                                             <SelectValue placeholder={t("Select customer/store")} />
                                                         </SelectTrigger>
-                                                        <SelectContent>
+                                                        <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                                                             {customers && customers.length > 0 ? customers.map((customer) => (
-                                                                <SelectItem key={customer.id} value={customer.id.toString()} className="p-4">
-                                                                    <div className="flex items-center space-x-4">
-                                                                        <div className="p-2 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30 rounded-lg">
-                                                                            <Users className="h-5 w-5 text-indigo-600" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <div className="font-semibold text-slate-800 dark:text-white">{customer.name}</div>
-                                                                            <div className="text-sm text-slate-500 flex items-center gap-2">
+                                                                                                                                    <SelectItem key={customer.id} value={customer.id.toString()} className="p-4 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                        <div className="flex items-center space-x-4">
+                                                                            <div className="p-2 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30 rounded-lg">
+                                                                                <Users className="h-5 w-5 text-indigo-600" />
+                                                                            </div>
+                                                                            <div>
+                                                                                <div className="font-semibold text-slate-800 dark:text-white">{customer.name}</div>
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
                                                                                 {customer.email && (
                                                                                     <>
                                                                                         <span>{customer.email}</span>
@@ -478,17 +476,17 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                             value={currentItem.product_id}
                                                             onValueChange={(value) => setCurrentItem({...currentItem, product_id: value, unit_type: '', price: ''})}
                                                         >
-                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800">
+                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
                                                                 <SelectValue placeholder={t("Select a product")} />
                                                             </SelectTrigger>
-                                                            <SelectContent>
+                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                                                                 {warehouseProducts?.filter(p => !saleItems.some(item => item.product_id === p.id)).map((product) => (
-                                                                    <SelectItem key={product.id} value={product.id.toString()} className="p-3">
+                                                                    <SelectItem key={product.id} value={product.id.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
                                                                         <div className="flex items-center space-x-3">
                                                                             <Package className="h-4 w-4 text-blue-600" />
                                                                             <div>
-                                                                                <div className="font-semibold">{product.name}</div>
-                                                                                <div className="text-sm text-slate-500">
+                                                                                <div className="font-semibold text-slate-800 dark:text-white">{product.name}</div>
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
                                                                                     Stock: {product.stock_quantity}
                                                                                 </div>
                                                                             </div>
@@ -514,17 +512,17 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                             }}
                                                             disabled={!currentItem.product_id}
                                                         >
-                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-orange-300 focus:border-orange-500 bg-white dark:bg-slate-800">
+                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-orange-300 focus:border-orange-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
                                                                 <SelectValue placeholder={t("Select unit type")} />
                                                             </SelectTrigger>
-                                                            <SelectContent>
+                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                                                                 {currentProduct && getAvailableUnits(currentProduct).map((unit) => (
-                                                                    <SelectItem key={unit.type} value={unit.type} className="p-3">
+                                                                    <SelectItem key={unit.type} value={unit.type} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
                                                                         <div className="flex items-center space-x-3">
                                                                             <Weight className="h-4 w-4 text-orange-600" />
                                                                             <div>
-                                                                                <div className="font-semibold">{unit.label}</div>
-                                                                                <div className="text-sm text-slate-500">
+                                                                                <div className="font-semibold text-slate-800 dark:text-white">{unit.label}</div>
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
                                                                                     {formatCurrency(unit.price)} per unit
                                                                                 </div>
                                                                             </div>
@@ -544,6 +542,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                             {t("Quantity")} *
                                                         </Label>
                                                         <Input
+                                                        
                                                             type="number"
                                                             step="0.01"
                                                             min="0.01"
@@ -551,10 +550,10 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                             placeholder={t("Enter quantity")}
                                                             value={currentItem.quantity}
                                                             onChange={(e) => setCurrentItem({...currentItem, quantity: e.target.value})}
-                                                            className={`h-12 text-base border-2 ${currentStockWarning ? 'border-red-500' : 'border-slate-200 hover:border-green-300 focus:border-green-500'}`}
+                                                            className={`dark:border-white h-12 text-base border-2 ${currentStockWarning ? 'border-red-500' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}
                                                         />
                                                         {currentProduct && currentItem.unit_type && (
-                                                            <p className="text-sm text-slate-500">
+                                                            <p className="text-sm text-slate-500 dark:text-slate-400">
                                                                 Available: {currentAvailableStock} {currentItem.unit_type} units
                                                             </p>
                                                         )}
@@ -573,7 +572,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                             placeholder={t("Enter price")}
                                                             value={currentItem.price}
                                                             onChange={(e) => setCurrentItem({...currentItem, price: e.target.value})}
-                                                            className="h-12 text-base border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500"
+                                                            className="h-12 dark:border-white text-base border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                                                         />
                                                     </div>
 
@@ -655,7 +654,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                                                     <Package className="h-5 w-5 text-blue-600" />
                                                                                     <div>
                                                                                         <div className="font-semibold text-slate-800 dark:text-white">{item.product.name}</div>
-                                                                                        <div className="text-sm text-slate-500">{item.product.barcode}</div>
+                                                                                        <div className="text-sm text-slate-500 dark:text-slate-400">{item.product.barcode}</div>
                                                                                     </div>
                                                                                 </div>
                                                                             </td>
@@ -666,14 +665,14 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                                             </td>
                                                                             <td className="px-6 py-4">
                                                                                 <div className="flex flex-col">
-                                                                                    <span className="font-semibold">{item.entered_quantity} units</span>
-                                                                                    <span className="text-sm text-slate-500">({item.actual_quantity} pieces)</span>
+                                                                                    <span className="font-semibold text-slate-800 dark:text-white">{item.entered_quantity} units</span>
+                                                                                    <span className="text-sm text-slate-500 dark:text-slate-400">({item.actual_quantity} pieces)</span>
                                                                                 </div>
                                                                             </td>
-                                                                            <td className="px-6 py-4 font-semibold">
+                                                                            <td className="px-6 py-4 font-semibold text-slate-800 dark:text-white">
                                                                                 {formatCurrency(item.unit_price)}
                                                                             </td>
-                                                                            <td className="px-6 py-4 font-bold text-green-600">
+                                                                            <td className="px-6 py-4 font-bold text-green-600 dark:text-green-400">
                                                                                 {formatCurrency(item.total_price)}
                                                                             </td>
                                                                             <td className="px-6 py-4">
@@ -757,7 +756,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{t("Customer")}:</p>
                                                             <p className="font-semibold text-slate-800 dark:text-white">{selectedCustomer.name}</p>
                                                             {selectedCustomer.email && (
-                                                                <p className="text-xs text-slate-500">{selectedCustomer.email}</p>
+                                                                <p className="text-xs text-slate-500 dark:text-slate-400">{selectedCustomer.email}</p>
                                                             )}
                                                         </div>
                                                     </CardContent>
@@ -788,7 +787,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                     value={data.notes}
                                                     onChange={(e) => setData('notes', e.target.value)}
                                                     rows={4}
-                                                    className="resize-none text-lg border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500"
+                                                    className="resize-none text-lg border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                                                 />
                                             </CardContent>
                                         </Card>
@@ -802,13 +801,13 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                         className="flex justify-end space-x-6 pt-6"
                                     >
                                         <Link href={route("admin.warehouses.sales", warehouse.id)}>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200"
-                                            >
-                                                {t("Cancel")}
-                                            </Button>
+                                                                                    <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+                                        >
+                                            {t("Cancel")}
+                                        </Button>
                                         </Link>
                                         <Button
                                             type="submit"

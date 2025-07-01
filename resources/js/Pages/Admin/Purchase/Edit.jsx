@@ -235,7 +235,7 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.purchases.show", purchase.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Purchase")}
                                     </Button>
@@ -260,8 +260,8 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.5 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-600/50 rounded-t-xl">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                     <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
                                                         <ShoppingCart className="h-6 w-6 text-white" />
@@ -271,7 +271,7 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
                                                         {t("Edit Mode")}
                                                     </Badge>
                                                 </CardTitle>
-                                                <CardDescription className="text-slate-600 dark:text-slate-400">
+                                                <CardDescription className="text-slate-600 dark:text-slate-300">
                                                     {t("Update the details for this purchase order")}
                                                 </CardDescription>
                                             </CardHeader>
@@ -297,7 +297,7 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                                     {/* Supplier Selection */}
                                                     <div className="space-y-3">
-                                                        <Label htmlFor="supplier_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                        <Label htmlFor="supplier_id" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                             <Truck className="w-5 h-5 text-green-500" />
                                                             {t("Supplier")} *
                                                         </Label>
@@ -305,12 +305,12 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
                                                             value={data.supplier_id}
                                                             onValueChange={(value) => setData('supplier_id', value)}
                                                         >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.supplier_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}>
+                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.supplier_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200`}>
                                                                 <SelectValue placeholder={t("Select a supplier")} />
                                                             </SelectTrigger>
-                                                            <SelectContent>
+                                                            <SelectContent className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600">
                                                                 {suppliers?.map((supplier) => (
-                                                                    <SelectItem key={supplier.id} value={supplier.id.toString()}>
+                                                                    <SelectItem key={supplier.id} value={supplier.id.toString()} className="text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">
                                                                         {supplier.name}
                                                                     </SelectItem>
                                                                 ))}
@@ -326,7 +326,7 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
 
                                                     {/* Currency Selection */}
                                                     <div className="space-y-3">
-                                                        <Label htmlFor="currency_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                        <Label htmlFor="currency_id" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                             <Globe className="w-5 h-5 text-blue-500" />
                                                             {t("Currency")} *
                                                         </Label>
@@ -334,12 +334,12 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
                                                             value={data.currency_id}
                                                             onValueChange={(value) => setData('currency_id', value)}
                                                         >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.currency_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}>
+                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.currency_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200`}>
                                                                 <SelectValue placeholder={t("Select currency")} />
                                                             </SelectTrigger>
-                                                            <SelectContent>
+                                                            <SelectContent className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600">
                                                                 {currencies?.map((currency) => (
-                                                                    <SelectItem key={currency.id} value={currency.id.toString()}>
+                                                                    <SelectItem key={currency.id} value={currency.id.toString()} className="text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">
                                                                         {currency.name} ({currency.code})
                                                                     </SelectItem>
                                                                 ))}
@@ -355,7 +355,7 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
 
                                                     {/* Status */}
                                                     <div className="space-y-3">
-                                                        <Label htmlFor="status" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                        <Label htmlFor="status" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                             <CheckCircle className="w-5 h-5 text-indigo-500" />
                                                             {t("Status")} *
                                                         </Label>
@@ -363,18 +363,18 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
                                                             value={data.status}
                                                             onValueChange={(value) => setData('status', value)}
                                                         >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.status ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-indigo-300 focus:border-indigo-500'} bg-white dark:bg-slate-800`}>
+                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.status ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-indigo-300 focus:border-indigo-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200`}>
                                                                 <SelectValue placeholder={t("Select status")} />
                                                             </SelectTrigger>
-                                                            <SelectContent>
-                                                                <SelectItem value="purchase">{t("Purchase")}</SelectItem>
-                                                                <SelectItem value="onway">{t("On Way")}</SelectItem>
-                                                                <SelectItem value="on_border">{t("On Border")}</SelectItem>
-                                                                <SelectItem value="on_plan">{t("On Plan")}</SelectItem>
-                                                                <SelectItem value="on_ship">{t("On Ship")}</SelectItem>
-                                                                <SelectItem value="arrived">{t("Arrived")}</SelectItem>
-                                                                <SelectItem value="warehouse_moved">{t("Moved to Warehouse")}</SelectItem>
-                                                                <SelectItem value="return">{t("Return")}</SelectItem>
+                                                            <SelectContent className="bg-white dark:bg-slate-700 border-slate-200 dark:border-slate-600">
+                                                                <SelectItem value="purchase" className="text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">{t("Purchase")}</SelectItem>
+                                                                <SelectItem value="onway" className="text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">{t("On Way")}</SelectItem>
+                                                                <SelectItem value="on_border" className="text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">{t("On Border")}</SelectItem>
+                                                                <SelectItem value="on_plan" className="text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">{t("On Plan")}</SelectItem>
+                                                                <SelectItem value="on_ship" className="text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">{t("On Ship")}</SelectItem>
+                                                                <SelectItem value="arrived" className="text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">{t("Arrived")}</SelectItem>
+                                                                <SelectItem value="warehouse_moved" className="text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">{t("Moved to Warehouse")}</SelectItem>
+                                                                <SelectItem value="return" className="text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">{t("Return")}</SelectItem>
                                                             </SelectContent>
                                                         </Select>
                                                         {errors.status && (
@@ -387,12 +387,12 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
 
                                                     {/* Currency Rate */}
                                                     <div className="space-y-3">
-                                                        <Label htmlFor="currency_rate" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                        <Label htmlFor="currency_rate" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                             <DollarSign className="w-5 h-5 text-green-500" />
                                                             {t("Currency Rate")} *
                                                         </Label>
                                                         <div className="relative">
-                                                            <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                            <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                             <Input
                                                                 id="currency_rate"
                                                                 type="number"
@@ -401,7 +401,7 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
                                                                 placeholder={t("Enter rate")}
                                                                 value={data.currency_rate}
                                                                 onChange={(e) => setData('currency_rate', e.target.value)}
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.currency_rate ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}
+                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.currency_rate ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder:text-slate-400`}
                                                             />
                                                         </div>
                                                         {errors.currency_rate && (
@@ -415,7 +415,7 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
 
                                                 {/* Notes */}
                                                 <div className="space-y-3">
-                                                    <Label htmlFor="note" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                    <Label htmlFor="note" className="text-slate-700 dark:text-slate-200 font-semibold text-lg flex items-center gap-2">
                                                         <FileText className="w-5 h-5 text-purple-500" />
                                                         {t("Notes")}
                                                         <Badge variant="secondary" className="text-xs">
@@ -428,7 +428,7 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
                                                         value={data.note}
                                                         onChange={(e) => setData('note', e.target.value)}
                                                         rows={4}
-                                                        className={`resize-none text-lg border-2 transition-all duration-200 ${errors.note ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-800`}
+                                                        className={`resize-none text-lg border-2 transition-all duration-200 ${errors.note ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200 dark:placeholder:text-slate-400`}
                                                     />
                                                     {errors.note && (
                                                         <p className="text-sm text-red-600 font-medium flex items-center gap-1">
@@ -452,7 +452,7 @@ export default function Edit({ auth, purchase, suppliers, currencies, warehouses
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200"
+                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200 dark:text-white text-black"
                                             >
                                                 {t("Cancel")}
                                             </Button>

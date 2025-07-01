@@ -407,12 +407,12 @@ export default function Sales({ auth, warehouse, sales }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-slate-700 dark:text-slate-200 hover:text-green-700 dark:hover:text-green-300">
                                     <Download className="h-4 w-4" />
                                     {t("Export")}
                                 </Button>
                                 <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Warehouse")}
                                     </Button>
@@ -443,7 +443,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
-                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800 hover:shadow-xl transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-slate-800 hover:shadow-xl transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -470,7 +470,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.0, duration: 0.4 }}
                                     >
-                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800 hover:shadow-xl transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-slate-800 hover:shadow-xl transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -497,7 +497,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.1, duration: 0.4 }}
                                     >
-                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800 hover:shadow-xl transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-slate-800 hover:shadow-xl transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -524,7 +524,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 1.2, duration: 0.4 }}
                                     >
-                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800 hover:shadow-xl transition-all duration-300">
+                                        <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-slate-800 hover:shadow-xl transition-all duration-300">
                                             <CardContent className="p-6">
                                                 <div className="flex items-center justify-between">
                                                     <div>
@@ -553,8 +553,8 @@ export default function Sales({ auth, warehouse, sales }) {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.3, duration: 0.4 }}
                                 >
-                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
-                                        <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-slate-800">
+                                        <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800/50">
                                             <div className="flex items-center justify-between">
                                                 <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
                                                     <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
@@ -565,7 +565,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                 <Button
                                                     variant="outline"
                                                     onClick={() => setShowFilters(!showFilters)}
-                                                    className="gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                    className="gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                                                 >
                                                     <Filter className="h-4 w-4" />
                                                     {showFilters ? t("Hide Filters") : t("Show Filters")}
@@ -582,7 +582,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                         placeholder={t("Search by reference, customer, or product...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-12 h-12 text-lg border border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-500/20 dark:focus:ring-green-400/20 rounded-lg w-full bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                                                        className="pl-12 h-12 text-lg border border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-2 focus:ring-green-500/20 dark:focus:ring-green-400/20 rounded-lg w-full bg-white dark:bg-slate-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                                                     />
                                                     {searchTerm && (
                                                         <Button
@@ -627,7 +627,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                     type="date"
                                                                     value={dateFilter}
                                                                     onChange={(e) => setDateFilter(e.target.value)}
-                                                                    className="h-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                                                    className="h-10 border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white"
                                                                 />
                                                             </div>
 
@@ -636,10 +636,10 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                     {t("Status")}
                                                                 </label>
                                                                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
                                                                         <SelectValue placeholder={t("All Statuses")} />
                                                                     </SelectTrigger>
-                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-lg">
                                                                         <SelectItem value="" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                                                                             {t("All Statuses")}
                                                                         </SelectItem>
@@ -661,10 +661,10 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                     {t("Sort By")}
                                                                 </label>
                                                                 <Select value={sortBy} onValueChange={setSortBy}>
-                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-lg">
                                                                         <SelectItem value="created_at" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                                                                             {t("Date Created")}
                                                                         </SelectItem>
@@ -689,10 +689,10 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                     {t("Sort Order")}
                                                                 </label>
                                                                 <Select value={sortOrder} onValueChange={setSortOrder}>
-                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                                                                    <SelectTrigger className="h-10 w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg">
+                                                                    <SelectContent position="popper" sideOffset={5} className="z-[9999] bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 shadow-lg">
                                                                         <SelectItem value="desc" className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                                                                             {t("Descending")}
                                                                         </SelectItem>
@@ -707,7 +707,7 @@ export default function Sales({ auth, warehouse, sales }) {
                                                                 <Button
                                                                     variant="outline"
                                                                     onClick={clearFilters}
-                                                                    className="w-full h-10 gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                                                                    className="w-full h-10 gap-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
                                                                 >
                                                                     <RefreshCw className="h-4 w-4" />
                                                                     {t("Clear Filters")}
@@ -734,8 +734,8 @@ export default function Sales({ auth, warehouse, sales }) {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 1.4, duration: 0.4 }}
                                 >
-                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800">
-                                        <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-slate-800">
+                                        <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-slate-800/50">
                                             <CardTitle className="flex items-center gap-3 text-gray-900 dark:text-white">
                                                 <div className="p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-gray-600 dark:text-gray-400" />
@@ -777,12 +777,12 @@ export default function Sales({ auth, warehouse, sales }) {
                                                             </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
-                                                    <TableBody className="bg-white dark:bg-gray-800">
+                                                    <TableBody className="bg-white dark:bg-slate-800">
                                                         {filteredSales.length > 0 ? (
                                                             filteredSales.map((sale, index) => (
                                                                 <TableRow
                                                                     key={sale.id}
-                                                                    className={`hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700/50'}`}
+                                                                    className={`hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors ${index % 2 === 0 ? 'bg-white dark:bg-slate-800' : 'bg-gray-50 dark:bg-slate-700/50'}`}
                                                                 >
                                                                     <TableCell>
                                                                         <span className="font-mono text-sm bg-gray-100 dark:bg-gray-700 px-3 py-1 rounded-lg text-gray-700 dark:text-gray-300">

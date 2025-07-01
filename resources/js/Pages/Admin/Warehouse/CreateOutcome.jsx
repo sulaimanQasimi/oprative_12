@@ -2,14 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
-    Building2,
     ArrowLeft,
     TrendingDown,
     Package,
     DollarSign,
     Hash,
     Calculator,
-    ShoppingCart,
     Save,
     AlertCircle,
     Barcode,
@@ -312,7 +310,7 @@ export default function CreateOutcome({ auth, warehouse, products, errors }) {
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.warehouses.outcome", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-red-200 hover:border-red-300 hover:bg-red-50 dark:hover:bg-red-900/20">
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 text-slate-700 dark:text-slate-200 hover:text-red-700 dark:hover:text-red-300">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Exports")}
                                     </Button>
@@ -387,7 +385,7 @@ export default function CreateOutcome({ auth, warehouse, products, errors }) {
                                                             value={data.product_id}
                                                             onValueChange={(value) => setData('product_id', value)}
                                                         >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${formErrors.product_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-red-300 focus:border-red-500'} bg-white dark:bg-slate-800`}>
+                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${formErrors.product_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-red-300 focus:border-red-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}>
                                                                 <SelectValue placeholder={t("Select a product to export")} />
                                                             </SelectTrigger>
                                                             <SelectContent className="max-w-md">
@@ -440,7 +438,7 @@ export default function CreateOutcome({ auth, warehouse, products, errors }) {
                                                             onValueChange={handleUnitTypeChange}
                                                             disabled={!selectedProduct}
                                                         >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${formErrors.unit_type ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-orange-300 focus:border-orange-500'} ${!selectedProduct ? 'opacity-50 cursor-not-allowed' : 'bg-white dark:bg-slate-800'}`}>
+                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${formErrors.unit_type ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-orange-300 focus:border-orange-500'} ${!selectedProduct ? 'opacity-50 cursor-not-allowed' : 'bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400'}`}>
                                                                 <SelectValue placeholder={selectedProduct ? t("Select unit type") : t("Select product first")} />
                                                             </SelectTrigger>
                                                             <SelectContent>
@@ -531,7 +529,7 @@ export default function CreateOutcome({ auth, warehouse, products, errors }) {
                                                                 placeholder={t("Enter quantity")}
                                                                 value={data.quantity}
                                                                 onChange={(e) => setData('quantity', e.target.value)}
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${formErrors.quantity || stockWarning ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}
+                                                                className={`pl-12 dark:border-white h-14 text-lg border-2 transition-all duration-200 ${formErrors.quantity || stockWarning ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}
                                                             />
                                                         </div>
                                                         {formErrors.quantity && (
@@ -583,7 +581,7 @@ export default function CreateOutcome({ auth, warehouse, products, errors }) {
                                                                 placeholder={t("Enter price")}
                                                                 value={data.price}
                                                                 onChange={(e) => setData('price', e.target.value)}
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${formErrors.price ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}
+                                                                className={`pl-12 dark:border-white h-14 text-lg border-2 transition-all duration-200 ${formErrors.price ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}
                                                             />
                                                         </div>
                                                         {formErrors.price && (
@@ -619,7 +617,7 @@ export default function CreateOutcome({ auth, warehouse, products, errors }) {
                                                         value={data.notes}
                                                         onChange={(e) => setData('notes', e.target.value)}
                                                         rows={4}
-                                                        className={`resize-none text-lg border-2 transition-all duration-200 ${formErrors.notes ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-800`}
+                                                        className={`resize-none dark:border-white  text-lg border-2 transition-all duration-200 ${formErrors.notes ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}
                                                     />
                                                     {formErrors.notes && (
                                                         <motion.p
@@ -728,13 +726,13 @@ export default function CreateOutcome({ auth, warehouse, products, errors }) {
                                         className="flex justify-end space-x-6 pt-6"
                                     >
                                         <Link href={route("admin.warehouses.outcome", warehouse.id)}>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200"
-                                            >
-                                                {t("Cancel")}
-                                            </Button>
+                                                                                    <Button
+                                            type="button"
+                                            variant="outline"
+                                            className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
+                                        >
+                                            {t("Cancel")}
+                                        </Button>
                                         </Link>
                                         <Button
                                             type="submit"

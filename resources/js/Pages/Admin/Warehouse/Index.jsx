@@ -523,88 +523,109 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                                     exit={{ opacity: 0, y: -20 }}
                                                     transition={{ delay: index * 0.1 }}
                                                 >
-                                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800 hover:shadow-md transition-shadow duration-200">
-                                                        <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+                                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl hover:shadow-2xl transition-all duration-300">
+                                                        <CardHeader className="bg-gradient-to-r from-blue-500/10 via-indigo-500/10 to-blue-500/10 border-b border-slate-200 dark:border-slate-600 rounded-t-xl">
                                                             <div className="flex items-start justify-between">
-                                                                <div className="flex items-center space-x-3">
-                                                                    <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                                                                        <Building2 className="h-5 w-5 text-white" />
+                                                                <div className="flex items-center space-x-4">
+                                                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                                        <Building2 className="h-6 w-6 text-white" />
                                                                     </div>
                                                                     <div>
-                                                                        <CardTitle className="text-lg font-bold text-slate-900 dark:text-white">
+                                                                        <CardTitle className="text-xl font-bold text-slate-800 dark:text-slate-200">
                                                                             {warehouse.name}
                                                                         </CardTitle>
-                                                                        <p className="text-sm text-slate-600 dark:text-slate-400 font-mono">
+                                                                        <p className="text-sm text-slate-600 dark:text-slate-400 font-mono bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded">
                                                                             {warehouse.code}
                                                                         </p>
                                                                     </div>
                                                                 </div>
                                                                 <Badge
                                                                     variant={warehouse.is_active ? "default" : "secondary"}
-                                                                    className={`${
+                                                                    className={`px-3 py-1 text-sm font-medium ${
                                                                         warehouse.is_active
-                                                                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                                                                            : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
+                                                                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                                                            : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
                                                                     }`}
                                                                 >
                                                                     {warehouse.is_active ? (
-                                                                        <CheckCircle className="h-3 w-3 mr-1" />
+                                                                        <CheckCircle className="h-4 w-4 mr-1" />
                                                                     ) : (
-                                                                        <XCircle className="h-3 w-3 mr-1" />
+                                                                        <XCircle className="h-4 w-4 mr-1" />
                                                                     )}
                                                                     {warehouse.is_active ? t("Active") : t("Inactive")}
                                                                 </Badge>
                                                             </div>
                                                         </CardHeader>
                                                         <CardContent className="p-6">
-                                                            <div className="space-y-4">
+                                                            <div className="space-y-6">
                                                                 {warehouse.description && (
-                                                                    <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
-                                                                        {warehouse.description}
-                                                                    </p>
+                                                                    <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
+                                                                        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+                                                                            {warehouse.description}
+                                                                        </p>
+                                                                    </div>
                                                                 )}
 
-                                                                <div className="grid grid-cols-2 gap-4">
-                                                                    <div className="flex items-center space-x-2">
-                                                                        <Users className="h-4 w-4 text-blue-500" />
-                                                                        <span className="text-sm text-slate-600 dark:text-slate-400">
-                                                                            {warehouse.users_count || 0} {t("Users")}
-                                                                        </span>
+                                                                <div className="grid grid-cols-2 gap-6">
+                                                                    <div className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                                                                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                                                            <Users className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                                                                                {warehouse.users_count || 0}
+                                                                            </div>
+                                                                            <div className="text-xs text-slate-600 dark:text-slate-400">
+                                                                                {t("Users")}
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
-                                                                    <div className="flex items-center space-x-2">
-                                                                        <Package className="h-4 w-4 text-green-500" />
-                                                                        <span className="text-sm text-slate-600 dark:text-slate-400">
-                                                                            {warehouse.products_count || 0} {t("Products")}
-                                                                        </span>
+                                                                    <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                                                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                                                            <Package className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                                                                                {warehouse.products_count || 0}
+                                                                            </div>
+                                                                            <div className="text-xs text-slate-600 dark:text-slate-400">
+                                                                                {t("Products")}
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
 
                                                                 {warehouse.location && (
-                                                                    <div className="flex items-center space-x-2">
-                                                                        <MapPin className="h-4 w-4 text-orange-500" />
-                                                                        <span className="text-sm text-slate-600 dark:text-slate-400">
-                                                                            {warehouse.location}
-                                                                        </span>
+                                                                    <div className="flex items-center space-x-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                                                                        <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                                                                            <MapPin className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                                                                                {t("Location")}
+                                                                            </div>
+                                                                            <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                                                {warehouse.location}
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 )}
                                                             </div>
                                                         </CardContent>
-                                                        <CardFooter className="bg-gray-50 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600 p-4">
+                                                        <CardFooter className="bg-slate-50 dark:bg-slate-700 border-t border-slate-200 dark:border-slate-600 p-6">
                                                             <div className="flex items-center justify-between w-full">
-                                                                <div className="flex items-center space-x-2">
+                                                                <div className="flex items-center gap-3">
                                                                     {permissions.can_view && (
                                                                         <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                                                            <Button size="sm" variant="outline" className="hover:bg-blue-50 dark:hover:bg-blue-950/30">
-                                                                                <Eye className="h-3 w-3 mr-1" />
-                                                                                {t("View")}
+                                                                            <Button size="sm" variant="outline" className="h-10 w-10 p-0 border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:border-blue-700 dark:hover:border-blue-600 dark:hover:bg-blue-900/20 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-200 shadow-sm hover:shadow-md">
+                                                                                <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                                                             </Button>
                                                                         </Link>
                                                                     )}
                                                                     {permissions.can_update && (
                                                                         <Link href={route("admin.warehouses.edit", warehouse.id)}>
-                                                                            <Button size="sm" variant="outline" className="hover:bg-green-50 dark:hover:bg-green-950/30">
-                                                                                <Edit className="h-3 w-3 mr-1" />
-                                                                                {t("Edit")}
+                                                                            <Button size="sm" variant="outline" className="h-10 w-10 p-0 border-2 border-green-200 hover:border-green-300 hover:bg-green-50 dark:border-green-700 dark:hover:border-green-600 dark:hover:bg-green-900/20 dark:text-green-400 dark:hover:text-green-300 transition-all duration-200 shadow-sm hover:shadow-md">
+                                                                                <Edit className="h-4 w-4 text-green-600 dark:text-green-400" />
                                                                             </Button>
                                                                         </Link>
                                                                     )}
@@ -614,9 +635,9 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                                                         size="sm"
                                                                         variant="outline"
                                                                         onClick={() => handleDelete(warehouse.id)}
-                                                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                                                                        className="h-10 w-10 p-0 border-2 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-700 dark:hover:border-red-600 dark:hover:bg-red-900/20 dark:text-red-400 dark:hover:text-red-300 transition-all duration-200 shadow-sm hover:shadow-md"
                                                                     >
-                                                                        <Trash2 className="h-3 w-3" />
+                                                                        <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
                                                                     </Button>
                                                                 )}
                                                             </div>

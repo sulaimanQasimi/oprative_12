@@ -57,13 +57,28 @@ export default function Index({ auth, purchases, suppliers }) {
 
     const getStatusBadge = (status) => {
         const statusConfig = {
-            'purchase': { color: 'bg-blue-100 text-blue-700', label: t('Purchase') },
-            'onway': { color: 'bg-yellow-100 text-yellow-700', label: t('On Way') },
-            'arrived': { color: 'bg-green-100 text-green-700', label: t('Arrived') },
-            'return': { color: 'bg-red-100 text-red-700', label: t('Return') },
+            'purchase': { 
+                color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300', 
+                label: t('Purchase') 
+            },
+            'onway': { 
+                color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300', 
+                label: t('On Way') 
+            },
+            'arrived': { 
+                color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300', 
+                label: t('Arrived') 
+            },
+            'return': { 
+                color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300', 
+                label: t('Return') 
+            },
         };
-        const config = statusConfig[status] || { color: 'bg-gray-100 text-gray-700', label: status };
-        return <Badge className={`${config.color} font-medium`}>{config.label}</Badge>;
+        const config = statusConfig[status] || { 
+            color: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300', 
+            label: status 
+        };
+        return <Badge className={`${config.color} font-medium px-3 py-1 text-sm`}>{config.label}</Badge>;
     };
 
     const purchaseData = purchases?.data || purchases || [];
@@ -247,93 +262,103 @@ export default function Index({ auth, purchases, suppliers }) {
                             </Card>
 
                             {/* Purchases Table */}
-                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-3">
-                                        <ShoppingCart className="h-5 w-5 text-green-600" />
+                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl">
+                                <CardHeader className="border-b border-slate-200 dark:border-slate-600">
+                                    <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
+                                        <ShoppingCart className="h-6 w-6 text-green-600" />
                                         {t("Purchase Orders")}
-                                        <Badge variant="secondary">{purchaseData.length}</Badge>
+                                        <Badge variant="secondary" className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">{purchaseData.length}</Badge>
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="p-0">
-                                    <div className="overflow-x-auto">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow className="bg-slate-50 dark:bg-slate-900/50">
-                                                    <TableHead>{t("Invoice")}</TableHead>
-                                                    <TableHead>{t("Supplier")}</TableHead>
-                                                    <TableHead>{t("Date")}</TableHead>
-                                                    <TableHead>{t("Amount")}</TableHead>
-                                                    <TableHead>{t("Status")}</TableHead>
-                                                    <TableHead>{t("Actions")}</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {purchaseData.length > 0 ? (
-                                                    purchaseData.map((purchase) => (
-                                                        <TableRow key={purchase.id} className="hover:bg-green-50 dark:hover:bg-green-900/10">
-                                                            <TableCell>
-                                                                <div className="flex items-center gap-3">
-                                                                    <FileText className="h-4 w-4 text-blue-600" />
-                                                                    <span className="font-mono text-sm">{purchase.invoice_number}</span>
+                                <CardContent className="p-6">
+                                    <Table>
+                                        <TableHeader>
+                                            <TableRow>
+                                                <TableHead>{t("Invoice")}</TableHead>
+                                                <TableHead>{t("Supplier")}</TableHead>
+                                                <TableHead>{t("Date")}</TableHead>
+                                                <TableHead>{t("Amount")}</TableHead>
+                                                <TableHead>{t("Status")}</TableHead>
+                                                <TableHead className="text-right">{t("Actions")}</TableHead>
+                                            </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                            {purchaseData.length > 0 ? (
+                                                purchaseData.map((purchase) => (
+                                                    <TableRow key={purchase.id} className="hover:bg-green-50 dark:hover:bg-green-900/10">
+                                                        <TableCell>
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                                                    <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                                                 </div>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <div className="flex items-center gap-3">
-                                                                    <Truck className="h-4 w-4 text-purple-600" />
-                                                                    <span>{purchase.supplier?.name || 'N/A'}</span>
+                                                                <div>
+                                                                    <div className="font-semibold text-slate-800 dark:text-slate-200">{purchase.invoice_number}</div>
+                                                                    <div className="text-sm text-slate-500 dark:text-slate-400">#{purchase.id}</div>
                                                                 </div>
-                                                            </TableCell>
-                                                            <TableCell>
-                                                                <div className="flex items-center gap-2">
-                                                                    <Calendar className="h-4 w-4" />
-                                                                    {formatDate(purchase.invoice_date)}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                                                                    <Truck className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                                                                 </div>
-                                                            </TableCell>
-                                                            <TableCell className="font-bold text-green-600">
+                                                                <div>
+                                                                    <div className="font-medium text-slate-800 dark:text-slate-200">{purchase.supplier?.name || 'N/A'}</div>
+                                                                    <div className="text-sm text-slate-500 dark:text-slate-400">{purchase.supplier?.email || ''}</div>
+                                                                </div>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="flex items-center gap-2">
+                                                                <Calendar className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                                                                <span className="text-slate-700 dark:text-slate-300">{formatDate(purchase.invoice_date)}</span>
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <div className="font-bold text-green-600 dark:text-green-400 text-lg">
                                                                 {formatCurrency(purchase.total_amount)}
-                                                            </TableCell>
-                                                            <TableCell>{getStatusBadge(purchase.status)}</TableCell>
-                                                            <TableCell>
-                                                                <div className="flex items-center gap-2">
-                                                                    <Link href={route("admin.purchases.show", purchase.id)}>
-                                                                        <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                                                                            <Eye className="h-4 w-4 text-blue-600" />
-                                                                        </Button>
-                                                                    </Link>
-                                                                    <Link href={route("admin.purchases.edit", purchase.id)}>
-                                                                        <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                                                                            <Edit className="h-4 w-4 text-green-600" />
-                                                                        </Button>
-                                                                    </Link>
-                                                                    <Button size="sm" variant="outline" className="h-8 w-8 p-0">
-                                                                        <Trash2 className="h-4 w-4 text-red-600" />
-                                                                    </Button>
-                                                                </div>
-                                                            </TableCell>
-                                                        </TableRow>
-                                                    ))
-                                                ) : (
-                                                    <TableRow>
-                                                        <TableCell colSpan="6" className="h-32 text-center">
-                                                            <div className="flex flex-col items-center gap-4">
-                                                                <ShoppingCart className="h-8 w-8 text-slate-400" />
-                                                                <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-                                                                    {t("No purchases found")}
-                                                                </p>
-                                                                <Link href={route("admin.purchases.create")}>
-                                                                    <Button className="gap-2">
-                                                                        <Plus className="h-4 w-4" />
-                                                                        {t("Create First Purchase")}
+                                                            </div>
+                                                        </TableCell>
+                                                        <TableCell>{getStatusBadge(purchase.status)}</TableCell>
+                                                        <TableCell>
+                                                            <div className="flex items-center justify-end gap-2">
+                                                                <Link href={route("admin.purchases.show", purchase.id)}>
+                                                                    <Button size="sm" variant="outline" className="h-10 w-10 p-0 border-2 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:border-blue-700 dark:hover:border-blue-600 dark:hover:bg-blue-900/20 dark:text-blue-400 dark:hover:text-blue-300 transition-all duration-200 shadow-sm hover:shadow-md">
+                                                                        <Eye className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                                                                     </Button>
                                                                 </Link>
+                                                                <Link href={route("admin.purchases.edit", purchase.id)}>
+                                                                    <Button size="sm" variant="outline" className="h-10 w-10 p-0 border-2 border-green-200 hover:border-green-300 hover:bg-green-50 dark:border-green-700 dark:hover:border-green-600 dark:hover:bg-green-900/20 dark:text-green-400 dark:hover:text-green-300 transition-all duration-200 shadow-sm hover:shadow-md">
+                                                                        <Edit className="h-4 w-4 text-green-600 dark:text-green-400" />
+                                                                    </Button>
+                                                                </Link>
+                                                                <Button size="sm" variant="outline" className="h-10 w-10 p-0 border-2 border-red-200 hover:border-red-300 hover:bg-red-50 dark:border-red-700 dark:hover:border-red-600 dark:hover:bg-red-900/20 dark:text-red-400 dark:hover:text-red-300 transition-all duration-200 shadow-sm hover:shadow-md">
+                                                                    <Trash2 className="h-4 w-4 text-red-600 dark:text-red-400" />
+                                                                </Button>
                                                             </div>
                                                         </TableCell>
                                                     </TableRow>
-                                                )}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
+                                                ))
+                                            ) : (
+                                                <TableRow>
+                                                    <TableCell colSpan="6" className="h-40 text-center py-8">
+                                                        <div className="flex flex-col items-center gap-4">
+                                                            <ShoppingCart className="h-12 w-12 text-slate-400 dark:text-slate-500" />
+                                                            <p className="text-xl font-medium text-slate-600 dark:text-slate-400">
+                                                                {t("No purchases found")}
+                                                            </p>
+                                                            <Link href={route("admin.purchases.create")}>
+                                                                <Button className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-6 py-3">
+                                                                    <Plus className="h-5 w-5" />
+                                                                    {t("Create First Purchase")}
+                                                                </Button>
+                                                            </Link>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
                                 </CardContent>
                             </Card>
                         </motion.div>

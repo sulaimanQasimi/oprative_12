@@ -371,50 +371,50 @@ export default function Index({ auth, employees = [], departments = [], filters 
                                 <CardContent className="p-0">
                                     <div className="overflow-x-auto">
                                         <table className="w-full">
-                                            <thead className="bg-slate-50 dark:bg-slate-900/50">
+                                            <thead className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                                                 <tr>
-                                                    <th className="px-6 py-3 text-left">
+                                                    <th className="px-6 py-4 text-left">
                                                         <input
                                                             type="checkbox"
                                                             checked={selectedEmployees.length === sortedEmployees.length && sortedEmployees.length > 0}
                                                             onChange={handleSelectAll}
-                                                            className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600"
+                                                            className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700"
                                                         />
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left">
                                                         <button
                                                             onClick={() => handleSort("first_name")}
-                                                            className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-300"
+                                                            className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
                                                         >
                                                             {t("Employee")}
-                                                            <ArrowUpDown className="h-3 w-3" />
+                                                            <ArrowUpDown className="h-4 w-4" />
                                                         </button>
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left">
                                                         <button
                                                             onClick={() => handleSort("employee_id")}
-                                                            className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-300"
+                                                            className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
                                                         >
                                                             {t("Employee ID")}
-                                                            <ArrowUpDown className="h-3 w-3" />
+                                                            <ArrowUpDown className="h-4 w-4" />
                                                         </button>
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left">
                                                         <button
                                                             onClick={() => handleSort("department")}
-                                                            className="flex items-center gap-1 hover:text-slate-700 dark:hover:text-slate-300"
+                                                            className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
                                                         >
                                                             {t("Department")}
-                                                            <ArrowUpDown className="h-3 w-3" />
+                                                            <ArrowUpDown className="h-4 w-4" />
                                                         </button>
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
                                                         {t("Contact")}
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
                                                         {t("Fingerprints")}
                                                     </th>
-                                                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                                                    <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700 dark:text-slate-300">
                                                         {t("Actions")}
                                                     </th>
                                                 </tr>
@@ -423,90 +423,96 @@ export default function Index({ auth, employees = [], departments = [], filters 
                                                 {sortedEmployees.map((employee) => (
                                                     <tr
                                                         key={employee.id}
-                                                        className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                                                        className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors duration-200"
                                                     >
                                                         <td className="px-6 py-4">
                                                             <input
                                                                 type="checkbox"
                                                                 checked={selectedEmployees.includes(employee.id)}
                                                                 onChange={() => handleSelectEmployee(employee.id)}
-                                                                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600"
+                                                                className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 dark:border-slate-600 dark:bg-slate-700"
                                                             />
                                                         </td>
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center">
-                                                                <div className="flex-shrink-0 h-10 w-10">
+                                                                <div className="flex-shrink-0 h-12 w-12">
                                                                     {employee.photo ? (
                                                                         <img
-                                                                            className="h-10 w-10 rounded-full object-cover"
+                                                                            className="h-12 w-12 rounded-full object-cover border-2 border-slate-200 dark:border-slate-600"
                                                                             src={`/storage/${employee.photo}`}
                                                                             alt={employee.first_name}
                                                                         />
                                                                     ) : (
-                                                                        <div className="h-10 w-10 rounded-full bg-slate-300 dark:bg-slate-600 flex items-center justify-center">
-                                                                            <User className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+                                                                        <div className="h-12 w-12 rounded-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center border-2 border-slate-200 dark:border-slate-600">
+                                                                            <User className="h-6 w-6 text-slate-500 dark:text-slate-400" />
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div className="ml-4">
-                                                                    <div className="text-sm font-medium text-slate-900 dark:text-white">
+                                                                    <div className="text-sm font-semibold text-slate-900 dark:text-white">
                                                                         {employee.first_name} {employee.last_name}
                                                                     </div>
-                                                                    <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                                    <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                                         {employee.taskra_id}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <UIBadge variant="outline" className="border-slate-300 dark:border-slate-600">
+                                                            <UIBadge variant="outline" className="border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-medium">
                                                                 {employee.employee_id}
                                                             </UIBadge>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <UIBadge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                                                            <UIBadge className="bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 font-medium">
                                                                 {employee.department}
                                                             </UIBadge>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <div className="space-y-1">
+                                                            <div className="space-y-2">
                                                                 <div className="flex items-center text-sm text-slate-900 dark:text-white">
-                                                                    <Mail className="h-3 w-3 mr-1 text-slate-400" />
-                                                                    {employee.email}
+                                                                    <Mail className="h-4 w-4 mr-2 text-slate-400" />
+                                                                    <span className="font-medium">{employee.email}</span>
                                                                 </div>
                                                                 {employee.contact_info?.phone && (
-                                                                    <div className="flex items-center text-sm text-slate-500 dark:text-slate-400">
-                                                                        <Phone className="h-3 w-3 mr-1 text-slate-400" />
-                                                                        {employee.contact_info.phone}
+                                                                    <div className="flex items-center text-sm text-slate-600 dark:text-slate-400">
+                                                                        <Phone className="h-4 w-4 mr-2 text-slate-400" />
+                                                                        <span>{employee.contact_info.phone}</span>
                                                                     </div>
                                                                 )}
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
                                                             <div className="flex items-center">
-                                                                <Fingerprint className="h-4 w-4 mr-1 text-slate-400" />
-                                                                <span className="text-sm text-slate-900 dark:text-white">
+                                                                <Fingerprint className="h-4 w-4 mr-2 text-slate-400" />
+                                                                <span className="text-sm font-medium text-slate-900 dark:text-white">
                                                                     {employee.fingerprints?.length || 0}
+                                                                </span>
+                                                                <span className="text-xs text-slate-500 dark:text-slate-400 ml-1">
+                                                                    {employee.fingerprints?.length === 1 ? t("fingerprint") : t("fingerprints")}
                                                                 </span>
                                                             </div>
                                                         </td>
                                                         <td className="px-6 py-4">
-                                                            <div className="flex items-center space-x-2">
+                                                            <div className="flex items-center space-x-3">
                                                                 <Link
                                                                     href={route("admin.employees.show", employee.id)}
-                                                                    className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
+                                                                    className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                                                                    title={t("View Employee")}
                                                                 >
                                                                     <Eye className="h-4 w-4" />
                                                                 </Link>
                                                                 <Link
                                                                     href={route("admin.employees.edit", employee.id)}
-                                                                    className="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300"
+                                                                    className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/30 text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors"
+                                                                    title={t("Edit Employee")}
                                                                 >
                                                                     <Edit className="h-4 w-4" />
                                                                 </Link>
                                                                 <button
                                                                     onClick={() => handleDelete(employee.id)}
-                                                                    className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300"
+                                                                    className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+                                                                    title={t("Delete Employee")}
                                                                 >
                                                                     <Trash2 className="h-4 w-4" />
                                                                 </button>

@@ -256,7 +256,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
 
                             <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.7, duration: 0.4 }}>
                                 <Link href={route("admin.purchases.show", purchase.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all dark:text-white duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
                                         <ArrowLeft className="h-4 w-4" /> {t("Back to Purchase")}
                                     </Button>
                                 </Link>
@@ -282,24 +282,24 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                             transition={{ delay: 0.1, duration: 0.4 }}
                                             className="space-y-3"
                                         >
-                                            <Label htmlFor="product_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                <Package className="w-5 h-5 text-green-500" />
+                                            <Label htmlFor="product_id" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                <Package className="w-5 h-5 text-green-500 dark:text-green-400" />
                                                 {t("Product")} *
                                             </Label>
                                             <Select value={data.product_id} onValueChange={(value) => setData('product_id', value)}>
-                                                <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.product_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}>
+                                                <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.product_id ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-400 focus:border-green-500 dark:focus:border-green-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}>
                                                     <SelectValue placeholder={t("Select product")} />
                                                 </SelectTrigger>
-                                                <SelectContent>
+                                                <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
                                                     {products?.map((product) => (
-                                                        <SelectItem key={product.id} value={product.id.toString()} className="p-4">
+                                                        <SelectItem key={product.id} value={product.id.toString()} className="p-4 hover:bg-gray-100 dark:hover:bg-gray-700">
                                                             <div className="flex items-center space-x-4">
                                                                 <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
-                                                                    <Package className="h-5 w-5 text-green-600" />
+                                                                    <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
                                                                 </div>
                                                                 <div className="flex-1">
-                                                                    <div className="font-semibold text-slate-800 dark:text-white">{product.name}</div>
-                                                                    <div className="text-sm text-slate-500 flex items-center gap-2">
+                                                                    <div className="font-semibold text-gray-900 dark:text-white">{product.name}</div>
+                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
                                                                         <Barcode className="w-3 h-3" />
                                                                         {product.barcode || `ID: ${product.id}`}
                                                                     </div>
@@ -325,36 +325,36 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                 transition={{ delay: 0.2, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                <Label htmlFor="unit_type" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                    <Weight className="w-5 h-5 text-orange-500" />
-                                                    {t("Unit Type")} *
-                                                </Label>
+                                                                                            <Label htmlFor="unit_type" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                <Weight className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+                                                {t("Unit Type")} *
+                                            </Label>
                                                 <Select value={data.unit_type} onValueChange={handleUnitTypeChange} disabled={!selectedProduct}>
-                                                    <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.unit_type ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-orange-300 focus:border-orange-500'} ${!selectedProduct ? 'opacity-50 cursor-not-allowed' : 'bg-white dark:bg-slate-800'}`}>
+                                                    <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.unit_type ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-400 focus:border-orange-500 dark:focus:border-orange-400'} ${!selectedProduct ? 'opacity-50 cursor-not-allowed' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white'}`}>
                                                         <SelectValue placeholder={selectedProduct ? t("Select unit type") : t("Select product first")} />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         {selectedProduct && getAvailableUnits(selectedProduct).length > 0 ? (
                                                             getAvailableUnits(selectedProduct).map((unit) => (
-                                                                <SelectItem key={unit.type} value={unit.type} className="p-4">
-                                                                    <div className="flex items-center space-x-4">
-                                                                        <div className={`p-2 rounded-lg ${unit.type === 'wholesale' ? 'bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30' : 'bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30'}`}>
-                                                                            <Weight className={`h-5 w-5 ${unit.type === 'wholesale' ? 'text-orange-600' : 'text-blue-600'}`} />
-                                                                        </div>
-                                                                        <div>
-                                                                            <div className="font-semibold text-slate-800 dark:text-white">{unit.label}</div>
-                                                                            <div className="text-sm text-slate-500 flex items-center gap-2">
-                                                                                <DollarSign className="w-3 h-3" />
-                                                                                {formatCurrency(unit.price)} per unit
-                                                                                {unit.amount > 1 && (
-                                                                                    <Badge variant="secondary" className="text-xs">
-                                                                                        {unit.amount} pieces
-                                                                                    </Badge>
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
+                                                                                                                        <SelectItem key={unit.type} value={unit.type} className="p-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            <div className="flex items-center space-x-4">
+                                                                <div className={`p-2 rounded-lg ${unit.type === 'wholesale' ? 'bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30' : 'bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30'}`}>
+                                                                    <Weight className={`h-5 w-5 ${unit.type === 'wholesale' ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'}`} />
+                                                                </div>
+                                                                <div>
+                                                                    <div className="font-semibold text-gray-900 dark:text-white">{unit.label}</div>
+                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                                                                        <DollarSign className="w-3 h-3" />
+                                                                        {formatCurrency(unit.price)} per unit
+                                                                        {unit.amount > 1 && (
+                                                                            <Badge variant="secondary" className="text-xs">
+                                                                                {unit.amount} pieces
+                                                                            </Badge>
+                                                                        )}
                                                                     </div>
-                                                                </SelectItem>
+                                                                </div>
+                                                            </div>
+                                                        </SelectItem>
                                                             ))
                                                         ) : selectedProduct ? (
                                                             <SelectItem value="" disabled>
@@ -416,16 +416,16 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                 transition={{ delay: 0.3, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                <Label htmlFor="quantity" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                    <Hash className="w-5 h-5 text-blue-500" />
-                                                    {data.unit_type === 'wholesale' ? (
-                                                        <>{t("Wholesale Quantity")} ({selectedProduct?.wholesaleUnit?.symbol || 'Units'}) *</>
-                                                    ) : data.unit_type === 'retail' ? (
-                                                        <>{t("Retail Quantity")} ({selectedProduct?.retailUnit?.symbol || 'Units'}) *</>
-                                                    ) : (
-                                                        <>{t("Quantity")} *</>
-                                                    )}
-                                                </Label>
+                                                                                            <Label htmlFor="quantity" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                <Hash className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                                                {data.unit_type === 'wholesale' ? (
+                                                    <>{t("Wholesale Quantity")} ({selectedProduct?.wholesaleUnit?.symbol || 'Units'}) *</>
+                                                ) : data.unit_type === 'retail' ? (
+                                                    <>{t("Retail Quantity")} ({selectedProduct?.retailUnit?.symbol || 'Units'}) *</>
+                                                ) : (
+                                                    <>{t("Quantity")} *</>
+                                                )}
+                                            </Label>
                                                 <div className="relative">
                                                     <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                                     <Input
@@ -436,7 +436,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                         placeholder={data.unit_type ? `Enter ${data.unit_type} quantity` : t("Enter quantity")}
                                                         value={data.quantity}
                                                         onChange={(e) => setData('quantity', e.target.value)}
-                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.quantity ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-800`}
+                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.quantity ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 focus:border-blue-500 dark:focus:border-blue-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
                                                     />
                                                 </div>
                                                 {errors.quantity && (
@@ -454,10 +454,10 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                 transition={{ delay: 0.4, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                <Label htmlFor="price" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                    <DollarSign className="w-5 h-5 text-green-500" />
-                                                    {t("Price per Unit")} *
-                                                </Label>
+                                                                                            <Label htmlFor="price" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                <DollarSign className="w-5 h-5 text-green-500 dark:text-green-400" />
+                                                {t("Price per Unit")} *
+                                            </Label>
                                                 <div className="relative">
                                                     <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                                     <Input
@@ -468,7 +468,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                         placeholder={t("Enter price")}
                                                         value={data.price}
                                                         onChange={(e) => setData('price', e.target.value)}
-                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.price ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800`}
+                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.price ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-400 focus:border-green-500 dark:focus:border-green-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
                                                     />
                                                 </div>
                                                 {errors.price && (
@@ -524,10 +524,10 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                             className="space-y-3"
                                         >
                                             <div className="flex items-center justify-between">
-                                                <Label htmlFor="total_price" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                    <DollarSign className="w-5 h-5 text-purple-500" />
-                                                    {t("Total Price")}
-                                                </Label>
+                                                                                            <Label htmlFor="total_price" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                <DollarSign className="w-5 h-5 text-purple-500 dark:text-purple-400" />
+                                                {t("Total Price")}
+                                            </Label>
                                                 <Button
                                                     type="button"
                                                     variant="outline"
@@ -557,11 +557,11 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                     value={data.total_price}
                                                     onChange={(e) => setData('total_price', e.target.value)}
                                                     readOnly={!manualTotal}
-                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${!manualTotal ? 'bg-slate-50 dark:bg-slate-800 border-slate-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-800`}
+                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${!manualTotal ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600' : 'border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-400 focus:border-purple-500 dark:focus:border-purple-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
                                                 />
                                             </div>
                                             {!manualTotal && (
-                                                <p className="text-xs text-slate-500 flex items-center gap-1">
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                                                     <Info className="w-3 h-3" />
                                                     {t("Automatically calculated based on quantity and price.")}
                                                 </p>
@@ -569,11 +569,11 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                         </motion.div>
 
                                         <div className="flex justify-end space-x-4 pt-6">
-                                            <Link href={route("admin.purchases.show", purchase.id)}>
-                                                <Button type="button" variant="outline" className="px-8 py-3">
-                                                    {t("Cancel")}
-                                                </Button>
-                                            </Link>
+                                                                            <Link href={route("admin.purchases.show", purchase.id)}>
+                                    <Button type="button" variant="outline" className="px-8 py-3 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
+                                        {t("Cancel")}
+                                    </Button>
+                                </Link>
                                             <Button type="submit" disabled={processing} className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3">
                                                 {processing ? (
                                                     <>

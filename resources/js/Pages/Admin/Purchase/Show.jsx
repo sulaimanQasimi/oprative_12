@@ -225,36 +225,46 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                 </div>
                             </div>
 
-                            <motion.div
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-5"
-                            >
+                            <div className="flex items-center space-x-3">
                                 {permissions.can_update && (
                                     <Link href={route('admin.purchases.edit', purchase.id)}>
-                                        <Button className="relative group bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white shadow-2xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm">
-                                            <Edit className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                        <Button 
+                                            size="sm"
+                                            className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200"
+                                        >
+                                            <Edit className="h-4 w-4 mr-2" />
+                                            {t("Edit")}
                                         </Button>
                                     </Link>
                                 )}
 
                                 {permissions.can_delete && (
                                     <Button 
-                                        className="relative group bg-gradient-to-r from-rose-500 via-pink-500 to-red-500 hover:from-rose-600 hover:via-pink-600 hover:to-red-600 text-white shadow-2xl hover:shadow-rose-500/25 transition-all duration-300 hover:scale-110 hover:-translate-y-1 w-14 h-14 p-0 rounded-xl border border-white/20 backdrop-blur-sm"
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-10 px-4 border-red-300 dark:border-red-600 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
                                         onClick={() => {
                                             if (confirm(t('Are you sure you want to delete this purchase?'))) {
                                                 router.delete(route('admin.purchases.destroy', purchase.id));
                                             }
                                         }}
                                     >
-                                        <Trash2 className="h-5 w-5 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        {t("Delete")}
                                     </Button>
                                 )}
 
-                                
-                                <BackButton link={route('admin.purchases.index')} />
-                            </motion.div>
+                                <Link href={route('admin.purchases.index')}>
+                                    <Button 
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-10 px-4 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                                    >
+                                        <ArrowLeft className="h-4 w-4 mr-2" />
+                                        {t("Back")}
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                     </motion.header>
 
