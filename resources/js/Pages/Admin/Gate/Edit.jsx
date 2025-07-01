@@ -125,7 +125,7 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
-                        className="glass-effect border-b border-white/20 dark:border-slate-700/50 py-6 px-8 sticky top-0 z-30"
+                        className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-700/60 py-6 px-8 sticky top-0 z-30 shadow-sm dark:shadow-slate-900/20"
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
@@ -155,7 +155,7 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-slate-700 to-slate-900 dark:from-white dark:via-slate-100 dark:to-slate-200 bg-clip-text text-transparent"
                                     >
                                         {t("Edit Gate")}
                                     </motion.h1>
@@ -178,7 +178,7 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.gates.index")}>
-                                    <Button variant="outline" className="gap-2 border-2 hover:border-indigo-300">
+                                    <Button variant="outline" className="gap-2 border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-200 hover:text-indigo-700 dark:hover:text-indigo-300 dark:text-white">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Gates")}
                                     </Button>
@@ -203,8 +203,8 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.4 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-indigo-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                        <Card className="border border-slate-200 dark:border-slate-700 shadow-lg bg-white dark:bg-slate-800">
+                                            <CardHeader className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                     <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
                                                         <Building className="h-6 w-6 text-white" />
@@ -223,7 +223,7 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                                     className="space-y-2"
                                                 >
                                                     <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                        <Building className="w-4 h-4 text-indigo-600" />
+                                                        <Building className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                         {t("Gate Name")} *
                                                     </Label>
                                                     <Input
@@ -231,9 +231,9 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                                         type="text"
                                                         value={data.name}
                                                         onChange={(e) => setData("name", e.target.value)}
-                                                        className={`h-12 border-2 transition-all duration-200 input-glow ${
-                                                            errors.name ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300"
-                                                        }`}
+                                                        className={`h-12 border-2 transition-all duration-200 ${
+                                                            errors.name ? "border-red-300 focus:border-red-500" : "border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500"
+                                                        } bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20`}
                                                         placeholder={t("Enter gate name")}
                                                         required
                                                     />
@@ -259,7 +259,7 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                                     className="space-y-2"
                                                 >
                                                     <Label htmlFor="user_id" className="text-slate-700 dark:text-slate-300 font-semibold flex items-center gap-2">
-                                                        <User className="w-4 h-4 text-indigo-600" />
+                                                        <User className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                                         {t("Assigned User")} *
                                                     </Label>
                                                     <Select
@@ -267,23 +267,23 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                                         onValueChange={(value) => setData("user_id", value)}
                                                         required
                                                     >
-                                                        <SelectTrigger className={`h-12 border-2 transition-all duration-200 input-glow ${
-                                                            errors.user_id ? "border-red-300 focus:border-red-500" : "border-slate-200 hover:border-indigo-300"
-                                                        }`}>
+                                                        <SelectTrigger className={`h-12 border-2 transition-all duration-200 ${
+                                                            errors.user_id ? "border-red-300 focus:border-red-500" : "border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500"
+                                                        } bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:ring-2 focus:ring-indigo-500/20 dark:focus:ring-indigo-400/20`}>
                                                             <SelectValue placeholder={t("Select a user")}>
                                                                 {data.user_id && users.find(user => user.id.toString() === data.user_id.toString())?.name}
                                                             </SelectValue>
                                                         </SelectTrigger>
-                                                        <SelectContent>
+                                                        <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
                                                             {users.map((user) => (
-                                                                <SelectItem key={user.id} value={user.id.toString()}>
+                                                                <SelectItem key={user.id} value={user.id.toString()} className="hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-900 dark:text-white">
                                                                     <div className="flex items-center gap-2">
                                                                         <div className="p-1 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded">
-                                                                            <User className="h-3 w-3 text-indigo-600" />
+                                                                            <User className="h-3 w-3 text-indigo-600 dark:text-indigo-400" />
                                                                         </div>
                                                                         <div>
-                                                                            <div className="font-medium">{user.name}</div>
-                                                                            <div className="text-sm text-slate-500">{user.email}</div>
+                                                                            <div className="font-medium text-slate-900 dark:text-white">{user.name}</div>
+                                                                            <div className="text-sm text-slate-500 dark:text-slate-400">{user.email}</div>
                                                                         </div>
                                                                     </div>
                                                                 </SelectItem>
@@ -319,7 +319,7 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                className="gap-2 h-12 px-8 border-2 hover:border-slate-300"
+                                                className="gap-2 h-12 px-8 border-2 border-slate-300 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-200 hover:text-indigo-700 dark:hover:text-indigo-300 dark:text-white"
                                             >
                                                 <ArrowLeft className="h-4 w-4" />
                                                 {t("Cancel")}
@@ -329,7 +329,7 @@ export default function Edit({ auth, gate, users = [], permissions = {} }) {
                                             <Button
                                                 type="submit"
                                                 disabled={processing}
-                                                className="gap-2 h-12 px-8 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 pulse-glow"
+                                                className="gap-2 h-12 px-8 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:from-indigo-700 hover:via-purple-700 hover:to-indigo-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
                                             >
                                                 {processing ? (
                                                     <>

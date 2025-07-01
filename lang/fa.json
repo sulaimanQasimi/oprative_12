@@ -3086,5 +3086,10 @@
   "Fingerprint Template": "الگوی اثر انگشت",
   "Save Biometric": "ذخیره بیومتریک",
    "Create Setting": "ایجاد تنظیمات",
-  "Attendance Setting Details": "جزئیات تنظیمات حضور و غیاب"
+  "Attendance Setting Details": "جزئیات تنظیمات حضور و غیاب",
+  "Edit Gate": "ویرایش دروازه",
+  "Update gate information and assignments": "به‌روزرسانی اطلاعات و وظایف دروازه",
+  "Back to Gates": "بازگشت به دروازه‌ها",
+  "Update Gate": "به‌روزرسانی دروازه",
+  "Update Unit": "به‌روزرسانی واحد"
 }
