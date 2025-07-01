@@ -20,7 +20,8 @@ class Sale extends Model
         'status',
         'notes',
         'confirmed_by_warehouse',
-        'confirmed_by_shop'
+        'confirmed_by_shop',
+        'total'
     ];
 
     protected $casts = [
@@ -76,5 +77,29 @@ class Sale extends Model
             'cancelled' => 'bg-red-100 text-red-800',
             default => 'bg-gray-100 text-gray-800',
         };
+    }
+
+    /**
+     * Get total amount (alias for total column)
+     */
+    public function getTotalAmountAttribute(): float
+    {
+        return (float) ($this->total ?? 0);
+    }
+
+    /**
+     * Get paid amount from payments
+     */
+    public function getPaidAmountAttribute(): float
+    {
+        return $this->payments()->sum('amount');
+    }
+
+    /**
+     * Get due amount (total - paid)
+     */
+    public function getDueAmountAttribute(): float
+    {
+        return $this->total_amount - $this->paid_amount;
     }
 }

@@ -532,7 +532,7 @@ export default function Show({ auth, sale }) {
                                                         <td colSpan="5" className="px-4 py-3 text-right">{t('Subtotal')}:</td>
                                                         <td className="px-4 py-3 text-right">{typeof sale.currency === 'object'
                                                             ? sale.currency?.code || sale.currency?.symbol || '-'
-                                                            : String(sale.currency || '-')} {parseFloat(sale.total_amount || 0).toFixed(2)}</td>
+                                                            : String(sale.currency || '-')} {parseFloat(sale.total || 0).toFixed(2)}</td>
                                                     </tr>
                                                     {sale.tax_percentage > 0 && (
                                                         <tr className="text-gray-900 dark:text-white">

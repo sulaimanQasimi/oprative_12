@@ -48,19 +48,20 @@ class SalesListController extends Controller
             ->when($request->status, function ($query) use ($request) {
                 $query->where('status', $request->status);
             })
-            ->when($request->confirmedByWarehouse !== '', function ($query) use ($request) {
+            ->when($request->confirmedByWarehouse, function ($query) use ($request) {
                 $query->where('confirmed_by_warehouse', $request->confirmedByWarehouse === '1');
             })
-            ->when($request->confirmedByShop !== '', function ($query) use ($request) {
+            ->when($request->confirmedByShop, function ($query) use ($request) {
                 $query->where('confirmed_by_shop', $request->confirmedByShop === '1');
             })
-            ->when($request->movedFromWarehouse !== '', function ($query) use ($request) {
+            ->when($request->movedFromWarehouse, function ($query) use ($request) {
                 $query->where('moved_from_warehouse', $request->movedFromWarehouse === '1');
             })
             ->orderBy($request->sortField ?? 'date', $request->sortDirection ?? 'desc')
             ->paginate(10)
-            ->appends($request->except('page'));
 
+            ->appends($request->except('page'));
+        
         return Inertia::render('Customer/Sales/Index', [
             'sales' => $sales,
             'filters' => $request->only(['search', 'status', 'confirmedByWarehouse', 'confirmedByShop']),
