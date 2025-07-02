@@ -71,4 +71,15 @@ class Batch extends Model
     {
         return $this->belongsTo(PurchaseItem::class);
     }
+
+    protected static function booted()
+    {
+        static::saved(function ($batch) {
+            if (empty($batch->reference_number)) {
+                $date = $batch->issue_date ? $batch->issue_date->format('Ymd') : now()->format('Ymd');
+                $batch->reference_number = $date . '-' . $batch->id;
+                $batch->saveQuietly();
+            }
+        });
+    }
 } 
