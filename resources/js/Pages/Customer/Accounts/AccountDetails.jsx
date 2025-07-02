@@ -384,7 +384,7 @@ export default function AccountDetails({
                                             </button>
                                             
                                             <a
-                                                href={route('reports.account.statement', account.id)}
+                                                href={route('customer.reports.account.statement', account.id)}
                                                 target="_blank"
                                                 className="group relative flex-1 bg-gradient-to-br from-blue-400 via-indigo-500 to-blue-600 hover:from-blue-500 hover:via-indigo-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 p-5 flex items-center justify-center gap-3 overflow-hidden"
                                             >

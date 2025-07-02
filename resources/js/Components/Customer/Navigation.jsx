@@ -50,6 +50,7 @@ export default function Navigation({ user }) {
         if (path.endsWith('/create-orders')) return 'customer.create_orders';
         if (path.endsWith('/sales')) return 'customer.sales.index';
         if (path.endsWith('/accounts')) return 'customer.accounts.index';
+        if (path.includes('/reports/account/')) return 'customer.reports.account-statement';
         if (path.endsWith('/reports')) return 'customer.reports';
 
         // For more specific routes

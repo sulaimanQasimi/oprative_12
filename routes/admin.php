@@ -394,4 +394,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/accounts/{account}/statement', [\App\Http\Controllers\ReportController::class, 'accountStatement'])->name('reports.account-statement');
         Route::get('/accounts/{account}/statement/download', [\App\Http\Controllers\ReportController::class, 'downloadAccountStatement'])->name('reports.account-statement.pdf');
     });
+
+    // Customer Report Routes
+    Route::prefix('customer-reports')->group(function () {
+        Route::get('/accounts/{account}/statement', [\App\Http\Controllers\ReportController::class, 'customerAccountStatement'])->name('customer.reports.account-statement');
+        Route::get('/accounts/{account}/statement/download', [\App\Http\Controllers\ReportController::class, 'downloadCustomerAccountStatement'])->name('customer.reports.account-statement.pdf');
+    });
 });

@@ -276,5 +276,11 @@ trait RegisterRoutes
         Route::get('/thermal/print/outcome/{outcome}', [ThermalPrinterController::class, 'printOutcome'])
             ->name('thermal.print.outcome');
 
+        // Customer Account Statement Routes
+        Route::get('/reports/account/{account}/statement', [ReportController::class, 'customerAccountStatement'])
+            ->name('customer.reports.account-statement');
+        Route::get('/reports/account/{account}/statement/download', [ReportController::class, 'downloadCustomerAccountStatement'])
+            ->name('customer.reports.account-statement.pdf');
+
     }
 }
