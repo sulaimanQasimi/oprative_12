@@ -135,7 +135,6 @@ class CustomerController extends Controller
                 'roles' => $roles,
                 'permissions' => $this->getCustomerPermissions(),
                 'customerUserPermissions' => $customerUserPermissions,
-                'auth' => ['user' => Auth::user()]
             ]);
             
         } catch (\Exception $e) {
@@ -161,7 +160,6 @@ class CustomerController extends Controller
         return Inertia::render('Admin/Customer/Edit', [
             'customer' => $this->formatCustomerData($customer),
             'permissions' => $this->getCustomerPermissions(),
-            'auth' => ['user' => Auth::user()]
         ]);
     }
 
@@ -484,7 +482,7 @@ class CustomerController extends Controller
                     'sort_order' => $sortOrder,
                 ],
                 'permissions' => $this->getCustomerPermissions(),
-                'auth' => ['user' => Auth::user()]
+           
             ]);
             
         } catch (\Exception $e) {
@@ -527,7 +525,6 @@ class CustomerController extends Controller
                 'customer' => $this->formatCustomerData($customer),
                 'outcomes' => $outcomes,
                 'permissions' => $this->getCustomerPermissions(),
-                'auth' => ['user' => Auth::user()]
             ]);
             
         } catch (\Exception $e) {
@@ -575,7 +572,6 @@ class CustomerController extends Controller
                 'customer' => $this->formatCustomerData($customer),
                 'orders' => $orders,
                 'permissions' => $this->getCustomerPermissions(),
-                'auth' => ['user' => Auth::user()]
             ]);
             
         } catch (\Exception $e) {
@@ -633,7 +629,6 @@ class CustomerController extends Controller
                 ],
                 'orderItems' => $orderItems,
                 'permissions' => $this->getCustomerPermissions(),
-                'auth' => ['user' => Auth::user()]
             ]);
             
         } catch (\Exception $e) {
