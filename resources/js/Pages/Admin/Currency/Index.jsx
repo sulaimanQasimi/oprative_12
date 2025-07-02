@@ -7,24 +7,14 @@ import {
     Search,
     Plus,
     Globe,
-    ChevronRight,
-    MoreHorizontal,
     Edit,
     Trash2,
-    CheckCircle,
-    XCircle,
-    Star,
-    AlertCircle,
     Filter,
     ArrowUpDown,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
     Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardFooter,
 } from "@/Components/ui/card";
 import { Badge } from "@/Components/ui/badge";
 import Navigation from "@/Components/Admin/Navigation";
@@ -316,8 +306,8 @@ export default function Index({ auth, currencies = [] }) {
                                                     className="px-5 py-4 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 last:border-0 grid grid-cols-12 items-center hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors duration-150 group"
                                                 >
                                                     <div className="col-span-6 flex items-center gap-3">
-                                                        <div className="h-9 w-9 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 flex-shrink-0">
-                                                            <Globe className="h-5 w-5" />
+                                                        <div className="h-10 w-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 flex-shrink-0">
+                                                            <Globe className="h-6 w-6" />
                                                         </div>
                                                         <div className="min-w-0">
                                                             <h3 className="font-medium text-slate-900 dark:text-white truncate">
@@ -338,9 +328,9 @@ export default function Index({ auth, currencies = [] }) {
                                                             <Button
                                                                 variant="ghost"
                                                                 size="sm"
-                                                                className="h-8 w-8 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                                                                className="h-9 w-9 p-0 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
                                                             >
-                                                                <Edit className="h-4 w-4" />
+                                                                <Edit className="h-5 w-5" />
                                                             </Button>
                                                         </Link>
                                                         <Link
@@ -354,9 +344,9 @@ export default function Index({ auth, currencies = [] }) {
                                                             <Button
                                                                 variant="ghost"
                                                                 size="sm"
-                                                                className="h-8 w-8 p-0 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-500"
+                                                                className="h-9 w-9 p-0 text-slate-500 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-500"
                                                             >
-                                                                <Trash2 className="h-4 w-4" />
+                                                                <Trash2 className="h-5 w-5" />
                                                             </Button>
                                                         </Link>
                                                     </div>
@@ -367,7 +357,7 @@ export default function Index({ auth, currencies = [] }) {
                                 ) : (
                                     <div className="p-8 text-center">
                                         <div className="inline-flex h-16 w-16 rounded-full bg-slate-100 dark:bg-slate-800 items-center justify-center mb-5">
-                                            <Globe className="h-8 w-8 text-slate-400" />
+                                            <Globe className="h-9 w-9 text-slate-400" />
                                         </div>
                                         <h3 className="text-lg font-medium text-slate-900 dark:text-white mb-2">
                                             {t("No currencies found")}

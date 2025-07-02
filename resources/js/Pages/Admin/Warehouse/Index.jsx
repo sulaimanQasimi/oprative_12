@@ -561,8 +561,8 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                                                 {warehouse.description && (
                                                                     <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-lg">
                                                                         <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
-                                                                            {warehouse.description}
-                                                                        </p>
+                                                                        {warehouse.description}
+                                                                    </p>
                                                                     </div>
                                                                 )}
 
@@ -605,7 +605,7 @@ export default function Index({ auth, warehouses = [], permissions = {} }) {
                                                                                 {t("Location")}
                                                                             </div>
                                                                             <div className="text-sm text-slate-600 dark:text-slate-400">
-                                                                                {warehouse.location}
+                                                                            {warehouse.location}
                                                                             </div>
                                                                         </div>
                                                                     </div>

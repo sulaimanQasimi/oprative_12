@@ -143,58 +143,58 @@ export default function Create({ auth, users = [], permissions = {} }) {
                         <div className="max-w-7xl mx-auto px-6 lg:px-8">
                             <div className="flex items-center justify-between py-4">
                                 <div className="flex items-center space-x-6">
-                                    <motion.div
-                                        initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
-                                        animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                                        transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
-                                        className="relative float-animation"
-                                    >
+                                <motion.div
+                                    initial={{ scale: 0.8, opacity: 0, rotate: -180 }}
+                                    animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                                    transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
+                                    className="relative float-animation"
+                                >
                                         <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-cyan-500 rounded-xl blur opacity-75 dark:opacity-50"></div>
                                         <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-cyan-600 dark:from-indigo-700 dark:via-purple-700 dark:to-cyan-700 p-3 rounded-xl shadow-lg">
                                             <Building className="w-6 h-6 text-white" />
-                                        </div>
-                                    </motion.div>
+                                    </div>
+                                </motion.div>
                                     <div className="space-y-1">
                                         <motion.div
-                                            initial={{ x: -20, opacity: 0 }}
-                                            animate={{ x: 0, opacity: 1 }}
-                                            transition={{ delay: 0.4, duration: 0.4 }}
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.4, duration: 0.4 }}
                                             className="flex items-center gap-2"
-                                        >
+                                    >
                                             <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                                             <span className="text-sm font-medium text-indigo-600 dark:text-indigo-400 uppercase tracking-wide">
-                                                {t("Access Management")}
+                                        {t("Access Management")}
                                             </span>
                                         </motion.div>
-                                        <motion.h1
-                                            initial={{ x: -20, opacity: 0 }}
-                                            animate={{ x: 0, opacity: 1 }}
-                                            transition={{ delay: 0.5, duration: 0.4 }}
+                                    <motion.h1
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5, duration: 0.4 }}
                                             className="text-2xl font-bold text-gray-900 dark:text-white"
-                                        >
-                                            {t("Add New Gate")}
-                                        </motion.h1>
+                                    >
+                                        {t("Add New Gate")}
+                                    </motion.h1>
                                         <motion.div
-                                            initial={{ x: -20, opacity: 0 }}
-                                            animate={{ x: 0, opacity: 1 }}
-                                            transition={{ delay: 0.6, duration: 0.4 }}
+                                        initial={{ x: -20, opacity: 0 }}
+                                        animate={{ x: 0, opacity: 1 }}
+                                        transition={{ delay: 0.6, duration: 0.4 }}
                                             className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-                                        >
-                                            <Building2 className="w-4 h-4" />
-                                            {t("Create a new access gate for your system")}
+                                    >
+                                        <Building2 className="w-4 h-4" />
+                                        {t("Create a new access gate for your system")}
                                         </motion.div>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <motion.div
-                                    initial={{ x: 20, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{ delay: 0.7, duration: 0.4 }}
+                            <motion.div
+                                initial={{ x: 20, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.7, duration: 0.4 }}
                                 >
                                   
                                     <BackButton className="text-gray-700 dark:text-white hover:text-gray-900 dark:hover:text-gray-100" link={route("admin.gates.index")}/>
                                     
-                                </motion.div>
+                            </motion.div>
                             </div>
                         </div>
                     </motion.header>
@@ -396,9 +396,9 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                             </h4>
                                                         </div>
                                                         <p className="text-sm text-indigo-800 dark:text-gray-300 leading-relaxed">
-                                                            {t("Each gate must be assigned to a user who will manage its operations and employee access.")}
-                                                        </p>
-                                                    </div>
+                                                                {t("Each gate must be assigned to a user who will manage its operations and employee access.")}
+                                                            </p>
+                                                        </div>
 
                                                     <div className="bg-purple-50 dark:bg-slate-700/50 rounded-lg p-5 border border-purple-200 dark:border-slate-600">
                                                         <div className="flex items-center gap-3 mb-3">
@@ -435,33 +435,33 @@ export default function Create({ auth, users = [], permissions = {} }) {
                                                 </p>
                                             </div>
                                             <div className="flex space-x-3">
-                                                <Link href={route("admin.gates.index")}>
-                                                    <Button
-                                                        type="button"
-                                                        variant="outline"
+                                        <Link href={route("admin.gates.index")}>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
                                                         className="gap-2 px-6 py-2 h-10 border-gray-300 dark:border-slate-600 text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-slate-700 hover:border-gray-400 dark:hover:border-slate-500"
-                                                    >
-                                                        <ArrowLeft className="h-4 w-4" />
-                                                        {t("Cancel")}
-                                                    </Button>
-                                                </Link>
-                                                <Button
-                                                    type="submit"
-                                                    disabled={processing}
+                                            >
+                                                <ArrowLeft className="h-4 w-4" />
+                                                {t("Cancel")}
+                                            </Button>
+                                        </Link>
+                                        <Button
+                                            type="submit"
+                                            disabled={processing}
                                                     className="gap-2 px-6 py-2 h-10 bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 hover:from-indigo-700 hover:via-purple-700 hover:to-cyan-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 pulse-glow disabled:opacity-50 disabled:cursor-not-allowed"
-                                                >
-                                                    {processing ? (
-                                                        <>
-                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                                            {t("Creating...")}
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <Save className="h-4 w-4" />
-                                                            {t("Create Gate")}
-                                                        </>
-                                                    )}
-                                                </Button>
+                                        >
+                                            {processing ? (
+                                                <>
+                                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                    {t("Creating...")}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Save className="h-4 w-4" />
+                                                    {t("Create Gate")}
+                                                </>
+                                            )}
+                                        </Button>
                                             </div>
                                         </div>
                                     </motion.div>
@@ -473,4 +473,4 @@ export default function Create({ auth, users = [], permissions = {} }) {
             </motion.div>
         </>
     );
-}
+} 

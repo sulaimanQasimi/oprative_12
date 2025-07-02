@@ -503,27 +503,27 @@ export default function Index({
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {gateData.map((gate, index) => (
+                                                            {gateData.map((gate, index) => (
                                                             <TableRow key={gate.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                                                                 <TableCell>
                                                                     <div className="flex items-start space-x-3">
                                                                         <div className="flex-shrink-0 p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg">
-                                                                            <Building className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                                                                        </div>
+                                                                                <Building className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                                                                            </div>
                                                                         <div className="min-w-0 flex-1">
                                                                             <div className="flex items-center gap-2 mb-1">
                                                                                 <h4 className="text-sm font-semibold text-slate-900 dark:text-white truncate">
                                                                                     {gate.name}
                                                                                 </h4>
-                                                                                {gate.deleted_at && (
+                                                                                    {gate.deleted_at && (
                                                                                     <Badge variant="destructive" className="text-xs px-2 py-0.5">
-                                                                                        {t("Deleted")}
-                                                                                    </Badge>
-                                                                                )}
-                                                                            </div>
-                                                                            {gate.description && (
+                                                                                            {t("Deleted")}
+                                                                                        </Badge>
+                                                                                    )}
+                                                                                </div>
+                                                                                {gate.description && (
                                                                                 <p className="text-sm text-slate-600 dark:text-slate-400 line-clamp-2">
-                                                                                    {gate.description}
+                                                                                        {gate.description}
                                                                                 </p>
                                                                             )}
                                                                         </div>
@@ -534,7 +534,7 @@ export default function Index({
                                                                         <div className="space-y-1">
                                                                             <div className="font-medium text-slate-900 dark:text-white text-sm">
                                                                                 {gate.user.name}
-                                                                            </div>
+                                                                                    </div>
                                                                             <div className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-1.5">
                                                                                 <User className="w-3.5 h-3.5" />
                                                                                 <span className="truncate">{gate.user.email}</span>
@@ -545,7 +545,7 @@ export default function Index({
                                                                             {t("No user assigned")}
                                                                         </div>
                                                                     )}
-                                                                </TableCell>
+                                                                    </TableCell>
                                                                 <TableCell>
                                                                     <div className="flex items-center justify-center">
                                                                         <Badge variant="secondary" className="gap-1.5 bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">
@@ -553,67 +553,67 @@ export default function Index({
                                                                             <span className="font-medium">{gate.employees?.length || 0}</span>
                                                                         </Badge>
                                                                     </div>
-                                                                </TableCell>
+                                                                    </TableCell>
                                                                 <TableCell className="text-right">
-                                                                    <div className="flex items-center justify-end gap-2">
-                                                                        {/* View Button */}
-                                                                        {permissions.view_gate && (
+                                                                        <div className="flex items-center justify-end gap-2">
+                                                                            {/* View Button */}
+                                                                            {permissions.view_gate && (
                                                                             <Link
                                                                                 href={route('admin.gates.show', gate.id)}
                                                                                 className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors"
                                                                                 title={t("View Gate")}
                                                                             >
-                                                                                <Eye className="h-4 w-4" />
-                                                                            </Link>
-                                                                        )}
-                                                                        
-                                                                        {/* Edit Button - only for active gates */}
-                                                                        {permissions.update_gate && !gate.deleted_at && (
+                                                                                        <Eye className="h-4 w-4" />
+                                                                                    </Link>
+                                                                            )}
+                                                                            
+                                                                            {/* Edit Button - only for active gates */}
+                                                                            {permissions.update_gate && !gate.deleted_at && (
                                                                             <Link
                                                                                 href={route('admin.gates.edit', gate.id)}
                                                                                 className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-blue-100 hover:bg-blue-200 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-700 hover:text-blue-900 dark:text-blue-300 dark:hover:text-blue-200 transition-colors"
                                                                                 title={t("Edit Gate")}
                                                                             >
-                                                                                <Edit className="h-4 w-4" />
-                                                                            </Link>
-                                                                        )}
-                                                                        
-                                                                        {/* Delete Button - only for active gates */}
-                                                                        {permissions.delete_gate && !gate.deleted_at && (
+                                                                                        <Edit className="h-4 w-4" />
+                                                                                    </Link>
+                                                                            )}
+                                                                            
+                                                                            {/* Delete Button - only for active gates */}
+                                                                            {permissions.delete_gate && !gate.deleted_at && (
                                                                             <button
-                                                                                onClick={() => handleDelete(gate.id)}
+                                                                                    onClick={() => handleDelete(gate.id)}
                                                                                 className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-200 transition-colors"
                                                                                 title={t("Delete Gate")}
-                                                                            >
-                                                                                <Trash2 className="h-4 w-4" />
+                                                                                >
+                                                                                    <Trash2 className="h-4 w-4" />
                                                                             </button>
-                                                                        )}
-                                                                        
-                                                                        {/* Restore Button - only for deleted gates */}
-                                                                        {permissions.restore_gate && gate.deleted_at && (
+                                                                            )}
+                                                                            
+                                                                            {/* Restore Button - only for deleted gates */}
+                                                                            {permissions.restore_gate && gate.deleted_at && (
                                                                             <button
-                                                                                onClick={() => handleRestore(gate.id)}
+                                                                                    onClick={() => handleRestore(gate.id)}
                                                                                 className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-green-100 hover:bg-green-200 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-green-700 hover:text-green-900 dark:text-green-300 dark:hover:text-green-200 transition-colors"
                                                                                 title={t("Restore Gate")}
-                                                                            >
-                                                                                <RotateCcw className="h-4 w-4" />
+                                                                                >
+                                                                                    <RotateCcw className="h-4 w-4" />
                                                                             </button>
-                                                                        )}
-                                                                        
-                                                                        {/* Force Delete Button - only for deleted gates */}
-                                                                        {permissions.force_delete_gate && gate.deleted_at && (
+                                                                            )}
+                                                                            
+                                                                            {/* Force Delete Button - only for deleted gates */}
+                                                                            {permissions.force_delete_gate && gate.deleted_at && (
                                                                             <button
-                                                                                onClick={() => handleForceDelete(gate.id)}
+                                                                                    onClick={() => handleForceDelete(gate.id)}
                                                                                 className="inline-flex items-center justify-center w-8 h-8 rounded-md bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 hover:text-red-900 dark:text-red-300 dark:hover:text-red-200 transition-colors"
                                                                                 title={t("Force Delete Gate")}
-                                                                            >
-                                                                                <XCircle className="h-4 w-4" />
+                                                                                >
+                                                                                    <XCircle className="h-4 w-4" />
                                                                             </button>
-                                                                        )}
-                                                                    </div>
-                                                                </TableCell>
+                                                                            )}
+                                                                        </div>
+                                                                    </TableCell>
                                                             </TableRow>
-                                                        ))}
+                                                            ))}
                                                     </TableBody>
                                                 </Table>
                                             </div>
