@@ -19,7 +19,8 @@ import {
     BarChart3,
     ChevronDown,
     X,
-    Plus
+    Plus,
+    ShoppingCart
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -48,8 +49,9 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
-export default function Show({ auth, customer, order, orderItems }) {
+export default function Show({ auth, customer, order, orderItems, incomes }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -271,7 +273,7 @@ export default function Show({ auth, customer, order, orderItems }) {
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Income Records")}
+                                        {t("Order Items")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -280,7 +282,7 @@ export default function Show({ auth, customer, order, orderItems }) {
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <BarChart3 className="w-4 h-4" />
-                                        {t("Track and manage customer income records")}
+                                        {t("Track and manage order items")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -291,16 +293,7 @@ export default function Show({ auth, customer, order, orderItems }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
-                                <Link href={route('admin.customers.show', customer.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Customer")}
-                                    </Button>
-                                </Link>
+                                <BackButton link={route('admin.customers.show', customer.id)} />
                             </motion.div>
                         </div>
                     </motion.header>
@@ -360,7 +353,7 @@ export default function Show({ auth, customer, order, orderItems }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Income")}
+                                                            {t("Total Items")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-green-600">
                                                             {totalIncomes}
@@ -420,7 +413,7 @@ export default function Show({ auth, customer, order, orderItems }) {
                                                             {formatCurrency(totalValue)}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
-                                                            {t("Income value")}
+                                                            {t("Order value")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
@@ -441,13 +434,13 @@ export default function Show({ auth, customer, order, orderItems }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Average Income")}
+                                                            {t("Average Item Value")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-orange-600">
                                                             {formatCurrency(avgIncomeValue)}
                                                         </p>
                                                         <p className="text-xs text-slate-500 mt-1">
-                                                            {t("Per record")}
+                                                            {t("Per item")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-2xl">
@@ -583,7 +576,7 @@ export default function Show({ auth, customer, order, orderItems }) {
                                     </Card>
                                 </motion.div>
 
-                                {/* Income Records Table */}
+                                {/* Order Items Table */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
@@ -595,7 +588,7 @@ export default function Show({ auth, customer, order, orderItems }) {
                                                 <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
                                                     <BarChart3 className="h-5 w-5 text-white" />
                                                 </div>
-                                                {t("Income Records")}
+                                                {t("Order Items")}
                                                 <Badge variant="secondary" className="ml-auto">
                                                     {filteredIncomes.length} {t("of")} {incomes.length}
                                                 </Badge>
@@ -691,10 +684,10 @@ export default function Show({ auth, customer, order, orderItems }) {
                                                         </div>
                                                         <div className="text-center">
                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-                                                                {t("No income records found")}
+                                                                {t("No order items found")}
                                                             </p>
                                                             <p className="text-sm text-slate-500">
-                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("This customer doesn't have any income records yet.")}
+                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("This order doesn't have any items yet.")}
                                                             </p>
                                                         </div>
                                                     </div>

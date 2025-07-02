@@ -610,6 +610,39 @@ class CustomerController extends Controller
                 'notes' => $item->notes,
             ]);
 
+            // Fetch incomes from order items instead of customer stock income
+            $incomes = $order->items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'reference_number' => null, // or $item->reference_number if exists
+                    'product' => [
+                        'id' => $item->product->id,
+                        'name' => $item->product->name,
+                        'barcode' => $item->product->barcode,
+                        'type' => $item->product->type,
+                    ],
+                    'quantity' => $item->quantity,
+                    'price' => $item->unit_price,
+                    'total' => $item->subtotal,
+                    'unit_type' => $item->unit_type ?? 'retail',
+                    'is_wholesale' => $item->is_wholesale ?? false,
+                    'unit_id' => $item->unit_id,
+                    'unit_amount' => $item->unit_amount ?? 1,
+                    'unit_name' => $item->unit_name,
+                    'unit' => $item->unit ? [
+                        'id' => $item->unit->id,
+                        'name' => $item->unit->name,
+                        'code' => $item->unit->code,
+                        'symbol' => $item->unit->symbol,
+                    ] : null,
+                    'notes' => $item->notes,
+                    'description' => null,
+                    'status' => null,
+                    'created_at' => $item->created_at,
+                    'updated_at' => $item->updated_at,
+                ];
+            });
+
             return Inertia::render('Admin/Customer/Orders/Show', [
                 'customer' => $this->formatCustomerData($customer),
                 'order' => [
@@ -628,6 +661,7 @@ class CustomerController extends Controller
                     'updated_at' => $order->updated_at,
                 ],
                 'orderItems' => $orderItems,
+                'incomes' => $incomes,
                 'permissions' => $this->getCustomerPermissions(),
             ]);
             
