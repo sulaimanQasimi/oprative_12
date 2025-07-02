@@ -72,8 +72,42 @@ class Batch extends Model
         });
     }
 
-    public function remainingQuantityInWarehouse()
+    /**
+     * Scope to get remaining quantity of this batch in a specific warehouse.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int $warehouseId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeWithRemainingForWarehouse($query, $warehouseId)
     {
-        return $this->quantity - $this->warehouse_outcomes()->sum('quantity');
+        return $query->withCount(['warehouseIncomes as warehouse_income_sum' => function ($q) use ($warehouseId) {
+            $q->where('warehouse_id', $warehouseId);
+        }, 'warehouseOutcomes as warehouse_outcome_sum' => function ($q) use ($warehouseId) {
+            $q->where('warehouse_id', $warehouseId);
+        }]);
+    }
+
+    /**
+     * Get remaining quantity of this batch in a specific warehouse.
+     *
+     * @param int $warehouseId
+     * @return float
+     */
+    public function remainingQuantityInWarehouse($warehouseId)
+    {
+        $income = $this->warehouseIncomes()->where('warehouse_id', $warehouseId)->sum('quantity');
+        $outcome = $this->warehouseOutcomes()->where('warehouse_id', $warehouseId)->sum('quantity');
+        return $income - $outcome;
+    }
+
+    public function warehouseIncomes()
+    {
+        return $this->hasMany(WarehouseIncome::class, 'batch_id');
+    }
+
+    public function warehouseOutcomes()
+    {
+        return $this->hasMany(WarehouseOutcome::class, 'batch_id');
     }
 } 
