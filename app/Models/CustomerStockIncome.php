@@ -13,6 +13,7 @@ class CustomerStockIncome extends Model
     protected $fillable = [
         'customer_id',
         'product_id',
+        'batch_id',
         'model_id',
         'reference_number',
         'description',
@@ -59,5 +60,10 @@ class CustomerStockIncome extends Model
     public function model()
     {
         return $this->morphTo();
+    }
+
+    public function batch()
+    {
+        return $this->belongsTo(Batch::class);
     }
 }
