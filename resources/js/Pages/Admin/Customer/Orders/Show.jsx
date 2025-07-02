@@ -336,6 +336,20 @@ export default function Show({ auth, customer, order, orderItems, incomes }) {
                                                     <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{t("Status")}</p>
                                                     {getStatusBadge(customer.status)}
                                                 </div>
+                                                <div className="space-y-2">
+                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{t("Phone")}</p>
+                                                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{customer.phone || t("Not provided")}</p>
+                                                </div>
+                                                <div className="space-y-2 md:col-span-2">
+                                                    <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{t("Address")}</p>
+                                                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{customer.address || t("Not provided")}</p>
+                                                </div>
+                                                {customer.notes && (
+                                                    <div className="space-y-2 md:col-span-3">
+                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">{t("Notes")}</p>
+                                                        <p className="text-base text-slate-700 dark:text-slate-300">{customer.notes}</p>
+                                                    </div>
+                                                )}
                                             </div>
                                         </CardContent>
                                     </Card>
