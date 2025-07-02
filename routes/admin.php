@@ -388,4 +388,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [ActivityLogController::class, 'index'])->name('admin.activity-logs.index');
         Route::get('/{modelType}/{modelId}', [ActivityLogController::class, 'show'])->name('admin.activity-logs.show');
     });
+
+    // Report Routes
+    Route::prefix('reports')->group(function () {
+        Route::get('/accounts/{account}/statement', [\App\Http\Controllers\ReportController::class, 'accountStatement'])->name('reports.account-statement');
+        Route::get('/accounts/{account}/statement/download', [\App\Http\Controllers\ReportController::class, 'downloadAccountStatement'])->name('reports.account-statement.pdf');
+    });
 });

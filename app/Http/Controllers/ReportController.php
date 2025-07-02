@@ -26,6 +26,38 @@ class ReportController extends Controller
     }
 
     /**
+     * Get the appropriate dashboard route based on user context.
+     *
+     * @return string
+     */
+    protected function getDashboardRoute()
+    {
+        // Check for customer_user guard first
+        if (auth('customer_user')->check()) {
+            return route('customer.dashboard');
+        }
+
+        $user = Auth::user();
+        
+        if (!$user) {
+            return route('admin.login');
+        }
+
+        // Check if user is a warehouse user
+        if ($user->getTable() === 'ware_house_users') {
+            // For warehouse users, redirect to inventory dashboard
+            // We need to get the warehouse ID from the user
+            $warehouse = $user->warehouse;
+            if ($warehouse) {
+                return route('inventory.dashboard', $warehouse);
+            }
+        }
+
+        // Default to admin dashboard for web guard users
+        return route('admin.dashboard');
+    }
+
+    /**
      * Display account statement report.
      *
      * @param \App\Models\Account $account
@@ -36,8 +68,12 @@ class ReportController extends Controller
     {
         try {
             // Authorize access to this account
-            if (!Gate::allows('view-account', $account)) {
+            if (!auth()->user()->hasPermissionTo('customer.manage_accounts')) {
                 throw new AuthorizationException('You are not authorized to view this account statement.');
+            }
+            if($account->customer_id != auth()->guard('customer_user')->user()->id){
+                throw new AuthorizationException('You are not authorized to view this account statement.');
+            
             }
 
             // Get statement data from the service
@@ -58,7 +94,7 @@ class ReportController extends Controller
                 'account_id' => $account->id
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect($this->getDashboardRoute())
                 ->with('error', $e->getMessage());
         } catch (\Exception $e) {
             Log::error('Error generating account statement', [
@@ -66,7 +102,7 @@ class ReportController extends Controller
                 'error' => $e->getMessage()
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect($this->getDashboardRoute())
                 ->with('error', 'An error occurred while generating the account statement.');
         }
     }
@@ -111,7 +147,7 @@ class ReportController extends Controller
                 'account_id' => $account->id
             ]);
 
-            return redirect()->route('dashboard')
+            return redirect($this->getDashboardRoute())
                 ->with('error', $e->getMessage());
         } catch (\Exception $e) {
             Log::error('Error downloading account statement', [
