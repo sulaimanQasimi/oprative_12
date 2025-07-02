@@ -88,6 +88,7 @@ trait SaleController{
 
     public function createSale(Warehouse $warehouse)
     {
+        
         try {
             // Get customers
             $customers = \App\Models\Customer::select('id', 'name', 'email', 'phone')->get();

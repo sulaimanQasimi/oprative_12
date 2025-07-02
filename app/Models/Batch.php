@@ -71,4 +71,9 @@ class Batch extends Model
             }
         });
     }
+
+    public function remainingQuantityInWarehouse()
+    {
+        return $this->quantity - $this->warehouse_outcomes()->sum('quantity');
+    }
 } 

@@ -10,6 +10,7 @@ class WarehouseOutcome extends Model
         'reference_number',
         'warehouse_id',
         'product_id',
+        'batch_id',
         'quantity',
         'price',
         'total',
@@ -35,5 +36,10 @@ class WarehouseOutcome extends Model
     public function model()
     {
         return $this->morphTo();
+    }
+
+    public function batch()
+    {
+        return $this->belongsTo(Batch::class);
     }
 }
