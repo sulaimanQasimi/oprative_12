@@ -67,53 +67,54 @@ class ReportController extends Controller
      */
     public function customerAccountStatement(Account $account)
     {
-        try {
-            // Check if user is authenticated as customer
-            if (!auth('customer_user')->check()) {
-                throw new AuthorizationException('You must be logged in as a customer to view this account statement.');
-            }
+        abort(404);
+        // try {
+        //     // Check if user is authenticated as customer
+        //     if (!auth('customer_user')->check()) {
+        //         throw new AuthorizationException('You must be logged in as a customer to view this account statement.');
+        //     }
 
-            $customerUser = auth('customer_user')->user();
+        //     $customerUser = auth('customer_user')->user();
             
-            // Check if user has permission to manage accounts
-            if (!$customerUser->hasPermissionTo('customer.manage_accounts')) {
-                throw new AuthorizationException('You are not authorized to view account statements.');
-            }
+        //     // Check if user has permission to manage accounts
+        //     if (!$customerUser->hasPermissionTo('customer.manage_accounts')) {
+        //         throw new AuthorizationException('You are not authorized to view account statements.');
+        //     }
 
-            // Check if the account belongs to the customer
-            if ($account->customer_id != $customerUser->customer_id) {
-                throw new AuthorizationException('You are not authorized to view this account statement.');
-            }
+        //     // Check if the account belongs to the customer
+        //     if ($account->customer_id != $customerUser->customer_id) {
+        //         throw new AuthorizationException('You are not authorized to view this account statement.');
+        //     }
 
-            // Get statement data from the service
-            $statementData = $this->reportService->generateAccountStatement($account);
+        //     // Get statement data from the service
+        //     $statementData = $this->reportService->generateAccountStatement($account);
 
-            Log::info('Customer account statement viewed', [
-                'customer_user_id' => $customerUser->id,
-                'account_id' => $account->id
-            ]);
+        //     Log::info('Customer account statement viewed', [
+        //         'customer_user_id' => $customerUser->id,
+        //         'account_id' => $account->id
+        //     ]);
 
-            return Inertia::render('Customer/AccountStatement', [
-                'account' => $account,
-                'statementData' => $statementData,
-            ]);
-        } catch (AuthorizationException $e) {
-            Log::warning('Unauthorized customer account statement access attempt', [
-                'customer_user_id' => auth('customer_user')->id(),
-                'account_id' => $account->id
-            ]);
+        //     return Inertia::render('Customer/AccountStatement', [
+        //         'account' => $account,
+        //         'statementData' => $statementData,
+        //     ]);
+        // } catch (AuthorizationException $e) {
+        //     Log::warning('Unauthorized customer account statement access attempt', [
+        //         'customer_user_id' => auth('customer_user')->id(),
+        //         'account_id' => $account->id
+        //     ]);
 
-            return redirect()->route('customer.dashboard')
-                ->with('error', $e->getMessage());
-        } catch (\Exception $e) {
-            Log::error('Error generating customer account statement', [
-                'account_id' => $account->id,
-                'error' => $e->getMessage()
-            ]);
+        //     return redirect()->route('customer.dashboard')
+        //         ->with('error', $e->getMessage());
+        // } catch (\Exception $e) {
+        //     Log::error('Error generating customer account statement', [
+        //         'account_id' => $account->id,
+        //         'error' => $e->getMessage()
+        //     ]);
 
-            return redirect()->route('customer.dashboard')
-                ->with('error', 'An error occurred while generating the account statement.');
-        }
+        //     return redirect()->route('customer.dashboard')
+        //         ->with('error', 'An error occurred while generating the account statement.');
+        // }
     }
 
     /**
