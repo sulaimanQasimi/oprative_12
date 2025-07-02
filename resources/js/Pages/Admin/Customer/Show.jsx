@@ -488,13 +488,13 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                         <Link href={route("admin.customers.income", customer.id)}>
                                                             <Button variant="outline" className="w-full justify-start gap-2">
                                                                 <TrendingUp className="w-4 h-4" />
-                                                                {t("View Income History")}
+                                                                {t("Import")}
                                                             </Button>
                                                         </Link>
                                                                                                 <Link href={route("admin.customers.outcome", customer.id)}>
                                             <Button variant="outline" className="w-full justify-start gap-2">
                                                 <TrendingDown className="w-4 h-4" />
-                                                {t("View Outcome History")}
+                                                {t("Export")}
                                             </Button>
                                         </Link>
                                         <Link href={route("admin.customers.orders", customer.id)}>
