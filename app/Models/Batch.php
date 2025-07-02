@@ -13,7 +13,6 @@ class Batch extends Model
         'issue_date',
         'expire_date',
         'reference_number',
-        'customer_id',
         'product_id',
         'purchase_id',
         'purchase_item_id',
@@ -25,8 +24,6 @@ class Batch extends Model
         'total',
         'unit_type',
         'is_wholesale',
-        'model_type',
-        'model_id',
         'unit_id',
         'unit_amount',
         'unit_name',
@@ -46,20 +43,12 @@ class Batch extends Model
         'unit_amount' => 'decimal:2',
     ];
 
-    public function customer() {
-        return $this->belongsTo(Customer::class);
-    }
-
     public function product() {
         return $this->belongsTo(Product::class);
     }
 
     public function unit() {
         return $this->belongsTo(Unit::class);
-    }
-
-    public function model() {
-        return $this->morphTo();
     }
 
     public function purchase()

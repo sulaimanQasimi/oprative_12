@@ -10,6 +10,7 @@ use App\Models\PurchasePayment;
 use App\Models\Supplier;
 use App\Models\Currency;
 use App\Models\Product;
+use App\Models\Batch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -399,9 +400,35 @@ class PurchaseController extends Controller
                 'price' => 'required|numeric|min:0',
                 'notes' => 'nullable|string|max:1000',
                 'total_price' => 'required|numeric|min:0',
+                // Batch validation rules
+                'batch.issue_date' => 'nullable|date',
+                'batch.expire_date' => 'nullable|date|after_or_equal:batch.issue_date',
+                'batch.wholesale_price' => 'nullable|numeric|min:0',
+                'batch.retail_price' => 'nullable|numeric|min:0',
+                'batch.purchase_price' => 'nullable|numeric|min:0',
+                'batch.notes' => 'nullable|string|max:1000',
             ]);
 
             DB::beginTransaction();
+
+            // Get the product with unit information
+            $product = \App\Models\Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($validated['product_id']);
+
+            // Calculate unit details
+            $isWholesale = $validated['unit_type'] === 'wholesale';
+            $unitId = null;
+            $unitAmount = 1;
+            $unitName = null;
+
+            if ($isWholesale && $product->wholesaleUnit) {
+                $unitId = $product->wholesaleUnit->id;
+                $unitAmount = $product->whole_sale_unit_amount ?? 1;
+                $unitName = $product->wholesaleUnit->name;
+            } elseif (!$isWholesale && $product->retailUnit) {
+                $unitId = $product->retailUnit->id;
+                $unitAmount = $product->retails_sale_unit_amount ?? 1;
+                $unitName = $product->retailUnit->name;
+            }
 
             // Create the purchase item record
             $item = PurchaseItem::create([
@@ -412,6 +439,29 @@ class PurchaseController extends Controller
                 'price' => $validated['price'],
                 'total_price' => $validated['total_price'],
             ]);
+
+            // Create batch record if batch data is provided
+            if (isset($validated['batch']) && !empty(array_filter($validated['batch']))) {
+                \App\Models\Batch::create([
+                    'product_id' => $validated['product_id'],
+                    'purchase_id' => $purchase->id,
+                    'purchase_item_id' => $item->id,
+                    'issue_date' => $validated['batch']['issue_date'] ?? null,
+                    'expire_date' => $validated['batch']['expire_date'] ?? null,
+                    'quantity' => $validated['quantity'],
+                    'price' => $validated['price'],
+                    'wholesale_price' => $validated['batch']['wholesale_price'] ?? null,
+                    'retail_price' => $validated['batch']['retail_price'] ?? null,
+                    'purchase_price' => $validated['batch']['purchase_price'] ?? null,
+                    'total' => $validated['total_price'],
+                    'unit_type' => $validated['unit_type'],
+                    'is_wholesale' => $isWholesale,
+                    'unit_id' => $unitId,
+                    'unit_amount' => $unitAmount,
+                    'unit_name' => $unitName,
+                    'notes' => $validated['batch']['notes'] ?? null,
+                ]);
+            }
 
             DB::commit();
 

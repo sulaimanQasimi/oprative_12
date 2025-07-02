@@ -16,7 +16,9 @@ import {
     Calculator,
     CheckCircle,
     Package2,
-    Users
+    Users,
+    Calendar,
+    FileText
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -56,7 +58,16 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
         quantity: '',
         unit_type: '',
         price: '',
-        notes: ''
+        notes: '',
+        // Batch fields
+        batch: {
+            issue_date: '',
+            expire_date: '',
+            wholesale_price: '',
+            retail_price: '',
+            purchase_price: '',
+            notes: ''
+        }
     });
 
     useEffect(() => {
@@ -72,7 +83,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
         if (data.product_id && products) {
             const product = products.find(p => p.id === parseInt(data.product_id));
             setSelectedProduct(product || null);
-            setData(prevData => ({ ...prevData, unit_type: '', price: '', notes: '' }));
+            setData(prevData => ({ ...prevData, unit_type: '', price: '', notes: '', batch: { ...prevData.batch, wholesale_price: '', retail_price: '', purchase_price: '' } }));
         } else {
             setSelectedProduct(null);
         }
@@ -103,24 +114,33 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
         
         // Calculate final quantity based on unit type before submission
         let finalQuantity = parseFloat(data.quantity) || 0;
-        let finalTotal = parseFloat(data.price) || 0;
+        let unitPrice = parseFloat(data.price) || 0;
         
-        if (data.unit_type === 'wholesale' && selectedProduct?.whole_sale_unit_amount) {
-            // For wholesale: multiply entered quantity by wholesale unit amount
-            finalQuantity = finalQuantity * selectedProduct.whole_sale_unit_amount;
-        }
+        // if (data.unit_type === 'wholesale' && selectedProduct?.whole_sale_unit_amount) {
+        //     // For wholesale: multiply entered quantity by wholesale unit amount
+        //     finalQuantity = finalQuantity * selectedProduct.whole_sale_unit_amount;
+        // }
         
-        // Calculate total based on final quantity and price
-        finalTotal = finalQuantity * (parseFloat(data.price) || 0);
+        // Calculate total based on final quantity and unit price
+        let finalTotal = finalQuantity * unitPrice;
         
-        // Create submission data with calculated values
+        // Create submission data with calculated values and batch data
         const submissionData = {
             product_id: data.product_id,
             unit_type: data.unit_type,
             quantity: finalQuantity,
             price: data.price,
             total_price: finalTotal,
-            notes: data.notes
+            notes: data.notes,
+            // Include batch data
+            batch: {
+                issue_date: data.batch.issue_date || null,
+                expire_date: data.batch.expire_date || null,
+                wholesale_price: data.batch.wholesale_price || null,
+                retail_price: data.batch.retail_price || null,
+                purchase_price: data.batch.purchase_price || null,
+                notes: data.batch.notes || null
+            }
         };
 
         // Use router.post directly with calculated data
@@ -164,6 +184,14 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
         if (selectedProduct) {
             const price = getUnitPrice(selectedProduct, unitType);
             setData('price', price.toString());
+            
+            // Auto-fill batch prices from product
+            setData('batch', {
+                ...data.batch,
+                wholesale_price: selectedProduct.wholesale_price?.toString() || '',
+                retail_price: selectedProduct.retail_price?.toString() || '',
+                purchase_price: selectedProduct.purchase_price?.toString() || ''
+            });
         }
     };
 
@@ -515,6 +543,175 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                 </motion.div>
                                             )}
                                         </AnimatePresence>
+
+                                        {/* Batch Information Section */}
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 0.6, duration: 0.4 }}
+                                            className="space-y-6"
+                                        >
+                                            <Card className="border-2 border-blue-200 dark:border-blue-800">
+                                                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                                                    <CardTitle className="flex items-center gap-3 text-lg">
+                                                        <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                            <Package2 className="h-5 w-5 text-white" />
+                                                        </div>
+                                                        {t("Batch Information")}
+                                                    </CardTitle>
+                                                    <CardDescription>
+                                                        {t("Enter batch details for tracking and inventory management")}
+                                                    </CardDescription>
+                                                </CardHeader>
+                                                <CardContent className="p-6 space-y-6">
+                                                    {/* Issue Date and Expire Date */}
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <div className="space-y-3">
+                                                            <Label htmlFor="batch_issue_date" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                                <Calendar className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                                                                {t("Issue Date")}
+                                                            </Label>
+                                                            <Input
+                                                                id="batch_issue_date"
+                                                                type="date"
+                                                                value={data.batch.issue_date}
+                                                                onChange={(e) => setData('batch', { ...data.batch, issue_date: e.target.value })}
+                                                                className="h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                                                            />
+                                                            {errors['batch.issue_date'] && (
+                                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                    <AlertCircle className="w-4 h-4" />
+                                                                    {errors['batch.issue_date']}
+                                                                </p>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            <Label htmlFor="batch_expire_date" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                                <Calendar className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+                                                                {t("Expire Date")}
+                                                            </Label>
+                                                            <Input
+                                                                id="batch_expire_date"
+                                                                type="date"
+                                                                value={data.batch.expire_date}
+                                                                onChange={(e) => setData('batch', { ...data.batch, expire_date: e.target.value })}
+                                                                className="h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-400 focus:border-orange-500 dark:focus:border-orange-400"
+                                                            />
+                                                            {errors['batch.expire_date'] && (
+                                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                    <AlertCircle className="w-4 h-4" />
+                                                                    {errors['batch.expire_date']}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Batch Prices */}
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                        <div className="space-y-3">
+                                                            <Label htmlFor="batch_purchase_price" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                                <DollarSign className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                                                                {t("Purchase Price")}
+                                                            </Label>
+                                                            <div className="relative">
+                                                                <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                                                <Input
+                                                                    id="batch_purchase_price"
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    min="0"
+                                                                    placeholder={t("Enter purchase price")}
+                                                                    value={data.batch.purchase_price}
+                                                                    onChange={(e) => setData('batch', { ...data.batch, purchase_price: e.target.value })}
+                                                                    className="pl-12 h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-400 focus:border-purple-500 dark:focus:border-purple-400"
+                                                                />
+                                                            </div>
+                                                            {errors['batch.purchase_price'] && (
+                                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                    <AlertCircle className="w-4 h-4" />
+                                                                    {errors['batch.purchase_price']}
+                                                                </p>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            <Label htmlFor="batch_wholesale_price" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                                <DollarSign className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                                                                {t("Wholesale Price")}
+                                                            </Label>
+                                                            <div className="relative">
+                                                                <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                                                <Input
+                                                                    id="batch_wholesale_price"
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    min="0"
+                                                                    placeholder={t("Enter wholesale price")}
+                                                                    value={data.batch.wholesale_price}
+                                                                    onChange={(e) => setData('batch', { ...data.batch, wholesale_price: e.target.value })}
+                                                                    className="pl-12 h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                                                                />
+                                                            </div>
+                                                            {errors['batch.wholesale_price'] && (
+                                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                    <AlertCircle className="w-4 h-4" />
+                                                                    {errors['batch.wholesale_price']}
+                                                                </p>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            <Label htmlFor="batch_retail_price" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                                <DollarSign className="w-4 h-4 text-green-500 dark:text-green-400" />
+                                                                {t("Retail Price")}
+                                                            </Label>
+                                                            <div className="relative">
+                                                                <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                                                <Input
+                                                                    id="batch_retail_price"
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    min="0"
+                                                                    placeholder={t("Enter retail price")}
+                                                                    value={data.batch.retail_price}
+                                                                    onChange={(e) => setData('batch', { ...data.batch, retail_price: e.target.value })}
+                                                                    className="pl-12 h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-400 focus:border-green-500 dark:focus:border-green-400"
+                                                                />
+                                                            </div>
+                                                            {errors['batch.retail_price'] && (
+                                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                    <AlertCircle className="w-4 h-4" />
+                                                                    {errors['batch.retail_price']}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Batch Notes */}
+                                                    <div className="space-y-3">
+                                                        <Label htmlFor="batch_notes" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                            <FileText className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                                            {t("Batch Notes")}
+                                                        </Label>
+                                                        <Textarea
+                                                            id="batch_notes"
+                                                            placeholder={t("Enter batch-specific notes (optional)")}
+                                                            value={data.batch.notes}
+                                                            onChange={(e) => setData('batch', { ...data.batch, notes: e.target.value })}
+                                                            className="min-h-[100px] border-2 border-gray-300 dark:border-gray-600 hover:border-slate-300 dark:hover:border-slate-400 focus:border-slate-500 dark:focus:border-slate-400 resize-none"
+                                                            rows={4}
+                                                        />
+                                                        {errors['batch.notes'] && (
+                                                            <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                <AlertCircle className="w-4 h-4" />
+                                                                {errors['batch.notes']}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
 
                                         {/* Total Price */}
                                         <motion.div
