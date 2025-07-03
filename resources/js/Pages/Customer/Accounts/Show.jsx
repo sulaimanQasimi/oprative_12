@@ -79,12 +79,11 @@ export default function AccountShow({
                     </div>
                     <div className="mt-4 flex md:mt-0 md:ml-4 space-x-6">
                         <Link
-                            href={route('reports.account.statement', account.id)}
-                            target="_blank"
+                            href={route('customer.reports.account-statement', account.id)}
                             className="group relative inline-flex items-center px-6 py-2.5 border-2 border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-300 hover:scale-105 hover:shadow-lg ml-2"
                         >
                             <FileText className="ml-2 h-5 w-5 transform group-hover:rotate-90 transition-transform duration-300" />
-                            <span className="relative">Print Report</span>
+                            <span className="relative">Account Statement</span>
                         </Link>
                         <button
                             onClick={() => setShowCreateModal(true)}

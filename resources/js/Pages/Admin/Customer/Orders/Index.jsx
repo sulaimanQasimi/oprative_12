@@ -52,6 +52,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Index({ auth, customer, orders }) {
     const { t } = useLaravelReactI18n();
@@ -314,16 +315,7 @@ export default function Index({ auth, customer, orders }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
-                                <Link href={route('admin.customers.show', customer.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Customer")}
-                                    </Button>
-                                </Link>
+                                <BackButton link={route('admin.customers.show', customer.id)} />
                             </motion.div>
                         </div>
                     </motion.header>

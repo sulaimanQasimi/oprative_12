@@ -55,7 +55,7 @@ const Navigation = ({ auth, currentRoute }) => {
                 return savedTheme;
             }
             // Check if dark mode is already applied
-            if (document.documentElement.classList.contains('dark')) {
+            if (document.documentElement && document.documentElement.classList.contains('dark')) {
                 return 'dark';
             }
             return 'dark'; // Default to dark
@@ -65,15 +65,20 @@ const Navigation = ({ auth, currentRoute }) => {
 
     // Apply theme to document
     useEffect(() => {
+        // Only run on client side
+        if (typeof window === 'undefined') return;
+        
         const root = document.documentElement;
         const body = document.body;
         
-        if (theme === 'dark') {
-            root.classList.add('dark');
-            body.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
-            body.classList.remove('dark');
+        if (root && body) {
+            if (theme === 'dark') {
+                root.classList.add('dark');
+                body.classList.add('dark');
+            } else {
+                root.classList.remove('dark');
+                body.classList.remove('dark');
+            }
         }
         
         localStorage.setItem('theme', theme);
@@ -84,34 +89,42 @@ const Navigation = ({ auth, currentRoute }) => {
 
     // Initialize theme on mount and sync with DOM
     useEffect(() => {
+        // Only run on client side
+        if (typeof window === 'undefined') return;
+        
         const root = document.documentElement;
         const body = document.body;
         
-        // Check if DOM already has dark class
-        const isDarkInDOM = root.classList.contains('dark');
-        const savedTheme = localStorage.getItem('theme');
-        
-        // Sync theme state with DOM
-        if (savedTheme && savedTheme !== theme) {
-            setTheme(savedTheme);
-        } else if (!savedTheme && isDarkInDOM && theme !== 'dark') {
-            setTheme('dark');
-        } else if (!savedTheme && !isDarkInDOM && theme !== 'light') {
-            setTheme('light');
-        }
-        
-        // Apply current theme to DOM
-        if (theme === 'dark') {
-            root.classList.add('dark');
-            body.classList.add('dark');
-        } else {
-            root.classList.remove('dark');
-            body.classList.remove('dark');
+        if (root && body) {
+            // Check if DOM already has dark class
+            const isDarkInDOM = root.classList.contains('dark');
+            const savedTheme = localStorage.getItem('theme');
+            
+            // Sync theme state with DOM
+            if (savedTheme && savedTheme !== theme) {
+                setTheme(savedTheme);
+            } else if (!savedTheme && isDarkInDOM && theme !== 'dark') {
+                setTheme('dark');
+            } else if (!savedTheme && !isDarkInDOM && theme !== 'light') {
+                setTheme('light');
+            }
+            
+            // Apply current theme to DOM
+            if (theme === 'dark') {
+                root.classList.add('dark');
+                body.classList.add('dark');
+            } else {
+                root.classList.remove('dark');
+                body.classList.remove('dark');
+            }
         }
     }, []);
 
     // Listen for theme changes from other components
     useEffect(() => {
+        // Only run on client side
+        if (typeof window === 'undefined') return;
+        
         const handleThemeChange = (event) => {
             const { theme: newTheme } = event.detail;
             if (newTheme !== theme) {
@@ -148,6 +161,9 @@ const Navigation = ({ auth, currentRoute }) => {
 
     // Close mobile menu when clicking outside
     useEffect(() => {
+        // Only run on client side
+        if (typeof window === 'undefined') return;
+        
         const handleClickOutside = (event) => {
             if (
                 isMobileMenuOpen &&
@@ -165,14 +181,21 @@ const Navigation = ({ auth, currentRoute }) => {
 
     // Prevent body scroll when mobile menu is open
     useEffect(() => {
-        if (isMobileMenuOpen) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "unset";
+        // Only run on client side
+        if (typeof window === 'undefined') return;
+        
+        if (document.body) {
+            if (isMobileMenuOpen) {
+                document.body.style.overflow = "hidden";
+            } else {
+                document.body.style.overflow = "unset";
+            }
         }
 
         return () => {
-            document.body.style.overflow = "unset";
+            if (document.body) {
+                document.body.style.overflow = "unset";
+            }
         };
     }, [isMobileMenuOpen]);
 

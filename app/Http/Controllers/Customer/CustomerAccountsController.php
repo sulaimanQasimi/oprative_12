@@ -34,7 +34,18 @@ class CustomerAccountsController extends Controller
             'search_id_number' => $search_id_number,
             'search_account_number' => $search_account_number,
             'isFilterOpen' => $isFilterOpen,
-            'customer' => $customer
+            'customer' => $customer,
+            'auth' => [
+                'user' => auth('customer_user')->user() ? [
+                    'id' => auth('customer_user')->user()->id,
+                    'name' => auth('customer_user')->user()->name,
+                    'email' => auth('customer_user')->user()->email,
+                    'email_verified_at' => auth('customer_user')->user()->email_verified_at,
+                    'created_at' => auth('customer_user')->user()->created_at,
+                    'updated_at' => auth('customer_user')->user()->updated_at,
+                    'permissions' => auth('customer_user')->user()->getAllPermissions()->pluck('name')->toArray(),
+                ] : null,
+            ],
         ]);
     }
 
@@ -63,7 +74,19 @@ class CustomerAccountsController extends Controller
 
     public function create()
     {
-        return Inertia::render('Customer/Accounts/Create');
+        return Inertia::render('Customer/Accounts/Create', [
+            'auth' => [
+                'user' => auth('customer_user')->user() ? [
+                    'id' => auth('customer_user')->user()->id,
+                    'name' => auth('customer_user')->user()->name,
+                    'email' => auth('customer_user')->user()->email,
+                    'email_verified_at' => auth('customer_user')->user()->email_verified_at,
+                    'created_at' => auth('customer_user')->user()->created_at,
+                    'updated_at' => auth('customer_user')->user()->updated_at,
+                    'permissions' => auth('customer_user')->user()->getAllPermissions()->pluck('name')->toArray(),
+                ] : null,
+            ],
+        ]);
     }
 
     public function resetFilters()
@@ -81,7 +104,18 @@ class CustomerAccountsController extends Controller
         }
 
         return Inertia::render('Customer/Accounts/Show', [
-            'account' => $account
+            'account' => $account,
+            'auth' => [
+                'user' => auth('customer_user')->user() ? [
+                    'id' => auth('customer_user')->user()->id,
+                    'name' => auth('customer_user')->user()->name,
+                    'email' => auth('customer_user')->user()->email,
+                    'email_verified_at' => auth('customer_user')->user()->email_verified_at,
+                    'created_at' => auth('customer_user')->user()->created_at,
+                    'updated_at' => auth('customer_user')->user()->updated_at,
+                    'permissions' => auth('customer_user')->user()->getAllPermissions()->pluck('name')->toArray(),
+                ] : null,
+            ],
         ]);
     }
 

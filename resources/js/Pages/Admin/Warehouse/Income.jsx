@@ -45,6 +45,7 @@ import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Income({ auth, warehouse, incomes }) {
     const { t } = useLaravelReactI18n();
@@ -455,22 +456,13 @@ export default function Income({ auth, warehouse, incomes }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-all duration-200">
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
-                                <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-all duration-200">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Warehouse")}
-                                    </Button>
-                                </Link>
                                 <Link href={route("admin.warehouses.income.create", warehouse.id)}>
                                     <Button className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
                                         <Plus className="h-4 w-4" />
                                         {t("New Import")}
                                     </Button>
                                 </Link>
+                                <BackButton link={route("admin.warehouses.show", warehouse.id)} />
                             </motion.div>
                         </div>
                     </motion.header>
@@ -484,116 +476,6 @@ export default function Income({ auth, warehouse, incomes }) {
                                 transition={{ delay: 0.8, duration: 0.5 }}
                                 className="space-y-8"
                             >
-                                {/* Enhanced Summary Cards */}
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                                    <motion.div
-                                        initial={{ scale: 0.9, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 0.9, duration: 0.4 }}
-                                    >
-                                        <Card className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Imports")}
-                                                        </p>
-                                                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                                                            {totalImports}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Transactions")}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-2xl">
-                                                        <TrendingUp className="h-8 w-8 text-green-600 dark:text-green-400" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ scale: 0.9, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 1.0, duration: 0.4 }}
-                                    >
-                                        <Card className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Quantity")}
-                                                        </p>
-                                                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                                                            {totalQuantity.toLocaleString()}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Units imported")}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
-                                                        <Package className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ scale: 0.9, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 1.1, duration: 0.4 }}
-                                    >
-                                        <Card className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Value")}
-                                                        </p>
-                                                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                                                            {formatCurrency(totalValue)}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Import value")}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl">
-                                                        <DollarSign className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ scale: 0.9, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 1.2, duration: 0.4 }}
-                                    >
-                                        <Card className="bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Average Import")}
-                                                        </p>
-                                                        <p className="text-3xl font-bold text-orange-600 dark:text-orange-400">
-                                                            {formatCurrency(avgImportValue)}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Per transaction")}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-2xl">
-                                                        <BarChart3 className="h-8 w-8 text-orange-600 dark:text-orange-400" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-                                </div>
 
                                 {/* Advanced Filters */}
                                 <motion.div

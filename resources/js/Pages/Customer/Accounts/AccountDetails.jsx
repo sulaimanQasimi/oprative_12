@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { Head, Link, useForm } from '@inertiajs/react';
-import CustomerNavbar from '@/Components/CustomerNavbar';
-import { useLaravelReactI18n } from 'laravel-react-i18n';
+import React, { useState, useEffect } from "react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
+import CustomerNavbar from "@/Components/CustomerNavbar";
+import { useLaravelReactI18n } from "laravel-react-i18n";
+import { motion } from "framer-motion";
+import { Button } from '@/Components/ui/button';
 import {
     CreditCard,
     Plus,
@@ -23,13 +25,119 @@ import {
     ChevronLeft,
     CreditCard as CardIcon,
     ReceiptText,
-    Printer
-} from 'lucide-react';
+    Printer,
+    Box,
+    PackageCheck,
+    PackageX,
+    PackageOpen,
+    Warehouse,
+    MapPin,
+    Route,
+    Minus,
+    AlertTriangle,
+    TrendingDown as TrendingDownIcon,
+    Download,
+    Upload,
+    ExternalLink,
+    Globe,
+    Ship,
+    Plane,
+    Container
+} from "lucide-react";
 
-export default function AccountDetails({ account, incomes, outcomes, totalIncome, pendingIncome,
-                                 monthlyIncome, yearlyIncome, incomeByMonth, totalOutcome,
-                                 pendingOutcome, monthlyOutcome, yearlyOutcome, tab, customer }) {
+// PageLoader component (copied from Index.jsx)
+const PageLoader = ({ isVisible }) => {
+    return (
+        <motion.div
+            className="fixed inset-0 bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 z-50 flex flex-col items-center justify-center overflow-hidden"
+            initial={{ opacity: 1 }}
+            animate={{
+                opacity: isVisible ? 1 : 0,
+                pointerEvents: isVisible ? "all" : "none",
+            }}
+            transition={{ duration: 0.5, ease: "easeInOut" }}
+        >
+            {/* Background patterns */}
+            <div className="absolute inset-0 bg-grid-pattern opacity-[0.03]"></div>
+
+            {/* Animated light beams */}
+            <div className="absolute w-full h-full overflow-hidden">
+                {[...Array(5)].map((_, i) => (
+                    <motion.div
+                        key={i}
+                        className="absolute bg-gradient-to-r from-blue-400/10 via-indigo-500/10 to-transparent h-[30vh] w-[100vw]"
+                        style={{
+                            top: `${10 + i * 20}%`,
+                            left: "-100%",
+                            transformOrigin: "left center",
+                            rotate: `${-20 + i * 10}deg`,
+                        }}
+                        animate={{
+                            left: ["100%", "-100%"],
+                        }}
+                        transition={{
+                            duration: 15 + i * 2,
+                            repeat: Infinity,
+                            ease: "linear",
+                            delay: i * 3,
+                        }}
+                    />
+                ))}
+            </div>
+
+            <div className="relative z-10 flex flex-col items-center">
+                {/* Main animated container */}
+                <motion.div
+                    className="relative"
+                    animate={{
+                        scale: [0.95, 1.05, 0.95],
+                    }}
+                    transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                    }}
+                >
+                    {/* Icon/logo in center */}
+                    <motion.div
+                        className="relative z-10 bg-gradient-to-br from-blue-500 to-indigo-600 h-20 w-20 rounded-2xl flex items-center justify-center shadow-xl"
+                        animate={{
+                            rotate: [0, 10, 0, -10, 0],
+                            scale: [1, 1.1, 1, 1.1, 1],
+                        }}
+                        transition={{
+                            duration: 5,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                        }}
+                    >
+                        <CreditCard className="h-10 w-10 text-white drop-shadow-lg" />
+                    </motion.div>
+                </motion.div>
+            </div>
+        </motion.div>
+    );
+};
+
+export default function AccountDetails({
+    auth,
+    account,
+    incomes,
+    outcomes,
+    totalIncome,
+    pendingIncome,
+    monthlyIncome,
+    yearlyIncome,
+    incomeByMonth,
+    totalOutcome,
+    pendingOutcome,
+    monthlyOutcome,
+    yearlyOutcome,
+    tab,
+    customer
+}) {
     const { t } = useLaravelReactI18n();
+    const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(tab);
     const [showCreateIncomeModal, setShowCreateIncomeModal] = useState(false);
     const [showCreateOutcomeModal, setShowCreateOutcomeModal] = useState(false);
@@ -50,6 +158,15 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
         amount: '',
         description: '',
     });
+
+    // Simulate loading delay (copied from Index.jsx)
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleCreateIncome = (e) => {
         e.preventDefault();
@@ -73,290 +190,298 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
 
     return (
         <>
-            <Head title={t('Account Details')} />
-            <CustomerNavbar />
+            <Head title={t("Account Details")}>
+                <style>{`
+                    @keyframes shimmer {
+                        0% { transform: translateX(-100%); }
+                        100% { transform: translateX(100%); }
+                    }
+                    .animate-shimmer { animation: shimmer 3s infinite; }
 
-            {/* Background gradient */}
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 via-blue-50/10 to-indigo-50/20">
-                <div className="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
-                    {/* Header Section */}
-                    <div className="mb-12 relative">
-                        {/* Decorative elements */}
-                        <div className="absolute -top-6 -left-10 w-40 h-40 bg-gradient-to-br from-blue-100/40 to-indigo-100/40 rounded-full blur-3xl opacity-60"></div>
-                        <div className="absolute -bottom-8 right-0 w-32 h-32 bg-gradient-to-tr from-purple-100/40 to-pink-100/40 rounded-full blur-2xl opacity-70"></div>
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
 
-                        <div className="relative">
-                            <div className="flex items-center mb-8">
-                                <Link
-                                    href={route('customer.accounts.index')}
-                                    className="mr-4 p-2.5 rounded-full bg-white shadow-md hover:bg-gray-50 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
-                                >
-                                    <ChevronLeft className="h-5 w-5 text-indigo-600" />
-                                </Link>
-                                <div>
-                                    <h2 className="text-3xl md:text-4xl font-extrabold leading-tight bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm">
-                                        {t('Account Details')}
-                                    </h2>
-                                    <div className="flex items-center space-x-2 mt-2">
-                                        <span className="text-gray-700 font-semibold">{account.name}</span>
-                                        <span className="text-gray-400">•</span>
-                                        <span className="text-gray-600 font-mono text-sm bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-gray-100">{account.account_number}</span>
-                                    </div>
-                                </div>
+                    .bg-grid-pattern {
+                        background-image: linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+                        background-size: 14px 14px;
+                    }
+
+                    .dark .bg-grid-pattern {
+                        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                                        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+                    }
+                `}</style>
+            </Head>
+
+            <PageLoader isVisible={loading} />
+
+            <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden max-w-full">
+                {/* Sidebar */}
+                <CustomerNavbar
+                    auth={auth || {user: {name: customer?.name || 'Customer'}}}
+                    currentRoute="customer.accounts.show"
+                />
+
+                {/* Main Content */}
+                <div className="flex-1 flex flex-col overflow-hidden max-w-full">
+                    {/* Header */}
+                    <header
+                        className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 py-4 px-6 flex items-center justify-between sticky top-0 z-30"
+                    >
+                        <div className="flex items-center space-x-4">
+                            <div className="relative flex flex-col">
+                                <span className="text-xs font-semibold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-0.5">
+                                    {t("Customer Portal")}
+                                </span>
+                                <h1 className="text-2xl font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    {t("Account Details")}
+                                </h1>
                             </div>
                         </div>
+                        <div className="flex items-center space-x-3">
+                            <Link
+                                href={route('customer.accounts.index')}
+                            >
+                                <Button
+                                    size="sm"
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                                >
+                                    <ArrowLeft className="h-4 w-4 mr-2" />
+                                    {t("Back to Accounts")}
+                                </Button>
+                            </Link>
+                        </div>
+                    </header>
 
-                        <div className="mt-10 flex flex-wrap items-center justify-between gap-5">
-                            {/* Balance Card with Dynamic Background */}
-                            {(() => {
-                                const balance = totalIncome - totalOutcome;
-                                let bgGradient, borderColor, iconGradient, iconColor, textColor, hoverBgGradient, title;
+                    {/* Main Content Container */}
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                        <div className="p-6">
+                            <div className="max-w-7xl mx-auto">
+                                {/* Hero Section with Gradient Background */}
+                                <div className="relative bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 rounded-2xl shadow-xl p-10 mb-10 overflow-hidden">
+                                    <div className="absolute inset-0 bg-pattern opacity-10"></div>
+                                    <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-gradient-to-br from-pink-400 to-indigo-500 opacity-20 rounded-full blur-3xl"></div>
+                                    <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 h-64 bg-gradient-to-tr from-indigo-400 to-purple-500 opacity-20 rounded-full blur-3xl"></div>
 
-                                if (balance < 0) {
-                                    // Negative balance - Red theme
-                                    bgGradient = "from-red-50 to-red-100";
-                                    borderColor = "border-red-200";
-                                    iconGradient = "from-red-100 to-red-200";
-                                    iconColor = "text-red-600";
-                                    textColor = "text-red-600";
-                                    hoverBgGradient = "hover:from-red-100 hover:to-red-50";
-                                    title = t('Negative Balance');
-                                } else if (balance === 0) {
-                                    // Zero balance - Yellow theme
-                                    bgGradient = "from-amber-50 to-amber-100";
-                                    borderColor = "border-amber-200";
-                                    iconGradient = "from-amber-100 to-amber-200";
-                                    iconColor = "text-amber-600";
-                                    textColor = "text-amber-600";
-                                    hoverBgGradient = "hover:from-amber-100 hover:to-amber-50";
-                                    title = t('Zero Balance');
-                                } else {
-                                    // Positive balance - Green theme
-                                    bgGradient = "from-green-50 to-green-100";
-                                    borderColor = "border-green-200";
-                                    iconGradient = "from-green-100 to-green-200";
-                                    iconColor = "text-green-600";
-                                    textColor = "text-green-600";
-                                    hoverBgGradient = "hover:from-green-100 hover:to-green-50";
-                                    title = t('Positive Balance');
-                                }
-
-                                return (
-                                    <div className={`bg-gradient-to-br ${bgGradient} rounded-xl shadow-lg px-5 py-4 flex items-center space-x-4 border ${borderColor} backdrop-blur-sm hover:shadow-xl transition-all duration-300 hover:bg-gradient-to-br ${hoverBgGradient} transform hover:scale-105`}>
-                                        <div className={`bg-gradient-to-br ${iconGradient} p-3 rounded-xl shadow-md`}>
-                                            <CreditCard className={`h-6 w-6 ${iconColor}`} />
-                                        </div>
+                                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                         <div>
-                                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">{t('Account Balance')}</p>
-                                            <p className={`text-xl font-bold ${textColor}`}>
-                                                {balance < 0 && "-"}${formatNumber(Math.abs(balance))}
+                                            <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-3 leading-tight">
+                                                {t('Account Details Management')}
+                                            </h1>
+                                            <p className="text-indigo-100 text-lg max-w-2xl">
+                                                {t('Track all your account transactions and manage your financial records in one secure place.')}
                                             </p>
-                                            <p className="text-xs font-medium text-gray-400 mt-1">{title}</p>
+                                            <div className="flex items-center mt-6 gap-4">
+                                                <button
+                                                    onClick={() => setShowCreateIncomeModal(true)}
+                                                    className="group relative inline-flex items-center px-6 py-3 text-base font-medium leading-6 text-white transition-all duration-300 bg-white bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 overflow-hidden"
+                                                >
+                                                    <span className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                                                    <Plus className="mr-2 h-5 w-5 text-white group-hover:rotate-90 transition-transform duration-300" />
+                                                    <span className="relative">{t('Add Income')}</span>
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowCreateOutcomeModal(true)}
+                                                    className="group relative inline-flex items-center px-6 py-3 text-base font-medium leading-6 text-white transition-all duration-300 bg-white bg-opacity-20 backdrop-blur-sm hover:bg-opacity-30 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600 overflow-hidden"
+                                                >
+                                                    <span className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                                                    <Minus className="mr-2 h-5 w-5 text-white group-hover:rotate-90 transition-transform duration-300" />
+                                                    <span className="relative">{t('Add Rent/Loan')}</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="hidden md:flex items-center justify-center bg-white bg-opacity-10 backdrop-blur-sm p-6 rounded-2xl border border-white border-opacity-20 shadow-lg">
+                                            <CreditCard className="h-16 w-16 text-white opacity-80" />
                                         </div>
                                     </div>
-                                );
-                            })()}
+                                </div>
 
-                            <div className="flex flex-wrap sm:flex-nowrap gap-3">
-                                <a href={route('reports.account.statement', account.id)} target="_blank"
-                                    className="inline-flex items-center px-5 py-3 rounded-xl shadow-md text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-                                >
-                                    <FileText className="mr-2 h-4 w-4" />
-                                    {t('Export Statement')}
-                                </a>
-                                <button onClick={() => setShowCreateIncomeModal(true)}
-                                    className="inline-flex items-center px-5 py-3 rounded-xl shadow-md text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-                                >
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    {t('Add Income')}
-                                </button>
-                                <button onClick={() => setShowCreateOutcomeModal(true)}
-                                    className="inline-flex items-center px-5 py-3 rounded-xl shadow-md text-sm font-medium text-white bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
-                                >
-                                    <CardIcon className="mr-2 h-4 w-4" />
-                                    {t('Add Rent/Loan')}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Income Summary Cards */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-                        {/* Total Income */}
-                        <div className="group relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-indigo-50 p-6 overflow-hidden transition-all duration-500 hover:shadow-xl hover:border-indigo-200 hover:bg-gradient-to-br hover:from-white hover:to-indigo-50/50 transform hover:-translate-y-1">
-                            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-indigo-100/30 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 blur-xl"></div>
-                            <div className="absolute top-0 right-0 mt-6 mr-6">
-                                <div className="bg-gradient-to-br from-indigo-100 to-indigo-200 p-3 rounded-xl transform transition-all duration-300 group-hover:rotate-6 group-hover:scale-110 shadow-md">
-                                    <DollarSign className="w-6 h-6 text-indigo-600" />
-                                </div>
-                            </div>
-                            <div className="space-y-3 pr-16">
-                                <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest">{t('Total Income')}</p>
-                                <div className="relative">
-                                    <p className="text-2xl font-bold text-indigo-600 group-hover:opacity-0 transition-opacity duration-300">
-                                        {formatNumber(totalIncome)}
-                                    </p>
-                                    <p className="text-2xl font-bold text-transparent bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        {formatNumber(totalIncome)}
-                                    </p>
-                                </div>
-                                <div className="h-1.5 w-16 bg-indigo-100 rounded-full overflow-hidden mt-2">
-                                    <div className="h-full bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Total Rent/Outcome */}
-                        <div className="group relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-red-50 p-6 overflow-hidden transition-all duration-500 hover:shadow-xl hover:border-red-200 hover:bg-gradient-to-br hover:from-white hover:to-red-50/50 transform hover:-translate-y-1">
-                            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-red-100/30 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 blur-xl"></div>
-                            <div className="absolute top-0 right-0 mt-6 mr-6">
-                                <div className="bg-gradient-to-br from-red-100 to-red-200 p-3 rounded-xl transform transition-all duration-300 group-hover:rotate-6 group-hover:scale-110 shadow-md">
-                                    <TrendingDown className="w-6 h-6 text-red-600" />
-                                </div>
-                            </div>
-                            <div className="space-y-3 pr-16">
-                                <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest">{t('Total Rent')}</p>
-                                <div className="relative">
-                                    <p className="text-2xl font-bold text-red-600 group-hover:opacity-0 transition-opacity duration-300">
-                                        {formatNumber(totalOutcome)}
-                                    </p>
-                                    <p className="text-2xl font-bold text-transparent bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        {formatNumber(totalOutcome)}
-                                    </p>
-                                </div>
-                                <div className="h-1.5 w-16 bg-red-100 rounded-full overflow-hidden mt-2">
-                                    <div className="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Monthly Income */}
-                        <div className="group relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-green-50 p-6 overflow-hidden transition-all duration-500 hover:shadow-xl hover:border-green-200 hover:bg-gradient-to-br hover:from-white hover:to-green-50/50 transform hover:-translate-y-1">
-                            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-green-100/30 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 blur-xl"></div>
-                            <div className="absolute top-0 right-0 mt-6 mr-6">
-                                <div className="bg-gradient-to-br from-green-100 to-green-200 p-3 rounded-xl transform transition-all duration-300 group-hover:rotate-6 group-hover:scale-110 shadow-md">
-                                    <Calendar className="w-6 h-6 text-green-600" />
-                                </div>
-                            </div>
-                            <div className="space-y-3 pr-16">
-                                <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest">{t('Monthly Income')}</p>
-                                <div className="relative">
-                                    <p className="text-2xl font-bold text-green-600 group-hover:opacity-0 transition-opacity duration-300">
-                                        {formatNumber(monthlyIncome)}
-                                    </p>
-                                    <p className="text-2xl font-bold text-transparent bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        {formatNumber(monthlyIncome)}
-                                    </p>
-                                </div>
-                                <div className="h-1.5 w-16 bg-green-100 rounded-full overflow-hidden mt-2">
-                                    <div className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Monthly Rent/Outcome */}
-                        <div className="group relative bg-white/90 backdrop-blur-sm rounded-2xl shadow-lg border border-yellow-50 p-6 overflow-hidden transition-all duration-500 hover:shadow-xl hover:border-yellow-200 hover:bg-gradient-to-br hover:from-white hover:to-yellow-50/50 transform hover:-translate-y-1">
-                            <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-yellow-100/30 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-500 blur-xl"></div>
-                            <div className="absolute top-0 right-0 mt-6 mr-6">
-                                <div className="bg-gradient-to-br from-yellow-100 to-yellow-200 p-3 rounded-xl transform transition-all duration-300 group-hover:rotate-6 group-hover:scale-110 shadow-md">
-                                    <Clock className="w-6 h-6 text-yellow-600" />
-                                </div>
-                            </div>
-                            <div className="space-y-3 pr-16">
-                                <p className="text-sm font-semibold text-gray-500 uppercase tracking-widest">{t('Monthly Rent')}</p>
-                                <div className="relative">
-                                    <p className="text-2xl font-bold text-yellow-600 group-hover:opacity-0 transition-opacity duration-300">
-                                        {formatNumber(monthlyOutcome)}
-                                    </p>
-                                    <p className="text-2xl font-bold text-transparent bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        {formatNumber(monthlyOutcome)}
-                                    </p>
-                                </div>
-                                <div className="h-1.5 w-16 bg-yellow-100 rounded-full overflow-hidden mt-2">
-                                    <div className="h-full bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full w-full scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Table section */}
-                    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100 mb-12">
-                        <div className="flex flex-wrap justify-between items-center mb-8">
-                            <div className="flex items-center">
-                                <div className="mr-3 bg-gradient-to-br from-indigo-100 to-blue-100 p-2.5 rounded-xl shadow-md">
-                                    <TrendingUp className="h-6 w-6 text-indigo-600" />
-                                </div>
-                            <div>
-                                    <h2 className="text-2xl font-bold text-gray-800 mb-1 flex items-center">
-                                        {t('Income History')}
-                                        <span className="ml-2 bg-indigo-100 text-indigo-700 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
-                                            <DollarSign className="w-3 h-3 mr-1" />
-                                            {incomes.data ? incomes.data.length : 0}
-                                        </span>
-                                    </h2>
-                                <p className="text-sm text-gray-500">{t('Manage and track your income transactions')}</p>
-                            </div>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-4 mt-4 sm:mt-0">
-                                <div className="relative w-full sm:w-64 md:w-80">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Search className="h-4 w-4 text-gray-400" />
+                                {/* Account Information Section */}
+                                <div className="mb-10">
+                                    <div className="flex items-center mb-6">
+                                        <Link
+                                            href={route('customer.accounts.index')}
+                                            className="mr-4 p-2.5 rounded-full bg-white shadow-md hover:bg-gray-50 hover:shadow-lg transition-all duration-200 transform hover:scale-105"
+                                        >
+                                            <ChevronLeft className="h-5 w-5 text-indigo-600" />
+                                        </Link>
+                                        <div>
+                                            <h2 className="text-2xl font-bold text-slate-800 dark:text-white">
+                                                {account.name}
+                                            </h2>
+                                            <div className="flex items-center space-x-2 mt-1">
+                                                <span className="text-slate-600 dark:text-slate-400">•</span>
+                                                <span className="text-slate-600 dark:text-slate-400 font-mono text-sm bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-slate-200 dark:border-slate-700">
+                                                    {account.account_number}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <input
-                                        type="text"
-                                        className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent shadow-sm bg-white backdrop-blur-sm transition-all duration-200 hover:shadow-md"
-                                        placeholder={t('Search transactions or reference number...')}
-                                        value={searchIncomeQuery}
-                                        onChange={(e) => setSearchIncomeQuery(e.target.value)}
-                                    />
-                                </div>
-                                <div className="flex justify-end gap-4">
-                                    <button
-                                        onClick={() => {
-                                            setIsSearching(true);
-                                            setTimeout(() => setIsSearching(false), 500);
-                                        }}
-                                        className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md"
-                                    >
-                                        <Search className={`h-4 w-4 transition-all duration-300 ${isSearching ? 'scale-110 text-indigo-500' : ''}`} />
-                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Search')}</span>
-                                    </button>
-                                    <button className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md">
-                                        <Filter className="h-4 w-4 transition-transform group-hover:scale-110" />
-                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Filter')}</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setSearchIncomeQuery('')}
-                                        className={`group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm hover:shadow-md ${searchIncomeQuery ? 'opacity-100' : 'opacity-50'}`}
-                                    >
-                                        <RefreshCw className="h-4 w-4 transition-transform group-hover:rotate-180 duration-500" />
-                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Reset')}</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div className="overflow-x-auto -mx-8">
-                            <div className="inline-block min-w-full align-middle px-8">
-                                <div className="overflow-hidden border border-gray-100 rounded-2xl shadow-lg bg-white backdrop-blur-sm">
-                                    <table className="min-w-full divide-y divide-gray-100">
-                                        <thead className="bg-gradient-to-r from-indigo-50 to-blue-50">
-                                            <tr>
-                                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-indigo-600 uppercase tracking-wider">
-                                                    {t('Description')}
-                                                </th>
-                                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-indigo-600 uppercase tracking-wider">
-                                                    {t('Amount')}
-                                                </th>
-                                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-indigo-600 uppercase tracking-wider">
-                                                    {t('Status')}
-                                                </th>
-                                                <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-indigo-600 uppercase tracking-wider">
-                                                    {t('Actions')}
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-100">
+                                    {/* Balance and Action Cards */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                                        {/* Balance Card */}
+                                        <div className="bg-gradient-to-br from-white to-indigo-50/50 backdrop-blur-xl rounded-2xl shadow-lg border border-indigo-100/50 p-6">
+                                            <div className="flex items-center justify-between mb-4">
+                                                <div className="bg-gradient-to-br from-indigo-500/10 to-blue-500/10 p-3 rounded-xl">
+                                                    <CreditCard className="h-6 w-6 text-indigo-600" />
+                                                </div>
+                                                <span className="text-xs font-semibold uppercase tracking-wider text-indigo-600">
+                                                    {t('Balance')}
+                                                </span>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <p className="text-3xl font-bold text-slate-800 dark:text-white">
+                                                    ${formatNumber(totalIncome - totalOutcome)}
+                                                </p>
+                                                <p className="text-sm text-slate-600 dark:text-slate-400">
+                                                    {t('Current Account Balance')}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        <div className="lg:col-span-2 flex flex-col sm:flex-row gap-4">
+                                            <button
+                                                onClick={() => setShowCreateIncomeModal(true)}
+                                                className="group relative flex-1 bg-gradient-to-br from-emerald-400 via-green-500 to-emerald-600 hover:from-emerald-500 hover:via-green-600 hover:to-emerald-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 p-5 flex items-center justify-center gap-3 overflow-hidden"
+                                            >
+                                                {/* Animated background effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                                
+                                                {/* Icon with glow effect */}
+                                                <div className="relative z-10 flex items-center gap-3">
+                                                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                                        <Plus className="h-5 w-5 drop-shadow-lg" />
+                                                    </div>
+                                                    <span className="text-lg font-bold tracking-wide">{t('Add Income')}</span>
+                                                </div>
+                                                
+                                                {/* Shimmer effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
+                                            </button>
+                                            
+                                            <button
+                                                onClick={() => setShowCreateOutcomeModal(true)}
+                                                className="group relative flex-1 bg-gradient-to-br from-rose-400 via-red-500 to-rose-600 hover:from-rose-500 hover:via-red-600 hover:to-rose-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 p-5 flex items-center justify-center gap-3 overflow-hidden"
+                                            >
+                                                {/* Animated background effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                                
+                                                {/* Icon with glow effect */}
+                                                <div className="relative z-10 flex items-center gap-3">
+                                                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                                        <CardIcon className="h-5 w-5 drop-shadow-lg" />
+                                                    </div>
+                                                    <span className="text-lg font-bold tracking-wide">{t('Add Rent/Loan')}</span>
+                                                </div>
+                                                
+                                                {/* Shimmer effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
+                                            </button>
+                                            
+                                            <a
+                                                href={route('customer.reports.account.statement', account.id)}
+                                                target="_blank"
+                                                className="group relative flex-1 bg-gradient-to-br from-blue-400 via-indigo-500 to-blue-600 hover:from-blue-500 hover:via-indigo-600 hover:to-blue-700 text-white font-semibold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-1 p-5 flex items-center justify-center gap-3 overflow-hidden"
+                                            >
+                                                {/* Animated background effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                                                
+                                                {/* Icon with glow effect */}
+                                                <div className="relative z-10 flex items-center gap-3">
+                                                    <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                                                        <FileText className="h-5 w-5 drop-shadow-lg" />
+                                                    </div>
+                                                    <span className="text-lg font-bold tracking-wide">{t('Export Statement')}</span>
+                                                </div>
+                                                
+                                                {/* Shimmer effect */}
+                                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Stats Cards */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                                    {/* Total Income */}
+                                    <div className="group relative bg-white rounded-2xl shadow-md border border-gray-100 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-green-100 transform hover:-translate-y-1">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-green-50/50 to-emerald-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        <div className="relative flex items-center justify-between">
+                                            <div className="space-y-1">
+                                                <p className="text-sm font-medium text-gray-500 transition-colors duration-300 group-hover:text-green-600">{t('Total Income')}</p>
+                                                <p className="text-2xl font-bold text-gray-900">${formatNumber(totalIncome)}</p>
+                                                <p className="text-xs text-gray-500">{t('All time income')}</p>
+                                            </div>
+                                            <div className="bg-gradient-to-br from-green-100 to-emerald-100 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                                                <TrendingUp className="w-8 h-8 text-green-600" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Total Outcome */}
+                                    <div className="group relative bg-white rounded-2xl shadow-md border border-gray-100 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-red-100 transform hover:-translate-y-1">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-red-50/50 to-pink-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        <div className="relative flex items-center justify-between">
+                                            <div className="space-y-1">
+                                                <p className="text-sm font-medium text-gray-500 transition-colors duration-300 group-hover:text-red-600">{t('Total Rent')}</p>
+                                                <p className="text-2xl font-bold text-gray-900">${formatNumber(totalOutcome)}</p>
+                                                <p className="text-xs text-gray-500">{t('All time rent/loans')}</p>
+                                            </div>
+                                            <div className="bg-gradient-to-br from-red-100 to-pink-100 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                                                <TrendingDown className="w-8 h-8 text-red-600" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Account Balance */}
+                                    <div className="group relative bg-white rounded-2xl shadow-md border border-gray-100 p-6 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-indigo-100 transform hover:-translate-y-1">
+                                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                        <div className="relative flex items-center justify-between">
+                                            <div className="space-y-1">
+                                                <p className="text-sm font-medium text-gray-500 transition-colors duration-300 group-hover:text-indigo-600">{t('Account Balance')}</p>
+                                                <p className="text-2xl font-bold text-gray-900">${formatNumber(totalIncome - totalOutcome)}</p>
+                                                <p className="text-xs text-gray-500">{t('Current balance')}</p>
+                                            </div>
+                                            <div className="bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full p-3 transform transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                                                <CreditCard className="w-8 h-8 text-indigo-600" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Income History Table */}
+                                <div className="bg-gradient-to-br from-white to-indigo-50 rounded-2xl shadow-xl overflow-hidden mb-8">
+                                    <div className="px-8 py-6 border-b border-indigo-100 bg-gradient-to-r from-indigo-50 to-purple-50 backdrop-blur-sm">
+                                        <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                                            <TrendingUp className="h-6 w-6 mr-2 text-indigo-600" />
+                                            {t('Income History')}
+                                        </h3>
+                                    </div>
+
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead>
+                                                <tr className="bg-gradient-to-r from-indigo-50 to-purple-50">
+                                                    <th scope="col" className="px-8 py-5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        {t('Description')}
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        {t('Amount')}
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        {t('Status')}
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-5 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        {t('Actions')}
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-100">
                                             {incomes.data && incomes.data.length > 0 ? (
                                                 incomes.data
                                                 .filter(income => {
@@ -369,212 +494,230 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                                     );
                                                 })
                                                 .map((income) => (
-                                                    <tr key={income.id} className="hover:bg-indigo-50/40 transition-all duration-200 border-b border-gray-50 last:border-b-0">
-                                                        <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-800">
-                                                            <div className="font-semibold">{income.description || t('Income payment')}</div>
-                                                            <div className="flex items-center text-gray-500 text-xs mt-1">
-                                                                <Calendar className="w-3 h-3 mr-1 text-indigo-400" />
-                                                                {new Date(income.date).toLocaleDateString()}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap">
-                                                            <div className="text-base font-medium bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">${formatNumber(income.amount)}</div>
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap">
-                                                            <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold
-                                                                ${income.status === 'approved'
-                                                                    ? 'bg-green-100 text-green-700 ring-1 ring-green-600/20'
-                                                                    : income.status === 'pending'
-                                                                        ? 'bg-yellow-100 text-yellow-700 ring-1 ring-yellow-600/20'
-                                                                        : 'bg-gray-100 text-gray-700 ring-1 ring-gray-600/20'
-                                                                }`}>
-                                                                {income.status === 'approved' && <CheckCircle className="w-3.5 h-3.5 mr-1.5" />}
-                                                                {income.status === 'pending' && <Clock className="w-3.5 h-3.5 mr-1.5" />}
-                                                                {income.status.charAt(0).toUpperCase() + income.status.slice(1)}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
-                                                            <div className="flex items-center justify-end space-x-2">
-                                                            {income.status === 'pending' && (
-                                                                <Link
-                                                                    href={route('customer.accounts.incomes.approve', {account: account.id, income: income.id})}
-                                                                    method="post"
-                                                                    as="button"
-                                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                                                                >
-                                                                    <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                                                                    {t('Approve')}
-                                                                </Link>
-                                                            )}
-
-                                                                <a
-                                                                    href={route('thermal.print.income', income.id)}
-                                                                    target="_blank"
-                                                                    className="inline-flex items-center px-2 py-2 border border-gray-300 text-xs font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 group"
-                                                                >
-                                                                    <Printer className="w-3.5 h-3.5 text-indigo-500 group-hover:text-indigo-600" />
-
-                                                                </a>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))
+                                                            <tr key={income.id} className="group hover:bg-indigo-50/40 transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                                                                <td className="px-8 py-6 whitespace-nowrap">
+                                                                    <div className="flex items-center">
+                                                                        <div className="flex-shrink-0 h-16 w-16 flex items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg group-hover:shadow-xl group-hover:from-green-600 group-hover:to-emerald-700 transition-all duration-300 transform group-hover:scale-105">
+                                                                            <TrendingUp className="h-8 w-8" />
+                                                                        </div>
+                                                                        <div className="ml-5">
+                                                                            <div className="text-base font-semibold text-gray-900 group-hover:text-indigo-700 transition-colors duration-300">{income.description || t('Income payment')}</div>
+                                                                            <div className="text-sm text-gray-500 mt-1.5 flex items-center">
+                                                                                <Calendar className="h-4 w-4 mr-1.5 text-gray-400" />
+                                                                                {new Date(income.date).toLocaleDateString()}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-6 whitespace-nowrap">
+                                                                    <div className="text-sm font-mono bg-green-50/80 text-green-800 py-2 px-4 rounded-md border border-green-100 shadow-sm group-hover:shadow-md group-hover:bg-green-100 inline-flex items-center transition-all duration-300">
+                                                                        <DollarSign className="h-4 w-4 mr-2 text-green-500" />
+                                                                        ${formatNumber(income.amount)}
+                                                                    </div>
+                                                                </td>
+                                                                                                                                <td className="px-6 py-6 whitespace-nowrap">
+                                                                    <span className={`px-4 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full ${
+                                                                        income.status === 'approved'
+                                                                            ? 'bg-green-100 text-green-800 border border-green-200'
+                                                                            : income.status === 'pending'
+                                                                                ? 'bg-yellow-100 text-yellow-800 border border-yellow-200'
+                                                                                : 'bg-gray-100 text-gray-800 border border-gray-200'
+                                                                    } shadow-sm group-hover:shadow-md transition-all duration-300`}>
+                                                                        <span className={`flex h-2.5 w-2.5 rounded-full mr-2 ${
+                                                                            income.status === 'approved'
+                                                                                ? 'bg-green-500 animate-pulse'
+                                                                                : income.status === 'pending'
+                                                                                    ? 'bg-yellow-500'
+                                                                                    : 'bg-gray-500'
+                                                                        }`}></span>
+                                                                        {t(income.status.charAt(0).toUpperCase() + income.status.slice(1))}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
+                                                                    <div className="flex items-center justify-end space-x-2">
+                                                                        {income.status === 'pending' && (
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    router.post(route('customer.accounts.incomes.approve', {account: account.id, income: income.id}));
+                                                                                }}
+                                                                                className="group relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md overflow-hidden"
+                                                                            >
+                                                                                <span className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                                                                                <CheckCircle className="mr-1.5 h-4 w-4" />
+                                                                                <span className="relative">{t('Approve')}</span>
+                                                                            </button>
+                                                                        )}
+                                                                        <a
+                                                                            href={route('thermal.print.income', income.id)}
+                                                                            target="_blank"
+                                                                            className="group relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md"
+                                                                        >
+                                                                            <span className="absolute top-0 left-0 w-full h-full bg-indigo-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-lg"></span>
+                                                                            <Printer className="mr-1.5 h-4 w-4 text-indigo-500 group-hover:text-indigo-600 transition-colors duration-300" />
+                                                                            <span className="relative group-hover:text-indigo-600 transition-colors duration-300">{t('Print')}</span>
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        ))
                                             ) : (
                                                 <tr>
-                                                    <td colSpan="4" className="px-6 py-12 text-center text-sm text-gray-500">
-                                                        <div className="flex flex-col items-center">
-                                                            <div className="bg-gray-50 p-6 rounded-full mb-4">
-                                                                <svg className="h-14 w-14 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                                                                </svg>
+                                                    <td colSpan="4" className="px-6 py-12 text-center">
+                                                        <div className="max-w-sm mx-auto">
+                                                            <div className="flex justify-center mb-4">
+                                                                <div className="p-5 bg-green-100 rounded-full shadow-inner">
+                                                                    <TrendingUp className="h-12 w-12 text-green-600" />
+                                                                </div>
                                                             </div>
-                                                            <p className="text-base font-medium text-gray-600 mb-1">{t('No income transactions found')}</p>
-                                                            <p className="text-sm text-gray-500 mb-4">{t('Start by adding your first income transaction')}</p>
+                                                            <p className="text-lg font-medium text-gray-800 mb-2">
+                                                                {t('No income transactions found')}
+                                                            </p>
+                                                            <p className="text-gray-500 mb-6">
+                                                                {t('Start by adding your first income transaction.')}
+                                                            </p>
                                                             <button
                                                                 onClick={() => setShowCreateIncomeModal(true)}
-                                                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-indigo-600 to-purple-600 shadow-sm hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200"
+                                                                className="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 w-full shadow-md hover:shadow-lg"
                                                             >
-                                                                <Plus className="w-4 h-4 mr-2" />
-                                                                {t('Add your first income')}
+                                                                <Plus className="mr-2 h-4 w-4" />
+                                                                {t('Add Your First Income')}
                                                             </button>
                                                         </div>
                                                     </td>
                                                 </tr>
                                             )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Pagination Section */}
-                        {activeTab === 'incomes' && incomes.links && incomes.links.length > 3 && (
-                            <div className="px-6 py-6 border-t border-gray-200 mt-6">
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                    <div className="mb-4 sm:mb-0">
-                                        <p className="text-sm text-gray-700">
-                                            {t('Showing')} <span className="font-semibold">{incomes.from}</span> {t('to')} <span className="font-semibold">{incomes.to}</span> {t('of')} <span className="font-semibold">{incomes.total}</span> {t('results')}
-                                        </p>
+                                            </tbody>
+                                        </table>
                                     </div>
-                                    <nav className="relative z-0 inline-flex justify-center rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                        <Link
-                                            href={incomes.prev_page_url}
-                                            className={`relative inline-flex items-center px-4 py-2 rounded-l-lg border ${!incomes.prev_page_url ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed' : 'border-gray-300 bg-white text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 transition-colors'}`}
-                                            disabled={!incomes.prev_page_url}
+
+                                    {/* Pagination for incomes */}
+                                    {incomes.links && incomes.links.length > 3 && (
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 1.5, duration: 0.4 }}
+                                            className="flex flex-col items-center space-y-4 px-6 py-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-indigo-50/30"
                                         >
-                                            <span className="sr-only">{t('Previous')}</span>
-                                            <ChevronLeft className="h-4 w-4" />
-                                        </Link>
+                                            <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                {t("Showing")} {incomes.from || 0} {t("to")} {incomes.to || 0} {t("of")} {incomes.total || 0} {t("results")}
+                                            </div>
+                                            <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-indigo-100 dark:border-indigo-900/30">
+                                                {/* Previous Page */}
+                                                <button
+                                                    onClick={() => {
+                                                        const prevPage = incomes.current_page - 1;
+                                                        if (prevPage >= 1) {
+                                                            router.get(route('customer.accounts.show', { account: account.id, page: prevPage }), {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            });
+                                                        }
+                                                    }}
+                                                    disabled={!incomes.links || incomes.current_page <= 1}
+                                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                        incomes.links && incomes.current_page > 1
+                                                            ? 'text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
+                                                            : 'text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    <ChevronRight className="h-4 w-4" />
+                                                    <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                </button>
 
-                                        {incomes.links && incomes.links.slice(1, -1).map((link, index) => (
-                                            <Link
-                                                key={index}
-                                                href={link.url}
-                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                                    link.active
-                                                        ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600 font-semibold'
-                                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 transition-colors'
-                                                }`}
-                                            >
-                                                {link.label.replace('&laquo;', '').replace('&raquo;', '')}
-                                            </Link>
-                                        ))}
+                                                {/* Page Numbers */}
+                                                {incomes.links && incomes.links.slice(1, -1).map((link, index) => {
+                                                    if (link.url === null) {
+                                                        return (
+                                                            <span key={index} className="px-3 py-2 text-gray-400">
+                                                                ...
+                                                            </span>
+                                                        );
+                                                    }
+                                                    
+                                                    const pageNum = link.label;
+                                                    const isActive = link.active;
+                                                    
+                                                    return (
+                                                        <button
+                                                            key={index}
+                                                            onClick={() => {
+                                                                const url = new URL(link.url);
+                                                                const page = url.searchParams.get('page');
+                                                                if (page) {
+                                                                    router.get(route('customer.accounts.show', { account: account.id, page }), {
+                                                                        preserveState: true,
+                                                                        preserveScroll: true,
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                isActive
+                                                                    ? 'bg-gradient-to-r from-indigo-500 to-blue-400 text-white shadow-lg'
+                                                                    : 'text-gray-700 dark:text-gray-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
+                                                            }`}
+                                                        >
+                                                            {pageNum}
+                                                        </button>
+                                                    );
+                                                })}
 
-                                        <Link
-                                            href={incomes.next_page_url}
-                                            className={`relative inline-flex items-center px-4 py-2 rounded-r-lg border ${!incomes.next_page_url ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed' : 'border-gray-300 bg-white text-gray-500 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-300 transition-colors'}`}
-                                            disabled={!incomes.next_page_url}
-                                        >
-                                            <span className="sr-only">{t('Next')}</span>
-                                            <ChevronRight className="h-4 w-4" />
-                                        </Link>
-                                    </nav>
+                                                {/* Next Page */}
+                                                <button
+                                                    onClick={() => {
+                                                        const nextPage = incomes.current_page + 1;
+                                                        if (nextPage <= incomes.last_page) {
+                                                            router.get(route('customer.accounts.show', { account: account.id, page: nextPage }), {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            });
+                                                        }
+                                                    }}
+                                                    disabled={!incomes.links || incomes.current_page >= incomes.last_page}
+                                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                        incomes.links && incomes.current_page < incomes.last_page
+                                                            ? 'text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30'
+                                                            : 'text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                    <ChevronRight className="h-4 w-4 rotate-180" />
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )}
                                 </div>
-                            </div>
-                        )}
-                    </div>
 
-                    {/* Rent/Loan History Table */}
-                    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-gray-100">
-                        <div className="flex flex-wrap justify-between items-center mb-8">
-                            <div className="flex items-center">
-                                <div className="mr-3 bg-gradient-to-br from-pink-100 to-red-100 p-2.5 rounded-xl shadow-md">
-                                    <TrendingDown className="h-6 w-6 text-pink-600" />
-                                </div>
-                            <div>
-                                    <h2 className="text-2xl font-bold text-gray-800 mb-1 flex items-center">
-                                        {t('Rent & Loan History')}
-                                        <span className="ml-2 bg-pink-100 text-pink-700 text-xs font-medium px-2.5 py-0.5 rounded-full flex items-center">
-                                            <CardIcon className="w-3 h-3 mr-1" />
-                                            {outcomes.data ? outcomes.data.length : 0}
-                                        </span>
-                                    </h2>
-                                <p className="text-sm text-gray-500">{t('Track your rental payments and loan records')}</p>
-                            </div>
-                            </div>
-                            <div className="flex flex-col sm:flex-row gap-4 mt-4 sm:mt-0">
-                                <div className="relative w-full sm:w-64 md:w-80">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <Search className="h-4 w-4 text-gray-400" />
+                                {/* Outcome/Loan History Table */}
+                                <div className="bg-gradient-to-br from-white to-red-50 rounded-2xl shadow-xl overflow-hidden mb-8">
+                                    <div className="px-8 py-6 border-b border-red-100 bg-gradient-to-r from-red-50 to-pink-50 backdrop-blur-sm">
+                                        <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                                            <TrendingDown className="h-6 w-6 mr-2 text-red-600" />
+                                            {t('Rent & Loan History')}
+                                        </h3>
                                     </div>
-                                    <input
-                                        type="text"
-                                        className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-lg text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent shadow-sm bg-white backdrop-blur-sm transition-all duration-200 hover:shadow-md"
-                                        placeholder={t('Search by description or reference...')}
-                                        value={searchOutcomeQuery}
-                                        onChange={(e) => setSearchOutcomeQuery(e.target.value)}
-                                    />
-                                </div>
-                                <div className="flex justify-end gap-4">
-                                    <button
-                                        onClick={() => {
-                                            setIsSearching(true);
-                                            setTimeout(() => setIsSearching(false), 500);
-                                        }}
-                                        className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 shadow-sm hover:shadow-md"
-                                    >
-                                        <Search className={`h-4 w-4 transition-all duration-300 ${isSearching ? 'scale-110 text-pink-500' : ''}`} />
-                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Search')}</span>
-                                    </button>
-                                    <button className="group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 shadow-sm hover:shadow-md">
-                                        <Filter className="h-4 w-4 transition-transform group-hover:scale-110" />
-                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Filter')}</span>
-                                    </button>
-                                    <button
-                                        onClick={() => setSearchOutcomeQuery('')}
-                                        className={`group relative inline-flex items-center p-2.5 border border-gray-200 rounded-xl bg-white text-gray-500 hover:text-pink-600 hover:border-pink-200 hover:bg-pink-50/50 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-200 shadow-sm hover:shadow-md ${searchOutcomeQuery ? 'opacity-100' : 'opacity-50'}`}
-                                    >
-                                        <RefreshCw className="h-4 w-4 transition-transform group-hover:rotate-180 duration-500" />
-                                        <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded-md py-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">{t('Reset')}</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div className="overflow-x-auto -mx-8">
-                            <div className="inline-block min-w-full align-middle px-8">
-                                <div className="overflow-hidden border border-gray-100 rounded-2xl shadow-lg bg-white backdrop-blur-sm">
-                                    <table className="min-w-full divide-y divide-gray-100">
-                                        <thead className="bg-gradient-to-r from-pink-50 to-red-50">
-                                            <tr>
-                                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-pink-600 uppercase tracking-wider">
-                                                    {t('Description')}
-                                                </th>
-                                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-pink-600 uppercase tracking-wider">
-                                                    {t('Reference')}
-                                                </th>
-                                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-pink-600 uppercase tracking-wider">
-                                                    {t('Amount')}
-                                                </th>
-                                                <th scope="col" className="px-6 py-4 text-left text-xs font-bold text-pink-600 uppercase tracking-wider">
-                                                    {t('Status')}
-                                                </th>
-                                                <th scope="col" className="px-6 py-4 text-right text-xs font-bold text-pink-600 uppercase tracking-wider">
-                                                    {t('Actions')}
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="bg-white divide-y divide-gray-100">
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full divide-y divide-gray-200">
+                                            <thead>
+                                                <tr className="bg-gradient-to-r from-red-50 to-pink-50">
+                                                    <th scope="col" className="px-8 py-5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        {t('Description')}
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        {t('Reference')}
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        {t('Amount')}
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-5 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        {t('Status')}
+                                                    </th>
+                                                    <th scope="col" className="px-6 py-5 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        {t('Actions')}
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-white divide-y divide-gray-100">
                                             {outcomes.data && outcomes.data.length > 0 ? (
                                                 outcomes.data
                                                 .filter(outcome => {
@@ -588,134 +731,207 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                                                     );
                                                 })
                                                 .map((outcome) => (
-                                                    <tr key={outcome.id} className="hover:bg-pink-50/40 transition-all duration-200 border-b border-gray-50 last:border-b-0">
-                                                        <td className="px-6 py-5 whitespace-nowrap text-sm text-gray-800">
-                                                            <div className="font-semibold">{outcome.description || t('Rent payment')}</div>
-                                                            <div className="flex items-center text-gray-500 text-xs mt-1">
-                                                                <Calendar className="w-3 h-3 mr-1 text-pink-400" />
-                                                                {new Date(outcome.date).toLocaleDateString()}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap">
-                                                            <div className="text-sm text-gray-600 font-mono bg-gray-50 px-2.5 py-1.5 rounded-lg inline-flex items-center border border-gray-100 shadow-sm">
-                                                                <span className="text-xs text-pink-500 mr-1.5">#</span>
-                                                                {outcome.reference_number || '-'}
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap">
-                                                            <div className="text-base font-medium bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">${formatNumber(outcome.amount)}</div>
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap">
-                                                            <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold
-                                                                ${outcome.status === 'approved'
-                                                                    ? 'bg-purple-100 text-purple-700 ring-1 ring-purple-600/20'
-                                                                    : outcome.status === 'pending'
-                                                                        ? 'bg-orange-100 text-orange-700 ring-1 ring-orange-600/20'
-                                                                        : 'bg-gray-100 text-gray-700 ring-1 ring-gray-600/20'
-                                                                }`}>
-                                                                {outcome.status === 'approved' && <CheckCircle className="w-3.5 h-3.5 mr-1.5" />}
-                                                                {outcome.status === 'pending' && <Clock className="w-3.5 h-3.5 mr-1.5" />}
-                                                                {outcome.status.charAt(0).toUpperCase() + outcome.status.slice(1)}
-                                                            </span>
-                                                        </td>
-                                                        <td className="px-6 py-5 whitespace-nowrap text-right text-sm">
-                                                            <div className="flex items-center justify-end space-x-2">
-                                                            {outcome.status === 'pending' && (
-                                                                <Link
-                                                                    href={route('customer.accounts.outcomes.approve', {account: account.id, outcome: outcome.id})}
-                                                                    method="post"
-                                                                    as="button"
-                                                                    className="inline-flex items-center px-4 py-2 border border-transparent text-xs font-medium rounded-lg text-white bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-700 hover:to-purple-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
-                                                                >
-                                                                    <CheckCircle className="w-3.5 h-3.5 mr-1.5" />
-                                                                    {t('Approve')}
-                                                                </Link>
-                                                            )}
-
-                                                                <a
-                                                                    href={route('thermal.print.outcome', outcome.id)}
-                                                                    target="_blank"
-                                                                    className="inline-flex items-center px-2 py-2 border border-gray-300 text-xs font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 group"
-                                                                >
-                                                                    <Printer className="w-3.5 h-3.5  text-pink-500 group-hover:text-pink-600" />
-
-                                                                </a>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                ))
+                                                            <tr key={outcome.id} className="group hover:bg-red-50/40 transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+                                                                <td className="px-8 py-6 whitespace-nowrap">
+                                                                    <div className="flex items-center">
+                                                                        <div className="flex-shrink-0 h-16 w-16 flex items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-pink-600 text-white shadow-lg group-hover:shadow-xl group-hover:from-red-600 group-hover:to-pink-700 transition-all duration-300 transform group-hover:scale-105">
+                                                                            <TrendingDown className="h-8 w-8" />
+                                                                        </div>
+                                                                        <div className="ml-5">
+                                                                            <div className="text-base font-semibold text-gray-900 group-hover:text-red-700 transition-colors duration-300">{outcome.description || t('Rent payment')}</div>
+                                                                            <div className="text-sm text-gray-500 mt-1.5 flex items-center">
+                                                                                <Calendar className="h-4 w-4 mr-1.5 text-gray-400" />
+                                                                                {new Date(outcome.date).toLocaleDateString()}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-6 whitespace-nowrap">
+                                                                    <div className="text-sm text-gray-600 bg-gray-50 group-hover:bg-red-100/70 py-2 px-3.5 rounded-md inline-flex items-center transition-colors duration-300 border border-gray-100 group-hover:border-red-200 shadow-sm">
+                                                                        <span className="text-xs text-red-500 mr-1.5">#</span>
+                                                                        {outcome.reference_number || '-'}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-6 whitespace-nowrap">
+                                                                    <div className="text-sm font-mono bg-red-50/80 text-red-800 py-2 px-4 rounded-md border border-red-100 shadow-sm group-hover:shadow-md group-hover:bg-red-100 inline-flex items-center transition-all duration-300">
+                                                                        <DollarSign className="h-4 w-4 mr-2 text-red-500" />
+                                                                        ${formatNumber(outcome.amount)}
+                                                                    </div>
+                                                                </td>
+                                                                <td className="px-6 py-6 whitespace-nowrap">
+                                                                    <span className={`px-4 py-1.5 inline-flex items-center text-xs leading-5 font-semibold rounded-full ${
+                                                                        outcome.status === 'approved'
+                                                                            ? 'bg-purple-100 text-purple-800 border border-purple-200'
+                                                                            : outcome.status === 'pending'
+                                                                                ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                                                                                : 'bg-gray-100 text-gray-800 border border-gray-200'
+                                                                    } shadow-sm group-hover:shadow-md transition-all duration-300`}>
+                                                                        <span className={`flex h-2.5 w-2.5 rounded-full mr-2 ${
+                                                                            outcome.status === 'approved'
+                                                                                ? 'bg-purple-500 animate-pulse'
+                                                                                : outcome.status === 'pending'
+                                                                                    ? 'bg-orange-500'
+                                                                                    : 'bg-gray-500'
+                                                                        }`}></span>
+                                                                        {t(outcome.status.charAt(0).toUpperCase() + outcome.status.slice(1))}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-6 py-6 whitespace-nowrap text-right text-sm font-medium">
+                                                                    <div className="flex items-center justify-end space-x-2">
+                                                                        {outcome.status === 'pending' && (
+                                                                            <button
+                                                                                onClick={() => {
+                                                                                    router.post(route('customer.accounts.outcomes.approve', {account: account.id, outcome: outcome.id}));
+                                                                                }}
+                                                                                className="group relative inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-purple-500 to-violet-600 hover:from-purple-600 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md overflow-hidden"
+                                                                            >
+                                                                                <span className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300"></span>
+                                                                                <CheckCircle className="mr-1.5 h-4 w-4" />
+                                                                                <span className="relative">{t('Approve')}</span>
+                                                                            </button>
+                                                                        )}
+                                                                        <a
+                                                                            href={route('thermal.print.outcome', outcome.id)}
+                                                                            target="_blank"
+                                                                            className="group relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md"
+                                                                        >
+                                                                            <span className="absolute top-0 left-0 w-full h-full bg-red-500 opacity-0 group-hover:opacity-5 transition-opacity duration-300 rounded-lg"></span>
+                                                                            <Printer className="mr-1.5 h-4 w-4 text-red-500 group-hover:text-red-600 transition-colors duration-300" />
+                                                                            <span className="relative group-hover:text-red-600 transition-colors duration-300">{t('Print')}</span>
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        ))
                                             ) : (
                                                 <tr>
-                                                    <td colSpan="5" className="px-6 py-12 text-center text-sm text-gray-500">
-                                                        <div className="flex flex-col items-center">
-                                                            <div className="bg-gray-50 p-6 rounded-full mb-4">
-                                                                <ReceiptText className="h-14 w-14 text-gray-400" />
+                                                    <td colSpan="5" className="px-6 py-12 text-center">
+                                                        <div className="max-w-sm mx-auto">
+                                                            <div className="flex justify-center mb-4">
+                                                                <div className="p-5 bg-red-100 rounded-full shadow-inner">
+                                                                    <TrendingDown className="h-12 w-12 text-red-600" />
+                                                                </div>
                                                             </div>
-                                                            <p className="text-base font-medium text-gray-600 mb-1">{t('No rent or loan transactions found')}</p>
-                                                            <p className="text-sm text-gray-500 mb-4">{t('Add your first rental or loan payment')}</p>
+                                                            <p className="text-lg font-medium text-gray-800 mb-2">
+                                                                {t('No rent or loan transactions found')}
+                                                            </p>
+                                                            <p className="text-gray-500 mb-6">
+                                                                {t('Add your first rental or loan payment.')}
+                                                            </p>
                                                             <button
                                                                 onClick={() => setShowCreateOutcomeModal(true)}
-                                                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-gradient-to-r from-red-600 to-pink-600 shadow-sm hover:from-red-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200"
+                                                                className="inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-300 w-full shadow-md hover:shadow-lg"
                                                             >
-                                                                <Plus className="w-4 h-4 mr-2" />
-                                                                {t('Add Rent/Loan')}
+                                                                <Minus className="mr-2 h-4 w-4" />
+                                                                {t('Add Rent/Loan Payment')}
                                                             </button>
                                                         </div>
                                                     </td>
                                                 </tr>
                                             )}
-                                        </tbody>
-                                    </table>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    {/* Pagination for outcomes */}
+                                    {outcomes.links && outcomes.links.length > 3 && (
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 1.5, duration: 0.4 }}
+                                            className="flex flex-col items-center space-y-4 px-6 py-4 border-t border-slate-200 bg-gradient-to-r from-slate-50 to-red-50/30"
+                                        >
+                                            <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                {t("Showing")} {outcomes.from || 0} {t("to")} {outcomes.to || 0} {t("of")} {outcomes.total || 0} {t("results")}
+                                            </div>
+                                            <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-red-100 dark:border-red-900/30">
+                                                {/* Previous Page */}
+                                                <button
+                                                    onClick={() => {
+                                                        const prevPage = outcomes.current_page - 1;
+                                                        if (prevPage >= 1) {
+                                                            router.get(route('customer.accounts.show', { account: account.id, page: prevPage }), {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            });
+                                                        }
+                                                    }}
+                                                    disabled={!outcomes.links || outcomes.current_page <= 1}
+                                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                        outcomes.links && outcomes.current_page > 1
+                                                            ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30'
+                                                            : 'text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    <ChevronRight className="h-4 w-4" />
+                                                    <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                                </button>
+
+                                                {/* Page Numbers */}
+                                                {outcomes.links && outcomes.links.slice(1, -1).map((link, index) => {
+                                                    if (link.url === null) {
+                                                        return (
+                                                            <span key={index} className="px-3 py-2 text-gray-400">
+                                                                ...
+                                                            </span>
+                                                        );
+                                                    }
+                                                    
+                                                    const pageNum = link.label;
+                                                    const isActive = link.active;
+                                                    
+                                                    return (
+                                                        <button
+                                                            key={index}
+                                                            onClick={() => {
+                                                                const url = new URL(link.url);
+                                                                const page = url.searchParams.get('page');
+                                                                if (page) {
+                                                                    router.get(route('customer.accounts.show', { account: account.id, page }), {
+                                                                        preserveState: true,
+                                                                        preserveScroll: true,
+                                                                    });
+                                                                }
+                                                            }}
+                                                            className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                                isActive
+                                                                    ? 'bg-gradient-to-r from-red-500 to-pink-400 text-white shadow-lg'
+                                                                    : 'text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-red-900/30'
+                                                            }`}
+                                                        >
+                                                            {pageNum}
+                                                        </button>
+                                                    );
+                                                })}
+
+                                                {/* Next Page */}
+                                                <button
+                                                    onClick={() => {
+                                                        const nextPage = outcomes.current_page + 1;
+                                                        if (nextPage <= outcomes.last_page) {
+                                                            router.get(route('customer.accounts.show', { account: account.id, page: nextPage }), {
+                                                                preserveState: true,
+                                                                preserveScroll: true,
+                                                            });
+                                                        }
+                                                    }}
+                                                    disabled={!outcomes.links || outcomes.current_page >= outcomes.last_page}
+                                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                                        outcomes.links && outcomes.current_page < outcomes.last_page
+                                                            ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30'
+                                                            : 'text-gray-400 cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                                    <ChevronRight className="h-4 w-4 rotate-180" />
+                                                </button>
+                                            </div>
+                                        </motion.div>
+                                    )}
                                 </div>
                             </div>
                         </div>
-
-                        {/* Pagination for outcomes */}
-                        {activeTab === 'outcomes' && outcomes.links && outcomes.links.length > 3 && (
-                            <div className="px-6 py-6 border-t border-gray-200 mt-6">
-                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                    <div className="mb-4 sm:mb-0">
-                                        <p className="text-sm text-gray-700">
-                                            {t('Showing')} <span className="font-semibold">{outcomes.from}</span> {t('to')} <span className="font-semibold">{outcomes.to}</span> {t('of')} <span className="font-semibold">{outcomes.total}</span> {t('results')}
-                                        </p>
-                                    </div>
-                                    <nav className="relative z-0 inline-flex justify-center rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                                        <Link
-                                            href={outcomes.prev_page_url}
-                                            className={`relative inline-flex items-center px-4 py-2 rounded-l-lg border ${!outcomes.prev_page_url ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed' : 'border-gray-300 bg-white text-gray-500 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-300 transition-colors'}`}
-                                            disabled={!outcomes.prev_page_url}
-                                        >
-                                            <span className="sr-only">{t('Previous')}</span>
-                                            <ChevronLeft className="h-4 w-4" />
-                                        </Link>
-
-                                        {outcomes.links && outcomes.links.slice(1, -1).map((link, index) => (
-                                            <Link
-                                                key={index}
-                                                href={link.url}
-                                                className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
-                                                    link.active
-                                                        ? 'z-10 bg-pink-50 border-pink-500 text-pink-600 font-semibold'
-                                                        : 'bg-white border-gray-300 text-gray-500 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-300 transition-colors'
-                                                }`}
-                                            >
-                                                {link.label.replace('&laquo;', '').replace('&raquo;', '')}
-                                            </Link>
-                                        ))}
-
-                                        <Link
-                                            href={outcomes.next_page_url}
-                                            className={`relative inline-flex items-center px-4 py-2 rounded-r-lg border ${!outcomes.next_page_url ? 'border-gray-200 bg-gray-50 text-gray-300 cursor-not-allowed' : 'border-gray-300 bg-white text-gray-500 hover:bg-pink-50 hover:text-pink-600 hover:border-pink-300 transition-colors'}`}
-                                            disabled={!outcomes.next_page_url}
-                                        >
-                                            <span className="sr-only">{t('Next')}</span>
-                                            <ChevronRight className="h-4 w-4" />
-                                        </Link>
-                                    </nav>
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    </main>
                 </div>
             </div>
 
@@ -728,174 +944,90 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                              aria-hidden="true"
                              onClick={() => setShowCreateIncomeModal(false)}></div>
 
-                        {/* Modal positioning trick */}
-                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                        {/* Modal container */}
-                        <div className="inline-block align-bottom bg-white/95 backdrop-blur-sm rounded-3xl text-left rtl:text-right overflow-hidden shadow-2xl transform transition-all duration-500 sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-slideUp border border-indigo-100">
-                            <div className="absolute top-0 right-0 rtl:right-auto rtl:left-0 pt-5 pr-5 rtl:pr-0 rtl:pl-5 z-10">
-                                <button
-                                    type="button"
-                                    className="bg-white/80 backdrop-blur-sm rounded-full p-2.5 text-gray-400 hover:text-indigo-600 focus:outline-none transform transition-all hover:rotate-90 hover:scale-110 hover:shadow-lg border border-gray-100 shadow-sm"
-                                    onClick={() => setShowCreateIncomeModal(false)}
-                                >
-                                    <span className="sr-only">{t('Close')}</span>
-                                    <X className="h-5 w-5" />
-                                </button>
+                        {/* Modal panel */}
+                        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                            <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-6 py-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                                        <Plus className="h-5 w-5" />
+                                        {t('Add New Income')}
+                                    </h3>
+                                    <button
+                                        onClick={() => setShowCreateIncomeModal(false)}
+                                        className="text-white hover:text-indigo-200 transition-colors"
+                                    >
+                                        <X className="h-6 w-6" />
+                                    </button>
+                                </div>
                             </div>
 
-                            {/* Enhanced decorative elements */}
-                            <div className="absolute -top-24 -left-24 w-72 h-72 bg-gradient-to-br from-indigo-200/60 via-blue-200/50 to-indigo-100/60 rounded-full blur-3xl opacity-60 animate-pulse-slow pointer-events-none"></div>
-                            <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-gradient-to-tr from-emerald-200/50 via-green-200/40 to-teal-100/50 rounded-full blur-3xl opacity-60 animate-pulse-slow animation-delay-1000 pointer-events-none"></div>
-                            <div className="absolute top-1/3 -right-16 w-32 h-32 bg-gradient-to-tr from-blue-300/30 to-indigo-200/30 rounded-full blur-2xl opacity-40 animate-pulse-slow animation-delay-2000 pointer-events-none"></div>
-                            <div className="absolute bottom-1/3 -left-16 w-32 h-32 bg-gradient-to-tr from-green-300/30 to-emerald-200/30 rounded-full blur-2xl opacity-40 animate-pulse-slow animation-delay-3000 pointer-events-none"></div>
+                            <form onSubmit={handleCreateIncome} className="px-6 py-6">
+                                <div className="space-y-6">
+                                    <div>
+                                        <label htmlFor="amount" className="block text-sm font-medium text-slate-700 mb-2">
+                                            {t('Amount')} *
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            id="amount"
+                                            value={data.amount}
+                                            onChange={(e) => setData('amount', e.target.value)}
+                                            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                            placeholder="0.00"
+                                            required
+                                        />
+                                        {errors.amount && <p className="mt-1 text-sm text-red-600">{errors.amount}</p>}
+                                    </div>
 
-                            <form onSubmit={handleCreateIncome} className="relative z-10">
-                                {/* Modal Header - Fixed RTL Layout */}
-                                <div className="px-8 pt-8 pb-6 bg-gradient-to-br from-white to-indigo-50/30">
-                                    <div className="flex items-center mb-4 rtl:flex-row-reverse">
-                                      
-                                        <div className="rtl:text-right">
-                                            <h3 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent drop-shadow-sm">
-                                                {t('Add New Income')}
-                                            </h3>
-                                            <p className="text-sm text-gray-500 mt-1">{t('Create a new income transaction for your account')}</p>
-                                        </div>
-                                          <div className="bg-gradient-to-r from-indigo-500 to-blue-500 p-3.5 rounded-2xl mr-4 rtl:mr-0 rtl:ml-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-indigo-200/50">
-                                            <DollarSign className="h-7 w-7 text-white drop-shadow-sm" />
-                                        </div>
+                                    <div>
+                                        <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-2">
+                                            {t('Description')}
+                                        </label>
+                                        <textarea
+                                            id="description"
+                                            value={data.description}
+                                            onChange={(e) => setData('description', e.target.value)}
+                                            rows="3"
+                                            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200"
+                                            placeholder={t('Enter income description...')}
+                                        />
+                                        {errors.description && <p className="mt-1 text-sm text-red-600">{errors.description}</p>}
                                     </div>
                                 </div>
 
-                                {/* Modal Content */}
-                                <div className="px-8 py-6 bg-gradient-to-br from-gray-50/80 to-indigo-50/20 border-y border-indigo-100/50 shadow-inner">
-                                    <div className="space-y-5">
-                                        <div>
-                                            <label htmlFor="source_number" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
-                                                {t('Source Number')}
-                                            </label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
-                                                    <Shield className="h-5 w-5 text-indigo-400" />
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    id="source_number"
-                                                    className="bg-white/90 backdrop-blur-sm text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-xl shadow-sm transition-all duration-200 rtl:text-right rtl:pl-3 rtl:pr-11"
-                                                    value={`S-${new Date().getTime().toString().slice(-8)}`}
-                                                    disabled
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label htmlFor="amount" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
-                                                {t('Amount')} <span className="text-indigo-500">*</span>
-                                            </label>
-                                            <div className="relative rounded-xl shadow-sm">
-                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
-                                                    <DollarSign className="h-5 w-5 text-indigo-400" />
-                                                </div>
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    id="amount"
-                                                    className="focus:ring-indigo-500 focus:border-indigo-400 block w-full pl-11 pr-12 py-3 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-indigo-100 rtl:text-right rtl:pl-12 rtl:pr-11"
-                                                    placeholder="0.00"
-                                                    value={data.amount}
-                                                    onChange={(e) => setData('amount', e.target.value)}
-                                                    required
-                                                />
-                                                <div className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 pr-3 rtl:pr-0 rtl:pl-3 flex items-center pointer-events-none">
-                                                    <span className="text-indigo-500 font-medium sm:text-sm bg-indigo-50 px-2 py-1 rounded-md">AFN</span>
-                                                </div>
-                                            </div>
-                                            {errors.amount && (
-                                                <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
-                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5 rtl:mr-0 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                                    </svg>
-                                                    {errors.amount}
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <label htmlFor="date" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
-                                                {t('Date')}
-                                            </label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
-                                                    <Calendar className="h-5 w-5 text-indigo-400" />
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    id="date"
-                                                    className="bg-white/90 backdrop-blur-sm text-gray-500 focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-xl shadow-sm transition-all duration-200 rtl:text-right rtl:pl-3 rtl:pr-11"
-                                                    value={new Date().toLocaleDateString('en-US', {
-                                                        weekday: 'long',
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric'
-                                                    })}
-                                                    disabled
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label htmlFor="description" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
-                                                {t('Description')} <span className="text-indigo-500">*</span>
-                                            </label>
-                                            <textarea
-                                                id="description"
-                                                rows="3"
-                                                className="focus:ring-indigo-500 focus:border-indigo-400 block w-full py-3 px-4 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-indigo-100 rtl:text-right"
-                                                placeholder={t('Enter details about this income')}
-                                                value={data.description}
-                                                onChange={(e) => setData('description', e.target.value)}
-                                                required
-                                            ></textarea>
-                                            {errors.description && (
-                                                <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
-                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5 rtl:mr-0 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                                    </svg>
-                                                    {errors.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Modal Footer */}
-                                <div className="px-8 py-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 rtl:sm:space-x-reverse bg-gradient-to-br from-white to-indigo-50/20 border-t border-indigo-100/50">
+                                <div className="mt-8 flex gap-4">
                                     <button
                                         type="button"
-                                        className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105"
                                         onClick={() => setShowCreateIncomeModal(false)}
+                                        className="group relative flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all duration-300 transform hover:scale-105 font-semibold"
                                     >
-                                        {t('Cancel')}
+                                        <div className="relative z-10 flex items-center justify-center gap-2">
+                                            <X className="w-4 h-4" />
+                                            <span>{t('Cancel')}</span>
+                                        </div>
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="w-full sm:w-auto inline-flex justify-center items-center px-6 py-3 border border-transparent rounded-xl shadow-lg text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-green-100/60"
+                                        className="group relative flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl disabled:opacity-50 transition-all duration-300 transform hover:scale-105 font-bold shadow-lg hover:shadow-xl overflow-hidden"
                                     >
-                                        {processing ? (
-                                            <>
-                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white rtl:-mr-1 rtl:ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                {t('Processing...')}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <CheckCircle className="mr-2 rtl:mr-0 rtl:ml-2 h-4 w-4" />
-                                                {t('Create Income')}
-                                            </>
-                                        )}
+                                        {/* Shimmer effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                        
+                                        <div className="relative z-10 flex items-center justify-center gap-2">
+                                            {processing ? (
+                                                <>
+                                                    <RefreshCw className="h-5 w-5 animate-spin drop-shadow-sm" />
+                                                    <span>{t('Creating...')}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Plus className="h-5 w-5 drop-shadow-sm" />
+                                                    <span>{t('Create Income')}</span>
+                                                </>
+                                            )}
+                                        </div>
                                     </button>
                                 </div>
                             </form>
@@ -909,180 +1041,94 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                 <div className="fixed inset-0 overflow-y-auto z-50 animate-fadeIn">
                     <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
                         {/* Background overlay with enhanced blur effect */}
-                        <div className="fixed inset-0 bg-gradient-to-br from-gray-900/80 to-pink-900/70 backdrop-blur-md transition-all duration-300"
+                        <div className="fixed inset-0 bg-gradient-to-br from-gray-900/80 to-red-900/70 backdrop-blur-md transition-all duration-300"
                              aria-hidden="true"
                              onClick={() => setShowCreateOutcomeModal(false)}></div>
 
-                        {/* Modal positioning trick */}
-                        <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-                        {/* Modal container */}
-                        <div className="inline-block align-bottom bg-white/95 backdrop-blur-sm rounded-3xl text-left rtl:text-right overflow-hidden shadow-2xl transform transition-all duration-500 sm:my-8 sm:align-middle sm:max-w-lg sm:w-full animate-slideUp border border-pink-100">
-                            <div className="absolute top-0 right-0 rtl:right-auto rtl:left-0 pt-5 pr-5 rtl:pr-0 rtl:pl-5 z-10">
-                                <button
-                                    type="button"
-                                    className="bg-white/80 backdrop-blur-sm rounded-full p-2.5 text-gray-400 hover:text-pink-600 focus:outline-none transform transition-all hover:rotate-90 hover:scale-110 hover:shadow-lg border border-gray-100 shadow-sm"
-                                    onClick={() => setShowCreateOutcomeModal(false)}
-                                >
-                                    <span className="sr-only">{t('Close')}</span>
-                                    <X className="h-5 w-5" />
-                                </button>
+                        {/* Modal panel */}
+                        <div className="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                            <div className="bg-gradient-to-r from-red-600 to-pink-600 px-6 py-4">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                                        <Minus className="h-5 w-5" />
+                                        {t('Add Rent/Loan Payment')}
+                                    </h3>
+                                    <button
+                                        onClick={() => setShowCreateOutcomeModal(false)}
+                                        className="text-white hover:text-red-200 transition-colors"
+                                    >
+                                        <X className="h-6 w-6" />
+                                    </button>
+                                </div>
                             </div>
 
-                            {/* Enhanced decorative elements */}
-                            <div className="absolute -top-24 -left-24 w-72 h-72 bg-gradient-to-br from-pink-200/60 via-red-200/50 to-pink-100/60 rounded-full blur-3xl opacity-60 animate-pulse-slow pointer-events-none"></div>
-                            <div className="absolute -bottom-32 -right-32 w-72 h-72 bg-gradient-to-tr from-purple-200/50 via-pink-200/40 to-red-100/50 rounded-full blur-3xl opacity-60 animate-pulse-slow animation-delay-1000 pointer-events-none"></div>
-                            <div className="absolute top-1/3 -right-16 w-32 h-32 bg-gradient-to-tr from-red-300/30 to-pink-200/30 rounded-full blur-2xl opacity-40 animate-pulse-slow animation-delay-2000 pointer-events-none"></div>
-                            <div className="absolute bottom-1/3 -left-16 w-32 h-32 bg-gradient-to-tr from-purple-300/30 to-pink-200/30 rounded-full blur-2xl opacity-40 animate-pulse-slow animation-delay-3000 pointer-events-none"></div>
+                            <form onSubmit={handleCreateOutcome} className="px-6 py-6">
+                                <div className="space-y-6">
+                                    <div>
+                                        <label htmlFor="outcome_amount" className="block text-sm font-medium text-slate-700 mb-2">
+                                            {t('Amount')} *
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            id="outcome_amount"
+                                            value={outcomeForm.data.amount}
+                                            onChange={(e) => outcomeForm.setData('amount', e.target.value)}
+                                            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                                            placeholder="0.00"
+                                            required
+                                        />
+                                        {outcomeForm.errors.amount && <p className="mt-1 text-sm text-red-600">{outcomeForm.errors.amount}</p>}
+                                    </div>
 
-                            <form onSubmit={handleCreateOutcome} className="relative z-10">
-                                {/* Modal Header - Fixed RTL Layout */}
-                                <div className="px-8 pt-8 pb-6 bg-gradient-to-br from-white to-pink-50/30">
-                                    <div className="flex items-center mb-4 rtl:flex-row-reverse">
-                                      
-                                        <div className="rtl:text-right">
-                                            <h3 className="text-2xl font-bold bg-gradient-to-r from-pink-600 to-red-600 bg-clip-text text-transparent drop-shadow-sm">
-                                                {t('Add Rent or Loan')}
-                                            </h3>
-                                            <p className="text-sm text-gray-500 mt-1">{t('Record a new rent payment or loan transaction')}</p>
-                                        </div>  
-                                        <div className="bg-gradient-to-r from-pink-500 to-red-500 p-3.5 rounded-2xl mr-4 rtl:mr-0 rtl:ml-4 shadow-lg transform transition-all duration-300 hover:scale-105 hover:rotate-3 hover:shadow-pink-200/50">
-                                            <CardIcon className="h-7 w-7 text-white drop-shadow-sm" />
-                                        </div>
+                                    <div>
+                                        <label htmlFor="outcome_description" className="block text-sm font-medium text-slate-700 mb-2">
+                                            {t('Description')}
+                                        </label>
+                                        <textarea
+                                            id="outcome_description"
+                                            value={outcomeForm.data.description}
+                                            onChange={(e) => outcomeForm.setData('description', e.target.value)}
+                                            rows="3"
+                                            className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                                            placeholder={t('Enter rent or loan description...')}
+                                        />
+                                        {outcomeForm.errors.description && <p className="mt-1 text-sm text-red-600">{outcomeForm.errors.description}</p>}
                                     </div>
                                 </div>
 
-                                {/* Modal Content */}
-                                <div className="px-8 py-6 bg-gradient-to-br from-gray-50/80 to-pink-50/20 border-y border-pink-100/50 shadow-inner">
-                                    <div className="space-y-5">
-                                        <div>
-                                            <label htmlFor="amount" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
-                                                {t('Amount')} <span className="text-pink-500">*</span>
-                                            </label>
-                                            <div className="relative rounded-xl shadow-sm">
-                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
-                                                    <DollarSign className="h-5 w-5 text-pink-400" />
-                                                </div>
-                                                <input
-                                                    type="number"
-                                                    step="0.01"
-                                                    id="amount"
-                                                    className="focus:ring-pink-500 focus:border-pink-400 block w-full pl-11 pr-12 py-3 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-pink-100 rtl:text-right rtl:pl-12 rtl:pr-11"
-                                                    placeholder="0.00"
-                                                    value={outcomeForm.data.amount}
-                                                    onChange={(e) => outcomeForm.setData('amount', e.target.value)}
-                                                    required
-                                                />
-                                                <div className="absolute inset-y-0 right-0 rtl:right-auto rtl:left-0 pr-3 rtl:pr-0 rtl:pl-3 flex items-center pointer-events-none">
-                                                    <span className="text-pink-500 font-medium sm:text-sm bg-pink-50 px-2 py-1 rounded-md">AFN</span>
-                                                </div>
-                                            </div>
-                                            {outcomeForm.errors.amount && (
-                                                <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
-                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5 rtl:mr-0 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                                    </svg>
-                                                    {outcomeForm.errors.amount}
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        <div>
-                                            <label htmlFor="reference_number" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
-                                                {t('Reference Number')}
-                                            </label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
-                                                    <ReceiptText className="h-5 w-5 text-pink-400" />
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    id="reference_number"
-                                                    className="bg-gray-100 text-gray-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-lg shadow-sm rtl:text-right rtl:pl-3 rtl:pr-11"
-                                                    value={t('Auto-generated by system')}
-                                                    readOnly
-                                                    disabled
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label htmlFor="outcome_date" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
-                                                {t('Date')}
-                                            </label>
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 rtl:left-auto rtl:right-0 pl-3 rtl:pl-0 rtl:pr-3 flex items-center pointer-events-none">
-                                                    <Calendar className="h-5 w-5 text-pink-400" />
-                                                </div>
-                                                <input
-                                                    type="text"
-                                                    id="outcome_date"
-                                                    className="bg-gray-100 text-gray-500 block w-full pl-11 pr-3 py-3 sm:text-sm border-gray-200 rounded-lg shadow-sm rtl:text-right rtl:pl-3 rtl:pr-11"
-                                                    value={new Date().toLocaleDateString('en-US', {
-                                                        weekday: 'long',
-                                                        year: 'numeric',
-                                                        month: 'long',
-                                                        day: 'numeric'
-                                                    })}
-                                                    readOnly
-                                                    disabled
-                                                />
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <label htmlFor="outcome_description" className="block text-sm font-medium bg-gradient-to-r from-gray-700 to-gray-600 bg-clip-text text-transparent mb-1 rtl:text-right">
-                                                {t('Description')} <span className="text-pink-500">*</span>
-                                            </label>
-                                            <textarea
-                                                id="outcome_description"
-                                                rows="3"
-                                                className="focus:ring-pink-500 focus:border-pink-400 block w-full py-3 px-4 sm:text-sm border-gray-200 rounded-xl shadow-md bg-white/90 backdrop-blur-sm transition-all duration-200 focus:shadow-pink-100 rtl:text-right"
-                                                placeholder={t('Enter details about this payment')}
-                                                value={outcomeForm.data.description}
-                                                onChange={(e) => outcomeForm.setData('description', e.target.value)}
-                                                required
-                                            ></textarea>
-                                            {outcomeForm.errors.description && (
-                                                <p className="mt-1.5 text-sm text-red-600 flex items-center bg-red-50 px-3 py-1 rounded-lg">
-                                                    <svg className="h-3.5 w-3.5 text-red-500 mr-1.5 rtl:mr-0 rtl:ml-1.5" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                                                    </svg>
-                                                    {outcomeForm.errors.description}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Modal Footer */}
-                                <div className="px-8 py-6 flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 rtl:sm:space-x-reverse bg-gradient-to-br from-white to-pink-50/20 border-t border-indigo-100/50">
+                                <div className="mt-8 flex gap-4">
                                     <button
                                         type="button"
-                                        className="mt-3 sm:mt-0 w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-all duration-200 transform hover:scale-105"
                                         onClick={() => setShowCreateOutcomeModal(false)}
+                                        className="group relative flex-1 px-6 py-3 border-2 border-slate-300 text-slate-700 rounded-xl hover:bg-slate-50 hover:border-slate-400 transition-all duration-300 transform hover:scale-105 font-semibold"
                                     >
-                                        {t('Cancel')}
+                                        <div className="relative z-10 flex items-center justify-center gap-2">
+                                            <X className="w-4 h-4" />
+                                            <span>{t('Cancel')}</span>
+                                        </div>
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={outcomeForm.processing}
-                                        className="w-full sm:w-auto inline-flex justify-center items-center px-5 py-2.5 border border-transparent rounded-xl shadow-md text-sm font-medium text-white bg-gradient-to-r from-pink-600 to-red-600 hover:from-pink-700 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 transition-all duration-300"
+                                        className="group relative flex-1 px-6 py-3 bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-600 hover:to-red-700 text-white rounded-xl disabled:opacity-50 transition-all duration-300 transform hover:scale-105 font-bold shadow-lg hover:shadow-xl overflow-hidden"
                                     >
-                                        {outcomeForm.processing ? (
-                                            <>
-                                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white rtl:-mr-1 rtl:ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                                {t('Processing...')}
-                                            </>
-                                        ) : (
-                                            <>
-                                                <CheckCircle className="mr-2 rtl:mr-0 rtl:ml-2 h-4 w-4" />
-                                                {t('Create Payment')}
-                                            </>
-                                        )}
+                                        {/* Shimmer effect */}
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                                        
+                                        <div className="relative z-10 flex items-center justify-center gap-2">
+                                            {outcomeForm.processing ? (
+                                                <>
+                                                    <RefreshCw className="h-5 w-5 animate-spin drop-shadow-sm" />
+                                                    <span>{t('Creating...')}</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Minus className="h-5 w-5 drop-shadow-sm" />
+                                                    <span>{t('Create Payment')}</span>
+                                                </>
+                                            )}
+                                        </div>
                                     </button>
                                 </div>
                             </form>
@@ -1090,6 +1136,17 @@ export default function AccountDetails({ account, incomes, outcomes, totalIncome
                     </div>
                 </div>
             )}
+
+            <style
+                dangerouslySetInnerHTML={{
+                    __html: `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            `,
+                }}
+            />
         </>
     );
 }

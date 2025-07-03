@@ -38,6 +38,11 @@ trait RegisterRoutes
             // Authenticated routes - require customer_user auth
             Route::middleware('auth:customer_user')
                 ->group(function () {
+
+                    Route::get('/reports/account/{account}/statement', action: [ReportController::class, 'accountStatement'])
+                    ->name('reports.account.statement');
+
+
                     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
                     // Dashboard route
@@ -271,7 +276,11 @@ trait RegisterRoutes
         Route::get('/thermal/print/outcome/{outcome}', [ThermalPrinterController::class, 'printOutcome'])
             ->name('thermal.print.outcome');
 
-        Route::get('/reports/account/{account}/statement', [ReportController::class, 'accountStatement'])
-            ->name('reports.account.statement');
+        // Customer Account Statement Routes
+        Route::get('/reports/account/{account}/statement', [ReportController::class, 'customerAccountStatement'])
+            ->name('customer.reports.account-statement');
+        Route::get('/reports/account/{account}/statement/download', [ReportController::class, 'downloadCustomerAccountStatement'])
+            ->name('customer.reports.account-statement.pdf');
+
     }
 }

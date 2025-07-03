@@ -57,6 +57,7 @@ import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function Outcome({ auth, warehouse, outcomes }) {
     const { t } = useLaravelReactI18n();
@@ -388,22 +389,13 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-red-400 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 text-slate-700 dark:text-slate-200 hover:text-red-700 dark:hover:text-red-300">
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
-                                <Link href={route("admin.warehouses.show", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Warehouse")}
-                                    </Button>
-                                </Link>
                                 <Link href={route("admin.warehouses.outcome.create", warehouse.id)}>
                                     <Button className="gap-2 bg-gradient-to-r from-red-600 via-orange-600 to-red-700 hover:from-red-700 hover:via-orange-700 hover:to-red-800 text-white hover:scale-105 transition-all duration-200 shadow-lg">
                                         <Plus className="h-4 w-4" />
                                         {t("New Export")}
                                     </Button>
                                 </Link>
+                                <BackButton link={route("admin.warehouses.show", warehouse.id)} />
                             </motion.div>
                         </div>
                     </motion.header>
