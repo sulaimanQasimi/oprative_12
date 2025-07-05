@@ -419,11 +419,12 @@ class PurchaseController extends Controller
             $unitId = null;
             $unitAmount = 1;
             $unitName = null;
-
+            $qty = $validated['quantity'];
             if ($isWholesale && $product->wholesaleUnit) {
                 $unitId = $product->wholesaleUnit->id;
                 $unitAmount = $product->whole_sale_unit_amount ?? 1;
                 $unitName = $product->wholesaleUnit->name;
+                $qty=$validated['quantity']*$product->whole_sale_unit_amount;
             } elseif (!$isWholesale && $product->retailUnit) {
                 $unitId = $product->retailUnit->id;
                 $unitAmount = $product->retails_sale_unit_amount ?? 1;
@@ -434,7 +435,7 @@ class PurchaseController extends Controller
             $item = PurchaseItem::create([
                 'purchase_id' => $purchase->id,
                 'product_id' => $validated['product_id'],
-                'quantity' => $validated['quantity'],
+                'quantity' => $qty,
                 'unit_type' => $validated['unit_type'],
                 'price' => $validated['price'],
                 'total_price' => $validated['total_price'],
@@ -448,7 +449,7 @@ class PurchaseController extends Controller
                     'purchase_item_id' => $item->id,
                     'issue_date' => $validated['batch']['issue_date'] ?? null,
                     'expire_date' => $validated['batch']['expire_date'] ?? null,
-                    'quantity' => $validated['quantity'],
+                    'quantity' => $qty,
                     'price' => $validated['price'],
                     'wholesale_price' => $validated['batch']['wholesale_price'] ?? null,
                     'retail_price' => $validated['batch']['retail_price'] ?? null,
@@ -485,7 +486,7 @@ class PurchaseController extends Controller
 
         try {
             DB::beginTransaction();
-
+            $item->batch()->delete();
             $item->delete();
 
             DB::commit();

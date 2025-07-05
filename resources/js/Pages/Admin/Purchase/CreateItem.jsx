@@ -525,7 +525,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                             </div>
                                                             <div className="space-y-1">
                                                                 <p className="text-xs">
-                                                                    <strong>{t("Input")}:</strong> {data.quantity} × {formatCurrency(data.price)} = {formatCurrency(calculatedTotal)}
+                                                                    <strong>{t("Input")}:</strong> {data.quantity} × {formatCurrency(data.price)} = {formatCurrency(data.quantity*data.price)}
                                                                 </p>
                                                                 {data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount > 1 && (
                                                                     <p className="text-xs">

@@ -400,4 +400,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/accounts/{account}/statement', [\App\Http\Controllers\ReportController::class, 'customerAccountStatement'])->name('customer.reports.account-statement');
         Route::get('/accounts/{account}/statement/download', [\App\Http\Controllers\ReportController::class, 'downloadCustomerAccountStatement'])->name('customer.reports.account-statement.pdf');
     });
+
+    // Warehouse Batch Inventory routes
+    Route::prefix('warehouse-batch-inventory')->name('warehouse-batch-inventory.')->group(function () {
+        Route::get('/', [App\Http\Controllers\Admin\WarehouseBatchInventoryController::class, 'index'])->name('index');
+        Route::get('/export', [App\Http\Controllers\Admin\WarehouseBatchInventoryController::class, 'export'])->name('export');
+        Route::get('/warehouse/{warehouse}', [App\Http\Controllers\Admin\WarehouseBatchInventoryController::class, 'warehouse'])->name('warehouse');
+    });
 });
