@@ -12,6 +12,7 @@ class WarehouseIncome extends Model
         'reference_number',
         'warehouse_id',
         'product_id',
+        'batch_id',
         'quantity',
         'price',
         'total',
@@ -39,5 +40,10 @@ class WarehouseIncome extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function batch()
+    {
+        return $this->belongsTo(Batch::class);
     }
 }

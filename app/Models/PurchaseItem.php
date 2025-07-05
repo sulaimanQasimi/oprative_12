@@ -28,4 +28,7 @@ class PurchaseItem extends Model
     {
         return $this->belongsTo(Product::class);
     }
+    public function batch()  {
+        return $this->hasOne(Batch::class);
+    }
 }

@@ -10,6 +10,7 @@ use App\Models\PurchasePayment;
 use App\Models\Supplier;
 use App\Models\Currency;
 use App\Models\Product;
+use App\Models\Batch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -24,7 +25,7 @@ class PurchaseController extends Controller
     public function index(Request $request)
     {
         $this->authorize('viewAny', Purchase::class);
-        
+
         $query = Purchase::with(['supplier', 'currency', 'user', 'purchaseItems']);
 
         // Search functionality
@@ -32,9 +33,9 @@ class PurchaseController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('invoice_number', 'like', "%{$search}%")
-                  ->orWhereHas('supplier', function ($supplierQuery) use ($search) {
-                      $supplierQuery->where('name', 'like', "%{$search}%");
-                  });
+                    ->orWhereHas('supplier', function ($supplierQuery) use ($search) {
+                        $supplierQuery->where('name', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -97,7 +98,7 @@ class PurchaseController extends Controller
     public function create()
     {
         $this->authorize('create', Purchase::class);
-        
+
         $suppliers = Supplier::select('id', 'name')->orderBy('name')->get();
         $currencies = Currency::select('id', 'name', 'code')->orderBy('name')->get();
 
@@ -118,7 +119,7 @@ class PurchaseController extends Controller
     public function store(Request $request)
     {
         $this->authorize('create', Purchase::class);
-        
+
         $validated = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'currency_id' => 'required|exists:currencies,id',
@@ -160,7 +161,7 @@ class PurchaseController extends Controller
     public function show(Purchase $purchase)
     {
         $this->authorize('view', $purchase);
-        
+
         try {
             $purchase->load([
                 'supplier',
@@ -299,7 +300,7 @@ class PurchaseController extends Controller
     public function destroy(Purchase $purchase)
     {
         $this->authorize('delete', $purchase);
-        
+
         try {
             $purchase->delete();
 
@@ -367,11 +368,11 @@ class PurchaseController extends Controller
                     ] : null,
                 ];
             });
-            
+
         $permissions = [
             'can_create_items' => Auth::user()->can('createItems', $purchase),
         ];
-            
+
         return Inertia::render('Admin/Purchase/CreateItem', [
             'purchase' => [
                 'id' => $purchase->id,
@@ -399,19 +400,69 @@ class PurchaseController extends Controller
                 'price' => 'required|numeric|min:0',
                 'notes' => 'nullable|string|max:1000',
                 'total_price' => 'required|numeric|min:0',
+                // Batch validation rules
+                'batch.issue_date' => 'nullable|date',
+                'batch.expire_date' => 'nullable|date|after_or_equal:batch.issue_date',
+                'batch.wholesale_price' => 'nullable|numeric|min:0',
+                'batch.retail_price' => 'nullable|numeric|min:0',
+                'batch.purchase_price' => 'nullable|numeric|min:0',
+                'batch.notes' => 'nullable|string|max:1000',
             ]);
 
             DB::beginTransaction();
+
+            // Get the product with unit information
+            $product = \App\Models\Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($validated['product_id']);
+
+            // Calculate unit details
+            $isWholesale = $validated['unit_type'] === 'wholesale';
+            $unitId = null;
+            $unitAmount = 1;
+            $unitName = null;
+            $qty = $validated['quantity'];
+            if ($isWholesale && $product->wholesaleUnit) {
+                $unitId = $product->wholesaleUnit->id;
+                $unitAmount = $product->whole_sale_unit_amount ?? 1;
+                $unitName = $product->wholesaleUnit->name;
+                $qty=$validated['quantity']*$product->whole_sale_unit_amount;
+            } elseif (!$isWholesale && $product->retailUnit) {
+                $unitId = $product->retailUnit->id;
+                $unitAmount = $product->retails_sale_unit_amount ?? 1;
+                $unitName = $product->retailUnit->name;
+            }
 
             // Create the purchase item record
             $item = PurchaseItem::create([
                 'purchase_id' => $purchase->id,
                 'product_id' => $validated['product_id'],
-                'quantity' => $validated['quantity'],
+                'quantity' => $qty,
                 'unit_type' => $validated['unit_type'],
                 'price' => $validated['price'],
                 'total_price' => $validated['total_price'],
             ]);
+
+            // Create batch record if batch data is provided
+            if (isset($validated['batch']) && !empty(array_filter($validated['batch']))) {
+                \App\Models\Batch::create([
+                    'product_id' => $validated['product_id'],
+                    'purchase_id' => $purchase->id,
+                    'purchase_item_id' => $item->id,
+                    'issue_date' => $validated['batch']['issue_date'] ?? null,
+                    'expire_date' => $validated['batch']['expire_date'] ?? null,
+                    'quantity' => $qty,
+                    'price' => $validated['price'],
+                    'wholesale_price' => $validated['batch']['wholesale_price'] ?? null,
+                    'retail_price' => $validated['batch']['retail_price'] ?? null,
+                    'purchase_price' => $validated['batch']['purchase_price'] ?? null,
+                    'total' => $validated['total_price'],
+                    'unit_type' => $validated['unit_type'],
+                    'is_wholesale' => $isWholesale,
+                    'unit_id' => $unitId,
+                    'unit_amount' => $unitAmount,
+                    'unit_name' => $unitName,
+                    'notes' => $validated['batch']['notes'] ?? null,
+                ]);
+            }
 
             DB::commit();
 
@@ -432,10 +483,10 @@ class PurchaseController extends Controller
     public function destroyItem(Purchase $purchase, PurchaseItem $item)
     {
         $this->authorize('deleteItems', $purchase);
-        
+
         try {
             DB::beginTransaction();
-
+            $item->batch()->delete();
             $item->delete();
 
             DB::commit();
@@ -456,11 +507,11 @@ class PurchaseController extends Controller
     public function createAdditionalCost(Purchase $purchase)
     {
         $this->authorize('createAdditionalCosts', $purchase);
-        
+
         $permissions = [
             'can_create_additional_costs' => Auth::user()->can('createAdditionalCosts', $purchase),
         ];
-        
+
         return Inertia::render('Admin/Purchase/CreateAdditionalCost', [
             'purchase' => [
                 'id' => $purchase->id,
@@ -478,7 +529,7 @@ class PurchaseController extends Controller
     public function storeAdditionalCost(Request $request, Purchase $purchase)
     {
         $this->authorize('createAdditionalCosts', $purchase);
-        
+
         try {
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
@@ -514,7 +565,7 @@ class PurchaseController extends Controller
     public function destroyAdditionalCost(Purchase $purchase, PurchaseHasAddionalCosts $cost)
     {
         $this->authorize('deleteAdditionalCosts', $purchase);
-        
+
         try {
             DB::beginTransaction();
 
@@ -538,7 +589,7 @@ class PurchaseController extends Controller
     public function createPayment(Purchase $purchase)
     {
         $this->authorize('createPayments', $purchase);
-        
+
         $purchase->load(['supplier', 'currency']);
         $suppliers = Supplier::select('id', 'name')->orderBy('name')->get();
         $currencies = Currency::select('id', 'name', 'code')->orderBy('name')->get();
@@ -567,7 +618,7 @@ class PurchaseController extends Controller
     public function storePayment(Request $request, Purchase $purchase)
     {
         $this->authorize('createPayments', $purchase);
-        
+
         try {
             $validated = $request->validate([
                 'supplier_id' => 'required|exists:suppliers,id',
@@ -617,7 +668,7 @@ class PurchaseController extends Controller
     public function destroyPayment(Purchase $purchase, PurchasePayment $payment)
     {
         $this->authorize('deletePayments', $purchase);
-        
+
         try {
             DB::beginTransaction();
 
@@ -667,7 +718,7 @@ class PurchaseController extends Controller
     public function storeWarehouseTransfer(Request $request, Purchase $purchase)
     {
         $this->authorize('warehouseTransfer', $purchase);
-        
+
         try {
             $validated = $request->validate([
                 'warehouse_id' => 'required|exists:warehouses,id',
@@ -690,10 +741,13 @@ class PurchaseController extends Controller
 
             // Create warehouse income records for each purchase item
             foreach ($purchase->purchaseItems as $item) {
+                // Find the batch for this purchase item
+                $batch = \App\Models\Batch::where('purchase_item_id', $item->id)->first();
                 \App\Models\WarehouseIncome::create([
                     'reference_number' => $referenceNumber,
                     'warehouse_id' => $validated['warehouse_id'],
                     'product_id' => $item->product_id,
+                    'batch_id' => $batch ? $batch->id : null,
                     'quantity' => $item->quantity,
                     'price' => $item->price,
                     'total' => $item->total_price,

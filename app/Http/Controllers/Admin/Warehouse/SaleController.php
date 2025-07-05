@@ -88,39 +88,71 @@ trait SaleController{
 
     public function createSale(Warehouse $warehouse)
     {
+        
         try {
             // Get customers
             $customers = \App\Models\Customer::select('id', 'name', 'email', 'phone')->get();
 
-            // Get warehouse products with stock quantities
-            $warehouseProducts = $warehouse->items()->with(['product.wholesaleUnit', 'product.retailUnit'])->get()->map(function ($item) {
+            // Get warehouse products directly from WarehouseBatchInventory
+            $warehouseBatchInventory = \App\Models\WarehouseBatchInventory::forWarehouse($warehouse->id)
+                ->withStock()
+                ->with(['product.wholesaleUnit', 'product.retailUnit'])
+                ->get()
+                ->groupBy('product_id');
+
+            $warehouseProducts = $warehouseBatchInventory->map(function ($productBatches, $productId) {
+                // Get the first batch inventory item to access product data
+                $firstBatch = $productBatches->first();
+                $product = $firstBatch->product;
+                
+                // Calculate total stock quantity for this product in this warehouse
+                $totalStockQuantity = $productBatches->sum('remaining_qty');
+                
+                // Map batches data
+                $batches = $productBatches->map(function ($batchInventory) {
+                    return [
+                        'id' => $batchInventory->batch_id,
+                        'reference_number' => $batchInventory->batch_reference,
+                        'issue_date' => $batchInventory->issue_date,
+                        'expire_date' => $batchInventory->expire_date,
+                        'wholesale_price' => $batchInventory->batch ? $batchInventory->batch->wholesale_price : null,
+                        'retail_price' => $batchInventory->batch ? $batchInventory->batch->retail_price : null,
+                        'purchase_price' => $batchInventory->batch ? $batchInventory->batch->purchase_price : null,
+                        'notes' => $batchInventory->batch_notes,
+                        'remaining_quantity' => $batchInventory->remaining_qty,
+                        'expiry_status' => $batchInventory->expiry_status,
+                        'days_to_expiry' => $batchInventory->days_to_expiry,
+                    ];
+                })->values();
+
                 return [
-                    'id' => $item->product->id,
-                    'name' => $item->product->name,
-                    'barcode' => $item->product->barcode,
-                    'type' => $item->product->type,
-                    'stock_quantity' => $item->net_quantity ?? 0,
-                    'purchase_price' => $item->product->purchase_price,
-                    'wholesale_price' => $item->product->wholesale_price,
-                    'retail_price' => $item->product->retail_price,
-                    'wholesale_unit_id' => $item->product->wholesale_unit_id,
-                    'retail_unit_id' => $item->product->retail_unit_id,
-                    'whole_sale_unit_amount' => $item->product->whole_sale_unit_amount,
-                    'retails_sale_unit_amount' => $item->product->retails_sale_unit_amount,
-                    'wholesaleUnit' => $item->product->wholesaleUnit ? [
-                        'id' => $item->product->wholesaleUnit->id,
-                        'name' => $item->product->wholesaleUnit->name,
-                        'code' => $item->product->wholesaleUnit->code,
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'type' => $product->type,
+                    'stock_quantity' => $totalStockQuantity,
+                    'purchase_price' => $product->purchase_price,
+                    'wholesale_price' => $product->wholesale_price,
+                    'retail_price' => $product->retail_price,
+                    'wholesale_unit_id' => $product->wholesale_unit_id,
+                    'retail_unit_id' => $product->retail_unit_id,
+                    'whole_sale_unit_amount' => $product->whole_sale_unit_amount,
+                    'retails_sale_unit_amount' => $product->retails_sale_unit_amount,
+                    'wholesaleUnit' => $product->wholesaleUnit ? [
+                        'id' => $product->wholesaleUnit->id,
+                        'name' => $product->wholesaleUnit->name,
+                        'code' => $product->wholesaleUnit->code,
                     ] : null,
-                    'retailUnit' => $item->product->retailUnit ? [
-                        'id' => $item->product->retailUnit->id,
-                        'name' => $item->product->retailUnit->name,
-                        'code' => $item->product->retailUnit->code,
+                    'retailUnit' => $product->retailUnit ? [
+                        'id' => $product->retailUnit->id,
+                        'name' => $product->retailUnit->name,
+                        'code' => $product->retailUnit->code,
                     ] : null,
+                    'available_batches' => $batches,
                 ];
             })->filter(function ($product) {
-                return $product['stock_quantity'] > 0;
-            });
+                return $product['stock_quantity'] > 0 && count($product['available_batches']) > 0;
+            })->values();
 
             return Inertia::render('Admin/Warehouse/CreateSale', [
                 'warehouse' => [
@@ -148,6 +180,7 @@ trait SaleController{
                 'customer_id' => 'required|exists:customers,id',
                 'sale_items' => 'required|array|min:1',
                 'sale_items.*.product_id' => 'required|exists:products,id',
+                'sale_items.*.batch_id' => 'nullable|exists:batches,id',
                 'sale_items.*.quantity' => 'required|numeric|min:1',
                 'sale_items.*.unit_price' => 'required|numeric|min:0',
                 'sale_items.*.total_price' => 'required|numeric|min:0',
@@ -165,13 +198,44 @@ trait SaleController{
                         ->withErrors(["sale_items.{$index}.product_id" => 'Product not found in this warehouse']);
                 }
 
-                $availableStock = $warehouseProduct->net_quantity ?? 0;
+                // Validate batch if provided
+                if (!empty($item['batch_id'])) {
+                    $batchInventory = \App\Models\WarehouseBatchInventory::where('batch_id', $item['batch_id'])
+                        ->where('warehouse_id', $warehouse->id)
+                        ->first();
+                    
+                    if (!$batchInventory) {
+                        return redirect()->back()
+                            ->with('error', "Batch ID {$item['batch_id']} not found in this warehouse")
+                            ->withInput()
+                            ->withErrors(["sale_items.{$index}.batch_id" => 'Batch not found in this warehouse']);
+                    }
 
-                if ($item['quantity'] > $availableStock) {
-                    return redirect()->back()
-                        ->with('error', "Insufficient stock for product ID {$item['product_id']}. Available: {$availableStock} units")
-                        ->withInput()
-                        ->withErrors(["sale_items.{$index}.quantity" => "Quantity cannot exceed available stock of {$availableStock} units"]);
+                    if ($batchInventory->product_id != $item['product_id']) {
+                        return redirect()->back()
+                            ->with('error', "Batch does not belong to the selected product")
+                            ->withInput()
+                            ->withErrors(["sale_items.{$index}.batch_id" => 'Batch does not belong to the selected product']);
+                    }
+
+                    $availableStock = $batchInventory->remaining_qty;
+                    
+                    if ($item['quantity'] > $availableStock) {
+                        return redirect()->back()
+                            ->with('error', "Insufficient stock in batch {$batchInventory->batch_reference}. Available: {$availableStock} units")
+                            ->withInput()
+                            ->withErrors(["sale_items.{$index}.quantity" => "Quantity cannot exceed available stock of {$availableStock} units in this batch"]);
+                    }
+                } else {
+                    // Fallback to general product stock if no batch specified
+                    $availableStock = $warehouseProduct->net_quantity ?? 0;
+
+                    if ($item['quantity'] > $availableStock) {
+                        return redirect()->back()
+                            ->with('error', "Insufficient stock for product ID {$item['product_id']}. Available: {$availableStock} units")
+                            ->withInput()
+                            ->withErrors(["sale_items.{$index}.quantity" => "Quantity cannot exceed available stock of {$availableStock} units"]);
+                    }
                 }
 
                 if ($item['quantity'] <= 0) {
@@ -209,6 +273,7 @@ trait SaleController{
                 \App\Models\SaleItem::create([
                     'sale_id' => $sale->id,
                     'product_id' => $item['product_id'],
+                    'batch_id' => $item['batch_id'] ?? null,
                     'quantity' => $item['quantity'],
                     'unit_price' => $item['unit_price'],
                     'price' => $item['unit_price'],
@@ -219,6 +284,7 @@ trait SaleController{
                 \App\Models\WarehouseOutcome::create([
                     'warehouse_id' => $warehouse->id,
                     'product_id' => $item['product_id'],
+                    'batch_id' => $item['batch_id'] ?? null,
                     'reference_number' => $referenceNumber,
                     'quantity' => $item['quantity'],
                     'price' => $item['unit_price'],

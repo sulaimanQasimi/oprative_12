@@ -13,7 +13,6 @@ class Batch extends Model
         'issue_date',
         'expire_date',
         'reference_number',
-        'customer_id',
         'product_id',
         'purchase_id',
         'purchase_item_id',
@@ -25,8 +24,6 @@ class Batch extends Model
         'total',
         'unit_type',
         'is_wholesale',
-        'model_type',
-        'model_id',
         'unit_id',
         'unit_amount',
         'unit_name',
@@ -46,20 +43,12 @@ class Batch extends Model
         'unit_amount' => 'decimal:2',
     ];
 
-    public function customer() {
-        return $this->belongsTo(Customer::class);
-    }
-
     public function product() {
         return $this->belongsTo(Product::class);
     }
 
     public function unit() {
         return $this->belongsTo(Unit::class);
-    }
-
-    public function model() {
-        return $this->morphTo();
     }
 
     public function purchase()
@@ -70,5 +59,55 @@ class Batch extends Model
     public function purchaseItem()
     {
         return $this->belongsTo(PurchaseItem::class);
+    }
+
+    protected static function booted()
+    {
+        static::saved(function ($batch) {
+            if (empty($batch->reference_number)) {
+                $date = $batch->issue_date ? $batch->issue_date->format('Ymd') : now()->format('Ymd');
+                $batch->reference_number = $date . '-' . $batch->id;
+                $batch->saveQuietly();
+            }
+        });
+    }
+
+    /**
+     * Scope to get remaining quantity of this batch in a specific warehouse.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int $warehouseId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeWithRemainingForWarehouse($query, $warehouseId)
+    {
+        return $query->withCount(['warehouseIncomes as warehouse_income_sum' => function ($q) use ($warehouseId) {
+            $q->where('warehouse_id', $warehouseId);
+        }, 'warehouseOutcomes as warehouse_outcome_sum' => function ($q) use ($warehouseId) {
+            $q->where('warehouse_id', $warehouseId);
+        }]);
+    }
+
+    /**
+     * Get remaining quantity of this batch in a specific warehouse.
+     *
+     * @param int $warehouseId
+     * @return float
+     */
+    public function remainingQuantityInWarehouse($warehouseId)
+    {
+        $income = $this->warehouseIncomes()->where('warehouse_id', $warehouseId)->sum('quantity');
+        $outcome = $this->warehouseOutcomes()->where('warehouse_id', $warehouseId)->sum('quantity');
+        return $income - $outcome;
+    }
+
+    public function warehouseIncomes()
+    {
+        return $this->hasMany(WarehouseIncome::class, 'batch_id');
+    }
+
+    public function warehouseOutcomes()
+    {
+        return $this->hasMany(WarehouseOutcome::class, 'batch_id');
     }
 } 

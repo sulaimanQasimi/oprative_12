@@ -12,6 +12,7 @@ import {
     ShoppingCart,
     Save,
     AlertCircle,
+    AlertTriangle,
     Weight,
     Package2,
     CheckCircle,
@@ -54,6 +55,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
     const [saleItems, setSaleItems] = useState([]);
     const [currentItem, setCurrentItem] = useState({
         product_id: '',
+        batch_id: '',
         quantity: '',
         price: '',
         unit_type: ''
@@ -90,7 +92,14 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
     }, [saleItems]);
 
     const getSelectedProduct = (productId) => {
-        return warehouseProducts?.find(p => p.id === parseInt(productId)) || null;
+        // Ensure warehouseProducts is an array
+        const products = Array.isArray(warehouseProducts) ? warehouseProducts : [];
+        return products.find(p => p.id === parseInt(productId)) || null;
+    };
+
+    const getSelectedBatch = (productId, batchId) => {
+        const product = getSelectedProduct(productId);
+        return product?.available_batches?.find(b => b.id === parseInt(batchId)) || null;
     };
 
     const getAvailableUnits = (product) => {
@@ -117,9 +126,23 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
         return units;
     };
 
-    const getAvailableStock = (product, unitType) => {
+    const getAvailableStock = (product, unitType, batchId = null) => {
         if (!product) return 0;
         
+        // If a specific batch is selected, use its remaining quantity
+        if (batchId) {
+            const batch = getSelectedBatch(product.id, batchId);
+            if (batch) {
+                let stock = batch.remaining_quantity || 0;
+                if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
+                    stock = Math.floor(stock / product.whole_sale_unit_amount);
+                }
+                return stock;
+            }
+            return 0;
+        }
+        
+        // Otherwise, use total product stock
         let stock = product.stock_quantity || 0;
         if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
             stock = Math.floor(stock / product.whole_sale_unit_amount);
@@ -137,7 +160,9 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
 
     const addItemToSale = () => {
         const product = getSelectedProduct(currentItem.product_id);
-        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.unit_type) {
+        const batch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
+        
+        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.unit_type || !currentItem.batch_id) {
             return;
         }
 
@@ -147,7 +172,9 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
         const newItem = {
             id: Date.now(), // Temporary ID for frontend
             product_id: parseInt(currentItem.product_id),
+            batch_id: parseInt(currentItem.batch_id),
             product: product,
+            batch: batch,
             unit_type: currentItem.unit_type,
             entered_quantity: parseFloat(currentItem.quantity),
             actual_quantity: actualQuantity,
@@ -160,6 +187,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
         // Reset current item
         setCurrentItem({
             product_id: '',
+            batch_id: '',
             quantity: '',
             price: '',
             unit_type: ''
@@ -196,6 +224,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
             customer_id: data.customer_id,
             sale_items: saleItems.map(item => ({
                 product_id: item.product_id,
+                batch_id: item.batch_id,
                 quantity: item.actual_quantity,
                 unit_price: item.unit_price,
                 total_price: item.total_price
@@ -224,7 +253,8 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
     };
 
     const currentProduct = getSelectedProduct(currentItem.product_id);
-    const currentAvailableStock = getAvailableStock(currentProduct, currentItem.unit_type);
+    const currentBatch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
+    const currentAvailableStock = getAvailableStock(currentProduct, currentItem.unit_type, currentItem.batch_id);
     const currentStockWarning = currentItem.quantity && parseFloat(currentItem.quantity) > currentAvailableStock;
 
     return (
@@ -474,29 +504,98 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                         </Label>
                                                         <Select
                                                             value={currentItem.product_id}
-                                                            onValueChange={(value) => setCurrentItem({...currentItem, product_id: value, unit_type: '', price: ''})}
+                                                            onValueChange={(value) => setCurrentItem({...currentItem, product_id: value, batch_id: '', unit_type: '', price: ''})}
                                                         >
                                                             <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
                                                                 <SelectValue placeholder={t("Select a product")} />
                                                             </SelectTrigger>
                                                             <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                                                {warehouseProducts?.filter(p => !saleItems.some(item => item.product_id === p.id)).map((product) => (
+                                                                {Array.isArray(warehouseProducts) ? warehouseProducts.filter(p => !saleItems.some(item => item.product_id === p.id)).map((product) => (
                                                                     <SelectItem key={product.id} value={product.id.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
                                                                         <div className="flex items-center space-x-3">
                                                                             <Package className="h-4 w-4 text-blue-600" />
                                                                             <div>
                                                                                 <div className="font-semibold text-slate-800 dark:text-white">{product.name}</div>
                                                                                 <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                    Stock: {product.stock_quantity}
+                                                                                    Stock: {product.stock_quantity} | Batches: {product.available_batches?.length || 0}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </SelectItem>
-                                                                ))}
+                                                                )) : (
+                                                                    <SelectItem value="" disabled>
+                                                                        No products available
+                                                                    </SelectItem>
+                                                                )}
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
 
+                                                    {/* Batch Selection */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Package2 className="w-5 h-5 text-indigo-500" />
+                                                            {t("Batch")} *
+                                                        </Label>
+                                                        <Select
+                                                            value={currentItem.batch_id}
+                                                            onValueChange={(value) => setCurrentItem({...currentItem, batch_id: value, unit_type: '', price: ''})}
+                                                            disabled={!currentItem.product_id}
+                                                        >
+                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
+                                                                <SelectValue placeholder={currentItem.product_id ? t("Select a batch") : t("Select product first")} />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                                                {currentProduct?.available_batches?.filter(batch => batch.remaining_quantity > 0).sort((a, b) => {
+                                                                    // Sort: valid batches first, then expiring soon, expired last
+                                                                    if (a.expiry_status === 'valid' && b.expiry_status !== 'valid') return -1;
+                                                                    if (b.expiry_status === 'valid' && a.expiry_status !== 'valid') return 1;
+                                                                    if (a.expiry_status === 'expiring_soon' && b.expiry_status === 'expired') return -1;
+                                                                    if (b.expiry_status === 'expiring_soon' && a.expiry_status === 'expired') return 1;
+                                                                    return 0;
+                                                                }).map((batch) => (
+                                                                    <SelectItem key={batch.id} value={batch.id.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                        <div className="flex items-center space-x-3">
+                                                                            <Package2 className={`h-4 w-4 ${
+                                                                                batch.expiry_status === 'expired' ? 'text-red-600' :
+                                                                                batch.expiry_status === 'expiring_soon' ? 'text-orange-600' :
+                                                                                'text-indigo-600'
+                                                                            }`} />
+                                                                            <div className="flex-1">
+                                                                                <div className="font-semibold text-slate-800 dark:text-white flex items-center gap-2">
+                                                                                    {batch.reference_number}
+                                                                                    {batch.expiry_status === 'expired' && (
+                                                                                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">Expired</span>
+                                                                                    )}
+                                                                                    {batch.expiry_status === 'expiring_soon' && (
+                                                                                        <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded">
+                                                                                            {batch.days_to_expiry} days left
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400 space-y-1">
+                                                                                    <div>Remaining: <span className="font-medium text-green-600">{batch.remaining_quantity}</span> pieces</div>
+                                                                                    {batch.expire_date && (
+                                                                                        <div>Expires: {new Date(batch.expire_date).toLocaleDateString()}</div>
+                                                                                    )}
+                                                                                    {batch.notes && (
+                                                                                        <div className="italic">{batch.notes}</div>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                )) || (
+                                                                    <SelectItem value="" disabled>
+                                                                        {currentItem.product_id ? t("No available batches") : t("Select product first")}
+                                                                    </SelectItem>
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                                     {/* Unit Type */}
                                                     <div className="space-y-3">
                                                         <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
@@ -507,10 +606,22 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                             value={currentItem.unit_type}
                                                             onValueChange={(value) => {
                                                                 const product = getSelectedProduct(currentItem.product_id);
-                                                                const unitPrice = value === 'wholesale' ? product?.wholesale_price : product?.retail_price;
+                                                                const batch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
+                                                                let unitPrice = 0;
+                                                                
+                                                                if (batch) {
+                                                                    // Use batch-specific prices if available
+                                                                    unitPrice = value === 'wholesale' ? 
+                                                                        (batch.wholesale_price || product?.wholesale_price) : 
+                                                                        (batch.retail_price || product?.retail_price);
+                                                                } else if (product) {
+                                                                    // Fallback to product prices
+                                                                    unitPrice = value === 'wholesale' ? product.wholesale_price : product.retail_price;
+                                                                }
+                                                                
                                                                 setCurrentItem({...currentItem, unit_type: value, price: unitPrice?.toString() || ''});
                                                             }}
-                                                            disabled={!currentItem.product_id}
+                                                            disabled={!currentItem.product_id || !currentItem.batch_id}
                                                         >
                                                             <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-orange-300 focus:border-orange-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
                                                                 <SelectValue placeholder={t("Select unit type")} />
@@ -523,7 +634,13 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                                             <div>
                                                                                 <div className="font-semibold text-slate-800 dark:text-white">{unit.label}</div>
                                                                                 <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                    {formatCurrency(unit.price)} per unit
+                                                                                    {formatCurrency(
+                                                                                        currentBatch ? 
+                                                                                            (unit.type === 'wholesale' ? 
+                                                                                                (currentBatch.wholesale_price || unit.price) : 
+                                                                                                (currentBatch.retail_price || unit.price)) :
+                                                                                            unit.price
+                                                                                    )} per unit
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -552,9 +669,9 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                             onChange={(e) => setCurrentItem({...currentItem, quantity: e.target.value})}
                                                             className={`dark:border-white h-12 text-base border-2 ${currentStockWarning ? 'border-red-500' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}
                                                         />
-                                                        {currentProduct && currentItem.unit_type && (
+                                                        {currentProduct && currentItem.unit_type && currentItem.batch_id && (
                                                             <p className="text-sm text-slate-500 dark:text-slate-400">
-                                                                Available: {currentAvailableStock} {currentItem.unit_type} units
+                                                                Available from this batch: {currentAvailableStock} {currentItem.unit_type} units
                                                             </p>
                                                         )}
                                                     </div>
@@ -584,7 +701,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                         <Button
                                                             type="button"
                                                             onClick={addItemToSale}
-                                                            disabled={!currentItem.product_id || !currentItem.unit_type || !currentItem.quantity || !currentItem.price || currentStockWarning}
+                                                            disabled={!currentItem.product_id || !currentItem.batch_id || !currentItem.unit_type || !currentItem.quantity || !currentItem.price || currentStockWarning}
                                                             className="w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white gap-2"
                                                         >
                                                             <Plus className="h-4 w-4" />
@@ -597,10 +714,87 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                     <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20">
                                                         <AlertCircle className="h-4 w-4 text-red-600" />
                                                         <AlertDescription className="text-red-700 dark:text-red-400">
-                                                            Insufficient stock! Maximum available: {currentAvailableStock} {currentItem.unit_type} units
+                                                            Insufficient stock in this batch! Maximum available: {currentAvailableStock} {currentItem.unit_type} units
                                                         </AlertDescription>
                                                     </Alert>
                                                 )}
+
+                                                {/* Batch Information Display */}
+                                                <AnimatePresence>
+                                                    {currentBatch && (
+                                                        <motion.div
+                                                            initial={{ opacity: 0, height: 0 }}
+                                                            animate={{ opacity: 1, height: "auto" }}
+                                                            exit={{ opacity: 0, height: 0 }}
+                                                            transition={{ duration: 0.3 }}
+                                                        >
+                                                            <Alert className={`border-2 ${
+                                                                currentBatch.expiry_status === 'expired' ? 'border-red-200 bg-red-50 dark:bg-red-900/20' :
+                                                                currentBatch.expiry_status === 'expiring_soon' ? 'border-orange-200 bg-orange-50 dark:bg-orange-900/20' :
+                                                                'border-blue-200 bg-blue-50 dark:bg-blue-900/20'
+                                                            }`}>
+                                                                <Package2 className={`h-5 w-5 ${
+                                                                    currentBatch.expiry_status === 'expired' ? 'text-red-600' :
+                                                                    currentBatch.expiry_status === 'expiring_soon' ? 'text-orange-600' :
+                                                                    'text-blue-600'
+                                                                }`} />
+                                                                <AlertDescription className={`${
+                                                                    currentBatch.expiry_status === 'expired' ? 'text-red-700 dark:text-red-400' :
+                                                                    currentBatch.expiry_status === 'expiring_soon' ? 'text-orange-700 dark:text-orange-400' :
+                                                                    'text-blue-700 dark:text-blue-400'
+                                                                }`}>
+                                                                    <div className="space-y-2">
+                                                                        <div className="font-medium flex items-center gap-2">
+                                                                            Selected Batch: {currentBatch.reference_number}
+                                                                            {currentBatch.expiry_status === 'expired' && (
+                                                                                <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-bold">EXPIRED</span>
+                                                                            )}
+                                                                            {currentBatch.expiry_status === 'expiring_soon' && (
+                                                                                <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded font-bold">
+                                                                                    EXPIRES IN {currentBatch.days_to_expiry} DAYS
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                        <div className="text-sm">
+                                                                            Remaining: <span className="font-medium">{currentBatch.remaining_quantity}</span> pieces
+                                                                            {currentBatch.expire_date && (
+                                                                                <span> | Expires: {new Date(currentBatch.expire_date).toLocaleDateString()}</span>
+                                                                            )}
+                                                                        </div>
+                                                                        {currentBatch.notes && (
+                                                                            <div className="text-sm italic">Notes: {currentBatch.notes}</div>
+                                                                        )}
+                                                                    </div>
+                                                                </AlertDescription>
+                                                            </Alert>
+                                                        </motion.div>
+                                                                                                                        )}
+                                                                </AnimatePresence>
+
+                                                                {/* Expired Batch Warning */}
+                                                                <AnimatePresence>
+                                                                    {currentBatch && currentBatch.expiry_status === 'expired' && (
+                                                                        <motion.div
+                                                                            initial={{ opacity: 0, height: 0 }}
+                                                                            animate={{ opacity: 1, height: "auto" }}
+                                                                            exit={{ opacity: 0, height: 0 }}
+                                                                            transition={{ duration: 0.3 }}
+                                                                        >
+                                                                            <Alert className="border-red-300 bg-red-100 dark:bg-red-900/30">
+                                                                                <AlertTriangle className="h-5 w-5 text-red-600" />
+                                                                                <AlertDescription className="text-red-800 dark:text-red-300">
+                                                                                    <div className="space-y-1">
+                                                                                        <div className="font-bold">⚠️ WARNING: This batch has expired!</div>
+                                                                                        <div className="text-sm">
+                                                                                            Selling expired products may violate health and safety regulations. 
+                                                                                            Please verify if this is appropriate for your business requirements.
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </AlertDescription>
+                                                                            </Alert>
+                                                                        </motion.div>
+                                                                    )}
+                                                                </AnimatePresence>
                                             </CardContent>
                                         </Card>
                                     </motion.div>
@@ -632,6 +826,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                                 <thead className="bg-slate-50 dark:bg-slate-800">
                                                                     <tr>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Product")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Batch")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Type")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Quantity")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Price")}</th>
@@ -655,6 +850,21 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                                                     <div>
                                                                                         <div className="font-semibold text-slate-800 dark:text-white">{item.product.name}</div>
                                                                                         <div className="text-sm text-slate-500 dark:text-slate-400">{item.product.barcode}</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="px-6 py-4">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Package2 className="h-4 w-4 text-indigo-600" />
+                                                                                    <div>
+                                                                                        <div className="font-semibold text-slate-800 dark:text-white">
+                                                                                            {item.batch?.reference_number || 'N/A'}
+                                                                                        </div>
+                                                                                        {item.batch?.expire_date && (
+                                                                                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                                Exp: {new Date(item.batch.expire_date).toLocaleDateString()}
+                                                                                            </div>
+                                                                                        )}
                                                                                     </div>
                                                                                 </div>
                                                                             </td>
