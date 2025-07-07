@@ -1198,7 +1198,7 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                     </p>
                                                                     <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
                                                                         <strong>{t("Items to transfer:")}</strong> {(purchaseItems || []).length} {t("items")} • 
-                                                                        <strong className="ml-2">{t("Total quantity:")}</strong> {getTotalQuantity().toLocaleString()} {t("units")}
+                                                                        <strong className="ml-2">{t("Total quantity:")}</strong> {getTotalQuantity().toLocaleString()} {t("individual units")}
                                                                     </p>
                                                                 </div>
                                                             </div>
@@ -1263,10 +1263,93 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                             <span className="text-slate-600 dark:text-slate-400">{t("Total Items")}</span>
                                                                             <span className="font-semibold">{(purchaseItems || []).length} {t("items")}</span>
                                                                         </div>
-                                                                        <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
-                                                                            <span className="text-slate-600 dark:text-slate-400">{t("Total Quantity")}</span>
-                                                                            <span className="font-semibold">{getTotalQuantity().toLocaleString()} {t("units")}</span>
+                                                                        
+                                                                        {/* Unit-based Summary */}
+                                                                        <div className="space-y-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+                                                                            <h4 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-2">
+                                                                                <Package className="h-4 w-4" />
+                                                                                {t("Unit Breakdown")}
+                                                                            </h4>
+                                                                            
+                                                                            {/* Wholesale Units Summary */}
+                                                                            {(() => {
+                                                                                const wholesaleItems = (purchaseItems || []).filter(item => item.unit_type === 'wholesale');
+                                                                                const wholesaleQuantity = wholesaleItems.reduce((sum, item) => {
+                                                                                    const unitAmount = item.product?.whole_sale_unit_amount || 1;
+                                                                                    return sum + (parseFloat(item.quantity) / unitAmount);
+                                                                                }, 0);
+                                                                                
+                                                                                if (wholesaleItems.length > 0) {
+                                                                                    // Get unique wholesale unit names
+                                                                                    const wholesaleUnitNames = [...new Set(wholesaleItems.map(item => 
+                                                                                        item.product?.wholesaleUnit?.name || t('Wholesale Unit')
+                                                                                    ))];
+                                                                                    
+                                                                                    return (
+                                                                                        <div className="flex justify-between items-center py-2">
+                                                                                            <span className="text-sm text-blue-700 dark:text-blue-300">
+                                                                                                {t("Wholesale Units")}
+                                                                                            </span>
+                                                                                            <div className="text-right">
+                                                                                                <span className="font-semibold text-blue-900 dark:text-blue-100">
+                                                                                                    {wholesaleQuantity.toLocaleString()}
+                                                                                                </span>
+                                                                                                <div className="text-xs text-blue-600 dark:text-blue-400">
+                                                                                                    {wholesaleUnitNames.join(', ')}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    );
+                                                                                }
+                                                                                return null;
+                                                                            })()}
+                                                                            
+                                                                            {/* Retail Units Summary */}
+                                                                            {(() => {
+                                                                                const retailItems = (purchaseItems || []).filter(item => item.unit_type === 'retail');
+                                                                                const retailQuantity = retailItems.reduce((sum, item) => sum + parseFloat(item.quantity || 0), 0);
+                                                                                
+                                                                                if (retailItems.length > 0) {
+                                                                                    // Get unique retail unit names
+                                                                                    const retailUnitNames = [...new Set(retailItems.map(item => 
+                                                                                        item.product?.retailUnit?.name || t('Retail Unit')
+                                                                                    ))];
+                                                                                    
+                                                                                    return (
+                                                                                        <div className="flex justify-between items-center py-2">
+                                                                                            <span className="text-sm text-blue-700 dark:text-blue-300">
+                                                                                                {t("Retail Units")}
+                                                                                            </span>
+                                                                                            <div className="text-right">
+                                                                                                <span className="font-semibold text-blue-900 dark:text-blue-100">
+                                                                                                    {retailQuantity.toLocaleString()}
+                                                                                                </span>
+                                                                                                <div className="text-xs text-blue-600 dark:text-blue-400">
+                                                                                                    {retailUnitNames.join(', ')}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    );
+                                                                                }
+                                                                                return null;
+                                                                            })()}
+                                                                            
+                                                                            {/* Total Individual Units */}
+                                                                            <div className="flex justify-between items-center py-2 border-t border-blue-200 dark:border-blue-700">
+                                                                                <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                                                                                    {t("Total Individual Units")}
+                                                                                </span>
+                                                                                <div className="text-right">
+                                                                                    <span className="font-bold text-blue-900 dark:text-blue-100">
+                                                                                        {getTotalQuantity().toLocaleString()}
+                                                                                    </span>
+                                                                                    <div className="text-xs text-blue-600 dark:text-blue-400">
+                                                                                        {t("individual units")}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
                                                                         </div>
+                                                                        
                                                                         <div className="flex justify-between items-center py-2 border-b border-slate-200 dark:border-slate-700">
                                                                             <span className="text-slate-600 dark:text-slate-400">{t("Items Value")}</span>
                                                                             <span className="font-semibold font-mono">{formatCurrency(getTotalAmount())}</span>
@@ -1320,6 +1403,7 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                             <TableHeader>
                                                                 <TableRow>
                                                                     <TableHead>{t("Product")}</TableHead>
+                                                                    <TableHead>{t("Unit Type")}</TableHead>
                                                                     <TableHead>{t("Quantity")}</TableHead>
                                                                     <TableHead>{t("Unit Price")}</TableHead>
                                                                     <TableHead>{t("Total Value")}</TableHead>
@@ -1340,9 +1424,57 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                             </div>
                                                                         </TableCell>
                                                                         <TableCell>
-                                                                            <Badge variant="secondary" className="font-mono text-xs">
-                                                                                {parseFloat(item.quantity).toLocaleString()} {t("units")}
-                                                                            </Badge>
+                                                                            {(() => {
+                                                                                if (item.unit_type === 'wholesale') {
+                                                                                    const unitName = item.product?.wholesaleUnit?.name || t('Wholesale Unit');
+                                                                                    const unitSymbol = item.product?.wholesaleUnit?.symbol || '';
+                                                                                    const unitAmount = item.product?.whole_sale_unit_amount || 1;
+                                                                                    const actualQuantity = parseFloat(item.quantity) / unitAmount;
+                                                                                    return (
+                                                                                        <div className="space-y-1">
+                                                                                            <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 text-xs">
+                                                                                                {unitName} {unitSymbol && `(${unitSymbol})`}
+                                                                                            </Badge>
+                                                                                            <div className="text-xs text-slate-500">
+                                                                                                {actualQuantity.toLocaleString()} {unitName} × {unitAmount} = {parseFloat(item.quantity).toLocaleString()} {t("individual units")}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    );
+                                                                                } else {
+                                                                                    const unitName = item.product?.retailUnit?.name || t('Retail Unit');
+                                                                                    const unitSymbol = item.product?.retailUnit?.symbol || '';
+                                                                                    return (
+                                                                                        <div className="space-y-1">
+                                                                                            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs">
+                                                                                                {unitName} {unitSymbol && `(${unitSymbol})`}
+                                                                                            </Badge>
+                                                                                            <div className="text-xs text-slate-500">
+                                                                                                {parseFloat(item.quantity).toLocaleString()} {unitName}
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    );
+                                                                                }
+                                                                            })()}
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            {(() => {
+                                                                                const quantity = parseFloat(item.quantity).toLocaleString();
+                                                                                if (item.unit_type === 'wholesale') {
+                                                                                    const unitName = item.product?.wholesaleUnit?.name || t('Wholesale Unit');
+                                                                                    return (
+                                                                                        <Badge variant="secondary" className="font-mono text-xs">
+                                                                                            {quantity} {unitName}
+                                                                                        </Badge>
+                                                                                    );
+                                                                                } else {
+                                                                                    const unitName = item.product?.retailUnit?.name || t('Retail Unit');
+                                                                                    return (
+                                                                                        <Badge variant="secondary" className="font-mono text-xs">
+                                                                                            {quantity} {unitName}
+                                                                                        </Badge>
+                                                                                    );
+                                                                                }
+                                                                            })()}
                                                                         </TableCell>
                                                                         <TableCell className="font-mono">{formatCurrency(item.price)}</TableCell>
                                                                         <TableCell className="font-bold text-green-600 font-mono">{formatCurrency(item.total_price)}</TableCell>
