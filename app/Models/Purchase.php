@@ -47,6 +47,7 @@ class Purchase extends Model
         'paid_amount' => 'decimal:2',
         'due_amount' => 'decimal:2',
     ];
+    protected $appends = ['total_amount'];
 
     public function user(): BelongsTo
     {
