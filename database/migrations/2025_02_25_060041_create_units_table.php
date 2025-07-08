@@ -15,8 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('code')->unique();
-            $table->string('symbol');
-            $table->boolean('is_activated')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

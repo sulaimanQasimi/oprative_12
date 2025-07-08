@@ -17,23 +17,16 @@ return new class extends Migration
             $table->string("type")->default('product')->nullable();
             $table->string("name");
             $table->string("barcode")->nullable();
-
-            //Prices
-            $table->double("purchase_price")->default(0)->nullable();
-            $table->double("wholesale_price")->default(0)->nullable();;
-            $table->double("retail_price")->default(0)->nullable();
-
-            // Profit
-            $table->double("purchase_profit")->default(0)->nullable();;
-            $table->double("wholesale_profit")->default(0)->nullable();;
-            $table->double("retail_profit")->default(0)->nullable();
+            $table->unsignedBigInteger("category_id")->nullable();
+            $table->unsignedBigInteger("unit_id")->nullable();
 
             //Options
-            $table->boolean("is_activated")->default(1)->nullable();
-            $table->boolean("is_in_stock")->default(1)->nullable();
-            $table->boolean("is_shipped")->default(0)->nullable();
-            $table->boolean("is_trend")->default(0)->nullable();
+            $table->boolean("status")->default(1)->nullable();
             $table->timestamps();
+
+            // Foreign key constraints
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
+            $table->foreign('unit_id')->references('id')->on('units')->onDelete('set null');
 
         });
 

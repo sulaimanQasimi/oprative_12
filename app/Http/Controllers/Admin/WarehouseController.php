@@ -279,41 +279,91 @@ class WarehouseController extends Controller
     public function products(Warehouse $warehouse)
     {
         try {
-            // Load warehouse with its products and related data
-            $warehouse = Warehouse::with([
-                'items.product.wholesaleUnit',
-                'items.product.retailUnit'
-            ])->findOrFail($warehouse->id);
+            // Get warehouse basic info
+            $warehouse = Warehouse::findOrFail($warehouse->id);
 
-            // Get warehouse products with calculated fields
-            $products = $warehouse->items->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'product_id' => $item->product_id,
-                    'product' => [
-                        'id' => $item->product->id,
-                        'name' => $item->product->name,
-                        'barcode' => $item->product->barcode,
-                        'type' => $item->product->type,
-                        'purchase_price' => $item->product->purchase_price,
-                        'wholesale_price' => $item->product->wholesale_price,
-                        'retail_price' => $item->product->retail_price,
-                        'wholesale_unit' => $item->product->wholesaleUnit,
-                        'retail_unit' => $item->product->retailUnit,
-                        'is_activated' => $item->product->is_activated,
-                        'is_in_stock' => $item->product->is_in_stock,
-                    ],
-                    'income_quantity' => $item->income_quantity ?? 0,
-                    'income_total' => $item->income_total ?? 0,
-                    'outcome_quantity' => $item->outcome_quantity ?? 0,
-                    'outcome_total' => $item->outcome_total ?? 0,
-                    'net_quantity' => $item->net_quantity ?? 0,
-                    'net_total' => $item->net_total ?? 0,
-                    'profit' => $item->profit ?? 0,
-                    'created_at' => $item->created_at,
-                    'updated_at' => $item->updated_at,
-                ];
-            });
+            // Get batch inventory data from the view for this warehouse
+            $batchInventory = DB::table('warehouse_batch_inventory')
+                ->where('warehouse_id', $warehouse->id)
+                ->get();
+
+            // Group by product and calculate totals
+            $products = collect();
+            $productGroups = $batchInventory->groupBy('product_id');
+
+            foreach ($productGroups as $productId => $batches) {
+                // Get product details from first batch
+                $firstBatch = $batches->first();
+                
+                // Calculate totals across all batches for this product
+                $totalIncomeQty = $batches->sum('income_qty');
+                $totalOutcomeQty = $batches->sum('outcome_qty');
+                $remainingQty = $batches->sum('remaining_qty');
+                $totalIncomeValue = $batches->sum('total_income_value');
+                $totalOutcomeValue = $batches->sum('total_outcome_value');
+                
+                // Calculate profit (simplified calculation)
+                $profit = $totalOutcomeValue - $totalIncomeValue;
+
+                // Get product details from database
+                $product = Product::with(['wholesaleUnit', 'retailUnit'])->find($productId);
+                
+                if ($product) {
+                    $products->push([
+                        'id' => $productId,
+                        'product_id' => $productId,
+                        'product' => [
+                            'id' => $product->id,
+                            'name' => $product->name,
+                            'barcode' => $product->barcode,
+                            'type' => $product->type,
+                            'purchase_price' => $product->purchase_price,
+                            'wholesale_price' => $product->wholesale_price,
+                            'retail_price' => $product->retail_price,
+                            'wholesaleUnit' => $product->wholesaleUnit ? [
+                                'id' => $product->wholesaleUnit->id,
+                                'name' => $product->wholesaleUnit->name,
+                                'code' => $product->wholesaleUnit->code,
+                                'symbol' => $product->wholesaleUnit->symbol,
+                            ] : null,
+                            'retailUnit' => $product->retailUnit ? [
+                                'id' => $product->retailUnit->id,
+                                'name' => $product->retailUnit->name,
+                                'code' => $product->retailUnit->code,
+                                'symbol' => $product->retailUnit->symbol,
+                            ] : null,
+                            'is_activated' => $product->is_activated,
+                            'is_in_stock' => $product->is_in_stock,
+                        ],
+                        'income_quantity' => $totalIncomeQty,
+                        'income_total' => $totalIncomeValue,
+                        'outcome_quantity' => $totalOutcomeQty,
+                        'outcome_total' => $totalOutcomeValue,
+                        'net_quantity' => $remainingQty,
+                        'net_total' => $totalIncomeValue, // Using income value as net total
+                        'profit' => $profit,
+                        'batches' => $batches->map(function ($batch) {
+                            return [
+                                'batch_id' => $batch->batch_id,
+                                'batch_reference' => $batch->batch_reference,
+                                'issue_date' => $batch->issue_date,
+                                'expire_date' => $batch->expire_date,
+                                'batch_notes' => $batch->batch_notes,
+                                'income_qty' => $batch->income_qty,
+                                'outcome_qty' => $batch->outcome_qty,
+                                'remaining_qty' => $batch->remaining_qty,
+                                'total_income_value' => $batch->total_income_value,
+                                'total_outcome_value' => $batch->total_outcome_value,
+                                'expiry_status' => $batch->expiry_status,
+                                'days_to_expiry' => $batch->days_to_expiry,
+                            ];
+                        }),
+                        'created_at' => $firstBatch->created_at ?? now(),
+                        'updated_at' => $firstBatch->updated_at ?? now(),
+                    ]);
+                }
+            }
+
             return Inertia::render('Admin/Warehouse/Products', [
                 'warehouse' => [
                     'id' => $warehouse->id,

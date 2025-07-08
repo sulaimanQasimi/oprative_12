@@ -10,6 +10,8 @@ return new class extends Migration
      */
     public function up(): void
     {
+        DB::statement('DROP VIEW IF EXISTS warehouse_batch_inventory');
+   
         DB::statement("
             CREATE VIEW warehouse_batch_inventory AS
             SELECT 
@@ -69,7 +71,7 @@ return new class extends Migration
      * Reverse the migrations.
      */
     public function down(): void
-    {
-        DB::statement("DROP VIEW IF EXISTS warehouse_batch_inventory");
+    {   
+        DB::statement('DROP VIEW IF EXISTS warehouse_batch_inventory');
     }
 }; 

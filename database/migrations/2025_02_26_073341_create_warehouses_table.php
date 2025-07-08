@@ -27,10 +27,6 @@ return new class extends Migration
             $table->foreignId('warehouse_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->integer('quantity')->default(0);
-            //Prices
-            $table->double("purchase_price")->default(0)->nullable();
-            $table->double("wholesale_price")->default(0)->nullable();;
-            $table->double("retail_price")->default(0)->nullable();
             $table->double("total")->default(0)->nullable();
 
             $table->timestamps();

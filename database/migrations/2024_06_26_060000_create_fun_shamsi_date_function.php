@@ -14,6 +14,9 @@ class CreateFunShamsiDateFunction extends Migration
      */
     public function up()
     {
+        // Drop the function if it exists first
+        DB::unprepared('DROP FUNCTION IF EXISTS funShamsiDate');
+        
         $sql = "
         CREATE FUNCTION `funShamsiDate`(g_date DATETIME) RETURNS varchar(10) CHARSET utf8mb4
         DETERMINISTIC
@@ -105,6 +108,6 @@ class CreateFunShamsiDateFunction extends Migration
      */
     public function down()
     {
-        DB::unprepared('DROP FUNCTION IF EXISTS `funShamsiDate`');
+        DB::unprepared('DROP FUNCTION IF EXISTS funShamsiDate');
     }
 } 

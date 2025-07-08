@@ -18,49 +18,26 @@ class Product extends Model
         'description',
         'barcode',
         'image',
-        'purchase_price',
-        'wholesale_price',
-        'retail_price',
-        'cost',
-        'price',
-        'purchase_profit',
-        'wholesale_profit',
-        'retail_profit',
+        'category_id',
         'quantity',
         'min_quantity',
         'tax_rate',
         'status',
-        'is_activated',
-        'is_in_stock',
-        'is_shipped',
-        'is_trend',
         'unit_id',
-        'wholesale_unit_id',
-        'retail_unit_id',
-        'whole_sale_unit_amount',
-        'retails_sale_unit_amount',
     ];
 
     protected $casts = [
-        'purchase_price' => 'double',
-        'wholesale_price' => 'double',
-        'retail_price' => 'double',
-        'cost' => 'double',
-        'price' => 'double',
-        'purchase_profit' => 'double',
-        'wholesale_profit' => 'double',
-        'retail_profit' => 'double',
         'quantity' => 'integer',
         'min_quantity' => 'integer',
         'tax_rate' => 'double',
-        'whole_sale_unit_amount' => 'double',
-        'retails_sale_unit_amount' => 'double',
-        'is_activated' => 'boolean',
-        'is_in_stock' => 'boolean',
-        'is_shipped' => 'boolean',
-        'is_trend' => 'boolean',
         'status' => 'boolean',
     ];
+
+    // Category relationship
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
     // Main unit relationship
     public function unit()
@@ -84,15 +61,7 @@ class Product extends Model
             ->withTimestamps();
     }
 
-    public function wholesaleUnit()
-    {
-        return $this->belongsTo(Unit::class, 'wholesale_unit_id');
-    }
 
-    public function retailUnit()
-    {
-        return $this->belongsTo(Unit::class, 'retail_unit_id');
-    }
 
     public function purchaseItems()
     {
@@ -117,17 +86,6 @@ class Product extends Model
     public function customerStockOutcomes()
     {
         return $this->hasMany(CustomerStockOutcome::class);
-    }
-
-    // Accessors for API compatibility
-    public function getCostAttribute()
-    {
-        return $this->purchase_price ?? 0;
-    }
-
-    public function getPriceAttribute()
-    {
-        return $this->retail_price ?? 0;
     }
 
     public function getCodeAttribute()

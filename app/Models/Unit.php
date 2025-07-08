@@ -13,15 +13,8 @@ class Unit extends Model
         'name',
         'code',
         'symbol',
+        'is_activated',
     ];
 
-    public function wholesaleProducts()
-    {
-        return $this->hasMany(Product::class, 'wholesale_unit_id');
-    }
 
-    public function retailProducts()
-    {
-        return $this->hasMany(Product::class, 'retail_unit_id');
-    }
 }

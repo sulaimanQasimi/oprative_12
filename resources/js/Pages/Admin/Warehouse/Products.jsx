@@ -9,7 +9,11 @@ import {
     TrendingDown,
     BarChart3,
     DollarSign,
-    Boxes
+    Boxes,
+    Calendar,
+    AlertTriangle,
+    Clock,
+    CheckCircle
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -111,6 +115,30 @@ export default function Products({ auth, warehouse, products }) {
         if (quantity <= 0) return { status: 'out', color: 'bg-red-500', text: 'Out of Stock' };
         if (quantity <= 10) return { status: 'low', color: 'bg-yellow-500', text: 'Low Stock' };
         return { status: 'good', color: 'bg-green-500', text: 'In Stock' };
+    };
+
+    const getExpiryStatus = (batches) => {
+        if (!batches || batches.length === 0) return { status: 'no_batch', color: 'bg-gray-500', text: 'No Batch Info' };
+        
+        const expiredBatches = batches.filter(batch => batch.expiry_status === 'expired');
+        const expiringSoonBatches = batches.filter(batch => batch.expiry_status === 'expiring_soon');
+        
+        if (expiredBatches.length > 0) {
+            return { status: 'expired', color: 'bg-red-500', text: 'Expired' };
+        }
+        if (expiringSoonBatches.length > 0) {
+            return { status: 'expiring_soon', color: 'bg-yellow-500', text: 'Expiring Soon' };
+        }
+        return { status: 'valid', color: 'bg-green-500', text: 'Valid' };
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '-';
+        return new Date(dateString).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+        });
     };
 
     return (
@@ -325,6 +353,8 @@ export default function Products({ auth, warehouse, products }) {
                                                         <SelectItem value="net_quantity">{t("Stock Quantity")}</SelectItem>
                                                         <SelectItem value="net_total">{t("Total Value")}</SelectItem>
                                                         <SelectItem value="profit">{t("Profit")}</SelectItem>
+                                                        <SelectItem value="income_quantity">{t("Income Quantity")}</SelectItem>
+                                                        <SelectItem value="outcome_quantity">{t("Outcome Quantity")}</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                                 <Button
@@ -362,42 +392,52 @@ export default function Products({ auth, warehouse, products }) {
                                     <CardContent className="p-0">
                                         {filteredProducts.length > 0 ? (
                                             <div className="overflow-x-auto">
-                                                <Table>
-                                                    <TableHeader>
-                                                        <TableRow className="bg-slate-50/50 dark:bg-slate-600/50">
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300">
-                                                                {t("Product")}
-                                                            </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300">
-                                                                {t("Barcode")}
-                                                            </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
-                                                                {t("Income Qty")}
-                                                            </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
-                                                                {t("Income Total")}
-                                                            </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
-                                                                {t("Outcome Qty")}
-                                                            </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
-                                                                {t("Outcome Total")}
-                                                            </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
-                                                                {t("Stock")}
-                                                            </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
-                                                                {t("Profit")}
-                                                            </TableHead>
-                                                            <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
-                                                                {t("Status")}
-                                                            </TableHead>
-                                                        </TableRow>
-                                                    </TableHeader>
+                                                                                                    <Table>
+                                                        <TableHeader>
+                                                            <TableRow className="bg-slate-50/50 dark:bg-slate-600/50">
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                                    {t("Product")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                                    {t("Barcode")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Units")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Income Qty")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Income Total")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Outcome Qty")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Outcome Total")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Stock")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
+                                                                    {t("Profit")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Stock Status")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Expiry Status")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Batches")}
+                                                                </TableHead>
+                                                            </TableRow>
+                                                        </TableHeader>
                                                     <TableBody>
                                                         <AnimatePresence>
                                                             {filteredProducts.map((product, index) => {
                                                                 const stockStatus = getStockStatus(product.net_quantity);
+                                                                const expiryStatus = getExpiryStatus(product.batches);
                                                                 return (
                                                                     <motion.tr
                                                                         key={product.id}
@@ -423,6 +463,24 @@ export default function Products({ auth, warehouse, products }) {
                                                                         </TableCell>
                                                                         <TableCell className="font-mono text-slate-600 dark:text-slate-400">
                                                                             {product.product.barcode || '-'}
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="space-y-1">
+                                                                                {product.product.wholesaleUnit && (
+                                                                                    <div className="text-xs">
+                                                                                        <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                                                                            {product.product.wholesaleUnit.name} ({product.product.wholesaleUnit.symbol})
+                                                                                        </Badge>
+                                                                                    </div>
+                                                                                )}
+                                                                                {product.product.retailUnit && (
+                                                                                    <div className="text-xs">
+                                                                                        <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                                                            {product.product.retailUnit.name} ({product.product.retailUnit.symbol})
+                                                                                        </Badge>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
                                                                         </TableCell>
                                                                         <TableCell className="text-center font-semibold">
                                                                             {product.income_quantity?.toLocaleString() || 0}
@@ -456,6 +514,46 @@ export default function Products({ auth, warehouse, products }) {
                                                                             >
                                                                                 {t(stockStatus.text)}
                                                                             </Badge>
+                                                                        </TableCell>
+                                                                        <TableCell className="text-center">
+                                                                            <Badge
+                                                                                variant="secondary"
+                                                                                className={`${expiryStatus.color} text-white`}
+                                                                            >
+                                                                                {t(expiryStatus.text)}
+                                                                            </Badge>
+                                                                        </TableCell>
+                                                                        <TableCell>
+                                                                            <div className="space-y-1">
+                                                                                {product.batches && product.batches.length > 0 ? (
+                                                                                    <div className="text-xs space-y-1">
+                                                                                        {product.batches.slice(0, 2).map((batch, batchIndex) => (
+                                                                                            <div key={batch.batch_id} className="flex items-center gap-1">
+                                                                                                <Calendar className="h-3 w-3 text-slate-500" />
+                                                                                                <span className="text-slate-600 dark:text-slate-400">
+                                                                                                    {batch.batch_reference}
+                                                                                                                                </span>
+                                                                                                {batch.expiry_status === 'expired' && (
+                                                                                                    <AlertTriangle className="h-3 w-3 text-red-500" />
+                                                                                                )}
+                                                                                                {batch.expiry_status === 'expiring_soon' && (
+                                                                                                    <Clock className="h-3 w-3 text-yellow-500" />
+                                                                                                )}
+                                                                                                {batch.expiry_status === 'valid' && (
+                                                                                                    <CheckCircle className="h-3 w-3 text-green-500" />
+                                                                                                )}
+                                                                                            </div>
+                                                                                        ))}
+                                                                                        {product.batches.length > 2 && (
+                                                                                            <div className="text-xs text-slate-500">
+                                                                                                +{product.batches.length - 2} more
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                ) : (
+                                                                                    <span className="text-xs text-slate-500">-</span>
+                                                                                )}
+                                                                            </div>
                                                                         </TableCell>
                                                                     </motion.tr>
                                                                 );

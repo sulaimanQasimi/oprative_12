@@ -18,9 +18,6 @@ return new class extends Migration
             $table->unsignedBigInteger('purchase_item_id')->nullable();
             $table->decimal('quantity', 15, 2)->default(0);
             $table->decimal('price', 15, 2)->default(0);
-            $table->decimal('wholesale_price', 15, 2)->nullable();
-            $table->decimal('retail_price', 15, 2)->nullable();
-            $table->decimal('purchase_price', 15, 2)->nullable();
             $table->decimal('total', 15, 2)->default(0);
             $table->string('unit_type')->nullable();
             $table->boolean('is_wholesale')->default(false);
