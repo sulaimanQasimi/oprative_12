@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { Head, Link, useForm } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     ArrowLeft,
     Save,
-    DollarSign,
     Package,
     Barcode,
     Tag,
     Scale,
     Activity,
+    Plus,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
@@ -25,28 +25,40 @@ import {
 } from "@/Components/ui/select";
 import Navigation from "@/Components/Admin/Navigation";
 
-export default function Edit({ auth, product, units = [], permissions = {} }) {
+export default function Edit({ auth, product, units = [], categories = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
+    const [showCategoryForm, setShowCategoryForm] = useState(false);
+    
     const { data, setData, put, processing, errors, reset } = useForm({
-        type: product.type || "",
+        type: product.type || "product",
         name: product.name || "",
         barcode: product.barcode || "",
-        purchase_price: product.purchase_price || "",
-        wholesale_price: product.wholesale_price || "",
-        retail_price: product.retail_price || "",
-        is_activated: product.is_activated || false,
-        is_in_stock: product.is_in_stock || false,
-        is_shipped: product.is_shipped || false,
-        is_trend: product.is_trend || false,
-        wholesale_unit_id: product.wholesale_unit_id?.toString() || "",
-        retail_unit_id: product.retail_unit_id?.toString() || "",
-        whole_sale_unit_amount: product.whole_sale_unit_amount || "",
-        retails_sale_unit_amount: product.retails_sale_unit_amount || "",
+        category_id: product.category_id?.toString() || "",
+        unit_id: product.unit_id?.toString() || "",
+        status: product.status ?? true,
+    });
+
+    const { data: categoryData, setData: setCategoryData, post: postCategory, processing: categoryProcessing, errors: categoryErrors, reset: resetCategory } = useForm({
+        general_name: "",
+        sub_name: "",
+        final_name: "",
     });
 
     function submit(e) {
         e.preventDefault();
         put(route("admin.products.update", product.id));
+    }
+
+    function submitCategory(e) {
+        e.preventDefault();
+        postCategory(route("admin.categories.store"), {
+            onSuccess: () => {
+                resetCategory();
+                setShowCategoryForm(false);
+                // Refresh the page to get updated categories
+                window.location.reload();
+            },
+        });
     }
 
     return (
@@ -98,14 +110,19 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                                     <Tag className="h-4 w-4 text-gray-500 dark:text-gray-400" />
                                                     {t("Product Type")}
                                                 </Label>
-                                                <Input
-                                                    id="type"
-                                                    type="text"
+                                                <Select
                                                     value={data.type}
-                                                    placeholder={t("Enter product type")}
-                                                    onChange={(e) => setData("type", e.target.value)}
-                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500/20 dark:focus:ring-blue-400/20"
-                                                />
+                                                    onValueChange={(value) => setData("type", value)}
+                                                >
+                                                    <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-blue-500/20 dark:focus:ring-blue-400/20">
+                                                        <SelectValue placeholder={t("Select product type")} />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="product">{t("Product")}</SelectItem>
+                                                        <SelectItem value="service">{t("Service")}</SelectItem>
+                                                        <SelectItem value="material">{t("Material")}</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                                 {errors.type && (
                                                     <div className="flex items-center gap-2 text-red-600 text-sm">
                                                         <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
@@ -165,207 +182,167 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                     </CardContent>
                                 </Card>
 
-                                {/* Pricing Information */}
+                                {/* Category and Unit Information */}
                                 <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
                                     <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                                         <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white">
-                                            <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
-                                            {t("Pricing Information")}
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="p-6 space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="purchase_price" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                                    {t("Purchase Price")}
-                                                </Label>
-                                                <Input
-                                                    id="purchase_price"
-                                                    type="number"
-                                                    step="0.01"
-                                                    value={data.purchase_price}
-                                                    placeholder="0.00"
-                                                    onChange={(e) => setData("purchase_price", e.target.value)}
-                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 dark:focus:ring-green-400/20"
-                                                />
-                                                {errors.purchase_price && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
-                                                        <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
-                                                            <span className="text-xs">!</span>
-                                                        </div>
-                                                        {errors.purchase_price}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="wholesale_price" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                                    {t("Wholesale Price")}
-                                                </Label>
-                                                <Input
-                                                    id="wholesale_price"
-                                                    type="number"
-                                                    step="0.01"
-                                                    value={data.wholesale_price}
-                                                    placeholder="0.00"
-                                                    onChange={(e) => setData("wholesale_price", e.target.value)}
-                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 dark:focus:ring-green-400/20"
-                                                />
-                                                {errors.wholesale_price && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
-                                                        <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
-                                                            <span className="text-xs">!</span>
-                                                        </div>
-                                                        {errors.wholesale_price}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="retail_price" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                                    {t("Retail Price")}
-                                                </Label>
-                                                <Input
-                                                    id="retail_price"
-                                                    type="number"
-                                                    step="0.01"
-                                                    value={data.retail_price}
-                                                    placeholder="0.00"
-                                                    onChange={(e) => setData("retail_price", e.target.value)}
-                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 dark:focus:ring-green-400/20"
-                                                />
-                                                {errors.retail_price && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
-                                                        <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
-                                                            <span className="text-xs">!</span>
-                                                        </div>
-                                                        {errors.retail_price}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                {/* Unit Configuration */}
-                                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
-                                    <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-                                        <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white">
-                                            <Scale className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                                            {t("Unit Configuration")}
+                                            <Tag className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                            {t("Category & Unit")}
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent className="p-6 space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
-                                                <Label htmlFor="wholesale_unit_id" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                <Label htmlFor="category_id" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                    <Tag className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                                                    {t("Category")}
+                                                </Label>
+                                                                                                <div className="space-y-3">
+                                                    <Select
+                                                        value={data.category_id}
+                                                        onValueChange={(value) => setData("category_id", value)}
+                                                    >
+                                                        <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 dark:focus:ring-green-400/20">
+                                                            <SelectValue placeholder={t("Select category")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="">{t("No Category")}</SelectItem>
+                                                            {categories.filter(cat => cat.level === 3).map((category) => (
+                                                                <SelectItem key={category.id} value={category.id.toString()}>
+                                                                    {category.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        onClick={() => setShowCategoryForm(!showCategoryForm)}
+                                                        className="w-full h-10 text-sm border-dashed border-2 border-green-200 hover:border-green-400 hover:bg-green-50 dark:border-green-700 dark:hover:border-green-600 dark:hover:bg-green-900/20"
+                                                    >
+                                                        <Plus className="w-4 h-4 mr-2" />
+                                                        {showCategoryForm ? t("Cancel Category Creation") : t("Create New Category")}
+                                                    </Button>
+                                                </div>
+                                                
+                                                {showCategoryForm && (
+                                                    <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-xl border border-green-200 dark:border-green-700">
+                                                        <form onSubmit={submitCategory} className="space-y-4">
+                                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                                <div>
+                                                                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                        {t("General Category")} *
+                                                                    </Label>
+                                                                    <Input
+                                                                        value={categoryData.general_name}
+                                                                        onChange={(e) => setCategoryData("general_name", e.target.value)}
+                                                                        placeholder={t("e.g., Electronics")}
+                                                                        className="mt-1 h-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                                                                    />
+                                                                    {categoryErrors.general_name && (
+                                                                        <p className="text-sm text-red-600 mt-1">{categoryErrors.general_name}</p>
+                                                                    )}
+                                                                </div>
+                                                                
+                                                                <div>
+                                                                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                        {t("Sub Category")} *
+                                                                    </Label>
+                                                                    <Input
+                                                                        value={categoryData.sub_name}
+                                                                        onChange={(e) => setCategoryData("sub_name", e.target.value)}
+                                                                        placeholder={t("e.g., Computers")}
+                                                                        className="mt-1 h-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                                                                    />
+                                                                    {categoryErrors.sub_name && (
+                                                                        <p className="text-sm text-red-600 mt-1">{categoryErrors.sub_name}</p>
+                                                                    )}
+                                                                </div>
+                                                                
+                                                                <div>
+                                                                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                        {t("Final Category")} *
+                                                                    </Label>
+                                                                    <Input
+                                                                        value={categoryData.final_name}
+                                                                        onChange={(e) => setCategoryData("final_name", e.target.value)}
+                                                                        placeholder={t("e.g., Laptops")}
+                                                                        className="mt-1 h-10 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                                                                    />
+                                                                    {categoryErrors.final_name && (
+                                                                        <p className="text-sm text-red-600 mt-1">{categoryErrors.final_name}</p>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            <div className="flex justify-end space-x-2">
+                                                                <Button
+                                                                    type="button"
+                                                                    variant="outline"
+                                                                    onClick={() => setShowCategoryForm(false)}
+                                                                    className="h-9 px-4"
+                                                                >
+                                                                    {t("Cancel")}
+                                                                </Button>
+                                                                <Button
+                                                                    type="submit"
+                                                                    disabled={categoryProcessing}
+                                                                    className="h-9 px-4 bg-green-600 hover:bg-green-700"
+                                                                >
+                                                                    {categoryProcessing ? (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                                            {t("Creating...")}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <div className="flex items-center gap-2">
+                                                                            <Plus className="w-4 h-4" />
+                                                                            {t("Create Category")}
+                                                                        </div>
+                                                                    )}
+                                                                </Button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                )}
+                                                {errors.category_id && (
+                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
+                                                        <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
+                                                            <span className="text-xs">!</span>
+                                                        </div>
+                                                        {errors.category_id}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label htmlFor="unit_id" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                                                     <Scale className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                                    {t("Wholesale Unit")}
+                                                    {t("Unit")}
                                                 </Label>
                                                 <Select
-                                                    value={data.wholesale_unit_id}
-                                                    onValueChange={(value) => setData("wholesale_unit_id", value)}
+                                                    value={data.unit_id}
+                                                    onValueChange={(value) => setData("unit_id", value)}
                                                 >
-                                                    <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-purple-500/20 dark:focus:ring-purple-400/20">
-                                                        <SelectValue placeholder={t("Select wholesale unit")} />
+                                                    <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-green-500 dark:focus:border-green-400 focus:ring-green-500/20 dark:focus:ring-green-400/20">
+                                                        <SelectValue placeholder={t("Select unit")} />
                                                     </SelectTrigger>
-                                                    <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                                                    <SelectContent>
+                                                        <SelectItem value="">{t("No Unit")}</SelectItem>
                                                         {units.map((unit) => (
-                                                            <SelectItem key={unit.id} value={unit.id.toString()} className="hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            <SelectItem key={unit.id} value={unit.id.toString()}>
                                                                 {unit.name}
                                                             </SelectItem>
                                                         ))}
                                                     </SelectContent>
                                                 </Select>
-                                                {errors.wholesale_unit_id && (
+                                                {errors.unit_id && (
                                                     <div className="flex items-center gap-2 text-red-600 text-sm">
                                                         <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
                                                             <span className="text-xs">!</span>
                                                         </div>
-                                                        {errors.wholesale_unit_id}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="retail_unit_id" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    <Scale className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                                    {t("Retail Unit")}
-                                                </Label>
-                                                <Select
-                                                    value={data.retail_unit_id}
-                                                    onValueChange={(value) => setData("retail_unit_id", value)}
-                                                >
-                                                    <SelectTrigger className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-purple-500/20 dark:focus:ring-purple-400/20">
-                                                        <SelectValue placeholder={t("Select retail unit")} />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                                                        {units.map((unit) => (
-                                                            <SelectItem key={unit.id} value={unit.id.toString()} className="hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                                {unit.name}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                                {errors.retail_unit_id && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
-                                                        <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
-                                                            <span className="text-xs">!</span>
-                                                        </div>
-                                                        {errors.retail_unit_id}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="whole_sale_unit_amount" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                                    {t("Wholesale Unit Amount")}
-                                                </Label>
-                                                <Input
-                                                    id="whole_sale_unit_amount"
-                                                    type="number"
-                                                    step="0.01"
-                                                    value={data.whole_sale_unit_amount}
-                                                    placeholder="0.00"
-                                                    onChange={(e) => setData("whole_sale_unit_amount", e.target.value)}
-                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-purple-500/20 dark:focus:ring-purple-400/20"
-                                                />
-                                                {errors.whole_sale_unit_amount && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
-                                                        <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
-                                                            <span className="text-xs">!</span>
-                                                        </div>
-                                                        {errors.whole_sale_unit_amount}
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="space-y-2">
-                                                <Label htmlFor="retails_sale_unit_amount" className="flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                                    <DollarSign className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                                                    {t("Retail Unit Amount")}
-                                                </Label>
-                                                <Input
-                                                    id="retails_sale_unit_amount"
-                                                    type="number"
-                                                    step="0.01"
-                                                    value={data.retails_sale_unit_amount}
-                                                    placeholder="0.00"
-                                                    onChange={(e) => setData("retails_sale_unit_amount", e.target.value)}
-                                                    className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:border-purple-500 dark:focus:border-purple-400 focus:ring-purple-500/20 dark:focus:ring-purple-400/20"
-                                                />
-                                                {errors.retails_sale_unit_amount && (
-                                                    <div className="flex items-center gap-2 text-red-600 text-sm">
-                                                        <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
-                                                            <span className="text-xs">!</span>
-                                                        </div>
-                                                        {errors.retails_sale_unit_amount}
+                                                        {errors.unit_id}
                                                     </div>
                                                 )}
                                             </div>
@@ -373,100 +350,65 @@ export default function Edit({ auth, product, units = [], permissions = {} }) {
                                     </CardContent>
                                 </Card>
 
-                                {/* Status Configuration */}
+                                {/* Status */}
                                 <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-sm">
                                     <CardHeader className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
                                         <CardTitle className="flex items-center gap-3 text-lg font-semibold text-gray-900 dark:text-white">
-                                            <Activity className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                                            {t("Status Configuration")}
+                                            <Activity className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                                            {t("Status")}
                                         </CardTitle>
                                     </CardHeader>
-                                    <CardContent className="p-6 space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-200 dark:border-gray-600">
-                                                <Checkbox
-                                                    id="is_activated"
-                                                    checked={data.is_activated}
-                                                    onCheckedChange={(checked) => setData("is_activated", checked)}
-                                                    className="scale-110"
-                                                />
-                                                <Label
-                                                    htmlFor="is_activated"
-                                                    className="text-sm font-medium cursor-pointer flex-1 text-gray-700 dark:text-gray-300"
-                                                >
-                                                    {t("Product is Activated")}
-                                                </Label>
-                                            </div>
-
-                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-200 dark:border-gray-600">
-                                                <Checkbox
-                                                    id="is_in_stock"
-                                                    checked={data.is_in_stock}
-                                                    onCheckedChange={(checked) => setData("is_in_stock", checked)}
-                                                    className="scale-110"
-                                                />
-                                                <Label
-                                                    htmlFor="is_in_stock"
-                                                    className="text-sm font-medium cursor-pointer flex-1 text-gray-700 dark:text-gray-300"
-                                                >
-                                                    {t("Product is in Stock")}
-                                                </Label>
-                                            </div>
-
-                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-200 dark:border-gray-600">
-                                                <Checkbox
-                                                    id="is_shipped"
-                                                    checked={data.is_shipped}
-                                                    onCheckedChange={(checked) => setData("is_shipped", checked)}
-                                                    className="scale-110"
-                                                />
-                                                <Label
-                                                    htmlFor="is_shipped"
-                                                    className="text-sm font-medium cursor-pointer flex-1 text-gray-700 dark:text-gray-300"
-                                                >
-                                                    {t("Product is Shipped")}
-                                                </Label>
-                                            </div>
-
-                                            <div className="flex items-center space-x-3 p-4 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 border border-gray-200 dark:border-gray-600">
-                                                <Checkbox
-                                                    id="is_trend"
-                                                    checked={data.is_trend}
-                                                    onCheckedChange={(checked) => setData("is_trend", checked)}
-                                                    className="scale-110"
-                                                />
-                                                <Label
-                                                    htmlFor="is_trend"
-                                                    className="text-sm font-medium cursor-pointer flex-1 text-gray-700 dark:text-gray-300"
-                                                >
-                                                    {t("Product is Trending")}
-                                                </Label>
-                                            </div>
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center space-x-2">
+                                            <Checkbox
+                                                id="status"
+                                                checked={data.status}
+                                                onCheckedChange={(checked) => setData("status", checked)}
+                                                className="data-[state=checked]:bg-purple-600 data-[state=checked]:border-purple-600"
+                                            />
+                                            <Label htmlFor="status" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                {t("Active Status")}
+                                            </Label>
                                         </div>
+                                        {errors.status && (
+                                            <div className="flex items-center gap-2 text-red-600 text-sm mt-2">
+                                                <div className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center">
+                                                    <span className="text-xs">!</span>
+                                                </div>
+                                                {errors.status}
+                                            </div>
+                                        )}
                                     </CardContent>
                                 </Card>
 
-                                {/* Action Buttons */}
-                                <div className="flex items-center justify-end space-x-4 pt-6">
+                                {/* Submit Button */}
+                                <div className="flex justify-end space-x-4">
                                     <Link href={route("admin.products.index")}>
                                         <Button
                                             type="button"
                                             variant="outline"
-                                            className="px-6 py-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                                            className="px-6 py-2"
                                         >
                                             {t("Cancel")}
                                         </Button>
                                     </Link>
-                                    {permissions.update_product && (
-                                        <Button
-                                            type="submit"
-                                            disabled={processing}
-                                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white shadow-sm hover:shadow-md transition-all duration-200"
-                                        >
-                                            <Save className="h-4 w-4 mr-2" />
-                                            {processing ? t("Updating...") : t("Update Product")}
-                                        </Button>
-                                    )}
+                                    <Button
+                                        type="submit"
+                                        disabled={processing}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2"
+                                    >
+                                        {processing ? (
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                {t("Updating...")}
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-2">
+                                                <Save className="w-4 h-4" />
+                                                {t("Update Product")}
+                                            </div>
+                                        )}
+                                    </Button>
                                 </div>
                             </form>
                         </div>

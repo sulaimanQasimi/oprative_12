@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\CurrencyController;
 use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\WarehouseController;
 use App\Http\Controllers\Admin\UnitController;
 use App\Http\Controllers\Admin\EmployeeController;
@@ -152,11 +153,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/', [ProductController::class, 'index'])->name('admin.products.index');
         Route::get('/create', [ProductController::class, 'create'])->name('admin.products.create');
         Route::post('/', [ProductController::class, 'store'])->name('admin.products.store');
+        Route::get('/{product:id}', [ProductController::class, 'show'])->name('admin.products.show');
         Route::get('/{product:id}/edit', [ProductController::class, 'edit'])->name('admin.products.edit');
         Route::put('/{product:id}', [ProductController::class, 'update'])->name('admin.products.update');
         Route::delete('/{product:id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
         Route::patch('/{id}/restore', [ProductController::class, 'restore'])->name('admin.products.restore');
         Route::delete('/{id}/force', [ProductController::class, 'forceDelete'])->name('admin.products.force-delete');
+    });
+
+    // Category Management
+    Route::prefix('categories')->group(function () {
+        Route::post('/', [CategoryController::class, 'store'])->name('admin.categories.store');
+        Route::get('/', [CategoryController::class, 'index'])->name('admin.categories.index');
+        Route::get('/by-level', [CategoryController::class, 'getByLevel'])->name('admin.categories.by-level');
     });
 
     // Employee Management

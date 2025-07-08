@@ -4,7 +4,6 @@ import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     ArrowLeft,
     Save,
-    DollarSign,
     Package,
     Barcode,
     Tag,
@@ -15,6 +14,7 @@ import {
     AlertCircle,
     CheckCircle,
     Info,
+    Plus,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -40,25 +40,30 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function Create({ auth, units = [], permissions = {} }) {
+export default function Create({ auth, units = [], categories = [], permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
+    const [showCategoryForm, setShowCategoryForm] = useState(false);
+    const [generalCategories, setGeneralCategories] = useState([]);
+    const [subCategories, setSubCategories] = useState([]);
+    const [finalCategories, setFinalCategories] = useState([]);
+    const [selectedGeneralCategory, setSelectedGeneralCategory] = useState("");
+    const [selectedSubCategory, setSelectedSubCategory] = useState("");
+    
     const { data, setData, post, processing, errors, reset } = useForm({
-        type: "",
+        type: "product",
         name: "",
         barcode: "",
-        purchase_price: "",
-        wholesale_price: "",
-        retail_price: "",
-        is_activated: false,
-        is_in_stock: false,
-        is_shipped: false,
-        is_trend: false,
-        wholesale_unit_id: "",
-        retail_unit_id: "",
-        whole_sale_unit_amount: "",
-        retails_sale_unit_amount: "",
+        category_id: "",
+        unit_id: "",
+        status: true,
+    });
+
+    const { data: categoryData, setData: setCategoryData, post: postCategory, processing: categoryProcessing, errors: categoryErrors, reset: resetCategory } = useForm({
+        general_name: "",
+        sub_name: "",
+        final_name: "",
     });
 
     // Animation effect
@@ -74,6 +79,53 @@ export default function Create({ auth, units = [], permissions = {} }) {
         e.preventDefault();
         post(route("admin.products.store"));
     }
+
+    function submitCategory(e) {
+        e.preventDefault();
+        postCategory(route("admin.categories.store"), {
+            onSuccess: () => {
+                resetCategory();
+                setShowCategoryForm(false);
+                // Refresh the page to get updated categories
+                window.location.reload();
+            },
+        });
+    }
+
+    // Load categories by level
+    useEffect(() => {
+        if (categories.length > 0) {
+            const general = categories.filter(cat => cat.level === 1);
+            setGeneralCategories(general);
+        }
+    }, [categories]);
+
+    // Load sub-categories when general category is selected
+    useEffect(() => {
+        if (selectedGeneralCategory) {
+            const sub = categories.filter(cat => 
+                cat.parent_id === parseInt(selectedGeneralCategory) && cat.level === 2
+            );
+            setSubCategories(sub);
+            setSelectedSubCategory("");
+            setFinalCategories([]);
+        } else {
+            setSubCategories([]);
+            setFinalCategories([]);
+        }
+    }, [selectedGeneralCategory, categories]);
+
+    // Load final categories when sub-category is selected
+    useEffect(() => {
+        if (selectedSubCategory) {
+            const final = categories.filter(cat => 
+                cat.parent_id === parseInt(selectedSubCategory) && cat.level === 3
+            );
+            setFinalCategories(final);
+        } else {
+            setFinalCategories([]);
+        }
+    }, [selectedSubCategory, categories]);
 
     return (
         <>
@@ -290,7 +342,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.8, duration: 0.5 }}
-                                className="max-w-5xl mx-auto"
+                                className="max-w-4xl mx-auto"
                             >
                                 <form onSubmit={submit} className="space-y-8">
                                     {/* Form Card */}
@@ -318,7 +370,7 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                 </CardTitle>
                                                 <CardDescription className="text-slate-600 dark:text-slate-300 font-medium">
                                                     {t(
-                                                        "Fill in the details for the new product with proper validation"
+                                                        "Fill in the details for the new product"
                                                     )}
                                                 </CardDescription>
                                             </CardHeader>
@@ -378,26 +430,19 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                             {t("Product Type")}{" "}
                                                             *
                                                         </Label>
-                                                        <Input
-                                                            id="type"
-                                                            type="text"
+                                                        <Select
                                                             value={data.type}
-                                                            placeholder={t(
-                                                                "Enter product type"
-                                                            )}
-                                                            onChange={(e) =>
-                                                                setData(
-                                                                    "type",
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            }
-                                                            className={`input-field h-14 text-lg transition-all duration-200 ${
-                                                                errors.type
-                                                                    ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
-                                                                    : ""
-                                                            }`}
-                                                        />
+                                                            onValueChange={(value) => setData("type", value)}
+                                                        >
+                                                            <SelectTrigger className="input-field h-14 text-lg">
+                                                                <SelectValue placeholder={t("Select product type")} />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="product">{t("Product")}</SelectItem>
+                                                                <SelectItem value="service">{t("Service")}</SelectItem>
+                                                                <SelectItem value="material">{t("Material")}</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
                                                         {errors.type && (
                                                             <motion.p
                                                                 initial={{
@@ -538,8 +583,8 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                     )}
                                                 </motion.div>
 
-                                                {/* Pricing Information */}
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                                {/* Category and Unit */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                     <motion.div
                                                         initial={{
                                                             x: -20,
@@ -556,40 +601,134 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                         className="space-y-3"
                                                     >
                                                         <Label
-                                                            htmlFor="purchase_price"
+                                                            htmlFor="category_id"
                                                             className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
-                                                            <DollarSign className="w-4 h-4 text-green-600 dark:text-green-400" />
-                                                            {t(
-                                                                "Purchase Price"
-                                                            )}{" "}
-                                                            *
+                                                            <Tag className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                                                            {t("Category")}
+                                                            <Badge
+                                                                variant="secondary"
+                                                                className="text-xs bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                                                            >
+                                                                {t("Optional")}
+                                                            </Badge>
                                                         </Label>
-                                                        <div className="relative">
-                                                            <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                            <Input
-                                                                id="purchase_price"
-                                                                type="number"
-                                                                step="0.01"
-                                                                value={
-                                                                    data.purchase_price
-                                                                }
-                                                                placeholder="0.00"
-                                                                onChange={(e) =>
-                                                                    setData(
-                                                                        "purchase_price",
-                                                                        e.target
-                                                                            .value
-                                                                    )
-                                                                }
-                                                                className={`input-field pl-12 h-14 text-lg transition-all duration-200 ${
-                                                                    errors.purchase_price
-                                                                        ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
-                                                                        : ""
-                                                                }`}
-                                                            />
+                                                        <div className="space-y-3">
+                                                            <Select
+                                                                value={data.category_id}
+                                                                onValueChange={(value) => setData("category_id", value)}
+                                                            >
+                                                                <SelectTrigger className="input-field h-14 text-lg">
+                                                                    <SelectValue placeholder={t("Select category")} />
+                                                                </SelectTrigger>
+                                                                                                                            <SelectContent>
+                                                                <SelectItem value="">{t("No Category")}</SelectItem>
+                                                                {categories.filter(cat => cat.level === 3).map((category) => (
+                                                                    <SelectItem key={category.id} value={category.id.toString()}>
+                                                                        {category.name}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                            </Select>
+                                                            
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                onClick={() => setShowCategoryForm(!showCategoryForm)}
+                                                                className="w-full h-10 text-sm border-dashed border-2 border-indigo-200 hover:border-indigo-400 hover:bg-indigo-50 dark:border-indigo-700 dark:hover:border-indigo-600 dark:hover:bg-indigo-900/20"
+                                                            >
+                                                                <Plus className="w-4 h-4 mr-2" />
+                                                                {showCategoryForm ? t("Cancel Category Creation") : t("Create New Category")}
+                                                            </Button>
                                                         </div>
-                                                        {errors.purchase_price && (
+                                                        
+                                                        {showCategoryForm && (
+                                                            <motion.div
+                                                                initial={{ opacity: 0, height: 0 }}
+                                                                animate={{ opacity: 1, height: "auto" }}
+                                                                exit={{ opacity: 0, height: 0 }}
+                                                                className="mt-4 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-xl border border-indigo-200 dark:border-indigo-700"
+                                                            >
+                                                                <form onSubmit={submitCategory} className="space-y-4">
+                                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                                        <div>
+                                                                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                                {t("General Category")} *
+                                                                            </Label>
+                                                                            <Input
+                                                                                value={categoryData.general_name}
+                                                                                onChange={(e) => setCategoryData("general_name", e.target.value)}
+                                                                                placeholder={t("e.g., Electronics")}
+                                                                                className="mt-1 h-10"
+                                                                            />
+                                                                            {categoryErrors.general_name && (
+                                                                                <p className="text-sm text-red-600 mt-1">{categoryErrors.general_name}</p>
+                                                                            )}
+                                                                        </div>
+                                                                        
+                                                                        <div>
+                                                                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                                {t("Sub Category")} *
+                                                                            </Label>
+                                                                            <Input
+                                                                                value={categoryData.sub_name}
+                                                                                onChange={(e) => setCategoryData("sub_name", e.target.value)}
+                                                                                placeholder={t("e.g., Computers")}
+                                                                                className="mt-1 h-10"
+                                                                            />
+                                                                            {categoryErrors.sub_name && (
+                                                                                <p className="text-sm text-red-600 mt-1">{categoryErrors.sub_name}</p>
+                                                                            )}
+                                                                        </div>
+                                                                        
+                                                                        <div>
+                                                                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                                                                {t("Final Category")} *
+                                                                            </Label>
+                                                                            <Input
+                                                                                value={categoryData.final_name}
+                                                                                onChange={(e) => setCategoryData("final_name", e.target.value)}
+                                                                                placeholder={t("e.g., Laptops")}
+                                                                                className="mt-1 h-10"
+                                                                            />
+                                                                            {categoryErrors.final_name && (
+                                                                                <p className="text-sm text-red-600 mt-1">{categoryErrors.final_name}</p>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    <div className="flex justify-end space-x-2">
+                                                                        <Button
+                                                                            type="button"
+                                                                            variant="outline"
+                                                                            onClick={() => setShowCategoryForm(false)}
+                                                                            className="h-9 px-4"
+                                                                        >
+                                                                            {t("Cancel")}
+                                                                        </Button>
+                                                                        <Button
+                                                                            type="submit"
+                                                                            disabled={categoryProcessing}
+                                                                            className="h-9 px-4 bg-indigo-600 hover:bg-indigo-700"
+                                                                        >
+                                                                            {categoryProcessing ? (
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                                                                    {t("Creating...")}
+                                                                                </div>
+                                                                            ) : (
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Plus className="w-4 h-4" />
+                                                                                    {t("Create Category")}
+                                                                                </div>
+                                                                            )}
+                                                                        </Button>
+                                                                    </div>
+                                                                </form>
+                                                            </motion.div>
+                                                        )}
+                                                        
+                                                        {errors.category_id && (
                                                             <motion.p
                                                                 initial={{
                                                                     opacity: 0,
@@ -600,20 +739,18 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
-                                                                {
-                                                                    errors.purchase_price
-                                                                }
+                                                                {errors.category_id}
                                                             </motion.p>
                                                         )}
                                                     </motion.div>
 
                                                     <motion.div
                                                         initial={{
-                                                            y: 0,
+                                                            x: 20,
                                                             opacity: 0,
                                                         }}
                                                         animate={{
-                                                            y: 0,
+                                                            x: 0,
                                                             opacity: 1,
                                                         }}
                                                         transition={{
@@ -623,194 +760,35 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                         className="space-y-3"
                                                     >
                                                         <Label
-                                                            htmlFor="wholesale_price"
-                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
-                                                        >
-                                                            <DollarSign className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                                            {t(
-                                                                "Wholesale Price"
-                                                            )}{" "}
-                                                            *
-                                                        </Label>
-                                                        <div className="relative">
-                                                            <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                            <Input
-                                                                id="wholesale_price"
-                                                                type="number"
-                                                                step="0.01"
-                                                                value={
-                                                                    data.wholesale_price
-                                                                }
-                                                                placeholder="0.00"
-                                                                onChange={(e) =>
-                                                                    setData(
-                                                                        "wholesale_price",
-                                                                        e.target
-                                                                            .value
-                                                                    )
-                                                                }
-                                                                className={`input-field pl-12 h-14 text-lg transition-all duration-200 ${
-                                                                    errors.wholesale_price
-                                                                        ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
-                                                                        : ""
-                                                                }`}
-                                                            />
-                                                        </div>
-                                                        {errors.wholesale_price && (
-                                                            <motion.p
-                                                                initial={{
-                                                                    opacity: 0,
-                                                                }}
-                                                                animate={{
-                                                                    opacity: 1,
-                                                                }}
-                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {
-                                                                    errors.wholesale_price
-                                                                }
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
-
-                                                    <motion.div
-                                                        initial={{
-                                                            x: 20,
-                                                            opacity: 0,
-                                                        }}
-                                                        animate={{
-                                                            x: 0,
-                                                            opacity: 1,
-                                                        }}
-                                                        transition={{
-                                                            delay: 1.5,
-                                                            duration: 0.4,
-                                                        }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label
-                                                            htmlFor="retail_price"
-                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
-                                                        >
-                                                            <DollarSign className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                                                            {t("Retail Price")}{" "}
-                                                            *
-                                                        </Label>
-                                                        <div className="relative">
-                                                            <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                            <Input
-                                                                id="retail_price"
-                                                                type="number"
-                                                                step="0.01"
-                                                                value={
-                                                                    data.retail_price
-                                                                }
-                                                                placeholder="0.00"
-                                                                onChange={(e) =>
-                                                                    setData(
-                                                                        "retail_price",
-                                                                        e.target
-                                                                            .value
-                                                                    )
-                                                                }
-                                                                className={`input-field pl-12 h-14 text-lg transition-all duration-200 ${
-                                                                    errors.retail_price
-                                                                        ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
-                                                                        : ""
-                                                                }`}
-                                                            />
-                                                        </div>
-                                                        {errors.retail_price && (
-                                                            <motion.p
-                                                                initial={{
-                                                                    opacity: 0,
-                                                                }}
-                                                                animate={{
-                                                                    opacity: 1,
-                                                                }}
-                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {
-                                                                    errors.retail_price
-                                                                }
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
-                                                </div>
-
-                                                {/* Unit Information */}
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                    <motion.div
-                                                        initial={{
-                                                            x: -20,
-                                                            opacity: 0,
-                                                        }}
-                                                        animate={{
-                                                            x: 0,
-                                                            opacity: 1,
-                                                        }}
-                                                        transition={{
-                                                            delay: 1.6,
-                                                            duration: 0.4,
-                                                        }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label
-                                                            htmlFor="wholesale_unit_id"
+                                                            htmlFor="unit_id"
                                                             className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
                                                             <Scale className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                                                            {t(
-                                                                "Wholesale Unit"
-                                                            )}{" "}
-                                                            *
+                                                            {t("Unit")}
+                                                            <Badge
+                                                                variant="secondary"
+                                                                className="text-xs bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                                                            >
+                                                                {t("Optional")}
+                                                            </Badge>
                                                         </Label>
                                                         <Select
-                                                            value={
-                                                                data.wholesale_unit_id
-                                                            }
-                                                            onValueChange={(
-                                                                value
-                                                            ) =>
-                                                                setData(
-                                                                    "wholesale_unit_id",
-                                                                    value
-                                                                )
-                                                            }
+                                                            value={data.unit_id}
+                                                            onValueChange={(value) => setData("unit_id", value)}
                                                         >
-                                                            <SelectTrigger
-                                                                className={`input-field h-14 text-lg transition-all duration-200 ${
-                                                                    errors.wholesale_unit_id
-                                                                        ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
-                                                                        : ""
-                                                                }`}
-                                                            >
-                                                                <SelectValue
-                                                                    placeholder={t(
-                                                                        "Select wholesale unit"
-                                                                    )}
-                                                                />
+                                                            <SelectTrigger className="input-field h-14 text-lg">
+                                                                <SelectValue placeholder={t("Select unit")} />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                {units.map(
-                                                                    (unit) => (
-                                                                        <SelectItem
-                                                                            key={
-                                                                                unit.id
-                                                                            }
-                                                                            value={unit.id.toString()}
-                                                                        >
-                                                                            {
-                                                                                unit.name
-                                                                            }
-                                                                        </SelectItem>
-                                                                    )
-                                                                )}
+                                                                <SelectItem value="">{t("No Unit")}</SelectItem>
+                                                                {units.map((unit) => (
+                                                                    <SelectItem key={unit.id} value={unit.id.toString()}>
+                                                                        {unit.name}
+                                                                    </SelectItem>
+                                                                ))}
                                                             </SelectContent>
                                                         </Select>
-                                                        {errors.wholesale_unit_id && (
+                                                        {errors.unit_id && (
                                                             <motion.p
                                                                 initial={{
                                                                     opacity: 0,
@@ -821,354 +799,60 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                                                 className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                             >
                                                                 <AlertCircle className="w-4 h-4" />
-                                                                {
-                                                                    errors.wholesale_unit_id
-                                                                }
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
-
-                                                    <motion.div
-                                                        initial={{
-                                                            x: 20,
-                                                            opacity: 0,
-                                                        }}
-                                                        animate={{
-                                                            x: 0,
-                                                            opacity: 1,
-                                                        }}
-                                                        transition={{
-                                                            delay: 1.7,
-                                                            duration: 0.4,
-                                                        }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label
-                                                            htmlFor="retail_unit_id"
-                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
-                                                        >
-                                                            <Scale className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                                                            {t("Retail Unit")} *
-                                                        </Label>
-                                                        <Select
-                                                            value={
-                                                                data.retail_unit_id
-                                                            }
-                                                            onValueChange={(
-                                                                value
-                                                            ) =>
-                                                                setData(
-                                                                    "retail_unit_id",
-                                                                    value
-                                                                )
-                                                            }
-                                                        >
-                                                            <SelectTrigger
-                                                                className={`input-field h-14 text-lg transition-all duration-200 ${
-                                                                    errors.retail_unit_id
-                                                                        ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
-                                                                        : ""
-                                                                }`}
-                                                            >
-                                                                <SelectValue
-                                                                    placeholder={t(
-                                                                        "Select retail unit"
-                                                                    )}
-                                                                />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {units.map(
-                                                                    (unit) => (
-                                                                        <SelectItem
-                                                                            key={
-                                                                                unit.id
-                                                                            }
-                                                                            value={unit.id.toString()}
-                                                                        >
-                                                                            {
-                                                                                unit.name
-                                                                            }
-                                                                        </SelectItem>
-                                                                    )
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        {errors.retail_unit_id && (
-                                                            <motion.p
-                                                                initial={{
-                                                                    opacity: 0,
-                                                                }}
-                                                                animate={{
-                                                                    opacity: 1,
-                                                                }}
-                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {
-                                                                    errors.retail_unit_id
-                                                                }
+                                                                {errors.unit_id}
                                                             </motion.p>
                                                         )}
                                                     </motion.div>
                                                 </div>
 
-                                                {/* Unit Amounts */}
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                    <motion.div
-                                                        initial={{
-                                                            x: -20,
-                                                            opacity: 0,
-                                                        }}
-                                                        animate={{
-                                                            x: 0,
-                                                            opacity: 1,
-                                                        }}
-                                                        transition={{
-                                                            delay: 1.8,
-                                                            duration: 0.4,
-                                                        }}
-                                                        className="space-y-3"
-                                                    >
+                                                {/* Status */}
+                                                <motion.div
+                                                    initial={{
+                                                        y: 20,
+                                                        opacity: 0,
+                                                    }}
+                                                    animate={{
+                                                        y: 0,
+                                                        opacity: 1,
+                                                    }}
+                                                    transition={{
+                                                        delay: 1.5,
+                                                        duration: 0.4,
+                                                    }}
+                                                    className="space-y-3"
+                                                >
+                                                    <div className="flex items-center space-x-2">
+                                                        <Checkbox
+                                                            id="status"
+                                                            checked={data.status}
+                                                            onCheckedChange={(checked) =>
+                                                                setData("status", checked)
+                                                            }
+                                                            className="data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                                                        />
                                                         <Label
-                                                            htmlFor="whole_sale_unit_amount"
+                                                            htmlFor="status"
                                                             className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
                                                         >
                                                             <Activity className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                                                            {t(
-                                                                "Wholesale Unit Amount"
-                                                            )}{" "}
-                                                            *
+                                                            {t("Active Status")}
                                                         </Label>
-                                                        <Input
-                                                            id="whole_sale_unit_amount"
-                                                            type="number"
-                                                            step="0.01"
-                                                            value={
-                                                                data.whole_sale_unit_amount
-                                                            }
-                                                            placeholder="0"
-                                                            onChange={(e) =>
-                                                                setData(
-                                                                    "whole_sale_unit_amount",
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            }
-                                                            className={`input-field h-14 text-lg transition-all duration-200 ${
-                                                                errors.whole_sale_unit_amount
-                                                                    ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
-                                                                    : ""
-                                                            }`}
-                                                        />
-                                                        {errors.whole_sale_unit_amount && (
-                                                            <motion.p
-                                                                initial={{
-                                                                    opacity: 0,
-                                                                }}
-                                                                animate={{
-                                                                    opacity: 1,
-                                                                }}
-                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {
-                                                                    errors.whole_sale_unit_amount
-                                                                }
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
-
-                                                    <motion.div
-                                                        initial={{
-                                                            x: 20,
-                                                            opacity: 0,
-                                                        }}
-                                                        animate={{
-                                                            x: 0,
-                                                            opacity: 1,
-                                                        }}
-                                                        transition={{
-                                                            delay: 1.9,
-                                                            duration: 0.4,
-                                                        }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label
-                                                            htmlFor="retails_sale_unit_amount"
-                                                            className="text-slate-700 dark:text-slate-200 font-semibold text-base flex items-center gap-2"
+                                                    </div>
+                                                    {errors.status && (
+                                                        <motion.p
+                                                            initial={{
+                                                                opacity: 0,
+                                                            }}
+                                                            animate={{
+                                                                opacity: 1,
+                                                            }}
+                                                            className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
                                                         >
-                                                            <Activity className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
-                                                            {t(
-                                                                "Retail Unit Amount"
-                                                            )}{" "}
-                                                            *
-                                                        </Label>
-                                                        <Input
-                                                            id="retails_sale_unit_amount"
-                                                            type="number"
-                                                            step="0.01"
-                                                            value={
-                                                                data.retails_sale_unit_amount
-                                                            }
-                                                            placeholder="0"
-                                                            onChange={(e) =>
-                                                                setData(
-                                                                    "retails_sale_unit_amount",
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            }
-                                                            className={`input-field h-14 text-lg transition-all duration-200 ${
-                                                                errors.retails_sale_unit_amount
-                                                                    ? "border-red-500 ring-2 ring-red-200 dark:ring-red-800"
-                                                                    : ""
-                                                            }`}
-                                                        />
-                                                        {errors.retails_sale_unit_amount && (
-                                                            <motion.p
-                                                                initial={{
-                                                                    opacity: 0,
-                                                                }}
-                                                                animate={{
-                                                                    opacity: 1,
-                                                                }}
-                                                                className="text-sm text-red-600 dark:text-red-400 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {
-                                                                    errors.retails_sale_unit_amount
-                                                                }
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
-                                                </div>
-
-                                                {/* Status Options */}
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                    <motion.div
-                                                        initial={{
-                                                            y: 20,
-                                                            opacity: 0,
-                                                        }}
-                                                        animate={{
-                                                            y: 0,
-                                                            opacity: 1,
-                                                        }}
-                                                        transition={{
-                                                            delay: 2.0,
-                                                            duration: 0.4,
-                                                        }}
-                                                        className="space-y-4"
-                                                    >
-                                                        <div className="flex items-center space-x-2">
-                                                            <Checkbox
-                                                                id="is_activated"
-                                                                checked={
-                                                                    data.is_activated
-                                                                }
-                                                                onCheckedChange={(
-                                                                    checked
-                                                                ) =>
-                                                                    setData(
-                                                                        "is_activated",
-                                                                        checked
-                                                                    )
-                                                                }
-                                                            />
-                                                            <Label
-                                                                htmlFor="is_activated"
-                                                                className="text-slate-700 dark:text-slate-200 font-medium"
-                                                            >
-                                                                {t(
-                                                                    "Activate Product"
-                                                                )}
-                                                            </Label>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <Checkbox
-                                                                id="is_in_stock"
-                                                                checked={
-                                                                    data.is_in_stock
-                                                                }
-                                                                onCheckedChange={(
-                                                                    checked
-                                                                ) =>
-                                                                    setData(
-                                                                        "is_in_stock",
-                                                                        checked
-                                                                    )
-                                                                }
-                                                            />
-                                                            <Label
-                                                                htmlFor="is_in_stock"
-                                                                className="text-slate-700 dark:text-slate-200 font-medium"
-                                                            >
-                                                                {t("In Stock")}
-                                                            </Label>
-                                                        </div>
-                                                    </motion.div>
-
-                                                    <motion.div
-                                                        initial={{
-                                                            y: 20,
-                                                            opacity: 0,
-                                                        }}
-                                                        animate={{
-                                                            y: 0,
-                                                            opacity: 1,
-                                                        }}
-                                                        transition={{
-                                                            delay: 2.1,
-                                                            duration: 0.4,
-                                                        }}
-                                                        className="space-y-4"
-                                                    >
-                                                        <div className="flex items-center space-x-2">
-                                                            <Checkbox
-                                                                id="is_shipped"
-                                                                checked={
-                                                                    data.is_shipped
-                                                                }
-                                                                onCheckedChange={(
-                                                                    checked
-                                                                ) =>
-                                                                    setData(
-                                                                        "is_shipped",
-                                                                        checked
-                                                                    )
-                                                                }
-                                                            />
-                                                            <Label
-                                                                htmlFor="is_shipped"
-                                                                className="text-slate-700 dark:text-slate-200 font-medium"
-                                                            >
-                                                                {t("Shipped")}
-                                                            </Label>
-                                                        </div>
-                                                        <div className="flex items-center space-x-2">
-                                                            <Checkbox
-                                                                id="is_trend"
-                                                                checked={
-                                                                    data.is_trend
-                                                                }
-                                                                onCheckedChange={(
-                                                                    checked
-                                                                ) =>
-                                                                    setData(
-                                                                        "is_trend",
-                                                                        checked
-                                                                    )
-                                                                }
-                                                            />
-                                                            <Label
-                                                                htmlFor="is_trend"
-                                                                className="text-slate-700 dark:text-slate-200 font-medium"
-                                                            >
-                                                                {t("Trending")}
-                                                            </Label>
-                                                        </div>
-                                                    </motion.div>
-                                                </div>
+                                                            <AlertCircle className="w-4 h-4" />
+                                                            {errors.status}
+                                                        </motion.p>
+                                                    )}
+                                                </motion.div>
                                             </CardContent>
                                         </Card>
                                     </motion.div>
@@ -1178,37 +862,26 @@ export default function Create({ auth, units = [], permissions = {} }) {
                                         initial={{ y: 20, opacity: 0 }}
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{
-                                            delay: 2.2,
+                                            delay: 1.6,
                                             duration: 0.4,
                                         }}
-                                        className="flex justify-end space-x-6 pt-6"
+                                        className="flex justify-end"
                                     >
-                                        <Link
-                                            href={route("admin.products.index")}
-                                        >
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200 dark:text-white"
-                                            >
-                                                {t("Cancel")}
-                                            </Button>
-                                        </Link>
                                         <Button
                                             type="submit"
                                             disabled={processing}
-                                            className="px-8 py-4 text-lg shadow-lg transition-all duration-200 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 hover:scale-105 text-white font-semibold"
+                                            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                                         >
                                             {processing ? (
-                                                <>
-                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                                                     {t("Creating...")}
-                                                </>
+                                                </div>
                                             ) : (
-                                                <>
-                                                    <Save className="h-5 w-5 mr-3" />
+                                                <div className="flex items-center gap-2">
+                                                    <Save className="w-5 h-5" />
                                                     {t("Create Product")}
-                                                </>
+                                                </div>
                                             )}
                                         </Button>
                                     </motion.div>

@@ -26,7 +26,7 @@ class ProductController extends Controller
     {
         $this->authorize('view_any_product');
 
-        $query = Product::with(['wholesaleUnit', 'retailUnit']);
+        $query = Product::with(['category', 'unit']);
 
         // Include trashed products if requested
         if ($request->input('show_trashed') === 'true') {
@@ -49,10 +49,8 @@ class ProductController extends Controller
         if ($request->filled('status') && $request->input('status') !== 'all') {
             $status = $request->input('status');
             match ($status) {
-                'active' => $query->where('is_activated', true),
-                'inactive' => $query->where('is_activated', false),
-                'in_stock' => $query->where('is_in_stock', true),
-                'trending' => $query->where('is_trend', true),
+                'active' => $query->where('status', true),
+                'inactive' => $query->where('status', false),
                 default => null,
             };
         }
@@ -60,6 +58,11 @@ class ProductController extends Controller
         // Apply type filter
         if ($request->filled('type') && $request->input('type') !== 'all') {
             $query->where('type', $request->input('type'));
+        }
+
+        // Apply category filter
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
         }
 
         // Apply sorting
@@ -73,10 +76,14 @@ class ProductController extends Controller
         // Get unique product types for filter
         $productTypes = Product::distinct()->pluck('type')->filter();
 
+        // Get categories for filter
+        $categories = \App\Models\Category::where('level', 3)->get(); // Only final categories
+
         return Inertia::render('Admin/Product/Index', [
             'products' => $products,
-            'filters' => $request->only(['search', 'status', 'type', 'sort_field', 'sort_direction', 'show_trashed']),
+            'filters' => $request->only(['search', 'status', 'type', 'category_id', 'sort_field', 'sort_direction', 'show_trashed']),
             'productTypes' => $productTypes,
+            'categories' => $categories,
             'permissions' => [
                 'create_product' => Auth::user()->can('create_product'),
                 'update_product' => Auth::user()->can('update_product'),
@@ -96,9 +103,11 @@ class ProductController extends Controller
         $this->authorize('create_product');
 
         $units = Unit::all();
+        $categories = \App\Models\Category::with('parent')->get(); // All categories for hierarchy
 
         return Inertia::render('Admin/Product/Create', [
             'units' => $units,
+            'categories' => $categories,
             'permissions' => [
                 'create_product' => true, // Already authorized
             ]
@@ -119,6 +128,23 @@ class ProductController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     */
+    public function show(Product $product): Response
+    {
+        $this->authorize('view_product', $product);
+
+        return Inertia::render('Admin/Product/Show', [
+            'product' => $product->load(['category', 'unit']),
+            'permissions' => [
+                'view_product' => true, // Already authorized
+                'update_product' => Auth::user()->can('update_product', $product),
+                'delete_product' => Auth::user()->can('delete_product', $product),
+            ]
+        ]);
+    }
+
+    /**
      * Show the form for editing the specified resource.
      */
     public function edit(Product $product): Response
@@ -126,10 +152,12 @@ class ProductController extends Controller
         $this->authorize('update_product', $product);
 
         $units = Unit::all();
+        $categories = \App\Models\Category::with('parent')->get(); // All categories for hierarchy
 
         return Inertia::render('Admin/Product/Edit', [
-            'product' => $product->load(['wholesaleUnit', 'retailUnit']),
+            'product' => $product->load(['category', 'unit']),
             'units' => $units,
+            'categories' => $categories,
             'permissions' => [
                 'view_product' => Auth::user()->can('view_product', $product),
                 'update_product' => true, // Already authorized

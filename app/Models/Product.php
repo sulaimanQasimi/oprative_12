@@ -14,22 +14,13 @@ class Product extends Model
     protected $fillable = [
         'type',
         'name',
-        'code',
-        'description',
         'barcode',
-        'image',
         'category_id',
-        'quantity',
-        'min_quantity',
-        'tax_rate',
-        'status',
         'unit_id',
+        'status',
     ];
 
     protected $casts = [
-        'quantity' => 'integer',
-        'min_quantity' => 'integer',
-        'tax_rate' => 'double',
         'status' => 'boolean',
     ];
 

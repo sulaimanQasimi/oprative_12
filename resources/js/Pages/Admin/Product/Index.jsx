@@ -33,11 +33,14 @@ import {
     SkipForward,
     RotateCcw,
     XOctagon,
+    Scale,
+    Activity,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/Components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/Components/ui/table";
 import { Input } from "@/Components/ui/input";
+import { Label } from "@/Components/ui/label";
 import { Badge } from "@/Components/ui/badge";
 import {
     Select,
@@ -62,6 +65,7 @@ export default function Index({
     },
     filters = {},
     productTypes = [],
+    categories = [],
     permissions = {},
 }) {
     const { t } = useLaravelReactI18n();
@@ -74,6 +78,7 @@ export default function Index({
     );
     const [filterStatus, setFilterStatus] = useState(filters.status || "all");
     const [filterType, setFilterType] = useState(filters.type || "all");
+    const [filterCategory, setFilterCategory] = useState(filters.category_id || "all");
     const [selectedProducts, setSelectedProducts] = useState([]);
     const [showFilters, setShowFilters] = useState(false);
 
@@ -85,14 +90,8 @@ export default function Index({
     // Calculate statistics with safety checks
     const stats = {
         total: products?.total || 0,
-        active: products?.data?.filter((p) => p?.is_activated)?.length || 0,
-        inStock: products?.data?.filter((p) => p?.is_in_stock)?.length || 0,
-        trending: products?.data?.filter((p) => p?.is_trend)?.length || 0,
-        totalValue:
-            products?.data?.reduce(
-                (sum, p) => sum + (parseFloat(p?.retail_price) || 0),
-                0
-            ) || 0,
+        active: products?.data?.filter((p) => p?.status)?.length || 0,
+        inactive: products?.data?.filter((p) => !p?.status)?.length || 0,
     };
 
     // Define status options
@@ -100,8 +99,6 @@ export default function Index({
         { value: "all", label: t("All Status") },
         { value: "active", label: t("Active") },
         { value: "inactive", label: t("Inactive") },
-        { value: "in_stock", label: t("In Stock") },
-        { value: "trending", label: t("Trending") },
     ];
 
     // Handle search with debounce
@@ -124,12 +121,13 @@ export default function Index({
             {
                 status: filterStatus,
                 type: filterType,
+                category_id: filterCategory,
                 sort_field: sortField,
                 sort_direction: sortDirection,
             },
             { preserveState: true, preserveScroll: true }
         );
-    }, [filterStatus, filterType, sortField, sortDirection]);
+    }, [filterStatus, filterType, filterCategory, sortField, sortDirection]);
 
     // Sort handler
     const handleSort = (field) => {
@@ -453,45 +451,15 @@ export default function Index({
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("In Stock")}
+                                                            {t("Inactive Products")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-indigo-600">{stats.inStock}</p>
+                                                        <p className="text-3xl font-bold text-gray-600">{stats.inactive}</p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Available")}
+                                                            {t("Currently inactive")}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-2xl">
-                                                        <ShoppingCart className="h-8 w-8 text-indigo-600" />
-                                                    </div>
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-
-                                    <motion.div
-                                        initial={{ scale: 0.9, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{
-                                            delay: 1.2,
-                                            duration: 0.4,
-                                        }}
-                                    >
-                                        <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardContent className="p-6">
-                                                <div className="flex items-center justify-between">
-                                                    <div>
-                                                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Value")}
-                                                        </p>
-                                                        <p className="text-3xl font-bold text-purple-600">
-                                                            ${stats.totalValue.toLocaleString()}
-                                                        </p>
-                                                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Inventory value")}
-                                                        </p>
-                                                    </div>
-                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 rounded-2xl">
-                                                        <DollarSign className="h-8 w-8 text-purple-600" />
+                                                    <div className="p-4 bg-gradient-to-br from-gray-100 to-slate-100 dark:from-gray-900/30 dark:to-slate-900/30 rounded-2xl">
+                                                        <XCircle className="h-8 w-8 text-gray-600" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -515,6 +483,73 @@ export default function Index({
                                                     onChange={(e) => setSearchTerm(e.target.value)}
                                                     className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
                                                 />
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                {/* Filters */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.35, duration: 0.4 }}
+                                >
+                                    <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                        <CardContent className="p-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                <div>
+                                                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                                                        {t("Status")}
+                                                    </Label>
+                                                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                                                        <SelectTrigger className="border-2 border-green-200 focus:border-green-500 rounded-xl">
+                                                            <SelectValue placeholder={t("Select status")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {statusOptions.map((option) => (
+                                                                <SelectItem key={option.value} value={option.value}>
+                                                                    {option.label}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                                                        {t("Type")}
+                                                    </Label>
+                                                    <Select value={filterType} onValueChange={setFilterType}>
+                                                        <SelectTrigger className="border-2 border-green-200 focus:border-green-500 rounded-xl">
+                                                            <SelectValue placeholder={t("Select type")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="all">{t("All Types")}</SelectItem>
+                                                            {productTypes.map((type) => (
+                                                                <SelectItem key={type} value={type}>
+                                                                    {type}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div>
+                                                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">
+                                                        {t("Category")}
+                                                    </Label>
+                                                    <Select value={filterCategory} onValueChange={setFilterCategory}>
+                                                        <SelectTrigger className="border-2 border-green-200 focus:border-green-500 rounded-xl">
+                                                            <SelectValue placeholder={t("Select category")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="all">{t("All Categories")}</SelectItem>
+                                                            {categories.map((category) => (
+                                                                <SelectItem key={category.id} value={category.id.toString()}>
+                                                                    {category.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
                                             </div>
                                         </CardContent>
                                     </Card>
@@ -571,31 +606,31 @@ export default function Index({
                                                             </TableHead>
                                                             <TableHead 
                                                                 className="cursor-pointer hover:text-green-600 transition-colors py-4 px-6 font-semibold text-gray-700 dark:text-gray-200"
-                                                                onClick={() => handleSort("purchase_price")}
+                                                                onClick={() => handleSort("category_id")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <DollarSign className="h-4 w-4 text-green-600" />
-                                                                    {t("Purchase")}
+                                                                    <Tag className="h-4 w-4 text-green-600" />
+                                                                    {t("Category")}
                                                                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
                                                             </TableHead>
                                                             <TableHead 
                                                                 className="cursor-pointer hover:text-green-600 transition-colors py-4 px-6 font-semibold text-gray-700 dark:text-gray-200"
-                                                                onClick={() => handleSort("retail_price")}
+                                                                onClick={() => handleSort("unit_id")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <ShoppingCart className="h-4 w-4 text-green-600" />
-                                                                    {t("Retail")}
+                                                                    <Scale className="h-4 w-4 text-green-600" />
+                                                                    {t("Unit")}
                                                                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
                                                             </TableHead>
                                                             <TableHead 
                                                                 className="cursor-pointer hover:text-green-600 transition-colors py-4 px-6 font-semibold text-gray-700 dark:text-gray-200"
-                                                                onClick={() => handleSort("whole_sale_unit_amount")}
+                                                                onClick={() => handleSort("status")}
                                                             >
                                                                 <div className="flex items-center gap-2">
-                                                                    <Package className="h-4 w-4 text-green-600" />
-                                                                    {t("Wholesale Unit")}
+                                                                    <Activity className="h-4 w-4 text-green-600" />
+                                                                    {t("Status")}
                                                                     <ArrowUpDown className="h-3 w-3 opacity-50" />
                                                                 </div>
                                                             </TableHead>
@@ -620,9 +655,9 @@ export default function Index({
                                                                                 <div className="font-semibold text-gray-900 dark:text-white text-base mb-1">
                                                                                     {product.name}
                                                                                 </div>
-                                                                                <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                                                    {product.wholesaleUnit?.name} / {product.retailUnit?.name}
-                                                                                </div>
+                                                                                                                                                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                                            {product.unit?.name || t("No Unit")}
+                                                                        </div>
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
@@ -636,16 +671,26 @@ export default function Index({
                                                                             {product.barcode || "—"}
                                                                         </div>
                                                                     </TableCell>
-                                                                    <TableCell className="py-4 px-6 font-bold text-gray-900 dark:text-white">
-                                                                        ${parseFloat(product.purchase_price || 0).toLocaleString()}
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                                                                            {product.category?.name || t("No Category")}
+                                                                        </div>
                                                                     </TableCell>
-                                                                    <TableCell className="py-4 px-6 font-bold text-green-600 dark:text-green-400">
-                                                                        ${parseFloat(product.retail_price || 0).toLocaleString()}
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                                                                            {product.unit?.name || t("No Unit")}
+                                                                        </div>
                                                                     </TableCell>
-                                                                    <TableCell className="py-4 px-6 font-bold text-blue-600 dark:text-blue-400">
-                                                                        {product.whole_sale_unit_amount
-                                                                            ? `${parseFloat(product.whole_sale_unit_amount).toLocaleString()} ${product.wholesaleUnit?.name || ""}`
-                                                                            : "—"}
+                                                                    <TableCell className="py-4 px-6">
+                                                                        <Badge 
+                                                                            variant={product.status ? "default" : "secondary"}
+                                                                            className={product.status 
+                                                                                ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700" 
+                                                                                : "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-900/30 dark:text-gray-300 dark:border-gray-700"
+                                                                            }
+                                                                        >
+                                                                            {product.status ? t("Active") : t("Inactive")}
+                                                                        </Badge>
                                                                     </TableCell>
                                                                     <TableCell className="py-4 px-6 text-right">
                                                                         <div className="flex items-center justify-end gap-3">
