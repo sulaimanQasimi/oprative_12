@@ -27,6 +27,38 @@ class Supplier extends Model
         'postal_code',
         'image',
         'id_number',
+        // Bank information
+        'bank_name',
+        'bank_account_number',
+        'bank_account_name',
+        'bank_account_branch',
+        'bank_account_swift_code',
+        'bank_account_iban',
+        // License information
+        'license_number',
+        'license_expiration_date',
+        'license_type',
+        'license_file',
+        // Other information
+        'notes',
+        'status',
+        'type',
+        'website',
+        'facebook',
+        'instagram',
+        'twitter',
+        'linkedin',
+        'youtube',
+        'tiktok',
+        'pinterest',
+        'snapchat',
+        'telegram',
+        'whatsapp',
+        // Personal information
+        'personal_id_number',
+        'personal_id_file',
+        'personal_id_type',
+        'personal_id_expiration_date',
     ];
 
     protected $appends = ['invoice_total'];

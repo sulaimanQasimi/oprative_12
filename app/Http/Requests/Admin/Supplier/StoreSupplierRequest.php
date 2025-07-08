@@ -31,7 +31,40 @@ class StoreSupplierRequest extends FormRequest
             'state' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
             'postal_code' => 'nullable|string|max:50',
+            'image' => 'nullable|string|max:255',
             'id_number' => 'nullable|string|max:255',
+            // Bank information
+            'bank_name' => 'nullable|string|max:255',
+            'bank_account_number' => 'nullable|string|max:255',
+            'bank_account_name' => 'nullable|string|max:255',
+            'bank_account_branch' => 'nullable|string|max:255',
+            'bank_account_swift_code' => 'nullable|string|max:255',
+            'bank_account_iban' => 'nullable|string|max:255',
+            // License information
+            'license_number' => 'nullable|string|max:255',
+            'license_expiration_date' => 'nullable|date',
+            'license_type' => 'nullable|string|max:255',
+            'license_file' => 'nullable|string|max:255',
+            // Other information
+            'notes' => 'nullable|string|max:1000',
+            'status' => 'nullable|string|max:255',
+            'type' => 'nullable|string|max:255',
+            'website' => 'nullable|url|max:255',
+            'facebook' => 'nullable|url|max:255',
+            'instagram' => 'nullable|url|max:255',
+            'twitter' => 'nullable|url|max:255',
+            'linkedin' => 'nullable|url|max:255',
+            'youtube' => 'nullable|url|max:255',
+            'tiktok' => 'nullable|url|max:255',
+            'pinterest' => 'nullable|url|max:255',
+            'snapchat' => 'nullable|string|max:255',
+            'telegram' => 'nullable|string|max:255',
+            'whatsapp' => 'nullable|string|max:255',
+            // Personal information
+            'personal_id_number' => 'nullable|string|max:255',
+            'personal_id_file' => 'nullable|string|max:255',
+            'personal_id_type' => 'nullable|string|max:255',
+            'personal_id_expiration_date' => 'nullable|date',
         ];
     }
 

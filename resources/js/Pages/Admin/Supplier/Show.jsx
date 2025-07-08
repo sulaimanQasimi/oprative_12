@@ -346,9 +346,386 @@ export default function Show({ auth, supplier, purchases, payments, summary, per
                                                             <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.id_number}</p>
                                                         </div>
                                                     )}
+
+                                                    {supplier.status && (
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                <CheckCircle className="w-4 h-4" />
+                                                                <span className="text-sm font-medium">{t("Status")}</span>
+                                                            </div>
+                                                            <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.status}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {supplier.type && (
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                <Building className="w-4 h-4" />
+                                                                <span className="text-sm font-medium">{t("Type")}</span>
+                                                            </div>
+                                                            <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.type}</p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </CardContent>
                                         </Card>
+
+                                        {/* Bank Information */}
+                                        {(supplier.bank_name || supplier.bank_account_number || supplier.bank_account_name) && (
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                        <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                                                            <CreditCard className="h-6 w-6 text-white" />
+                                                        </div>
+                                                        {t("Bank Information")}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-8">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        {supplier.bank_name && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Building className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Bank Name")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.bank_name}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.bank_account_number && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Hash className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Account Number")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.bank_account_number}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.bank_account_name && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <User className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Account Holder")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.bank_account_name}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.bank_account_branch && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <MapPin className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Branch")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.bank_account_branch}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.bank_account_swift_code && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Hash className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("SWIFT Code")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.bank_account_swift_code}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.bank_account_iban && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Hash className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("IBAN")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.bank_account_iban}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        )}
+
+                                        {/* License Information */}
+                                        {(supplier.license_number || supplier.license_type || supplier.license_expiration_date) && (
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardHeader className="bg-gradient-to-r from-purple-500/20 via-violet-500/20 to-purple-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                        <div className="p-3 bg-gradient-to-br from-purple-500 to-violet-600 rounded-xl shadow-lg">
+                                                            <FileText className="h-6 w-6 text-white" />
+                                                        </div>
+                                                        {t("License Information")}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-8">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        {supplier.license_number && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Hash className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("License Number")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.license_number}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.license_type && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <FileText className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("License Type")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.license_type}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.license_expiration_date && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Calendar className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Expiration Date")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{formatDate(supplier.license_expiration_date)}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.license_file && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <FileText className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("License File")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.license_file}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        )}
+
+                                        {/* Social Media & Website */}
+                                        {(supplier.website || supplier.facebook || supplier.instagram || supplier.twitter || supplier.linkedin || supplier.youtube || supplier.tiktok || supplier.pinterest || supplier.snapchat || supplier.telegram || supplier.whatsapp) && (
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                        <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                            <Globe className="h-6 w-6 text-white" />
+                                                        </div>
+                                                        {t("Social Media & Website")}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-8">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        {supplier.website && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Website")}</span>
+                                                                </div>
+                                                                <a href={supplier.website} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                                                                    {supplier.website}
+                                                                </a>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.facebook && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Facebook")}</span>
+                                                                </div>
+                                                                <a href={supplier.facebook} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                                                                    {supplier.facebook}
+                                                                </a>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.instagram && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Instagram")}</span>
+                                                                </div>
+                                                                <a href={supplier.instagram} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                                                                    {supplier.instagram}
+                                                                </a>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.twitter && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Twitter")}</span>
+                                                                </div>
+                                                                <a href={supplier.twitter} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                                                                    {supplier.twitter}
+                                                                </a>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.linkedin && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("LinkedIn")}</span>
+                                                                </div>
+                                                                <a href={supplier.linkedin} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                                                                    {supplier.linkedin}
+                                                                </a>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.youtube && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("YouTube")}</span>
+                                                                </div>
+                                                                <a href={supplier.youtube} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                                                                    {supplier.youtube}
+                                                                </a>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.tiktok && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("TikTok")}</span>
+                                                                </div>
+                                                                <a href={supplier.tiktok} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                                                                    {supplier.tiktok}
+                                                                </a>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.pinterest && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Pinterest")}</span>
+                                                                </div>
+                                                                <a href={supplier.pinterest} target="_blank" rel="noopener noreferrer" className="text-lg font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                                                                    {supplier.pinterest}
+                                                                </a>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.snapchat && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Snapchat")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.snapchat}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.telegram && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Telegram")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.telegram}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.whatsapp && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Globe className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("WhatsApp")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.whatsapp}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        )}
+
+                                        {/* Personal Information */}
+                                        {(supplier.personal_id_number || supplier.personal_id_type || supplier.personal_id_expiration_date) && (
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardHeader className="bg-gradient-to-r from-orange-500/20 via-amber-500/20 to-orange-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                        <div className="p-3 bg-gradient-to-br from-orange-500 to-amber-600 rounded-xl shadow-lg">
+                                                            <User className="h-6 w-6 text-white" />
+                                                        </div>
+                                                        {t("Personal Information")}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-8">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                        {supplier.personal_id_number && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Hash className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("Personal ID Number")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.personal_id_number}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.personal_id_type && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <FileText className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("ID Type")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.personal_id_type}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.personal_id_expiration_date && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <Calendar className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("ID Expiration Date")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{formatDate(supplier.personal_id_expiration_date)}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {supplier.personal_id_file && (
+                                                            <div className="space-y-2">
+                                                                <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                                    <FileText className="w-4 h-4" />
+                                                                    <span className="text-sm font-medium">{t("ID File")}</span>
+                                                                </div>
+                                                                <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.personal_id_file}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        )}
+
+                                        {/* Additional Information */}
+                                        {(supplier.notes) && (
+                                            <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                                <CardHeader className="bg-gradient-to-r from-gray-500/20 via-slate-500/20 to-gray-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                                    <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                        <div className="p-3 bg-gradient-to-br from-gray-500 to-slate-600 rounded-xl shadow-lg">
+                                                            <FileText className="h-6 w-6 text-white" />
+                                                        </div>
+                                                        {t("Additional Information")}
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="p-8">
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                                            <FileText className="w-4 h-4" />
+                                                            <span className="text-sm font-medium">{t("Notes")}</span>
+                                                        </div>
+                                                        <p className="text-lg font-semibold text-slate-900 dark:text-white">{supplier.notes}</p>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        )}
                                     </TabsContent>
 
                                     <TabsContent value="purchases" className="space-y-6">

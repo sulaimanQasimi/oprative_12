@@ -21,6 +21,8 @@ import {
     MapPinIcon as Address,
     Hash,
     Sparkles,
+    Calendar,
+    Activity,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -51,7 +53,40 @@ export default function Create({ auth, permissions = {} }) {
         state: "",
         country: "",
         postal_code: "",
+        image: "",
         id_number: "",
+        // Bank information
+        bank_name: "",
+        bank_account_number: "",
+        bank_account_name: "",
+        bank_account_branch: "",
+        bank_account_swift_code: "",
+        bank_account_iban: "",
+        // License information
+        license_number: "",
+        license_expiration_date: "",
+        license_type: "",
+        license_file: "",
+        // Other information
+        notes: "",
+        status: "",
+        type: "",
+        website: "",
+        facebook: "",
+        instagram: "",
+        twitter: "",
+        linkedin: "",
+        youtube: "",
+        tiktok: "",
+        pinterest: "",
+        snapchat: "",
+        telegram: "",
+        whatsapp: "",
+        // Personal information
+        personal_id_number: "",
+        personal_id_file: "",
+        personal_id_type: "",
+        personal_id_expiration_date: "",
     });
 
     const handleSubmit = (e) => {
@@ -502,6 +537,944 @@ export default function Create({ auth, permissions = {} }) {
                                                         >
                                                             <AlertCircle className="h-3 w-3" />
                                                             {errors.postal_code}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Bank Information */}
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 pb-6">
+                                            <CardTitle className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                                                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                                                    <CreditCard className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                                </div>
+                                                <div>
+                                                    <span>{t("Bank Information")}</span>
+                                                    <p className="text-sm font-normal text-slate-600 dark:text-slate-400 mt-1">
+                                                        {t("Bank account and payment details")}
+                                                    </p>
+                                                </div>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-8">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                {/* Bank Name */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="bank_name" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Building className="h-4 w-4 text-slate-500" />
+                                                        {t("Bank Name")}
+                                                    </Label>
+                                                    <Input
+                                                        id="bank_name"
+                                                        type="text"
+                                                        value={data.bank_name}
+                                                        onChange={(e) => setData("bank_name", e.target.value)}
+                                                        placeholder={t("e.g. National Bank")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.bank_name
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-green-500/20 focus:border-green-500"
+                                                        }`}
+                                                    />
+                                                    {errors.bank_name && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.bank_name}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Bank Account Number */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="bank_account_number" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Hash className="h-4 w-4 text-slate-500" />
+                                                        {t("Account Number")}
+                                                    </Label>
+                                                    <Input
+                                                        id="bank_account_number"
+                                                        type="text"
+                                                        value={data.bank_account_number}
+                                                        onChange={(e) => setData("bank_account_number", e.target.value)}
+                                                        placeholder={t("e.g. 1234567890")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.bank_account_number
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-green-500/20 focus:border-green-500"
+                                                        }`}
+                                                    />
+                                                    {errors.bank_account_number && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.bank_account_number}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Bank Account Name */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="bank_account_name" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <User className="h-4 w-4 text-slate-500" />
+                                                        {t("Account Holder Name")}
+                                                    </Label>
+                                                    <Input
+                                                        id="bank_account_name"
+                                                        type="text"
+                                                        value={data.bank_account_name}
+                                                        onChange={(e) => setData("bank_account_name", e.target.value)}
+                                                        placeholder={t("e.g. John Doe")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.bank_account_name
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-green-500/20 focus:border-green-500"
+                                                        }`}
+                                                    />
+                                                    {errors.bank_account_name && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.bank_account_name}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Bank Branch */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="bank_account_branch" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <MapPin className="h-4 w-4 text-slate-500" />
+                                                        {t("Branch")}
+                                                    </Label>
+                                                    <Input
+                                                        id="bank_account_branch"
+                                                        type="text"
+                                                        value={data.bank_account_branch}
+                                                        onChange={(e) => setData("bank_account_branch", e.target.value)}
+                                                        placeholder={t("e.g. Main Branch")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.bank_account_branch
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-green-500/20 focus:border-green-500"
+                                                        }`}
+                                                    />
+                                                    {errors.bank_account_branch && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.bank_account_branch}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* SWIFT Code */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="bank_account_swift_code" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Hash className="h-4 w-4 text-slate-500" />
+                                                        {t("SWIFT Code")}
+                                                    </Label>
+                                                    <Input
+                                                        id="bank_account_swift_code"
+                                                        type="text"
+                                                        value={data.bank_account_swift_code}
+                                                        onChange={(e) => setData("bank_account_swift_code", e.target.value)}
+                                                        placeholder={t("e.g. NBOCCATT")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.bank_account_swift_code
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-green-500/20 focus:border-green-500"
+                                                        }`}
+                                                    />
+                                                    {errors.bank_account_swift_code && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.bank_account_swift_code}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* IBAN */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="bank_account_iban" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Hash className="h-4 w-4 text-slate-500" />
+                                                        {t("IBAN")}
+                                                    </Label>
+                                                    <Input
+                                                        id="bank_account_iban"
+                                                        type="text"
+                                                        value={data.bank_account_iban}
+                                                        onChange={(e) => setData("bank_account_iban", e.target.value)}
+                                                        placeholder={t("e.g. SA0380000000608010167519")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.bank_account_iban
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-green-500/20 focus:border-green-500"
+                                                        }`}
+                                                    />
+                                                    {errors.bank_account_iban && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.bank_account_iban}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* License Information */}
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 pb-6">
+                                            <CardTitle className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                                                <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+                                                    <FileText className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                                                </div>
+                                                <div>
+                                                    <span>{t("License Information")}</span>
+                                                    <p className="text-sm font-normal text-slate-600 dark:text-slate-400 mt-1">
+                                                        {t("Business license and legal documents")}
+                                                    </p>
+                                                </div>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-8">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                {/* License Number */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="license_number" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Hash className="h-4 w-4 text-slate-500" />
+                                                        {t("License Number")}
+                                                    </Label>
+                                                    <Input
+                                                        id="license_number"
+                                                        type="text"
+                                                        value={data.license_number}
+                                                        onChange={(e) => setData("license_number", e.target.value)}
+                                                        placeholder={t("e.g. LIC-123456789")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.license_number
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-purple-500/20 focus:border-purple-500"
+                                                        }`}
+                                                    />
+                                                    {errors.license_number && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.license_number}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* License Type */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="license_type" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <FileText className="h-4 w-4 text-slate-500" />
+                                                        {t("License Type")}
+                                                    </Label>
+                                                    <Input
+                                                        id="license_type"
+                                                        type="text"
+                                                        value={data.license_type}
+                                                        onChange={(e) => setData("license_type", e.target.value)}
+                                                        placeholder={t("e.g. Commercial License")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.license_type
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-purple-500/20 focus:border-purple-500"
+                                                        }`}
+                                                    />
+                                                    {errors.license_type && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.license_type}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* License Expiration Date */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="license_expiration_date" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Calendar className="h-4 w-4 text-slate-500" />
+                                                        {t("Expiration Date")}
+                                                    </Label>
+                                                    <Input
+                                                        id="license_expiration_date"
+                                                        type="date"
+                                                        value={data.license_expiration_date}
+                                                        onChange={(e) => setData("license_expiration_date", e.target.value)}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.license_expiration_date
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-purple-500/20 focus:border-purple-500"
+                                                        }`}
+                                                    />
+                                                    {errors.license_expiration_date && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.license_expiration_date}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* License File */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="license_file" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <FileText className="h-4 w-4 text-slate-500" />
+                                                        {t("License File")}
+                                                    </Label>
+                                                    <Input
+                                                        id="license_file"
+                                                        type="text"
+                                                        value={data.license_file}
+                                                        onChange={(e) => setData("license_file", e.target.value)}
+                                                        placeholder={t("e.g. license.pdf")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.license_file
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-purple-500/20 focus:border-purple-500"
+                                                        }`}
+                                                    />
+                                                    {errors.license_file && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.license_file}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Social Media & Website */}
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 pb-6">
+                                            <CardTitle className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                                                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                                                    <Globe className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                                </div>
+                                                <div>
+                                                    <span>{t("Social Media & Website")}</span>
+                                                    <p className="text-sm font-normal text-slate-600 dark:text-slate-400 mt-1">
+                                                        {t("Online presence and social media links")}
+                                                    </p>
+                                                </div>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-8">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                {/* Website */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="website" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("Website")}
+                                                    </Label>
+                                                    <Input
+                                                        id="website"
+                                                        type="url"
+                                                        value={data.website}
+                                                        onChange={(e) => setData("website", e.target.value)}
+                                                        placeholder={t("e.g. https://www.example.com")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.website
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.website && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.website}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Facebook */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="facebook" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("Facebook")}
+                                                    </Label>
+                                                    <Input
+                                                        id="facebook"
+                                                        type="url"
+                                                        value={data.facebook}
+                                                        onChange={(e) => setData("facebook", e.target.value)}
+                                                        placeholder={t("e.g. https://facebook.com/company")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.facebook
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.facebook && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.facebook}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Instagram */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="instagram" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("Instagram")}
+                                                    </Label>
+                                                    <Input
+                                                        id="instagram"
+                                                        type="url"
+                                                        value={data.instagram}
+                                                        onChange={(e) => setData("instagram", e.target.value)}
+                                                        placeholder={t("e.g. https://instagram.com/company")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.instagram
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.instagram && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.instagram}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Twitter */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="twitter" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("Twitter")}
+                                                    </Label>
+                                                    <Input
+                                                        id="twitter"
+                                                        type="url"
+                                                        value={data.twitter}
+                                                        onChange={(e) => setData("twitter", e.target.value)}
+                                                        placeholder={t("e.g. https://twitter.com/company")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.twitter
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.twitter && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.twitter}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* LinkedIn */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="linkedin" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("LinkedIn")}
+                                                    </Label>
+                                                    <Input
+                                                        id="linkedin"
+                                                        type="url"
+                                                        value={data.linkedin}
+                                                        onChange={(e) => setData("linkedin", e.target.value)}
+                                                        placeholder={t("e.g. https://linkedin.com/company/company")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.linkedin
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.linkedin && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.linkedin}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* YouTube */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="youtube" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("YouTube")}
+                                                    </Label>
+                                                    <Input
+                                                        id="youtube"
+                                                        type="url"
+                                                        value={data.youtube}
+                                                        onChange={(e) => setData("youtube", e.target.value)}
+                                                        placeholder={t("e.g. https://youtube.com/@company")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.youtube
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.youtube && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.youtube}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* TikTok */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="tiktok" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("TikTok")}
+                                                    </Label>
+                                                    <Input
+                                                        id="tiktok"
+                                                        type="url"
+                                                        value={data.tiktok}
+                                                        onChange={(e) => setData("tiktok", e.target.value)}
+                                                        placeholder={t("e.g. https://tiktok.com/@company")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.tiktok
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.tiktok && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.tiktok}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Pinterest */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="pinterest" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("Pinterest")}
+                                                    </Label>
+                                                    <Input
+                                                        id="pinterest"
+                                                        type="url"
+                                                        value={data.pinterest}
+                                                        onChange={(e) => setData("pinterest", e.target.value)}
+                                                        placeholder={t("e.g. https://pinterest.com/company")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.pinterest
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.pinterest && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.pinterest}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Snapchat */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="snapchat" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("Snapchat")}
+                                                    </Label>
+                                                    <Input
+                                                        id="snapchat"
+                                                        type="text"
+                                                        value={data.snapchat}
+                                                        onChange={(e) => setData("snapchat", e.target.value)}
+                                                        placeholder={t("e.g. company_username")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.snapchat
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.snapchat && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.snapchat}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Telegram */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="telegram" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("Telegram")}
+                                                    </Label>
+                                                    <Input
+                                                        id="telegram"
+                                                        type="text"
+                                                        value={data.telegram}
+                                                        onChange={(e) => setData("telegram", e.target.value)}
+                                                        placeholder={t("e.g. @company_channel")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.telegram
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.telegram && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.telegram}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* WhatsApp */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="whatsapp" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Globe className="h-4 w-4 text-slate-500" />
+                                                        {t("WhatsApp")}
+                                                    </Label>
+                                                    <Input
+                                                        id="whatsapp"
+                                                        type="text"
+                                                        value={data.whatsapp}
+                                                        onChange={(e) => setData("whatsapp", e.target.value)}
+                                                        placeholder={t("e.g. +1234567890")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.whatsapp
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-blue-500/20 focus:border-blue-500"
+                                                        }`}
+                                                    />
+                                                    {errors.whatsapp && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.whatsapp}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Personal Information */}
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 pb-6">
+                                            <CardTitle className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                                                <div className="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
+                                                    <User className="h-6 w-6 text-orange-600 dark:text-orange-400" />
+                                                </div>
+                                                <div>
+                                                    <span>{t("Personal Information")}</span>
+                                                    <p className="text-sm font-normal text-slate-600 dark:text-slate-400 mt-1">
+                                                        {t("Personal identification and documents")}
+                                                    </p>
+                                                </div>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-8">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                {/* Personal ID Number */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="personal_id_number" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Hash className="h-4 w-4 text-slate-500" />
+                                                        {t("Personal ID Number")}
+                                                    </Label>
+                                                    <Input
+                                                        id="personal_id_number"
+                                                        type="text"
+                                                        value={data.personal_id_number}
+                                                        onChange={(e) => setData("personal_id_number", e.target.value)}
+                                                        placeholder={t("e.g. 123456789")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.personal_id_number
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-orange-500/20 focus:border-orange-500"
+                                                        }`}
+                                                    />
+                                                    {errors.personal_id_number && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.personal_id_number}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Personal ID Type */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="personal_id_type" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <FileText className="h-4 w-4 text-slate-500" />
+                                                        {t("ID Type")}
+                                                    </Label>
+                                                    <Input
+                                                        id="personal_id_type"
+                                                        type="text"
+                                                        value={data.personal_id_type}
+                                                        onChange={(e) => setData("personal_id_type", e.target.value)}
+                                                        placeholder={t("e.g. National ID, Passport")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.personal_id_type
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-orange-500/20 focus:border-orange-500"
+                                                        }`}
+                                                    />
+                                                    {errors.personal_id_type && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.personal_id_type}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Personal ID Expiration Date */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="personal_id_expiration_date" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Calendar className="h-4 w-4 text-slate-500" />
+                                                        {t("ID Expiration Date")}
+                                                    </Label>
+                                                    <Input
+                                                        id="personal_id_expiration_date"
+                                                        type="date"
+                                                        value={data.personal_id_expiration_date}
+                                                        onChange={(e) => setData("personal_id_expiration_date", e.target.value)}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.personal_id_expiration_date
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-orange-500/20 focus:border-orange-500"
+                                                        }`}
+                                                    />
+                                                    {errors.personal_id_expiration_date && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.personal_id_expiration_date}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Personal ID File */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="personal_id_file" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <FileText className="h-4 w-4 text-slate-500" />
+                                                        {t("ID File")}
+                                                    </Label>
+                                                    <Input
+                                                        id="personal_id_file"
+                                                        type="text"
+                                                        value={data.personal_id_file}
+                                                        onChange={(e) => setData("personal_id_file", e.target.value)}
+                                                        placeholder={t("e.g. id_document.pdf")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.personal_id_file
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-orange-500/20 focus:border-orange-500"
+                                                        }`}
+                                                    />
+                                                    {errors.personal_id_file && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.personal_id_file}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Additional Information */}
+                                    <Card className="border border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                                        <CardHeader className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600 pb-6">
+                                            <CardTitle className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                                                <div className="p-2 bg-gray-100 dark:bg-gray-900/30 rounded-lg">
+                                                    <FileText className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                                                </div>
+                                                <div>
+                                                    <span>{t("Additional Information")}</span>
+                                                    <p className="text-sm font-normal text-slate-600 dark:text-slate-400 mt-1">
+                                                        {t("Additional details and notes")}
+                                                    </p>
+                                                </div>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-8">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                {/* Status */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="status" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Activity className="h-4 w-4 text-slate-500" />
+                                                        {t("Status")}
+                                                    </Label>
+                                                    <Input
+                                                        id="status"
+                                                        type="text"
+                                                        value={data.status}
+                                                        onChange={(e) => setData("status", e.target.value)}
+                                                        placeholder={t("e.g. Active, Inactive")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.status
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-gray-500/20 focus:border-gray-500"
+                                                        }`}
+                                                    />
+                                                    {errors.status && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.status}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Type */}
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="type" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <Building className="h-4 w-4 text-slate-500" />
+                                                        {t("Type")}
+                                                    </Label>
+                                                    <Input
+                                                        id="type"
+                                                        type="text"
+                                                        value={data.type}
+                                                        onChange={(e) => setData("type", e.target.value)}
+                                                        placeholder={t("e.g. Manufacturer, Distributor")}
+                                                        className={`h-12 transition-all duration-200 ${
+                                                            errors.type
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-gray-500/20 focus:border-gray-500"
+                                                        }`}
+                                                    />
+                                                    {errors.type && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.type}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+
+                                                {/* Notes */}
+                                                <div className="space-y-3 lg:col-span-2">
+                                                    <Label htmlFor="notes" className="text-sm font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                                                        <FileText className="h-4 w-4 text-slate-500" />
+                                                        {t("Notes")}
+                                                    </Label>
+                                                    <Textarea
+                                                        id="notes"
+                                                        value={data.notes}
+                                                        onChange={(e) => setData("notes", e.target.value)}
+                                                        placeholder={t("Additional notes about the supplier...")}
+                                                        rows={4}
+                                                        className={`transition-all duration-200 resize-none ${
+                                                            errors.notes
+                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                                                : "focus:ring-gray-500/20 focus:border-gray-500"
+                                                        }`}
+                                                    />
+                                                    {errors.notes && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0, y: -10 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="h-3 w-3" />
+                                                            {errors.notes}
                                                         </motion.p>
                                                     )}
                                                 </div>
