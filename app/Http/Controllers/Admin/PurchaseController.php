@@ -168,8 +168,7 @@ class PurchaseController extends Controller
                 'currency',
                 'user',
                 'warehouse',
-                'purchaseItems.product.wholesaleUnit',
-                'purchaseItems.product.retailUnit',
+                'purchaseItems.product.unit',
                 'payments.supplier',
                 'payments.currency',
                 'payments.user',
@@ -318,9 +317,9 @@ class PurchaseController extends Controller
      */
     public function items(Purchase $purchase)
     {
-        $purchase->load(['purchaseItems.product.wholesaleUnit', 'purchaseItems.product.retailUnit', 'supplier', 'currency']);
-        $products = Product::with(['wholesaleUnit', 'retailUnit'])
-            ->select('id', 'name', 'purchase_price', 'wholesale_price', 'retail_price', 'whole_sale_unit_amount', 'retails_sale_unit_amount', 'wholesale_unit_id', 'retail_unit_id', 'barcode')
+        $purchase->load(['purchaseItems.product.unit', 'supplier', 'currency']);
+        $products = Product::with(['unit'])
+            ->select('id', 'name', 'barcode', 'category_id', 'unit_id', 'type', 'status')
             ->orderBy('name')
             ->get();
 
@@ -338,8 +337,8 @@ class PurchaseController extends Controller
     {
         $this->authorize('createItems', $purchase);
 
-        $products = Product::with(['wholesaleUnit', 'retailUnit'])
-            ->select('id', 'name', 'purchase_price', 'wholesale_price', 'retail_price', 'whole_sale_unit_amount', 'retails_sale_unit_amount', 'wholesale_unit_id', 'retail_unit_id', 'barcode')
+        $products = Product::with(['unit'])
+            ->select('id', 'name', 'barcode', 'category_id', 'unit_id', 'type', 'status')
             ->orderBy('name')
             ->get()->map(function ($product) {
                 return [
@@ -347,24 +346,24 @@ class PurchaseController extends Controller
                     'name' => $product->name,
                     'barcode' => $product->barcode,
                     'type' => $product->type,
-                    'stock_quantity' => $product->net_quantity ?? 0, // Available stock in warehouse
-                    'purchase_price' => $product->purchase_price,
-                    'wholesale_price' => $product->wholesale_price,
-                    'retail_price' => $product->retail_price,
-                    'whole_sale_unit_amount' => $product->whole_sale_unit_amount,
-                    'retails_sale_unit_amount' => $product->retails_sale_unit_amount,
-                    'available_stock' => $product->net_quantity ?? 0,
-                    'wholesaleUnit' => $product->wholesaleUnit ? [
-                        'id' => $product->wholesaleUnit->id,
-                        'name' => $product->wholesaleUnit->name,
-                        'code' => $product->wholesaleUnit->code,
-                        'symbol' => $product->wholesaleUnit->symbol,
+                    'stock_quantity' => 0, // Will be calculated from warehouse data
+                    'purchase_price' => 0, // No longer stored in products table
+                    'wholesale_price' => 0, // No longer stored in products table
+                    'retail_price' => 0, // No longer stored in products table
+                    'whole_sale_unit_amount' => 1, // Default value
+                    'retails_sale_unit_amount' => 1, // Default value
+                    'available_stock' => 0, // Will be calculated from warehouse data
+                    'wholesaleUnit' => $product->unit ? [
+                        'id' => $product->unit->id,
+                        'name' => $product->unit->name,
+                        'code' => $product->unit->code,
+                        'symbol' => $product->unit->symbol,
                     ] : null,
-                    'retailUnit' => $product->retailUnit ? [
-                        'id' => $product->retailUnit->id,
-                        'name' => $product->retailUnit->name,
-                        'code' => $product->retailUnit->code,
-                        'symbol' => $product->retailUnit->symbol,
+                    'retailUnit' => $product->unit ? [
+                        'id' => $product->unit->id,
+                        'name' => $product->unit->name,
+                        'code' => $product->unit->code,
+                        'symbol' => $product->unit->symbol,
                     ] : null,
                 ];
             });
@@ -392,44 +391,38 @@ class PurchaseController extends Controller
     {
         $this->authorize('createItems', $purchase);
 
-        try {
-            $validated = $request->validate([
-                'product_id' => 'required|exists:products,id',
-                'unit_type' => 'required|in:wholesale,retail',
-                'quantity' => 'required|numeric|min:0.01',
-                'price' => 'required|numeric|min:0',
-                'notes' => 'nullable|string|max:1000',
-                'total_price' => 'required|numeric|min:0',
-                // Batch validation rules
-                'batch.issue_date' => 'nullable|date',
-                'batch.expire_date' => 'nullable|date|after_or_equal:batch.issue_date',
-                'batch.wholesale_price' => 'nullable|numeric|min:0',
-                'batch.retail_price' => 'nullable|numeric|min:0',
-                'batch.purchase_price' => 'nullable|numeric|min:0',
-                'batch.notes' => 'nullable|string|max:1000',
-            ]);
+                    try {
+                $validated = $request->validate([
+                    'product_id' => 'required|exists:products,id',
+                    'quantity' => 'required|numeric|min:0.01',
+                    'price' => 'required|numeric|min:0',
+                    'notes' => 'nullable|string|max:1000',
+                    'total_price' => 'required|numeric|min:0',
+                    'unit_amount' => 'required|numeric|min:1',
+                    'is_wholesale' => 'required|boolean',
+                    // Batch validation rules
+                    'batch.issue_date' => 'nullable|date',
+                    'batch.expire_date' => 'nullable|date|after_or_equal:batch.issue_date',
+                    'batch.wholesale_price' => 'nullable|numeric|min:0',
+                    'batch.retail_price' => 'nullable|numeric|min:0',
+                    'batch.purchase_price' => 'nullable|numeric|min:0',
+                    'batch.notes' => 'nullable|string|max:1000',
+                ]);
+
+                // Automatically set unit_type to 'wholesale' since we're using the product's unit
+                $validated['unit_type'] = 'wholesale';
 
             DB::beginTransaction();
 
             // Get the product with unit information
-            $product = \App\Models\Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($validated['product_id']);
+            $product = \App\Models\Product::with(['unit'])->findOrFail($validated['product_id']);
 
             // Calculate unit details
-            $isWholesale = $validated['unit_type'] === 'wholesale';
-            $unitId = null;
-            $unitAmount = 1;
-            $unitName = null;
-            $qty = $validated['quantity'];
-            if ($isWholesale && $product->wholesaleUnit) {
-                $unitId = $product->wholesaleUnit->id;
-                $unitAmount = $product->whole_sale_unit_amount ?? 1;
-                $unitName = $product->wholesaleUnit->name;
-                $qty=$validated['quantity']*$product->whole_sale_unit_amount;
-            } elseif (!$isWholesale && $product->retailUnit) {
-                $unitId = $product->retailUnit->id;
-                $unitAmount = $product->retails_sale_unit_amount ?? 1;
-                $unitName = $product->retailUnit->name;
-            }
+            $isWholesale = $validated['is_wholesale'];
+            $unitId = $product->unit_id;
+            $unitAmount = $validated['unit_amount'];
+            $unitName = $product->unit ? $product->unit->name : null;
+            $qty = $validated['quantity'] * $unitAmount;
 
             // Create the purchase item record
             $item = PurchaseItem::create([
@@ -439,6 +432,8 @@ class PurchaseController extends Controller
                 'unit_type' => $validated['unit_type'],
                 'price' => $validated['price'],
                 'total_price' => $validated['total_price'],
+                'unit_amount' => $unitAmount,
+                'is_wholesale' => $isWholesale,
             ]);
 
             // Create batch record if batch data is provided

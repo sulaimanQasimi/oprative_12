@@ -59,6 +59,8 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
         unit_type: '',
         price: '',
         notes: '',
+        unit_amount: 1, // Add unit_amount field
+        is_wholesale: true, // Add is_wholesale field
         // Batch fields
         batch: {
             issue_date: '',
@@ -83,7 +85,14 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
         if (data.product_id && products) {
             const product = products.find(p => p.id === parseInt(data.product_id));
             setSelectedProduct(product || null);
-            setData(prevData => ({ ...prevData, unit_type: '', price: '', notes: '', batch: { ...prevData.batch, wholesale_price: '', retail_price: '', purchase_price: '' } }));
+            // Automatically set unit_type to 'wholesale' since we're using the product's unit
+            setData(prevData => ({ 
+                ...prevData, 
+                unit_type: 'wholesale', 
+                price: '', 
+                notes: '', 
+                batch: { ...prevData.batch, wholesale_price: '', retail_price: '', purchase_price: '' } 
+            }));
         } else {
             setSelectedProduct(null);
         }
@@ -94,8 +103,9 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
         if (selectedProduct && data.unit_type && data.quantity && data.price) {
             let actualQuantity = parseFloat(data.quantity) || 0;
 
-            if (data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount) {
-                actualQuantity = (parseFloat(data.quantity) || 0) * selectedProduct.whole_sale_unit_amount;
+            // Use the unit_amount from form data
+            if (data.unit_amount && data.unit_amount > 1) {
+                actualQuantity = (parseFloat(data.quantity) || 0) * data.unit_amount;
             }
 
             const total = actualQuantity * (parseFloat(data.price) || 0);
@@ -106,7 +116,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
             setCalculatedQuantity(0);
             setCalculatedTotal(0);
         }
-    }, [selectedProduct, data.unit_type, data.quantity, data.price]);
+    }, [selectedProduct, data.unit_type, data.quantity, data.price, data.unit_amount]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -132,6 +142,8 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
             price: data.price,
             total_price: finalTotal,
             notes: data.notes,
+            unit_amount: data.unit_amount,
+            is_wholesale: data.is_wholesale,
             // Include batch data
             batch: {
                 issue_date: data.batch.issue_date || null,
@@ -164,59 +176,11 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
         }).format(amount || 0);
     };
 
-    const getUnitPrice = (product, unitType) => {
+    const getUnitPrice = (product) => {
         if (!product) return 0;
-
-        switch (unitType) {
-            case 'wholesale':
-                return product.wholesale_price || 0;
-            case 'retail':
-                return product.retail_price || 0;
-            default:
-                return 0;
-        }
-    };
-
-    const handleUnitTypeChange = (unitType) => {
-        setData('unit_type', unitType);
-
-        // Auto-fill price based on unit type
-        if (selectedProduct) {
-            const price = getUnitPrice(selectedProduct, unitType);
-            setData('price', price.toString());
-            
-            // Auto-fill batch prices from product
-            setData('batch', {
-                ...data.batch,
-                wholesale_price: selectedProduct.wholesale_price?.toString() || '',
-                retail_price: selectedProduct.retail_price?.toString() || '',
-                purchase_price: selectedProduct.purchase_price?.toString() || ''
-            });
-        }
-    };
-
-    const getAvailableUnits = (product) => {
-        const units = [];
-
-        if (product?.wholesaleUnit && product.whole_sale_unit_amount) {
-            units.push({
-                type: 'wholesale',
-                label: `${product.wholesaleUnit.name} (${product.wholesaleUnit.symbol})`,
-                amount: product.whole_sale_unit_amount,
-                price: product.wholesale_price
-            });
-        }
-
-        if (product?.retailUnit) {
-            units.push({
-                type: 'retail',
-                label: `${product.retailUnit.name} (${product.retailUnit.symbol})`,
-                amount: 1,
-                price: product.retail_price
-            });
-        }
-
-        return units;
+        // Since we no longer store prices in products table, return 0
+        // Prices will be entered manually or from batch data
+        return 0;
     };
 
     return (
@@ -345,7 +309,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                             )}
                                         </motion.div>
 
-                                        {/* Unit Type Selection */}
+                                        {/* Unit Information Display */}
                                         {selectedProduct && (
                                             <motion.div
                                                 initial={{ x: 20, opacity: 0 }}
@@ -353,60 +317,31 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                 transition={{ delay: 0.2, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                                                            <Label htmlFor="unit_type" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
-                                                <Weight className="w-5 h-5 text-orange-500 dark:text-orange-400" />
-                                                {t("Unit Type")} *
-                                            </Label>
-                                                <Select value={data.unit_type} onValueChange={handleUnitTypeChange} disabled={!selectedProduct}>
-                                                    <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.unit_type ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-400 focus:border-orange-500 dark:focus:border-orange-400'} ${!selectedProduct ? 'opacity-50 cursor-not-allowed' : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white'}`}>
-                                                        <SelectValue placeholder={selectedProduct ? t("Select unit type") : t("Select product first")} />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {selectedProduct && getAvailableUnits(selectedProduct).length > 0 ? (
-                                                            getAvailableUnits(selectedProduct).map((unit) => (
-                                                                                                                        <SelectItem key={unit.type} value={unit.type} className="p-4 hover:bg-gray-100 dark:hover:bg-gray-700">
-                                                            <div className="flex items-center space-x-4">
-                                                                <div className={`p-2 rounded-lg ${unit.type === 'wholesale' ? 'bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30' : 'bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30'}`}>
-                                                                    <Weight className={`h-5 w-5 ${unit.type === 'wholesale' ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'}`} />
-                                                                </div>
-                                                                <div>
-                                                                    <div className="font-semibold text-gray-900 dark:text-white">{unit.label}</div>
-                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
-                                                                        <DollarSign className="w-3 h-3" />
-                                                                        {formatCurrency(unit.price)} per unit
-                                                                        {unit.amount > 1 && (
-                                                                            <Badge variant="secondary" className="text-xs">
-                                                                                {unit.amount} pieces
-                                                                            </Badge>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
+                                                <Label className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <Weight className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+                                                    {t("Unit")}
+                                                </Label>
+                                                <div className="p-4 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg border border-orange-200 dark:border-orange-700">
+                                                    <div className="flex items-center space-x-4">
+                                                        <div className="p-2 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-lg">
+                                                            <Weight className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-semibold text-gray-900 dark:text-white">
+                                                                {selectedProduct.unit ? `${selectedProduct.unit.name} (${selectedProduct.unit.symbol})` : t("No Unit Assigned")}
                                                             </div>
-                                                        </SelectItem>
-                                                            ))
-                                                        ) : selectedProduct ? (
-                                                            <SelectItem value="" disabled>
-                                                                {t("No units configured for this product")}
-                                                            </SelectItem>
-                                                        ) : (
-                                                            <SelectItem value="" disabled>
-                                                                {t("Select product first")}
-                                                            </SelectItem>
-                                                        )}
-                                                    </SelectContent>
-                                                </Select>
-                                                {errors.unit_type && (
-                                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
-                                                        <AlertCircle className="w-4 h-4" />
-                                                        {errors.unit_type}
-                                                    </motion.p>
-                                                )}
+                                                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                                {t("Unit assigned to product")}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </motion.div>
                                         )}
 
                                         {/* Unit Information Display */}
                                         <AnimatePresence>
-                                            {selectedProduct && data.unit_type && (
+                                            {selectedProduct && (
                                                 <motion.div
                                                     initial={{ opacity: 0, height: 0 }}
                                                     animate={{ opacity: 1, height: "auto" }}
@@ -418,16 +353,13 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                         <AlertDescription className="text-blue-700 dark:text-blue-400 font-medium">
                                                             <div className="flex items-center justify-between">
                                                                 <span>
-                                                                    Selected unit: <strong>{data.unit_type}</strong>
-                                                                    {data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount > 1 && (
-                                                                        <span> (1 unit = {selectedProduct.whole_sale_unit_amount} pieces)</span>
-                                                                    )}
-                                                                    {data.unit_type === 'retail' && selectedProduct.retails_sale_unit_amount > 1 && (
-                                                                        <span> (1 unit = {selectedProduct.retails_sale_unit_amount} pieces)</span>
+                                                                    Product unit: <strong>{selectedProduct.unit ? selectedProduct.unit.name : t("No Unit")}</strong>
+                                                                    {data.unit_amount > 1 && (
+                                                                        <span> (1 unit = {data.unit_amount} pieces)</span>
                                                                     )}
                                                                 </span>
                                                                 <Badge variant="outline" className="text-blue-700">
-                                                                    {formatCurrency(getUnitPrice(selectedProduct, data.unit_type))} per unit
+                                                                    {formatCurrency(getUnitPrice(selectedProduct))} per unit
                                                                 </Badge>
                                                             </div>
                                                         </AlertDescription>
@@ -444,16 +376,10 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                 transition={{ delay: 0.3, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                                                            <Label htmlFor="quantity" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
-                                                <Hash className="w-5 h-5 text-blue-500 dark:text-blue-400" />
-                                                {data.unit_type === 'wholesale' ? (
-                                                    <>{t("Wholesale Quantity")} ({selectedProduct?.wholesaleUnit?.symbol || 'Units'}) *</>
-                                                ) : data.unit_type === 'retail' ? (
-                                                    <>{t("Retail Quantity")} ({selectedProduct?.retailUnit?.symbol || 'Units'}) *</>
-                                                ) : (
-                                                    <>{t("Quantity")} *</>
-                                                )}
-                                            </Label>
+                                                <Label htmlFor="quantity" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <Hash className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                                                    {t("Quantity")} ({selectedProduct?.unit?.symbol || 'Units'}) *
+                                                </Label>
                                                 <div className="relative">
                                                     <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                                     <Input
@@ -461,7 +387,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                         type="number"
                                                         step="0.01"
                                                         min="0.01"
-                                                        placeholder={data.unit_type ? `Enter ${data.unit_type} quantity` : t("Enter quantity")}
+                                                        placeholder={t("Enter quantity")}
                                                         value={data.quantity}
                                                         onChange={(e) => setData('quantity', e.target.value)}
                                                         className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.quantity ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 focus:border-blue-500 dark:focus:border-blue-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
@@ -482,10 +408,10 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                 transition={{ delay: 0.4, duration: 0.4 }}
                                                 className="space-y-3"
                                             >
-                                                                                            <Label htmlFor="price" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
-                                                <DollarSign className="w-5 h-5 text-green-500 dark:text-green-400" />
-                                                {t("Price per Unit")} *
-                                            </Label>
+                                                <Label htmlFor="price" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <DollarSign className="w-5 h-5 text-green-500 dark:text-green-400" />
+                                                    {t("Price per Unit")} *
+                                                </Label>
                                                 <div className="relative">
                                                     <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                                     <Input
@@ -508,9 +434,83 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                             </motion.div>
                                         </div>
 
+                                        {/* Unit Amount and Wholesale Toggle */}
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                            {/* Unit Amount */}
+                                            <motion.div
+                                                initial={{ x: -20, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: 0.5, duration: 0.4 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label htmlFor="unit_amount" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <Calculator className="w-5 h-5 text-purple-500 dark:text-purple-400" />
+                                                    {t("Unit Amount")} *
+                                                </Label>
+                                                <div className="relative">
+                                                    <Calculator className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Input
+                                                        id="unit_amount"
+                                                        type="number"
+                                                        step="1"
+                                                        min="1"
+                                                        placeholder={t("Enter unit amount")}
+                                                        value={data.unit_amount}
+                                                        onChange={(e) => setData('unit_amount', e.target.value)}
+                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.unit_amount ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-400 focus:border-purple-500 dark:focus:border-purple-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
+                                                    />
+                                                </div>
+                                                {errors.unit_amount && (
+                                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                        <AlertCircle className="w-4 h-4" />
+                                                        {errors.unit_amount}
+                                                    </motion.p>
+                                                )}
+                                            </motion.div>
+
+                                            {/* Is Wholesale Toggle */}
+                                            <motion.div
+                                                initial={{ x: 20, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: 0.6, duration: 0.4 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <Package className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+                                                    {t("Wholesale")}
+                                                </Label>
+                                                <div className="flex items-center space-x-4 h-14">
+                                                    <Button
+                                                        type="button"
+                                                        variant={data.is_wholesale ? "default" : "outline"}
+                                                        onClick={() => setData('is_wholesale', true)}
+                                                        className={`flex-1 h-14 ${data.is_wholesale ? 'bg-orange-600 hover:bg-orange-700 text-white' : 'border-orange-300 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20'}`}
+                                                    >
+                                                        <CheckCircle className="w-4 h-4 mr-2" />
+                                                        {t("Wholesale")}
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant={!data.is_wholesale ? "default" : "outline"}
+                                                        onClick={() => setData('is_wholesale', false)}
+                                                        className={`flex-1 h-14 ${!data.is_wholesale ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-blue-300 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}
+                                                    >
+                                                        <Package className="w-4 h-4 mr-2" />
+                                                        {t("Retail")}
+                                                    </Button>
+                                                </div>
+                                                {errors.is_wholesale && (
+                                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                        <AlertCircle className="w-4 h-4" />
+                                                        {errors.is_wholesale}
+                                                    </motion.p>
+                                                )}
+                                            </motion.div>
+                                        </div>
+
                                         {/* Calculation Summary */}
                                         <AnimatePresence>
-                                            {selectedProduct && data.unit_type && data.quantity > 0 && data.price > 0 && (
+                                            {selectedProduct && data.quantity > 0 && data.price > 0 && (
                                                 <motion.div
                                                     initial={{ opacity: 0, height: 0 }}
                                                     animate={{ opacity: 1, height: "auto" }}
@@ -527,16 +527,14 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                                 <p className="text-xs">
                                                                     <strong>{t("Input")}:</strong> {data.quantity} × {formatCurrency(data.price)} = {formatCurrency(data.quantity*data.price)}
                                                                 </p>
-                                                                {data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount > 1 && (
+                                                                {data.unit_amount > 1 && (
                                                                     <p className="text-xs">
-                                                                        <strong>{t("Database")}:</strong> {data.quantity} × {selectedProduct.whole_sale_unit_amount} = {calculatedQuantity} {t("units")}
+                                                                        <strong>{t("Database")}:</strong> {data.quantity} × {data.unit_amount} = {calculatedQuantity} {t("units")}
                                                                     </p>
                                                                 )}
-                                                                {data.unit_type === 'retail' && selectedProduct.retails_sale_unit_amount > 1 && (
-                                                                    <p className="text-xs">
-                                                                        <strong>{t("Database")}:</strong> {data.quantity} × {selectedProduct.retails_sale_unit_amount} = {calculatedQuantity} {t("units")}
-                                                                    </p>
-                                                                )}
+                                                                <p className="text-xs">
+                                                                    <strong>{t("Type")}:</strong> {data.is_wholesale ? t("Wholesale") : t("Retail")}
+                                                                </p>
                                                             </div>
                                                         </AlertDescription>
                                                     </Alert>

@@ -16,7 +16,9 @@ class PurchaseItem extends Model
         'quantity',
         'price',
         'total_price',
-        'unit_type'
+        'unit_type',
+        'unit_amount',
+        'is_wholesale'
     ];
 
     public function purchase()
