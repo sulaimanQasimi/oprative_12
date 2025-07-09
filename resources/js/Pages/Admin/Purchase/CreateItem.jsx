@@ -44,7 +44,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function CreateItem({ auth, purchase, products, permissions = {} }) {
+export default function CreateItem({ auth, purchase, products, units, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
@@ -55,6 +55,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
 
     const { data, setData, post, processing, errors } = useForm({
         product_id: '',
+        unit_id: '',
         quantity: '',
         unit_type: '',
         price: '',
@@ -137,6 +138,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
         // Create submission data with calculated values and batch data
         const submissionData = {
             product_id: data.product_id,
+            unit_id: data.unit_id,
             unit_type: data.unit_type,
             quantity: finalQuantity,
             price: data.price,
@@ -309,7 +311,48 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                             )}
                                         </motion.div>
 
-                                        {/* Unit Information Display */}
+                                        {/* Unit Selection */}
+                                        <motion.div
+                                            initial={{ x: 20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.2, duration: 0.4 }}
+                                            className="space-y-3"
+                                        >
+                                            <Label htmlFor="unit_id" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                <Weight className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+                                                {t("Unit")} *
+                                            </Label>
+                                            <Select value={data.unit_id} onValueChange={(value) => setData('unit_id', value)}>
+                                                <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.unit_id ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-400 focus:border-orange-500 dark:focus:border-orange-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}>
+                                                    <SelectValue placeholder={t("Select unit")} />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                                                    {units?.map((unit) => (
+                                                        <SelectItem key={unit.id} value={unit.id.toString()} className="p-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            <div className="flex items-center space-x-4">
+                                                                <div className="p-2 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-lg">
+                                                                    <Weight className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <div className="font-semibold text-gray-900 dark:text-white">{unit.name}</div>
+                                                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                                        {unit.code}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.unit_id && (
+                                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                    <AlertCircle className="w-4 h-4" />
+                                                    {errors.unit_id}
+                                                </motion.p>
+                                            )}
+                                        </motion.div>
+
+                                        {/* Product Unit Information Display */}
                                         {selectedProduct && (
                                             <motion.div
                                                 initial={{ x: 20, opacity: 0 }}
@@ -318,20 +361,20 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                 className="space-y-3"
                                             >
                                                 <Label className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
-                                                    <Weight className="w-5 h-5 text-orange-500 dark:text-orange-400" />
-                                                    {t("Unit")}
+                                                    <Info className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                                                    {t("Product Unit Info")}
                                                 </Label>
-                                                <div className="p-4 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg border border-orange-200 dark:border-orange-700">
+                                                <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
                                                     <div className="flex items-center space-x-4">
-                                                        <div className="p-2 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-lg">
-                                                            <Weight className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                                                        <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
+                                                            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                                                         </div>
                                                         <div>
                                                             <div className="font-semibold text-gray-900 dark:text-white">
-                                                                {selectedProduct.unit ? `${selectedProduct.unit.name} (${selectedProduct.unit.symbol})` : t("No Unit Assigned")}
+                                                                {selectedProduct.unit ? `${selectedProduct.unit.name} (${selectedProduct.unit.code})` : t("No Unit Assigned")}
                                                             </div>
                                                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                                                                {t("Unit assigned to product")}
+                                                                {t("Default unit assigned to product")}
                                                             </div>
                                                         </div>
                                                     </div>
@@ -378,7 +421,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                             >
                                                 <Label htmlFor="quantity" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
                                                     <Hash className="w-5 h-5 text-blue-500 dark:text-blue-400" />
-                                                    {t("Quantity")} ({selectedProduct?.unit?.symbol || 'Units'}) *
+                                                    {t("Quantity")} ({units?.find(u => u.id.toString() === data.unit_id)?.code || selectedProduct?.unit?.code || 'Units'}) *
                                                 </Label>
                                                 <div className="relative">
                                                     <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
@@ -529,7 +572,7 @@ export default function CreateItem({ auth, purchase, products, permissions = {} 
                                                                 </p>
                                                                 {data.unit_amount > 1 && (
                                                                     <p className="text-xs">
-                                                                        <strong>{t("Database")}:</strong> {data.quantity} × {data.unit_amount} = {calculatedQuantity} {t("units")}
+                                                                        <strong>{t("Database")}:</strong> {data.quantity} × {data.unit_amount} = {calculatedQuantity} {units?.find(u => u.id.toString() === data.unit_id)?.code || selectedProduct?.unit?.code || 'units'}
                                                                     </p>
                                                                 )}
                                                                 <p className="text-xs">
