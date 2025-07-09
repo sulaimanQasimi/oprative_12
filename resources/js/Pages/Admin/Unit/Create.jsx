@@ -7,7 +7,6 @@ import {
     Save,
     Package,
     Hash,
-    Star,
     AlertCircle,
     CheckCircle,
     Sparkles,
@@ -36,7 +35,6 @@ export default function Create({ auth, permissions = {} }) {
     const { data, setData, post, processing, errors } = useForm({
         name: "",
         code: "",
-        symbol: "",
     });
 
     // Animation effect
@@ -386,13 +384,7 @@ export default function Create({ auth, permissions = {} }) {
                                                             className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
                                                         >
                                                             <Hash className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                                                            {t("Code")}
-                                                            <Badge
-                                                                variant="secondary"
-                                                                className="text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
-                                                            >
-                                                                {t("Optional")}
-                                                            </Badge>
+                                                            {t("Code")} *
                                                         </Label>
                                                             <Input
                                                                 id="code"
@@ -433,71 +425,6 @@ export default function Create({ auth, permissions = {} }) {
                                                     </motion.div>
                                                 </div>
 
-                                                {/* Symbol */}
-                                                <motion.div
-                                                    initial={{
-                                                        y: 20,
-                                                        opacity: 0,
-                                                    }}
-                                                    animate={{
-                                                        y: 0,
-                                                        opacity: 1,
-                                                    }}
-                                                    transition={{
-                                                        delay: 1.2,
-                                                        duration: 0.4,
-                                                    }}
-                                                    className="space-y-3"
-                                                >
-                                                    <Label
-                                                        htmlFor="symbol"
-                                                        className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2"
-                                                    >
-                                                        <Star className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                                                        {t("Symbol")}
-                                                        <Badge
-                                                            variant="secondary"
-                                                            className="text-xs bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
-                                                        >
-                                                            {t("Optional")}
-                                                        </Badge>
-                                                    </Label>
-                                                        <Input
-                                                            id="symbol"
-                                                            type="text"
-                                                            placeholder={t(
-                                                                "Enter unit symbol (e.g., kg, pcs, m)"
-                                                            )}
-                                                            value={data.symbol}
-                                                            onChange={(e) =>
-                                                                setData(
-                                                                    "symbol",
-                                                                    e.target
-                                                                        .value
-                                                                )
-                                                            }
-                                                        className={`h-11 transition-all duration-200 bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 ${
-                                                                errors.symbol
-                                                                ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
-                                                                : "border-gray-300 dark:border-slate-600 focus:border-purple-500 focus:ring-purple-500/20"
-                                                        }`}
-                                                        />
-                                                    {errors.symbol && (
-                                                        <motion.p
-                                                            initial={{
-                                                                opacity: 0,
-                                                            }}
-                                                            animate={{
-                                                                opacity: 1,
-                                                            }}
-                                                            className="text-sm text-red-600 dark:text-red-400 flex items-center gap-1"
-                                                        >
-                                                            <AlertCircle className="w-4 h-4" />
-                                                            {errors.symbol}
-                                                        </motion.p>
-                                                    )}
-                                                </motion.div>
-
                                                 {/* Info Alert */}
                                                 <motion.div
                                                     initial={{ opacity: 0 }}
@@ -514,7 +441,7 @@ export default function Create({ auth, permissions = {} }) {
                                                                 {t("Tip")}:
                                                             </strong>{" "}
                                                             {t(
-                                                                "Create clear and consistent unit names. Symbols should be short and universally recognized."
+                                                                "Create clear and consistent unit names. Use descriptive codes for easy identification."
                                                             )}
                                                         </AlertDescription>
                                                     </Alert>

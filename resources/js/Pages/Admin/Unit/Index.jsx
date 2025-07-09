@@ -70,9 +70,6 @@ export default function Index({ auth, units = [], permissions = {} }) {
                       .includes(searchTerm.toLowerCase()) ||
                   (unit?.code || "")
                       .toLowerCase()
-                      .includes(searchTerm.toLowerCase()) ||
-                  (unit?.symbol || "")
-                      .toLowerCase()
                       .includes(searchTerm.toLowerCase())
           )
         : [];
@@ -113,7 +110,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
     // Calculate totals
     const totalUnits = filteredUnits.length;
     const totalCodes = filteredUnits.filter((unit) => unit.code).length;
-    const totalSymbols = filteredUnits.filter((unit) => unit.symbol).length;
+    const totalActive = filteredUnits.length; // All units are considered active since we removed is_activated
 
     const clearFilters = () => {
         setSearchTerm("");
@@ -405,19 +402,19 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-2">
-                                                            {t("With Symbols")}
+                                                            {t("Active Units")}
                                                         </p>
-                                                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
-                                                            {totalSymbols}
+                                                        <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+                                                            {totalActive}
                                                         </p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                                             {t(
-                                                                "Units with symbols"
+                                                                "Currently active"
                                                             )}
                                                         </p>
                                                     </div>
-                                                    <div className="p-4 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-2xl">
-                                                        <Star className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                                                    <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/50 dark:to-emerald-900/50 rounded-2xl">
+                                                        <Package className="h-8 w-8 text-green-600 dark:text-green-400" />
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -470,7 +467,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 dark:text-slate-500 h-5 w-5" />
                                                     <Input
                                                         placeholder={t(
-                                                            "Search units by name, code, or symbol..."
+                                                            "Search units by name or code..."
                                                         )}
                                                         value={searchTerm}
                                                         onChange={(e) =>
@@ -547,11 +544,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                                 "Code"
                                                                             )}
                                                                         </SelectItem>
-                                                                        <SelectItem value="symbol">
-                                                                            {t(
-                                                                                "Symbol"
-                                                                            )}
-                                                                        </SelectItem>
+
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
@@ -671,23 +664,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                     <ArrowUpDown className="h-4 w-4" />
                                                                 </div>
                                                             </TableHead>
-                                                            <TableHead
-                                                                className="font-semibold text-slate-700 dark:text-slate-300 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800"
-                                                                onClick={() =>
-                                                                    handleSort(
-                                                                        "symbol"
-                                                                    )
-                                                                }
-                                                            >
-                                                                <div className="flex items-center space-x-1">
-                                                                    <span>
-                                                                        {t(
-                                                                            "Symbol"
-                                                                        )}
-                                                                    </span>
-                                                                    <ArrowUpDown className="h-4 w-4" />
-                                                                </div>
-                                                            </TableHead>
+
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
                                                                 {t("Actions")}
                                                             </TableHead>
@@ -729,17 +706,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                                                     )}
                                                                             </span>
                                                                         </TableCell>
-                                                                        <TableCell>
-                                                                            <Badge
-                                                                                variant="secondary"
-                                                                                className="bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800"
-                                                                            >
-                                                                                {unit.symbol ||
-                                                                                    t(
-                                                                                        "—"
-                                                                                    )}
-                                                                            </Badge>
-                                                                        </TableCell>
+
                                                                         <TableCell className="text-right">
                                                                             <div className="flex items-center justify-end space-x-2">
                                                                                 {permissions.can_update && (
@@ -773,7 +740,7 @@ export default function Index({ auth, units = [], permissions = {} }) {
                                                         ) : (
                                                             <TableRow>
                                                                 <TableCell
-                                                                    colSpan="4"
+                                                                    colSpan="3"
                                                                     className="h-32 text-center"
                                                                 >
                                                                     <div className="flex flex-col items-center gap-4">

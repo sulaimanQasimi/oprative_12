@@ -58,7 +58,6 @@ class UnitController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:units',
-            'symbol' => 'required|string|max:10',
         ]);
 
         Unit::create($validated);
@@ -98,7 +97,6 @@ class UnitController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:255|unique:units,code,' . $unit->id,
-            'symbol' => 'required|string|max:10',
         ]);
 
         $unit->update($validated);

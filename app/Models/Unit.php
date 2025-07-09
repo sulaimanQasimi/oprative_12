@@ -12,9 +12,11 @@ class Unit extends Model
     protected $fillable = [
         'name',
         'code',
-        'symbol',
-        'is_activated',
     ];
 
-
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 }
