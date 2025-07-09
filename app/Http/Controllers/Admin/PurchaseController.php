@@ -746,7 +746,7 @@ class PurchaseController extends Controller
                     'warehouse_id' => $validated['warehouse_id'],
                     'product_id' => $item->product_id,
                     'batch_id' => $batch ? $batch->id : null,
-                    'quantity' => $item->quantity,
+                    'quantity' => $item->quantity * $item->unit_amount,
                     'price' => $item->price,
                     'total' => $item->total_price,
                     'model_type' => 'App\\Models\\Purchase',

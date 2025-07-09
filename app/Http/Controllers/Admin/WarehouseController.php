@@ -306,7 +306,7 @@ class WarehouseController extends Controller
                 $profit = $totalOutcomeValue - $totalIncomeValue;
 
                 // Get product details from database
-                $product = Product::with(['wholesaleUnit', 'retailUnit'])->find($productId);
+                $product = Product::with(['unit'])->find($productId);
                 
                 if ($product) {
                     $products->push([
@@ -317,21 +317,6 @@ class WarehouseController extends Controller
                             'name' => $product->name,
                             'barcode' => $product->barcode,
                             'type' => $product->type,
-                            'purchase_price' => $product->purchase_price,
-                            'wholesale_price' => $product->wholesale_price,
-                            'retail_price' => $product->retail_price,
-                            'wholesaleUnit' => $product->wholesaleUnit ? [
-                                'id' => $product->wholesaleUnit->id,
-                                'name' => $product->wholesaleUnit->name,
-                                'code' => $product->wholesaleUnit->code,
-                                'symbol' => $product->wholesaleUnit->symbol,
-                            ] : null,
-                            'retailUnit' => $product->retailUnit ? [
-                                'id' => $product->retailUnit->id,
-                                'name' => $product->retailUnit->name,
-                                'code' => $product->retailUnit->code,
-                                'symbol' => $product->retailUnit->symbol,
-                            ] : null,
                             'is_activated' => $product->is_activated,
                             'is_in_stock' => $product->is_in_stock,
                         ],
