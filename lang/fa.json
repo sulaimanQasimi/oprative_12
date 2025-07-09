@@ -1,12 +1,22 @@
 {
+  "Items to Transfer":"اقلام برای انتقال",
+  "Items to transfer:": "اقلام برای انتقال:",
+  "Total quantity:": "تعداد کل",
+  "Items Subtotal": "مجموع قیمت اقلام",
+  "costs": "هزینه‌ها",
+  "Outstanding": "مانده قابل پرداخت",
   "General Category": "دسته عمومی",
   "Sub Category": "دسته زیرمجموعه",
   "Final Category": "دسته پایانی",
   "Create Category": "ایجاد دسته",
   "Create New Category": "ایجاد دسته جدید",
-  
-
-
+  "Remaining Balance": "مانده قابل پرداخت",
+  "Unit Amount": "تعداد واحد",
+  "Automatically set based on unit amount": "به صورت خودکار بر اساس تعداد واحد تنظیم شده است",
+  "Add New Item": "افزودن قلم جدید",
+  "Units": "واحدها",
+  "Select Unit": "انتخاب واحد",
+  "Select Product": "انتخاب محصول",
   "This purchase has arrived and is ready to be transferred to a warehouse. All items will be added to the selected warehouse inventory as incoming stock.": "این خرید به انبار منتقل شده و آماده انتقال است. همه اقلام به موجودی گدام منتقل خواهند شد.",
   "Transfer to Warehouse": "انتقال به گدام",
   "Ready for Warehouse Transfer": "آماده برای انتقال به گدام",
