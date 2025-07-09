@@ -540,7 +540,7 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                         className={`flex-1 h-14 ${data.is_wholesale ? 'bg-orange-600 text-white' : 'border-orange-300 text-orange-600 bg-gray-50 dark:bg-gray-800'}`}
                                                     >
                                                         <CheckCircle className="w-4 h-4 mr-2" />
-                                                        {t("Wholesale")}
+                                                        {units?.find(u => u.id.toString() === data.unit_id)?.name || t("Wholesale")}
                                                     </Button>
                                                     <Button
                                                         type="button"
