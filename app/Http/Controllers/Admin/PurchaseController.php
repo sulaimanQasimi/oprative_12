@@ -355,6 +355,11 @@ class PurchaseController extends Controller
                     'whole_sale_unit_amount' => 1, // Default value
                     'retails_sale_unit_amount' => 1, // Default value
                     'available_stock' => 0, // Will be calculated from warehouse data
+                    'unit' => [
+                        'id' => $product->unit_id,
+                        'name' => $product->unit->name,
+                        'code' => $product->unit->code,
+                    ],
                 ];
             });
 
@@ -418,7 +423,7 @@ class PurchaseController extends Controller
             $unitId = $validated['unit_id'];
             $unitAmount = $validated['unit_amount'];
             $unitName = $unit->name;
-            
+
             // Use the quantity as provided by the frontend (already calculated)
             $qty = $validated['quantity'];
 

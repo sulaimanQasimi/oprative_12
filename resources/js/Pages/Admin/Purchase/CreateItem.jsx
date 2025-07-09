@@ -99,6 +99,16 @@ export default function CreateItem({ auth, purchase, products, units, permission
         }
     }, [data.product_id, products]);
 
+    // Auto-set wholesale/retail based on unit amount
+    useEffect(() => {
+        const unitAmount = parseInt(data.unit_amount) || 1;
+        const shouldBeWholesale = unitAmount > 1;
+        
+        if (data.is_wholesale !== shouldBeWholesale) {
+            setData('is_wholesale', shouldBeWholesale);
+        }
+    }, [data.unit_amount]);
+
     // Calculate actual quantity and total
     useEffect(() => {
         if (selectedProduct && data.unit_type && data.quantity && data.price) {
@@ -520,14 +530,14 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                             >
                                                 <Label className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
                                                     <Package className="w-5 h-5 text-orange-500 dark:text-orange-400" />
-                                                    {t("Wholesale")}
+                                                    {t("Type")} ({t("Auto")})
                                                 </Label>
                                                 <div className="flex items-center space-x-4 h-14">
                                                     <Button
                                                         type="button"
                                                         variant={data.is_wholesale ? "default" : "outline"}
-                                                        onClick={() => setData('is_wholesale', true)}
-                                                        className={`flex-1 h-14 ${data.is_wholesale ? 'bg-orange-600 hover:bg-orange-700 text-white' : 'border-orange-300 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20'}`}
+                                                        disabled
+                                                        className={`flex-1 h-14 ${data.is_wholesale ? 'bg-orange-600 text-white' : 'border-orange-300 text-orange-600 bg-gray-50 dark:bg-gray-800'}`}
                                                     >
                                                         <CheckCircle className="w-4 h-4 mr-2" />
                                                         {t("Wholesale")}
@@ -535,13 +545,17 @@ export default function CreateItem({ auth, purchase, products, units, permission
                                                     <Button
                                                         type="button"
                                                         variant={!data.is_wholesale ? "default" : "outline"}
-                                                        onClick={() => setData('is_wholesale', false)}
-                                                        className={`flex-1 h-14 ${!data.is_wholesale ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-blue-300 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20'}`}
+                                                        disabled
+                                                        className={`flex-1 h-14 ${!data.is_wholesale ? 'bg-blue-600 text-white' : 'border-blue-300 text-blue-600 bg-gray-50 dark:bg-gray-800'}`}
                                                     >
                                                         <Package className="w-4 h-4 mr-2" />
-                                                        {t("Retail")}
+                                                        {selectedProduct?.unit?.name || t("Retail")}
                                                     </Button>
                                                 </div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                                    <Info className="w-3 h-3" />
+                                                    {t("Automatically set based on unit amount")}
+                                                </p>
                                                 {errors.is_wholesale && (
                                                     <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
                                                         <AlertCircle className="w-4 h-4" />
