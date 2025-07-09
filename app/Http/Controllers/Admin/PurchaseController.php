@@ -740,7 +740,7 @@ class PurchaseController extends Controller
             // Create warehouse income records for each purchase item
             foreach ($purchase->purchaseItems as $item) {
                 // Find the batch for this purchase item
-                $batch = \App\Models\Batch::where('purchase_item_id', $item->id)->first();
+                $batch = Batch::where('purchase_item_id', $item->id)->first();
                 \App\Models\WarehouseIncome::create([
                     'reference_number' => $referenceNumber,
                     'warehouse_id' => $validated['warehouse_id'],
@@ -751,6 +751,11 @@ class PurchaseController extends Controller
                     'total' => $item->total_price,
                     'model_type' => 'App\\Models\\Purchase',
                     'model_id' => $purchase->id,
+                    'unit_type' => $item->unit_type,
+                    'is_wholesale' => $item->is_wholesale,
+                    'unit_id' => $item->unit_id,
+                    'unit_amount' => $item->unit_amount,
+                    'unit_name' => $item->unit_name,
                 ]);
             }
 
