@@ -475,17 +475,10 @@ export default function Products({ auth, warehouse, products }) {
                                                                         </TableCell>
                                                                         <TableCell>
                                                                             <div className="space-y-1">
-                                                                                {batch.product.wholesaleUnit && (
-                                                                                    <div className="text-xs">
-                                                                                        <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                                                                                            {batch.product.wholesaleUnit.name} ({batch.product.wholesaleUnit.symbol})
-                                                                                        </Badge>
-                                                                                    </div>
-                                                                                )}
-                                                                                {batch.product.retailUnit && (
+                                                                                {batch.product.unit && (
                                                                                     <div className="text-xs">
                                                                                         <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                                                            {batch.product.retailUnit.name} ({batch.product.retailUnit.symbol})
+                                                                                            {batch.product.unit.name} ({batch.product.unit.symbol})
                                                                                         </Badge>
                                                                                     </div>
                                                                                 )}

@@ -290,7 +290,7 @@ class WarehouseController extends Controller
                 ->get()
                 ->map(function ($batch) {
                     // Get product details from database
-                    $product = Product::with(['wholesaleUnit', 'retailUnit'])->find($batch->product_id);
+                    $product = Product::with(['unit'])->find($batch->product_id);
                     
                     return [
                         'batch_id' => $batch->batch_id,
@@ -303,17 +303,11 @@ class WarehouseController extends Controller
                             'type' => $product->type ?? 'Unknown',
                             'is_activated' => $product->is_activated ?? true,
                             'is_in_stock' => $product->is_in_stock ?? true,
-                            'wholesaleUnit' => $product->wholesaleUnit ? [
-                                'id' => $product->wholesaleUnit->id,
-                                'name' => $product->wholesaleUnit->name,
-                                'code' => $product->wholesaleUnit->code,
-                                'symbol' => $product->wholesaleUnit->symbol,
-                            ] : null,
-                            'retailUnit' => $product->retailUnit ? [
-                                'id' => $product->retailUnit->id,
-                                'name' => $product->retailUnit->name,
-                                'code' => $product->retailUnit->code,
-                                'symbol' => $product->retailUnit->symbol,
+                            'unit' => $product->unit ? [
+                                'id' => $product->unit->id,
+                                'name' => $product->unit->name,
+                                'code' => $product->unit->code,
+                                'symbol' => $product->unit->symbol ?? $product->unit->code,
                             ] : null,
                         ],
                         'warehouse_id' => $batch->warehouse_id,
