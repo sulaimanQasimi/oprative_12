@@ -290,7 +290,7 @@ class WarehouseController extends Controller
                 ->get()
                 ->map(function ($batch) {
                     // Get product details from database
-                    $product = Product::with(['unit'])->find($batch->product_id);
+                    $product = Product::find($batch->product_id);
                     
                     return [
                         'batch_id' => $batch->batch_id,
@@ -303,12 +303,6 @@ class WarehouseController extends Controller
                             'type' => $product->type ?? 'Unknown',
                             'is_activated' => $product->is_activated ?? true,
                             'is_in_stock' => $product->is_in_stock ?? true,
-                            'unit' => $product->unit ? [
-                                'id' => $product->unit->id,
-                                'name' => $product->unit->name,
-                                'code' => $product->unit->code,
-                                'symbol' => $product->unit->symbol ?? $product->unit->code,
-                            ] : null,
                         ],
                         'warehouse_id' => $batch->warehouse_id,
                         'warehouse_name' => $batch->warehouse_name,
@@ -322,6 +316,11 @@ class WarehouseController extends Controller
                         'total_outcome_value' => $batch->total_outcome_value,
                         'expiry_status' => $batch->expiry_status,
                         'days_to_expiry' => $batch->days_to_expiry,
+                        // Unit information from batch
+                        'unit_type' => $batch->unit_type,
+                        'unit_id' => $batch->unit_id,
+                        'unit_amount' => $batch->unit_amount,
+                        'unit_name' => $batch->unit_name,
                         // Calculate average price per unit
                         'avg_price_per_unit' => $batch->income_qty > 0 ? $batch->total_income_value / $batch->income_qty : 0,
                         // Calculate profit for this batch

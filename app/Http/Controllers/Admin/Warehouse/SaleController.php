@@ -96,7 +96,6 @@ trait SaleController{
             // Get warehouse products directly from WarehouseBatchInventory
             $warehouseBatchInventory = \App\Models\WarehouseBatchInventory::forWarehouse($warehouse->id)
                 ->withStock()
-                ->with(['product.wholesaleUnit', 'product.retailUnit'])
                 ->get()
                 ->groupBy('product_id');
 
@@ -122,6 +121,10 @@ trait SaleController{
                         'remaining_quantity' => $batchInventory->remaining_qty,
                         'expiry_status' => $batchInventory->expiry_status,
                         'days_to_expiry' => $batchInventory->days_to_expiry,
+                        'unit_type' => $batchInventory->unit_type,
+                        'unit_id' => $batchInventory->unit_id,
+                        'unit_amount' => $batchInventory->unit_amount,
+                        'unit_name' => $batchInventory->unit_name,
                     ];
                 })->values();
 
@@ -134,20 +137,13 @@ trait SaleController{
                     'purchase_price' => $product->purchase_price,
                     'wholesale_price' => $product->wholesale_price,
                     'retail_price' => $product->retail_price,
-                    'wholesale_unit_id' => $product->wholesale_unit_id,
-                    'retail_unit_id' => $product->retail_unit_id,
-                    'whole_sale_unit_amount' => $product->whole_sale_unit_amount,
-                    'retails_sale_unit_amount' => $product->retails_sale_unit_amount,
-                    'wholesaleUnit' => $product->wholesaleUnit ? [
-                        'id' => $product->wholesaleUnit->id,
-                        'name' => $product->wholesaleUnit->name,
-                        'code' => $product->wholesaleUnit->code,
-                    ] : null,
-                    'retailUnit' => $product->retailUnit ? [
-                        'id' => $product->retailUnit->id,
-                        'name' => $product->retailUnit->name,
-                        'code' => $product->retailUnit->code,
-                    ] : null,
+                    'unit_id' => $product->unit_id,
+                    'whole_sale_unit_amount' => $product->whole_sale_unit_amount ?? 1,
+                    'retails_sale_unit_amount' => $product->retails_sale_unit_amount ?? 1,
+                    'unit_type' => $firstBatch->unit_type,
+                    'unit_id' => $firstBatch->unit_id,
+                    'unit_amount' => $firstBatch->unit_amount,
+                    'unit_name' => $firstBatch->unit_name,
                     'available_batches' => $batches,
                 ];
             })->filter(function ($product) {
