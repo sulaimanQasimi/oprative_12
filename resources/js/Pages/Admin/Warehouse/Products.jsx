@@ -71,7 +71,8 @@ export default function Products({ auth, warehouse, products }) {
         if (searchTerm) {
             filtered = filtered.filter(product =>
                 product.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                product.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase())
+                product.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                product.batch_reference?.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
@@ -99,8 +100,8 @@ export default function Products({ auth, warehouse, products }) {
 
     // Calculate summary statistics
     const totalProducts = filteredProducts.length;
-    const totalValue = filteredProducts.reduce((sum, product) => sum + (product.net_total || 0), 0);
-    const totalQuantity = filteredProducts.reduce((sum, product) => sum + (product.net_quantity || 0), 0);
+    const totalValue = filteredProducts.reduce((sum, product) => sum + (product.total_income_value || 0), 0);
+    const totalQuantity = filteredProducts.reduce((sum, product) => sum + (product.remaining_qty || 0), 0);
     const totalProfit = filteredProducts.reduce((sum, product) => sum + (product.profit || 0), 0);
 
     const formatCurrency = (amount) => {
@@ -120,13 +121,11 @@ export default function Products({ auth, warehouse, products }) {
     const getExpiryStatus = (batches) => {
         if (!batches || batches.length === 0) return { status: 'no_batch', color: 'bg-gray-500', text: 'No Batch Info' };
         
-        const expiredBatches = batches.filter(batch => batch.expiry_status === 'expired');
-        const expiringSoonBatches = batches.filter(batch => batch.expiry_status === 'expiring_soon');
-        
-        if (expiredBatches.length > 0) {
+        const batch = batches[0]; // Since we're now dealing with individual batches
+        if (batch.expiry_status === 'expired') {
             return { status: 'expired', color: 'bg-red-500', text: 'Expired' };
         }
-        if (expiringSoonBatches.length > 0) {
+        if (batch.expiry_status === 'expiring_soon') {
             return { status: 'expiring_soon', color: 'bg-yellow-500', text: 'Expiring Soon' };
         }
         return { status: 'valid', color: 'bg-green-500', text: 'Valid' };
@@ -350,11 +349,13 @@ export default function Products({ auth, warehouse, products }) {
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value="product.name">{t("Product Name")}</SelectItem>
-                                                        <SelectItem value="net_quantity">{t("Stock Quantity")}</SelectItem>
-                                                        <SelectItem value="net_total">{t("Total Value")}</SelectItem>
+                                                        <SelectItem value="remaining_qty">{t("Remaining Quantity")}</SelectItem>
+                                                        <SelectItem value="total_income_value">{t("Income Value")}</SelectItem>
                                                         <SelectItem value="profit">{t("Profit")}</SelectItem>
-                                                        <SelectItem value="income_quantity">{t("Income Quantity")}</SelectItem>
-                                                        <SelectItem value="outcome_quantity">{t("Outcome Quantity")}</SelectItem>
+                                                        <SelectItem value="income_qty">{t("Income Quantity")}</SelectItem>
+                                                        <SelectItem value="outcome_qty">{t("Outcome Quantity")}</SelectItem>
+                                                        <SelectItem value="expire_date">{t("Expire Date")}</SelectItem>
+                                                        <SelectItem value="batch_reference">{t("Batch Reference")}</SelectItem>
                                                     </SelectContent>
                                                 </Select>
                                                 <Button
@@ -396,6 +397,9 @@ export default function Products({ auth, warehouse, products }) {
                                                         <TableHeader>
                                                             <TableRow className="bg-slate-50/50 dark:bg-slate-600/50">
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300">
+                                                                    {t("Batch Ref")}
+                                                                </TableHead>
+                                                                <TableHead className="font-bold text-slate-700 dark:text-slate-300">
                                                                     {t("Product")}
                                                                 </TableHead>
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300">
@@ -417,35 +421,40 @@ export default function Products({ auth, warehouse, products }) {
                                                                     {t("Outcome Total")}
                                                                 </TableHead>
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
-                                                                    {t("Stock")}
+                                                                    {t("Remaining")}
                                                                 </TableHead>
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-right">
                                                                     {t("Profit")}
                                                                 </TableHead>
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
-                                                                    {t("Stock Status")}
+                                                                    {t("Issue Date")}
                                                                 </TableHead>
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
-                                                                    {t("Expiry Status")}
+                                                                    {t("Expire Date")}
                                                                 </TableHead>
                                                                 <TableHead className="font-bold text-slate-700 dark:text-slate-300 text-center">
-                                                                    {t("Batches")}
+                                                                    {t("Status")}
                                                                 </TableHead>
                                                             </TableRow>
                                                         </TableHeader>
                                                     <TableBody>
-                                                        <AnimatePresence>
-                                                            {filteredProducts.map((product, index) => {
-                                                                const stockStatus = getStockStatus(product.net_quantity);
-                                                                const expiryStatus = getExpiryStatus(product.batches);
+                                                                                                                <AnimatePresence>
+                                                            {filteredProducts.map((batch, index) => {
+                                                                const stockStatus = getStockStatus(batch.remaining_qty);
+                                                                const expiryStatus = getExpiryStatus([batch]);
                                                                 return (
                                                                     <motion.tr
-                                                                        key={product.id}
+                                                                        key={batch.batch_id}
                                                                         initial={{ opacity: 0, y: 20 }}
                                                                         animate={{ opacity: 1, y: 0 }}
                                                                         transition={{ delay: index * 0.05 }}
                                                                         className="hover:bg-blue-50/50 dark:hover:bg-slate-700/50 transition-colors"
                                                                     >
+                                                                        <TableCell>
+                                                                            <span className="font-mono text-sm bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-lg">
+                                                                                {batch.batch_reference || '-'}
+                                                                            </span>
+                                                                        </TableCell>
                                                                         <TableCell>
                                                                             <div className="flex items-center gap-3">
                                                                                 <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
@@ -453,67 +462,82 @@ export default function Products({ auth, warehouse, products }) {
                                                                                 </div>
                                                                                 <div>
                                                                                     <p className="font-semibold text-slate-800 dark:text-white">
-                                                                                        {product.product.name}
+                                                                                        {batch.product.name}
                                                                                     </p>
                                                                                     <p className="text-sm text-slate-600 dark:text-slate-400">
-                                                                                        {product.product.type}
+                                                                                        {batch.product.type}
                                                                                     </p>
                                                                                 </div>
                                                                             </div>
                                                                         </TableCell>
                                                                         <TableCell className="font-mono text-slate-600 dark:text-slate-400">
-                                                                            {product.product.barcode || '-'}
+                                                                            {batch.product.barcode || '-'}
                                                                         </TableCell>
                                                                         <TableCell>
                                                                             <div className="space-y-1">
-                                                                                {product.product.wholesaleUnit && (
+                                                                                {batch.product.wholesaleUnit && (
                                                                                     <div className="text-xs">
                                                                                         <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
-                                                                                            {product.product.wholesaleUnit.name} ({product.product.wholesaleUnit.symbol})
+                                                                                            {batch.product.wholesaleUnit.name} ({batch.product.wholesaleUnit.symbol})
                                                                                         </Badge>
                                                                                     </div>
                                                                                 )}
-                                                                                {product.product.retailUnit && (
+                                                                                {batch.product.retailUnit && (
                                                                                     <div className="text-xs">
                                                                                         <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                                                            {product.product.retailUnit.name} ({product.product.retailUnit.symbol})
+                                                                                            {batch.product.retailUnit.name} ({batch.product.retailUnit.symbol})
                                                                                         </Badge>
                                                                                     </div>
                                                                                 )}
                                                                             </div>
                                                                         </TableCell>
                                                                         <TableCell className="text-center font-semibold">
-                                                                            {product.income_quantity?.toLocaleString() || 0}
+                                                                            {batch.income_qty?.toLocaleString() || 0}
                                                                         </TableCell>
                                                                         <TableCell className="text-right font-semibold text-green-600 dark:text-green-400">
-                                                                            {formatCurrency(product.income_total)}
+                                                                            {formatCurrency(batch.total_income_value)}
                                                                         </TableCell>
                                                                         <TableCell className="text-center font-semibold">
-                                                                            {product.outcome_quantity?.toLocaleString() || 0}
+                                                                            {batch.outcome_qty?.toLocaleString() || 0}
                                                                         </TableCell>
                                                                         <TableCell className="text-right font-semibold text-red-600 dark:text-red-400">
-                                                                            {formatCurrency(product.outcome_total)}
+                                                                            {formatCurrency(batch.total_outcome_value)}
                                                                         </TableCell>
                                                                         <TableCell className="text-center">
                                                                             <Badge
                                                                                 variant="secondary"
                                                                                 className={`${stockStatus.color} text-white font-bold`}
                                                                             >
-                                                                                {product.net_quantity?.toLocaleString() || 0}
+                                                                                {batch.remaining_qty?.toLocaleString() || 0}
                                                                             </Badge>
                                                                         </TableCell>
                                                                         <TableCell className="text-right font-bold">
-                                                                            <span className={product.profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
-                                                                                {formatCurrency(product.profit)}
+                                                                            <span className={batch.profit >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>
+                                                                                {formatCurrency(batch.profit)}
                                                                             </span>
                                                                         </TableCell>
+                                                                        <TableCell className="text-center text-sm text-slate-600 dark:text-slate-400">
+                                                                            {batch.issue_date ? formatDate(batch.issue_date) : '-'}
+                                                                        </TableCell>
                                                                         <TableCell className="text-center">
-                                                                            <Badge
-                                                                                variant="secondary"
-                                                                                className={`${stockStatus.color} text-white`}
-                                                                            >
-                                                                                {t(stockStatus.text)}
-                                                                            </Badge>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <Calendar className="h-4 w-4" />
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="font-medium text-sm">
+                                                                                        {batch.expire_date ? formatDate(batch.expire_date) : '-'}
+                                                                                    </span>
+                                                                                    {batch.days_to_expiry !== null && (
+                                                                                        <span className={`text-xs ${
+                                                                                            batch.days_to_expiry < 0 ? 'text-red-500' : 
+                                                                                            batch.days_to_expiry <= 30 ? 'text-orange-500' : 'text-green-500'
+                                                                                        }`}>
+                                                                                            {batch.days_to_expiry < 0 ? `${Math.abs(batch.days_to_expiry)} days expired` :
+                                                                                             batch.days_to_expiry === 0 ? 'Expires today' :
+                                                                                             `${batch.days_to_expiry} days left`}
+                                                                                        </span>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
                                                                         </TableCell>
                                                                         <TableCell className="text-center">
                                                                             <Badge
@@ -522,38 +546,6 @@ export default function Products({ auth, warehouse, products }) {
                                                                             >
                                                                                 {t(expiryStatus.text)}
                                                                             </Badge>
-                                                                        </TableCell>
-                                                                        <TableCell>
-                                                                            <div className="space-y-1">
-                                                                                {product.batches && product.batches.length > 0 ? (
-                                                                                    <div className="text-xs space-y-1">
-                                                                                        {product.batches.slice(0, 2).map((batch, batchIndex) => (
-                                                                                            <div key={batch.batch_id} className="flex items-center gap-1">
-                                                                                                <Calendar className="h-3 w-3 text-slate-500" />
-                                                                                                <span className="text-slate-600 dark:text-slate-400">
-                                                                                                    {batch.batch_reference}
-                                                                                                                                </span>
-                                                                                                {batch.expiry_status === 'expired' && (
-                                                                                                    <AlertTriangle className="h-3 w-3 text-red-500" />
-                                                                                                )}
-                                                                                                {batch.expiry_status === 'expiring_soon' && (
-                                                                                                    <Clock className="h-3 w-3 text-yellow-500" />
-                                                                                                )}
-                                                                                                {batch.expiry_status === 'valid' && (
-                                                                                                    <CheckCircle className="h-3 w-3 text-green-500" />
-                                                                                                )}
-                                                                                            </div>
-                                                                                        ))}
-                                                                                        {product.batches.length > 2 && (
-                                                                                            <div className="text-xs text-slate-500">
-                                                                                                +{product.batches.length - 2} more
-                                                                                            </div>
-                                                                                        )}
-                                                                                    </div>
-                                                                                ) : (
-                                                                                    <span className="text-xs text-slate-500">-</span>
-                                                                                )}
-                                                                            </div>
                                                                         </TableCell>
                                                                     </motion.tr>
                                                                 );

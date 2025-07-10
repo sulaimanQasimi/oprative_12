@@ -282,72 +282,60 @@ class WarehouseController extends Controller
             // Get warehouse basic info
             $warehouse = Warehouse::findOrFail($warehouse->id);
 
-            // Get batch inventory data from the view for this warehouse
+            // Get batch inventory data directly from the view without grouping
             $batchInventory = DB::table('warehouse_batch_inventory')
                 ->where('warehouse_id', $warehouse->id)
-                ->get();
-
-            // Group by product and calculate totals
-            $products = collect();
-            $productGroups = $batchInventory->groupBy('product_id');
-
-            foreach ($productGroups as $productId => $batches) {
-                // Get product details from first batch
-                $firstBatch = $batches->first();
-                
-                // Calculate totals across all batches for this product
-                $totalIncomeQty = $batches->sum('income_qty');
-                $totalOutcomeQty = $batches->sum('outcome_qty');
-                $remainingQty = $batches->sum('remaining_qty');
-                $totalIncomeValue = $batches->sum('total_income_value');
-                $totalOutcomeValue = $batches->sum('total_outcome_value');
-                
-                // Calculate profit (simplified calculation)
-                $profit = $totalOutcomeValue - $totalIncomeValue;
-
-                // Get product details from database
-                $product = Product::with(['unit'])->find($productId);
-                
-                if ($product) {
-                    $products->push([
-                        'id' => $productId,
-                        'product_id' => $productId,
+                ->orderBy('expire_date', 'asc')
+                ->orderBy('batch_id', 'desc')
+                ->get()
+                ->map(function ($batch) {
+                    // Get product details from database
+                    $product = Product::with(['wholesaleUnit', 'retailUnit'])->find($batch->product_id);
+                    
+                    return [
+                        'batch_id' => $batch->batch_id,
+                        'batch_reference' => $batch->batch_reference,
+                        'product_id' => $batch->product_id,
                         'product' => [
-                            'id' => $product->id,
-                            'name' => $product->name,
-                            'barcode' => $product->barcode,
-                            'type' => $product->type,
-                            'is_activated' => $product->is_activated,
-                            'is_in_stock' => $product->is_in_stock,
+                            'id' => $product->id ?? $batch->product_id,
+                            'name' => $product->name ?? $batch->product_name,
+                            'barcode' => $product->barcode ?? $batch->product_barcode,
+                            'type' => $product->type ?? 'Unknown',
+                            'is_activated' => $product->is_activated ?? true,
+                            'is_in_stock' => $product->is_in_stock ?? true,
+                            'wholesaleUnit' => $product->wholesaleUnit ? [
+                                'id' => $product->wholesaleUnit->id,
+                                'name' => $product->wholesaleUnit->name,
+                                'code' => $product->wholesaleUnit->code,
+                                'symbol' => $product->wholesaleUnit->symbol,
+                            ] : null,
+                            'retailUnit' => $product->retailUnit ? [
+                                'id' => $product->retailUnit->id,
+                                'name' => $product->retailUnit->name,
+                                'code' => $product->retailUnit->code,
+                                'symbol' => $product->retailUnit->symbol,
+                            ] : null,
                         ],
-                        'income_quantity' => $totalIncomeQty,
-                        'income_total' => $totalIncomeValue,
-                        'outcome_quantity' => $totalOutcomeQty,
-                        'outcome_total' => $totalOutcomeValue,
-                        'net_quantity' => $remainingQty,
-                        'net_total' => $totalIncomeValue, // Using income value as net total
-                        'profit' => $profit,
-                        'batches' => $batches->map(function ($batch) {
-                            return [
-                                'batch_id' => $batch->batch_id,
-                                'batch_reference' => $batch->batch_reference,
-                                'issue_date' => $batch->issue_date,
-                                'expire_date' => $batch->expire_date,
-                                'batch_notes' => $batch->batch_notes,
-                                'income_qty' => $batch->income_qty,
-                                'outcome_qty' => $batch->outcome_qty,
-                                'remaining_qty' => $batch->remaining_qty,
-                                'total_income_value' => $batch->total_income_value,
-                                'total_outcome_value' => $batch->total_outcome_value,
-                                'expiry_status' => $batch->expiry_status,
-                                'days_to_expiry' => $batch->days_to_expiry,
-                            ];
-                        }),
-                        'created_at' => $firstBatch->created_at ?? now(),
-                        'updated_at' => $firstBatch->updated_at ?? now(),
-                    ]);
-                }
-            }
+                        'warehouse_id' => $batch->warehouse_id,
+                        'warehouse_name' => $batch->warehouse_name,
+                        'issue_date' => $batch->issue_date,
+                        'expire_date' => $batch->expire_date,
+                        'batch_notes' => $batch->batch_notes,
+                        'income_qty' => $batch->income_qty,
+                        'outcome_qty' => $batch->outcome_qty,
+                        'remaining_qty' => $batch->remaining_qty,
+                        'total_income_value' => $batch->total_income_value,
+                        'total_outcome_value' => $batch->total_outcome_value,
+                        'expiry_status' => $batch->expiry_status,
+                        'days_to_expiry' => $batch->days_to_expiry,
+                        // Calculate average price per unit
+                        'avg_price_per_unit' => $batch->income_qty > 0 ? $batch->total_income_value / $batch->income_qty : 0,
+                        // Calculate profit for this batch
+                        'profit' => $batch->total_outcome_value - $batch->total_income_value,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                });
 
             return Inertia::render('Admin/Warehouse/Products', [
                 'warehouse' => [
@@ -357,7 +345,7 @@ class WarehouseController extends Controller
                     'description' => $warehouse->description,
                     'is_active' => $warehouse->is_active,
                 ],
-                'products' => $products,
+                'products' => $batchInventory,
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse products: ' . $e->getMessage());
