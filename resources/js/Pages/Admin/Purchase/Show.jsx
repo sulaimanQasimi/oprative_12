@@ -130,7 +130,7 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
     };
 
     const getTotalAmount = () => (purchaseItems || []).reduce((sum, item) => sum + parseFloat(item.total_price || 0), 0);
-    const getTotalQuantity = () => (purchaseItems || []).reduce((sum, item) => sum + parseFloat(item.quantity || 0), 0);
+    const getTotalQuantity = () => (purchaseItems || []).reduce((sum, item) => sum + parseFloat(item.batch?.quantity/item.batch?.unit_amount || 0), 0);
 
     // Check if warehouse tab should be shown
     const showWarehouseTab = permissions.can_warehouse_transfer;
@@ -792,7 +792,7 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                         <TableCell>
                                                                             <div className="space-y-1">
                                                                                 <Badge variant="secondary" className="font-mono text-xs">
-                                                                                    {(() => {
+                                                                                    {/* {(() => {
                                                                                         const product = item.product;
                                                                                         if (item.unit_type === 'wholesale' && product?.whole_sale_unit_amount > 0) {
                                                                                             return (parseFloat(item.quantity) / product.whole_sale_unit_amount).toFixed(2);
@@ -800,7 +800,8 @@ export default function Show({ auth, purchase, purchaseItems, additionalCosts, p
                                                                                             return (parseFloat(item.quantity) / product.retails_sale_unit_amount).toFixed(2);
                                                                                         }
                                                                                         return parseFloat(item.quantity).toLocaleString();
-                                                                                    })()}
+                                                                                    })()} */}
+                                                                                    {item.batch?.quantity/item.batch?.unit_amount} {item.batch?.unit_name}
                                                                                 </Badge>
                                                                                 <div className="text-xs text-slate-500">
                                                                                     {item.unit_type ? `${item.unit_type} units` : 'units'}
