@@ -478,7 +478,7 @@ export default function Products({ auth, warehouse, products }) {
                                                                                 {batch.unit_name && (
                                                                                     <div className="text-xs">
                                                                                         <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                                                            {batch.remaining_qty}/{batch.unit_amount} {batch.unit_name}
+                                                                                            {batch.remaining_qty/batch.unit_amount} {batch.unit_name}
                                                                                         </Badge>
                                                                                     </div>
                                                                                 )}

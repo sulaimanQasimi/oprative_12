@@ -297,7 +297,7 @@ trait SaleController{
                     'quantity' => $item['quantity'],
                     'price' => $item['unit_price'],
                     'total' => $item['total_price'],
-                    'model_id' => $warehouse->id,
+                   'model_id' => $warehouse->id,
                 ]);
             }
             $sale->update([

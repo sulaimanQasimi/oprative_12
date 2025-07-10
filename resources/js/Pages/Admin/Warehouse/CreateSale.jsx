@@ -635,7 +635,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                         <div className="h-12 flex items-center px-3 border-2 border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 rounded-md">
                                                             <span className="text-slate-600 dark:text-slate-400">
                                                                 {currentBatch && currentBatch.unit_name ? 
-                                                                    `${currentBatch.remaining_quantity}/${currentBatch.unit_amount} ${currentBatch.unit_name}` : 
+                                                                    `${currentBatch.remaining_quantity/currentBatch.unit_amount} ${currentBatch.unit_name}` : 
                                                                     t("Select batch to see unit")
                                                                 }
                                                             </span>
@@ -663,7 +663,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                         />
                                                         {currentProduct && currentItem.unit_type && currentItem.batch_id && (
                                                             <p className="text-sm text-slate-500 dark:text-slate-400">
-                                                                Available from this batch: {currentBatch?.remaining_quantity}/{currentBatch?.unit_amount} {currentBatch?.unit_name}
+                                                                Available from this batch: {currentBatch?.remaining_quantity/currentBatch?.unit_amount} {currentBatch?.unit_name}
                                                             </p>
                                                         )}
                                                     </div>
