@@ -753,9 +753,9 @@ class PurchaseController extends Controller
                     'model_id' => $purchase->id,
                     'unit_type' => $item->unit_type,
                     'is_wholesale' => $item->is_wholesale,
-                    'unit_id' => $item->unit_id,
-                    'unit_amount' => $item->unit_amount,
-                    'unit_name' => $item->unit_name,
+                    'unit_id' => $batch->unit_id,
+                    'unit_amount' => $batch->unit_amount,
+                    'unit_name' => $batch->unit_name,
                 ]);
             }
 
