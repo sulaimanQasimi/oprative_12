@@ -102,25 +102,39 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
         return product?.available_batches?.find(b => b.id === parseInt(batchId)) || null;
     };
 
-    const getAvailableUnits = (product) => {
+    const getAvailableUnits = (product, batch) => {
         const units = [];
 
-        if (product?.wholesaleUnit && product.whole_sale_unit_amount) {
-            units.push({
-                type: 'wholesale',
-                label: `${product.wholesaleUnit.name} (${product.wholesaleUnit.code})`,
-                amount: product.whole_sale_unit_amount,
-                price: product.wholesale_price
-            });
-        }
+        if (batch) {
+            // Use batch unit information
+            if (batch.unit_name && batch.unit_amount) {
+                units.push({
+                    type: 'batch_unit',
+                    label: `${batch.unit_name} (${batch.remaining_quantity}/${batch.unit_amount} ${batch.unit_name})`,
+                    amount: batch.unit_amount,
+                    price: batch.wholesale_price || batch.retail_price || 0,
+                    unit_name: batch.unit_name
+                });
+            }
+        } else if (product) {
+            // Fallback to product unit information if no batch
+            if (product.unit && product.whole_sale_unit_amount) {
+                units.push({
+                    type: 'wholesale',
+                    label: `${product.unit.name} (${product.unit.code})`,
+                    amount: product.whole_sale_unit_amount,
+                    price: product.wholesale_price
+                });
+            }
 
-        if (product?.retailUnit) {
-            units.push({
-                type: 'retail',
-                label: `${product.retailUnit.name} (${product.retailUnit.code})`,
-                amount: 1,
-                price: product.retail_price
-            });
+            if (product.unit) {
+                units.push({
+                    type: 'retail',
+                    label: `${product.unit.name} (${product.unit.code})`,
+                    amount: 1,
+                    price: product.retail_price
+                });
+            }
         }
 
         return units;
@@ -134,7 +148,9 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
             const batch = getSelectedBatch(product.id, batchId);
             if (batch) {
                 let stock = batch.remaining_quantity || 0;
-                if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
+                if (unitType === 'batch_unit' && batch.unit_amount) {
+                    stock = Math.floor(stock / batch.unit_amount);
+                } else if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
                     stock = Math.floor(stock / product.whole_sale_unit_amount);
                 }
                 return stock;
@@ -150,11 +166,15 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
         return stock;
     };
 
-    const calculateActualQuantity = (product, unitType, quantity) => {
+    const calculateActualQuantity = (product, unitType, quantity, batch = null) => {
         let actualQuantity = parseFloat(quantity) || 0;
-        if (unitType === 'wholesale' && product?.whole_sale_unit_amount) {
+        
+        if (unitType === 'batch_unit' && batch?.unit_amount) {
+            actualQuantity = actualQuantity * batch.unit_amount;
+        } else if (unitType === 'wholesale' && product?.whole_sale_unit_amount) {
             actualQuantity = actualQuantity * product.whole_sale_unit_amount;
         }
+        
         return actualQuantity;
     };
 
@@ -162,11 +182,11 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
         const product = getSelectedProduct(currentItem.product_id);
         const batch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
         
-        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.unit_type || !currentItem.batch_id) {
+        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.batch_id) {
             return;
         }
 
-        const actualQuantity = calculateActualQuantity(product, currentItem.unit_type, currentItem.quantity);
+        const actualQuantity = calculateActualQuantity(product, currentItem.unit_type, currentItem.quantity, batch);
         const totalPrice = actualQuantity * parseFloat(currentItem.price);
 
         const newItem = {
@@ -190,7 +210,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
             batch_id: '',
             quantity: '',
             price: '',
-            unit_type: ''
+            unit_type: 'batch_unit'
         });
     };
 
@@ -504,7 +524,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                         </Label>
                                                         <Select
                                                             value={currentItem.product_id}
-                                                            onValueChange={(value) => setCurrentItem({...currentItem, product_id: value, batch_id: '', unit_type: '', price: ''})}
+                                                            onValueChange={(value) => setCurrentItem({...currentItem, product_id: value, batch_id: '', unit_type: 'batch_unit', price: ''})}
                                                         >
                                                             <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
                                                                 <SelectValue placeholder={t("Select a product")} />
@@ -539,7 +559,17 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                         </Label>
                                                         <Select
                                                             value={currentItem.batch_id}
-                                                            onValueChange={(value) => setCurrentItem({...currentItem, batch_id: value, unit_type: '', price: ''})}
+                                                            onValueChange={(value) => {
+                                                                const batch = getSelectedBatch(currentItem.product_id, value);
+                                                                let unitType = 'batch_unit';
+                                                                let unitPrice = '';
+                                                                
+                                                                if (batch && batch.unit_name && batch.unit_amount) {
+                                                                    unitPrice = (batch.wholesale_price || batch.retail_price || 0).toString();
+                                                                }
+                                                                
+                                                                setCurrentItem({...currentItem, batch_id: value, unit_type: unitType, price: unitPrice});
+                                                            }}
                                                             disabled={!currentItem.product_id}
                                                         >
                                                             <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
@@ -574,9 +604,9 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                                                     )}
                                                                                 </div>
                                                                                 <div className="text-sm text-slate-500 dark:text-slate-400 space-y-1">
-                                                                                    <div>Remaining: <span className="font-medium text-green-600">{batch.remaining_quantity}</span> pieces</div>
+                                                                                    <div>{t('Remaining')}: <span className="font-medium text-green-600">{batch.remaining_quantity/batch.unit_amount} {batch.unit_name}</span></div>
                                                                                     {batch.expire_date && (
-                                                                                        <div>Expires: {new Date(batch.expire_date).toLocaleDateString()}</div>
+                                                                                        <div>{t('Expires')}: {new Date(batch.expire_date).toLocaleDateString()}</div>
                                                                                     )}
                                                                                     {batch.notes && (
                                                                                         <div className="italic">{batch.notes}</div>
@@ -595,59 +625,21 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                     </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                    {/* Unit Type */}
+                                                                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                    {/* Unit Type - Auto-determined from batch */}
                                                     <div className="space-y-3">
                                                         <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
                                                             <Weight className="w-5 h-5 text-orange-500" />
-                                                            {t("Unit Type")} *
+                                                            {t("Unit Type")}
                                                         </Label>
-                                                        <Select
-                                                            value={currentItem.unit_type}
-                                                            onValueChange={(value) => {
-                                                                const product = getSelectedProduct(currentItem.product_id);
-                                                                const batch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
-                                                                let unitPrice = 0;
-                                                                
-                                                                if (batch) {
-                                                                    // Use batch-specific prices if available
-                                                                    unitPrice = value === 'wholesale' ? 
-                                                                        (batch.wholesale_price || product?.wholesale_price) : 
-                                                                        (batch.retail_price || product?.retail_price);
-                                                                } else if (product) {
-                                                                    // Fallback to product prices
-                                                                    unitPrice = value === 'wholesale' ? product.wholesale_price : product.retail_price;
+                                                        <div className="h-12 flex items-center px-3 border-2 border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 rounded-md">
+                                                            <span className="text-slate-600 dark:text-slate-400">
+                                                                {currentBatch && currentBatch.unit_name ? 
+                                                                    `${currentBatch.remaining_quantity}/${currentBatch.unit_amount} ${currentBatch.unit_name}` : 
+                                                                    t("Select batch to see unit")
                                                                 }
-                                                                
-                                                                setCurrentItem({...currentItem, unit_type: value, price: unitPrice?.toString() || ''});
-                                                            }}
-                                                            disabled={!currentItem.product_id || !currentItem.batch_id}
-                                                        >
-                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-orange-300 focus:border-orange-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
-                                                                <SelectValue placeholder={t("Select unit type")} />
-                                                            </SelectTrigger>
-                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                                                {currentProduct && getAvailableUnits(currentProduct).map((unit) => (
-                                                                    <SelectItem key={unit.type} value={unit.type} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
-                                                                        <div className="flex items-center space-x-3">
-                                                                            <Weight className="h-4 w-4 text-orange-600" />
-                                                                            <div>
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{unit.label}</div>
-                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                    {formatCurrency(
-                                                                                        currentBatch ? 
-                                                                                            (unit.type === 'wholesale' ? 
-                                                                                                (currentBatch.wholesale_price || unit.price) : 
-                                                                                                (currentBatch.retail_price || unit.price)) :
-                                                                                            unit.price
-                                                                                    )} per unit
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -671,7 +663,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                         />
                                                         {currentProduct && currentItem.unit_type && currentItem.batch_id && (
                                                             <p className="text-sm text-slate-500 dark:text-slate-400">
-                                                                Available from this batch: {currentAvailableStock} {currentItem.unit_type} units
+                                                                Available from this batch: {currentBatch?.remaining_quantity}/{currentBatch?.unit_amount} {currentBatch?.unit_name}
                                                             </p>
                                                         )}
                                                     </div>
@@ -701,7 +693,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                         <Button
                                                             type="button"
                                                             onClick={addItemToSale}
-                                                            disabled={!currentItem.product_id || !currentItem.batch_id || !currentItem.unit_type || !currentItem.quantity || !currentItem.price || currentStockWarning}
+                                                            disabled={!currentItem.product_id || !currentItem.batch_id || !currentItem.quantity || !currentItem.price || currentStockWarning}
                                                             className="w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white gap-2"
                                                         >
                                                             <Plus className="h-4 w-4" />
@@ -714,7 +706,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                     <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20">
                                                         <AlertCircle className="h-4 w-4 text-red-600" />
                                                         <AlertDescription className="text-red-700 dark:text-red-400">
-                                                            Insufficient stock in this batch! Maximum available: {currentAvailableStock} {currentItem.unit_type} units
+                                                            Insufficient stock in this batch! Maximum available: {currentBatch?.remaining_quantity}/{currentBatch?.unit_amount} {currentBatch?.unit_name}
                                                         </AlertDescription>
                                                     </Alert>
                                                 )}
@@ -870,12 +862,20 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                                             </td>
                                                                             <td className="px-6 py-4">
                                                                                 <Badge variant="outline" className="capitalize">
-                                                                                    {item.unit_type}
+                                                                                    {item.unit_type === 'batch_unit' && item.batch?.unit_name ? 
+                                                                                        `${item.batch.remaining_quantity}/${item.batch.unit_amount} ${item.batch.unit_name}` : 
+                                                                                        item.unit_type
+                                                                                    }
                                                                                 </Badge>
                                                                             </td>
                                                                             <td className="px-6 py-4">
                                                                                 <div className="flex flex-col">
-                                                                                    <span className="font-semibold text-slate-800 dark:text-white">{item.entered_quantity} units</span>
+                                                                                    <span className="font-semibold text-slate-800 dark:text-white">
+                                                                                        {item.unit_type === 'batch_unit' && item.batch?.unit_name ? 
+                                                                                            `${item.entered_quantity} ${item.batch.unit_name}` : 
+                                                                                            `${item.entered_quantity} units`
+                                                                                        }
+                                                                                    </span>
                                                                                     <span className="text-sm text-slate-500 dark:text-slate-400">({item.actual_quantity} pieces)</span>
                                                                                 </div>
                                                                             </td>

@@ -1,5 +1,12 @@
 {
-  "Fill in the details for the new product":"اطلاعات جدید محصول را وارد کنید",
+  "Remaining": "باقیمانده",
+  "Batch Ref": "شناسه دسته",
+  "Issue Date": "تاریخ صدور",
+  "Expire Date": "تاریخ انقضا",
+  "Status": "وضعیت",
+  "Expiry Status": "وضعیت انقضا",
+  "Batches": "دسته‌ها",
+  "No Batch Info": "بدون اطلاعات دسته",
   "Items to Transfer":"اقلام برای انتقال",
   "Items to transfer:": "اقلام برای انتقال:",
   "Total quantity:": "تعداد کل",

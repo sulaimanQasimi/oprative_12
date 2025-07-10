@@ -227,7 +227,7 @@ class PurchaseController extends Controller
                     'created_at' => $purchase->created_at,
                     'updated_at' => $purchase->updated_at,
                 ],
-                'purchaseItems' => $purchase->purchaseItems,
+                'purchaseItems' => $purchase->purchaseItems()->with('batch')->get()->toArray(),
                 'payments' => $purchase->payments,
                 'additionalCosts' => $purchase->additional_costs,
                 'warehouses' => $warehouses,
@@ -425,7 +425,7 @@ class PurchaseController extends Controller
             $unitName = $unit->name;
 
             // Use the quantity as provided by the frontend (already calculated)
-            $qty = $validated['quantity'];
+            $qty = $validated['quantity'] * $unitAmount;
 
             // Create the purchase item record
             $item = PurchaseItem::create([
@@ -746,16 +746,16 @@ class PurchaseController extends Controller
                     'warehouse_id' => $validated['warehouse_id'],
                     'product_id' => $item->product_id,
                     'batch_id' => $batch ? $batch->id : null,
-                    'quantity' => $item->quantity * $item->unit_amount,
+                    'quantity' => $item->quantity,
                     'price' => $item->price,
                     'total' => $item->total_price,
                     'model_type' => 'App\\Models\\Purchase',
                     'model_id' => $purchase->id,
                     'unit_type' => $item->unit_type,
                     'is_wholesale' => $item->is_wholesale,
-                    'unit_id' => $item->unit_id,
-                    'unit_amount' => $item->unit_amount,
-                    'unit_name' => $item->unit_name,
+                    'unit_id' => $batch->unit_id,
+                    'unit_amount' => $batch->unit_amount,
+                    'unit_name' => $batch->unit_name,
                 ]);
             }
 
