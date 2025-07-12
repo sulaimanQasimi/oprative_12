@@ -53,6 +53,7 @@ export default function Income({ auth, warehouse, incomes }) {
     const [isAnimated, setIsAnimated] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [dateFilter, setDateFilter] = useState("");
+    const [batchFilter, setBatchFilter] = useState("");
     const [sortBy, setSortBy] = useState("created_at");
     const [sortOrder, setSortOrder] = useState("desc");
     const [showFilters, setShowFilters] = useState(false);
@@ -77,7 +78,8 @@ export default function Income({ auth, warehouse, incomes }) {
                 income.reference_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 income.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 income.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                income.product.type?.toLowerCase().includes(searchTerm.toLowerCase())
+                income.product.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                income.batch?.reference_number?.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
 
@@ -90,6 +92,32 @@ export default function Income({ auth, warehouse, incomes }) {
             });
         }
 
+        // Batch filter
+        if (batchFilter) {
+            filtered = filtered.filter(income => {
+                if (!income.batch) return false;
+                
+                switch (batchFilter) {
+                    case 'with_batch':
+                        return !!income.batch;
+                    case 'without_batch':
+                        return !income.batch;
+                    case 'expired':
+                        return income.batch.expire_date && new Date(income.batch.expire_date) < new Date();
+                    case 'expiring_soon':
+                        const thirtyDaysFromNow = new Date();
+                        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+                        return income.batch.expire_date && 
+                               new Date(income.batch.expire_date) <= thirtyDaysFromNow && 
+                               new Date(income.batch.expire_date) >= new Date();
+                    case 'valid':
+                        return income.batch.expire_date && new Date(income.batch.expire_date) > new Date();
+                    default:
+                        return true;
+                }
+            });
+        }
+
         // Sorting
         filtered.sort((a, b) => {
             let aValue = a[sortBy];
@@ -98,6 +126,9 @@ export default function Income({ auth, warehouse, incomes }) {
             if (sortBy === 'product.name') {
                 aValue = a.product.name;
                 bValue = b.product.name;
+            } else if (sortBy === 'batch.reference_number') {
+                aValue = a.batch?.reference_number || '';
+                bValue = b.batch?.reference_number || '';
             }
 
             if (typeof aValue === 'string') {
@@ -113,7 +144,7 @@ export default function Income({ auth, warehouse, incomes }) {
         });
 
         setFilteredIncomes(filtered);
-    }, [searchTerm, dateFilter, sortBy, sortOrder, incomes]);
+    }, [searchTerm, dateFilter, batchFilter, sortBy, sortOrder, incomes]);
 
     // Calculate totals
     const totalImports = filteredIncomes.length;
@@ -126,6 +157,30 @@ export default function Income({ auth, warehouse, incomes }) {
     }, 0);
     const totalValue = filteredIncomes.reduce((sum, income) => sum + (income.total || 0), 0);
     const avgImportValue = totalImports > 0 ? totalValue / totalImports : 0;
+
+    // Calculate batch statistics
+    const batchStats = filteredIncomes.reduce((stats, income) => {
+        if (income.batch) {
+            stats.withBatch++;
+            if (income.batch.expire_date) {
+                const expireDate = new Date(income.batch.expire_date);
+                const now = new Date();
+                const thirtyDaysFromNow = new Date();
+                thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
+                
+                if (expireDate < now) {
+                    stats.expired++;
+                } else if (expireDate <= thirtyDaysFromNow) {
+                    stats.expiringSoon++;
+                } else {
+                    stats.valid++;
+                }
+            }
+        } else {
+            stats.withoutBatch++;
+        }
+        return stats;
+    }, { withBatch: 0, withoutBatch: 0, expired: 0, expiringSoon: 0, valid: 0 });
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', {
@@ -219,6 +274,7 @@ export default function Income({ auth, warehouse, incomes }) {
     const clearFilters = () => {
         setSearchTerm("");
         setDateFilter("");
+        setBatchFilter("");
         setSortBy("created_at");
         setSortOrder("desc");
     };
@@ -509,7 +565,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                 <div className="relative">
                                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                                     <Input
-                                                        placeholder={t("Search by reference, product name, barcode, or type...")}
+                                                        placeholder={t("Search by reference, product name, barcode, type, or batch...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
                                                         className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400"
@@ -537,7 +593,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                         transition={{ duration: 0.3 }}
                                                         className="overflow-hidden"
                                                     >
-                                                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                                                             <div>
                                                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                                     {t("Date Filter")}
@@ -552,6 +608,25 @@ export default function Income({ auth, warehouse, incomes }) {
 
                                                             <div>
                                                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Batch Filter")}
+                                                                </label>
+                                                                <Select value={batchFilter} onValueChange={setBatchFilter}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue placeholder={t("All Batches")} />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="">{t("All Batches")}</SelectItem>
+                                                                        <SelectItem value="with_batch">{t("With Batch")}</SelectItem>
+                                                                        <SelectItem value="without_batch">{t("Without Batch")}</SelectItem>
+                                                                        <SelectItem value="expired">{t("Expired")}</SelectItem>
+                                                                        <SelectItem value="expiring_soon">{t("Expiring Soon")}</SelectItem>
+                                                                        <SelectItem value="valid">{t("Valid")}</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                                     {t("Sort By")}
                                                                 </label>
                                                                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -562,6 +637,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                         <SelectItem value="created_at">{t("Date Created")}</SelectItem>
                                                                         <SelectItem value="reference_number">{t("Reference")}</SelectItem>
                                                                         <SelectItem value="product.name">{t("Product Name")}</SelectItem>
+                                                                        <SelectItem value="batch.reference_number">{t("Batch Reference")}</SelectItem>
                                                                         <SelectItem value="quantity">{t("Quantity")}</SelectItem>
                                                                         <SelectItem value="total">{t("Total Value")}</SelectItem>
                                                                     </SelectContent>
@@ -597,6 +673,68 @@ export default function Income({ auth, warehouse, incomes }) {
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+
+                                {/* Batch Statistics */}
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 1.2, duration: 0.4 }}
+                                >
+                                    <Card className="content-card border-0 shadow-2xl backdrop-blur-xl">
+                                        <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-600/50">
+                                            <CardTitle className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
+                                                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                    <Package className="h-5 w-5 text-white" />
+                                                </div>
+                                                {t("Batch Statistics")}
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent className="p-6">
+                                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                                <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+                                                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                                                        {batchStats.withBatch}
+                                                    </div>
+                                                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                        {t("With Batch")}
+                                                    </div>
+                                                </div>
+                                                <div className="text-center p-4 bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20 rounded-lg">
+                                                    <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+                                                        {batchStats.withoutBatch}
+                                                    </div>
+                                                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                        {t("Without Batch")}
+                                                    </div>
+                                                </div>
+                                                <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
+                                                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                                        {batchStats.valid}
+                                                    </div>
+                                                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                        {t("Valid")}
+                                                    </div>
+                                                </div>
+                                                <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-lg">
+                                                    <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                                                        {batchStats.expiringSoon}
+                                                    </div>
+                                                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                        {t("Expiring Soon")}
+                                                    </div>
+                                                </div>
+                                                <div className="text-center p-4 bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-lg">
+                                                    <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                                                        {batchStats.expired}
+                                                    </div>
+                                                    <div className="text-sm text-slate-600 dark:text-slate-400">
+                                                        {t("Expired")}
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </CardContent>
                                     </Card>
                                 </motion.div>
@@ -645,7 +783,9 @@ export default function Income({ auth, warehouse, incomes }) {
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Import Date")}
                                                             </TableHead>
-
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Batch")}
+                                                            </TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -729,7 +869,54 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                             </div>
                                                                         </div>
                                                                     </TableCell>
-
+                                                                    <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+                                                                        {income.batch ? (
+                                                                            <div className="flex items-center gap-2">
+                                                                                <div className={`p-1 rounded-lg ${
+                                                                                    income.batch.expire_date ? 
+                                                                                        (new Date(income.batch.expire_date) < new Date() ? 
+                                                                                            'bg-gradient-to-br from-red-100 to-rose-100 dark:from-red-900/30 dark:to-rose-900/30' :
+                                                                                            (new Date(income.batch.expire_date) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) ?
+                                                                                                'bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30' :
+                                                                                                'bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30'
+                                                                                        )) :
+                                                                                        'bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30'
+                                                                                }`}>
+                                                                                    <Package className={`h-3 w-3 ${
+                                                                                        income.batch.expire_date ? 
+                                                                                            (new Date(income.batch.expire_date) < new Date() ? 'text-red-600' :
+                                                                                            (new Date(income.batch.expire_date) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) ? 'text-orange-600' : 'text-green-600'))
+                                                                                            : 'text-blue-600'
+                                                                                    }`} />
+                                                                                </div>
+                                                                                <div className="flex flex-col gap-1">
+                                                                                    <span className="font-medium text-slate-800 dark:text-white" title={income.batch.reference_number}>
+                                                                                        {income.batch.reference_number}
+                                                                                    </span>
+                                                                                    {income.batch.expire_date && (
+                                                                                        <div className="flex items-center gap-1">
+                                                                                            <Calendar className="h-3 w-3 text-slate-400" />
+                                                                                            <span className={`text-xs ${
+                                                                                                new Date(income.batch.expire_date) < new Date() ? 'text-red-500' :
+                                                                                                (new Date(income.batch.expire_date) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) ? 'text-orange-500' : 'text-green-500')
+                                                                                            }`}>
+                                                                                                {formatDate(income.batch.expire_date)}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    )}
+                                                                                    {income.batch.issue_date && (
+                                                                                        <div className="flex items-center gap-1">
+                                                                                            <span className="text-xs text-slate-400 dark:text-slate-500">
+                                                                                                Issue: {formatDate(income.batch.issue_date)}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className="text-slate-400 dark:text-slate-500">-</span>
+                                                                        )}
+                                                                    </TableCell>
                                                                 </TableRow>
                                                             ))
                                                         ) : (

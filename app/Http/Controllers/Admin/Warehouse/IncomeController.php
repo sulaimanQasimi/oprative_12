@@ -19,7 +19,8 @@ trait IncomeController
         try {
             // Load warehouse with income records and related data
             $warehouse = Warehouse::with([
-                'warehouseIncome.product'
+                'warehouseIncome.product',
+                'warehouseIncome.batch'
             ])->findOrFail($warehouse->id);
 
                         // Get warehouse income records
@@ -33,6 +34,16 @@ trait IncomeController
                         'barcode' => $income->product->barcode,
                         'type' => $income->product->type,
                     ],
+                    'batch' => $income->batch ? [
+                        'id' => $income->batch->id,
+                        'reference_number' => $income->batch->reference_number,
+                        'issue_date' => $income->batch->issue_date,
+                        'expire_date' => $income->batch->expire_date,
+                        'notes' => $income->batch->notes,
+                        'wholesale_price' => $income->batch->wholesale_price,
+                        'retail_price' => $income->batch->retail_price,
+                        'purchase_price' => $income->batch->purchase_price,
+                    ] : null,
                     'quantity' => $income->quantity,
                     'price' => $income->price,
                     'total' => $income->total,
@@ -68,8 +79,8 @@ trait IncomeController
     public function createIncome(Warehouse $warehouse)
     {
         try {
-            // Get all products with their units and pricing information
-            $products = Product::with(['wholesaleUnit', 'retailUnit'])
+            // Get all products with their units, pricing information, and batches
+            $products = Product::with(['wholesaleUnit', 'retailUnit', 'batches'])
                 ->where('is_activated', true)
                 ->get()
                 ->map(function ($product) {
@@ -95,6 +106,20 @@ trait IncomeController
                             'code' => $product->retailUnit->code,
                             'symbol' => $product->retailUnit->symbol,
                         ] : null,
+                        'batches' => $product->batches->map(function ($batch) {
+                            return [
+                                'id' => $batch->id,
+                                'reference_number' => $batch->reference_number,
+                                'issue_date' => $batch->issue_date,
+                                'expire_date' => $batch->expire_date,
+                                'notes' => $batch->notes,
+                                'wholesale_price' => $batch->wholesale_price,
+                                'retail_price' => $batch->retail_price,
+                                'purchase_price' => $batch->purchase_price,
+                                'unit_type' => $batch->unit_type,
+                                'unit_name' => $batch->unit_name,
+                            ];
+                        }),
                     ];
                 });
 
@@ -120,6 +145,7 @@ trait IncomeController
         try {
             $validated = $request->validate([
                 'product_id' => 'required|exists:products,id',
+                'batch_id' => 'nullable|exists:batches,id',
                 'unit_type' => 'required|in:wholesale,retail',
                 'quantity' => 'required|numeric|min:0.01',
                 'price' => 'required|numeric|min:0',
@@ -128,6 +154,20 @@ trait IncomeController
 
             // Get the product with unit information
             $product = Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($validated['product_id']);
+
+            // If batch_id is provided, validate it belongs to the selected product
+            if (!empty($validated['batch_id'])) {
+                $batch = \App\Models\Batch::where('id', $validated['batch_id'])
+                    ->where('product_id', $validated['product_id'])
+                    ->first();
+
+                if (!$batch) {
+                    return redirect()->back()
+                        ->with('error', 'Selected batch does not belong to the selected product.')
+                        ->withInput()
+                        ->withErrors(['batch_id' => 'Selected batch does not belong to the selected product.']);
+                }
+            }
 
             // Calculate actual quantity and total based on unit type
             $actualQuantity = $validated['quantity'];
@@ -163,6 +203,7 @@ trait IncomeController
                 'reference_number' => $referenceNumber,
                 'warehouse_id' => $warehouse->id,
                 'product_id' => $validated['product_id'],
+                'batch_id' => $validated['batch_id'] ?? null,
                 'quantity' => $actualQuantity,
                 'price' => $unitPrice,
                 'total' => $total,
