@@ -1,4 +1,10 @@
 {
+  "Available from this batch:": "موجودی از این دسته:",
+  "Selected Batch": "دسته انتخاب شده",
+  "Expires in": "انقضا در",
+  "days": "روز",
+  "Expires": "انقضا",
+  "Insufficient stock in this batch! Maximum available:": "موجودی کم در این دسته! حداکثر موجودی:",
   "Remaining": "باقیمانده",
   "Batch Ref": "شناسه دسته",
   "Issue Date": "تاریخ صدور",

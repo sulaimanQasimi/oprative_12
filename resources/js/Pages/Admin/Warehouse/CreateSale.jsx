@@ -663,7 +663,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                         />
                                                         {currentProduct && currentItem.unit_type && currentItem.batch_id && (
                                                             <p className="text-sm text-slate-500 dark:text-slate-400">
-                                                                Available from this batch: {currentBatch?.remaining_quantity/currentBatch?.unit_amount} {currentBatch?.unit_name}
+                                                                {t('Available from this batch:')} {currentBatch?.remaining_quantity/currentBatch?.unit_amount} {currentBatch?.unit_name}
                                                             </p>
                                                         )}
                                                     </div>
@@ -706,7 +706,7 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                     <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20">
                                                         <AlertCircle className="h-4 w-4 text-red-600" />
                                                         <AlertDescription className="text-red-700 dark:text-red-400">
-                                                            Insufficient stock in this batch! Maximum available: {currentBatch?.remaining_quantity}/{currentBatch?.unit_amount} {currentBatch?.unit_name}
+                                                            {t('Insufficient stock in this batch! Maximum available:')} {currentBatch?.remaining_quantity/currentBatch?.unit_amount} {currentBatch?.unit_name}
                                                         </AlertDescription>
                                                     </Alert>
                                                 )}
@@ -737,20 +737,20 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                                 }`}>
                                                                     <div className="space-y-2">
                                                                         <div className="font-medium flex items-center gap-2">
-                                                                            Selected Batch: {currentBatch.reference_number}
+                                                                            {t('Selected Batch')}: {currentBatch.reference_number}
                                                                             {currentBatch.expiry_status === 'expired' && (
-                                                                                <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-bold">EXPIRED</span>
+                                                                                <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-bold">{t('Expired')}</span>
                                                                             )}
                                                                             {currentBatch.expiry_status === 'expiring_soon' && (
                                                                                 <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded font-bold">
-                                                                                    EXPIRES IN {currentBatch.days_to_expiry} DAYS
+                                                                                    {t('Expires in')} {currentBatch.days_to_expiry} {t('days')}
                                                                                 </span>
                                                                             )}
                                                                         </div>
                                                                         <div className="text-sm">
-                                                                            Remaining: <span className="font-medium">{currentBatch.remaining_quantity}</span> pieces
+                                                                            {t('Remaining')}: <span className="font-medium">{currentBatch.remaining_quantity/currentBatch.unit_amount} {currentBatch.unit_name}</span>
                                                                             {currentBatch.expire_date && (
-                                                                                <span> | Expires: {new Date(currentBatch.expire_date).toLocaleDateString()}</span>
+                                                                                <span> | {t('Expires')}: {new Date(currentBatch.expire_date).toLocaleDateString()}</span>
                                                                             )}
                                                                         </div>
                                                                         {currentBatch.notes && (
