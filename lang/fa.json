@@ -1,4 +1,6 @@
 {
+  "WARNING: This batch has expired!": "⚠️ {t('WARNING: This batch has expired!')}",
+  "Selling expired products may violate health and safety regulations. Please verify if this is appropriate for your business requirements.": "⚠️ {t('Selling expired products may violate health and safety regulations. Please verify if this is appropriate for your business requirements.')}",
   "Available from this batch:": "موجودی از این دسته:",
   "Selected Batch": "دسته انتخاب شده",
   "Expires in": "انقضا در",

@@ -1,14 +1,15 @@
 <?php
 namespace App\Http\Controllers\Admin\Warehouse;
 
-use App\Models\{Warehouse,Sale,CustomerStockIncome};
+use App\Models\{Warehouse, Sale, CustomerStockIncome};
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 use Inertia\Inertia;
 
-trait SaleController{
+trait SaleController
+{
     public function sales(Warehouse $warehouse)
     {
         try {
@@ -88,7 +89,7 @@ trait SaleController{
 
     public function createSale(Warehouse $warehouse)
     {
-        
+
         try {
             // Get customers
             $customers = \App\Models\Customer::select('id', 'name', 'email', 'phone')->get();
@@ -103,10 +104,10 @@ trait SaleController{
                 // Get the first batch inventory item to access product data
                 $firstBatch = $productBatches->first();
                 $product = $firstBatch->product;
-                
+
                 // Calculate total stock quantity for this product in this warehouse
                 $totalStockQuantity = $productBatches->sum('remaining_qty');
-                
+
                 // Map batches data
                 $batches = $productBatches->map(function ($batchInventory) {
                     return [
@@ -199,7 +200,7 @@ trait SaleController{
                     $batchInventory = \App\Models\WarehouseBatchInventory::where('batch_id', $item['batch_id'])
                         ->where('warehouse_id', $warehouse->id)
                         ->first();
-                    
+
                     if (!$batchInventory) {
                         return redirect()->back()
                             ->with('error', "Batch ID {$item['batch_id']} not found in this warehouse")
@@ -215,7 +216,7 @@ trait SaleController{
                     }
 
                     $availableStock = $batchInventory->remaining_qty;
-                    
+
                     if ($item['quantity'] > $availableStock) {
                         return redirect()->back()
                             ->with('error', "Insufficient stock in batch {$batchInventory->batch_reference}. Available: {$availableStock} units")
@@ -294,10 +295,16 @@ trait SaleController{
                     'customer_id' => $validated['customer_id'],
                     'product_id' => $item['product_id'],
                     'reference_number' => $referenceNumber,
-                    'quantity' => $item['quantity'],
+                    'quantity' => $item['quantity']*$batchInventory->unit_amount,
                     'price' => $item['unit_price'],
                     'total' => $item['total_price'],
-                   'model_id' => $warehouse->id,
+                    'model_id' => $warehouse->id,
+                    'model_type' => 'warehouse',
+                    'unit_id' => $batchInventory->unit_id,
+                    'unit_type' => $batchInventory->unit_type,
+                    'unit_amount' => $batchInventory->unit_amount,
+                    'unit_name' => $batchInventory->unit_name,
+                    'batch_id' => $item['batch_id'],
                 ]);
             }
             $sale->update([
@@ -329,8 +336,8 @@ trait SaleController{
                 'currency:id,name,code',
                 'saleItems.product:id,name,barcode'
             ])
-            ->where('warehouse_id', $warehouse->id)
-            ->findOrFail($saleId);
+                ->where('warehouse_id', $warehouse->id)
+                ->findOrFail($saleId);
 
             return Inertia::render('Admin/Warehouse/ShowSale', [
                 'warehouse' => [
@@ -345,7 +352,7 @@ trait SaleController{
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading sale details: ' . $e->getMessage());
-            
+
             return redirect()->route('admin.warehouses.sales', $warehouse->id)
                 ->with('error', 'Sale not found or error loading sale details.');
         }

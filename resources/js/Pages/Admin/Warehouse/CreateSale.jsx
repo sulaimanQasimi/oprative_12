@@ -776,11 +776,10 @@ export default function CreateSale({ auth, warehouse, warehouseProducts, custome
                                                                                 <AlertTriangle className="h-5 w-5 text-red-600" />
                                                                                 <AlertDescription className="text-red-800 dark:text-red-300">
                                                                                     <div className="space-y-1">
-                                                                                        <div className="font-bold">⚠️ WARNING: This batch has expired!</div>
-                                                                                        <div className="text-sm">
-                                                                                            Selling expired products may violate health and safety regulations. 
-                                                                                            Please verify if this is appropriate for your business requirements.
-                                                                                        </div>
+                                                                                        <div className="font-bold">⚠️ {t('WARNING: This batch has expired!')}</div>
+                                                                                            <div className="text-sm">
+                                                                                                {t('Selling expired products may violate health and safety regulations. Please verify if this is appropriate for your business requirements.')}
+                                                                                            </div>
                                                                                     </div>
                                                                                 </AlertDescription>
                                                                             </Alert>
