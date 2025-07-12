@@ -281,13 +281,18 @@ trait SaleController
                 \App\Models\WarehouseOutcome::create([
                     'warehouse_id' => $warehouse->id,
                     'product_id' => $item['product_id'],
-                    'batch_id' => $item['batch_id'] ?? null,
                     'reference_number' => $referenceNumber,
                     'quantity' => $item['quantity'],
                     'price' => $item['unit_price'],
                     'total' => $item['total_price'],
                     'model_type' => 'customer_sale',
                     'model_id' => $validated['customer_id'],
+
+                    'unit_id' => $batchInventory->unit_id,
+                    'unit_type' => $batchInventory->unit_type,
+                    'unit_amount' => $batchInventory->unit_amount,
+                    'unit_name' => $batchInventory->unit_name,
+                    'batch_id' => $item['batch_id'],
                 ]);
 
                 // Create customer income record for customer tracking
@@ -295,7 +300,7 @@ trait SaleController
                     'customer_id' => $validated['customer_id'],
                     'product_id' => $item['product_id'],
                     'reference_number' => $referenceNumber,
-                    'quantity' => $item['quantity']*$batchInventory->unit_amount,
+                    'quantity' => $item['quantity'],
                     'price' => $item['unit_price'],
                     'total' => $item['total_price'],
                     'model_id' => $warehouse->id,

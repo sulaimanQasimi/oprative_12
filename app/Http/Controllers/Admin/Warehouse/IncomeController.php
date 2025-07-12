@@ -43,6 +43,13 @@ trait IncomeController
                         'wholesale_price' => $income->batch->wholesale_price,
                         'retail_price' => $income->batch->retail_price,
                         'purchase_price' => $income->batch->purchase_price,
+                        'unit_type' => $income->batch->unit_type,
+                        'unit_name' => $income->batch->unit_name,
+                        'unit_amount' => $income->batch->unit_amount,
+                        'quantity' => $income->batch->quantity,
+                        'total' => $income->batch->total,
+                        'expiry_status' => $this->getExpiryStatus($income->batch->expire_date),
+                        'days_to_expiry' => $this->getDaysToExpiry($income->batch->expire_date),
                     ] : null,
                     'quantity' => $income->quantity,
                     'price' => $income->price,
@@ -224,4 +231,41 @@ trait IncomeController
         }
     }
 
+    /**
+     * Get expiry status for a batch
+     */
+    private function getExpiryStatus($expireDate)
+    {
+        if (!$expireDate) {
+            return 'no_expiry';
+        }
+
+        $expireDate = new \DateTime($expireDate);
+        $now = new \DateTime();
+        $thirtyDaysFromNow = (new \DateTime())->modify('+30 days');
+
+        if ($expireDate < $now) {
+            return 'expired';
+        } elseif ($expireDate <= $thirtyDaysFromNow) {
+            return 'expiring_soon';
+        } else {
+            return 'valid';
+        }
+    }
+
+    /**
+     * Get days to expiry for a batch
+     */
+    private function getDaysToExpiry($expireDate)
+    {
+        if (!$expireDate) {
+            return null;
+        }
+
+        $expireDate = new \DateTime($expireDate);
+        $now = new \DateTime();
+        $diff = $now->diff($expireDate);
+        
+        return $diff->invert ? -$diff->days : $diff->days;
+    }
 }

@@ -162,6 +162,9 @@ export default function Income({ auth, warehouse, incomes }) {
     const batchStats = filteredIncomes.reduce((stats, income) => {
         if (income.batch) {
             stats.withBatch++;
+            stats.totalBatchValue += income.batch.total || 0;
+            stats.totalBatchQuantity += income.batch.quantity || 0;
+            
             if (income.batch.expire_date) {
                 const expireDate = new Date(income.batch.expire_date);
                 const now = new Date();
@@ -170,17 +173,31 @@ export default function Income({ auth, warehouse, incomes }) {
                 
                 if (expireDate < now) {
                     stats.expired++;
+                    stats.expiredValue += income.batch.total || 0;
                 } else if (expireDate <= thirtyDaysFromNow) {
                     stats.expiringSoon++;
+                    stats.expiringSoonValue += income.batch.total || 0;
                 } else {
                     stats.valid++;
+                    stats.validValue += income.batch.total || 0;
                 }
             }
         } else {
             stats.withoutBatch++;
         }
         return stats;
-    }, { withBatch: 0, withoutBatch: 0, expired: 0, expiringSoon: 0, valid: 0 });
+    }, { 
+        withBatch: 0, 
+        withoutBatch: 0, 
+        expired: 0, 
+        expiringSoon: 0, 
+        valid: 0,
+        totalBatchValue: 0,
+        totalBatchQuantity: 0,
+        expiredValue: 0,
+        expiringSoonValue: 0,
+        validValue: 0
+    });
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', {
@@ -701,6 +718,9 @@ export default function Income({ auth, warehouse, incomes }) {
                                                     <div className="text-sm text-slate-600 dark:text-slate-400">
                                                         {t("With Batch")}
                                                     </div>
+                                                    <div className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                                                        {formatCurrency(batchStats.totalBatchValue)}
+                                                    </div>
                                                 </div>
                                                 <div className="text-center p-4 bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-900/20 dark:to-slate-900/20 rounded-lg">
                                                     <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">
@@ -717,6 +737,9 @@ export default function Income({ auth, warehouse, incomes }) {
                                                     <div className="text-sm text-slate-600 dark:text-slate-400">
                                                         {t("Valid")}
                                                     </div>
+                                                    <div className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                                                        {formatCurrency(batchStats.validValue)}
+                                                    </div>
                                                 </div>
                                                 <div className="text-center p-4 bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-lg">
                                                     <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
@@ -725,6 +748,9 @@ export default function Income({ auth, warehouse, incomes }) {
                                                     <div className="text-sm text-slate-600 dark:text-slate-400">
                                                         {t("Expiring Soon")}
                                                     </div>
+                                                    <div className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                                                        {formatCurrency(batchStats.expiringSoonValue)}
+                                                    </div>
                                                 </div>
                                                 <div className="text-center p-4 bg-gradient-to-br from-red-50 to-rose-50 dark:from-red-900/20 dark:to-rose-900/20 rounded-lg">
                                                     <div className="text-2xl font-bold text-red-600 dark:text-red-400">
@@ -732,6 +758,42 @@ export default function Income({ auth, warehouse, incomes }) {
                                                     </div>
                                                     <div className="text-sm text-slate-600 dark:text-slate-400">
                                                         {t("Expired")}
+                                                    </div>
+                                                    <div className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                                                        {formatCurrency(batchStats.expiredValue)}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            {/* Additional Batch Metrics */}
+                                            <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+                                                <h4 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                                                    {t("Batch Summary")}
+                                                </h4>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                                                            {t("Total Batch Quantity")}
+                                                        </span>
+                                                        <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                                            {batchStats.totalBatchQuantity.toLocaleString()}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                                                            {t("Total Batch Value")}
+                                                        </span>
+                                                        <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                                            {formatCurrency(batchStats.totalBatchValue)}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                                                            {t("Avg Batch Value")}
+                                                        </span>
+                                                        <span className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                                                            {batchStats.withBatch > 0 ? formatCurrency(batchStats.totalBatchValue / batchStats.withBatch) : formatCurrency(0)}
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -871,8 +933,23 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                     </TableCell>
                                                                     <TableCell className="text-sm text-slate-600 dark:text-slate-400">
                                                                         {income.batch ? (
-                                                                            <div className="flex items-center gap-2">
-                                                                                <div className={`p-1 rounded-lg ${
+                                                                            <div 
+                                                                                className="flex items-start gap-2 cursor-help"
+                                                                                title={`Batch Details:
+Reference: ${income.batch.reference_number}
+Issue Date: ${income.batch.issue_date ? formatDate(income.batch.issue_date) : 'N/A'}
+Expire Date: ${income.batch.expire_date ? formatDate(income.batch.expire_date) : 'N/A'}
+Days to Expiry: ${income.batch.days_to_expiry !== null ? (income.batch.days_to_expiry > 0 ? '+' : '') + income.batch.days_to_expiry + ' days' : 'N/A'}
+Unit: ${income.batch.unit_name || 'N/A'}
+Unit Amount: ${income.batch.unit_amount || 'N/A'}
+Purchase Price: ${formatCurrency(income.batch.purchase_price || 0)}
+Wholesale Price: ${formatCurrency(income.batch.wholesale_price || 0)}
+Retail Price: ${formatCurrency(income.batch.retail_price || 0)}
+Batch Quantity: ${income.batch.quantity || 'N/A'}
+Batch Total: ${formatCurrency(income.batch.total || 0)}
+Notes: ${income.batch.notes || 'N/A'}`}
+                                                                            >
+                                                                                <div className={`p-1 rounded-lg mt-1 ${
                                                                                     income.batch.expire_date ? 
                                                                                         (new Date(income.batch.expire_date) < new Date() ? 
                                                                                             'bg-gradient-to-br from-red-100 to-rose-100 dark:from-red-900/30 dark:to-rose-900/30' :
@@ -889,10 +966,29 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                                             : 'text-blue-600'
                                                                                     }`} />
                                                                                 </div>
-                                                                                <div className="flex flex-col gap-1">
-                                                                                    <span className="font-medium text-slate-800 dark:text-white" title={income.batch.reference_number}>
-                                                                                        {income.batch.reference_number}
-                                                                                    </span>
+                                                                                <div className="flex flex-col gap-1 min-w-0 flex-1">
+                                                                                    <div className="flex items-center gap-2">
+                                                                                        <span className="font-medium text-slate-800 dark:text-white truncate" title={income.batch.reference_number}>
+                                                                                            {income.batch.reference_number}
+                                                                                        </span>
+                                                                                        {income.batch.expiry_status && (
+                                                                                            <Badge 
+                                                                                                variant="outline" 
+                                                                                                className={`text-xs ${
+                                                                                                    income.batch.expiry_status === 'expired' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800' :
+                                                                                                    income.batch.expiry_status === 'expiring_soon' ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800' :
+                                                                                                    income.batch.expiry_status === 'valid' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800' :
+                                                                                                    'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800'
+                                                                                                }`}
+                                                                                            >
+                                                                                                {income.batch.expiry_status === 'expired' ? t('Expired') :
+                                                                                                 income.batch.expiry_status === 'expiring_soon' ? t('Expiring Soon') :
+                                                                                                 income.batch.expiry_status === 'valid' ? t('Valid') :
+                                                                                                 t('No Expiry')}
+                                                                                            </Badge>
+                                                                                        )}
+                                                                                    </div>
+                                                                                    
                                                                                     {income.batch.expire_date && (
                                                                                         <div className="flex items-center gap-1">
                                                                                             <Calendar className="h-3 w-3 text-slate-400" />
@@ -901,13 +997,38 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                                                 (new Date(income.batch.expire_date) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) ? 'text-orange-500' : 'text-green-500')
                                                                                             }`}>
                                                                                                 {formatDate(income.batch.expire_date)}
+                                                                                                {income.batch.days_to_expiry !== null && (
+                                                                                                    <span className="ml-1">
+                                                                                                        ({income.batch.days_to_expiry > 0 ? '+' : ''}{income.batch.days_to_expiry} {t('days')})
+                                                                                                    </span>
+                                                                                                )}
                                                                                             </span>
                                                                                         </div>
                                                                                     )}
+                                                                                    
                                                                                     {income.batch.issue_date && (
                                                                                         <div className="flex items-center gap-1">
                                                                                             <span className="text-xs text-slate-400 dark:text-slate-500">
-                                                                                                Issue: {formatDate(income.batch.issue_date)}
+                                                                                                {t('Issue')}: {formatDate(income.batch.issue_date)}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    )}
+                                                                                    
+                                                                                    {income.batch.unit_name && (
+                                                                                        <div className="flex items-center gap-1">
+                                                                                            <span className="text-xs text-slate-400 dark:text-slate-500">
+                                                                                                {t('Unit')}: {income.batch.unit_name}
+                                                                                                {income.batch.unit_amount && income.batch.unit_amount > 1 && (
+                                                                                                    <span className="ml-1">({income.batch.unit_amount})</span>
+                                                                                                )}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    )}
+                                                                                    
+                                                                                    {income.batch.notes && (
+                                                                                        <div className="flex items-start gap-1">
+                                                                                            <span className="text-xs text-slate-400 dark:text-slate-500 truncate" title={income.batch.notes}>
+                                                                                                {t('Notes')}: {income.batch.notes}
                                                                                             </span>
                                                                                         </div>
                                                                                     )}
