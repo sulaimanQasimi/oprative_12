@@ -157,43 +157,62 @@ trait OutcomeController
     public function createOutcome(Warehouse $warehouse)
     {
         try {
-            // Get all products with their units and pricing information that have stock in warehouse
-            $products = Product::with(['wholesaleUnit', 'retailUnit'])
-                ->where('is_activated', true)
+            // Get warehouse products directly from WarehouseBatchInventory like SaleController
+            $warehouseBatchInventory = \App\Models\WarehouseBatchInventory::forWarehouse($warehouse->id)
+                ->withStock()
                 ->get()
-                ->filter(function ($product) use ($warehouse) {
-                    // Only include products that have stock in this warehouse
-                    $warehouseProduct = $warehouse->items()->where('product_id', $product->id)->first();
-                    return $warehouseProduct && ($warehouseProduct->net_quantity ?? 0) > 0;
-                })
-                ->map(function ($product) use ($warehouse) {
-                    $warehouseProduct = $warehouse->items()
-                        ->where('product_id', $product->id)->first();
+                ->groupBy('product_id');
+
+            $warehouseProducts = $warehouseBatchInventory->map(function ($productBatches, $productId) {
+                // Get the first batch inventory item to access product data
+                $firstBatch = $productBatches->first();
+                $product = $firstBatch->product;
+
+                // Calculate total stock quantity for this product in this warehouse
+                $totalStockQuantity = $productBatches->sum('remaining_qty');
+
+                // Map batches data
+                $batches = $productBatches->map(function ($batchInventory) {
                     return [
-                        'id' => $product->id,
-                        'name' => $product->name,
-                        'barcode' => $product->barcode,
-                        'type' => $product->type,
-                        'purchase_price' => $product->purchase_price,
-                        'wholesale_price' => $product->wholesale_price,
-                        'retail_price' => $product->retail_price,
-                        'whole_sale_unit_amount' => $product->whole_sale_unit_amount,
-                        'retails_sale_unit_amount' => $product->retails_sale_unit_amount,
-                        'available_stock' => $warehouseProduct ? $warehouseProduct->net_quantity : 0,
-                        'wholesaleUnit' => $product->wholesaleUnit ? [
-                            'id' => $product->wholesaleUnit->id,
-                            'name' => $product->wholesaleUnit->name,
-                            'code' => $product->wholesaleUnit->code,
-                            'symbol' => $product->wholesaleUnit->symbol,
-                        ] : null,
-                        'retailUnit' => $product->retailUnit ? [
-                            'id' => $product->retailUnit->id,
-                            'name' => $product->retailUnit->name,
-                            'code' => $product->retailUnit->code,
-                            'symbol' => $product->retailUnit->symbol,
-                        ] : null,
+                        'id' => $batchInventory->batch_id,
+                        'reference_number' => $batchInventory->batch_reference,
+                        'issue_date' => $batchInventory->issue_date,
+                        'expire_date' => $batchInventory->expire_date,
+                        'wholesale_price' => $batchInventory->batch ? $batchInventory->batch->wholesale_price : null,
+                        'retail_price' => $batchInventory->batch ? $batchInventory->batch->retail_price : null,
+                        'purchase_price' => $batchInventory->batch ? $batchInventory->batch->purchase_price : null,
+                        'notes' => $batchInventory->batch_notes,
+                        'remaining_quantity' => $batchInventory->remaining_qty,
+                        'expiry_status' => $batchInventory->expiry_status,
+                        'days_to_expiry' => $batchInventory->days_to_expiry,
+                        'unit_type' => $batchInventory->unit_type,
+                        'unit_id' => $batchInventory->unit_id,
+                        'unit_amount' => $batchInventory->unit_amount,
+                        'unit_name' => $batchInventory->unit_name,
                     ];
                 })->values();
+
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'barcode' => $product->barcode,
+                    'type' => $product->type,
+                    'stock_quantity' => $totalStockQuantity,
+                    'purchase_price' => $product->purchase_price,
+                    'wholesale_price' => $product->wholesale_price,
+                    'retail_price' => $product->retail_price,
+                    'unit_id' => $product->unit_id,
+                    'whole_sale_unit_amount' => $product->whole_sale_unit_amount ?? 1,
+                    'retails_sale_unit_amount' => $product->retails_sale_unit_amount ?? 1,
+                    'unit_type' => $firstBatch->unit_type,
+                    'unit_id' => $firstBatch->unit_id,
+                    'unit_amount' => $firstBatch->unit_amount,
+                    'unit_name' => $firstBatch->unit_name,
+                    'available_batches' => $batches,
+                ];
+            })->filter(function ($product) {
+                return $product['stock_quantity'] > 0 && count($product['available_batches']) > 0;
+            })->values();
 
             return Inertia::render('Admin/Warehouse/CreateOutcome', [
                 'warehouse' => [
@@ -203,7 +222,7 @@ trait OutcomeController
                     'description' => $warehouse->description,
                     'is_active' => $warehouse->is_active,
                 ],
-                'products' => $products,
+                'products' => $warehouseProducts,
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading create outcome page: ' . $e->getMessage());
@@ -217,90 +236,79 @@ trait OutcomeController
         try {
             $validated = $request->validate([
                 'product_id' => 'required|exists:products,id',
-                'unit_type' => 'required|in:wholesale,retail',
+                'batch_id' => 'required|exists:batches,id',
+                'unit_type' => 'required|in:batch_unit',
                 'quantity' => 'required|numeric|min:0.01',
                 'price' => 'required|numeric|min:0',
                 'notes' => 'nullable|string|max:1000',
             ]);
 
-            // Get the product with unit information
-            $product = Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($validated['product_id']);
+            // Get the batch inventory to check stock
+            $batchInventory = \App\Models\WarehouseBatchInventory::where('batch_id', $validated['batch_id'])
+                ->where('warehouse_id', $warehouse->id)
+                ->first();
 
-            // Get warehouse product to check stock
-            $warehouseProduct = $warehouse->items()->where('product_id', $validated['product_id'])->first();
-
-            if (!$warehouseProduct) {
+            if (!$batchInventory) {
                 return redirect()->back()
-                    ->with('error', 'Product not found in warehouse')
+                    ->with('error', 'Batch not found in warehouse')
                     ->withInput()
-                    ->withErrors(['product_id' => 'Product not found in warehouse']);
+                    ->withErrors(['batch_id' => 'Batch not found in warehouse']);
             }
 
-            $availableStock = $warehouseProduct->net_quantity ?? 0;
+            if ($batchInventory->product_id != $validated['product_id']) {
+                return redirect()->back()
+                    ->with('error', 'Batch does not belong to the selected product')
+                    ->withInput()
+                    ->withErrors(['batch_id' => 'Batch does not belong to the selected product']);
+            }
 
-            // Initialize variables
-            $isWholesale = $validated['unit_type'] === 'wholesale';
-            $unitId = null;
-            $unitAmount = 1;
-            $unitName = null;
-
-            // Calculate actual quantity and available units based on unit type
+            $availableStock = $batchInventory->remaining_qty;
             $requestedQuantity = $validated['quantity'];
-            $actualQuantity = $requestedQuantity;
+            $actualQuantity = $requestedQuantity * $batchInventory->unit_amount;
             $unitPrice = $validated['price'];
-            $availableUnits = $availableStock;
 
-            if ($isWholesale && $product->wholesaleUnit) {
-                // If wholesale unit is selected, multiply by unit amount for actual quantity
-                $actualQuantity = $requestedQuantity * $product->whole_sale_unit_amount;
-                // For validation, check how many wholesale units are available
-                $availableUnits = floor($availableStock / $product->whole_sale_unit_amount);
-                $unitId = $product->wholesaleUnit->id;
-                $unitAmount = $product->whole_sale_unit_amount;
-                $unitName = $product->wholesaleUnit->name;
- 
-            } elseif (!$isWholesale && $product->retailUnit) {
-                // For retail unit
-                $unitId = $product->retailUnit->id;
-                $unitAmount = $product->retails_sale_unit_amount ?? 1;
-                $unitName = $product->retailUnit->name;
-            }
-
-            // Check if requested quantity exceeds available units for the selected unit type
-            if ($requestedQuantity > $availableUnits) {
-                $unitTypeName = $validated['unit_type'] === 'wholesale' ? 'wholesale units' : 'retail units';
+            // Check if requested quantity exceeds available stock
+            if ($actualQuantity > $availableStock) {
                 return redirect()->back()
-                    ->with('error', "Insufficient stock. Available: {$availableUnits} {$unitTypeName}")
+                    ->with('error', "Insufficient stock in batch {$batchInventory->batch_reference}. Available: {$availableStock} units")
                     ->withInput()
-                    ->withErrors(['quantity' => "Requested quantity ({$requestedQuantity}) cannot exceed available stock of {$availableUnits} {$unitTypeName}"]);
+                    ->withErrors(['quantity' => "Quantity cannot exceed available stock of {$availableStock} units in this batch"]);
             }
 
-            $total = $validated['quantity'] * $unitPrice;
+            $total = $requestedQuantity * $unitPrice;
 
             // Generate reference number
             $referenceNumber = 'OUT-' . $warehouse->code . '-' . date('YmdHis') . '-' . rand(100, 999);
 
             DB::beginTransaction();
 
-            // Create the outcome record with all the new columns
+            // Create the outcome record
             $outcome = WarehouseOutcome::create([
                 'reference_number' => $referenceNumber,
                 'warehouse_id' => $warehouse->id,
                 'product_id' => $validated['product_id'],
+                'batch_id' => $validated['batch_id'],
                 'quantity' => $actualQuantity,
                 'price' => $unitPrice,
                 'total' => $total,
                 'unit_type' => $validated['unit_type'],
-                'is_wholesale' => $isWholesale,
-                'unit_id' => $unitId,
-                'unit_amount' => $unitAmount,
-                'unit_name' => $unitName,
+                'is_wholesale' => false, // For batch-based, we don't use wholesale/retail distinction
+                'unit_id' => $batchInventory->unit_id,
+                'unit_amount' => $batchInventory->unit_amount,
+                'unit_name' => $batchInventory->unit_name,
                 'model_type' => 'manual_export',
                 'model_id' => null,
+                'notes' => $validated['notes'] ?? null,
             ]);
 
+            // Update batch inventory
+            $batchInventory->decrement('remaining_qty', $actualQuantity);
+
             // Update warehouse product quantity
-            // $warehouseProduct->decrement('net_quantity', $actualQuantity);
+            $warehouseProduct = $warehouse->items()->where('product_id', $validated['product_id'])->first();
+            if ($warehouseProduct) {
+                $warehouseProduct->decrement('net_quantity', $actualQuantity);
+            }
 
             DB::commit();
 

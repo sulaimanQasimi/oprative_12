@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     Building2,
@@ -12,12 +12,17 @@ import {
     ShoppingCart,
     Save,
     AlertCircle,
-    Barcode,
+    AlertTriangle,
     Weight,
     Package2,
     CheckCircle,
-    Info,
-    Sparkles
+    Sparkles,
+    Plus,
+    Trash2,
+    Edit,
+    X,
+    Calendar,
+    Clock
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -48,14 +53,20 @@ export default function CreateIncome({ auth, warehouse, products }) {
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const [calculatedQuantity, setCalculatedQuantity] = useState(0);
-    const [calculatedTotal, setCalculatedTotal] = useState(0);
-
-    const { data, setData, post, processing, errors } = useForm({
+    const [incomeItems, setIncomeItems] = useState([]);
+    const [currentItem, setCurrentItem] = useState({
         product_id: '',
-        unit_type: '',
+        batch_reference: '',
+        issue_date: '',
+        expire_date: '',
         quantity: '',
         price: '',
+        unit_type: 'batch_unit',
+        batch_notes: ''
+    });
+
+    const { data, setData, post, processing, errors } = useForm({
+        income_items: [],
         notes: '',
     });
 
@@ -70,38 +81,134 @@ export default function CreateIncome({ auth, warehouse, products }) {
 
     // Update selected product when product_id changes
     useEffect(() => {
-        if (data.product_id) {
-            const product = products.find(p => p.id === parseInt(data.product_id));
+        if (currentItem.product_id) {
+            const product = products.find(p => p.id === parseInt(currentItem.product_id));
             setSelectedProduct(product);
         } else {
             setSelectedProduct(null);
         }
-    }, [data.product_id, products]);
+    }, [currentItem.product_id, products]);
 
-    // Calculate actual quantity and total
+    // Update form data when income items change
     useEffect(() => {
-        if (selectedProduct && data.unit_type && data.quantity && data.price) {
-            let actualQuantity = parseFloat(data.quantity) || 0;
+        setData('income_items', incomeItems);
+    }, [incomeItems]);
 
-            if (data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount) {
-                actualQuantity = (parseFloat(data.quantity) || 0) * selectedProduct.whole_sale_unit_amount;
-            }
+    const getSelectedProduct = (productId) => {
+        const productsArray = Array.isArray(products) ? products : [];
+        return productsArray.find(p => p.id === parseInt(productId)) || null;
+    };
 
-            const total = actualQuantity * (parseFloat(data.price) || 0);
+    const getAvailableUnits = (product) => {
+        const units = [];
 
-            setCalculatedQuantity(actualQuantity);
-            setCalculatedTotal(total);
-        } else {
-            setCalculatedQuantity(0);
-            setCalculatedTotal(0);
+        if (product?.unit) {
+            units.push({
+                type: 'batch_unit',
+                label: `${product.unit.name} (${product.unit.code})`,
+                amount: 1,
+                price: product.wholesale_price || product.retail_price || 0,
+                unit_name: product.unit.name
+            });
         }
-    }, [selectedProduct, data.unit_type, data.quantity, data.price]);
+
+        return units;
+    };
+
+    const calculateActualQuantity = (product, unitType, quantity) => {
+        let actualQuantity = parseFloat(quantity) || 0;
+        
+        if (unitType === 'batch_unit' && product?.unit) {
+            actualQuantity = actualQuantity * 1; // For income, we use the unit as is
+        }
+        
+        return actualQuantity;
+    };
+
+    const addItemToIncome = () => {
+        const product = getSelectedProduct(currentItem.product_id);
+        
+        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.batch_reference) {
+            return;
+        }
+
+        const actualQuantity = calculateActualQuantity(product, 'batch_unit', currentItem.quantity);
+        const totalPrice = actualQuantity * parseFloat(currentItem.price);
+
+        const newItem = {
+            id: Date.now(), // Temporary ID for frontend
+            product_id: parseInt(currentItem.product_id),
+            product: product,
+            batch_reference: currentItem.batch_reference,
+            issue_date: currentItem.issue_date,
+            expire_date: currentItem.expire_date,
+            unit_type: 'batch_unit',
+            entered_quantity: parseFloat(currentItem.quantity),
+            actual_quantity: actualQuantity,
+            unit_price: parseFloat(currentItem.price),
+            total_price: totalPrice,
+            batch_notes: currentItem.batch_notes
+        };
+
+        setIncomeItems([...incomeItems, newItem]);
+        
+        // Reset current item
+        setCurrentItem({
+            product_id: '',
+            batch_reference: '',
+            issue_date: '',
+            expire_date: '',
+            quantity: '',
+            price: '',
+            unit_type: 'batch_unit',
+            batch_notes: ''
+        });
+    };
+
+    const removeItemFromIncome = (itemId) => {
+        setIncomeItems(incomeItems.filter(item => item.id !== itemId));
+    };
+
+    const getTotalIncomeAmount = () => {
+        return incomeItems.reduce((sum, item) => sum + item.total_price, 0);
+    };
+
+    const getTotalItems = () => {
+        return incomeItems.reduce((sum, item) => sum + item.entered_quantity, 0);
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        if (incomeItems.length === 0) {
+            return;
+        }
+
         setLoading(true);
-        post(route('admin.warehouses.income.store', warehouse.id), {
+        
+        const submissionData = {
+            income_items: incomeItems.map(item => ({
+                product_id: item.product_id,
+                batch_reference: item.batch_reference,
+                issue_date: item.issue_date,
+                expire_date: item.expire_date,
+                quantity: item.actual_quantity,
+                unit_price: item.unit_price,
+                total_price: item.total_price,
+                unit_type: item.unit_type,
+                batch_notes: item.batch_notes
+            })),
+            notes: data.notes
+        };
+
+        router.post(route('admin.warehouses.income.store', warehouse.id), submissionData, {
             onFinish: () => setLoading(false),
+            onError: (errors) => {
+                console.log('Submission errors:', errors);
+                setLoading(false);
+            },
+            onSuccess: () => {
+                setLoading(false);
+            }
         });
     };
 
@@ -113,52 +220,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
         }).format(amount || 0);
     };
 
-    const getUnitPrice = (product, unitType) => {
-        if (!product) return 0;
-
-        switch (unitType) {
-            case 'wholesale':
-                return product.wholesale_price || 0;
-            case 'retail':
-                return product.retail_price || 0;
-            default:
-                return 0;
-        }
-    };
-
-    const handleUnitTypeChange = (unitType) => {
-        setData('unit_type', unitType);
-
-        // Auto-fill price based on unit type
-        if (selectedProduct) {
-            const price = getUnitPrice(selectedProduct, unitType);
-            setData('price', price.toString());
-        }
-    };
-
-    const getAvailableUnits = (product) => {
-        const units = [];
-
-        if (product?.wholesaleUnit && product.whole_sale_unit_amount) {
-            units.push({
-                type: 'wholesale',
-                label: `${product.wholesaleUnit.name} (${product.wholesaleUnit.symbol})`,
-                amount: product.whole_sale_unit_amount,
-                price: product.wholesale_price
-            });
-        }
-
-        if (product?.retailUnit) {
-            units.push({
-                type: 'retail',
-                label: `${product.retailUnit.name} (${product.retailUnit.symbol})`,
-                amount: 1,
-                price: product.retail_price
-            });
-        }
-
-        return units;
-    };
+    const currentProduct = getSelectedProduct(currentItem.product_id);
 
     return (
         <>
@@ -268,7 +330,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                         transition={{ delay: 0.5, duration: 0.4 }}
                                         className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
                                     >
-                                        {t("New Import Record")}
+                                        {t("Create Import")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -277,7 +339,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <Package className="w-4 h-4" />
-                                        {t("Create a new import transaction for incoming inventory")}
+                                        {t("Create a new import with multiple products and batches")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -289,7 +351,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                 className="flex items-center space-x-3"
                             >
                                 <Link href={route("admin.warehouses.income", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 dark:text-white text-black hover:scale-105 transition-all duration-200">
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-slate-700 dark:text-slate-200 hover:text-green-700 dark:hover:text-green-300">
                                         <ArrowLeft className="h-4 w-4" />
                                         {t("Back to Imports")}
                                     </Button>
@@ -305,277 +367,311 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                 initial={{ y: 20, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.8, duration: 0.5 }}
-                                className="max-w-5xl mx-auto"
+                                className="max-w-6xl mx-auto"
                             >
                                 <form onSubmit={handleSubmit} className="space-y-8">
-                                    {/* Form Card */}
+                                    {/* Add Product Item */}
                                     <motion.div
                                         initial={{ scale: 0.95, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
                                         transition={{ delay: 0.9, duration: 0.5 }}
                                     >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-700/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-600/50 rounded-t-xl">
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                     <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
-                                                        <TrendingUp className="h-6 w-6 text-white" />
+                                                        <Plus className="h-6 w-6 text-white" />
                                                     </div>
-                                                    {t("Import Details")}
-                                                    <Badge variant="secondary" className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                                                        {t("Required")}
-                                                    </Badge>
+                                                    {t("Add Product to Import")}
                                                 </CardTitle>
-                                                <CardDescription className="text-slate-600 dark:text-slate-400">
-                                                    {t("Fill in the details for the new import record with proper unit calculations")}
-                                                </CardDescription>
                                             </CardHeader>
-                                            <CardContent className="p-8 space-y-8">
-                                                {/* Error Alert */}
-                                                <AnimatePresence>
-                                                    {Object.keys(errors).length > 0 && (
-                                                        <motion.div
-                                                            initial={{ opacity: 0, y: -10 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            exit={{ opacity: 0, y: -10 }}
-                                                        >
-                                                            <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20 pulse-glow">
-                                                                <AlertCircle className="h-5 w-5 text-red-600" />
-                                                                <AlertDescription className="text-red-700 dark:text-red-400 font-medium">
-                                                                    {t("Please correct the errors below and try again.")}
-                                                                </AlertDescription>
-                                                            </Alert>
-                                                        </motion.div>
-                                                    )}
-                                                </AnimatePresence>
-
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                            <CardContent className="p-8 space-y-6">
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                                     {/* Product Selection */}
-                                                    <motion.div
-                                                        initial={{ x: -20, opacity: 0 }}
-                                                        animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.0, duration: 0.4 }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label htmlFor="product_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
                                                             <Package className="w-5 h-5 text-green-500" />
                                                             {t("Product")} *
                                                         </Label>
                                                         <Select
-                                                            value={data.product_id}
-                                                            onValueChange={(value) => setData('product_id', value)}
+                                                            value={currentItem.product_id}
+                                                            onValueChange={(value) => setCurrentItem({...currentItem, product_id: value, unit_type: '', price: ''})}
                                                         >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.product_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}>
-                                                                <SelectValue placeholder={t("Select a product to import")} />
+                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-green-300 focus:border-green-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
+                                                                <SelectValue placeholder={t("Select a product")} />
                                                             </SelectTrigger>
-                                                            <SelectContent className="max-w-md">
-                                                                {products.map((product) => (
-                                                                    <SelectItem key={product.id} value={product.id.toString()} className="p-4">
-                                                                        <div className="flex items-center space-x-4">
-                                                                            <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
-                                                                                <Package className="h-5 w-5 text-green-600" />
-                                                                            </div>
-                                                                            <div className="flex-1">
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{product.name}</div>
-                                                                                <div className="text-sm text-slate-500 flex items-center gap-2">
-                                                                                    <Barcode className="w-3 h-3" />
-                                                                                    {product.barcode || product.type}
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                ))}
-                                                            </SelectContent>
-                                                        </Select>
-                                                        {errors.product_id && (
-                                                            <motion.p
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {errors.product_id}
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
-
-                                                    {/* Unit Type Selection */}
-                                                    <motion.div
-                                                        initial={{ x: 20, opacity: 0 }}
-                                                        animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.1, duration: 0.4 }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label htmlFor="unit_type" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Weight className="w-5 h-5 text-emerald-500" />
-                                                            {t("Unit Type")} *
-                                                        </Label>
-                                                        <Select
-                                                            value={data.unit_type}
-                                                            onValueChange={handleUnitTypeChange}
-                                                            disabled={!selectedProduct}
-                                                        >
-                                                            <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.unit_type ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-emerald-300 focus:border-emerald-500'} ${!selectedProduct ? 'opacity-50 cursor-not-allowed' : 'bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400'}`}>
-                                                                <SelectValue placeholder={selectedProduct ? t("Select unit type") : t("Select product first")} />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {selectedProduct && getAvailableUnits(selectedProduct).map((unit) => (
-                                                                    <SelectItem key={unit.type} value={unit.type} className="p-4">
-                                                                        <div className="flex items-center space-x-4">
-                                                                            <div className="p-2 bg-gradient-to-br from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 rounded-lg">
-                                                                                <Weight className="h-5 w-5 text-emerald-600" />
-                                                                            </div>
+                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                                                {Array.isArray(products) ? products.map((product) => (
+                                                                    <SelectItem key={product.id} value={product.id.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                        <div className="flex items-center space-x-3">
+                                                                            <Package className="h-4 w-4 text-green-600" />
                                                                             <div>
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{unit.label}</div>
-                                                                                <div className="text-sm text-slate-500 flex items-center gap-2">
-                                                                                    <DollarSign className="w-3 h-3" />
-                                                                                    {formatCurrency(unit.price)} per unit
-                                                                                    {unit.amount > 1 && (
-                                                                                        <Badge variant="secondary" className="text-xs">
-                                                                                            {unit.amount} pieces
-                                                                                        </Badge>
-                                                                                    )}
+                                                                                <div className="font-semibold text-slate-800 dark:text-white">{product.name}</div>
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                                                    {product.barcode} | {product.type}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                     </SelectItem>
-                                                                ))}
+                                                                )) : (
+                                                                    <SelectItem value="" disabled>
+                                                                        No products available
+                                                                    </SelectItem>
+                                                                )}
                                                             </SelectContent>
                                                         </Select>
-                                                        {errors.unit_type && (
-                                                            <motion.p
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {errors.unit_type}
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
+                                                    </div>
+
+                                                    {/* Batch Reference */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Hash className="w-5 h-5 text-emerald-500" />
+                                                            {t("Batch Reference")} *
+                                                        </Label>
+                                                        <Input
+                                                            type="text"
+                                                            placeholder={t("Enter batch reference number")}
+                                                            value={currentItem.batch_reference}
+                                                            onChange={(e) => setCurrentItem({...currentItem, batch_reference: e.target.value})}
+                                                            className="h-12 text-base border-2 border-slate-200 hover:border-emerald-300 focus:border-emerald-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                                        />
+                                                    </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                    {/* Issue Date */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Calendar className="w-5 h-5 text-blue-500" />
+                                                            {t("Issue Date")} *
+                                                        </Label>
+                                                        <Input
+                                                            type="date"
+                                                            value={currentItem.issue_date}
+                                                            onChange={(e) => setCurrentItem({...currentItem, issue_date: e.target.value})}
+                                                            className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white"
+                                                        />
+                                                    </div>
+
+                                                    {/* Expiry Date */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Clock className="w-5 h-5 text-orange-500" />
+                                                            {t("Expiry Date")}
+                                                        </Label>
+                                                        <Input
+                                                            type="date"
+                                                            value={currentItem.expire_date}
+                                                            onChange={(e) => setCurrentItem({...currentItem, expire_date: e.target.value})}
+                                                            className="h-12 text-base border-2 border-slate-200 hover:border-orange-300 focus:border-orange-500 bg-white dark:bg-slate-800 dark:text-white"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                    {/* Unit Type - Auto-determined from product */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Weight className="w-5 h-5 text-purple-500" />
+                                                            {t("Unit Type")}
+                                                        </Label>
+                                                        <div className="h-12 flex items-center px-3 border-2 border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 rounded-md">
+                                                            <span className="text-slate-600 dark:text-slate-400">
+                                                                {currentProduct && currentProduct.unit ? 
+                                                                    `${currentProduct.unit.name} (${currentProduct.unit.code})` : 
+                                                                    t("Select product to see unit")
+                                                                }
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
                                                     {/* Quantity */}
-                                                    <motion.div
-                                                        initial={{ x: -20, opacity: 0 }}
-                                                        animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.2, duration: 0.4 }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label htmlFor="quantity" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Hash className="w-5 h-5 text-blue-500" />
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <Hash className="w-5 h-5 text-green-500" />
                                                             {t("Quantity")} *
                                                         </Label>
-                                                        <div className="relative">
-                                                            <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                            <Input
-                                                                id="quantity"
-                                                                type="number"
-                                                                step="0.01"
-                                                                min="0.01"
-                                                                placeholder={t("Enter quantity")}
-                                                                value={data.quantity}
-                                                                onChange={(e) => setData('quantity', e.target.value)}
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.quantity ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}
-                                                            />
-                                                        </div>
-                                                        {errors.quantity && (
-                                                            <motion.p
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {errors.quantity}
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
+                                                        <Input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0.01"
+                                                            placeholder={t("Enter quantity")}
+                                                            value={currentItem.quantity}
+                                                            onChange={(e) => setCurrentItem({...currentItem, quantity: e.target.value})}
+                                                            className="h-12 text-base border-2 border-slate-200 hover:border-green-300 focus:border-green-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                                        />
+                                                    </div>
 
                                                     {/* Price */}
-                                                    <motion.div
-                                                        initial={{ x: 20, opacity: 0 }}
-                                                        animate={{ x: 0, opacity: 1 }}
-                                                        transition={{ delay: 1.3, duration: 0.4 }}
-                                                        className="space-y-3"
-                                                    >
-                                                        <Label htmlFor="price" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <DollarSign className="w-5 h-5 text-green-500" />
-                                                            {t("Price per Unit")} *
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                            <DollarSign className="w-5 h-5 text-yellow-500" />
+                                                            {t("Unit Price")} *
                                                         </Label>
-                                                        <div className="relative">
-                                                            <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                            <Input
-                                                                id="price"
-                                                                type="number"
-                                                                step="0.01"
-                                                                min="0"
-                                                                placeholder={t("Enter price")}
-                                                                value={data.price}
-                                                                onChange={(e) => setData('price', e.target.value)}
-                                                                className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.price ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}
-                                                            />
-                                                        </div>
-                                                        {errors.price && (
-                                                            <motion.p
-                                                                initial={{ opacity: 0 }}
-                                                                animate={{ opacity: 1 }}
-                                                                className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                            >
-                                                                <AlertCircle className="w-4 h-4" />
-                                                                {errors.price}
-                                                            </motion.p>
-                                                        )}
-                                                    </motion.div>
+                                                        <Input
+                                                            type="number"
+                                                            step="0.01"
+                                                            min="0"
+                                                            placeholder={t("Enter price")}
+                                                            value={currentItem.price}
+                                                            onChange={(e) => setCurrentItem({...currentItem, price: e.target.value})}
+                                                            className="h-12 text-base border-2 border-slate-200 hover:border-yellow-300 focus:border-yellow-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                                        />
+                                                    </div>
                                                 </div>
 
-                                                {/* Notes */}
-                                                <motion.div
-                                                    initial={{ y: 20, opacity: 0 }}
-                                                    animate={{ y: 0, opacity: 1 }}
-                                                    transition={{ delay: 1.4, duration: 0.4 }}
-                                                    className="space-y-3"
-                                                >
-                                                    <Label htmlFor="notes" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                        <Package2 className="w-5 h-5 text-purple-500" />
-                                                        {t("Notes")}
-                                                        <Badge variant="secondary" className="text-xs">
-                                                            {t("Optional")}
-                                                        </Badge>
+                                                {/* Batch Notes */}
+                                                <div className="space-y-3">
+                                                    <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                        <Package2 className="w-5 h-5 text-indigo-500" />
+                                                        {t("Batch Notes")}
                                                     </Label>
                                                     <Textarea
-                                                        id="notes"
-                                                        placeholder={t("Enter any additional notes about this import...")}
-                                                        value={data.notes}
-                                                        onChange={(e) => setData('notes', e.target.value)}
-                                                        rows={4}
-                                                        className={`resize-none text-lg border-2 transition-all duration-200 ${errors.notes ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-purple-300 focus:border-purple-500'} bg-white dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400`}
+                                                        placeholder={t("Enter any notes about this batch...")}
+                                                        value={currentItem.batch_notes}
+                                                        onChange={(e) => setCurrentItem({...currentItem, batch_notes: e.target.value})}
+                                                        rows={2}
+                                                        className="resize-none text-base border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                                                     />
-                                                    {errors.notes && (
-                                                        <motion.p
-                                                            initial={{ opacity: 0 }}
-                                                            animate={{ opacity: 1 }}
-                                                            className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                        >
-                                                            <AlertCircle className="w-4 h-4" />
-                                                            {errors.notes}
-                                                        </motion.p>
-                                                    )}
-                                                </motion.div>
+                                                </div>
+
+                                                {/* Add Button */}
+                                                <div className="flex justify-end">
+                                                    <Button
+                                                        type="button"
+                                                        onClick={addItemToIncome}
+                                                        disabled={!currentItem.product_id || !currentItem.batch_reference || !currentItem.issue_date || !currentItem.quantity || !currentItem.price}
+                                                        className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white gap-2 px-6 py-3"
+                                                    >
+                                                        <Plus className="h-4 w-4" />
+                                                        {t("Add Item")}
+                                                    </Button>
+                                                </div>
                                             </CardContent>
                                         </Card>
                                     </motion.div>
 
-                                    {/* Calculation Summary */}
+                                    {/* Income Items List */}
                                     <AnimatePresence>
-                                        {selectedProduct && data.unit_type && data.quantity && data.price && (
+                                        {incomeItems.length > 0 && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 20 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 20 }}
+                                                transition={{ duration: 0.4 }}
+                                            >
+                                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                                    <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                                        <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                                                                <TrendingUp className="h-6 w-6 text-white" />
+                                                            </div>
+                                                            {t("Import Items")}
+                                                            <Badge className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                                {incomeItems.length} {t("items")}
+                                                            </Badge>
+                                                        </CardTitle>
+                                                    </CardHeader>
+                                                    <CardContent className="p-0">
+                                                        <div className="overflow-x-auto">
+                                                            <table className="w-full">
+                                                                <thead className="bg-slate-50 dark:bg-slate-800">
+                                                                    <tr>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Product")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Batch")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Type")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Quantity")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Price")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Total")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Actions")}</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
+                                                                    {incomeItems.map((item, index) => (
+                                                                        <motion.tr
+                                                                            key={item.id}
+                                                                            initial={{ opacity: 0, y: 20 }}
+                                                                            animate={{ opacity: 1, y: 0 }}
+                                                                            exit={{ opacity: 0, y: -20 }}
+                                                                            transition={{ delay: index * 0.1 }}
+                                                                            className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                                                                        >
+                                                                            <td className="px-6 py-4">
+                                                                                <div className="flex items-center gap-3">
+                                                                                    <Package className="h-5 w-5 text-green-600" />
+                                                                                    <div>
+                                                                                        <div className="font-semibold text-slate-800 dark:text-white">{item.product.name}</div>
+                                                                                        <div className="text-sm text-slate-500 dark:text-slate-400">{item.product.barcode}</div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="px-6 py-4">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Hash className="h-4 w-4 text-emerald-600" />
+                                                                                    <div>
+                                                                                        <div className="font-semibold text-slate-800 dark:text-white">
+                                                                                            {item.batch_reference}
+                                                                                        </div>
+                                                                                        {item.expire_date && (
+                                                                                            <div className="text-xs text-slate-500 dark:text-slate-400">
+                                                                                                Exp: {new Date(item.expire_date).toLocaleDateString()}
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="px-6 py-4">
+                                                                                <Badge variant="outline" className="capitalize">
+                                                                                    {item.unit_type}
+                                                                                </Badge>
+                                                                            </td>
+                                                                            <td className="px-6 py-4">
+                                                                                <div className="flex flex-col">
+                                                                                    <span className="font-semibold text-slate-800 dark:text-white">
+                                                                                        {item.entered_quantity} units
+                                                                                    </span>
+                                                                                    <span className="text-sm text-slate-500 dark:text-slate-400">({item.actual_quantity} pieces)</span>
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="px-6 py-4 font-semibold text-slate-800 dark:text-white">
+                                                                                {formatCurrency(item.unit_price)}
+                                                                            </td>
+                                                                            <td className="px-6 py-4 font-bold text-green-600 dark:text-green-400">
+                                                                                {formatCurrency(item.total_price)}
+                                                                            </td>
+                                                                            <td className="px-6 py-4">
+                                                                                <Button
+                                                                                    type="button"
+                                                                                    variant="outline"
+                                                                                    size="sm"
+                                                                                    onClick={() => removeItemFromIncome(item.id)}
+                                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                                                >
+                                                                                    <Trash2 className="h-4 w-4" />
+                                                                                </Button>
+                                                                            </td>
+                                                                        </motion.tr>
+                                                                    ))}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    {/* Income Summary */}
+                                    <AnimatePresence>
+                                        {incomeItems.length > 0 && (
                                             <motion.div
                                                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
                                                 transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
                                             >
-                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 backdrop-blur-xl">
-                                                    <CardHeader className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-b border-green-200/50 dark:border-slate-600/50">
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-green-900/30 backdrop-blur-xl">
+                                                    <CardHeader className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-b border-green-200/50 dark:border-green-700/50">
                                                         <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
                                                             <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
                                                                 <Calculator className="h-6 w-6 text-white" />
@@ -583,72 +679,75 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                             {t("Import Summary")}
                                                             <Badge className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
                                                                 <CheckCircle className="w-3 h-3 mr-1" />
-                                                                {t("Valid")}
+                                                                {t("Ready")}
                                                             </Badge>
                                                         </CardTitle>
                                                     </CardHeader>
                                                     <CardContent className="p-8 space-y-6">
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                            <motion.div
-                                                                whileHover={{ scale: 1.02 }}
-                                                                className="text-center p-6 bg-white/70 dark:bg-slate-700/70 rounded-2xl shadow-lg border border-green-200/50 dark:border-slate-600/50"
-                                                            >
+                                                            <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-green-200/50 dark:border-green-700/50">
+                                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
+                                                                    <Package className="w-4 h-4" />
+                                                                    {t("Total Items")}
+                                                                </p>
+                                                                <p className="text-3xl font-bold text-slate-900 dark:text-white">
+                                                                    {incomeItems.length}
+                                                                </p>
+                                                                <p className="text-xs text-slate-500 mt-1">{t("products")}</p>
+                                                            </div>
+                                                            <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-green-200/50 dark:border-green-700/50">
                                                                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
                                                                     <Hash className="w-4 h-4" />
-                                                                    {t("Actual Quantity")}
+                                                                    {t("Total Quantity")}
                                                                 </p>
                                                                 <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                                                                    {/* {calculatedQuantity.toLocaleString()} */}
-                                                                    {data.quantity}
+                                                                    {getTotalItems().toLocaleString()}
                                                                 </p>
-                                                                <p className="text-xs text-slate-500 mt-1">{t("units")}</p>
-                                                            </motion.div>
-                                                            <motion.div
-                                                                whileHover={{ scale: 1.02 }}
-                                                                className="text-center p-6 bg-white/70 dark:bg-slate-700/70 rounded-2xl shadow-lg border border-green-200/50 dark:border-slate-600/50"
-                                                            >
-                                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
-                                                                    <DollarSign className="w-4 h-4" />
-                                                                    {t("Price per Unit")}
-                                                                </p>
-                                                                <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                                                                    {formatCurrency(parseFloat(data.price) || 0)}
-                                                                </p>
-                                                            </motion.div>
-                                                            <motion.div
-                                                                whileHover={{ scale: 1.02 }}
-                                                                className="text-center p-6 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl shadow-lg border-2 border-green-300 dark:border-green-700"
-                                                            >
+                                                                <p className="text-xs text-slate-500 mt-1">{t("pieces")}</p>
+                                                            </div>
+                                                            <div className="text-center p-6 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl shadow-lg border-2 border-green-300 dark:border-green-700">
                                                                 <p className="text-sm text-green-700 dark:text-green-400 mb-2 flex items-center justify-center gap-2">
-                                                                    <Calculator className="w-4 h-4" />
-                                                                    {t("Total Value")}
+                                                                    <DollarSign className="w-4 h-4" />
+                                                                    {t("Total Amount")}
                                                                 </p>
                                                                 <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                                                                    {formatCurrency(data.price * data.quantity)}
+                                                                    {formatCurrency(getTotalIncomeAmount())}
                                                                 </p>
-                                                            </motion.div>
+                                                            </div>
                                                         </div>
-                                                        <AnimatePresence>
-                                                            {data.unit_type === 'wholesale' && selectedProduct.whole_sale_unit_amount > 1 && (
-                                                                <motion.div
-                                                                    initial={{ opacity: 0, height: 0 }}
-                                                                    animate={{ opacity: 1, height: "auto" }}
-                                                                    exit={{ opacity: 0, height: 0 }}
-                                                                >
-                                                                    <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
-                                                                        <Package2 className="h-5 w-5 text-green-600" />
-                                                                        <AlertDescription className="text-green-700 dark:text-green-400 font-medium">
-                                                                            <strong>{t("Wholesale unit multiplier applied")}:</strong> {data.quantity} × {selectedProduct.whole_sale_unit_amount} = {calculatedQuantity} {t("units")}
-                                                                        </AlertDescription>
-                                                                    </Alert>
-                                                                </motion.div>
-                                                            )}
-                                                        </AnimatePresence>
                                                     </CardContent>
                                                 </Card>
                                             </motion.div>
                                         )}
                                     </AnimatePresence>
+
+                                    {/* Notes */}
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.4, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                            <CardHeader>
+                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                    <Package2 className="w-6 h-6 text-purple-500" />
+                                                    {t("Additional Notes")}
+                                                    <Badge variant="secondary" className="text-xs">
+                                                        {t("Optional")}
+                                                    </Badge>
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <Textarea
+                                                    placeholder={t("Enter any additional notes about this import...")}
+                                                    value={data.notes}
+                                                    onChange={(e) => setData('notes', e.target.value)}
+                                                    rows={4}
+                                                    className="resize-none text-lg border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                                />
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
 
                                     {/* Submit Button */}
                                     <motion.div
@@ -661,15 +760,19 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                             <Button
                                                 type="button"
                                                 variant="outline"
-                                                className="px-8 py-4 text-lg border-2 dark:text-white text-black hover:scale-105 transition-all duration-200"
+                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
                                             >
                                                 {t("Cancel")}
                                             </Button>
                                         </Link>
                                         <Button
                                             type="submit"
-                                            disabled={processing}
-                                            className={`px-8 py-4 text-lg shadow-2xl transition-all duration-200 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 hover:scale-105 hover:shadow-3xl text-white`}
+                                            disabled={processing || incomeItems.length === 0}
+                                            className={`px-8 py-4 text-lg shadow-2xl transition-all duration-200 ${
+                                                incomeItems.length === 0
+                                                    ? 'bg-gray-400 cursor-not-allowed'
+                                                    : 'bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 hover:scale-105 hover:shadow-3xl'
+                                            } text-white`}
                                         >
                                             {processing ? (
                                                 <>

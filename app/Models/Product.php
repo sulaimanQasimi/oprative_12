@@ -79,6 +79,11 @@ class Product extends Model
         return $this->hasMany(CustomerStockOutcome::class);
     }
 
+    public function batches()
+    {
+        return $this->hasMany(Batch::class);
+    }
+
     public function getCodeAttribute()
     {
         return $this->barcode ?? 'PRD-' . $this->id;

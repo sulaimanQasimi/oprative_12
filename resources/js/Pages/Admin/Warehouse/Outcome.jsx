@@ -79,7 +79,7 @@ export default function Outcome({ auth, warehouse, outcomes, filters }) {
     
     // Safe pagination data
     const safeOutcomes = outcomes || {};
-    const incomes = safeOutcomes.data || [];
+    const outcomesData = safeOutcomes.data || [];
     const pagination = safeOutcomes.meta || {};
     const currentPage = pagination.current_page || 1;
     const lastPage = pagination.last_page || 1;
@@ -149,18 +149,18 @@ export default function Outcome({ auth, warehouse, outcomes, filters }) {
     };
 
     // Calculate totals from current page data
-    const totalExports = incomes.length;
-    const totalQuantity = incomes.reduce((sum, outcome) => {
+    const totalExports = outcomesData.length;
+    const totalQuantity = outcomesData.reduce((sum, outcome) => {
         if (outcome.is_wholesale && outcome.unit_amount) {
             return sum + (outcome.quantity / outcome.unit_amount);
         }
         return sum + (outcome.quantity || 0);
     }, 0);
-    const totalValue = incomes.reduce((sum, outcome) => sum + (outcome.total || 0), 0);
+    const totalValue = outcomesData.reduce((sum, outcome) => sum + (outcome.total || 0), 0);
     const avgExportValue = totalExports > 0 ? totalValue / totalExports : 0;
 
     // Batch statistics
-    const batchStats = incomes.reduce((stats, outcome) => {
+    const batchStats = outcomesData.reduce((stats, outcome) => {
         if (outcome.batch) {
             const status = outcome.batch.expiry_status || 'valid';
             if (!stats[status]) {
@@ -805,7 +805,7 @@ export default function Outcome({ auth, warehouse, outcomes, filters }) {
                                                     </TableHeader>
                                                     <TableBody>
                                                         {totalExports > 0 ? (
-                                                            incomes.map((outcome, index) => (
+                                                            outcomesData.map((outcome, index) => (
                                                                 <TableRow
                                                                     key={outcome.id}
                                                                     className="hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"

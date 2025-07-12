@@ -10,6 +10,8 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\WarehouseIncome;
+use App\Models\Batch;
+use App\Models\Unit;
 use PhpOffice\PhpSpreadsheet\Calculation\Financial\Securities\Price;
 
 trait IncomeController
@@ -167,9 +169,9 @@ trait IncomeController
     public function createIncome(Warehouse $warehouse)
     {
         try {
-            // Get all products with their units, pricing information, and batches
-            $products = Product::with(['wholesaleUnit', 'retailUnit', 'batches'])
-                ->where('is_activated', true)
+            // Get all products with their units and pricing information
+            $products = Product::with(['unit'])
+                ->where('status', true)
                 ->get()
                 ->map(function ($product) {
                     return [
@@ -180,34 +182,14 @@ trait IncomeController
                         'purchase_price' => $product->purchase_price,
                         'wholesale_price' => $product->wholesale_price,
                         'retail_price' => $product->retail_price,
-                        'whole_sale_unit_amount' => $product->whole_sale_unit_amount,
-                        'retails_sale_unit_amount' => $product->retails_sale_unit_amount,
-                        'wholesaleUnit' => $product->wholesaleUnit ? [
-                            'id' => $product->wholesaleUnit->id,
-                            'name' => $product->wholesaleUnit->name,
-                            'code' => $product->wholesaleUnit->code,
-                            'symbol' => $product->wholesaleUnit->symbol,
+                        'unit_id' => $product->unit_id,
+                        'whole_sale_unit_amount' => $product->whole_sale_unit_amount ?? 1,
+                        'retails_sale_unit_amount' => $product->retails_sale_unit_amount ?? 1,
+                        'unit' => $product->unit ? [
+                            'id' => $product->unit->id,
+                            'name' => $product->unit->name,
+                            'code' => $product->unit->code,
                         ] : null,
-                        'retailUnit' => $product->retailUnit ? [
-                            'id' => $product->retailUnit->id,
-                            'name' => $product->retailUnit->name,
-                            'code' => $product->retailUnit->code,
-                            'symbol' => $product->retailUnit->symbol,
-                        ] : null,
-                        'batches' => $product->batches->map(function ($batch) {
-                            return [
-                                'id' => $batch->id,
-                                'reference_number' => $batch->reference_number,
-                                'issue_date' => $batch->issue_date,
-                                'expire_date' => $batch->expire_date,
-                                'notes' => $batch->notes,
-                                'wholesale_price' => $batch->wholesale_price,
-                                'retail_price' => $batch->retail_price,
-                                'purchase_price' => $batch->purchase_price,
-                                'unit_type' => $batch->unit_type,
-                                'unit_name' => $batch->unit_name,
-                            ];
-                        }),
                     ];
                 });
 
@@ -232,79 +214,142 @@ trait IncomeController
     {
         try {
             $validated = $request->validate([
-                'product_id' => 'required|exists:products,id',
-                'batch_id' => 'nullable|exists:batches,id',
-                'unit_type' => 'required|in:wholesale,retail',
-                'quantity' => 'required|numeric|min:0.01',
-                'price' => 'required|numeric|min:0',
+                'income_items' => 'required|array|min:1',
+                'income_items.*.product_id' => 'required|exists:products,id',
+                'income_items.*.batch_reference' => 'required|string|max:255',
+                'income_items.*.issue_date' => 'required|date',
+                'income_items.*.expire_date' => 'nullable|date|after:issue_date',
+                'income_items.*.quantity' => 'required|numeric|min:0.01',
+                'income_items.*.unit_price' => 'required|numeric|min:0',
+                'income_items.*.total_price' => 'required|numeric|min:0',
+                'income_items.*.unit_type' => 'required|in:batch_unit',
+                'income_items.*.batch_notes' => 'nullable|string|max:1000',
                 'notes' => 'nullable|string|max:1000',
             ]);
 
-            // Get the product with unit information
-            $product = Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($validated['product_id']);
+            DB::beginTransaction();
 
-            // If batch_id is provided, validate it belongs to the selected product
-            if (!empty($validated['batch_id'])) {
-                $batch = \App\Models\Batch::where('id', $validated['batch_id'])
-                    ->where('product_id', $validated['product_id'])
+            // Generate reference number for the income transaction
+            $referenceNumber = 'INC-' . $warehouse->code . '-' . date('YmdHis') . '-' . rand(100, 999);
+
+            // Process each income item
+            foreach ($validated['income_items'] as $item) {
+                // Get the product with unit information
+                $product = Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($item['product_id']);
+
+                // Create or find batch
+                $batch = Batch::where('reference_number', $item['batch_reference'])
+                    ->where('product_id', $item['product_id'])
                     ->first();
 
                 if (!$batch) {
-                    return redirect()->back()
-                        ->with('error', 'Selected batch does not belong to the selected product.')
-                        ->withInput()
-                        ->withErrors(['batch_id' => 'Selected batch does not belong to the selected product.']);
+                    // Create new batch
+                    $batch = Batch::create([
+                        'product_id' => $item['product_id'],
+                        'reference_number' => $item['batch_reference'],
+                        'issue_date' => $item['issue_date'],
+                        'expire_date' => $item['expire_date'] ?? null,
+                        'notes' => $item['batch_notes'] ?? null,
+                        'wholesale_price' => $item['unit_type'] === 'wholesale' ? $item['unit_price'] : null,
+                        'retail_price' => $item['unit_type'] === 'retail' ? $item['unit_price'] : null,
+                        'purchase_price' => $item['unit_price'],
+                        'unit_type' => $item['unit_type'],
+                        'unit_name' => $product->unit ? $product->unit->name : ($item['unit_type'] === 'wholesale' ? 'Wholesale' : 'Retail'),
+                        'unit_amount' => 1, // Default unit amount
+                        'quantity' => $item['quantity'],
+                        'total' => $item['total_price'],
+                    ]);
+                } else {
+                    // Update existing batch with new information
+                    $batch->update([
+                        'issue_date' => $item['issue_date'],
+                        'expire_date' => $item['expire_date'] ?? $batch->expire_date,
+                        'notes' => $item['batch_notes'] ?? $batch->notes,
+                        'wholesale_price' => $item['unit_type'] === 'wholesale' ? $item['unit_price'] : $batch->wholesale_price,
+                        'retail_price' => $item['unit_type'] === 'retail' ? $item['unit_price'] : $batch->retail_price,
+                        'purchase_price' => $item['unit_price'],
+                        'quantity' => $batch->quantity + $item['quantity'],
+                        'total' => $batch->total + $item['total_price'],
+                    ]);
+                }
+
+                // Calculate unit information for batch-based approach
+                $unitId = $product->unit_id;
+                $unitAmount = 1; // Default unit amount
+                $unitName = $product->unit ? $product->unit->name : 'Unit';
+
+                // Create the income record
+                WarehouseIncome::create([
+                    'reference_number' => $referenceNumber,
+                    'warehouse_id' => $warehouse->id,
+                    'product_id' => $item['product_id'],
+                    'batch_id' => $batch->id,
+                    'quantity' => $item['quantity'],
+                    'price' => $item['unit_price'],
+                    'total' => $item['total_price'],
+                    'unit_type' => $item['unit_type'],
+                    'is_wholesale' => false, // For batch-based, we don't use wholesale/retail distinction
+                    'unit_id' => $unitId,
+                    'unit_amount' => $unitAmount,
+                    'unit_name' => $unitName,
+                    'notes' => $validated['notes'] ?? null,
+                ]);
+
+                // Update warehouse inventory
+                $warehouseItem = $warehouse->items()->where('product_id', $item['product_id'])->first();
+                
+                if ($warehouseItem) {
+                    $warehouseItem->update([
+                        'net_quantity' => $warehouseItem->net_quantity + $item['quantity'],
+                        'total_quantity' => $warehouseItem->total_quantity + $item['quantity'],
+                    ]);
+                } else {
+                    $warehouse->items()->create([
+                        'product_id' => $item['product_id'],
+                        'net_quantity' => $item['quantity'],
+                        'total_quantity' => $item['quantity'],
+                        'reserved_quantity' => 0,
+                    ]);
+                }
+
+                // Update or create warehouse batch inventory
+                $batchInventory = \App\Models\WarehouseBatchInventory::where('warehouse_id', $warehouse->id)
+                    ->where('batch_id', $batch->id)
+                    ->first();
+
+                if ($batchInventory) {
+                    $batchInventory->update([
+                        'remaining_qty' => $batchInventory->remaining_qty + $item['quantity'],
+                    ]);
+                } else {
+                    \App\Models\WarehouseBatchInventory::create([
+                        'warehouse_id' => $warehouse->id,
+                        'batch_id' => $batch->id,
+                        'product_id' => $item['product_id'],
+                        'batch_reference' => $batch->reference_number,
+                        'issue_date' => $batch->issue_date,
+                        'expire_date' => $batch->expire_date,
+                        'batch_notes' => $batch->notes,
+                        'remaining_qty' => $item['quantity'],
+                        'unit_type' => $item['unit_type'],
+                        'unit_id' => $unitId,
+                        'unit_amount' => $unitAmount,
+                        'unit_name' => $unitName,
+                    ]);
                 }
             }
 
-            // Calculate actual quantity and total based on unit type
-            $actualQuantity = $validated['quantity'];
-            $unitPrice = $validated['price'];
-            $isWholesale = $validated['unit_type'] === 'wholesale';
-            $unitId = null;
-            $unitAmount = 1;
-            $unitName = null;
-
-            if ($isWholesale && $product->wholesaleUnit) {
-                // If wholesale unit is selected, multiply by unit amount
-                
-                $actualQuantity = $validated['quantity'] * $product->whole_sale_unit_amount;
-                $unitId = $product->wholesaleUnit->id;
-                $unitAmount = $product->whole_sale_unit_amount;
-                $unitName = $product->wholesaleUnit->name;
-
-                $total = $validated['quantity'] * $unitPrice;
-            } elseif (!$isWholesale && $product->retailUnit) {
-                // For retail unit
-                $unitId = $product->retailUnit->id;
-                $unitAmount = $product->retails_sale_unit_amount ?? 1;
-                $unitName = $product->retailUnit->name;
-
-                $total = $actualQuantity * $unitPrice;
-            }
-
-            // Generate reference number
-            $referenceNumber = 'INC-' . $warehouse->code . '-' . date('YmdHis') . '-' . rand(100, 999);
-
-            // Create the income record with all the new columns
-            $income = WarehouseIncome::create([
-                'reference_number' => $referenceNumber,
-                'warehouse_id' => $warehouse->id,
-                'product_id' => $validated['product_id'],
-                'batch_id' => $validated['batch_id'] ?? null,
-                'quantity' => $actualQuantity,
-                'price' => $unitPrice,
-                'total' => $total,
-                'unit_type' => $validated['unit_type'],
-                'is_wholesale' => $isWholesale,
-                'unit_id' => $unitId,
-                'unit_amount' => $unitAmount,
-                'unit_name' => $unitName,
-            ]);
+            DB::commit();
 
             return redirect()->route('admin.warehouses.income', $warehouse->id)
-                ->with('success', 'Income record created successfully.');
+                ->with('success', 'Import with ' . count($validated['income_items']) . ' items created successfully.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
         } catch (\Exception $e) {
+            DB::rollback();
             Log::error('Error creating income record: ' . $e->getMessage());
             return redirect()->back()
                 ->withInput()
