@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     Building2,
@@ -26,7 +26,9 @@ import {
     Sparkles,
     ChevronDown,
     X,
-    Info
+    Info,
+    Clock,
+    AlertTriangle
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -59,16 +61,32 @@ import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import BackButton from "@/Components/BackButton";
 
-export default function Outcome({ auth, warehouse, outcomes }) {
+
+export default function Outcome({ auth, warehouse, outcomes, filters }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [dateFilter, setDateFilter] = useState("");
-    const [sortBy, setSortBy] = useState("created_at");
-    const [sortOrder, setSortOrder] = useState("desc");
+    
+    // Safe filters with defaults
+    const safeFilters = filters || {};
+    
+    // Server-side pagination state with explicit string defaults
+    const [searchTerm, setSearchTerm] = useState(String(safeFilters.search || ""));
+    const [dateFilter, setDateFilter] = useState(String(safeFilters.date || ""));
+    const [sortBy, setSortBy] = useState(String(safeFilters.sort || "created_at"));
+    const [sortOrder, setSortOrder] = useState(String(safeFilters.direction || "desc"));
     const [showFilters, setShowFilters] = useState(false);
-    const [filteredOutcomes, setFilteredOutcomes] = useState(outcomes || []);
+    
+    // Safe pagination data
+    const safeOutcomes = outcomes || {};
+    const incomes = safeOutcomes.data || [];
+    const pagination = safeOutcomes.meta || {};
+    const currentPage = pagination.current_page || 1;
+    const lastPage = pagination.last_page || 1;
+    const total = pagination.total || 0;
+    const perPage = pagination.per_page || 15;
+    const from = pagination.from || 0;
+    const to = pagination.to || 0;
 
     // Animation effect
     useEffect(() => {
@@ -79,65 +97,81 @@ export default function Outcome({ auth, warehouse, outcomes }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Enhanced filtering logic
-    useEffect(() => {
-        let filtered = [...outcomes];
-
-        // Search filter
-        if (searchTerm) {
-            filtered = filtered.filter(outcome =>
-                outcome.reference_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                outcome.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                outcome.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                outcome.model_type?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        // Date filter
-        if (dateFilter) {
-            const filterDate = new Date(dateFilter);
-            filtered = filtered.filter(outcome => {
-                const outcomeDate = new Date(outcome.created_at);
-                return outcomeDate.toDateString() === filterDate.toDateString();
-            });
-        }
-
-        // Sorting
-        filtered.sort((a, b) => {
-            let aValue = a[sortBy];
-            let bValue = b[sortBy];
-
-            if (sortBy === 'product.name') {
-                aValue = a.product.name;
-                bValue = b.product.name;
+    // Handle search and filter submission
+    const handleSearch = () => {
+        router.get(
+            route("admin.warehouses.outcome", warehouse.id),
+            {
+                search: searchTerm,
+                date: dateFilter,
+                sort: sortBy,
+                direction: sortOrder,
+            },
+            {
+                preserveState: true,
+                replace: true,
             }
+        );
+    };
 
-            if (typeof aValue === 'string') {
-                aValue = aValue.toLowerCase();
-                bValue = bValue.toLowerCase();
+    // Handle pagination
+    const handlePageChange = (page) => {
+        router.get(
+            route("admin.warehouses.outcome", warehouse.id),
+            {
+                search: searchTerm,
+                date: dateFilter,
+                sort: sortBy,
+                direction: sortOrder,
+                page: page,
+            },
+            {
+                preserveState: true,
+                replace: true,
             }
+        );
+    };
 
-            if (sortOrder === 'asc') {
-                return aValue > bValue ? 1 : -1;
-            } else {
-                return aValue < bValue ? 1 : -1;
+    // Clear filters
+    const clearFilters = () => {
+        setSearchTerm("");
+        setDateFilter("");
+        setSortBy("created_at");
+        setSortOrder("desc");
+        router.get(
+            route("admin.warehouses.outcome", warehouse.id),
+            {},
+            {
+                preserveState: true,
+                replace: true,
             }
-        });
+        );
+    };
 
-        setFilteredOutcomes(filtered);
-    }, [searchTerm, dateFilter, sortBy, sortOrder, outcomes]);
-
-    // Calculate totals
-    const totalExports = filteredOutcomes.length;
-    const totalQuantity = filteredOutcomes.reduce((sum, outcome) => {
-        // For wholesale items, show the actual wholesale quantity (not the converted retail units)
+    // Calculate totals from current page data
+    const totalExports = incomes.length;
+    const totalQuantity = incomes.reduce((sum, outcome) => {
         if (outcome.is_wholesale && outcome.unit_amount) {
             return sum + (outcome.quantity / outcome.unit_amount);
         }
         return sum + (outcome.quantity || 0);
     }, 0);
-    const totalValue = filteredOutcomes.reduce((sum, outcome) => sum + (outcome.total || 0), 0);
+    const totalValue = incomes.reduce((sum, outcome) => sum + (outcome.total || 0), 0);
     const avgExportValue = totalExports > 0 ? totalValue / totalExports : 0;
+
+    // Batch statistics
+    const batchStats = incomes.reduce((stats, outcome) => {
+        if (outcome.batch) {
+            const status = outcome.batch.expiry_status || 'valid';
+            if (!stats[status]) {
+                stats[status] = { count: 0, value: 0, quantity: 0 };
+            }
+            stats[status].count++;
+            stats[status].value += outcome.total || 0;
+            stats[status].quantity += outcome.quantity || 0;
+        }
+        return stats;
+    }, {});
 
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', {
@@ -227,13 +261,6 @@ export default function Outcome({ auth, warehouse, outcomes }) {
         return `${persianDate.day} ${persianMonths[persianDate.month - 1]} ${persianDate.year} - ${time}`;
     };
 
-    const clearFilters = () => {
-        setSearchTerm("");
-        setDateFilter("");
-        setSortBy("created_at");
-        setSortOrder("desc");
-    };
-
     const getModelTypeIcon = (modelType) => {
         switch (modelType?.toLowerCase()) {
             case 'sale':
@@ -257,6 +284,24 @@ export default function Outcome({ auth, warehouse, outcomes }) {
         return (
             <Badge variant="secondary" className={`${config.color} text-white`}>
                 {t(config.text)}
+            </Badge>
+        );
+    };
+
+    const getExpiryStatusBadge = (status) => {
+        const statusConfig = {
+            'valid': { color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300', icon: CheckCircle },
+            'expiring_soon': { color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300', icon: AlertTriangle },
+            'expired': { color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300', icon: AlertCircle },
+        };
+
+        const config = statusConfig[status] || statusConfig.valid;
+        const IconComponent = config.icon;
+
+        return (
+            <Badge variant="secondary" className={`${config.color} flex items-center gap-1`}>
+                <IconComponent className="h-3 w-3" />
+                {t(status.replace('_', ' ').toUpperCase())}
             </Badge>
         );
     };
@@ -424,10 +469,10 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                             {t("Total Exports")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-red-600 dark:text-red-400">
-                                                            {totalExports}
+                                                            {total}
                                                         </p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Transactions")}
+                                                            {t("All transactions")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-2xl">
@@ -448,13 +493,13 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Quantity")}
+                                                            {t("Page Quantity")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                                                             {totalQuantity.toLocaleString()}
                                                         </p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Units exported")}
+                                                            {t("Current page")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
@@ -475,13 +520,13 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                 <div className="flex items-center justify-between">
                                                     <div>
                                                         <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">
-                                                            {t("Total Value")}
+                                                            {t("Page Value")}
                                                         </p>
                                                         <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
                                                             {formatCurrency(totalValue)}
                                                         </p>
                                                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                                                            {t("Export value")}
+                                                            {t("Current page")}
                                                         </p>
                                                     </div>
                                                     <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-2xl">
@@ -520,6 +565,50 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                     </motion.div>
                                 </div>
 
+                                {/* Batch Statistics Dashboard */}
+                                {Object.keys(batchStats).length > 0 && (
+                                    <motion.div
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 1.3, duration: 0.4 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+                                            <CardHeader className="bg-gradient-to-r from-red-500/20 via-orange-500/20 to-red-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                                <CardTitle className="flex items-center gap-3">
+                                                    <div className="p-2 bg-gradient-to-br from-red-500 to-orange-600 rounded-lg">
+                                                        <BarChart3 className="h-5 w-5 text-white" />
+                                                    </div>
+                                                    {t("Batch Statistics")}
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-6">
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                    {Object.entries(batchStats).map(([status, stats]) => (
+                                                        <div key={status} className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-xl p-4">
+                                                            <div className="flex items-center justify-between mb-3">
+                                                                {getExpiryStatusBadge(status)}
+                                                                <span className="text-2xl font-bold text-slate-700 dark:text-slate-300">
+                                                                    {stats.count}
+                                                                </span>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <div className="flex justify-between text-sm">
+                                                                    <span className="text-slate-600 dark:text-slate-400">{t("Quantity")}:</span>
+                                                                    <span className="font-medium">{stats.quantity.toLocaleString()}</span>
+                                                                </div>
+                                                                <div className="flex justify-between text-sm">
+                                                                    <span className="text-slate-600 dark:text-slate-400">{t("Value")}:</span>
+                                                                    <span className="font-medium">{formatCurrency(stats.value)}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+                                )}
+
                                 {/* Advanced Filters */}
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
@@ -552,9 +641,10 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                 <div className="relative">
                                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
                                                     <Input
-                                                        placeholder={t("Search by reference, product name, barcode, or type...")}
+                                                        placeholder={t("Search by reference, product name, barcode, batch number, or type...")}
                                                         value={searchTerm}
                                                         onChange={(e) => setSearchTerm(e.target.value)}
+                                                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                                                         className="pl-12 h-12 text-lg border-2 border-red-200 focus:border-red-500 rounded-xl bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                                                     />
                                                     {searchTerm && (
@@ -567,6 +657,23 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                             <X className="h-4 w-4" />
                                                         </Button>
                                                     )}
+                                                </div>
+                                                <div className="flex gap-2 mt-2">
+                                                    <Button
+                                                        onClick={handleSearch}
+                                                        className="bg-red-600 hover:bg-red-700 text-white"
+                                                    >
+                                                        <Search className="h-4 w-4 mr-2" />
+                                                        {t("Search")}
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={clearFilters}
+                                                        className="border-red-300 text-red-600 hover:bg-red-50"
+                                                    >
+                                                        <RefreshCw className="h-4 w-4 mr-2" />
+                                                        {t("Clear")}
+                                                    </Button>
                                                 </div>
                                             </div>
 
@@ -658,7 +765,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                 </div>
                                                 {t("Export Records")}
                                                 <Badge variant="secondary" className="ml-auto">
-                                                    {filteredOutcomes.length} {t("of")} {outcomes.length}
+                                                    {totalExports} {t("of")} {total}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
@@ -672,6 +779,9 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Product")}
+                                                            </TableHead>
+                                                            <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
+                                                                {t("Batch Info")}
                                                             </TableHead>
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Quantity")}
@@ -691,12 +801,11 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                             <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                 {t("Export Date")}
                                                             </TableHead>
-
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {filteredOutcomes.length > 0 ? (
-                                                            filteredOutcomes.map((outcome, index) => (
+                                                        {totalExports > 0 ? (
+                                                            incomes.map((outcome, index) => (
                                                                 <TableRow
                                                                     key={outcome.id}
                                                                     className="hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
@@ -723,6 +832,51 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                                                 </p>
                                                                             </div>
                                                                         </div>
+                                                                    </TableCell>
+                                                                    <TableCell>
+                                                                        {outcome.batch ? (
+                                                                            <div className="space-y-2">
+                                                                                <div className="flex items-center gap-2">
+                                                                                    <Hash className="h-3 w-3 text-slate-500" />
+                                                                                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                                                                                        {outcome.batch.reference_number}
+                                                                                    </span>
+                                                                                    {getExpiryStatusBadge(outcome.batch.expiry_status)}
+                                                                                </div>
+                                                                                <div className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                                                                                    {outcome.batch.days_to_expiry !== null && (
+                                                                                        <div className="flex items-center gap-1">
+                                                                                            <Clock className="h-3 w-3" />
+                                                                                            {outcome.batch.days_to_expiry > 0 
+                                                                                                ? `${outcome.batch.days_to_expiry} days`
+                                                                                                : outcome.batch.days_to_expiry === 0 
+                                                                                                    ? 'Expires today'
+                                                                                                    : `${Math.abs(outcome.batch.days_to_expiry)} days ago`
+                                                                                            }
+                                                                                        </div>
+                                                                                    )}
+                                                                                    {outcome.batch.issue_date && (
+                                                                                        <div className="text-xs">
+                                                                                            Issue: {outcome.batch.issue_date}
+                                                                                        </div>
+                                                                                    )}
+                                                                                    {outcome.batch.expire_date && (
+                                                                                        <div className="text-xs">
+                                                                                            Expiry: {outcome.batch.expire_date}
+                                                                                        </div>
+                                                                                    )}
+                                                                                    {outcome.batch.unit_name && (
+                                                                                        <div className="text-xs">
+                                                                                            Unit: {outcome.batch.unit_name}
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="text-sm text-slate-400 dark:text-slate-500 italic">
+                                                                                {t("No batch info")}
+                                                                            </div>
+                                                                        )}
                                                                     </TableCell>
                                                                     <TableCell>
                                                                         <div className="flex flex-col gap-1">
@@ -783,7 +937,7 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                             ))
                                                         ) : (
                                                             <TableRow>
-                                                                <TableCell colSpan="8" className="h-32 text-center">
+                                                                <TableCell colSpan="9" className="h-32 text-center">
                                                                     <div className="flex flex-col items-center gap-4">
                                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
                                                                             <TrendingDown className="h-8 w-8 text-slate-400" />
@@ -811,6 +965,32 @@ export default function Outcome({ auth, warehouse, outcomes }) {
                                                     </TableBody>
                                                 </Table>
                                             </div>
+                                            {/* Pagination */}
+                                            {total > perPage && (
+                                                <div className="flex justify-center items-center py-6">
+                                                    <nav className="flex items-center space-x-2">
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={() => handlePageChange(currentPage - 1)}
+                                                            disabled={currentPage === 1}
+                                                            className="h-10 px-4 py-2 rounded-lg"
+                                                        >
+                                                            <ArrowLeft className="h-4 w-4" />
+                                                        </Button>
+                                                        <span className="text-sm text-slate-700 dark:text-slate-300">
+                                                            {t("Page")} {currentPage} {t("of")} {lastPage}
+                                                        </span>
+                                                        <Button
+                                                            variant="outline"
+                                                            onClick={() => handlePageChange(currentPage + 1)}
+                                                            disabled={currentPage === lastPage}
+                                                            className="h-10 px-4 py-2 rounded-lg"
+                                                        >
+                                                            <ArrowLeft className="h-4 w-4 rotate-180" />
+                                                        </Button>
+                                                    </nav>
+                                                </div>
+                                            )}
                                         </CardContent>
                                     </Card>
                                 </motion.div>

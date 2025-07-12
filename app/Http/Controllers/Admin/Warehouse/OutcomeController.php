@@ -10,19 +10,85 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use App\Models\WarehouseOutcome;
+use Carbon\Carbon;
 
 trait OutcomeController
 {
-    public function outcome(Warehouse $warehouse)
+    public function outcome(Warehouse $warehouse, Request $request)
     {
         try {
-            // Load warehouse with outcome records and related data
-            $warehouse = Warehouse::with([
-                'warehouseOutcome.product'
-            ])->findOrFail($warehouse->id);
+            // Start with base query
+            $query = WarehouseOutcome::where('warehouse_id', $warehouse->id)
+                ->with(['product', 'batch']);
 
-            // Get warehouse outcome records
-            $outcomes = $warehouse->warehouseOutcome->map(function ($outcome) {
+            // Apply search filter
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function($q) use ($search) {
+                    $q->where('reference_number', 'like', "%{$search}%")
+                      ->orWhereHas('product', function($productQuery) use ($search) {
+                          $productQuery->where('name', 'like', "%{$search}%")
+                                      ->orWhere('barcode', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('batch', function($batchQuery) use ($search) {
+                          $batchQuery->where('reference_number', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            // Apply date filter
+            if ($request->filled('date')) {
+                $query->whereDate('created_at', $request->date);
+            }
+
+            // Apply sorting
+            $sortBy = $request->get('sort', 'created_at');
+            $direction = $request->get('direction', 'desc');
+            
+            // Validate sort column
+            $allowedSorts = ['created_at', 'reference_number', 'total', 'quantity', 'price'];
+            if (!in_array($sortBy, $allowedSorts)) {
+                $sortBy = 'created_at';
+            }
+
+            // Validate direction
+            if (!in_array($direction, ['asc', 'desc'])) {
+                $direction = 'desc';
+            }
+
+            $query->orderBy($sortBy, $direction);
+
+            // Get per page value
+            $perPage = $request->get('per_page', 15);
+            if (!in_array($perPage, [10, 15, 25, 50, 100])) {
+                $perPage = 15;
+            }
+
+            // Paginate results
+            $outcomes = $query->paginate($perPage)->withQueryString();
+
+            // Transform the data to include batch information
+            $outcomes->getCollection()->transform(function ($outcome) {
+                $batchData = null;
+                if ($outcome->batch) {
+                    $batchData = [
+                        'id' => $outcome->batch->id,
+                        'reference_number' => $outcome->batch->reference_number,
+                        'issue_date' => $outcome->batch->issue_date,
+                        'expire_date' => $outcome->batch->expire_date,
+                        'notes' => $outcome->batch->notes,
+                        'wholesale_price' => $outcome->batch->wholesale_price,
+                        'retail_price' => $outcome->batch->retail_price,
+                        'purchase_price' => $outcome->batch->purchase_price,
+                        'unit_type' => $outcome->batch->unit_type,
+                        'unit_id' => $outcome->batch->unit_id,
+                        'unit_amount' => $outcome->batch->unit_amount,
+                        'unit_name' => $outcome->batch->unit_name,
+                        'expiry_status' => $this->calculateExpiryStatus($outcome->batch->expire_date),
+                        'days_to_expiry' => $this->calculateDaysToExpiry($outcome->batch->expire_date),
+                    ];
+                }
+
                 return [
                     'id' => $outcome->id,
                     'reference_number' => $outcome->reference_number,
@@ -32,6 +98,7 @@ trait OutcomeController
                         'barcode' => $outcome->product->barcode,
                         'type' => $outcome->product->type,
                     ],
+                    'batch' => $batchData,
                     'quantity' => $outcome->quantity,
                     'price' => $outcome->price,
                     'total' => $outcome->total,
@@ -56,12 +123,35 @@ trait OutcomeController
                     'is_active' => $warehouse->is_active,
                 ],
                 'outcomes' => $outcomes,
+                'filters' => $request->only(['search', 'date', 'sort', 'direction']),
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse outcome: ' . $e->getMessage());
             return redirect()->route('admin.warehouses.show', $warehouse->id)
                 ->with('error', 'Error loading warehouse outcome: ' . $e->getMessage());
         }
+    }
+
+    private function calculateExpiryStatus($expireDate)
+    {
+        if (!$expireDate) return 'valid';
+        
+        $today = Carbon::now()->startOfDay();
+        $expiryDate = Carbon::parse($expireDate)->startOfDay();
+        $daysDiff = $today->diffInDays($expiryDate, false);
+        
+        if ($daysDiff < 0) return 'expired';
+        if ($daysDiff <= 30) return 'expiring_soon';
+        return 'valid';
+    }
+
+    private function calculateDaysToExpiry($expireDate)
+    {
+        if (!$expireDate) return null;
+        
+        $today = Carbon::now()->startOfDay();
+        $expiryDate = Carbon::parse($expireDate)->startOfDay();
+        return $today->diffInDays($expiryDate, false);
     }
 
     public function createOutcome(Warehouse $warehouse)
