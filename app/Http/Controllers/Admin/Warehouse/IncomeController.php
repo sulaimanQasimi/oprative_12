@@ -14,17 +14,90 @@ use PhpOffice\PhpSpreadsheet\Calculation\Financial\Securities\Price;
 
 trait IncomeController
 {
-    public function income(Warehouse $warehouse)
+    public function income(Warehouse $warehouse, Request $request)
     {
         try {
-            // Load warehouse with income records and related data
-            $warehouse = Warehouse::with([
-                'warehouseIncome.product',
-                'warehouseIncome.batch'
-            ])->findOrFail($warehouse->id);
+            // Get query parameters
+            $search = $request->get('search', '');
+            $dateFilter = $request->get('date_filter', '');
+            $batchFilter = $request->get('batch_filter', '');
+            $sortBy = $request->get('sort_by', 'created_at');
+            $sortOrder = $request->get('sort_order', 'desc');
+            $perPage = $request->get('per_page', 15);
 
-                        // Get warehouse income records
-            $incomes = $warehouse->warehouseIncome->map(function ($income) {
+            // Build query
+            $query = WarehouseIncome::with(['product', 'batch'])
+                ->where('warehouse_id', $warehouse->id);
+
+            // Apply search filter
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('reference_number', 'like', "%{$search}%")
+                      ->orWhereHas('product', function ($productQuery) use ($search) {
+                          $productQuery->where('name', 'like', "%{$search}%")
+                                      ->orWhere('barcode', 'like', "%{$search}%")
+                                      ->orWhere('type', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('batch', function ($batchQuery) use ($search) {
+                          $batchQuery->where('reference_number', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            // Apply date filter
+            if ($dateFilter) {
+                $query->whereDate('created_at', $dateFilter);
+            }
+
+            // Apply batch filter
+            if ($batchFilter) {
+                switch ($batchFilter) {
+                    case 'with_batch':
+                        $query->whereNotNull('batch_id');
+                        break;
+                    case 'without_batch':
+                        $query->whereNull('batch_id');
+                        break;
+                    case 'expired':
+                        $query->whereHas('batch', function ($q) {
+                            $q->where('expire_date', '<', now());
+                        });
+                        break;
+                    case 'expiring_soon':
+                        $query->whereHas('batch', function ($q) {
+                            $q->where('expire_date', '<=', now()->addDays(30))
+                              ->where('expire_date', '>=', now());
+                        });
+                        break;
+                    case 'valid':
+                        $query->whereHas('batch', function ($q) {
+                            $q->where('expire_date', '>', now());
+                        });
+                        break;
+                }
+            }
+
+            // Apply sorting
+            $allowedSorts = ['created_at', 'reference_number', 'quantity', 'total', 'price'];
+            if (in_array($sortBy, $allowedSorts)) {
+                $query->orderBy($sortBy, $sortOrder);
+            } elseif ($sortBy === 'product.name') {
+                $query->join('products', 'warehouse_incomes.product_id', '=', 'products.id')
+                      ->orderBy('products.name', $sortOrder)
+                      ->select('warehouse_incomes.*');
+            } elseif ($sortBy === 'batch.reference_number') {
+                $query->leftJoin('batches', 'warehouse_incomes.batch_id', '=', 'batches.id')
+                      ->orderBy('batches.reference_number', $sortOrder)
+                      ->select('warehouse_incomes.*');
+            } else {
+                $query->orderBy('created_at', 'desc');
+            }
+
+            // Get paginated results
+            $incomes = $query->paginate($perPage)->withQueryString();
+
+            // Transform the data
+            $incomes->getCollection()->transform(function ($income) {
                 return [
                     'id' => $income->id,
                     'reference_number' => $income->reference_number,
@@ -75,6 +148,14 @@ trait IncomeController
                     'is_active' => $warehouse->is_active,
                 ],
                 'incomes' => $incomes,
+                'filters' => [
+                    'search' => $search,
+                    'date_filter' => $dateFilter,
+                    'batch_filter' => $batchFilter,
+                    'sort_by' => $sortBy,
+                    'sort_order' => $sortOrder,
+                    'per_page' => $perPage,
+                ],
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading warehouse income: ' . $e->getMessage());

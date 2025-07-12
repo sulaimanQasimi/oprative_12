@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     ArrowLeft,
@@ -16,6 +16,8 @@ import {
     Sparkles,
     ChevronDown,
     X,
+    ChevronLeft,
+    ChevronRight,
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -47,17 +49,29 @@ import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 import BackButton from "@/Components/BackButton";
 
-export default function Income({ auth, warehouse, incomes }) {
+export default function Income({ auth, warehouse, incomes, filters = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [dateFilter, setDateFilter] = useState("");
-    const [batchFilter, setBatchFilter] = useState("");
-    const [sortBy, setSortBy] = useState("created_at");
-    const [sortOrder, setSortOrder] = useState("desc");
+    const [searchTerm, setSearchTerm] = useState(filters.search || "");
+    const [dateFilter, setDateFilter] = useState(filters.date_filter || "");
+    const [batchFilter, setBatchFilter] = useState(filters.batch_filter || "");
+    const [sortBy, setSortBy] = useState(filters.sort_by || "created_at");
+    const [sortOrder, setSortOrder] = useState(filters.sort_order || "desc");
     const [showFilters, setShowFilters] = useState(false);
-    const [filteredIncomes, setFilteredIncomes] = useState(incomes || []);
+    const [perPage, setPerPage] = useState(filters.per_page || 15);
+    const [filteredIncomes, setFilteredIncomes] = useState(incomes?.data || []);
+
+    // Safety check for incomes data
+    const incomesData = incomes?.data || [];
+    const paginationInfo = {
+        current_page: incomes?.current_page || 1,
+        last_page: incomes?.last_page || 1,
+        from: incomes?.from || 0,
+        to: incomes?.to || 0,
+        total: incomes?.total || 0,
+        links: incomes?.links || []
+    };
 
     // Animation effect
     useEffect(() => {
@@ -68,98 +82,50 @@ export default function Income({ auth, warehouse, incomes }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Enhanced filtering logic
-    useEffect(() => {
-        let filtered = [...incomes];
-
-        // Search filter
-        if (searchTerm) {
-            filtered = filtered.filter(income =>
-                income.reference_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                income.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                income.product.barcode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                income.product.type?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                income.batch?.reference_number?.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        // Date filter
-        if (dateFilter) {
-            const filterDate = new Date(dateFilter);
-            filtered = filtered.filter(income => {
-                const incomeDate = new Date(income.created_at);
-                return incomeDate.toDateString() === filterDate.toDateString();
-            });
-        }
-
-        // Batch filter
-        if (batchFilter) {
-            filtered = filtered.filter(income => {
-                if (!income.batch) return false;
-                
-                switch (batchFilter) {
-                    case 'with_batch':
-                        return !!income.batch;
-                    case 'without_batch':
-                        return !income.batch;
-                    case 'expired':
-                        return income.batch.expire_date && new Date(income.batch.expire_date) < new Date();
-                    case 'expiring_soon':
-                        const thirtyDaysFromNow = new Date();
-                        thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
-                        return income.batch.expire_date && 
-                               new Date(income.batch.expire_date) <= thirtyDaysFromNow && 
-                               new Date(income.batch.expire_date) >= new Date();
-                    case 'valid':
-                        return income.batch.expire_date && new Date(income.batch.expire_date) > new Date();
-                    default:
-                        return true;
-                }
-            });
-        }
-
-        // Sorting
-        filtered.sort((a, b) => {
-            let aValue = a[sortBy];
-            let bValue = b[sortBy];
-
-            if (sortBy === 'product.name') {
-                aValue = a.product.name;
-                bValue = b.product.name;
-            } else if (sortBy === 'batch.reference_number') {
-                aValue = a.batch?.reference_number || '';
-                bValue = b.batch?.reference_number || '';
-            }
-
-            if (typeof aValue === 'string') {
-                aValue = aValue.toLowerCase();
-                bValue = bValue.toLowerCase();
-            }
-
-            if (sortOrder === 'asc') {
-                return aValue > bValue ? 1 : -1;
-            } else {
-                return aValue < bValue ? 1 : -1;
-            }
+    // Handle search/filter
+    const handleSearch = () => {
+        router.get(route('admin.warehouses.income', warehouse.id), {
+            search: searchTerm,
+            date_filter: dateFilter,
+            batch_filter: batchFilter,
+            sort_by: sortBy,
+            sort_order: sortOrder,
+            per_page: perPage,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
         });
+    };
 
-        setFilteredIncomes(filtered);
-    }, [searchTerm, dateFilter, batchFilter, sortBy, sortOrder, incomes]);
+    const clearFilters = () => {
+        setSearchTerm("");
+        setDateFilter("");
+        setBatchFilter("");
+        setSortBy("created_at");
+        setSortOrder("desc");
+        setPerPage(15);
+        router.get(route('admin.warehouses.income', warehouse.id));
+    };
+
+    // Update filtered incomes when incomes data changes
+    useEffect(() => {
+        setFilteredIncomes(incomesData);
+    }, [incomesData]);
 
     // Calculate totals
-    const totalImports = filteredIncomes.length;
-    const totalQuantity = filteredIncomes.reduce((sum, income) => {
+    const totalImports = (filteredIncomes || []).length;
+    const totalQuantity = (filteredIncomes || []).reduce((sum, income) => {
         // For wholesale items, show the actual wholesale quantity (not the converted retail units)
         if (income.is_wholesale && income.unit_amount) {
             return sum + (income.quantity / income.unit_amount);
         }
         return sum + (income.quantity || 0);
     }, 0);
-    const totalValue = filteredIncomes.reduce((sum, income) => sum + (income.total || 0), 0);
+    const totalValue = (filteredIncomes || []).reduce((sum, income) => sum + (income.total || 0), 0);
     const avgImportValue = totalImports > 0 ? totalValue / totalImports : 0;
 
     // Calculate batch statistics
-    const batchStats = filteredIncomes.reduce((stats, income) => {
+    const batchStats = (filteredIncomes || []).reduce((stats, income) => {
         if (income.batch) {
             stats.withBatch++;
             stats.totalBatchValue += income.batch.total || 0;
@@ -288,12 +254,68 @@ export default function Income({ auth, warehouse, incomes }) {
         return `${persianDate.day} ${persianMonths[persianDate.month - 1]} ${persianDate.year} - ${time}`;
     };
 
-    const clearFilters = () => {
-        setSearchTerm("");
-        setDateFilter("");
-        setBatchFilter("");
-        setSortBy("created_at");
-        setSortOrder("desc");
+    // Pagination component
+    const renderPagination = () => {
+        if (!paginationInfo.links || paginationInfo.links.length <= 3) return null;
+        return (
+            <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 1.5, duration: 0.4 }}
+                className="flex items-center justify-center space-x-2"
+            >
+                <div className="flex items-center space-x-1 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border border-green-100 dark:border-green-900/30">
+                    {paginationInfo.links.map((link, index) => {
+                        if (link.label.includes('Previous')) {
+                            return (
+                                <Link
+                                    key={index}
+                                    href={link.url || '#'}
+                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                        link.url
+                                            ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                            : 'text-gray-400 cursor-not-allowed'
+                                    }`}
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                    <span className="ml-1 hidden sm:inline">{t('Previous')}</span>
+                                </Link>
+                            );
+                        }
+                        if (link.label.includes('Next')) {
+                            return (
+                                <Link
+                                    key={index}
+                                    href={link.url || '#'}
+                                    className={`flex items-center px-3 py-2 rounded-lg transition-all duration-200 ${
+                                        link.url
+                                            ? 'text-green-600 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                            : 'text-gray-400 cursor-not-allowed'
+                                    }`}
+                                >
+                                    <span className="mr-1 hidden sm:inline">{t('Next')}</span>
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Link>
+                            );
+                        }
+                        return (
+                            <Link
+                                key={index}
+                                href={link.url || '#'}
+                                className={`px-3 py-2 rounded-lg transition-all duration-200 ${
+                                    link.active
+                                        ? 'bg-gradient-to-r from-green-500 to-emerald-400 text-white shadow-lg'
+                                        : link.url
+                                            ? 'text-gray-700 dark:text-gray-300 hover:bg-green-50 dark:hover:bg-green-900/30'
+                                            : 'text-gray-400 cursor-not-allowed'
+                                }`}
+                                dangerouslySetInnerHTML={{ __html: link.label }}
+                            />
+                        );
+                    })}
+                </div>
+            </motion.div>
+        );
     };
 
     return (
@@ -579,25 +601,44 @@ export default function Income({ auth, warehouse, incomes }) {
                                         <CardContent className="p-6">
                                             {/* Search Bar */}
                                             <div className="mb-4">
-                                                <div className="relative">
-                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                                    <Input
-                                                        placeholder={t("Search by reference, product name, barcode, type, or batch...")}
-                                                        value={searchTerm}
-                                                        onChange={(e) => setSearchTerm(e.target.value)}
-                                                        className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400"
-                                                    />
-                                                    {searchTerm && (
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => setSearchTerm("")}
-                                                            className="absolute right-2 top-1/2 transform -translate-y-1/2"
-                                                        >
-                                                            <X className="h-4 w-4" />
+                                                <form onSubmit={(e) => { e.preventDefault(); handleSearch(); }} className="flex flex-col lg:flex-row gap-4">
+                                                    <div className="relative flex-1">
+                                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                        <Input
+                                                            placeholder={t("Search by reference, product name, barcode, type, or batch...")}
+                                                            value={searchTerm}
+                                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                                            className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl dark:bg-slate-700 dark:text-white dark:placeholder:text-slate-400"
+                                                        />
+                                                        {searchTerm && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                onClick={() => setSearchTerm("")}
+                                                                className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                            >
+                                                                <X className="h-4 w-4" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex gap-2">
+                                                        <Button type="submit" className="gap-2 h-12 bg-green-600 hover:bg-green-700">
+                                                            <Search className="h-4 w-4" />
+                                                            {t("Search")}
                                                         </Button>
-                                                    )}
-                                                </div>
+                                                        {(searchTerm || dateFilter || batchFilter) && (
+                                                            <Button
+                                                                type="button"
+                                                                variant="outline"
+                                                                onClick={clearFilters}
+                                                                className="gap-2 h-12 border-green-200 hover:border-green-300 dark:border-green-600 dark:hover:border-green-400"
+                                                            >
+                                                                <RefreshCw className="h-4 w-4" />
+                                                                {t("Clear")}
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </form>
                                             </div>
 
                                             {/* Advanced Filters */}
@@ -610,7 +651,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                         transition={{ duration: 0.3 }}
                                                         className="overflow-hidden"
                                                     >
-                                                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                                        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700">
                                                             <div>
                                                                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                                                     {t("Date Filter")}
@@ -676,14 +717,32 @@ export default function Income({ auth, warehouse, incomes }) {
                                                                 </Select>
                                                             </div>
 
+                                                            <div>
+                                                                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                                    {t("Per Page")}
+                                                                </label>
+                                                                <Select value={perPage.toString()} onValueChange={(value) => setPerPage(parseInt(value))}>
+                                                                    <SelectTrigger className="h-10">
+                                                                        <SelectValue />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="10">10</SelectItem>
+                                                                        <SelectItem value="15">15</SelectItem>
+                                                                        <SelectItem value="25">25</SelectItem>
+                                                                        <SelectItem value="50">50</SelectItem>
+                                                                        <SelectItem value="100">100</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+
                                                             <div className="flex items-end">
                                                                 <Button
-                                                                    variant="outline"
-                                                                    onClick={clearFilters}
-                                                                    className="w-full h-10 gap-2 dark:text-white text-black"
+                                                                    type="button"
+                                                                    onClick={handleSearch}
+                                                                    className="w-full h-10 gap-2 bg-green-600 hover:bg-green-700 text-white"
                                                                 >
-                                                                    <RefreshCw className="h-4 w-4" />
-                                                                    {t("Clear Filters")}
+                                                                    <Filter className="h-4 w-4" />
+                                                                    {t("Apply Filters")}
                                                                 </Button>
                                                             </div>
                                                         </div>
@@ -707,9 +766,30 @@ export default function Income({ auth, warehouse, incomes }) {
                                                     <Package className="h-5 w-5 text-white" />
                                                 </div>
                                                 {t("Batch Statistics")}
+                                                <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                    {t("Current Page")}
+                                                </Badge>
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-6">
+                                            {/* Pagination Summary */}
+                                            <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                                                <div className="flex items-center justify-between text-sm text-slate-600 dark:text-slate-400">
+                                                    <div className="flex items-center gap-4">
+                                                        <span>
+                                                            {t("Showing")} {paginationInfo.from} - {paginationInfo.to} {t("of")} {paginationInfo.total} {t("records")}
+                                                        </span>
+                                                        {paginationInfo.current_page && (
+                                                            <span>
+                                                                {t("Page")} {paginationInfo.current_page} {t("of")} {paginationInfo.last_page}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <span>{t("Per page")}: {perPage}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                                                 <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
                                                     <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
@@ -815,7 +895,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                 </div>
                                                 {t("Import Records")}
                                                 <Badge variant="secondary" className="ml-auto">
-                                                    {filteredIncomes.length} {t("of")} {incomes.length}
+                                                    {incomesData.length} {t("of")} {paginationInfo.total}
                                                 </Badge>
                                             </CardTitle>
                                         </CardHeader>
@@ -851,7 +931,7 @@ export default function Income({ auth, warehouse, incomes }) {
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
-                                                        {filteredIncomes.length > 0 ? (
+                                                        {filteredIncomes && filteredIncomes.length > 0 ? (
                                                             filteredIncomes.map((income, index) => (
                                                                 <TableRow
                                                                     key={income.id}
@@ -1049,13 +1129,13 @@ Notes: ${income.batch.notes || 'N/A'}`}
                                                                         </div>
                                                                         <div>
                                                                             <p className="text-lg font-medium text-slate-600 dark:text-slate-400">
-                                                                                {t("No import records found")}
+                                                                                {searchTerm || dateFilter || batchFilter ? t("No import records found") : t("No import records available")}
                                                                             </p>
                                                                             <p className="text-sm text-slate-500">
-                                                                                {searchTerm || dateFilter ? t("Try adjusting your filters") : t("Create your first import record")}
+                                                                                {searchTerm || dateFilter || batchFilter ? t("Try adjusting your filters") : t("Create your first import record")}
                                                                             </p>
                                                                         </div>
-                                                                        {!searchTerm && !dateFilter && (
+                                                                        {!searchTerm && !dateFilter && !batchFilter && (
                                                                             <Link href={route("admin.warehouses.income.create", warehouse.id)}>
                                                                                 <Button className="gap-2">
                                                                                     <Plus className="h-4 w-4" />
@@ -1070,6 +1150,7 @@ Notes: ${income.batch.notes || 'N/A'}`}
                                                     </TableBody>
                                                 </Table>
                                             </div>
+                                            {renderPagination()}
                                         </CardContent>
                                     </Card>
                                 </motion.div>
