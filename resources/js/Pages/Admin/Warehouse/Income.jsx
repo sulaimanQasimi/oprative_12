@@ -109,8 +109,8 @@ export default function Income({ auth, warehouse, incomes, filters = {} }) {
 
     // Update filtered incomes when incomes data changes
     useEffect(() => {
-        setFilteredIncomes(incomesData);
-    }, [incomesData]);
+        setFilteredIncomes(incomes?.data || []);
+    }, [incomes?.data]);
 
     // Calculate totals
     const totalImports = (filteredIncomes || []).length;
@@ -1122,7 +1122,7 @@ Notes: ${income.batch.notes || 'N/A'}`}
                                                             ))
                                                         ) : (
                                                             <TableRow>
-                                                                <TableCell colSpan="7" className="h-32 text-center">
+                                                                <TableCell colSpan="8" className="h-32 text-center">
                                                                     <div className="flex flex-col items-center gap-4">
                                                                         <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-full">
                                                                             <TrendingUp className="h-8 w-8 text-slate-400" />
