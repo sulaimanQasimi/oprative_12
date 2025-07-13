@@ -1,10 +1,9 @@
 <?php
 namespace App\Http\Controllers\Admin\Warehouse;
 
-use App\Models\{Warehouse, Product};
+use App\Models\{Warehouse, Product, Unit, WarehouseIncome, Batch};
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\{DB, Log};
 use Inertia\Inertia;
 
 trait IncomeController
@@ -13,7 +12,7 @@ trait IncomeController
     {
         try {
             // Load warehouse incomes with their relationships
-            $incomes = \App\Models\WarehouseIncome::where('warehouse_id', $warehouse->id)
+            $incomes = WarehouseIncome::where('warehouse_id', $warehouse->id)
                 ->with([
                     'product:id,name,barcode,type',
                     'batch:id,reference_number,issue_date,expire_date,notes'
@@ -80,12 +79,7 @@ trait IncomeController
                         'name' => $product->name,
                         'barcode' => $product->barcode,
                         'type' => $product->type,
-                        'purchase_price' => $product->purchase_price,
-                        'wholesale_price' => $product->wholesale_price,
-                        'retail_price' => $product->retail_price,
                         'unit_id' => $product->unit_id,
-                        'whole_sale_unit_amount' => $product->whole_sale_unit_amount ?? 1,
-                        'retails_sale_unit_amount' => $product->retails_sale_unit_amount ?? 1,
                         'unit' => $product->unit ? [
                             'id' => $product->unit->id,
                             'name' => $product->unit->name,
@@ -93,6 +87,8 @@ trait IncomeController
                         ] : null,
                     ];
                 });
+
+            $units = Unit::all();
 
             return Inertia::render('Admin/Warehouse/CreateIncome', [
                 'warehouse' => [
@@ -103,6 +99,7 @@ trait IncomeController
                     'is_active' => $warehouse->is_active,
                 ],
                 'products' => $products,
+                'units' => $units,
             ]);
         } catch (\Exception $e) {
             Log::error('Error loading create income page: ' . $e->getMessage());
@@ -117,9 +114,9 @@ trait IncomeController
             $validated = $request->validate([
                 'income_items' => 'required|array|min:1',
                 'income_items.*.product_id' => 'required|exists:products,id',
-                'income_items.*.batch_reference' => 'required|string|max:255',
                 'income_items.*.issue_date' => 'required|date',
                 'income_items.*.expire_date' => 'nullable|date|after:issue_date',
+                'income_items.*.unit_amount' => 'required|numeric|min:0',
                 'income_items.*.quantity' => 'required|numeric|min:0.01',
                 'income_items.*.unit_price' => 'required|numeric|min:0',
                 'income_items.*.total_price' => 'required|numeric|min:0',
@@ -135,52 +132,32 @@ trait IncomeController
 
             // Process each income item
             foreach ($validated['income_items'] as $item) {
+
+                // Generate reference number for the income transaction
+                $batchReferenceNumber = 'B-' . $warehouse->code . '-' . date('YmdHis') . '-' . rand(100, 999);
+
                 // Get the product with unit information
-                $product = Product::with(['wholesaleUnit', 'retailUnit'])->findOrFail($item['product_id']);
+                $product = Product::with(['unit'])->findOrFail($item['product_id']);
 
-                // Create or find batch
-                $batch = \App\Models\Batch::where('reference_number', $item['batch_reference'])
-                    ->where('product_id', $item['product_id'])
-                    ->first();
-
-                if (!$batch) {
-                    // Create new batch
-                    $batch = \App\Models\Batch::create([
-                        'product_id' => $item['product_id'],
-                        'reference_number' => $item['batch_reference'],
-                        'issue_date' => $item['issue_date'],
-                        'expire_date' => $item['expire_date'] ?? null,
-                        'notes' => $item['batch_notes'] ?? null,
-                        'wholesale_price' => $item['unit_type'] === 'wholesale' ? $item['unit_price'] : null,
-                        'retail_price' => $item['unit_type'] === 'retail' ? $item['unit_price'] : null,
-                        'purchase_price' => $item['unit_price'],
-                        'unit_type' => $item['unit_type'],
-                        'unit_name' => $product->unit ? $product->unit->name : ($item['unit_type'] === 'wholesale' ? 'Wholesale' : 'Retail'),
-                        'unit_amount' => 1, // Default unit amount
-                        'quantity' => $item['quantity'],
-                        'total' => $item['total_price'],
-                    ]);
-                } else {
-                    // Update existing batch with new information
-                    $batch->update([
-                        'issue_date' => $item['issue_date'],
-                        'expire_date' => $item['expire_date'] ?? $batch->expire_date,
-                        'notes' => $item['batch_notes'] ?? $batch->notes,
-                        'wholesale_price' => $item['unit_type'] === 'wholesale' ? $item['unit_price'] : $batch->wholesale_price,
-                        'retail_price' => $item['unit_type'] === 'retail' ? $item['unit_price'] : $batch->retail_price,
-                        'purchase_price' => $item['unit_price'],
-                        'quantity' => $batch->quantity + $item['quantity'],
-                        'total' => $batch->total + $item['total_price'],
-                    ]);
-                }
-
-                // Calculate unit information for batch-based approach
-                $unitId = $product->unit_id;
-                $unitAmount = 1; // Default unit amount
-                $unitName = $product->unit ? $product->unit->name : 'Unit';
+                // Create new batch
+                $batch = Batch::create([
+                    'product_id' => $item['product_id'],
+                    'reference_number' => $batchReferenceNumber,
+                    'issue_date' => $item['issue_date'],
+                    'expire_date' => $item['expire_date'] ?? null,
+                    'notes' => $item['batch_notes'] ?? null,
+                    'wholesale_price' => $item['wholesale_price'] ?? null,
+                    'retail_price' => $item['retail_price'] ?? null,
+                    'purchase_price' => $item['unit_price'],
+                    'unit_type' => $item['unit_type'],
+                    'unit_name' => $product->unit ? $product->unit->name : ($item['unit_type'] === 'wholesale' ? 'Wholesale' : 'Retail'),
+                    'unit_amount' => $item['unit_amount'] ?? 1, // Default unit amount
+                    'quantity' => $item['quantity'],
+                    'total' => $item['total_price'],
+                ]);
 
                 // Create the income record
-                \App\Models\WarehouseIncome::create([
+                WarehouseIncome::create([
                     'reference_number' => $referenceNumber,
                     'warehouse_id' => $warehouse->id,
                     'product_id' => $item['product_id'],
@@ -190,15 +167,15 @@ trait IncomeController
                     'total' => $item['total_price'],
                     'unit_type' => $item['unit_type'],
                     'is_wholesale' => false, // For batch-based, we don't use wholesale/retail distinction
-                    'unit_id' => $unitId,
-                    'unit_amount' => $unitAmount,
-                    'unit_name' => $unitName,
+                    'unit_id' => $product->unit_id,
+                    'unit_amount' => $item['unit_amount'],
+                    'unit_name' => $product->unit ? $product->unit->name : 'Unit',
                     'notes' => $validated['notes'] ?? null,
                 ]);
 
                 // Update warehouse inventory
                 $warehouseItem = $warehouse->items()->where('product_id', $item['product_id'])->first();
-                
+
                 if ($warehouseItem) {
                     $warehouseItem->update([
                         'net_quantity' => $warehouseItem->net_quantity + $item['quantity'],
@@ -210,32 +187,6 @@ trait IncomeController
                         'net_quantity' => $item['quantity'],
                         'total_quantity' => $item['quantity'],
                         'reserved_quantity' => 0,
-                    ]);
-                }
-
-                // Update or create warehouse batch inventory
-                $batchInventory = \App\Models\WarehouseBatchInventory::where('warehouse_id', $warehouse->id)
-                    ->where('batch_id', $batch->id)
-                    ->first();
-
-                if ($batchInventory) {
-                    $batchInventory->update([
-                        'remaining_qty' => $batchInventory->remaining_qty + $item['quantity'],
-                    ]);
-                } else {
-                    \App\Models\WarehouseBatchInventory::create([
-                        'warehouse_id' => $warehouse->id,
-                        'batch_id' => $batch->id,
-                        'product_id' => $item['product_id'],
-                        'batch_reference' => $batch->reference_number,
-                        'issue_date' => $batch->issue_date,
-                        'expire_date' => $batch->expire_date,
-                        'batch_notes' => $batch->notes,
-                        'remaining_qty' => $item['quantity'],
-                        'unit_type' => $item['unit_type'],
-                        'unit_id' => $unitId,
-                        'unit_amount' => $unitAmount,
-                        'unit_name' => $unitName,
                     ]);
                 }
             }
@@ -261,7 +212,7 @@ trait IncomeController
     public function showIncome(Warehouse $warehouse, $incomeId)
     {
         try {
-            $income = \App\Models\WarehouseIncome::with([
+            $income = WarehouseIncome::with([
                 'product:id,name,barcode',
                 'batch:id,reference_number,issue_date,expire_date,notes'
             ])

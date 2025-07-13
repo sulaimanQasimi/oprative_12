@@ -47,22 +47,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function CreateIncome({ auth, warehouse, warehouseProducts, customers }) {
+export default function CreateIncome({ auth, warehouse, warehouseProducts }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [saleItems, setSaleItems] = useState([]);
     const [currentItem, setCurrentItem] = useState({
         product_id: '',
-        batch_id: '',
         quantity: '',
         price: '',
-        unit_type: 'batch_unit'
+        unit_type: ''
     });
 
     const { data, setData, post, processing, errors } = useForm({
-        customer_id: '',
         sale_items: [],
         notes: '',
     });
@@ -76,16 +73,6 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
         return () => clearTimeout(timer);
     }, []);
 
-    // Update selected customer when customer_id changes
-    useEffect(() => {
-        if (data.customer_id && customers) {
-            const customer = customers.find(c => c.id === parseInt(data.customer_id));
-            setSelectedCustomer(customer || null);
-        } else {
-            setSelectedCustomer(null);
-        }
-    }, [data.customer_id, customers]);
-
     // Update form data when sale items change
     useEffect(() => {
         setData('sale_items', saleItems);
@@ -97,42 +84,23 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
         return products.find(p => p.id === parseInt(productId)) || null;
     };
 
-    const getSelectedBatch = (productId, batchId) => {
-        const product = getSelectedProduct(productId);
-        return product?.available_batches?.find(b => b.id === parseInt(batchId)) || null;
-    };
-
-    const getAvailableUnits = (product, batch) => {
+    const getAvailableUnits = (product) => {
         const units = [];
 
-        if (batch) {
-            // Use batch unit information
-            if (batch.unit_name && batch.unit_amount) {
-                units.push({
-                    type: 'batch_unit',
-                    label: `${batch.unit_name} (${batch.remaining_quantity}/${batch.unit_amount} ${batch.unit_name})`,
-                    amount: batch.unit_amount,
-                    price: batch.wholesale_price || batch.retail_price || 0,
-                    unit_name: batch.unit_name
-                });
-            }
-        } else if (product) {
-            // Fallback to product unit information if no batch
-            if (product.unit && product.whole_sale_unit_amount) {
+        if (product?.unit) {
+            units.push({
+                type: 'retail',
+                label: `${product.unit.name} (${product.unit.code})`,
+                amount: 1,
+                price: product.retail_price
+            });
+
+            if (product.whole_sale_unit_amount) {
                 units.push({
                     type: 'wholesale',
-                    label: `${product.unit.name} (${product.unit.code})`,
+                    label: `${product.unit.name} (${product.unit.code}) - Wholesale`,
                     amount: product.whole_sale_unit_amount,
                     price: product.wholesale_price
-                });
-            }
-
-            if (product.unit) {
-                units.push({
-                    type: 'retail',
-                    label: `${product.unit.name} (${product.unit.code})`,
-                    amount: 1,
-                    price: product.retail_price
                 });
             }
         }
@@ -140,25 +108,9 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
         return units;
     };
 
-    const getAvailableStock = (product, unitType, batchId = null) => {
+    const getAvailableStock = (product, unitType) => {
         if (!product) return 0;
         
-        // If a specific batch is selected, use its remaining quantity
-        if (batchId) {
-            const batch = getSelectedBatch(product.id, batchId);
-            if (batch) {
-                let stock = batch.remaining_quantity || 0;
-                if (unitType === 'batch_unit' && batch.unit_amount) {
-                    stock = Math.floor(stock / batch.unit_amount);
-                } else if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
-                    stock = Math.floor(stock / product.whole_sale_unit_amount);
-                }
-                return stock;
-            }
-            return 0;
-        }
-        
-        // Otherwise, use total product stock
         let stock = product.stock_quantity || 0;
         if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
             stock = Math.floor(stock / product.whole_sale_unit_amount);
@@ -166,12 +118,10 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
         return stock;
     };
 
-    const calculateActualQuantity = (product, unitType, quantity, batch = null) => {
+    const calculateActualQuantity = (product, unitType, quantity) => {
         let actualQuantity = parseFloat(quantity) || 0;
         
-        if (unitType === 'batch_unit' && batch?.unit_amount) {
-            actualQuantity = actualQuantity * batch.unit_amount;
-        } else if (unitType === 'wholesale' && product?.whole_sale_unit_amount) {
+        if (unitType === 'wholesale' && product?.whole_sale_unit_amount) {
             actualQuantity = actualQuantity * product.whole_sale_unit_amount;
         }
         
@@ -180,21 +130,20 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
 
     const addItemToSale = () => {
         const product = getSelectedProduct(currentItem.product_id);
-        const batch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
         
-        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.batch_id) {
+        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.unit_type) {
             return;
         }
 
-        const actualQuantity = calculateActualQuantity(product, currentItem.unit_type, currentItem.quantity, batch);
+        const actualQuantity = calculateActualQuantity(product, currentItem.unit_type, currentItem.quantity);
         const totalPrice = actualQuantity * parseFloat(currentItem.price);
 
         const newItem = {
             id: Date.now(), // Temporary ID for frontend
             product_id: parseInt(currentItem.product_id),
-            batch_id: parseInt(currentItem.batch_id),
+            batch_id: null, // No batch ID for now
             product: product,
-            batch: batch,
+            batch: null, // No batch object for now
             unit_type: currentItem.unit_type,
             entered_quantity: parseFloat(currentItem.quantity),
             actual_quantity: actualQuantity,
@@ -207,10 +156,9 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
         // Reset current item
         setCurrentItem({
             product_id: '',
-            batch_id: '',
             quantity: '',
             price: '',
-            unit_type: 'batch_unit'
+            unit_type: ''
         });
     };
 
@@ -241,7 +189,6 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
         setLoading(true);
         
         const submissionData = {
-            customer_id: data.customer_id,
             sale_items: saleItems.map(item => ({
                 product_id: item.product_id,
                 batch_id: item.batch_id,
@@ -273,8 +220,7 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
     };
 
     const currentProduct = getSelectedProduct(currentItem.product_id);
-    const currentBatch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
-    const currentAvailableStock = getAvailableStock(currentProduct, currentItem.unit_type, currentItem.batch_id);
+    const currentAvailableStock = getAvailableStock(currentProduct, currentItem.unit_type);
     const currentStockWarning = currentItem.quantity && parseFloat(currentItem.quantity) > currentAvailableStock;
 
     return (
@@ -425,80 +371,6 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
                                 className="max-w-6xl mx-auto"
                             >
                                 <form onSubmit={handleSubmit} className="space-y-8">
-                                    {/* Customer Selection */}
-                                    <motion.div
-                                        initial={{ scale: 0.95, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 0.9, duration: 0.5 }}
-                                    >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
-                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                                                        <Users className="h-6 w-6 text-white" />
-                                                    </div>
-                                                    {t("Customer Information")}
-                                                    <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                        {t("Required")}
-                                                    </Badge>
-                                                </CardTitle>
-                                            </CardHeader>
-                                            <CardContent className="p-8">
-                                                <div className="space-y-3">
-                                                    <Label htmlFor="customer_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                        <Users className="w-5 h-5 text-indigo-500" />
-                                                        {t("Customer/Store")} *
-                                                    </Label>
-                                                    <Select
-                                                        value={data.customer_id}
-                                                        onValueChange={(value) => setData('customer_id', value)}
-                                                    >
-                                                        <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.customer_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-indigo-300 focus:border-indigo-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}>
-                                                            <SelectValue placeholder={t("Select customer/store")} />
-                                                        </SelectTrigger>
-                                                        <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                                            {customers && customers.length > 0 ? customers.map((customer) => (
-                                                                <SelectItem key={customer.id} value={customer.id.toString()} className="p-4 hover:bg-slate-100 dark:hover:bg-slate-700">
-                                                                    <div className="flex items-center space-x-4">
-                                                                        <div className="p-2 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30 rounded-lg">
-                                                                            <Users className="h-5 w-5 text-indigo-600" />
-                                                                        </div>
-                                                                        <div>
-                                                                            <div className="font-semibold text-slate-800 dark:text-white">{customer.name}</div>
-                                                                            <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                                                                            {customer.email && (
-                                                                                <>
-                                                                                    <span>{customer.email}</span>
-                                                                                    {customer.phone && <span>•</span>}
-                                                                                </>
-                                                                            )}
-                                                                            {customer.phone && <span>{customer.phone}</span>}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </SelectItem>
-                                                            )) : (
-                                                                <SelectItem value="" disabled>
-                                                                    {t("No customers available")}
-                                                                </SelectItem>
-                                                            )}
-                                                        </SelectContent>
-                                                    </Select>
-                                                    {errors.customer_id && (
-                                                        <motion.p
-                                                            initial={{ opacity: 0 }}
-                                                            animate={{ opacity: 1 }}
-                                                            className="text-sm text-red-600 font-medium flex items-center gap-1"
-                                                        >
-                                                            <AlertCircle className="w-4 h-4" />
-                                                            {errors.customer_id}
-                                                        </motion.p>
-                                                    )}
-                                                </div>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-
                                     {/* Add Product Item */}
                                     <motion.div
                                         initial={{ scale: 0.95, opacity: 0 }}
@@ -524,20 +396,20 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
                                                         </Label>
                                                         <Select
                                                             value={currentItem.product_id}
-                                                            onValueChange={(value) => setCurrentItem({...currentItem, product_id: value, unit_type: '', price: ''})}
+                                                            onValueChange={(value) => setCurrentItem({...currentItem, product_id: value, quantity: '', price: '', unit_type: ''})}
                                                         >
                                                             <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
                                                                 <SelectValue placeholder={t("Select a product")} />
                                                             </SelectTrigger>
                                                             <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                                                {Array.isArray(warehouseProducts) ? warehouseProducts.map((product) => (
+                                                                {Array.isArray(warehouseProducts) ? warehouseProducts.filter(p => !saleItems.some(item => item.product_id === p.id)).map((product) => (
                                                                     <SelectItem key={product.id} value={product.id.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
                                                                         <div className="flex items-center space-x-3">
                                                                             <Package className="h-4 w-4 text-blue-600" />
                                                                             <div>
                                                                                 <div className="font-semibold text-slate-800 dark:text-white">{product.name}</div>
                                                                                 <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                    {product.barcode} | {product.type}
+                                                                                    Stock: {product.stock_quantity} | {product.unit?.name || 'units'}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
@@ -551,44 +423,78 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
                                                         </Select>
                                                     </div>
 
-                                                    {/* Batch Reference */}
+                                                    {/* Unit Type Selection */}
                                                     <div className="space-y-3">
                                                         <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Hash className="w-5 h-5 text-indigo-500" />
-                                                            {t("Batch Reference")} *
+                                                            <Weight className="w-5 h-5 text-orange-500" />
+                                                            {t("Unit Type")} *
                                                         </Label>
-                                                        <Input
-                                                            type="text"
-                                                            placeholder={t("Enter batch reference number")}
-                                                            value={currentItem.batch_id}
-                                                            onChange={(e) => setCurrentItem({...currentItem, batch_id: e.target.value})}
-                                                            className="h-12 text-base border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
-                                                        />
+                                                        <Select
+                                                            value={currentItem.unit_type}
+                                                            onValueChange={(value) => {
+                                                                const product = getSelectedProduct(currentItem.product_id);
+                                                                const units = getAvailableUnits(product);
+                                                                const selectedUnit = units.find(u => u.type === value);
+                                                                const unitPrice = selectedUnit ? selectedUnit.price.toString() : '';
+                                                                
+                                                                setCurrentItem({...currentItem, unit_type: value, price: unitPrice});
+                                                            }}
+                                                            disabled={!currentItem.product_id}
+                                                        >
+                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-orange-300 focus:border-orange-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
+                                                                <SelectValue placeholder={currentItem.product_id ? t("Select unit type") : t("Select product first")} />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                                                {currentProduct ? getAvailableUnits(currentProduct).map((unit) => (
+                                                                    <SelectItem key={unit.type} value={unit.type} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                        <div className="flex items-center space-x-3">
+                                                                            <Weight className="h-4 w-4 text-orange-600" />
+                                                                            <div>
+                                                                                <div className="font-semibold text-slate-800 dark:text-white">{unit.label}</div>
+                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
+                                                                                    {formatCurrency(unit.price)} per {unit.type}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </SelectItem>
+                                                                )) : (
+                                                                    <SelectItem value="" disabled>
+                                                                        {currentItem.product_id ? t("No units available") : t("Select product first")}
+                                                                    </SelectItem>
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
                                                     </div>
                                                 </div>
 
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                                     {/* Quantity */}
                                                     <div className="space-y-3">
                                                         <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Hash className="w-5 h-5 text-blue-500" />
+                                                            <Hash className="w-5 h-5 text-green-500" />
                                                             {t("Quantity")} *
                                                         </Label>
                                                         <Input
                                                             type="number"
                                                             step="0.01"
                                                             min="0.01"
+                                                            max={currentAvailableStock || undefined}
                                                             placeholder={t("Enter quantity")}
                                                             value={currentItem.quantity}
                                                             onChange={(e) => setCurrentItem({...currentItem, quantity: e.target.value})}
-                                                            className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                                            className={`dark:border-white h-12 text-base border-2 ${currentStockWarning ? 'border-red-500' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}
                                                         />
+                                                        {currentProduct && currentItem.unit_type && (
+                                                            <p className="text-sm text-slate-500 dark:text-slate-400">
+                                                                {t('Available:')} {currentAvailableStock} {currentProduct.unit?.name || 'units'}
+                                                            </p>
+                                                        )}
                                                     </div>
 
                                                     {/* Price */}
                                                     <div className="space-y-3">
                                                         <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <DollarSign className="w-5 h-5 text-yellow-500" />
+                                                            <DollarSign className="w-5 h-5 text-purple-500" />
                                                             {t("Unit Price")} *
                                                         </Label>
                                                         <Input
@@ -598,23 +504,45 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
                                                             placeholder={t("Enter price")}
                                                             value={currentItem.price}
                                                             onChange={(e) => setCurrentItem({...currentItem, price: e.target.value})}
-                                                            className="h-12 text-base border-2 border-slate-200 hover:border-yellow-300 focus:border-yellow-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                                            className="h-12 dark:border-white text-base border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                                                         />
+                                                    </div>
+
+                                                    {/* Add Button */}
+                                                    <div className="space-y-3">
+                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg opacity-0">
+                                                            {t("Add")}
+                                                        </Label>
+                                                        <Button
+                                                            type="button"
+                                                            onClick={addItemToSale}
+                                                            disabled={!currentItem.product_id || !currentItem.quantity || !currentItem.price || !currentItem.unit_type || currentStockWarning}
+                                                            className="w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white gap-2"
+                                                        >
+                                                            <Plus className="h-4 w-4" />
+                                                            {t("Add Item")}
+                                                        </Button>
                                                     </div>
                                                 </div>
 
-                                                {/* Add Button */}
-                                                <div className="flex justify-end">
-                                                    <Button
-                                                        type="button"
-                                                        onClick={addItemToSale}
-                                                        disabled={!currentItem.product_id || !currentItem.batch_id || !currentItem.quantity || !currentItem.price}
-                                                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white gap-2 px-6 py-3"
-                                                    >
-                                                        <Plus className="h-4 w-4" />
-                                                        {t("Add Item")}
-                                                    </Button>
-                                                </div>
+                                                {currentStockWarning && (
+                                                    <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20">
+                                                        <AlertCircle className="h-4 w-4 text-red-600" />
+                                                        <AlertDescription className="text-red-700 dark:text-red-400">
+                                                            {t('Insufficient stock! Maximum available:')} {currentAvailableStock} {currentProduct?.unit?.name || 'units'}
+                                                        </AlertDescription>
+                                                    </Alert>
+                                                )}
+
+                                                {/* Batch Information Display */}
+                                                <AnimatePresence>
+                                                    {/* Removed batch-related display */}
+                                                </AnimatePresence>
+
+                                                {/* Expired Batch Warning */}
+                                                <AnimatePresence>
+                                                    {/* Removed batch-related warning */}
+                                                </AnimatePresence>
                                             </CardContent>
                                         </Card>
                                     </motion.div>
@@ -646,7 +574,7 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
                                                                 <thead className="bg-slate-50 dark:bg-slate-800">
                                                                     <tr>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Product")}</th>
-                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Batch")}</th>
+                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Type")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Quantity")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Price")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Total")}</th>
@@ -673,20 +601,16 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
                                                                                 </div>
                                                                             </td>
                                                                             <td className="px-6 py-4">
-                                                                                <div className="flex items-center gap-2">
-                                                                                    <Hash className="h-4 w-4 text-indigo-600" />
-                                                                                    <div>
-                                                                                        <div className="font-semibold text-slate-800 dark:text-white">
-                                                                                            {item.batch_id}
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
+                                                                                <Badge variant="outline" className="capitalize">
+                                                                                    {item.unit_type || 'retail'}
+                                                                                </Badge>
                                                                             </td>
                                                                             <td className="px-6 py-4">
                                                                                 <div className="flex flex-col">
                                                                                     <span className="font-semibold text-slate-800 dark:text-white">
-                                                                                        {item.entered_quantity} units
+                                                                                        {item.entered_quantity} {item.product.unit?.name || 'units'}
                                                                                     </span>
+                                                                                    <span className="text-sm text-slate-500 dark:text-slate-400">({item.actual_quantity} pieces)</span>
                                                                                 </div>
                                                                             </td>
                                                                             <td className="px-6 py-4 font-semibold text-slate-800 dark:text-white">
@@ -770,6 +694,14 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts, custo
                                                                     {formatCurrency(getTotalSaleAmount())}
                                                                 </p>
                                                             </div>
+                                                        </div>
+
+                                                        <div className="p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl">
+                                                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{t("Customer")}:</p>
+                                                            <p className="font-semibold text-slate-800 dark:text-white">
+                                                                {/* Assuming a default customer name or that it will be set later */}
+                                                                {t("New Sale")}
+                                                            </p>
                                                         </div>
                                                     </CardContent>
                                                 </Card>
