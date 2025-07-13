@@ -47,6 +47,7 @@ import { Alert, AlertDescription } from "@/Components/ui/alert";
 import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
+import BackButton from "@/Components/BackButton";
 
 export default function ShowSale({ auth, warehouse, sale }) {
     const { t } = useLaravelReactI18n();
@@ -171,20 +172,7 @@ export default function ShowSale({ auth, warehouse, sale }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
-                                    <Download className="h-4 w-4" />
-                                    {t("Download PDF")}
-                                </Button>
-                                <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-blue-200 hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20">
-                                    <Edit className="h-4 w-4" />
-                                    {t("Edit Sale")}
-                                </Button>
-                                <Link href={route("admin.warehouses.sales", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Sales")}
-                                    </Button>
-                                </Link>
+                                <BackButton link={route("admin.warehouses.sales", warehouse.id)} />
                             </motion.div>
                         </div>
                     </motion.header>
