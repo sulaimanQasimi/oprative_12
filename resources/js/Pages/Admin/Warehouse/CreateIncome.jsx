@@ -2,26 +2,23 @@ import React, { useState, useEffect } from "react";
 import { Head, Link, useForm, router } from "@inertiajs/react";
 import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
-    Building2,
     ArrowLeft,
-    TrendingDown,
     Package,
-    DollarSign,
-    Hash,
-    Calculator,
-    ShoppingCart,
     Save,
-    AlertCircle,
-    AlertTriangle,
-    Weight,
-    Package2,
-    CheckCircle,
+    Hash,
+    DollarSign,
     Sparkles,
-    Users,
-    Plus,
-    Trash2,
+    Info,
+    Weight,
+    AlertCircle,
+    Barcode,
     Edit,
-    X
+    Calculator,
+    CheckCircle,
+    Package2,
+    Users,
+    Calendar,
+    FileText
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -47,24 +44,35 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function CreateIncome({ auth, warehouse, warehouseProducts }) {
+export default function CreateIncome({ auth, warehouse, products, units, permissions = {} }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [saleItems, setSaleItems] = useState([]);
-    const [currentItem, setCurrentItem] = useState({
-        product_id: '',
-        quantity: '',
-        price: '',
-        unit_type: ''
-    });
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [calculatedQuantity, setCalculatedQuantity] = useState(0);
+    const [calculatedTotal, setCalculatedTotal] = useState(0);
+    const [manualTotal, setManualTotal] = useState(false);
 
     const { data, setData, post, processing, errors } = useForm({
-        sale_items: [],
+        product_id: '',
+        unit_id: '',
+        quantity: '',
+        unit_type: '',
+        price: '',
         notes: '',
+        unit_amount: 1, // Add unit_amount field
+        is_wholesale: true, // Add is_wholesale field
+        // Batch fields
+        batch: {
+            issue_date: '',
+            expire_date: '',
+            wholesale_price: '',
+            retail_price: '',
+            purchase_price: '',
+            notes: ''
+        }
     });
 
-    // Animation effect
     useEffect(() => {
         const timer = setTimeout(() => {
             setLoading(false);
@@ -73,133 +81,89 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Update form data when sale items change
+    // Update selected product when product_id changes
     useEffect(() => {
-        setData('sale_items', saleItems);
-    }, [saleItems]);
+        if (data.product_id && products) {
+            const product = products.find(p => p.id === parseInt(data.product_id));
+            setSelectedProduct(product || null);
+            // Automatically set unit_type to 'wholesale' since we're using the product's unit
+            setData(prevData => ({ 
+                ...prevData, 
+                unit_type: 'wholesale', 
+                price: '', 
+                notes: '', 
+                batch: { ...prevData.batch, wholesale_price: '', retail_price: '', purchase_price: '' } 
+            }));
+        } else {
+            setSelectedProduct(null);
+        }
+    }, [data.product_id, products]);
 
-    const getSelectedProduct = (productId) => {
-        // Ensure warehouseProducts is an array
-        const products = Array.isArray(warehouseProducts) ? warehouseProducts : [];
-        return products.find(p => p.id === parseInt(productId)) || null;
-    };
+    // Auto-set wholesale/retail based on unit amount
+    useEffect(() => {
+        const unitAmount = parseInt(data.unit_amount) || 1;
+        const shouldBeWholesale = unitAmount > 1;
+        
+        if (data.is_wholesale !== shouldBeWholesale) {
+            setData('is_wholesale', shouldBeWholesale);
+        }
+    }, [data.unit_amount]);
 
-    const getAvailableUnits = (product) => {
-        const units = [];
+    // Calculate actual quantity and total
+    useEffect(() => {
+        if (selectedProduct && data.unit_type && data.quantity && data.price) {
+            let actualQuantity = parseFloat(data.quantity) || 0;
 
-        if (product?.unit) {
-            units.push({
-                type: 'retail',
-                label: `${product.unit.name} (${product.unit.code})`,
-                amount: 1,
-                price: product.retail_price
-            });
-
-            if (product.whole_sale_unit_amount) {
-                units.push({
-                    type: 'wholesale',
-                    label: `${product.unit.name} (${product.unit.code}) - Wholesale`,
-                    amount: product.whole_sale_unit_amount,
-                    price: product.wholesale_price
-                });
+            // Use the unit_amount from form data
+            if (data.unit_amount && data.unit_amount > 1) {
+                actualQuantity = (parseFloat(data.quantity) || 0) * data.unit_amount;
             }
+
+            const total = actualQuantity * (parseFloat(data.price) || 0);
+
+            setCalculatedQuantity(actualQuantity);
+            setCalculatedTotal(total);
+        } else {
+            setCalculatedQuantity(0);
+            setCalculatedTotal(0);
         }
-
-        return units;
-    };
-
-    const getAvailableStock = (product, unitType) => {
-        if (!product) return 0;
-        
-        let stock = product.stock_quantity || 0;
-        if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
-            stock = Math.floor(stock / product.whole_sale_unit_amount);
-        }
-        return stock;
-    };
-
-    const calculateActualQuantity = (product, unitType, quantity) => {
-        let actualQuantity = parseFloat(quantity) || 0;
-        
-        if (unitType === 'wholesale' && product?.whole_sale_unit_amount) {
-            actualQuantity = actualQuantity * product.whole_sale_unit_amount;
-        }
-        
-        return actualQuantity;
-    };
-
-    const addItemToSale = () => {
-        const product = getSelectedProduct(currentItem.product_id);
-        
-        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.unit_type) {
-            return;
-        }
-
-        const actualQuantity = calculateActualQuantity(product, currentItem.unit_type, currentItem.quantity);
-        const totalPrice = actualQuantity * parseFloat(currentItem.price);
-
-        const newItem = {
-            id: Date.now(), // Temporary ID for frontend
-            product_id: parseInt(currentItem.product_id),
-            batch_id: null, // No batch ID for now
-            product: product,
-            batch: null, // No batch object for now
-            unit_type: currentItem.unit_type,
-            entered_quantity: parseFloat(currentItem.quantity),
-            actual_quantity: actualQuantity,
-            unit_price: parseFloat(currentItem.price),
-            total_price: currentItem.price*currentItem.quantity
-        };
-
-        setSaleItems([...saleItems, newItem]);
-        
-        // Reset current item
-        setCurrentItem({
-            product_id: '',
-            quantity: '',
-            price: '',
-            unit_type: ''
-        });
-    };
-
-    const removeItemFromSale = (itemId) => {
-        setSaleItems(saleItems.filter(item => item.id !== itemId));
-    };
-
-    const updateItemInSale = (itemId, updatedItem) => {
-        setSaleItems(saleItems.map(item => 
-            item.id === itemId ? { ...item, ...updatedItem } : item
-        ));
-    };
-
-    const getTotalSaleAmount = () => {
-        return saleItems.reduce((sum, item) => sum + item.total_price, 0);
-    };
-
-    const getTotalItems = () => {
-        return saleItems.reduce((sum, item) => sum + item.entered_quantity, 0);
-    };
+    }, [selectedProduct, data.unit_type, data.quantity, data.price, data.unit_amount]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (saleItems.length === 0) {
-            return;
-        }
-
         setLoading(true);
         
+        // Calculate final quantity based on unit type before submission
+        let finalQuantity = parseFloat(data.quantity) || 0;
+        let unitPrice = parseFloat(data.price) || 0;
+        
+        // Calculate total based on final quantity and unit price
+        let finalTotal = finalQuantity * unitPrice;
+        
+        // Create submission data with calculated values and batch data
         const submissionData = {
-            sale_items: saleItems.map(item => ({
-                product_id: item.product_id,
-                batch_id: item.batch_id,
-                quantity: item.actual_quantity,
-                unit_price: item.unit_price,
-                total_price: item.total_price
-            })),
-            notes: data.notes
+            product_id: data.product_id,
+            unit_id: data.unit_id,
+            unit_type: data.unit_type,
+            quantity: finalQuantity,
+            price: data.price,
+            total_price: finalTotal,
+            notes: data.notes,
+            unit_amount: data.unit_amount,
+            is_wholesale: data.is_wholesale,
+            // Include batch data
+            batch: {
+                issue_date: data.batch.issue_date || null,
+                expire_date: data.batch.expire_date || null,
+                wholesale_price: data.batch.wholesale_price || null,
+                retail_price: data.batch.retail_price || null,
+                purchase_price: data.batch.purchase_price || null,
+                notes: data.batch.notes || null
+            }
         };
 
-        router.post(route('admin.warehouses.sales.store', warehouse.id), submissionData, {
+        // Use router.post directly with calculated data
+        router.post(route('admin.warehouses.income.store', warehouse.id), submissionData, {
             onFinish: () => setLoading(false),
             onError: (errors) => {
                 console.log('Submission errors:', errors);
@@ -211,6 +175,8 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts }) {
         });
     };
 
+
+
     const formatCurrency = (amount) => {
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
@@ -219,82 +185,41 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts }) {
         }).format(amount || 0);
     };
 
-    const currentProduct = getSelectedProduct(currentItem.product_id);
-    const currentAvailableStock = getAvailableStock(currentProduct, currentItem.unit_type);
-    const currentStockWarning = currentItem.quantity && parseFloat(currentItem.quantity) > currentAvailableStock;
+    const getUnitPrice = (product) => {
+        if (!product) return 0;
+        // Since we no longer store prices in products table, return 0
+        // Prices will be entered manually or from batch data
+        return 0;
+    };
 
     return (
         <>
-            <Head title={`${warehouse?.name} - ${t("Create Sale")}`}>
-                <style>{`
-                    @keyframes shimmer {
-                        0% { background-position: -1000px 0; }
-                        100% { background-position: 1000px 0; }
-                    }
+            <Head title={`${t("Add Item")} - ${warehouse.name}`} />
+            <style>{`
+                @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+                .float-animation { animation: float 6s ease-in-out infinite; }
+                .glass-effect { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); }
+                .dark .glass-effect { background: rgba(0, 0, 0, 0.2); backdrop-filter: blur(10px); }
+                .gradient-border {
+                    background: linear-gradient(white, white) padding-box, linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                    border: 2px solid transparent;
+                }
+                .dark .gradient-border {
+                    background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box, linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                }
+            `}</style>
 
-                    @keyframes float {
-                        0%, 100% { transform: translateY(0px); }
-                        50% { transform: translateY(-10px); }
-                    }
-
-                    @keyframes pulse-glow {
-                        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-                        50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
-                    }
-
-                    .shimmer {
-                        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-                        background-size: 1000px 100%;
-                        animation: shimmer 2s infinite;
-                    }
-
-                    .float-animation {
-                        animation: float 6s ease-in-out infinite;
-                    }
-
-                    .pulse-glow {
-                        animation: pulse-glow 2s ease-in-out infinite;
-                    }
-
-                    .glass-effect {
-                        background: rgba(255, 255, 255, 0.1);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.2);
-                    }
-
-                    .dark .glass-effect {
-                        background: rgba(0, 0, 0, 0.2);
-                        backdrop-filter: blur(10px);
-                        border: 1px solid rgba(255, 255, 255, 0.1);
-                    }
-
-                    .gradient-border {
-                        background: linear-gradient(white, white) padding-box,
-                                    linear-gradient(45deg, #3b82f6, #6366f1) border-box;
-                        border: 2px solid transparent;
-                    }
-
-                    .dark .gradient-border {
-                        background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
-                                    linear-gradient(45deg, #3b82f6, #6366f1) border-box;
-                    }
-                `}</style>
-            </Head>
-
-            <PageLoader isVisible={loading} icon={TrendingDown} color="blue" />
+            <PageLoader isVisible={loading} icon={Package} color="green" />
 
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
-                {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
 
-                {/* Main Content */}
                 <div className="flex-1 flex flex-col overflow-hidden">
-                    {/* Header */}
                     <motion.header
                         initial={{ y: -20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -309,475 +234,613 @@ export default function CreateIncome({ auth, warehouse, warehouseProducts }) {
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
-                                        <TrendingDown className="w-8 h-8 text-white" />
-                                        <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
+                                        <Package className="w-8 h-8 text-white" />
                                     </div>
                                 </motion.div>
                                 <div>
                                     <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
+                                        initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.4, duration: 0.4 }}
+                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
                                     >
-                                        <Sparkles className="w-4 h-4" />
-                                        {warehouse?.name} - {t("Create Sale")}
+                                        <Sparkles className="w-4 h-4" /> {t("Add Warehouse Income")}
                                     </motion.p>
                                     <motion.h1
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
+                                        initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.5, duration: 0.4 }}
+                                        className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Create Sale")}
+                                        {warehouse.name}
                                     </motion.h1>
-                                    <motion.p
-                                        initial={{ x: -20, opacity: 0 }}
-                                        animate={{ x: 0, opacity: 1 }}
-                                        transition={{ delay: 0.6, duration: 0.4 }}
-                                        className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
-                                    >
-                                        <Package className="w-4 h-4" />
-                                        {t("Create a new sale with multiple products and batches")}
-                                    </motion.p>
                                 </div>
                             </div>
 
-                            <motion.div
-                                initial={{ x: 20, opacity: 0 }}
-                                animate={{ x: 0, opacity: 1 }}
-                                transition={{ delay: 0.7, duration: 0.4 }}
-                                className="flex items-center space-x-3"
-                            >
-                                <Link href={route("admin.warehouses.sales", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300">
-                                        <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Sales")}
+                            <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ delay: 0.7, duration: 0.4 }}>
+                                <Link href={route("admin.warehouses.income", warehouse.id)}>
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all dark:text-white duration-200 border-green-200 hover:border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20">
+                                        <ArrowLeft className="h-4 w-4" /> {t("Back to Income")}
                                     </Button>
                                 </Link>
                             </motion.div>
                         </div>
                     </motion.header>
 
-                    {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent">
-                        <div className="p-8">
-                            <motion.div
-                                initial={{ y: 20, opacity: 0 }}
-                                animate={{ y: 0, opacity: 1 }}
-                                transition={{ delay: 0.8, duration: 0.5 }}
-                                className="max-w-6xl mx-auto"
-                            >
-                                <form onSubmit={handleSubmit} className="space-y-8">
-                                    {/* Add Product Item */}
-                                    <motion.div
-                                        initial={{ scale: 0.95, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        transition={{ delay: 0.9, duration: 0.5 }}
-                                    >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
-                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                                                        <Plus className="h-6 w-6 text-white" />
-                                                    </div>
-                                                    {t("Add Product to Sale")}
-                                                </CardTitle>
-                                            </CardHeader>
-                                            <CardContent className="p-8 space-y-6">
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                    {/* Product Selection */}
-                                                    <div className="space-y-3">
-                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Package className="w-5 h-5 text-blue-500" />
-                                                            {t("Product")} *
-                                                        </Label>
-                                                        <Select
-                                                            value={currentItem.product_id}
-                                                            onValueChange={(value) => setCurrentItem({...currentItem, product_id: value, quantity: '', price: '', unit_type: ''})}
-                                                        >
-                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
-                                                                <SelectValue placeholder={t("Select a product")} />
-                                                            </SelectTrigger>
-                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                                                {Array.isArray(warehouseProducts) ? warehouseProducts.filter(p => !saleItems.some(item => item.product_id === p.id)).map((product) => (
-                                                                    <SelectItem key={product.id} value={product.id.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
-                                                                        <div className="flex items-center space-x-3">
-                                                                            <Package className="h-4 w-4 text-blue-600" />
-                                                                            <div>
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{product.name}</div>
-                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                    Stock: {product.stock_quantity} | {product.unit?.name || 'units'}
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                )) : (
-                                                                    <SelectItem value="" disabled>
-                                                                        No products available
-                                                                    </SelectItem>
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </div>
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-green-300 dark:scrollbar-thumb-green-700 scrollbar-track-transparent p-8">
+                        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.8, duration: 0.5 }}>
+                            <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border max-w-4xl mx-auto">
+                                <CardHeader className="p-6 border-b border-slate-200/80 dark:border-slate-700/50">
+                                    <CardTitle className="flex items-center gap-3 text-2xl">
+                                        <Package className="h-6 w-6 text-green-600" />
+                                        {t("Add New Item")}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-8">
+                                    <form onSubmit={handleSubmit} className="space-y-8">
+                                        {/* Product Selection */}
+                                        <motion.div
+                                            initial={{ x: -20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.1, duration: 0.4 }}
+                                            className="space-y-3"
+                                        >
+                                            <Label htmlFor="product_id" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                <Package className="w-5 h-5 text-green-500 dark:text-green-400" />
+                                                {t("Product")} *
+                                            </Label>
+                                            <Select value={data.product_id} onValueChange={(value) => setData('product_id', value)}>
+                                                <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.product_id ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-400 focus:border-green-500 dark:focus:border-green-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}>
+                                                    <SelectValue placeholder={t("Select product")} />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                                                    {products?.map((product) => (
+                                                        <SelectItem key={product.id} value={product.id.toString()} className="p-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            <div className="flex items-center space-x-4">
+                                                                <div className="p-2 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-lg">
+                                                                    <Package className="h-5 w-5 text-green-600 dark:text-green-400" />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <div className="font-semibold text-gray-900 dark:text-white">{product.name}</div>
+                                                                    <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                                                                        <Barcode className="w-3 h-3" />
+                                                                        {product.barcode || `ID: ${product.id}`}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.product_id && (
+                                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                    <AlertCircle className="w-4 h-4" />
+                                                    {errors.product_id}
+                                                </motion.p>
+                                            )}
+                                        </motion.div>
 
-                                                    {/* Unit Type Selection */}
-                                                    <div className="space-y-3">
-                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Weight className="w-5 h-5 text-orange-500" />
-                                                            {t("Unit Type")} *
-                                                        </Label>
-                                                        <Select
-                                                            value={currentItem.unit_type}
-                                                            onValueChange={(value) => {
-                                                                const product = getSelectedProduct(currentItem.product_id);
-                                                                const units = getAvailableUnits(product);
-                                                                const selectedUnit = units.find(u => u.type === value);
-                                                                const unitPrice = selectedUnit ? selectedUnit.price.toString() : '';
-                                                                
-                                                                setCurrentItem({...currentItem, unit_type: value, price: unitPrice});
-                                                            }}
-                                                            disabled={!currentItem.product_id}
-                                                        >
-                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-orange-300 focus:border-orange-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
-                                                                <SelectValue placeholder={currentItem.product_id ? t("Select unit type") : t("Select product first")} />
-                                                            </SelectTrigger>
-                                                            <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                                                {currentProduct ? getAvailableUnits(currentProduct).map((unit) => (
-                                                                    <SelectItem key={unit.type} value={unit.type} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
-                                                                        <div className="flex items-center space-x-3">
-                                                                            <Weight className="h-4 w-4 text-orange-600" />
-                                                                            <div>
-                                                                                <div className="font-semibold text-slate-800 dark:text-white">{unit.label}</div>
-                                                                                <div className="text-sm text-slate-500 dark:text-slate-400">
-                                                                                    {formatCurrency(unit.price)} per {unit.type}
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </SelectItem>
-                                                                )) : (
-                                                                    <SelectItem value="" disabled>
-                                                                        {currentItem.product_id ? t("No units available") : t("Select product first")}
-                                                                    </SelectItem>
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
+                                        {/* Unit Selection */}
+                                        <motion.div
+                                            initial={{ x: 20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.2, duration: 0.4 }}
+                                            className="space-y-3"
+                                        >
+                                            <Label htmlFor="unit_id" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                <Weight className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+                                                {t("Unit")} *
+                                            </Label>
+                                            <Select value={data.unit_id} onValueChange={(value) => setData('unit_id', value)}>
+                                                <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.unit_id ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-400 focus:border-orange-500 dark:focus:border-orange-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}>
+                                                    <SelectValue placeholder={t("Select unit")} />
+                                                </SelectTrigger>
+                                                <SelectContent className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+                                                    {units?.map((unit) => (
+                                                        <SelectItem key={unit.id} value={unit.id.toString()} className="p-4 hover:bg-gray-100 dark:hover:bg-gray-700">
+                                                            <div className="flex items-center space-x-4">
+                                                                <div className="p-2 bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/30 dark:to-red-900/30 rounded-lg">
+                                                                    <Weight className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                                                                </div>
+                                                                <div className="flex-1">
+                                                                    <div className="font-semibold text-gray-900 dark:text-white">{unit.name}</div>
+                                                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                                        {unit.code}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                            {errors.unit_id && (
+                                                <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                    <AlertCircle className="w-4 h-4" />
+                                                    {errors.unit_id}
+                                                </motion.p>
+                                            )}
+                                        </motion.div>
+
+                                        {/* Product Unit Information Display */}
+                                        {selectedProduct && (
+                                            <motion.div
+                                                initial={{ x: 20, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: 0.2, duration: 0.4 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <Info className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                                                    {t("Product Unit Info")}
+                                                </Label>
+                                                <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                                                    <div className="flex items-center space-x-4">
+                                                        <div className="p-2 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-lg">
+                                                            <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-semibold text-gray-900 dark:text-white">
+                                                                {selectedProduct.unit ? `${selectedProduct.unit.name} (${selectedProduct.unit.code})` : t("No Unit Assigned")}
+                                                            </div>
+                                                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                                                {t("Default unit assigned to product")}
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
+                                            </motion.div>
+                                        )}
 
-                                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                                    {/* Quantity */}
+                                        {/* Unit Information Display */}
+                                        <AnimatePresence>
+                                            {selectedProduct && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: "auto" }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                >
+                                                    <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+                                                        <Info className="h-5 w-5 text-blue-600" />
+                                                        <AlertDescription className="text-blue-700 dark:text-blue-400 font-medium">
+                                                            <div className="flex items-center justify-between">
+                                                                <span>
+                                                                    Product unit: <strong>{selectedProduct.unit ? selectedProduct.unit.name : t("No Unit")}</strong>
+                                                                    {data.unit_amount > 1 && (
+                                                                        <span> (1 unit = {data.unit_amount} pieces)</span>
+                                                                    )}
+                                                                </span>
+                                                                <Badge variant="outline" className="text-blue-700">
+                                                                    {formatCurrency(getUnitPrice(selectedProduct))} per unit
+                                                                </Badge>
+                                                            </div>
+                                                        </AlertDescription>
+                                                    </Alert>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                            {/* Quantity */}
+                                            <motion.div
+                                                initial={{ x: -20, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: 0.3, duration: 0.4 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label htmlFor="quantity" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <Hash className="w-5 h-5 text-blue-500 dark:text-blue-400" />
+                                                    {t("Quantity")} ({units?.find(u => u.id.toString() === data.unit_id)?.code || selectedProduct?.unit?.code || 'Units'}) *
+                                                </Label>
+                                                <div className="relative">
+                                                    <Hash className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Input
+                                                        id="quantity"
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0.01"
+                                                        placeholder={t("Enter quantity")}
+                                                        value={data.quantity}
+                                                        onChange={(e) => setData('quantity', e.target.value)}
+                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.quantity ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 focus:border-blue-500 dark:focus:border-blue-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
+                                                    />
+                                                </div>
+                                                {errors.quantity && (
+                                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                        <AlertCircle className="w-4 h-4" />
+                                                        {errors.quantity}
+                                                    </motion.p>
+                                                )}
+                                            </motion.div>
+
+                                            {/* Price */}
+                                            <motion.div
+                                                initial={{ x: 20, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: 0.4, duration: 0.4 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label htmlFor="price" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <DollarSign className="w-5 h-5 text-green-500 dark:text-green-400" />
+                                                    {t("Price per Unit")} *
+                                                </Label>
+                                                <div className="relative">
+                                                    <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Input
+                                                        id="price"
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        placeholder={t("Enter price")}
+                                                        value={data.price}
+                                                        onChange={(e) => setData('price', e.target.value)}
+                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.price ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-400 focus:border-green-500 dark:focus:border-green-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
+                                                    />
+                                                </div>
+                                                {errors.price && (
+                                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                        <AlertCircle className="w-4 h-4" />
+                                                        {errors.price}
+                                                    </motion.p>
+                                                )}
+                                            </motion.div>
+                                        </div>
+
+                                        {/* Unit Amount and Wholesale Toggle */}
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                            {/* Unit Amount */}
+                                            <motion.div
+                                                initial={{ x: -20, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: 0.5, duration: 0.4 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label htmlFor="unit_amount" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <Calculator className="w-5 h-5 text-purple-500 dark:text-purple-400" />
+                                                    {t("Unit Amount")} *
+                                                </Label>
+                                                <div className="relative">
+                                                    <Calculator className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                    <Input
+                                                        id="unit_amount"
+                                                        type="number"
+                                                        step="1"
+                                                        min="1"
+                                                        placeholder={t("Enter unit amount")}
+                                                        value={data.unit_amount}
+                                                        onChange={(e) => setData('unit_amount', e.target.value)}
+                                                        className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${errors.unit_amount ? 'border-red-500 ring-2 ring-red-200 dark:ring-red-800' : 'border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-400 focus:border-purple-500 dark:focus:border-purple-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
+                                                    />
+                                                </div>
+                                                {errors.unit_amount && (
+                                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                        <AlertCircle className="w-4 h-4" />
+                                                        {errors.unit_amount}
+                                                    </motion.p>
+                                                )}
+                                            </motion.div>
+
+                                            {/* Is Wholesale Toggle */}
+                                            <motion.div
+                                                initial={{ x: 20, opacity: 0 }}
+                                                animate={{ x: 0, opacity: 1 }}
+                                                transition={{ delay: 0.6, duration: 0.4 }}
+                                                className="space-y-3"
+                                            >
+                                                <Label className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <Package className="w-5 h-5 text-orange-500 dark:text-orange-400" />
+                                                    {t("Type")} ({t("Auto")})
+                                                </Label>
+                                                <div className="flex items-center space-x-4 h-14">
+                                                    <Button
+                                                        type="button"
+                                                        variant={data.is_wholesale ? "default" : "outline"}
+                                                        disabled
+                                                        className={`flex-1 h-14 ${data.is_wholesale ? 'bg-orange-600 text-white' : 'border-orange-300 text-orange-600 bg-gray-50 dark:bg-gray-800'}`}
+                                                    >
+                                                        <CheckCircle className="w-4 h-4 mr-2" />
+                                                        {units?.find(u => u.id.toString() === data.unit_id)?.name || t("Wholesale")}
+                                                    </Button>
+                                                    <Button
+                                                        type="button"
+                                                        variant={!data.is_wholesale ? "default" : "outline"}
+                                                        disabled
+                                                        className={`flex-1 h-14 ${!data.is_wholesale ? 'bg-blue-600 text-white' : 'border-blue-300 text-blue-600 bg-gray-50 dark:bg-gray-800'}`}
+                                                    >
+                                                        <Package className="w-4 h-4 mr-2" />
+                                                        {selectedProduct?.unit?.name || t("Retail")}
+                                                    </Button>
+                                                </div>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                                    <Info className="w-3 h-3" />
+                                                    {t("Automatically set based on unit amount")}
+                                                </p>
+                                                {errors.is_wholesale && (
+                                                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                        <AlertCircle className="w-4 h-4" />
+                                                        {errors.is_wholesale}
+                                                    </motion.p>
+                                                )}
+                                            </motion.div>
+                                        </div>
+
+                                        {/* Calculation Summary */}
+                                        <AnimatePresence>
+                                            {selectedProduct && data.quantity > 0 && data.price > 0 && (
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: "auto" }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    transition={{ duration: 0.3 }}
+                                                >
+                                                    <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                                                        <Info className="h-5 w-5 text-green-600" />
+                                                        <AlertDescription className="text-green-700 dark:text-green-400 font-medium">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <span className="text-sm font-medium">{t("Calculation Summary")}</span>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <p className="text-xs">
+                                                                    <strong>{t("Input")}:</strong> {data.quantity} × {formatCurrency(data.price)} = {formatCurrency(data.quantity*data.price)}
+                                                                </p>
+                                                                {data.unit_amount > 1 && (
+                                                                    <p className="text-xs">
+                                                                        <strong>{t("Database")}:</strong> {data.quantity} × {data.unit_amount} = {calculatedQuantity} {units?.find(u => u.id.toString() === data.unit_id)?.code || selectedProduct?.unit?.code || 'units'}
+                                                                    </p>
+                                                                )}
+                                                                <p className="text-xs">
+                                                                    <strong>{t("Type")}:</strong> {data.is_wholesale ? t("Wholesale") : t("Retail")}
+                                                                </p>
+                                                            </div>
+                                                        </AlertDescription>
+                                                    </Alert>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+
+                                        {/* Batch Information Section */}
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 0.6, duration: 0.4 }}
+                                            className="space-y-6"
+                                        >
+                                            <Card className="border-2 border-blue-200 dark:border-blue-800">
+                                                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
+                                                    <CardTitle className="flex items-center gap-3 text-lg">
+                                                        <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+                                                            <Package2 className="h-5 w-5 text-white" />
+                                                        </div>
+                                                        {t("Batch Information")}
+                                                    </CardTitle>
+                                                    <CardDescription>
+                                                        {t("Enter batch details for tracking and inventory management")}
+                                                    </CardDescription>
+                                                </CardHeader>
+                                                <CardContent className="p-6 space-y-6">
+                                                    {/* Issue Date and Expire Date */}
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <div className="space-y-3">
+                                                            <Label htmlFor="batch_issue_date" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                                <Calendar className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                                                                {t("Issue Date")}
+                                                            </Label>
+                                                            <Input
+                                                                id="batch_issue_date"
+                                                                type="date"
+                                                                value={data.batch.issue_date}
+                                                                onChange={(e) => setData('batch', { ...data.batch, issue_date: e.target.value })}
+                                                                className="h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                                                            />
+                                                            {errors['batch.issue_date'] && (
+                                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                    <AlertCircle className="w-4 h-4" />
+                                                                    {errors['batch.issue_date']}
+                                                                </p>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            <Label htmlFor="batch_expire_date" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                                <Calendar className="w-4 h-4 text-orange-500 dark:text-orange-400" />
+                                                                {t("Expire Date")}
+                                                            </Label>
+                                                            <Input
+                                                                id="batch_expire_date"
+                                                                type="date"
+                                                                value={data.batch.expire_date}
+                                                                onChange={(e) => setData('batch', { ...data.batch, expire_date: e.target.value })}
+                                                                className="h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-orange-300 dark:hover:border-orange-400 focus:border-orange-500 dark:focus:border-orange-400"
+                                                            />
+                                                            {errors['batch.expire_date'] && (
+                                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                    <AlertCircle className="w-4 h-4" />
+                                                                    {errors['batch.expire_date']}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Batch Prices */}
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                        <div className="space-y-3">
+                                                            <Label htmlFor="batch_purchase_price" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                                <DollarSign className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                                                                {t("Purchase Price")}
+                                                            </Label>
+                                                            <div className="relative">
+                                                                <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                                                <Input
+                                                                    id="batch_purchase_price"
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    min="0"
+                                                                    placeholder={t("Enter purchase price")}
+                                                                    value={data.batch.purchase_price}
+                                                                    onChange={(e) => setData('batch', { ...data.batch, purchase_price: e.target.value })}
+                                                                    className="pl-12 h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-400 focus:border-purple-500 dark:focus:border-purple-400"
+                                                                />
+                                                            </div>
+                                                            {errors['batch.purchase_price'] && (
+                                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                    <AlertCircle className="w-4 h-4" />
+                                                                    {errors['batch.purchase_price']}
+                                                                </p>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            <Label htmlFor="batch_wholesale_price" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                                <DollarSign className="w-4 h-4 text-blue-500 dark:text-blue-400" />
+                                                                {t("Wholesale Price")}
+                                                            </Label>
+                                                            <div className="relative">
+                                                                <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                                                <Input
+                                                                    id="batch_wholesale_price"
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    min="0"
+                                                                    placeholder={t("Enter wholesale price")}
+                                                                    value={data.batch.wholesale_price}
+                                                                    onChange={(e) => setData('batch', { ...data.batch, wholesale_price: e.target.value })}
+                                                                    className="pl-12 h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 focus:border-blue-500 dark:focus:border-blue-400"
+                                                                />
+                                                            </div>
+                                                            {errors['batch.wholesale_price'] && (
+                                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                    <AlertCircle className="w-4 h-4" />
+                                                                    {errors['batch.wholesale_price']}
+                                                                </p>
+                                                            )}
+                                                        </div>
+
+                                                        <div className="space-y-3">
+                                                            <Label htmlFor="batch_retail_price" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                                <DollarSign className="w-4 h-4 text-green-500 dark:text-green-400" />
+                                                                {t("Retail Price")}
+                                                            </Label>
+                                                            <div className="relative">
+                                                                <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
+                                                                <Input
+                                                                    id="batch_retail_price"
+                                                                    type="number"
+                                                                    step="0.01"
+                                                                    min="0"
+                                                                    placeholder={t("Enter retail price")}
+                                                                    value={data.batch.retail_price}
+                                                                    onChange={(e) => setData('batch', { ...data.batch, retail_price: e.target.value })}
+                                                                    className="pl-12 h-12 border-2 border-gray-300 dark:border-gray-600 hover:border-green-300 dark:hover:border-green-400 focus:border-green-500 dark:focus:border-green-400"
+                                                                />
+                                                            </div>
+                                                            {errors['batch.retail_price'] && (
+                                                                <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                    <AlertCircle className="w-4 h-4" />
+                                                                    {errors['batch.retail_price']}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Batch Notes */}
                                                     <div className="space-y-3">
-                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Hash className="w-5 h-5 text-green-500" />
-                                                            {t("Quantity")} *
+                                                        <Label htmlFor="batch_notes" className="text-gray-700 dark:text-gray-300 font-semibold flex items-center gap-2">
+                                                            <FileText className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                                                            {t("Batch Notes")}
                                                         </Label>
-                                                        <Input
-                                                            type="number"
-                                                            step="0.01"
-                                                            min="0.01"
-                                                            max={currentAvailableStock || undefined}
-                                                            placeholder={t("Enter quantity")}
-                                                            value={currentItem.quantity}
-                                                            onChange={(e) => setCurrentItem({...currentItem, quantity: e.target.value})}
-                                                            className={`dark:border-white h-12 text-base border-2 ${currentStockWarning ? 'border-red-500' : 'border-slate-200 hover:border-green-300 focus:border-green-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}
+                                                        <Textarea
+                                                            id="batch_notes"
+                                                            placeholder={t("Enter batch-specific notes (optional)")}
+                                                            value={data.batch.notes}
+                                                            onChange={(e) => setData('batch', { ...data.batch, notes: e.target.value })}
+                                                            className="min-h-[100px] border-2 border-gray-300 dark:border-gray-600 hover:border-slate-300 dark:hover:border-slate-400 focus:border-slate-500 dark:focus:border-slate-400 resize-none"
+                                                            rows={4}
                                                         />
-                                                        {currentProduct && currentItem.unit_type && (
-                                                            <p className="text-sm text-slate-500 dark:text-slate-400">
-                                                                {t('Available:')} {currentAvailableStock} {currentProduct.unit?.name || 'units'}
+                                                        {errors['batch.notes'] && (
+                                                            <p className="text-sm text-red-600 font-medium flex items-center gap-1">
+                                                                <AlertCircle className="w-4 h-4" />
+                                                                {errors['batch.notes']}
                                                             </p>
                                                         )}
                                                     </div>
+                                                </CardContent>
+                                            </Card>
+                                        </motion.div>
 
-                                                    {/* Price */}
-                                                    <div className="space-y-3">
-                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <DollarSign className="w-5 h-5 text-purple-500" />
-                                                            {t("Unit Price")} *
-                                                        </Label>
-                                                        <Input
-                                                            type="number"
-                                                            step="0.01"
-                                                            min="0"
-                                                            placeholder={t("Enter price")}
-                                                            value={currentItem.price}
-                                                            onChange={(e) => setCurrentItem({...currentItem, price: e.target.value})}
-                                                            className="h-12 dark:border-white text-base border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
-                                                        />
-                                                    </div>
-
-                                                    {/* Add Button */}
-                                                    <div className="space-y-3">
-                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg opacity-0">
-                                                            {t("Add")}
-                                                        </Label>
-                                                        <Button
-                                                            type="button"
-                                                            onClick={addItemToSale}
-                                                            disabled={!currentItem.product_id || !currentItem.quantity || !currentItem.price || !currentItem.unit_type || currentStockWarning}
-                                                            className="w-full h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white gap-2"
-                                                        >
-                                                            <Plus className="h-4 w-4" />
-                                                            {t("Add Item")}
-                                                        </Button>
-                                                    </div>
-                                                </div>
-
-                                                {currentStockWarning && (
-                                                    <Alert className="border-red-200 bg-red-50 dark:bg-red-900/20">
-                                                        <AlertCircle className="h-4 w-4 text-red-600" />
-                                                        <AlertDescription className="text-red-700 dark:text-red-400">
-                                                            {t('Insufficient stock! Maximum available:')} {currentAvailableStock} {currentProduct?.unit?.name || 'units'}
-                                                        </AlertDescription>
-                                                    </Alert>
-                                                )}
-
-                                                {/* Batch Information Display */}
-                                                <AnimatePresence>
-                                                    {/* Removed batch-related display */}
-                                                </AnimatePresence>
-
-                                                {/* Expired Batch Warning */}
-                                                <AnimatePresence>
-                                                    {/* Removed batch-related warning */}
-                                                </AnimatePresence>
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-
-                                    {/* Sale Items List */}
-                                    <AnimatePresence>
-                                        {saleItems.length > 0 && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 20 }}
-                                                animate={{ opacity: 1, y: 0 }}
-                                                exit={{ opacity: 0, y: 20 }}
-                                                transition={{ duration: 0.4 }}
-                                            >
-                                                <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                                    <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
-                                                        <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                                                                <TrendingDown className="h-6 w-6 text-white" />
-                                                            </div>
-                                                            {t("Sale Items")}
-                                                            <Badge className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                                {saleItems.length} {t("items")}
-                                                            </Badge>
-                                                        </CardTitle>
-                                                    </CardHeader>
-                                                    <CardContent className="p-0">
-                                                        <div className="overflow-x-auto">
-                                                            <table className="w-full">
-                                                                <thead className="bg-slate-50 dark:bg-slate-800">
-                                                                    <tr>
-                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Product")}</th>
-                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Type")}</th>
-                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Quantity")}</th>
-                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Price")}</th>
-                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Total")}</th>
-                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Actions")}</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                                                                    {saleItems.map((item, index) => (
-                                                                        <motion.tr
-                                                                            key={item.id}
-                                                                            initial={{ opacity: 0, y: 20 }}
-                                                                            animate={{ opacity: 1, y: 0 }}
-                                                                            exit={{ opacity: 0, y: -20 }}
-                                                                            transition={{ delay: index * 0.1 }}
-                                                                            className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                                                                        >
-                                                                            <td className="px-6 py-4">
-                                                                                <div className="flex items-center gap-3">
-                                                                                    <Package className="h-5 w-5 text-blue-600" />
-                                                                                    <div>
-                                                                                        <div className="font-semibold text-slate-800 dark:text-white">{item.product.name}</div>
-                                                                                        <div className="text-sm text-slate-500 dark:text-slate-400">{item.product.barcode}</div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </td>
-                                                                            <td className="px-6 py-4">
-                                                                                <Badge variant="outline" className="capitalize">
-                                                                                    {item.unit_type || 'retail'}
-                                                                                </Badge>
-                                                                            </td>
-                                                                            <td className="px-6 py-4">
-                                                                                <div className="flex flex-col">
-                                                                                    <span className="font-semibold text-slate-800 dark:text-white">
-                                                                                        {item.entered_quantity} {item.product.unit?.name || 'units'}
-                                                                                    </span>
-                                                                                    <span className="text-sm text-slate-500 dark:text-slate-400">({item.actual_quantity} pieces)</span>
-                                                                                </div>
-                                                                            </td>
-                                                                            <td className="px-6 py-4 font-semibold text-slate-800 dark:text-white">
-                                                                                {formatCurrency(item.unit_price)}
-                                                                            </td>
-                                                                            <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400">
-                                                                                {formatCurrency(item.total_price)}
-                                                                            </td>
-                                                                            <td className="px-6 py-4">
-                                                                                <Button
-                                                                                    type="button"
-                                                                                    variant="outline"
-                                                                                    size="sm"
-                                                                                    onClick={() => removeItemFromSale(item.id)}
-                                                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                                                                                >
-                                                                                    <Trash2 className="h-4 w-4" />
-                                                                                </Button>
-                                                                            </td>
-                                                                        </motion.tr>
-                                                                    ))}
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-
-                                    {/* Sale Summary */}
-                                    <AnimatePresence>
-                                        {saleItems.length > 0 && (
-                                            <motion.div
-                                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                                                animate={{ opacity: 1, y: 0, scale: 1 }}
-                                                exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                                                transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
-                                            >
-                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-blue-900/30 backdrop-blur-xl">
-                                                    <CardHeader className="bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-b border-blue-200/50 dark:border-blue-700/50">
-                                                        <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
-                                                                <Calculator className="h-6 w-6 text-white" />
-                                                            </div>
-                                                            {t("Sale Summary")}
-                                                            <Badge className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                                                                <CheckCircle className="w-3 h-3 mr-1" />
-                                                                {t("Ready")}
-                                                            </Badge>
-                                                        </CardTitle>
-                                                    </CardHeader>
-                                                    <CardContent className="p-8 space-y-6">
-                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                            <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-blue-200/50 dark:border-blue-700/50">
-                                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
-                                                                    <Package className="w-4 h-4" />
-                                                                    {t("Total Items")}
-                                                                </p>
-                                                                <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                                                                    {saleItems.length}
-                                                                </p>
-                                                                <p className="text-xs text-slate-500 mt-1">{t("products")}</p>
-                                                            </div>
-                                                            <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-blue-200/50 dark:border-blue-700/50">
-                                                                <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
-                                                                    <Hash className="w-4 h-4" />
-                                                                    {t("Total Quantity")}
-                                                                </p>
-                                                                <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                                                                    {getTotalItems().toLocaleString()}
-                                                                </p>
-                                                                <p className="text-xs text-slate-500 mt-1">{t("pieces")}</p>
-                                                            </div>
-                                                            <div className="text-center p-6 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl shadow-lg border-2 border-blue-300 dark:border-blue-700">
-                                                                <p className="text-sm text-blue-700 dark:text-blue-400 mb-2 flex items-center justify-center gap-2">
-                                                                    <DollarSign className="w-4 h-4" />
-                                                                    {t("Total Amount")}
-                                                                </p>
-                                                                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                                                                    {formatCurrency(getTotalSaleAmount())}
-                                                                </p>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl">
-                                                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{t("Customer")}:</p>
-                                                            <p className="font-semibold text-slate-800 dark:text-white">
-                                                                {/* Assuming a default customer name or that it will be set later */}
-                                                                {t("New Sale")}
-                                                            </p>
-                                                        </div>
-                                                    </CardContent>
-                                                </Card>
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-
-                                    {/* Notes */}
-                                    <motion.div
-                                        initial={{ y: 20, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.4, duration: 0.4 }}
-                                    >
-                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                            <CardHeader>
-                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <Package2 className="w-6 h-6 text-purple-500" />
-                                                    {t("Additional Notes")}
-                                                    <Badge variant="secondary" className="text-xs">
-                                                        {t("Optional")}
-                                                    </Badge>
-                                                </CardTitle>
-                                            </CardHeader>
-                                            <CardContent>
-                                                <Textarea
-                                                    placeholder={t("Enter any additional notes about this sale...")}
-                                                    value={data.notes}
-                                                    onChange={(e) => setData('notes', e.target.value)}
-                                                    rows={4}
-                                                    className="resize-none text-lg border-2 border-slate-200 hover:border-purple-300 focus:border-purple-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
-                                                />
-                                            </CardContent>
-                                        </Card>
-                                    </motion.div>
-
-                                    {/* Submit Button */}
-                                    <motion.div
-                                        initial={{ y: 20, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 1.5, duration: 0.4 }}
-                                        className="flex justify-end space-x-6 pt-6"
-                                    >
-                                        <Link href={route("admin.warehouses.sales", warehouse.id)}>
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                className="px-8 py-4 text-lg border-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white"
-                                            >
-                                                {t("Cancel")}
-                                            </Button>
-                                        </Link>
-                                        <Button
-                                            type="submit"
-                                            disabled={processing || saleItems.length === 0}
-                                            className={`px-8 py-4 text-lg shadow-2xl transition-all duration-200 ${
-                                                saleItems.length === 0
-                                                    ? 'bg-gray-400 cursor-not-allowed'
-                                                    : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 hover:scale-105 hover:shadow-3xl'
-                                            } text-white`}
+                                        {/* Total Price */}
+                                        <motion.div
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 0.5, duration: 0.4 }}
+                                            className="space-y-3"
                                         >
-                                            {processing ? (
-                                                <>
-                                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
-                                                    {t("Creating...")}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Save className="h-5 w-5 mr-3" />
-                                                    {t("Create Sale")}
-                                                </>
+                                            <div className="flex items-center justify-between">
+                                                <Label htmlFor="total_price" className="text-gray-700 dark:text-gray-300 font-semibold text-lg flex items-center gap-2">
+                                                    <DollarSign className="w-5 h-5 text-purple-500 dark:text-purple-400" />
+                                                    {t("Total Price")}
+                                                </Label>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => setManualTotal(!manualTotal)}
+                                                    className="text-xs gap-1"
+                                                >
+                                                    {manualTotal ? (
+                                                        <>
+                                                            <Hash className="w-3 h-3" />
+                                                            {t("Auto")}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Edit className="w-3 h-3" />
+                                                            {t("Manual")}
+                                                        </>
+                                                    )}
+                                                </Button>
+                                            </div>
+                                            <div className="relative">
+                                                <DollarSign className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                <Input
+                                                    id="total_price"
+                                                    type="number"
+                                                    step="0.01"
+                                                    value={data.total_price}
+                                                    onChange={(e) => setData('total_price', e.target.value)}
+                                                    readOnly={!manualTotal}
+                                                    className={`pl-12 h-14 text-lg border-2 transition-all duration-200 ${!manualTotal ? 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600' : 'border-gray-300 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-400 focus:border-purple-500 dark:focus:border-purple-400'} bg-white dark:bg-gray-800 text-gray-900 dark:text-white`}
+                                                />
+                                            </div>
+                                            {!manualTotal && (
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                                    <Info className="w-3 h-3" />
+                                                    {t("Automatically calculated based on quantity and price.")}
+                                                </p>
                                             )}
-                                        </Button>
-                                    </motion.div>
-                                </form>
-                            </motion.div>
-                        </div>
+                                        </motion.div>
+
+                                        <div className="flex justify-end space-x-4 pt-6">
+                                            <Link href={route("admin.warehouses.income", warehouse.id)}>
+                                                <Button type="button" variant="outline" className="px-8 py-3 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200">
+                                                    {t("Cancel")}
+                                                </Button>
+                                            </Link>
+                                            <Button type="submit" disabled={processing} className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-8 py-3">
+                                                {processing ? (
+                                                    <>
+                                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                                        {t("Saving...")}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <Save className="h-4 w-4 mr-2" />
+                                                        {t("Add Item")}
+                                                    </>
+                                                )}
+                                            </Button>
+                                        </div>
+                                    </form>
+                                </CardContent>
+                            </Card>
+                        </motion.div>
                     </main>
                 </div>
             </motion.div>

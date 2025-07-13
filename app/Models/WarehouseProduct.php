@@ -18,13 +18,17 @@ class WarehouseProduct extends Model
      * @var array
      */
     protected $fillable = [
-        'id',
         'warehouse_id',
         'product_id',
-        'quantity',
+        'income_quantity',
+        'income_price',
+        'income_total',
+        'outcome_quantity',
+        'outcome_price',
+        'outcome_total',
         'net_quantity',
-        'price',
-        'total_price'
+        'net_total',
+        'profit',
     ];
 
     public function warehouse(): BelongsTo
