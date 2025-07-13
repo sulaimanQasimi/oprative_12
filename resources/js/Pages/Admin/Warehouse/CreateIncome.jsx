@@ -4,7 +4,7 @@ import { useLaravelReactI18n } from "laravel-react-i18n";
 import {
     Building2,
     ArrowLeft,
-    TrendingUp,
+    TrendingDown,
     Package,
     DollarSign,
     Hash,
@@ -17,12 +17,11 @@ import {
     Package2,
     CheckCircle,
     Sparkles,
+    Users,
     Plus,
     Trash2,
     Edit,
-    X,
-    Calendar,
-    Clock
+    X
 } from "lucide-react";
 import { Button } from "@/Components/ui/button";
 import {
@@ -48,25 +47,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navigation from "@/Components/Admin/Navigation";
 import PageLoader from "@/Components/Admin/PageLoader";
 
-export default function CreateIncome({ auth, warehouse, products }) {
+export default function CreateIncome({ auth, warehouse, warehouseProducts, customers }) {
     const { t } = useLaravelReactI18n();
     const [loading, setLoading] = useState(true);
     const [isAnimated, setIsAnimated] = useState(false);
-    const [selectedProduct, setSelectedProduct] = useState(null);
-    const [incomeItems, setIncomeItems] = useState([]);
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [saleItems, setSaleItems] = useState([]);
     const [currentItem, setCurrentItem] = useState({
         product_id: '',
-        batch_reference: '',
-        issue_date: '',
-        expire_date: '',
+        batch_id: '',
         quantity: '',
         price: '',
-        unit_type: 'batch_unit',
-        batch_notes: ''
+        unit_type: 'batch_unit'
     });
 
     const { data, setData, post, processing, errors } = useForm({
-        income_items: [],
+        customer_id: '',
+        sale_items: [],
         notes: '',
     });
 
@@ -79,128 +76,183 @@ export default function CreateIncome({ auth, warehouse, products }) {
         return () => clearTimeout(timer);
     }, []);
 
-    // Update selected product when product_id changes
+    // Update selected customer when customer_id changes
     useEffect(() => {
-        if (currentItem.product_id) {
-            const product = products.find(p => p.id === parseInt(currentItem.product_id));
-            setSelectedProduct(product);
+        if (data.customer_id && customers) {
+            const customer = customers.find(c => c.id === parseInt(data.customer_id));
+            setSelectedCustomer(customer || null);
         } else {
-            setSelectedProduct(null);
+            setSelectedCustomer(null);
         }
-    }, [currentItem.product_id, products]);
+    }, [data.customer_id, customers]);
 
-    // Update form data when income items change
+    // Update form data when sale items change
     useEffect(() => {
-        setData('income_items', incomeItems);
-    }, [incomeItems]);
+        setData('sale_items', saleItems);
+    }, [saleItems]);
 
     const getSelectedProduct = (productId) => {
-        const productsArray = Array.isArray(products) ? products : [];
-        return productsArray.find(p => p.id === parseInt(productId)) || null;
+        // Ensure warehouseProducts is an array
+        const products = Array.isArray(warehouseProducts) ? warehouseProducts : [];
+        return products.find(p => p.id === parseInt(productId)) || null;
     };
 
-    const getAvailableUnits = (product) => {
+    const getSelectedBatch = (productId, batchId) => {
+        const product = getSelectedProduct(productId);
+        return product?.available_batches?.find(b => b.id === parseInt(batchId)) || null;
+    };
+
+    const getAvailableUnits = (product, batch) => {
         const units = [];
 
-        if (product?.unit) {
-            units.push({
-                type: 'batch_unit',
-                label: `${product.unit.name} (${product.unit.code})`,
-                amount: 1,
-                price: product.wholesale_price || product.retail_price || 0,
-                unit_name: product.unit.name
-            });
+        if (batch) {
+            // Use batch unit information
+            if (batch.unit_name && batch.unit_amount) {
+                units.push({
+                    type: 'batch_unit',
+                    label: `${batch.unit_name} (${batch.remaining_quantity}/${batch.unit_amount} ${batch.unit_name})`,
+                    amount: batch.unit_amount,
+                    price: batch.wholesale_price || batch.retail_price || 0,
+                    unit_name: batch.unit_name
+                });
+            }
+        } else if (product) {
+            // Fallback to product unit information if no batch
+            if (product.unit && product.whole_sale_unit_amount) {
+                units.push({
+                    type: 'wholesale',
+                    label: `${product.unit.name} (${product.unit.code})`,
+                    amount: product.whole_sale_unit_amount,
+                    price: product.wholesale_price
+                });
+            }
+
+            if (product.unit) {
+                units.push({
+                    type: 'retail',
+                    label: `${product.unit.name} (${product.unit.code})`,
+                    amount: 1,
+                    price: product.retail_price
+                });
+            }
         }
 
         return units;
     };
 
-    const calculateActualQuantity = (product, unitType, quantity) => {
+    const getAvailableStock = (product, unitType, batchId = null) => {
+        if (!product) return 0;
+        
+        // If a specific batch is selected, use its remaining quantity
+        if (batchId) {
+            const batch = getSelectedBatch(product.id, batchId);
+            if (batch) {
+                let stock = batch.remaining_quantity || 0;
+                if (unitType === 'batch_unit' && batch.unit_amount) {
+                    stock = Math.floor(stock / batch.unit_amount);
+                } else if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
+                    stock = Math.floor(stock / product.whole_sale_unit_amount);
+                }
+                return stock;
+            }
+            return 0;
+        }
+        
+        // Otherwise, use total product stock
+        let stock = product.stock_quantity || 0;
+        if (unitType === 'wholesale' && product.whole_sale_unit_amount) {
+            stock = Math.floor(stock / product.whole_sale_unit_amount);
+        }
+        return stock;
+    };
+
+    const calculateActualQuantity = (product, unitType, quantity, batch = null) => {
         let actualQuantity = parseFloat(quantity) || 0;
         
-        if (unitType === 'batch_unit' && product?.unit) {
-            actualQuantity = actualQuantity * 1; // For income, we use the unit as is
+        if (unitType === 'batch_unit' && batch?.unit_amount) {
+            actualQuantity = actualQuantity * batch.unit_amount;
+        } else if (unitType === 'wholesale' && product?.whole_sale_unit_amount) {
+            actualQuantity = actualQuantity * product.whole_sale_unit_amount;
         }
         
         return actualQuantity;
     };
 
-    const addItemToIncome = () => {
+    const addItemToSale = () => {
         const product = getSelectedProduct(currentItem.product_id);
+        const batch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
         
-        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.batch_reference) {
+        if (!product || !currentItem.quantity || !currentItem.price || !currentItem.batch_id) {
             return;
         }
 
-        const actualQuantity = calculateActualQuantity(product, 'batch_unit', currentItem.quantity);
+        const actualQuantity = calculateActualQuantity(product, currentItem.unit_type, currentItem.quantity, batch);
         const totalPrice = actualQuantity * parseFloat(currentItem.price);
 
         const newItem = {
             id: Date.now(), // Temporary ID for frontend
             product_id: parseInt(currentItem.product_id),
+            batch_id: parseInt(currentItem.batch_id),
             product: product,
-            batch_reference: currentItem.batch_reference,
-            issue_date: currentItem.issue_date,
-            expire_date: currentItem.expire_date,
-            unit_type: 'batch_unit',
+            batch: batch,
+            unit_type: currentItem.unit_type,
             entered_quantity: parseFloat(currentItem.quantity),
             actual_quantity: actualQuantity,
             unit_price: parseFloat(currentItem.price),
-            total_price: totalPrice,
-            batch_notes: currentItem.batch_notes
+            total_price: currentItem.price*currentItem.quantity
         };
 
-        setIncomeItems([...incomeItems, newItem]);
+        setSaleItems([...saleItems, newItem]);
         
         // Reset current item
         setCurrentItem({
             product_id: '',
-            batch_reference: '',
-            issue_date: '',
-            expire_date: '',
+            batch_id: '',
             quantity: '',
             price: '',
-            unit_type: 'batch_unit',
-            batch_notes: ''
+            unit_type: 'batch_unit'
         });
     };
 
-    const removeItemFromIncome = (itemId) => {
-        setIncomeItems(incomeItems.filter(item => item.id !== itemId));
+    const removeItemFromSale = (itemId) => {
+        setSaleItems(saleItems.filter(item => item.id !== itemId));
     };
 
-    const getTotalIncomeAmount = () => {
-        return incomeItems.reduce((sum, item) => sum + item.total_price, 0);
+    const updateItemInSale = (itemId, updatedItem) => {
+        setSaleItems(saleItems.map(item => 
+            item.id === itemId ? { ...item, ...updatedItem } : item
+        ));
+    };
+
+    const getTotalSaleAmount = () => {
+        return saleItems.reduce((sum, item) => sum + item.total_price, 0);
     };
 
     const getTotalItems = () => {
-        return incomeItems.reduce((sum, item) => sum + item.entered_quantity, 0);
+        return saleItems.reduce((sum, item) => sum + item.entered_quantity, 0);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (incomeItems.length === 0) {
+        if (saleItems.length === 0) {
             return;
         }
 
         setLoading(true);
         
         const submissionData = {
-            income_items: incomeItems.map(item => ({
+            customer_id: data.customer_id,
+            sale_items: saleItems.map(item => ({
                 product_id: item.product_id,
-                batch_reference: item.batch_reference,
-                issue_date: item.issue_date,
-                expire_date: item.expire_date,
+                batch_id: item.batch_id,
                 quantity: item.actual_quantity,
                 unit_price: item.unit_price,
-                total_price: item.total_price,
-                unit_type: item.unit_type,
-                batch_notes: item.batch_notes
+                total_price: item.total_price
             })),
             notes: data.notes
         };
 
-        router.post(route('admin.warehouses.income.store', warehouse.id), submissionData, {
+        router.post(route('admin.warehouses.sales.store', warehouse.id), submissionData, {
             onFinish: () => setLoading(false),
             onError: (errors) => {
                 console.log('Submission errors:', errors);
@@ -221,10 +273,13 @@ export default function CreateIncome({ auth, warehouse, products }) {
     };
 
     const currentProduct = getSelectedProduct(currentItem.product_id);
+    const currentBatch = getSelectedBatch(currentItem.product_id, currentItem.batch_id);
+    const currentAvailableStock = getAvailableStock(currentProduct, currentItem.unit_type, currentItem.batch_id);
+    const currentStockWarning = currentItem.quantity && parseFloat(currentItem.quantity) > currentAvailableStock;
 
     return (
         <>
-            <Head title={`${warehouse?.name} - ${t("Create Import")}`}>
+            <Head title={`${warehouse?.name} - ${t("Create Sale")}`}>
                 <style>{`
                     @keyframes shimmer {
                         0% { background-position: -1000px 0; }
@@ -237,8 +292,8 @@ export default function CreateIncome({ auth, warehouse, products }) {
                     }
 
                     @keyframes pulse-glow {
-                        0%, 100% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
-                        50% { box-shadow: 0 0 30px rgba(34, 197, 94, 0.6); }
+                        0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+                        50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
                     }
 
                     .shimmer {
@@ -269,24 +324,24 @@ export default function CreateIncome({ auth, warehouse, products }) {
 
                     .gradient-border {
                         background: linear-gradient(white, white) padding-box,
-                                    linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                                    linear-gradient(45deg, #3b82f6, #6366f1) border-box;
                         border: 2px solid transparent;
                     }
 
                     .dark .gradient-border {
                         background: linear-gradient(rgb(30 41 59), rgb(30 41 59)) padding-box,
-                                    linear-gradient(45deg, #22c55e, #16a34a) border-box;
+                                    linear-gradient(45deg, #3b82f6, #6366f1) border-box;
                     }
                 `}</style>
             </Head>
 
-            <PageLoader isVisible={loading} icon={TrendingUp} color="green" />
+            <PageLoader isVisible={loading} icon={TrendingDown} color="blue" />
 
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: isAnimated ? 1 : 0 }}
                 transition={{ duration: 0.5 }}
-                className="flex h-screen bg-gradient-to-br from-slate-50 via-green-50 to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
+                className="flex h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden"
             >
                 {/* Sidebar */}
                 <Navigation auth={auth} currentRoute="admin.warehouses" />
@@ -308,9 +363,9 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                     transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 200 }}
                                     className="relative float-animation"
                                 >
-                                    <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-2xl blur-lg opacity-60"></div>
-                                    <div className="relative bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 p-4 rounded-2xl shadow-2xl">
-                                        <TrendingUp className="w-8 h-8 text-white" />
+                                    <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-2xl blur-lg opacity-60"></div>
+                                    <div className="relative bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 p-4 rounded-2xl shadow-2xl">
+                                        <TrendingDown className="w-8 h-8 text-white" />
                                         <div className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full opacity-70"></div>
                                     </div>
                                 </motion.div>
@@ -319,18 +374,18 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.4, duration: 0.4 }}
-                                        className="text-sm font-bold uppercase tracking-wider text-green-600 dark:text-green-400 mb-1 flex items-center gap-2"
+                                        className="text-sm font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-2"
                                     >
                                         <Sparkles className="w-4 h-4" />
-                                        {warehouse?.name} - {t("Create Import")}
+                                        {warehouse?.name} - {t("Create Sale")}
                                     </motion.p>
                                     <motion.h1
                                         initial={{ x: -20, opacity: 0 }}
                                         animate={{ x: 0, opacity: 1 }}
                                         transition={{ delay: 0.5, duration: 0.4 }}
-                                        className="text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 bg-clip-text text-transparent"
+                                        className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 bg-clip-text text-transparent"
                                     >
-                                        {t("Create Import")}
+                                        {t("Create Sale")}
                                     </motion.h1>
                                     <motion.p
                                         initial={{ x: -20, opacity: 0 }}
@@ -339,7 +394,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                         className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2"
                                     >
                                         <Package className="w-4 h-4" />
-                                        {t("Create a new import with multiple products and batches")}
+                                        {t("Create a new sale with multiple products and batches")}
                                     </motion.p>
                                 </div>
                             </div>
@@ -350,10 +405,10 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Link href={route("admin.warehouses.income", warehouse.id)}>
-                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-slate-700 dark:text-slate-200 hover:text-green-700 dark:hover:text-green-300">
+                                <Link href={route("admin.warehouses.sales", warehouse.id)}>
+                                    <Button variant="outline" className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 text-slate-700 dark:text-slate-200 hover:text-blue-700 dark:hover:text-blue-300">
                                         <ArrowLeft className="h-4 w-4" />
-                                        {t("Back to Imports")}
+                                        {t("Back to Sales")}
                                     </Button>
                                 </Link>
                             </motion.div>
@@ -361,7 +416,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                     </motion.header>
 
                     {/* Main Content Container */}
-                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-green-300 dark:scrollbar-thumb-green-700 scrollbar-track-transparent">
+                    <main className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-700 scrollbar-track-transparent">
                         <div className="p-8">
                             <motion.div
                                 initial={{ y: 20, opacity: 0 }}
@@ -370,6 +425,80 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                 className="max-w-6xl mx-auto"
                             >
                                 <form onSubmit={handleSubmit} className="space-y-8">
+                                    {/* Customer Selection */}
+                                    <motion.div
+                                        initial={{ scale: 0.95, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        transition={{ delay: 0.9, duration: 0.5 }}
+                                    >
+                                        <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
+                                            <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                                <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
+                                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                        <Users className="h-6 w-6 text-white" />
+                                                    </div>
+                                                    {t("Customer Information")}
+                                                    <Badge variant="secondary" className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                        {t("Required")}
+                                                    </Badge>
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-8">
+                                                <div className="space-y-3">
+                                                    <Label htmlFor="customer_id" className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
+                                                        <Users className="w-5 h-5 text-indigo-500" />
+                                                        {t("Customer/Store")} *
+                                                    </Label>
+                                                    <Select
+                                                        value={data.customer_id}
+                                                        onValueChange={(value) => setData('customer_id', value)}
+                                                    >
+                                                        <SelectTrigger className={`h-14 text-lg border-2 transition-all duration-200 ${errors.customer_id ? 'border-red-500 ring-2 ring-red-200' : 'border-slate-200 hover:border-indigo-300 focus:border-indigo-500'} bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400`}>
+                                                            <SelectValue placeholder={t("Select customer/store")} />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                                                            {customers && customers.length > 0 ? customers.map((customer) => (
+                                                                <SelectItem key={customer.id} value={customer.id.toString()} className="p-4 hover:bg-slate-100 dark:hover:bg-slate-700">
+                                                                    <div className="flex items-center space-x-4">
+                                                                        <div className="p-2 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30 rounded-lg">
+                                                                            <Users className="h-5 w-5 text-indigo-600" />
+                                                                        </div>
+                                                                        <div>
+                                                                            <div className="font-semibold text-slate-800 dark:text-white">{customer.name}</div>
+                                                                            <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                                                                            {customer.email && (
+                                                                                <>
+                                                                                    <span>{customer.email}</span>
+                                                                                    {customer.phone && <span>•</span>}
+                                                                                </>
+                                                                            )}
+                                                                            {customer.phone && <span>{customer.phone}</span>}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </SelectItem>
+                                                            )) : (
+                                                                <SelectItem value="" disabled>
+                                                                    {t("No customers available")}
+                                                                </SelectItem>
+                                                            )}
+                                                        </SelectContent>
+                                                    </Select>
+                                                    {errors.customer_id && (
+                                                        <motion.p
+                                                            initial={{ opacity: 0 }}
+                                                            animate={{ opacity: 1 }}
+                                                            className="text-sm text-red-600 font-medium flex items-center gap-1"
+                                                        >
+                                                            <AlertCircle className="w-4 h-4" />
+                                                            {errors.customer_id}
+                                                        </motion.p>
+                                                    )}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </motion.div>
+
                                     {/* Add Product Item */}
                                     <motion.div
                                         initial={{ scale: 0.95, opacity: 0 }}
@@ -377,12 +506,12 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                         transition={{ delay: 0.9, duration: 0.5 }}
                                     >
                                         <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl gradient-border">
-                                            <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
+                                            <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50 rounded-t-xl">
                                                 <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                    <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                                                    <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
                                                         <Plus className="h-6 w-6 text-white" />
                                                     </div>
-                                                    {t("Add Product to Import")}
+                                                    {t("Add Product to Sale")}
                                                 </CardTitle>
                                             </CardHeader>
                                             <CardContent className="p-8 space-y-6">
@@ -390,21 +519,21 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                     {/* Product Selection */}
                                                     <div className="space-y-3">
                                                         <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Package className="w-5 h-5 text-green-500" />
+                                                            <Package className="w-5 h-5 text-blue-500" />
                                                             {t("Product")} *
                                                         </Label>
                                                         <Select
                                                             value={currentItem.product_id}
                                                             onValueChange={(value) => setCurrentItem({...currentItem, product_id: value, unit_type: '', price: ''})}
                                                         >
-                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-green-300 focus:border-green-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
+                                                            <SelectTrigger className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400">
                                                                 <SelectValue placeholder={t("Select a product")} />
                                                             </SelectTrigger>
                                                             <SelectContent className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                                                                {Array.isArray(products) ? products.map((product) => (
+                                                                {Array.isArray(warehouseProducts) ? warehouseProducts.map((product) => (
                                                                     <SelectItem key={product.id} value={product.id.toString()} className="p-3 hover:bg-slate-100 dark:hover:bg-slate-700">
                                                                         <div className="flex items-center space-x-3">
-                                                                            <Package className="h-4 w-4 text-green-600" />
+                                                                            <Package className="h-4 w-4 text-blue-600" />
                                                                             <div>
                                                                                 <div className="font-semibold text-slate-800 dark:text-white">{product.name}</div>
                                                                                 <div className="text-sm text-slate-500 dark:text-slate-400">
@@ -425,70 +554,24 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                     {/* Batch Reference */}
                                                     <div className="space-y-3">
                                                         <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Hash className="w-5 h-5 text-emerald-500" />
+                                                            <Hash className="w-5 h-5 text-indigo-500" />
                                                             {t("Batch Reference")} *
                                                         </Label>
                                                         <Input
                                                             type="text"
                                                             placeholder={t("Enter batch reference number")}
-                                                            value={currentItem.batch_reference}
-                                                            onChange={(e) => setCurrentItem({...currentItem, batch_reference: e.target.value})}
-                                                            className="h-12 text-base border-2 border-slate-200 hover:border-emerald-300 focus:border-emerald-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                                            value={currentItem.batch_id}
+                                                            onChange={(e) => setCurrentItem({...currentItem, batch_id: e.target.value})}
+                                                            className="h-12 text-base border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                                                         />
                                                     </div>
                                                 </div>
 
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                    {/* Issue Date */}
-                                                    <div className="space-y-3">
-                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Calendar className="w-5 h-5 text-blue-500" />
-                                                            {t("Issue Date")} *
-                                                        </Label>
-                                                        <Input
-                                                            type="date"
-                                                            value={currentItem.issue_date}
-                                                            onChange={(e) => setCurrentItem({...currentItem, issue_date: e.target.value})}
-                                                            className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white"
-                                                        />
-                                                    </div>
-
-                                                    {/* Expiry Date */}
-                                                    <div className="space-y-3">
-                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Clock className="w-5 h-5 text-orange-500" />
-                                                            {t("Expiry Date")}
-                                                        </Label>
-                                                        <Input
-                                                            type="date"
-                                                            value={currentItem.expire_date}
-                                                            onChange={(e) => setCurrentItem({...currentItem, expire_date: e.target.value})}
-                                                            className="h-12 text-base border-2 border-slate-200 hover:border-orange-300 focus:border-orange-500 bg-white dark:bg-slate-800 dark:text-white"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                    {/* Unit Type - Auto-determined from product */}
-                                                    <div className="space-y-3">
-                                                        <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Weight className="w-5 h-5 text-purple-500" />
-                                                            {t("Unit Type")}
-                                                        </Label>
-                                                        <div className="h-12 flex items-center px-3 border-2 border-slate-200 bg-slate-50 dark:bg-slate-700 dark:border-slate-600 rounded-md">
-                                                            <span className="text-slate-600 dark:text-slate-400">
-                                                                {currentProduct && currentProduct.unit ? 
-                                                                    `${currentProduct.unit.name} (${currentProduct.unit.code})` : 
-                                                                    t("Select product to see unit")
-                                                                }
-                                                            </span>
-                                                        </div>
-                                                    </div>
-
                                                     {/* Quantity */}
                                                     <div className="space-y-3">
                                                         <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                            <Hash className="w-5 h-5 text-green-500" />
+                                                            <Hash className="w-5 h-5 text-blue-500" />
                                                             {t("Quantity")} *
                                                         </Label>
                                                         <Input
@@ -498,7 +581,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                             placeholder={t("Enter quantity")}
                                                             value={currentItem.quantity}
                                                             onChange={(e) => setCurrentItem({...currentItem, quantity: e.target.value})}
-                                                            className="h-12 text-base border-2 border-slate-200 hover:border-green-300 focus:border-green-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
+                                                            className="h-12 text-base border-2 border-slate-200 hover:border-blue-300 focus:border-blue-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
                                                         />
                                                     </div>
 
@@ -520,28 +603,13 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                     </div>
                                                 </div>
 
-                                                {/* Batch Notes */}
-                                                <div className="space-y-3">
-                                                    <Label className="text-slate-700 dark:text-slate-300 font-semibold text-lg flex items-center gap-2">
-                                                        <Package2 className="w-5 h-5 text-indigo-500" />
-                                                        {t("Batch Notes")}
-                                                    </Label>
-                                                    <Textarea
-                                                        placeholder={t("Enter any notes about this batch...")}
-                                                        value={currentItem.batch_notes}
-                                                        onChange={(e) => setCurrentItem({...currentItem, batch_notes: e.target.value})}
-                                                        rows={2}
-                                                        className="resize-none text-base border-2 border-slate-200 hover:border-indigo-300 focus:border-indigo-500 bg-white dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-400"
-                                                    />
-                                                </div>
-
                                                 {/* Add Button */}
                                                 <div className="flex justify-end">
                                                     <Button
                                                         type="button"
-                                                        onClick={addItemToIncome}
-                                                        disabled={!currentItem.product_id || !currentItem.batch_reference || !currentItem.issue_date || !currentItem.quantity || !currentItem.price}
-                                                        className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white gap-2 px-6 py-3"
+                                                        onClick={addItemToSale}
+                                                        disabled={!currentItem.product_id || !currentItem.batch_id || !currentItem.quantity || !currentItem.price}
+                                                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white gap-2 px-6 py-3"
                                                     >
                                                         <Plus className="h-4 w-4" />
                                                         {t("Add Item")}
@@ -551,9 +619,9 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                         </Card>
                                     </motion.div>
 
-                                    {/* Income Items List */}
+                                    {/* Sale Items List */}
                                     <AnimatePresence>
-                                        {incomeItems.length > 0 && (
+                                        {saleItems.length > 0 && (
                                             <motion.div
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
@@ -561,14 +629,14 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                 transition={{ duration: 0.4 }}
                                             >
                                                 <Card className="border-0 shadow-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                                    <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                                    <CardHeader className="bg-gradient-to-r from-blue-500/20 via-indigo-500/20 to-blue-500/20 border-b border-white/30 dark:border-slate-700/50">
                                                         <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
-                                                                <TrendingUp className="h-6 w-6 text-white" />
+                                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                                                                <TrendingDown className="h-6 w-6 text-white" />
                                                             </div>
-                                                            {t("Import Items")}
-                                                            <Badge className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
-                                                                {incomeItems.length} {t("items")}
+                                                            {t("Sale Items")}
+                                                            <Badge className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                                                                {saleItems.length} {t("items")}
                                                             </Badge>
                                                         </CardTitle>
                                                     </CardHeader>
@@ -579,7 +647,6 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                                     <tr>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Product")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Batch")}</th>
-                                                                        <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Type")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Quantity")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Unit Price")}</th>
                                                                         <th className="px-6 py-4 text-left text-sm font-semibold text-slate-600 dark:text-slate-300">{t("Total")}</th>
@@ -587,7 +654,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                                                                    {incomeItems.map((item, index) => (
+                                                                    {saleItems.map((item, index) => (
                                                                         <motion.tr
                                                                             key={item.id}
                                                                             initial={{ opacity: 0, y: 20 }}
@@ -598,7 +665,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                                         >
                                                                             <td className="px-6 py-4">
                                                                                 <div className="flex items-center gap-3">
-                                                                                    <Package className="h-5 w-5 text-green-600" />
+                                                                                    <Package className="h-5 w-5 text-blue-600" />
                                                                                     <div>
                                                                                         <div className="font-semibold text-slate-800 dark:text-white">{item.product.name}</div>
                                                                                         <div className="text-sm text-slate-500 dark:text-slate-400">{item.product.barcode}</div>
@@ -607,36 +674,25 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                                             </td>
                                                                             <td className="px-6 py-4">
                                                                                 <div className="flex items-center gap-2">
-                                                                                    <Hash className="h-4 w-4 text-emerald-600" />
+                                                                                    <Hash className="h-4 w-4 text-indigo-600" />
                                                                                     <div>
                                                                                         <div className="font-semibold text-slate-800 dark:text-white">
-                                                                                            {item.batch_reference}
+                                                                                            {item.batch_id}
                                                                                         </div>
-                                                                                        {item.expire_date && (
-                                                                                            <div className="text-xs text-slate-500 dark:text-slate-400">
-                                                                                                Exp: {new Date(item.expire_date).toLocaleDateString()}
-                                                                                            </div>
-                                                                                        )}
                                                                                     </div>
                                                                                 </div>
-                                                                            </td>
-                                                                            <td className="px-6 py-4">
-                                                                                <Badge variant="outline" className="capitalize">
-                                                                                    {item.unit_type}
-                                                                                </Badge>
                                                                             </td>
                                                                             <td className="px-6 py-4">
                                                                                 <div className="flex flex-col">
                                                                                     <span className="font-semibold text-slate-800 dark:text-white">
                                                                                         {item.entered_quantity} units
                                                                                     </span>
-                                                                                    <span className="text-sm text-slate-500 dark:text-slate-400">({item.actual_quantity} pieces)</span>
                                                                                 </div>
                                                                             </td>
                                                                             <td className="px-6 py-4 font-semibold text-slate-800 dark:text-white">
                                                                                 {formatCurrency(item.unit_price)}
                                                                             </td>
-                                                                            <td className="px-6 py-4 font-bold text-green-600 dark:text-green-400">
+                                                                            <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400">
                                                                                 {formatCurrency(item.total_price)}
                                                                             </td>
                                                                             <td className="px-6 py-4">
@@ -644,7 +700,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                                                     type="button"
                                                                                     variant="outline"
                                                                                     size="sm"
-                                                                                    onClick={() => removeItemFromIncome(item.id)}
+                                                                                    onClick={() => removeItemFromSale(item.id)}
                                                                                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
                                                                                 >
                                                                                     <Trash2 className="h-4 w-4" />
@@ -661,23 +717,23 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                         )}
                                     </AnimatePresence>
 
-                                    {/* Income Summary */}
+                                    {/* Sale Summary */}
                                     <AnimatePresence>
-                                        {incomeItems.length > 0 && (
+                                        {saleItems.length > 0 && (
                                             <motion.div
                                                 initial={{ opacity: 0, y: 20, scale: 0.95 }}
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: 20, scale: 0.95 }}
                                                 transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
                                             >
-                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-green-900/30 backdrop-blur-xl">
-                                                    <CardHeader className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-b border-green-200/50 dark:border-green-700/50">
+                                                <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-blue-900/30 backdrop-blur-xl">
+                                                    <CardHeader className="bg-gradient-to-r from-blue-500/20 to-indigo-500/20 border-b border-blue-200/50 dark:border-blue-700/50">
                                                         <CardTitle className="text-slate-800 dark:text-slate-200 flex items-center gap-3 text-xl">
-                                                            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg">
+                                                            <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
                                                                 <Calculator className="h-6 w-6 text-white" />
                                                             </div>
-                                                            {t("Import Summary")}
-                                                            <Badge className="ml-auto bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300">
+                                                            {t("Sale Summary")}
+                                                            <Badge className="ml-auto bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
                                                                 <CheckCircle className="w-3 h-3 mr-1" />
                                                                 {t("Ready")}
                                                             </Badge>
@@ -685,17 +741,17 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                     </CardHeader>
                                                     <CardContent className="p-8 space-y-6">
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                            <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-green-200/50 dark:border-green-700/50">
+                                                            <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-blue-200/50 dark:border-blue-700/50">
                                                                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
                                                                     <Package className="w-4 h-4" />
                                                                     {t("Total Items")}
                                                                 </p>
                                                                 <p className="text-3xl font-bold text-slate-900 dark:text-white">
-                                                                    {incomeItems.length}
+                                                                    {saleItems.length}
                                                                 </p>
                                                                 <p className="text-xs text-slate-500 mt-1">{t("products")}</p>
                                                             </div>
-                                                            <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-green-200/50 dark:border-green-700/50">
+                                                            <div className="text-center p-6 bg-white/70 dark:bg-slate-800/70 rounded-2xl shadow-lg border border-blue-200/50 dark:border-blue-700/50">
                                                                 <p className="text-sm text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-center gap-2">
                                                                     <Hash className="w-4 h-4" />
                                                                     {t("Total Quantity")}
@@ -705,13 +761,13 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                                                 </p>
                                                                 <p className="text-xs text-slate-500 mt-1">{t("pieces")}</p>
                                                             </div>
-                                                            <div className="text-center p-6 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 rounded-2xl shadow-lg border-2 border-green-300 dark:border-green-700">
-                                                                <p className="text-sm text-green-700 dark:text-green-400 mb-2 flex items-center justify-center gap-2">
+                                                            <div className="text-center p-6 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30 rounded-2xl shadow-lg border-2 border-blue-300 dark:border-blue-700">
+                                                                <p className="text-sm text-blue-700 dark:text-blue-400 mb-2 flex items-center justify-center gap-2">
                                                                     <DollarSign className="w-4 h-4" />
                                                                     {t("Total Amount")}
                                                                 </p>
-                                                                <p className="text-3xl font-bold text-green-600 dark:text-green-400">
-                                                                    {formatCurrency(getTotalIncomeAmount())}
+                                                                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                                                                    {formatCurrency(getTotalSaleAmount())}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -739,7 +795,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                             </CardHeader>
                                             <CardContent>
                                                 <Textarea
-                                                    placeholder={t("Enter any additional notes about this import...")}
+                                                    placeholder={t("Enter any additional notes about this sale...")}
                                                     value={data.notes}
                                                     onChange={(e) => setData('notes', e.target.value)}
                                                     rows={4}
@@ -756,7 +812,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                         transition={{ delay: 1.5, duration: 0.4 }}
                                         className="flex justify-end space-x-6 pt-6"
                                     >
-                                        <Link href={route("admin.warehouses.income", warehouse.id)}>
+                                        <Link href={route("admin.warehouses.sales", warehouse.id)}>
                                             <Button
                                                 type="button"
                                                 variant="outline"
@@ -767,11 +823,11 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                         </Link>
                                         <Button
                                             type="submit"
-                                            disabled={processing || incomeItems.length === 0}
+                                            disabled={processing || saleItems.length === 0}
                                             className={`px-8 py-4 text-lg shadow-2xl transition-all duration-200 ${
-                                                incomeItems.length === 0
+                                                saleItems.length === 0
                                                     ? 'bg-gray-400 cursor-not-allowed'
-                                                    : 'bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 hover:scale-105 hover:shadow-3xl'
+                                                    : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 hover:from-blue-700 hover:via-indigo-700 hover:to-blue-800 hover:scale-105 hover:shadow-3xl'
                                             } text-white`}
                                         >
                                             {processing ? (
@@ -782,7 +838,7 @@ export default function CreateIncome({ auth, warehouse, products }) {
                                             ) : (
                                                 <>
                                                     <Save className="h-5 w-5 mr-3" />
-                                                    {t("Create Import")}
+                                                    {t("Create Sale")}
                                                 </>
                                             )}
                                         </Button>
