@@ -101,6 +101,54 @@ class Employee extends Model
     }
 
     /**
+     * Get all face data for this employee
+     */
+    public function faceData(): HasMany
+    {
+        return $this->hasMany(FaceData::class);
+    }
+
+    /**
+     * Get active face data for this employee
+     */
+    public function activeFaceData(): HasMany
+    {
+        return $this->hasMany(FaceData::class)->where('is_active', true);
+    }
+
+    /**
+     * Check if employee has face data registered
+     */
+    public function hasFaceData(): bool
+    {
+        return $this->faceData()->where('is_active', true)->exists();
+    }
+
+    /**
+     * Get the primary face data for this employee
+     */
+    public function primaryFaceData()
+    {
+        return $this->faceData()->where('is_active', true)->first();
+    }
+
+    /**
+     * Verify employee using face descriptor
+     */
+    public function verifyFace(array $inputDescriptor, float $threshold = 0.6): bool
+    {
+        $activeFaceData = $this->activeFaceData()->get();
+        
+        foreach ($activeFaceData as $faceData) {
+            if ($faceData->verify($inputDescriptor, $threshold)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
      * Scope a query to only include employees from a specific department.
      */
     public function scopeByDepartment($query, string $department)
