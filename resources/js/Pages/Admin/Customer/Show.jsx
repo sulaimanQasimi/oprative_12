@@ -503,6 +503,12 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                 {t("View Market Orders")}
                                             </Button>
                                         </Link>
+                                        <Link href={route("admin.customers.sales", customer.id)}>
+                                            <Button variant="outline" className="w-full justify-start gap-2">
+                                                <ShoppingCart className="w-4 h-4" />
+                                                {t("View Sales")}
+                                            </Button>
+                                        </Link>
                                         <Link href={route("admin.customer-users.index")}>
                                             <Button variant="outline" className="w-full justify-start gap-2">
                                                 <Users className="w-4 h-4" />

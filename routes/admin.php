@@ -265,6 +265,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         // Customer user management
         Route::post('/{customer:id}/users', [CustomerController::class, 'addUser'])->name('admin.customers.users.store');
         Route::put('/{customer:id}/users/{user}', [CustomerController::class, 'updateUser'])->name('admin.customers.users.update');
+
+        // Customer sales management
+        Route::get('/{customer:id}/sales', [CustomerController::class, 'sales'])->name('admin.customers.sales');
     });
 
     // Customer User Management

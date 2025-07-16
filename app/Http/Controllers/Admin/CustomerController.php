@@ -678,6 +678,133 @@ class CustomerController extends Controller
         }
     }
 
+    /**
+     * Display a paginated listing of sales for a customer with filtering.
+     *
+     * @param Customer $customer
+     * @param Request $request
+     * @return Response|RedirectResponse
+     */
+    public function sales(Customer $customer, Request $request)
+    {
+        $this->authorize('view', $customer);
+        try {
+            $query = $customer->sales()->with(['warehouse', 'saleItems.product', 'currency']);
+
+            // Search filter
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('reference', 'like', "%{$search}%")
+                      ->orWhere('id', 'like', "%{$search}%")
+                      ->orWhereHas('saleItems.product', function ($productQuery) use ($search) {
+                          $productQuery->where('name', 'like', "%{$search}%")
+                                      ->orWhere('barcode', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            // Date filter
+            if ($request->filled('date_from')) {
+                $query->whereDate('created_at', '>=', $request->date_from);
+            }
+            if ($request->filled('date_to')) {
+                $query->whereDate('created_at', '<=', $request->date_to);
+            }
+
+            // Status filter
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            // Amount range filter
+            if ($request->filled('min_amount')) {
+                $query->where('total', '>=', $request->min_amount);
+            }
+            if ($request->filled('max_amount')) {
+                $query->where('total', '<=', $request->max_amount);
+            }
+
+            // Sorting
+            $sortField = $request->get('sort_field', 'created_at');
+            $sortDirection = $request->get('sort_direction', 'desc');
+            $allowedSortFields = ['id', 'reference', 'total', 'status', 'created_at', 'date'];
+            if (!in_array($sortField, $allowedSortFields)) {
+                $sortField = 'created_at';
+            }
+            $query->orderBy($sortField, $sortDirection);
+
+            // Pagination
+            $perPage = $request->get('per_page', 15);
+            $perPage = in_array($perPage, [10, 15, 25, 50, 100]) ? $perPage : 15;
+            $sales = $query->paginate($perPage)->withQueryString();
+
+            // Transform sales for frontend
+            $sales->getCollection()->transform(function ($sale) {
+                return [
+                    'id' => $sale->id,
+                    'reference' => $sale->reference,
+                    'date' => $sale->date,
+                    'status' => $sale->status,
+                    'notes' => $sale->notes,
+                    'warehouse' => $sale->warehouse ? [
+                        'id' => $sale->warehouse->id,
+                        'name' => $sale->warehouse->name,
+                        'code' => $sale->warehouse->code,
+                    ] : null,
+                    'currency' => $sale->currency ? [
+                        'id' => $sale->currency->id,
+                        'name' => $sale->currency->name,
+                        'code' => $sale->currency->code,
+                    ] : null,
+                    'sale_items' => $sale->saleItems->map(function ($item) {
+                        return [
+                            'id' => $item->id,
+                            'product_id' => $item->product_id,
+                            'product' => $item->product ? [
+                                'id' => $item->product->id,
+                                'name' => $item->product->name,
+                                'barcode' => $item->product->barcode,
+                                'type' => $item->product->type,
+                            ] : null,
+                            'quantity' => $item->quantity,
+                            'unit_price' => $item->unit_price,
+                            'total_price' => $item->total,
+                            'discount_amount' => $item->discount_amount ?? 0,
+                            'tax_amount' => $item->tax_amount ?? 0,
+                        ];
+                    }),
+                    'total_amount' => $sale->total_amount ?? $sale->saleItems->sum('total'),
+                    'tax_amount' => $sale->tax_amount ?? 0,
+                    'discount_amount' => $sale->discount_amount ?? 0,
+                    'paid_amount' => $sale->paid_amount ?? 0,
+                    'due_amount' => $sale->due_amount ?? 0,
+                    'confirmed_by_warehouse' => $sale->confirmed_by_warehouse,
+                    'confirmed_by_shop' => $sale->confirmed_by_shop,
+                    'created_at' => $sale->created_at,
+                    'updated_at' => $sale->updated_at,
+                    'warehouse_id' => $sale->warehouse_id,
+                ];
+            });
+
+            return Inertia::render('Admin/Customer/Sales', [
+                'customer' => $this->formatCustomerData($customer),
+                'sales' => $sales,
+                'filters' => $request->only([
+                    'search', 'date_from', 'date_to', 'status', 'min_amount', 'max_amount', 'per_page', 'sort_field', 'sort_direction'
+                ]),
+                'permissions' => $this->getCustomerPermissions(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Customer sales display failed', [
+                'customer_id' => $customer->id,
+                'error' => $e->getMessage()
+            ]);
+            return redirect()->route('admin.customers.show', $customer)
+                ->with('error', 'Error loading customer sales.');
+        }
+    }
+
     // ============================================================================
     // PRIVATE HELPER METHODS
     // ============================================================================
