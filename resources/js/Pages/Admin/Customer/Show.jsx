@@ -380,7 +380,7 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                     transition={{ delay: 1.0, duration: 0.4 }}
                                 >
                                     <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                                        <TabsList className="grid w-full grid-cols-5 h-14 p-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-2 border-slate-200 dark:border-slate-700">
+                                        <TabsList className="grid w-full grid-cols-6 h-14 p-1 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border-2 border-slate-200 dark:border-slate-700">
                                             <TabsTrigger value="overview" className="h-12 text-sm font-semibold">
                                                 {t("Overview")}
                                             </TabsTrigger>
@@ -395,6 +395,10 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                             </TabsTrigger>
                                             <TabsTrigger value="transactions" className="h-12 text-sm font-semibold">
                                                 {t("Transactions")}
+                                            </TabsTrigger>
+                                            <TabsTrigger value="operations" className="h-12 text-sm font-semibold flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
+                                                <Package className="h-4 w-4" />
+                                                {t("Operations")}
                                             </TabsTrigger>
                                         </TabsList>
 
@@ -480,41 +484,41 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                             </Button>
                                                         </Link>
                                                         <Link href={route("admin.accounts.index", { customer_id: customer.id })}>
-                                                            <Button variant="outline" className="w-full justify-start gap-2">
+                                                            <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
                                                                 <CreditCard className="w-4 h-4" />
                                                                 {t("Manage Accounts")}
                                                             </Button>
                                                         </Link>
                                                         <Link href={route("admin.customers.income", customer.id)}>
-                                                            <Button variant="outline" className="w-full justify-start gap-2">
+                                                            <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
                                                                 <TrendingUp className="w-4 h-4" />
                                                                 {t("Import")}
                                                             </Button>
                                                         </Link>
-                                                                                                <Link href={route("admin.customers.outcome", customer.id)}>
-                                            <Button variant="outline" className="w-full justify-start gap-2">
-                                                <TrendingDown className="w-4 h-4" />
-                                                {t("Export")}
-                                            </Button>
-                                        </Link>
-                                        <Link href={route("admin.customers.orders", customer.id)}>
-                                            <Button variant="outline" className="w-full justify-start gap-2">
-                                                <ShoppingCart className="w-4 h-4" />
-                                                {t("View Market Orders")}
-                                            </Button>
-                                        </Link>
-                                        <Link href={route("admin.customers.sales", customer.id)}>
-                                            <Button variant="outline" className="w-full justify-start gap-2">
-                                                <ShoppingCart className="w-4 h-4" />
-                                                {t("View Sales")}
-                                            </Button>
-                                        </Link>
-                                        <Link href={route("admin.customer-users.index")}>
-                                            <Button variant="outline" className="w-full justify-start gap-2">
-                                                <Users className="w-4 h-4" />
-                                                {t("View All Customer Users")}
-                                            </Button>
-                                        </Link>
+                                                        <Link href={route("admin.customers.outcome", customer.id)}>
+                                                            <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
+                                                                <TrendingDown className="w-4 h-4" />
+                                                                {t("Export")}
+                                                            </Button>
+                                                        </Link>
+                                                        <Link href={route("admin.customers.orders", customer.id)}>
+                                                            <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
+                                                                <ShoppingCart className="w-4 h-4" />
+                                                                {t("View Market Orders")}
+                                                            </Button>
+                                                        </Link>
+                                                        <Link href={route("admin.customers.sales", customer.id)}>
+                                                            <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
+                                                                <Store className="w-4 h-4" />
+                                                                {t("Move to Shop")}
+                                                            </Button>
+                                                        </Link>
+                                                        <Link href={route("admin.customer-users.index")}>
+                                                            <Button variant="outline" className="w-full justify-start gap-2 dark:text-white text-black">
+                                                                <Users className="w-4 h-4" />
+                                                                {t("View All Customer Users")}
+                                                            </Button>
+                                                        </Link>
                                                     </CardContent>
                                                 </Card>
 
@@ -970,6 +974,72 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                     </div>
                                                 </CardContent>
                                             </Card>
+                                        </TabsContent>
+
+                                        {/* Operations Tab */}
+                                        <TabsContent value="operations" className="space-y-6">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                <Link href={route("admin.customers.income", customer.id)}>
+                                                    <Card className="border-0 shadow-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-green-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                        <CardContent className="p-8 text-center">
+                                                            <div className="relative">
+                                                                <div className="absolute -inset-2 bg-gradient-to-r from-green-500 via-emerald-500 to-green-600 rounded-3xl blur-lg opacity-30"></div>
+                                                                <div className="relative p-6 bg-gradient-to-br from-green-500 via-emerald-500 to-green-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                    <TrendingUp className="w-10 h-10 text-white" />
+                                                                    <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                                </div>
+                                                            </div>
+                                                            <h3 className="text-xl font-bold text-green-700 dark:text-green-300 mb-3">{t("Import Products")}</h3>
+                                                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Manage incoming inventory and stock for this store")}</p>
+                                                        </CardContent>
+                                                    </Card>
+                                                </Link>
+                                                <Link href={route("admin.customers.outcome", customer.id)}>
+                                                    <Card className="border-0 shadow-2xl bg-gradient-to-br from-red-50 via-orange-50 to-red-100 dark:from-red-900/20 dark:via-orange-900/20 dark:to-red-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                        <CardContent className="p-8 text-center">
+                                                            <div className="relative">
+                                                                <div className="absolute -inset-2 bg-gradient-to-r from-red-500 via-orange-500 to-red-600 rounded-3xl blur-lg opacity-30"></div>
+                                                                <div className="relative p-6 bg-gradient-to-br from-red-500 via-orange-500 to-red-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                    <TrendingDown className="w-10 h-10 text-white" />
+                                                                    <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                                </div>
+                                                            </div>
+                                                            <h3 className="text-xl font-bold text-red-700 dark:text-red-300 mb-3">{t("Export Products")}</h3>
+                                                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Manage outgoing inventory and exports for this store")}</p>
+                                                        </CardContent>
+                                                    </Card>
+                                                </Link>
+                                                <Link href={route("admin.customers.sales", customer.id)}>
+                                                    <Card className="border-0 shadow-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-blue-100 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-blue-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                        <CardContent className="p-8 text-center">
+                                                            <div className="relative">
+                                                                <div className="absolute -inset-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 rounded-3xl blur-lg opacity-30"></div>
+                                                                <div className="relative p-6 bg-gradient-to-br from-blue-500 via-indigo-500 to-blue-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                    <Store className="w-10 h-10 text-white" />
+                                                                    <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                                </div>
+                                                            </div>
+                                                            <h3 className="text-xl font-bold text-blue-700 dark:text-blue-300 mb-3">{t("Move to Shop")}</h3>
+                                                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Track products moved to shop for sales")}</p>
+                                                        </CardContent>
+                                                    </Card>
+                                                </Link>
+                                                <Link href={route("admin.accounts.index", { customer_id: customer.id })}>
+                                                    <Card className="border-0 shadow-2xl bg-gradient-to-br from-indigo-50 via-blue-50 to-indigo-100 dark:from-indigo-900/20 dark:via-blue-900/20 dark:to-indigo-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                        <CardContent className="p-8 text-center">
+                                                            <div className="relative">
+                                                                <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 via-blue-500 to-indigo-600 rounded-3xl blur-lg opacity-30"></div>
+                                                                <div className="relative p-6 bg-gradient-to-br from-indigo-500 via-blue-500 to-indigo-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                    <CreditCard className="w-10 h-10 text-white" />
+                                                                    <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                                </div>
+                                                            </div>
+                                                            <h3 className="text-xl font-bold text-indigo-700 dark:text-indigo-300 mb-3">{t("Manage Accounts")}</h3>
+                                                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("View and manage store accounts")}</p>
+                                                        </CardContent>
+                                                    </Card>
+                                                </Link>
+                                            </div>
                                         </TabsContent>
                                     </Tabs>
                                 </motion.div>
