@@ -13,16 +13,15 @@ export default function Face({ auth }) {
     const [status, setStatus] = useState("");
     const [employeeId, setEmployeeId] = useState("");
     const [result, setResult] = useState(null);
-    const [authToken, setAuthToken] = useState("");
     const [processing, setProcessing] = useState(false);
 
     // Load face-api.js models
     const loadModels = async () => {
         setStatus(t("Loading face-api.js models..."));
         await Promise.all([
-            faceapi.nets.ssdMobilenetv1.loadFromUri("/models"),
-            faceapi.nets.faceLandmark68Net.loadFromUri("/models"),
-            faceapi.nets.faceRecognitionNet.loadFromUri("/models"),
+            faceapi.nets.ssdMobilenetv1.loadFromUri("/models/ssd_mobilenetv1"),
+            faceapi.nets.faceLandmark68Net.loadFromUri("/models/face_landmark_68"),
+            faceapi.nets.faceRecognitionNet.loadFromUri("/models/face_recognition"),
         ]);
         setModelsLoaded(true);
         setStatus(t("Models loaded!"));
@@ -87,9 +86,6 @@ export default function Face({ auth }) {
         setStatus(t("Registering face..."));
         const response = await fetch("/api/face/register", {
             method: "POST",
-            headers: {
-                Authorization: `Bearer ${authToken}`,
-            },
             body: formData,
         });
         const data = await response.json();
@@ -112,7 +108,6 @@ export default function Face({ auth }) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`,
             },
             body: JSON.stringify({
                 employee_id: employeeId,
@@ -139,7 +134,6 @@ export default function Face({ auth }) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${authToken}`,
             },
             body: JSON.stringify({
                 face_descriptor: Array.from(descriptor),
@@ -168,13 +162,6 @@ export default function Face({ auth }) {
                         <div className="max-w-3xl mx-auto space-y-6">
                             <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
                                 <div className="mb-4 flex gap-4">
-                                    <input
-                                        type="text"
-                                        placeholder={t("Auth Token")}
-                                        value={authToken}
-                                        onChange={e => setAuthToken(e.target.value)}
-                                        className="border px-3 py-2 rounded w-1/2"
-                                    />
                                     <input
                                         type="text"
                                         placeholder={t("Employee ID")}

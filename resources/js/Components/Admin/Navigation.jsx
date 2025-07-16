@@ -428,7 +428,16 @@ const Navigation = ({ auth, currentRoute }) => {
                     active: currentRoute?.startsWith("admin.employees") &&
                            currentRoute !== "admin.employees.verify" &&
                            currentRoute !== "admin.employees.manual-attendance" &&
-                           currentRoute !== "admin.employees.attendance-report",
+                           currentRoute !== "admin.employees.attendance-report" &&
+                           currentRoute !== "admin.employees.face",
+                    permission: "view_any_employee",
+                },
+                {
+                    name: t("Face Recognition"),
+                    icon: <Scan className="w-5 h-5" />,
+                    route: "admin.employees.face",
+                    active: currentRoute === "admin.employees.face",
+                    badge: "AI",
                     permission: "view_any_employee",
                 },
                 {

@@ -179,6 +179,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/today-stats', [EmployeeController::class, 'getTodayStats'])->name('admin.attendance.today-stats');
         Route::post('/mark-attendance', [EmployeeController::class, 'markAttendance'])->name('admin.employees.mark-attendance');
 
+        // Face Recognition Page
+        Route::get('/face', function () {
+            return Inertia::render('Admin/Employee/Face');
+        })->name('admin.employees.face');
+
         // Employee Biometric routes
         Route::get('/{id}/biometric/create', [BioMetricController::class, 'create'])->name('admin.employees.biometric.create');
         Route::post('/{id}/biometric', [BioMetricController::class, 'store'])->name('admin.employees.biometric.store');
