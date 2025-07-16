@@ -1,5 +1,7 @@
 {
-  "WARNING: This batch has expired!": "⚠️ {t('WARNING: This batch has expired!')}",
+  "Warehouse Moved":"انتقال به گدام",
+  "Invoice": "فاکتور",
+  "WARNING: This batch has expired!": "⚠️این دسته منقضی شده است!",
   "Selling expired products may violate health and safety regulations. Please verify if this is appropriate for your business requirements.": "⚠️ {t('Selling expired products may violate health and safety regulations. Please verify if this is appropriate for your business requirements.')}",
   "Available from this batch:": "موجودی از این دسته:",
   "Selected Batch": "دسته انتخاب شده",

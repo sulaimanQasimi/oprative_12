@@ -73,6 +73,10 @@ export default function Index({ auth, purchases, suppliers }) {
                 color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300', 
                 label: t('Return') 
             },
+            'warehouse_moved': { 
+                color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300', 
+                label: t('Warehouse Moved') 
+            },
         };
         const config = statusConfig[status] || { 
             color: 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300', 
@@ -170,13 +174,7 @@ export default function Index({ auth, purchases, suppliers }) {
                                 transition={{ delay: 0.7, duration: 0.4 }}
                                 className="flex items-center space-x-3"
                             >
-                                <Button 
-                                    variant="outline" 
-                                    className="gap-2 hover:scale-105 transition-all duration-200 border-slate-300 dark:border-slate-600 hover:border-green-400 dark:hover:border-green-500 hover:bg-green-50 dark:hover:bg-green-900/30 text-slate-700 dark:text-slate-200 hover:text-green-700 dark:hover:text-green-300"
-                                >
-                                    <Download className="h-4 w-4" />
-                                    {t("Export")}
-                                </Button>
+                        
                                 <Link href={route("admin.purchases.create")}>
                                     <Button className="gap-2 bg-gradient-to-r from-green-600 via-emerald-600 to-green-700 hover:from-green-700 hover:via-emerald-700 hover:to-green-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-0">
                                         <Plus className="h-4 w-4" />

@@ -320,50 +320,6 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.dashboard",
                     active: currentRoute === "admin.dashboard",
                 },
-            ],
-        },
-        {
-            title: t("Inventory Management"),
-            key: "inventory",
-            icon: <Package className="w-4 h-4" />,
-            items: [
-                {
-                    name: t("Products"),
-                    icon: <Package className="w-5 h-5" />,
-                    route: "admin.products.index",
-                    active: currentRoute?.startsWith("admin.products"),
-                    badge: "Hot",
-                    permission: "view_any_product",
-                },
-                {
-                    name: t("Suppliers"),
-                    icon: <Truck className="w-5 h-5" />,
-                    route: "admin.suppliers.index",
-                    active: currentRoute?.startsWith("admin.suppliers"),
-                    permission: "view_any_supplier",
-                },
-                {
-                    name: t("Stores"),
-                    icon: <ShoppingCart className="w-5 h-5" />,
-                    route: "admin.customers.index",
-                    active: currentRoute?.startsWith("admin.customers"),
-                    permission: "view_any_customer",
-                },
-                {
-                    name: t("Store Users"),
-                    icon: <UserCheck className="w-5 h-5" />,
-                    route: "admin.customer-users.index",
-                    active: currentRoute?.startsWith("admin.customer-users"),
-                    permission: "view_any_customer_user",
-                },
-
-                {
-                    name: t("Accounts"),
-                    icon: <CreditCard className="w-5 h-5" />,
-                    route: "admin.accounts.index",
-                    active: currentRoute?.startsWith("admin.accounts"),
-                    permission: "view_any_account",
-                },
                 {
                     name: t("Purchases"),
                     icon: <ShoppingCart className="w-5 h-5" />,
@@ -379,13 +335,6 @@ const Navigation = ({ auth, currentRoute }) => {
             key: "warehouse",
             icon: <Warehouse className="w-4 h-4" />,
             items: [
-                {
-                    name: t("Warehouses"),
-                    icon: <Building2 className="w-5 h-5" />,
-                    route: "admin.warehouses.index",
-                    active: currentRoute === "admin.warehouses.index",
-                    permission: "view_any_warehouse",
-                },
                 {
                     name: t("Move to shop"),
                     icon: <Store className="w-5 h-5" />,
@@ -499,7 +448,6 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.roles.index",
                     active: currentRoute?.startsWith("admin.roles"),
                     permission: "view_any_role",
-
                 },
                 {
                     name: t("Permissions"),
@@ -509,13 +457,14 @@ const Navigation = ({ auth, currentRoute }) => {
                     permission: "view_any_permission",
                     badge: "Hot",
                 },
-            ],
-        },
-        {
-            title: t("System Configuration"),
-            key: "system",
-            icon: <Settings className="w-4 h-4" />,
-            items: [
+                // Moved items below
+                {
+                    name: t("Currencies"),
+                    icon: <Globe className="w-5 h-5" />,
+                    route: "admin.currencies.index",
+                    active: currentRoute?.startsWith("admin.currencies"),
+                    permission: "view_any_currency",
+                },
                 {
                     name: t("Units"),
                     icon: <Ruler className="w-5 h-5" />,
@@ -524,12 +473,48 @@ const Navigation = ({ auth, currentRoute }) => {
                     permission: "view_any_unit",
                 },
                 {
-                    name: t("Currencies"),
-                    icon: <Globe className="w-5 h-5" />,
-                    route: "admin.currencies.index",
-                    active: currentRoute?.startsWith("admin.currencies"),
-                    permission: "view_any_currency",
+                    name: t("Products"),
+                    icon: <Package className="w-5 h-5" />,
+                    route: "admin.products.index",
+                    active: currentRoute?.startsWith("admin.products"),
+                    badge: "Hot",
+                    permission: "view_any_product",
                 },
+                {
+                    name: t("Suppliers"),
+                    icon: <Truck className="w-5 h-5" />,
+                    route: "admin.suppliers.index",
+                    active: currentRoute?.startsWith("admin.suppliers"),
+                    permission: "view_any_supplier",
+                },
+                {
+                    name: t("Stores"),
+                    icon: <ShoppingCart className="w-5 h-5" />,
+                    route: "admin.customers.index",
+                    active: currentRoute?.startsWith("admin.customers"),
+                    permission: "view_any_customer",
+                },
+                {
+                    name: t("Store Users"),
+                    icon: <UserCheck className="w-5 h-5" />,
+                    route: "admin.customer-users.index",
+                    active: currentRoute?.startsWith("admin.customer-users"),
+                    permission: "view_any_customer_user",
+                },
+                {
+                    name: t("Accounts"),
+                    icon: <CreditCard className="w-5 h-5" />,
+                    route: "admin.accounts.index",
+                    active: currentRoute?.startsWith("admin.accounts"),
+                    permission: "view_any_account",
+                },
+            ],
+        },
+        {
+            title: t("System Configuration"),
+            key: "system",
+            icon: <Settings className="w-4 h-4" />,
+            items: [
                 {
                     name: t("Activity Logs"),
                     icon: <FileText className="w-5 h-5" />,
