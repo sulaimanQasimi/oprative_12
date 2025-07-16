@@ -459,6 +459,21 @@ const Navigation = ({ auth, currentRoute }) => {
                 },
                 // Moved items below
                 {
+                    name: t("Products"),
+                    icon: <Package className="w-5 h-5" />,
+                    route: "admin.products.index",
+                    active: currentRoute?.startsWith("admin.products"),
+                    badge: "Hot",
+                    permission: "view_any_product",
+                },
+                {
+                    name: t("Warehouses"),
+                    icon: <Warehouse className="w-5 h-5" />,
+                    route: "admin.warehouses.index",
+                    active: currentRoute?.startsWith("admin.warehouses"),
+                    permission: "view_any_warehouse",
+                },
+                {
                     name: t("Currencies"),
                     icon: <Globe className="w-5 h-5" />,
                     route: "admin.currencies.index",
@@ -471,14 +486,6 @@ const Navigation = ({ auth, currentRoute }) => {
                     route: "admin.units.index",
                     active: currentRoute?.startsWith("admin.units"),
                     permission: "view_any_unit",
-                },
-                {
-                    name: t("Products"),
-                    icon: <Package className="w-5 h-5" />,
-                    route: "admin.products.index",
-                    active: currentRoute?.startsWith("admin.products"),
-                    badge: "Hot",
-                    permission: "view_any_product",
                 },
                 {
                     name: t("Suppliers"),
