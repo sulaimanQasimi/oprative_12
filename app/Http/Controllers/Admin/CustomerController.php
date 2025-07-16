@@ -409,7 +409,7 @@ class CustomerController extends Controller
 
             // Build the query
             $query = $customer->customerStockIncome()
-                ->with(['product', 'unit'])
+                ->with(['product', 'unit', 'batch'])
                 ->when($search, function ($query) use ($search) {
                     $query->where(function ($q) use ($search) {
                         $q->where('reference_number', 'like', "%{$search}%")
@@ -417,6 +417,9 @@ class CustomerController extends Controller
                               $productQuery->where('name', 'like', "%{$search}%")
                                           ->orWhere('barcode', 'like', "%{$search}%")
                                           ->orWhere('type', 'like', "%{$search}%");
+                          })
+                          ->orWhereHas('batch', function ($bq) use ($search) {
+                              $bq->where('reference_number', 'like', "%{$search}%");
                           });
                     });
                 })
@@ -438,6 +441,21 @@ class CustomerController extends Controller
 
             // Format the paginated data with enhanced structure like StockIncomeController
             $formattedIncomes = $incomes->through(function ($income) {
+                // Calculate days to expiry for batch
+                $daysToExpiry = null;
+                $expiryStatus = null;
+                if ($income->batch && $income->batch->expire_date) {
+                    $daysToExpiry = now()->diffInDays($income->batch->expire_date, false);
+                    if ($daysToExpiry < 0) {
+                        $expiryStatus = 'expired';
+                    } elseif ($daysToExpiry <= 30) {
+                        $expiryStatus = 'expiring_soon';
+                    } else {
+                        $expiryStatus = 'valid';
+                    }
+                } elseif ($income->batch) {
+                    $expiryStatus = 'no_expiry';
+                }
                 return [
                     'id' => $income->id,
                     'reference_number' => $income->reference_number,
@@ -447,6 +465,22 @@ class CustomerController extends Controller
                         'barcode' => $income->product->barcode,
                         'type' => $income->product->type,
                     ],
+                    'batch' => $income->batch ? [
+                        'id' => $income->batch->id,
+                        'reference_number' => $income->batch->reference_number,
+                        'issue_date' => $income->batch->issue_date,
+                        'expire_date' => $income->batch->expire_date,
+                        'notes' => $income->batch->notes,
+                        'unit_name' => $income->batch->unit_name,
+                        'unit_amount' => $income->batch->unit_amount,
+                        'purchase_price' => $income->batch->purchase_price,
+                        'wholesale_price' => $income->batch->wholesale_price,
+                        'retail_price' => $income->batch->retail_price,
+                        'quantity' => $income->batch->quantity,
+                        'total' => $income->batch->total,
+                        'days_to_expiry' => $daysToExpiry,
+                        'expiry_status' => $expiryStatus,
+                    ] : null,
                     'quantity' => $income->quantity,
                     'price' => $income->price,
                     'total' => $income->total,

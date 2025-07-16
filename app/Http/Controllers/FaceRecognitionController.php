@@ -15,6 +15,7 @@ class FaceRecognitionController extends Controller
      */
     public function register(Request $request): JsonResponse
     {
+        Log::info('Face registration request received', ['request' => $request->all()]);
         try {
             $validator = Validator::make($request->all(), [
                 'employee_id' => 'required|exists:employees,id',

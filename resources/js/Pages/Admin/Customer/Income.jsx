@@ -93,6 +93,9 @@ export default function Income({
     const [sortBy, setSortBy] = useState(filters.sort_by || "created_at");
     const [sortOrder, setSortOrder] = useState(filters.sort_order || "desc");
     const [showFilters, setShowFilters] = useState(false);
+    const [perPage, setPerPage] = useState(filters.per_page || 15);
+    const [dateFrom, setDateFrom] = useState(filters.date_from || "");
+    const [dateTo, setDateTo] = useState(filters.date_to || "");
 
     // Animation effect
     useEffect(() => {
@@ -106,28 +109,70 @@ export default function Income({
     // Handle search with debounce
     useEffect(() => {
         const timer = setTimeout(() => {
-            router.get(
-                route("admin.customers.income", customer.id),
-                { search: searchTerm },
-                { preserveState: true, preserveScroll: true }
-            );
-        }, 300);
-
+            handleFilter();
+        }, 500);
         return () => clearTimeout(timer);
-    }, [searchTerm, customer.id]);
+    }, [searchTerm]);
 
-    // Handle filter changes
-    useEffect(() => {
-        router.get(
-            route("admin.customers.income", customer.id),
-            {
-                date: dateFilter,
-                sort_by: sortBy,
-                sort_order: sortOrder,
-            },
-            { preserveState: true, preserveScroll: true }
-        );
-    }, [dateFilter, sortBy, sortOrder, customer.id]);
+    const handleFilter = () => {
+        const params = {
+            search: searchTerm,
+            per_page: perPage,
+            sort_by: sortBy,
+            sort_order: sortOrder,
+            date_from: dateFrom,
+            date_to: dateTo,
+        };
+        Object.keys(params).forEach(key => {
+            if (!params[key]) delete params[key];
+        });
+        router.get(route('admin.customers.income', customer.id), params, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const handleSort = (column) => {
+        const newDirection = sortBy === column && sortOrder === 'asc' ? 'desc' : 'asc';
+        setSortBy(column);
+        setSortOrder(newDirection);
+        router.get(route('admin.customers.income', customer.id), {
+            ...filters,
+            sort_by: column,
+            sort_order: newDirection,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const handlePageChange = (page) => {
+        router.get(route('admin.customers.income', customer.id), {
+            ...filters,
+            page: page,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setDateFrom("");
+        setDateTo("");
+        setSortBy("created_at");
+        setSortOrder("desc");
+        setPerPage(15);
+        router.get(route('admin.customers.income', customer.id), {}, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    };
+
+    const getSortIcon = (column) => {
+        if (sortBy !== column) return null;
+        return sortOrder === 'asc' ? '↑' : '↓';
+    };
 
     // Calculate totals from paginated data
     const incomesData = incomes?.data || incomes || [];
@@ -163,13 +208,6 @@ export default function Income({
             hour: '2-digit',
             minute: '2-digit'
         });
-    };
-
-    const clearFilters = () => {
-        setSearchTerm("");
-        setDateFilter("");
-        setSortBy("created_at");
-        setSortOrder("desc");
     };
 
     return (
@@ -348,16 +386,128 @@ export default function Income({
 
                                 {/* Search */}
                                 <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
-                                    <CardContent className="p-6">
-                                        <div className="relative">
-                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
-                                            <Input
-                                                placeholder={t("Search income records...")}
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                                className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
-                                            />
+                                    <CardHeader className="bg-gradient-to-r from-green-500/20 via-emerald-500/20 to-green-500/20 border-b border-white/30 dark:border-slate-700/50">
+                                        <div className="flex items-center justify-between">
+                                            <CardTitle className="flex items-center gap-3">
+                                                <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+                                                    <Filter className="h-5 w-5 text-white" />
+                                                </div>
+                                                {t("Search & Filter")}
+                                            </CardTitle>
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => setShowFilters(!showFilters)}
+                                                className="gap-2"
+                                            >
+                                                <Filter className="h-4 w-4" />
+                                                {showFilters ? t("Hide Filters") : t("Show Filters")}
+                                            </Button>
                                         </div>
+                                    </CardHeader>
+                                    <CardContent className="p-6">
+                                        {/* Search Bar */}
+                                        <div className="mb-4">
+                                            <div className="relative">
+                                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+                                                <Input
+                                                    placeholder={t("Search by reference or product...")}
+                                                    value={searchTerm}
+                                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                                    className="pl-12 h-12 text-lg border-2 border-green-200 focus:border-green-500 rounded-xl"
+                                                />
+                                                {searchTerm && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setSearchTerm("")}
+                                                        className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                                                    >
+                                                        <X className="h-4 w-4" />
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </div>
+                                        {/* Advanced Filters */}
+                                        {showFilters && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: "auto", opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="grid grid-cols-1 md:grid-cols-5 gap-4 pt-4 border-t border-slate-200 dark:border-slate-700"
+                                            >
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Date From")}
+                                                    </label>
+                                                    <Input
+                                                        type="date"
+                                                        value={dateFrom}
+                                                        onChange={(e) => setDateFrom(e.target.value)}
+                                                        className="h-10"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Date To")}
+                                                    </label>
+                                                    <Input
+                                                        type="date"
+                                                        value={dateTo}
+                                                        onChange={(e) => setDateTo(e.target.value)}
+                                                        className="h-10"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Sort By")}
+                                                    </label>
+                                                    <Select value={sortBy} onValueChange={setSortBy}>
+                                                        <SelectTrigger className="h-10">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="created_at">{t("Date Created")}</SelectItem>
+                                                            <SelectItem value="reference_number">{t("Reference")}</SelectItem>
+                                                            <SelectItem value="total">{t("Amount")}</SelectItem>
+                                                            <SelectItem value="quantity">{t("Quantity")}</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                                        {t("Per Page")}
+                                                    </label>
+                                                    <Select value={perPage.toString()} onValueChange={(value) => setPerPage(parseInt(value))}>
+                                                        <SelectTrigger className="h-10">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="10">10</SelectItem>
+                                                            <SelectItem value="15">15</SelectItem>
+                                                            <SelectItem value="25">25</SelectItem>
+                                                            <SelectItem value="50">50</SelectItem>
+                                                            <SelectItem value="100">100</SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="flex items-end gap-2">
+                                                    <Button
+                                                        onClick={handleFilter}
+                                                        className="h-10 bg-green-600 hover:bg-green-700 text-white"
+                                                    >
+                                                        {t("Apply")}
+                                                    </Button>
+                                                    <Button
+                                                        variant="outline"
+                                                        onClick={clearFilters}
+                                                        className="h-10"
+                                                    >
+                                                        <RefreshCw className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            </motion.div>
+                                        )}
                                     </CardContent>
                                 </Card>
 
@@ -388,6 +538,9 @@ export default function Income({
                                                                 </TableHead>
                                                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-300">
                                                                     {t("Product")}
+                                                                </TableHead>
+                                                                <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-center">
+                                                                    {t("Batch")}
                                                                 </TableHead>
                                                                 <TableHead className="font-semibold text-slate-700 dark:text-slate-300 text-right">
                                                                     {t("Quantity")}
@@ -441,6 +594,49 @@ export default function Income({
                                                                                     {income.product.barcode}
                                                                                 </Badge>
                                                                             </div>
+                                                                        )}
+                                                                    </TableCell>
+                                                                    <TableCell className="text-center">
+                                                                        {/* Batch cell */}
+                                                                        {income.batch ? (
+                                                                            <div className="flex flex-col items-center gap-1 min-w-0">
+                                                                                <span className="font-medium text-slate-800 dark:text-white truncate" title={income.batch.reference_number}>
+                                                                                    {income.batch.reference_number}
+                                                                                </span>
+                                                                                {income.batch.expire_date && (
+                                                                                    <span className={`text-xs ${
+                                                                                        income.batch.expiry_status === 'expired' ? 'text-red-500' :
+                                                                                        income.batch.expiry_status === 'expiring_soon' ? 'text-orange-500' :
+                                                                                        income.batch.expiry_status === 'valid' ? 'text-green-500' :
+                                                                                        'text-slate-400'
+                                                                                    }`}>
+                                                                                        {formatDate(income.batch.expire_date)}
+                                                                                        {income.batch.days_to_expiry !== null && (
+                                                                                            <span className="ml-1">
+                                                                                                ({income.batch.days_to_expiry > 0 ? '+' : ''}{income.batch.days_to_expiry} {t('days')})
+                                                                                            </span>
+                                                                                        )}
+                                                                                    </span>
+                                                                                )}
+                                                                                {income.batch.expiry_status && (
+                                                                                    <Badge 
+                                                                                        variant="outline" 
+                                                                                        className={`text-xs mt-1 ${
+                                                                                            income.batch.expiry_status === 'expired' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800' :
+                                                                                            income.batch.expiry_status === 'expiring_soon' ? 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/20 dark:text-orange-300 dark:border-orange-800' :
+                                                                                            income.batch.expiry_status === 'valid' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800' :
+                                                                                            'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800'
+                                                                                        }`}
+                                                                                    >
+                                                                                        {income.batch.expiry_status === 'expired' ? t('Expired') :
+                                                                                         income.batch.expiry_status === 'expiring_soon' ? t('Expiring Soon') :
+                                                                                         income.batch.expiry_status === 'valid' ? t('Valid') :
+                                                                                         t('No Expiry')}
+                                                                                    </Badge>
+                                                                                )}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className="text-slate-400 dark:text-slate-500">-</span>
                                                                         )}
                                                                     </TableCell>
                                                                     <TableCell className="text-right">

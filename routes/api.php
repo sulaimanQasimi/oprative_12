@@ -99,6 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('products/{product}/force-delete', [ProductController::class, 'forceDelete']);
     Route::get('products/search/{query}', [ProductController::class, 'search']);
 
+});
     // Face Recognition Routes
     Route::prefix('face')->group(function () {
         Route::post('/register', [App\Http\Controllers\FaceRecognitionController::class, 'register']);
@@ -107,4 +108,3 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/employee/{employeeId}', [App\Http\Controllers\FaceRecognitionController::class, 'getEmployeeFaceData']);
         Route::post('/deactivate/{faceDataId}', [App\Http\Controllers\FaceRecognitionController::class, 'deactivate']);
     });
-});
