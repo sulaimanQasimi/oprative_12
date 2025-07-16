@@ -51,3 +51,14 @@
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background: #cbd5e0;
 }
+
+@font-face {
+    font-family: 'Mod';
+    src: url('/mod_font.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    font-family: 'Mod', sans-serif !important;
+}
