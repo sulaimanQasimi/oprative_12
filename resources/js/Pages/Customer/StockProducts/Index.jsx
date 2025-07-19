@@ -18,7 +18,10 @@ import {
     ChevronLeft,
     Boxes,
     BarChart3,
-    Calendar
+    Calendar,
+    AlertTriangle,
+    AlertCircle,
+    Bell
 } from 'lucide-react';
 import { Button } from '@/Components/ui/button';
 import { Input } from '@/Components/ui/input';
@@ -222,6 +225,72 @@ export default function StockProductsIndex({ products, search, sort_by, sort_dir
     const [sortBy, setSortBy] = useState(sort_by || "net_quantity");
     const [sortDirection, setSortDirection] = useState(sort_direction || "desc");
     const [filteredProducts, setFilteredProducts] = useState(products?.data || []);
+    const [notificationPermission, setNotificationPermission] = useState(Notification.permission || "default");
+
+    // Request notification permission and show alerts
+    useEffect(() => {
+        // Request notification permission automatically if not granted
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission().then(permission => {
+                setNotificationPermission(permission);
+            });
+        } else {
+            setNotificationPermission(Notification.permission || "default");
+        }
+
+        // Show notifications for expired and expiring products
+        const showExpiryNotifications = () => {
+            if (Notification.permission === "granted") {
+                const expiredProducts = filteredProducts.filter(product => product.expiry_status === 'expired');
+                const expiringSoonProducts = filteredProducts.filter(product => product.expiry_status === 'expiring_soon');
+
+                // Show expired products notification with details
+                if (expiredProducts.length > 0) {
+                    const expiredDetails = expiredProducts.slice(0, 3).map(product => 
+                        `${product.product.name} (${formatDate(product.expire_date)})`
+                    ).join(', ');
+                    
+                    const moreText = expiredProducts.length > 3 ? ` و ${expiredProducts.length - 3} محصول دیگر` : '';
+                    
+                    new Notification("🚨 هشدار محصولات منقضی شده", {
+                        body: `${expiredProducts.length} محصول منقضی شده است. ${expiredDetails}${moreText}. لطفاً فوراً اقدام کنید.`,
+                        icon: "/favicon.ico",
+                        tag: "expired-products",
+                        requireInteraction: true,
+                        badge: "/favicon.ico",
+                        silent: false
+                    });
+                }
+
+                // Show expiring soon notification with details
+                if (expiringSoonProducts.length > 0) {
+                    const expiringDetails = expiringSoonProducts.slice(0, 3).map(product => 
+                        `${product.product.name} (${formatDate(product.expire_date)})`
+                    ).join(', ');
+                    
+                    const moreText = expiringSoonProducts.length > 3 ? ` و ${expiringSoonProducts.length - 3} محصول دیگر` : '';
+                    
+                    new Notification("⚠️ محصولات در حال انقضا", {
+                        body: `${expiringSoonProducts.length} محصول در ۳۰ روز آینده منقضی می‌شود. ${expiringDetails}${moreText}. لطفاً موجودی خود را بررسی کنید.`,
+                        icon: "/favicon.ico",
+                        tag: "expiring-soon-products",
+                        requireInteraction: true,
+                        badge: "/favicon.ico",
+                        silent: false
+                    });
+                }
+            }
+        };
+
+        // Show notifications after a short delay to ensure data is loaded
+        const notificationTimer = setTimeout(() => {
+            if (filteredProducts.length > 0) {
+                showExpiryNotifications();
+            }
+        }, 2000);
+
+        return () => clearTimeout(notificationTimer);
+    }, [filteredProducts]);
 
     // Animation effect
     useEffect(() => {
@@ -549,6 +618,78 @@ export default function StockProductsIndex({ products, search, sort_by, sort_dir
                                     </CardContent>
                                 </Card>
                             </motion.div>
+
+                            {/* Notification Alert Banner */}
+                            {(expiredProducts.length > 0 || expiringSoonProducts.length > 0) && (
+                                <motion.div
+                                    initial={{ y: -20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.5, duration: 0.5 }}
+                                    className="col-span-full"
+                                >
+                                    <Card className={`border-0 shadow-lg backdrop-blur-sm ${
+                                        expiredProducts.length > 0 
+                                            ? "bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 border-l-4 border-red-500"
+                                            : "bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-l-4 border-yellow-500"
+                                    }`}>
+                                        <CardContent className="p-6">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={`p-3 rounded-full ${
+                                                        expiredProducts.length > 0 
+                                                            ? "bg-red-100 dark:bg-red-900/30" 
+                                                            : "bg-yellow-100 dark:bg-yellow-900/30"
+                                                    }`}>
+                                                        {expiredProducts.length > 0 ? (
+                                                            <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />
+                                                        ) : (
+                                                            <AlertTriangle className="h-8 w-8 text-yellow-600 dark:text-yellow-400" />
+                                                        )}
+                                                    </div>
+                                                    <div>
+                                                        <h3 className={`font-bold text-lg ${
+                                                            expiredProducts.length > 0 
+                                                                ? "text-red-700 dark:text-red-300" 
+                                                                : "text-yellow-700 dark:text-yellow-300"
+                                                        }`}>
+                                                            {expiredProducts.length > 0 
+                                                                ? "🚨 هشدار محصولات منقضی شده" 
+                                                                : "⚠️ محصولات در حال انقضا"
+                                                            }
+                                                        </h3>
+                                                        <p className={`text-sm ${
+                                                            expiredProducts.length > 0 
+                                                                ? "text-red-600 dark:text-red-400" 
+                                                                : "text-yellow-600 dark:text-yellow-400"
+                                                        }`}>
+                                                            {expiredProducts.length > 0 
+                                                                ? `${expiredProducts.length} محصول منقضی شده و نیاز به توجه فوری دارد.`
+                                                                : `${expiringSoonProducts.length} محصول در ۳۰ روز آینده منقضی می‌شود.`
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <Button
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            // Scroll to the table
+                                                            document.querySelector('.overflow-x-auto')?.scrollIntoView({ 
+                                                                behavior: 'smooth' 
+                                                            });
+                                                        }}
+                                                        className="gap-2"
+                                                    >
+                                                        <Search className="h-4 w-4" />
+                                                        مشاهده جزئیات
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                </motion.div>
+                            )}
 
                             {/* Additional Stats Row */}
                             <motion.div
