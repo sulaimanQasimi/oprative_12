@@ -839,6 +839,90 @@ class CustomerController extends Controller
         }
     }
 
+    /**
+     * Display customer inventory with batch tracking.
+     * 
+     * @param Customer $customer
+     * @return Response|RedirectResponse
+     */
+    public function inventory(Customer $customer)
+    {
+        $this->authorize('view', $customer);
+        
+        try {
+            // Get customer basic info
+            $customer = Customer::findOrFail($customer->id);
+
+            // Get customer inventory data directly from the view
+            $customerInventory = DB::table('customer_inventory')
+                ->where('customer_id', $customer->id)
+                ->orderBy('expire_date', 'asc')
+                ->orderBy('batch_id', 'desc')
+                ->get()
+                ->map(function ($item) {
+                    // Get product details from database
+                    $product = \App\Models\Product::find($item->product_id);
+                    
+                    return [
+                        'customer_id' => $item->customer_id,
+                        'customer_name' => $item->customer_name,
+                        'customer_email' => $item->customer_email,
+                        'customer_phone' => $item->customer_phone,
+                        'product_id' => $item->product_id,
+                        'product' => [
+                            'id' => $product->id ?? $item->product_id,
+                            'name' => $product->name ?? $item->product_name,
+                            'barcode' => $product->barcode ?? $item->product_barcode,
+                            'type' => $product->type ?? 'Unknown',
+                            'is_activated' => $product->is_activated ?? true,
+                            'is_in_stock' => $product->is_in_stock ?? true,
+                        ],
+                        'batch_id' => $item->batch_id,
+                        'batch_reference' => $item->batch_reference,
+                        'issue_date' => $item->issue_date,
+                        'expire_date' => $item->expire_date,
+                        'batch_notes' => $item->batch_notes,
+                        'income_qty' => $item->income_qty,
+                        'outcome_qty' => $item->outcome_qty,
+                        'remaining_qty' => $item->remaining_qty,
+                        'total_income_value' => $item->total_income_value,
+                        'total_outcome_value' => $item->total_outcome_value,
+                        'net_quantity' => $item->net_quantity,
+                        'net_value' => $item->net_value,
+                        'expiry_status' => $item->expiry_status,
+                        'days_to_expiry' => $item->days_to_expiry,
+                        // Unit information
+                        'unit_type' => $item->unit_type,
+                        'unit_id' => $item->unit_id,
+                        'unit_amount' => $item->unit_amount,
+                        'unit_name' => $item->unit_name,
+                        // Calculate average price per unit
+                        'avg_price_per_unit' => $item->income_qty > 0 ? $item->total_income_value / $item->income_qty : 0,
+                        // Calculate profit for this batch
+                        'profit' => $item->total_outcome_value - $item->total_income_value,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                });
+
+            return Inertia::render('Admin/Customer/Inventory', [
+                'customer' => [
+                    'id' => $customer->id,
+                    'name' => $customer->name,
+                    'email' => $customer->email,
+                    'phone' => $customer->phone,
+                    'address' => $customer->address,
+                    'status' => $customer->status,
+                ],
+                'products' => $customerInventory,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error loading customer inventory: ' . $e->getMessage());
+            return redirect()->route('admin.customers.show', $customer->id)
+                ->with('error', 'Error loading customer inventory: ' . $e->getMessage());
+        }
+    }
+
     // ============================================================================
     // PRIVATE HELPER METHODS
     // ============================================================================

@@ -933,7 +933,17 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                                     </CardTitle>
                                                 </CardHeader>
                                                 <CardContent>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                        <Link href={route("admin.customers.inventory", customer.id)}>
+                                                            <Card className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer">
+                                                                <CardContent className="p-6 text-center">
+                                                                    <Package className="w-12 h-12 text-blue-600 mx-auto mb-4" />
+                                                                    <h3 className="text-lg font-semibold text-blue-700 mb-2">{t("Inventory")}</h3>
+                                                                    <p className="text-slate-600">{t("View complete inventory with batch tracking")}</p>
+                                                                </CardContent>
+                                                            </Card>
+                                                        </Link>
+
                                                         <Link href={route("admin.customers.income", customer.id)}>
                                                             <Card className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer">
                                                                 <CardContent className="p-6 text-center">
@@ -979,6 +989,21 @@ export default function Show({ auth, customer, roles, permissions, accounts, acc
                                         {/* Operations Tab */}
                                         <TabsContent value="operations" className="space-y-6">
                                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                                <Link href={route("admin.customers.inventory", customer.id)}>
+                                                    <Card className="border-0 shadow-2xl bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100 dark:from-purple-900/20 dark:via-violet-900/20 dark:to-purple-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
+                                                        <CardContent className="p-8 text-center">
+                                                            <div className="relative">
+                                                                <div className="absolute -inset-2 bg-gradient-to-r from-purple-500 via-violet-500 to-purple-600 rounded-3xl blur-lg opacity-30"></div>
+                                                                <div className="relative p-6 bg-gradient-to-br from-purple-500 via-violet-500 to-purple-600 rounded-3xl w-20 h-20 mx-auto mb-6 flex items-center justify-center shadow-2xl">
+                                                                    <Package className="w-10 h-10 text-white" />
+                                                                    <div className="absolute top-2 right-2 w-3 h-3 bg-white rounded-full opacity-70"></div>
+                                                                </div>
+                                                            </div>
+                                                            <h3 className="text-xl font-bold text-purple-700 dark:text-purple-300 mb-3">{t("View Inventory")}</h3>
+                                                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4">{t("Complete inventory with batch tracking and expiry management")}</p>
+                                                        </CardContent>
+                                                    </Card>
+                                                </Link>
                                                 <Link href={route("admin.customers.income", customer.id)}>
                                                     <Card className="border-0 shadow-2xl bg-gradient-to-br from-green-50 via-emerald-50 to-green-100 dark:from-green-900/20 dark:via-emerald-900/20 dark:to-green-900/30 hover:shadow-3xl transform hover:scale-105 duration-300 cursor-pointer backdrop-blur-xl">
                                                         <CardContent className="p-8 text-center">

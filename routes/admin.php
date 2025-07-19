@@ -268,6 +268,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Customer sales management
         Route::get('/{customer:id}/sales', [CustomerController::class, 'sales'])->name('admin.customers.sales');
+
+        // Customer inventory management
+        Route::get('/{customer:id}/inventory', [CustomerController::class, 'inventory'])->name('admin.customers.inventory');
     });
 
     // Customer User Management
